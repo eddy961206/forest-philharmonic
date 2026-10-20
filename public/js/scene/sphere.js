@@ -556,7 +556,7 @@ function buildFixtures(group, list, lite) {
         vN = normalize(mat3(modelMatrix * instanceMatrix) * normal); vV = normalize(cameraPosition - w.xyz);
         gl_Position = projectionMatrix * viewMatrix * w; }`,
     fragmentShader: `uniform vec3 uColor; uniform float uI; varying float vAlong; varying vec3 vN; varying vec3 vV;
-      void main(){ float edge = pow(abs(dot(vN, vV)), 1.6); float a = edge * pow(1.0 - vAlong, 1.7) * uI * 0.22;
+      void main(){ float edge = pow(abs(dot(vN, vV)), 1.6); float a = edge * pow(1.0 - vAlong, 1.7) * smoothstep(0.0, 0.12, vAlong) * uI * 0.16;
         gl_FragColor = vec4(uColor * a, a); }`,
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
   });
@@ -590,9 +590,11 @@ function buildFixtures(group, list, lite) {
   return {
     update(dt, t, { level, down, on: want, color, house }) {
       on += ((want ? 1 : 0) - on) * Math.min(1, dt * 1.2);
-      lensMat.color.copy(color).multiplyScalar(0.35 + 1.4 * on + 0.6 * down * on + 0.25 * (1 - house));
+      // (kept below the bloom threshold unless a beat lands: a lens seen
+      // from a seat behind it must not turn into a white sun)
+      lensMat.color.copy(color).multiplyScalar(0.25 + 0.6 * on + 0.35 * down * on + 0.15 * (1 - house));
       beamMat.uniforms.uColor.value.copy(color).lerp(new THREE.Color('#ffffff'), 0.35);
-      beamMat.uniforms.uI.value = on * (0.55 + 1.2 * level * 4 + 0.8 * down);
+      beamMat.uniforms.uI.value = on * (0.45 + 0.6 * Math.min(1, level * 4) + 0.4 * down);
       beams.visible = on > 0.01;
       if (!beams.visible) return;
       beamIdx.forEach((bi, k) => {
