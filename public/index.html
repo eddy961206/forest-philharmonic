@@ -43,6 +43,9 @@
     <p class="start-hint"><kbd>Space</kbd> 로도 시작할 수 있어요</p>
   </div>
 
+  <!-- how to look around -->
+  <p id="lookHint" class="look-hint" hidden>화면을 클릭하면 둘러볼 수 있어요 (누른 채 끌어도 돼요)</p>
+
   <!-- first-person crosshair and what it rests on -->
   <div class="crosshair" aria-hidden="true"></div>
   <div id="target" class="target" hidden></div>
@@ -125,11 +128,6 @@
         <label class="slider">곡 사이 쉬는 시간 <input type="range" id="gap" min="2" max="20" step="1" value="7"><output id="gapOut">7초</output></label>
       </fieldset>
       <fieldset class="field">
-        <legend>조작</legend>
-        <label class="check"><input type="checkbox" id="optMouseLook" checked> FPS처럼 마우스로 둘러보기</label>
-        <p class="hint">클릭하지 않아도 마우스를 움직이면 시선이 따라가고, 가운데 점이 시선이에요. 화면 끝에 두면 계속 돌아요. 아래 버튼 위로 가면 커서가 다시 보여요.</p>
-      </fieldset>
-      <fieldset class="field">
         <legend>관객</legend>
         <label class="check"><input type="checkbox" id="optAudience" checked> 관객석에 관객 앉히기</label>
         <p class="hint">켤 때마다 관객 수와 얼굴, 앉는 자리가 새로 바뀌어요.</p>
@@ -159,8 +157,8 @@
       <h3 id="helpTitle">조작법</h3>
       <dl class="keys">
         <dt>W A S D</dt><dd>걷기 · Shift 달리기 · 모바일은 왼쪽 조이스틱</dd>
-        <dt>마우스</dt><dd>움직이면 시선이 따라가요 (가운데 점이 시선, 화면 끝에 두면 계속 회전)</dd>
-        <dt>Esc</dt><dd>마우스 고정 풀기</dd>
+        <dt>드래그</dt><dd>누른 채 끌어서 둘러보기</dd>
+        <dt>클릭</dt><dd>마우스 고정 — 움직이기만 해도 둘러봐요 (Esc 로 풀기)</dd>
         <dt>계단</dt><dd>로비 양쪽 나선 계단으로 2층 · 3층 · 4층</dd>
         <dt>E</dt><dd>앞의 빈 좌석에 앉기 / 일어서기</dd>
         <dt>휠 · 두 손가락</dt><dd>확대 / 축소 (오페라글라스)</dd>

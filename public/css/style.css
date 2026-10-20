@@ -193,7 +193,7 @@ input[type='range']::-moz-range-thumb { width: 12px; height: 12px; border: 0; bo
 
 /* ------------------------------------------------------------ start show */
 .start-wrap {
-  position: fixed; z-index: 11; left: 50%; bottom: 128px; transform: translateX(-50%);
+  position: fixed; z-index: 11; left: 50%; bottom: 136px; transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   transition: opacity 0.6s, transform 0.6s;
 }
@@ -209,6 +209,15 @@ input[type='range']::-moz-range-thumb { width: 12px; height: 12px; border: 0; bo
 .btn-start:hover { filter: brightness(1.06); }
 .start-hint { margin: 0; font-size: 13px; color: var(--paper-dim); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8); }
 .start-hint kbd, .lock-hint kbd { font: 600 12px var(--sans); padding: 1px 6px; border-radius: 5px; border: 1px solid var(--glass-line); color: var(--brass); }
+
+/* ------------------------------------------------------------ look hint */
+.look-hint {
+  position: fixed; z-index: 10; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  margin: 0; padding: 6px 14px; border-radius: 8px; white-space: nowrap; pointer-events: none;
+  font-size: 12.5px; color: var(--paper); background: rgba(12, 10, 9, 0.55); border: 1px solid var(--glass-line);
+  backdrop-filter: blur(8px);
+}
+body.ui-hidden .look-hint { opacity: 0; }
 
 /* ------------------------------------------------- first-person crosshair */
 .crosshair { display: none; position: fixed; z-index: 9; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(242, 237, 225, 0.85); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35); pointer-events: none; }
@@ -251,7 +260,7 @@ body.locked .transport, body.aim .transport { opacity: 0.6; }
 .btn-plain:hover { border-color: var(--brass); color: var(--brass); }
 
 .toast {
-  position: fixed; z-index: 25; left: 50%; bottom: 120px; transform: translateX(-50%);
+  position: fixed; z-index: 25; left: 50%; bottom: 214px; transform: translateX(-50%);
   background: var(--glass); border: 1px solid var(--glass-line); border-radius: 999px; padding: 8px 18px;
   font-size: 14px; backdrop-filter: blur(10px); transition: opacity 0.4s;
 }
@@ -264,7 +273,8 @@ body.ui-hidden .transport { transform: translate(-50%, 20px); }
   .transport { width: calc(100vw - 2 * var(--gutter)); }
   .transport-row { flex-wrap: wrap; }
   .start-wrap { bottom: 170px; }
-  .toast { bottom: 170px; }
+  .look-hint { bottom: 132px; }
+  .toast { bottom: 250px; }
   .t-mid { order: 3; width: 100%; justify-content: center; border-left: 0; margin: 0; padding: 0; }
   .vol { display: none; }
   .panel { top: auto; bottom: 150px; max-height: calc(100vh - 250px); }

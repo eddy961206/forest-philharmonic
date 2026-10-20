@@ -45,6 +45,7 @@ export class UI {
     $('transport').hidden = false;
     $('startWrap').hidden = false;
     if (touch) $('joystick').hidden = false;
+    else $('lookHint').hidden = false;
   }
 
   // the musicians have been called on stage
@@ -57,6 +58,7 @@ export class UI {
   // first-person mouse look: crosshair on, cursor hidden
   setLocked(on) {
     document.body.classList.toggle('locked', on);
+    if (!this.touch) $('lookHint').hidden = on;
     if (!on) this.target(null);
     this.tooltip(null);
   }
@@ -245,7 +247,7 @@ export class UI {
       el.checked = !!this.settings[key];
       el.addEventListener('change', () => this.onSetting(key, el.checked));
     };
-    for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optApplause', 'applause'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen'], ['optAudience', 'audience'], ['optMouseLook', 'mouseLook']]) bindCheck(id, key);
+    for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optApplause', 'applause'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen'], ['optAudience', 'audience']]) bindCheck(id, key);
     const rev = $('reverb');
     rev.value = String(this.settings.reverb);
     rev.addEventListener('input', () => this.onSetting('reverb', Number(rev.value)));

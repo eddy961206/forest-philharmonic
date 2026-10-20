@@ -288,10 +288,9 @@ export class Director {
         return;
       }
       if (e.pointerId !== lookPointer || !this.lookEnabled) return;
-      // with the mouse the view already follows the cursor (hover look)
-      if (e.pointerType === 'mouse' && this.hoverLook) return;
-      // drag the world: the view turns the way you pull
-      this._look(-dx, -dy, (this.fov / 50) * 0.0034);
+      // drag to look: pull right and you turn right, like holding the
+      // camera (the same direction as the captured mouse)
+      this._look(dx, dy, (this.fov / 64) * 0.0042);
     });
     const up = (e) => {
       const p = pointers.get(e.pointerId);

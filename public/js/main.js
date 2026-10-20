@@ -24,7 +24,7 @@ import { UI } from './ui.js';
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
   fixedEar: true, applause: true, gap: 7, notes: true, glow: true, fireflies: true,
-  fx: true, lasers: true, screen: true, audience: true, mouseLook: true,
+  fx: true, lasers: true, screen: true, audience: true,
 };
 const settings = { ...DEFAULTS };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || '{}')); } catch { /* private mode */ }
@@ -105,7 +105,7 @@ const effects = buildEffects(scene, { fireflies: isMobile ? 90 : 170, dust: isMo
 const screen = buildScreen(scene, renderer);
 director = new Director(camera, renderer.domElement, hall);
 director.uiTop = () => ui.bottomUiTop();
-director.hoverLook = settings.mouseLook;
+director.hoverLook = false; // look by dragging, or click to capture the mouse
 seatAudience(settings.audience);
 buildComposer();
 applyQuality();
@@ -158,11 +158,8 @@ async function boot() {
 }
 
 ui.on('enter', async () => {
-  // Order matters, and all of it must happen inside the click itself:
-  // capture the mouse first (first-person look, cursor hidden, aim at the
-  // centre), then go fullscreen - entering fullscreen uses up the click.
+  // fullscreen must be requested inside the click itself
   director.active = true;
-  if (!isTouch && settings.mouseLook) director.requestLock();
   goFullscreen();
   try { await engine.ctx.resume(); } catch { /* ignored */ }
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
@@ -173,7 +170,7 @@ ui.on('enter', async () => {
   concertStarted = true;
   hall.setHouseLights(1);
   requestWakeLock();
-  ui.toast(isTouch ? '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요. 준비되면 "공연 시작"을 눌러요.' : 'W A S D 로 걷고, 마우스를 움직이면 시선이 따라가요. 자리를 잡고 Space 나 "공연 시작"을 눌러요.', 6500);
+  ui.toast(isTouch ? '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요. 준비되면 "공연 시작"을 눌러요.' : 'W A S D 로 걷고, 화면을 끌거나 클릭해서 둘러봐요. 자리를 잡고 Space 나 "공연 시작"을 눌러요.', 6500);
 });
 
 function goFullscreen() {
@@ -182,9 +179,6 @@ function goFullscreen() {
   el.requestFullscreen({ navigationUI: 'hide' })
     .then(() => {
       try { navigator.keyboard?.lock?.(['Escape']); } catch { /* unsupported */ }
-      // browsers allow the capture again once fullscreen is up, in case the
-      // switch dropped it
-      if (!isTouch && settings.mouseLook && !director.locked && !director.userReleased) director.requestLock();
     })
     .catch(() => {});
 }
@@ -452,11 +446,9 @@ director.on((type, data) => {
   if (type === 'nearSeat' && isTouch) ui.prompt(data ? '앉기' : null, '앉기');
   if (type === 'pick') onPick(data);
   if (type === 'aim') ui.setAim(data);
-  if (type === 'lock') {
-    ui.setLocked(data);
-    if (!data && concertStarted && settings.mouseLook && !isTouch) ui.toast('화면을 클릭하면 다시 마우스로 둘러봐요', 2400);
-  }
-  if (type === 'clickView' && concertStarted && !isTouch && settings.mouseLook) director.requestLock();
+  if (type === 'lock') ui.setLocked(data);
+  // a click (not a drag) on the hall captures the mouse for free looking
+  if (type === 'clickView' && concertStarted && !isTouch) director.requestLock();
 });
 
 function onSetting(key, value) {
@@ -474,10 +466,6 @@ function onSetting(key, value) {
   if (key === 'audience') {
     seatAudience(value);
     if (value) ui.toast(`오늘 밤 관객 ${audience.count.toLocaleString()}명이 자리를 잡았어요.`, 2600);
-  }
-  if (key === 'mouseLook') {
-    director.hoverLook = value;
-    if (!value) director.releaseLock();
   }
 }
 
