@@ -108,6 +108,7 @@ export function seatList() {
           type: premium ? 'premium' : 'theater',
           color: premium ? '#8e1a2b' : '#6e1822',
           level: '1층', row: rowName(r), num: num++, pitch,
+          rowSlope: 2 * 0.005 * x, // the row bows: dz/dx along it
         });
       }
       if (rowSeats.length) { rowSeats[0].endL = true; rowSeats[rowSeats.length - 1].endR = true; }
@@ -123,7 +124,7 @@ export function seatList() {
       for (let x = -14.35 + (r % 2) * 0.28; x <= 14.36; x += 0.56) {
         if (BALCONY_AISLES.some((c) => Math.abs(x - c) < AISLE_HALF + 0.27)) continue;
         const z = balconyZ(B, x, s);
-        list.push({ x, y: B.y0 + r * B.rise, z, yaw: towardStage(x, z, 0.85), type: 'theater', color: tierColor[bi], level: B.name, row: rowName(r), num: num++ });
+        list.push({ x, y: B.y0 + r * B.rise, z, yaw: towardStage(x, z, 0.85), type: 'theater', color: tierColor[bi], level: B.name, row: rowName(r), num: num++, rowSlope: (2 * B.bow * x) / (HALL.halfW * HALL.halfW) });
       }
     }
     // side galleries
@@ -137,7 +138,8 @@ export function seatList() {
           const z0 = B.sideZ0 + k * boxLen;
           let num = 1;
           const col = ['#d8c49a', '#b26a78', '#9fb39a'][k % 3];
-          for (const [dx, dz] of [[0.6, 0.55], [0.6, 1.5], [0.6, 2.45], [1.62, 1.0], [1.62, 1.95]]) {
+          // two at the rail, two on the dais behind: room to walk between
+          for (const [dx, dz] of [[0.47, 0.9], [0.47, 2.1], [1.62, 0.65], [1.62, 2.35]]) {
             const x = side * (B.sideX + dx);
             const z = z0 + dz;
             const y = B.y0 + (Math.abs(x) >= BOX_DAIS_X ? BOX_DAIS_H : 0);

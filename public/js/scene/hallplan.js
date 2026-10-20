@@ -370,6 +370,12 @@ export function barrierTop(x, z, fy) {
     if (ax <= B.sideX + 0.15 && s > -0.42 && s < 0.03) return top; // the bowed front
     if (Math.abs(ax - B.sideX) < 0.17 && z > B.sideZ0 - 0.17 && s < 0.03) return top; // side gallery fronts
     if (ax > B.sideX && Math.abs(z - B.sideZ0) < 0.17) return top; // their front ends
+    if (B.level === 1 && ax > B.sideX + 0.7 && z > B.sideZ0) {
+      // the low partitions between the 2층 boxes (pass round their ends)
+      const k = Math.round((z - B.sideZ0) / 3);
+      const zp = B.sideZ0 + k * 3;
+      if (k >= 1 && zp < balconyZ(B, 14, 0) - 0.5 && Math.abs(z - zp) < 0.12 && fy < B.y0 + 0.6) return B.y0 + 0.8;
+    }
   }
   if (z <= FOYER.z0 || z >= FOYER.z1) return null;
   for (let k = 1; k < LEVELS.length; k++) {

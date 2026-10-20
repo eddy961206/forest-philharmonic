@@ -133,16 +133,37 @@ export class Director {
       this._settle();
       return;
     }
-    // step out into the row in front of the seat
-    const fwd = V(-Math.sin(s.yaw), 0, -Math.cos(s.yaw));
-    const x = s.x + fwd.x * 0.5;
-    const z = s.z + fwd.z * 0.5;
-    const h = stepTo(x, z, s.y, { up: 0.6, down: 0.6 });
-    this.feet = h ?? s.y;
+    // step out into the legroom in front of the seat (in a row, the middle
+    // of the gap to the row ahead), or the nearest free spot around it
+    const spot = this._freeSpotNear(s);
+    this.feet = spot.y;
     this.vy = 0;
     this.grounded = true;
-    this.pos.set(h === null ? s.x : x, this.feet + EYE, h === null ? s.z : z);
+    this.pos.set(spot.x, this.feet + EYE, spot.z);
     this.anim = null;
+  }
+
+  _freeSpotNear(s) {
+    const tries = [];
+    if (s.rowSlope !== undefined) {
+      const l = Math.hypot(s.rowSlope, 1);
+      tries.push([s.rowSlope / l, -1 / l, 0.42]);
+    }
+    const f = [-Math.sin(s.yaw), -Math.cos(s.yaw)];
+    const r = [Math.cos(s.yaw), -Math.sin(s.yaw)];
+    for (const [d, k] of [[f, 0.5], [f, 0.7], [r, 0.6], [[-r[0], -r[1]], 0.6], [f, 0.95], [[-f[0], -f[1]], 0.75]]) tries.push([d[0], d[1], k]);
+    const feet0 = this.feet;
+    for (const [dx, dz, k] of tries) {
+      const x = s.x + dx * k;
+      const z = s.z + dz * k;
+      const h = stepTo(x, z, s.y, { up: 0.6, down: 0.6 });
+      if (h === null) continue;
+      this.feet = h;
+      const clear = !this._seatAt(x, z) && barrierTop(x, z, h) === null;
+      this.feet = feet0;
+      if (clear) return { x, y: h, z };
+    }
+    return { x: s.x, y: s.y, z: s.z };
   }
 
   // land on the nearest floor below the eye (after flying around)
@@ -444,6 +465,7 @@ export class Director {
       const g = groundBelow(x, z, this.feet, up);
       if (g === undefined || g === null) return false; // a wall, or the face of a higher floor
       if (barrierTop(x, z, this.feet) !== null) return false; // a railing
+      if (this._seatAt(x, z)) return false; // a seat (squeeze along the row instead)
       return headroomAt(x, z, this.feet) > this.feet + 1.75; // no slab at head height
     };
     const tryAt = (mx, mz) => {
@@ -466,6 +488,42 @@ export class Director {
     if (tryAt(dx, 0)) { this.vel.z *= 0.5; return; }
     if (tryAt(0, dz)) { this.vel.x *= 0.5; return; }
     this.vel.multiplyScalar(0.3);
+  }
+
+  // Is (x, z) inside a seat at our level? Seats are solid; the legroom
+  // between rows stays open for a sideways squeeze, and a jump clears them.
+  _seatAt(x, z) {
+    if (!this._seatGrid) {
+      const g = new Map();
+      for (const s of this.hall.seats) {
+        const k = `${Math.floor(s.x)},${Math.floor(s.z)}`;
+        if (!g.has(k)) g.set(k, []);
+        // seats in a row are boxed along the row (they turn a little toward
+        // the stage, but the legroom between rows follows the row)
+        const a = s.rowSlope !== undefined ? -Math.atan(s.rowSlope) : s.yaw;
+        g.get(k).push({ s, c: Math.cos(a), n: Math.sin(a), hw: s.type === 'premium' ? 0.32 : s.type === 'armchair' ? 0.28 : 0.27 });
+      }
+      this._seatGrid = g;
+    }
+    const R = 0.04; // the body, squeezing sideways
+    const cx = Math.floor(x);
+    const cz = Math.floor(z);
+    for (let i = cx - 1; i <= cx + 1; i++) {
+      for (let j = cz - 1; j <= cz + 1; j++) {
+        const list = this._seatGrid.get(`${i},${j}`);
+        if (!list) continue;
+        for (const q of list) {
+          const s = q.s;
+          if (this.feet < s.y - 0.5 || this.feet > s.y + 0.85) continue; // another level, or above it
+          const dx = x - s.x;
+          const dz = z - s.z;
+          const lx = dx * q.c - dz * q.n;
+          const lz = dx * q.n + dz * q.c;
+          if (Math.abs(lx) < q.hw + R && lz > -0.22 - R && lz < 0.3 + R) return true; // cushion front .. back shell
+        }
+      }
+    }
+    return false;
   }
 
   _fall(dt) {
