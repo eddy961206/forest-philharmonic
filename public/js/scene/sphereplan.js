@@ -45,9 +45,9 @@ export function insideSphere(x, y, z, margin = 0) {
 // Every row is a level tread [r0 + i*depth, r0 + (i+1)*depth) at y0 + i*rise.
 export const TIERS = [
   { n: 1, name: '100 레벨', r0: 22.0, rows: 22, depth: 0.92, rise: 0.40, y0: 0.4, span: 80, solid: true },
-  { n: 2, name: '200 레벨', r0: 34.0, rows: 18, depth: 0.95, rise: 0.52, y0: 12.6, span: 74 },
-  { n: 3, name: '300 레벨', r0: 45.0, rows: 16, depth: 0.95, rise: 0.60, y0: 24.2, span: 66 },
-  { n: 4, name: '400 레벨', r0: 55.5, rows: 15, depth: 0.95, rise: 0.66, y0: 36.0, span: 58 },
+  { n: 2, name: '200 레벨', r0: 37.0, rows: 18, depth: 0.95, rise: 0.54, y0: 12.6, span: 74 },
+  { n: 3, name: '300 레벨', r0: 50.0, rows: 16, depth: 0.95, rise: 0.62, y0: 24.6, span: 66 },
+  { n: 4, name: '400 레벨', r0: 60.0, rows: 15, depth: 0.95, rise: 0.7, y0: 36.8, span: 58 },
 ].map((T) => {
   const rEnd = T.r0 + T.rows * T.depth;
   const T2 = { ...T, spanRad: T.span * DEG, rEnd, aisleY: T.y0 + T.rows * T.rise, rBack: rEnd + 2.4 };
