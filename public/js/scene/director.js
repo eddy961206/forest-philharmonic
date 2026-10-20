@@ -42,7 +42,10 @@ export class Director {
     this.lockFailed = false; // the browser refused to capture the mouse
     this.userReleased = false; // Esc was pressed: leave the cursor free
     this.active = false; // set once we are inside the hall
-    this.mouse = { x: 0, y: 0, inside: false };
+    this.mouse = { x: 0, y: 0, inside: false, inUi: false };
+    // top edge (px) of the controls at the bottom of the screen; below it the
+    // cursor shows and the view holds still so the buttons can be clicked
+    this.uiTop = () => Infinity;
     this.stepPhase = 0;
     this._bindInput();
     const la = this.lookAt(ENTRANCE.look, this.pos);
@@ -207,7 +210,7 @@ export class Director {
   // exactly like a captured first-person view, so the aim always sits at the
   // centre. Over the controls the normal cursor comes back.
   get aiming() {
-    return this.hoverLook && this.active && !this.locked && this.mouse.inside && this.mode !== 'cinema';
+    return this.hoverLook && this.active && this.lookEnabled && !this.locked && this.mouse.inside && !this.mouse.inUi && this.mode !== 'cinema';
   }
 
   _hoverActive() {
@@ -249,6 +252,7 @@ export class Director {
       this.mouse.x = e.clientX;
       this.mouse.y = e.clientY;
       this.mouse.inside = true;
+      this.mouse.inUi = e.clientY > this.uiTop() - 28;
       if (!this._hoverActive()) return;
       const mx = Math.max(-80, Math.min(80, e.movementX || 0));
       const my = Math.max(-80, Math.min(80, e.movementY || 0));

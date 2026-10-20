@@ -55,7 +55,7 @@ setAnisotropy(Math.min(8, renderer.capabilities.getMaxAnisotropy()));
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#0b0806');
 scene.fog = new THREE.FogExp2('#140d08', 0.006);
-const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, 0.05, 260);
+const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, 0.1, 260); // near 0.1: better depth precision, no flicker
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -104,6 +104,7 @@ function seatAudience(on) {
 const effects = buildEffects(scene, { fireflies: isMobile ? 90 : 170, dust: isMobile ? 260 : 520 });
 const screen = buildScreen(scene, renderer);
 director = new Director(camera, renderer.domElement, hall);
+director.uiTop = () => ui.bottomUiTop();
 director.hoverLook = settings.mouseLook;
 seatAudience(settings.audience);
 buildComposer();

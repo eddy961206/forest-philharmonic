@@ -61,6 +61,18 @@ export class UI {
     this.tooltip(null);
   }
 
+  // top edge of the controls at the bottom (the dock, the start button)
+  bottomUiTop() {
+    let top = Infinity;
+    for (const id of ['transport', 'startWrap', 'focusChip']) {
+      const el = $(id);
+      if (!el || el.hidden || el.classList.contains('leaving')) continue;
+      const r = el.getBoundingClientRect();
+      if (r.height && r.top > window.innerHeight * 0.5) top = Math.min(top, r.top);
+    }
+    return top;
+  }
+
   // mouse over the hall, not captured: crosshair on, cursor hidden there
   setAim(on) {
     document.body.classList.toggle('aim', on);

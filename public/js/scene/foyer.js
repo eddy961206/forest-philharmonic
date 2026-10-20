@@ -193,7 +193,7 @@ export function buildFoyer(group, { halo }) {
     for (const c of SPIRAL.centers) {
       const zb = bridgeEnd(c);
       const len = zb - FOYER.galleryZ;
-      slabs.push(uvXZ(new THREE.PlaneGeometry(FOYER.bridgeW, len).rotateX(-Math.PI / 2).translate(c.x, Y + 0.004, FOYER.galleryZ + len / 2), 4.8));
+      slabs.push(uvXZ(new THREE.PlaneGeometry(FOYER.bridgeW, len).rotateX(-Math.PI / 2).translate(c.x, Y + 0.01, FOYER.galleryZ + len / 2), 4.8));
       under.push(new THREE.PlaneGeometry(FOYER.bridgeW, len).rotateX(Math.PI / 2).translate(c.x, Y - 0.4, FOYER.galleryZ + len / 2));
       for (const s of [-1, 1]) {
         const x = c.x + s * (FOYER.bridgeW / 2 - 0.05);
@@ -271,13 +271,13 @@ export function buildFoyer(group, { halo }) {
         const u0 = L + k * du;
         const y = Y0 + SPIRAL_RISE * (k + 1);
         steps.push(wedge(P, SPIRAL.rIn, SPIRAL.rOut, A(u0), A(u0 + du * 1.04), y - 0.14, y));
-        stepCarpet.push(wedgeTop(P, 0.95, 2.05, A(u0 + du * 0.04), A(u0 + du * 0.96), y + 0.004));
+        stepCarpet.push(wedgeTop(P, 0.95, 2.05, A(u0 + du * 0.04), A(u0 + du * 0.96), y + 0.01));
         const bp = P(rRail, A(u0 + du * 0.5));
         balusterPts.push(V(bp.x, y, bp.z));
       }
       // the landing at the top of this flight
       steps.push(wedge(P, SPIRAL.rIn, SPIRAL.rOut, A(0), A(L), Y1n - 0.3, Y1n));
-      stepCarpet.push(wedgeTop(P, 0.95, 2.05, A(0.01), A(L - 0.01), Y1n + 0.004));
+      stepCarpet.push(wedgeTop(P, 0.95, 2.05, A(0.01), A(L - 0.01), Y1n + 0.01));
       // smooth helical underside and outer stringer under the treads
       const N = S * 2;
       const lineY = (u) => Y0 + SPIRAL.pitch * ((u - L) / (1 - L));

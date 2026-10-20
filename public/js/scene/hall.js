@@ -329,17 +329,23 @@ function buildStage(group) {
   const risersW = [];
   const rails = [];
   for (const S of STAGE_STAIRS) {
-    // landing from the lip to the first step
-    const land = new THREE.BoxGeometry(S.w, STAGE_Y, S.z0 - lipZ(S.cx) + 0.4);
-    land.translate(S.cx, STAGE_Y / 2, (S.z0 + lipZ(S.cx) - 0.4) / 2);
+    // landing from the lip to the first step: its top sits a hair under the
+    // stage boards (two surfaces at one height flicker), carpeted on top
+    const landLen = S.z0 - lipZ(S.cx) + 0.4;
+    const land = new THREE.BoxGeometry(S.w, STAGE_Y - 0.008, landLen);
+    land.translate(S.cx, (STAGE_Y - 0.008) / 2, (S.z0 + lipZ(S.cx) - 0.4) / 2);
     risersW.push(land);
+    const landCarpet = S.z0 - lipZ(S.cx) + 0.3;
+    treads.push(worldUV(new THREE.PlaneGeometry(S.w - 0.06, landCarpet).rotateX(-Math.PI / 2).translate(S.cx, STAGE_Y + 0.01, S.z0 - landCarpet / 2), 'xz', 1.4));
     for (let k = 1; k < S.n; k++) {
       const y = STAGE_Y - S.rise * k;
       const z0 = S.z0 + (k - 1) * S.tread;
       const b = new THREE.BoxGeometry(S.w, y, S.tread + 0.02);
       b.translate(S.cx, y / 2, z0 + S.tread / 2);
       risersW.push(b);
-      treads.push(new THREE.PlaneGeometry(S.w - 0.06, S.tread - 0.03).rotateX(-Math.PI / 2).translate(S.cx, y + 0.004, z0 + S.tread / 2 + 0.01));
+      // carpet mapped in metres, so its pattern is not squeezed into the
+      // shallow tread (that shimmered when you moved)
+      treads.push(worldUV(new THREE.PlaneGeometry(S.w - 0.06, S.tread - 0.03).rotateX(-Math.PI / 2).translate(S.cx, y + 0.01, z0 + S.tread / 2 + 0.01), 'xz', 1.4));
       rails.push(new THREE.CylinderGeometry(0.012, 0.012, S.w, 6).rotateZ(Math.PI / 2).translate(S.cx, y + 0.01, z0 + 0.012));
     }
     for (const sx of [-1, 1]) {
@@ -809,7 +815,7 @@ function buildBalconies(group, halo) {
         const b = new THREE.BoxGeometry(AISLE_HALF * 2, B.rise / 2, B.depth / 2);
         b.translate(ax, y - B.rise / 4, zc);
         walnut.push(b);
-        steps.push(worldUV(new THREE.PlaneGeometry(AISLE_HALF * 2, B.depth / 2).rotateX(-Math.PI / 2).translate(ax, y + 0.003, zc), 'xz', 2));
+        steps.push(worldUV(new THREE.PlaneGeometry(AISLE_HALF * 2, B.depth / 2).rotateX(-Math.PI / 2).translate(ax, y + 0.01, zc), 'xz', 2));
       }
     }
     // soffit under the tier: it climbs with the rows above it (the way a
@@ -906,7 +912,7 @@ function buildBalconies(group, halo) {
       const slab = new THREE.BoxGeometry(H.halfW - B.sideX, 0.55, len);
       slab.translate(sx * (H.halfW + B.sideX) / 2, B.y0 - 0.275, B.sideZ0 + len / 2);
       walnut.push(slab);
-      steps.push(worldUV(new THREE.PlaneGeometry(H.halfW - B.sideX, len).rotateX(-Math.PI / 2).translate(sx * (H.halfW + B.sideX) / 2, B.y0 + 0.002, B.sideZ0 + len / 2), 'xz', 2));
+      steps.push(worldUV(new THREE.PlaneGeometry(H.halfW - B.sideX, len).rotateX(-Math.PI / 2).translate(sx * (H.halfW + B.sideX) / 2, B.y0 + 0.01, B.sideZ0 + len / 2), 'xz', 2));
       // carved corbels under the gallery front
       for (let z = B.sideZ0 + 1.2; z < B.sideZ0 + len - 0.5; z += 3) {
         const c = new THREE.BoxGeometry(0.22, 0.8, 0.22).translate(sx * (B.sideX + 0.25), B.y0 - 0.95, z);
@@ -925,7 +931,7 @@ function buildBalconies(group, halo) {
         }
         const dw = H.halfW - BOX_DAIS_X;
         walnut.push(new THREE.BoxGeometry(dw, BOX_DAIS_H, len).translate(sx * (BOX_DAIS_X + dw / 2), B.y0 + BOX_DAIS_H / 2, B.sideZ0 + len / 2));
-        steps.push(worldUV(new THREE.PlaneGeometry(dw, len).rotateX(-Math.PI / 2).translate(sx * (BOX_DAIS_X + dw / 2), B.y0 + BOX_DAIS_H + 0.003, B.sideZ0 + len / 2), 'xz', 2));
+        steps.push(worldUV(new THREE.PlaneGeometry(dw, len).rotateX(-Math.PI / 2).translate(sx * (BOX_DAIS_X + dw / 2), B.y0 + BOX_DAIS_H + 0.01, B.sideZ0 + len / 2), 'xz', 2));
         giltG.push(new THREE.BoxGeometry(0.04, 0.03, len).translate(sx * BOX_DAIS_X, B.y0 + BOX_DAIS_H, B.sideZ0 + len / 2));
       }
     }
