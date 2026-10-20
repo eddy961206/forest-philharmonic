@@ -51,3 +51,16 @@ samples used to perform them come from these sources:
 ## Fonts
 
 - Gowun Batang and IBM Plex Sans KR, loaded from Google Fonts — SIL Open Font License 1.1.
+
+## The Sphere venue
+
+The Las Vegas Sphere interior is modelled from public descriptions of the
+building (Sphere Entertainment Co. press material and coverage): the
+~15,000 m² 16K interior screen about 73 m tall wrapping the audience, the
+17,600-seat bowl in four steep levels (100–400) with the 200 level
+overhanging the 100 level, the end stage, the HOLOPLOT beam-forming sound
+system behind the acoustically transparent screen, and the moving lights on
+the balcony rails. Nothing is copied from the building's own media: the
+geometry is built from those proportions and everything on the dome is
+generated procedurally in a shader. "Sphere" is a trademark of its owner;
+this is an unofficial, non-commercial fan rendition.

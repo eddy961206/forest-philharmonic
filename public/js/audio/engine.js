@@ -52,7 +52,7 @@ export class AudioEngine {
   // acoustics: the room (a venue other than the hall passes its own)
   async init({ lite = false, acoustics = null } = {}) {
     this.lite = lite;
-    this.ac = { rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15, airMin: 3800, airK: 0.055, reverb: 1, level: 1, ...(acoustics || {}) };
+    this.ac = { rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15, airMin: 3800, airK: 0.055, reverb: 1, level: 1, model: 'inverse', ...(acoustics || {}) };
     const AC = window.AudioContext || window.webkitAudioContext;
     this.ctx = new AC({ latencyHint: 'playback', sampleRate: lite ? 24000 : 48000 });
     const ctx = this.ctx;
@@ -245,7 +245,7 @@ export class AudioEngine {
       air.Q.value = 0.5;
       const panner = new PannerNode(ctx, {
         panningModel: this.lite ? 'equalpower' : 'HRTF',
-        distanceModel: 'inverse',
+        distanceModel: this.ac.model,
         refDistance: this.ac.refDistance,
         maxDistance: 120,
         rolloffFactor: this.ac.rolloff,

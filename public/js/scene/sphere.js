@@ -195,10 +195,12 @@ export function buildSphere({ quality = 'high', lite = false } = {}) {
     steel: new THREE.MeshStandardMaterial({ color: '#9aa0aa', roughness: 0.3, metalness: 0.92 }),
     glass: new THREE.MeshPhysicalMaterial({ color: '#cfe3ff', roughness: 0.05, metalness: 0, transparent: true, opacity: 0.14, depthWrite: false, side: THREE.DoubleSide }),
     led: new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#8fd0ff', emissiveIntensity: 1.6 }),
-    tunnel: new THREE.MeshStandardMaterial({ color: '#1d1e23', roughness: 0.8 }),
+    // (the tunnels and cars are lit from within: a warm emissive stands in
+    // for their ceiling lights, which would cost a light each)
+    tunnel: new THREE.MeshStandardMaterial({ color: '#2a2b30', roughness: 0.8, emissive: '#5a4630', emissiveIntensity: 0.22 }),
     tunnelLight: new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#ffe2b8', emissiveIntensity: 1.4 }),
-    car: new THREE.MeshStandardMaterial({ color: '#7f848c', roughness: 0.34, metalness: 0.88 }),
-    carFloor: new THREE.MeshStandardMaterial({ color: '#2a2b30', roughness: 0.6 }),
+    car: new THREE.MeshStandardMaterial({ color: '#8a8f98', roughness: 0.35, metalness: 0.55, emissive: '#3c3e44', emissiveIntensity: 0.55 }),
+    carFloor: new THREE.MeshStandardMaterial({ color: '#2a2b30', roughness: 0.6, emissive: '#2a2a2e', emissiveIntensity: 0.4 }),
     step: new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#ffd8a0', emissiveIntensity: 1.2 }),
     down: new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#fff1da', emissiveIntensity: 1.5 }),
   };

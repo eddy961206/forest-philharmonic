@@ -133,7 +133,7 @@ function seatAudience(on) {
     if (director?.seat && director.seat.index >= 0) exclude.add(director.seat.index);
     const rand = room ? seeded(room.seed) : Math.random;
     // the Sphere sells out: thousands of guests, drawn in full only near you
-    const big = IS_SPHERE ? { fill: 0.62 + rand() * 0.3, detail: LITE ? 120 : 1100, cap: LITE ? 2500 : Infinity } : {};
+    const big = IS_SPHERE ? { fill: 0.62 + rand() * 0.3, detail: LITE ? 120 : 650, cap: LITE ? 2500 : Infinity } : {};
     audience = buildAudience(hall.seats, { exclude, lite: LITE, rand, reserveAll: !!room, ...big });
     audience.updateLOD?.(camera.position, true);
     scene.add(audience.group);

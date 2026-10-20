@@ -306,8 +306,9 @@ export function sphereSeatList() {
 }
 
 // the acoustics: a huge but heavily damped room, the music carried to every
-// seat by beam-steered arrays behind the screen (level holds up with distance,
-// the image stays on the stage)
-export const SPHERE_ACOUSTICS = { rt60: 1.6, preDelay: 0.05, length: 3.0, refDistance: 6, rolloff: 0.35, airMin: 7500, airK: 0.018, reverb: 0.5, level: 0.6 };
+// seat by beam-steered arrays behind the screen - so the level falls off
+// gently (linear, ~3.5 dB from the floor to the top of the 400s, measured
+// offline) while the image stays on the stage; little air loss, a dry tail
+export const SPHERE_ACOUSTICS = { rt60: 1.6, preDelay: 0.05, length: 3.0, model: 'linear', refDistance: 8, rolloff: 0.55, airMin: 7500, airK: 0.018, reverb: 0.5, level: 0.33 };
 
 export { STAGE_Y };

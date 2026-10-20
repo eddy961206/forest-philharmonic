@@ -234,14 +234,14 @@ let BLOB = null;
 function blobGeo() {
   if (BLOB) return BLOB;
   const body = merge([
-    new THREE.CapsuleGeometry(0.15, 0.16, 2, 8).scale(1.1, 1, 0.85).translate(0, 0.7, 0.1),
+    new THREE.CapsuleGeometry(0.15, 0.16, 1, 7).scale(1.1, 1, 0.85).translate(0, 0.7, 0.1),
     new THREE.BoxGeometry(0.3, 0.13, 0.36).translate(0, 0.5, -0.08),
     new THREE.BoxGeometry(0.26, 0.4, 0.12).translate(0, 0.24, -0.24),
   ]);
   const head = merge([
-    new THREE.SphereGeometry(0.17, 10, 7).scale(1.05, 0.96, 0.98).translate(0, 1.06, 0.05),
-    new THREE.SphereGeometry(0.06, 6, 4).translate(-0.11, 1.2, 0.06),
-    new THREE.SphereGeometry(0.06, 6, 4).translate(0.11, 1.2, 0.06),
+    new THREE.SphereGeometry(0.17, 9, 6).scale(1.05, 0.96, 0.98).translate(0, 1.06, 0.05),
+    new THREE.SphereGeometry(0.06, 5, 3).translate(-0.11, 1.2, 0.06),
+    new THREE.SphereGeometry(0.06, 5, 3).translate(0.11, 1.2, 0.06),
   ]);
   BLOB = { body, head };
   return BLOB;

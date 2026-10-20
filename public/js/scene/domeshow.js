@@ -410,18 +410,27 @@ vec3 sDECO(vec3 d, float az, float el) {
 }
 
 vec3 burst(vec2 p, float seed, float tt, vec3 col) {
+  // a peony: sparks flung out on 48 rays, each with a short tail, falling
+  // and fading; only the ray nearest the pixel is evaluated
   float age = tt;
   vec2 rel = p;
-  rel.y += 0.08 * age * age; // gravity
-  float r = length(rel);
-  float ang = atan(rel.y, rel.x);
-  float rad = 0.32 * (1.0 - exp(-age * 2.4));
-  float sp = pow(max(cos(ang * 18.0 + seed * 10.0), 0.0), 18.0);
-  float sparks = exp(-abs(r - rad) * 120.0) * (0.3 + sp * 2.0);
-  float trail = smoothstep(rad, 0.0, r) * sp * 0.25;
-  float fade = exp(-age * 1.1);
-  float tw = 0.6 + 0.4 * sin(uTime * 40.0 + seed * 30.0 + r * 50.0);
-  return col * (sparks + trail) * fade * tw * 2.4;
+  rel.y += 0.05 * age * age; // gravity
+  float rad = 0.3 * (1.0 - exp(-age * 2.6));
+  float N = 48.0;
+  float a = atan(rel.y, rel.x);
+  float k = floor(a / (2.0 * PI) * N + 0.5);
+  float ak = k / N * 2.0 * PI + (hash2(vec2(k, seed)) - 0.5) * 0.06;
+  float rk = rad * (0.82 + 0.3 * hash2(vec2(k + 7.0, seed)));
+  vec2 dir = vec2(cos(ak), sin(ak));
+  float t = dot(rel, dir);
+  float perp = abs(dot(rel, vec2(-dir.y, dir.x)));
+  float head = exp(-(perp * perp + (t - rk) * (t - rk)) * 30000.0);
+  float tail = exp(-perp * perp * 90000.0) * smoothstep(rk * 0.45, rk, t) * step(t, rk) * 0.5;
+  float fade = exp(-age * 1.15);
+  float tw = 0.65 + 0.35 * sin(uTime * 37.0 + k * 3.1 + seed * 20.0);
+  // the flash at the moment of the burst
+  float flash = exp(-age * 9.0) * exp(-dot(rel, rel) * 400.0) * 1.5;
+  return col * ((head * 2.6 + tail) * fade * tw * 2.0) + vec3(1.0, 0.95, 0.85) * flash;
 }
 
 vec3 sFIREWORKS(vec3 d, float az, float el) {
