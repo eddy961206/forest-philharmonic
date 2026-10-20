@@ -120,9 +120,9 @@ export function buildHall({ quality = 'high' } = {}) {
   const halo = (pos, scale, opacity = 0.5, color = '#ffd29a', house = true) => {
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending }));
     s.position.copy(pos);
-    s.scale.setScalar(scale);
+    s.scale.setScalar(scale * 0.7);
     group.add(s);
-    halos.push({ s, base: opacity, house, phase: Math.random() * 10 });
+    halos.push({ s, base: opacity * 0.45, house, phase: Math.random() * 10 });
     return s;
   };
 
@@ -223,8 +223,8 @@ export function buildHall({ quality = 'high' } = {}) {
     houseLevel += (houseTarget - houseLevel) * Math.min(1, dt * 0.8);
     for (const h of house) h.light.intensity = h.base * (h.foyer ? 0.6 + 0.4 * houseLevel : houseLevel);
     lights.hemi.intensity = 0.12 + 0.3 * houseLevel;
-    M.bulb().emissiveIntensity = 1.4 + 3.6 * houseLevel;
-    M.crystal().emissiveIntensity = 0.12 + 0.45 * houseLevel;
+    M.bulb().emissiveIntensity = 0.9 + 1.6 * houseLevel;
+    M.crystal().emissiveIntensity = 0.05 + 0.15 * houseLevel;
     for (const h of halos) {
       const flick = 0.94 + 0.06 * Math.sin(t * 2.3 + h.phase) * Math.sin(t * 5.1 + h.phase * 2);
       h.s.material.opacity = h.base * flick * (h.house ? 0.25 + 0.75 * houseLevel : 1);
@@ -279,7 +279,7 @@ function buildStage(group) {
     gilt.push(g);
   }
   addMesh(group, gilt, M.gilt());
-  const strip = new THREE.Mesh(new THREE.TubeGeometry(curve(STAGE_Y - 0.09, 0.03), 96, 0.012, 6), new THREE.MeshStandardMaterial({ color: '#ffd9a0', emissive: '#ffb860', emissiveIntensity: 2.2 }));
+  const strip = new THREE.Mesh(new THREE.TubeGeometry(curve(STAGE_Y - 0.09, 0.03), 96, 0.012, 6), new THREE.MeshStandardMaterial({ color: '#ffd9a0', emissive: '#ffb860', emissiveIntensity: 0.8 }));
   group.add(strip);
 
   // risers with gilt nosing and steps at both ends
@@ -639,7 +639,7 @@ function buildStalls(group) {
     for (const ax of [-7.1, 7.1]) for (const s of [-1, 1]) pts.push(V(ax + s * 0.74, rakeY(z) + 0.09, z + (ax * ax) * 0.005));
   }
   const lg = new THREE.BoxGeometry(0.06, 0.035, 0.1);
-  const lm = new THREE.InstancedMesh(lg, new THREE.MeshStandardMaterial({ color: '#ffd9a0', emissive: '#ffae4a', emissiveIntensity: 2.4 }), pts.length);
+  const lm = new THREE.InstancedMesh(lg, new THREE.MeshStandardMaterial({ color: '#ffd9a0', emissive: '#ffae4a', emissiveIntensity: 1.2 }), pts.length);
   const m = new THREE.Matrix4();
   pts.forEach((p, i) => { m.makeTranslation(p.x, p.y, p.z); lm.setMatrixAt(i, m); });
   group.add(lm);
@@ -1014,7 +1014,7 @@ function buildCeiling(group) {
   // a warm cove glow just under the cornice
   const cove = [];
   for (const sx of [-1, 1]) cove.push(new THREE.BoxGeometry(0.04, 0.04, z1 - z0).translate(sx * (H.halfW - 0.92), y - 0.75, (z0 + z1) / 2));
-  group.add(new THREE.Mesh(mergeAll(cove), new THREE.MeshStandardMaterial({ color: '#ffe0b0', emissive: '#ffb966', emissiveIntensity: 1.6 })));
+  group.add(new THREE.Mesh(mergeAll(cove), new THREE.MeshStandardMaterial({ color: '#ffe0b0', emissive: '#ffb966', emissiveIntensity: 0.7 })));
 }
 
 // ============================================================= chandelier

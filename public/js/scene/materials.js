@@ -377,7 +377,7 @@ function once(key, fn) {
 export const M = {
   stageWood: () => once('stageWood', () => new THREE.MeshPhysicalMaterial({
     map: tex(woodTexture({ base: '#a8743f', dark: '#6b4220', light: '#d2a36a', seed: 11, planks: 6 }), { repeat: [7, 7] }),
-    roughness: 0.42, clearcoat: 0.35, clearcoatRoughness: 0.35,
+    roughness: 0.55, clearcoat: 0.12, clearcoatRoughness: 0.55,
   })),
   panelWood: () => once('panelWood', () => new THREE.MeshStandardMaterial({
     map: tex(woodTexture({ base: '#7a4a26', dark: '#4a2a12', light: '#a06a3a', seed: 21 }), { repeat: [2, 1] }),
@@ -415,8 +415,9 @@ export const M = {
     roughness: 0.9,
   })),
   // ---- the luxury hall
-  gilt: () => once('gilt', () => new THREE.MeshStandardMaterial({ color: '#c9a14e', metalness: 1, roughness: 0.32 })),
-  giltDark: () => once('giltDark', () => new THREE.MeshStandardMaterial({ color: '#8f6c2c', metalness: 1, roughness: 0.45 })),
+  // satin gilding, not mirror gold: it glows warmly instead of glinting
+  gilt: () => once('gilt', () => new THREE.MeshStandardMaterial({ color: '#b8924a', metalness: 0.85, roughness: 0.55 })),
+  giltDark: () => once('giltDark', () => new THREE.MeshStandardMaterial({ color: '#8f6c2c', metalness: 0.85, roughness: 0.6 })),
   walnut: () => once('walnut', () => new THREE.MeshStandardMaterial({
     map: tex(woodTexture({ base: '#3c2014', dark: '#1c0d06', light: '#5c3420', seed: 71 }), { repeat: [1, 1] }),
     roughness: 0.42,
@@ -424,23 +425,23 @@ export const M = {
   fluted: () => once('fluted', () => new THREE.MeshStandardMaterial({ map: tex(flutedTexture(), { repeat: [1, 1] }), roughness: 0.5 })),
   shell: () => once('shell', () => new THREE.MeshPhysicalMaterial({
     map: tex(flutedTexture({ base: '#9a5a2c', seed: 17, flutes: 12 }), { repeat: [1, 1] }),
-    roughness: 0.45, clearcoat: 0.25, clearcoatRoughness: 0.4,
+    roughness: 0.55, clearcoat: 0.08, clearcoatRoughness: 0.6,
   })),
   ivoryPlaster: () => once('ivoryPlaster', () => new THREE.MeshStandardMaterial({ color: '#d9caa9', roughness: 0.85 })),
   creamWall: () => once('creamWall', () => new THREE.MeshStandardMaterial({ color: '#b39b78', roughness: 0.9 })),
   ornament: () => once('ornament', () => new THREE.MeshStandardMaterial({ map: tex(ornamentTexture(), { repeat: [1, 1] }), roughness: 0.55, metalness: 0.15 })),
   coffer: () => once('coffer', () => new THREE.MeshStandardMaterial({ map: tex(cofferTexture(), { repeat: [1, 1] }), roughness: 0.75 })),
   marbleFloor: () => once('marbleFloor', () => new THREE.MeshPhysicalMaterial({
-    map: tex(marbleTexture({ tiles: 4, seed: 23 }), { repeat: [1, 1] }), roughness: 0.18, clearcoat: 0.6, clearcoatRoughness: 0.12,
+    map: tex(marbleTexture({ tiles: 4, seed: 23 }), { repeat: [1, 1] }), roughness: 0.32, clearcoat: 0.2, clearcoatRoughness: 0.35,
   })),
-  marble: () => once('marble', () => new THREE.MeshStandardMaterial({ map: tex(marbleTexture({ seed: 29 }), { repeat: [1, 2] }), roughness: 0.22 })),
-  marbleDark: () => once('marbleDark', () => new THREE.MeshStandardMaterial({ map: tex(marbleTexture({ base: '#3a2320', vein: '#a0715a', seed: 31 }), { repeat: [1, 2] }), roughness: 0.25 })),
+  marble: () => once('marble', () => new THREE.MeshStandardMaterial({ map: tex(marbleTexture({ seed: 29 }), { repeat: [1, 2] }), roughness: 0.4 })),
+  marbleDark: () => once('marbleDark', () => new THREE.MeshStandardMaterial({ map: tex(marbleTexture({ base: '#3a2320', vein: '#a0715a', seed: 31 }), { repeat: [1, 2] }), roughness: 0.42 })),
   carpetRoyal: () => once('carpetRoyal', () => new THREE.MeshStandardMaterial({ map: tex(carpetRoyalTexture(), { repeat: [1, 8] }), roughness: 0.95 })),
   velvetTint: () => once('velvetTint', () => new THREE.MeshPhysicalMaterial({
-    map: tex(velvetTexture('#d8d8d8', 4)), color: '#ffffff', roughness: 0.82, sheen: 1, sheenColor: new THREE.Color('#ffd6d0'), sheenRoughness: 0.5,
+    map: tex(velvetTexture('#d8d8d8', 4)), color: '#ffffff', roughness: 0.9, sheen: 0.35, sheenColor: new THREE.Color('#b08a86'), sheenRoughness: 0.8,
   })),
-  bulb: () => once('bulb', () => new THREE.MeshStandardMaterial({ color: '#fff2d6', emissive: '#ffcf8a', emissiveIntensity: 5, roughness: 0.3 })),
-  crystal: () => once('crystal', () => new THREE.MeshStandardMaterial({ color: '#fffaf0', emissive: '#ffe2b0', emissiveIntensity: 0.55, metalness: 0.6, roughness: 0.08, flatShading: true })),
+  bulb: () => once('bulb', () => new THREE.MeshStandardMaterial({ color: '#fff2d6', emissive: '#ffcf8a', emissiveIntensity: 2.4, roughness: 0.4 })),
+  crystal: () => once('crystal', () => new THREE.MeshStandardMaterial({ color: '#f4efe6', emissive: '#ffe2b0', emissiveIntensity: 0.2, metalness: 0.4, roughness: 0.2, flatShading: true })),
   // string instrument varnish: deep amber with clearcoat
   varnish: (hue = '#8c3a12') => once(`varnish${hue}`, () => new THREE.MeshPhysicalMaterial({
     color: hue,

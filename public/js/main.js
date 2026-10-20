@@ -71,7 +71,7 @@ function buildComposer() {
   composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
   // only true light sources bloom: bulbs, chandeliers, lasers - never fur
-  bloomPass = new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.32, 0.45, 1.05);
+  bloomPass = new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.16, 0.3, 1.35);
   bloomPass.enabled = q.bloom;
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
