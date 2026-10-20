@@ -404,6 +404,7 @@ ui.on('jump', () => director.jump());
 ui.on('mute', () => {
   muted = !muted;
   engine.setVolume(muted ? 0 : settings.volume);
+  ui.setMuted(muted);
   ui.toast(muted ? '음소거' : '소리 켬', 1200);
 });
 ui.on('fullscreen', () => {
@@ -465,7 +466,7 @@ director.on((type, data) => {
 function onSetting(key, value) {
   settings[key] = value;
   save();
-  if (key === 'volume') { muted = false; engine.setVolume(value); }
+  if (key === 'volume') { muted = false; ui.setMuted(false); engine.setVolume(value); }
   if (key === 'reverb') engine.setReverb(value);
   if (key === 'quality') {
     quality = value === 'auto' ? (isMobile ? 'medium' : 'high') : value;

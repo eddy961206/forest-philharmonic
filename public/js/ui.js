@@ -172,6 +172,12 @@ export class UI {
     sit.hidden = !this.touch;
   }
 
+  setMuted(m) {
+    document.querySelector('.vol')?.classList.toggle('muted', m);
+    $('btnMute').setAttribute('aria-pressed', String(m));
+    $('btnMute').setAttribute('aria-label', m ? '소리 켜기' : '음소거');
+  }
+
   toast(text, ms = 2200) {
     const el = $('toast');
     el.textContent = text;
@@ -256,6 +262,7 @@ export class UI {
     const vol = $('volume');
     vol.value = String(this.settings.volume);
     vol.addEventListener('input', () => this.onSetting('volume', Number(vol.value)));
+    click('btnMute', () => this.emit('mute'));
 
     const bindCheck = (id, key) => {
       const el = $(id);
