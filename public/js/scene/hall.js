@@ -335,8 +335,20 @@ function buildStage(group) {
     const land = new THREE.BoxGeometry(S.w, STAGE_Y - 0.008, landLen);
     land.translate(S.cx, (STAGE_Y - 0.008) / 2, (S.z0 + lipZ(S.cx) - 0.4) / 2);
     risersW.push(land);
-    const landCarpet = S.z0 - lipZ(S.cx) + 0.3;
-    treads.push(worldUV(new THREE.PlaneGeometry(S.w - 0.06, landCarpet).rotateX(-Math.PI / 2).translate(S.cx, STAGE_Y + 0.01, S.z0 - landCarpet / 2), 'xz', 1.4));
+    // the landing's carpet starts exactly at the curved stage lip, so none
+    // of it lies on the stage boards
+    const cs = new THREE.Shape();
+    const xa = S.x0 + 0.03;
+    const xb = S.x1 - 0.03;
+    cs.moveTo(xa, -S.z0);
+    cs.lineTo(xb, -S.z0);
+    for (let i = 0; i <= 12; i++) {
+      const x = xb - ((xb - xa) * i) / 12;
+      cs.lineTo(x, -(lipZ(x) + 0.03));
+    }
+    cs.closePath();
+    // shape drawn in (x, -z): rotating -90deg about X lays it on the floor
+    treads.push(worldUV(new THREE.ShapeGeometry(cs).rotateX(-Math.PI / 2).translate(0, STAGE_Y - 0.002, 0), 'xz', 1.4));
     for (let k = 1; k < S.n; k++) {
       const y = STAGE_Y - S.rise * k;
       const z0 = S.z0 + (k - 1) * S.tread;
