@@ -313,6 +313,21 @@ export function stepTo(x, z, fy, { up = 0.45, down = 0.5, head = 1.8 } = {}) {
   return best;
 }
 
+// How open the hall is to a listener at (x, y, z): 1 anywhere inside it;
+// out in the foyer it falls off with the distance to the open doors (two
+// per floor), so the music swells as you walk up to a doorway.
+export function hallOpenness(x, y, z) {
+  if (z <= HALL.back) return 1;
+  let closed = 1;
+  for (const Y of LEVELS) {
+    for (const dx of HALL_DOORS) {
+      const d = Math.hypot(x - dx, (y - (Y + 1.4)) * 1.4, z - HALL.back);
+      closed *= 1 - Math.exp(-d / 3.2);
+    }
+  }
+  return 1 - closed;
+}
+
 // which floor are we on (for labels)
 export function levelName(y) {
   let k = 0;

@@ -17,6 +17,7 @@ import { buildFX } from './scene/fx.js';
 import { StageManager } from './scene/stage.js';
 import { Director, ENTRANCE } from './scene/director.js';
 import { setAnisotropy } from './scene/materials.js';
+import { hallOpenness } from './scene/hallplan.js';
 import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
 
@@ -161,7 +162,8 @@ ui.on('enter', async () => {
   // fullscreen must be requested inside the click itself
   director.active = true;
   goFullscreen();
-  try { await engine.ctx.resume(); } catch { /* ignored */ }
+  // never wait on the audio context: some browsers settle it late
+  try { engine.ctx.resume().catch(() => {}); } catch { /* ignored */ }
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
   ui.enter(isTouch);
   // you arrive in the foyer, in front of the doors to the stalls
@@ -646,6 +648,7 @@ function frame() {
   if (engine.ctx) {
     const L = director.listener(settings.fixedEar ? bestSeat : null);
     engine.setListener(L.pos, L.fwd, L.up);
+    engine.setRoom(concertStarted ? hallOpenness(L.pos.x, L.pos.y, L.pos.z) : 1);
     engine.analyser.getByteTimeDomainData(levelBuf);
     let sum = 0;
     for (let i = 0; i < levelBuf.length; i += 4) { const v = (levelBuf[i] - 128) / 128; sum += v * v; }

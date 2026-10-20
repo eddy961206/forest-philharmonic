@@ -93,8 +93,22 @@ export class AudioEngine {
     this.reverbReturn.gain.value = 0.42;
     this.reverbIn.connect(revHP).connect(this.reverb).connect(this.reverbReturn);
 
-    this.dryBus.connect(this.makeup);
-    this.reverbReturn.connect(this.makeup);
+    // Room transmission: inside the hall both paths pass untouched; out in
+    // the foyer the music comes through the walls and open doors, so the
+    // direct sound is muffled and quieter while the reverberant field
+    // carries a little more of it (see setRoom).
+    const occ = (src) => {
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 20000;
+      lp.Q.value = 0.5;
+      const g = ctx.createGain();
+      src.connect(lp).connect(g).connect(this.makeup);
+      return { lp, g };
+    };
+    this.occDry = occ(this.dryBus);
+    this.occWet = occ(this.reverbReturn);
+    this._open = 1;
     this.makeup.connect(this.glue).connect(this.master).connect(this.limiter);
     this.limiter.connect(this.analyser);
     this.limiter.connect(ctx.destination);
@@ -227,6 +241,21 @@ export class AudioEngine {
       s.focus.gain.setTargetAtTime(g, t, 0.25);
     }
     this.focusId = id || null;
+  }
+
+  // open: 1 inside the hall, falling toward 0 out in the foyer away from
+  // the doors. Glides so walking through a door never clicks.
+  setRoom(open) {
+    if (!this.occDry) return; // still starting up
+    open = Math.min(1, Math.max(0, open));
+    if (Math.abs(open - this._open) < 0.003) return;
+    this._open = open;
+    const t = this.ctx.currentTime;
+    const cutoff = 650 * Math.pow(20000 / 650, Math.pow(open, 0.8));
+    this.occDry.lp.frequency.setTargetAtTime(cutoff, t, 0.3);
+    this.occWet.lp.frequency.setTargetAtTime(Math.min(20000, cutoff * 1.6), t, 0.3);
+    this.occDry.g.gain.setTargetAtTime(0.17 + 0.83 * Math.pow(open, 1.3), t, 0.3);
+    this.occWet.g.gain.setTargetAtTime(0.48 + 0.52 * open, t, 0.3);
   }
 
   setVolume(v) {
