@@ -446,7 +446,9 @@ setInterval(() => {
 
 director.on((type, data) => {
   if (type === 'mode') ui.setMode(data);
-  if (type === 'nearSeat') ui.prompt(data ? `${data.label}에 앉기` : null, '앉기');
+  // no seat labels on screen; E (or a double-click) still sits you down.
+  // Touch screens keep the plain "앉기" button - it is their only way to sit.
+  if (type === 'nearSeat' && isTouch) ui.prompt(data ? '앉기' : null, '앉기');
   if (type === 'pick') onPick(data);
   if (type === 'lock') {
     ui.setLocked(data);
@@ -546,9 +548,7 @@ function hover(x, y) {
   const h = hitTest(x, y);
   if (director.locked) {
     // what the crosshair rests on
-    if (h.player) ui.target(describe(h.player));
-    else if (h.seat && !director.occupied.has(h.seat.index) && h.dist < 6) ui.target({ name: h.seat.label, role: '두 번 클릭해서 앉기' });
-    else ui.target(null);
+    ui.target(h.player ? describe(h.player) : null);
     return;
   }
   hoverAt(h, x, y);
@@ -565,9 +565,6 @@ function hoverAt(h, x, y) {
   const e = { clientX: x, clientY: y };
   if (h.player) {
     ui.tooltip(describe(h.player), e.clientX, e.clientY);
-    renderer.domElement.style.cursor = 'pointer';
-  } else if (h.seat && !director.occupied.has(h.seat.index) && h.dist < 6) {
-    ui.tooltip({ name: h.seat.label, role: '두 번 눌러 앉기' }, e.clientX, e.clientY);
     renderer.domElement.style.cursor = 'pointer';
   } else {
     ui.tooltip(null);
