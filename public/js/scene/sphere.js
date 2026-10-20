@@ -177,7 +177,7 @@ const SPHERE_STYLE = (() => {
 })();
 
 // ================================================================= build
-export function buildSphere({ quality = 'high', lite = false } = {}) {
+export function buildSphere({ quality = 'high', lite = false, renderer = null } = {}) {
   const group = new THREE.Group();
   group.name = 'sphere';
   const update = [];
@@ -215,7 +215,7 @@ export function buildSphere({ quality = 'high', lite = false } = {}) {
   };
 
   // ---------------------------------------------------------------- dome
-  const dome = buildDome({ lite });
+  const dome = buildDome({ lite, renderer, quality });
   group.add(dome.mesh);
 
   // --------------------------------------------------------------- floor

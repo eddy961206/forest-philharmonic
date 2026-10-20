@@ -6,8 +6,11 @@
 // The dome also lights the room: its average colour drives the bowl's light.
 import * as THREE from 'three';
 import { SP } from './sphereplan.js';
+import { WORLDS3D, makeWorldRenderer } from './dome3d.js';
 
-export const SCENES = ['ARCH', 'STARS', 'AURORA', 'MOON', 'FOREST', 'OCEAN', 'SUNSET', 'CATHEDRAL', 'GOLD', 'FIREWORKS', 'RAIN', 'SNOW', 'SPRING', 'DECO', 'NEBULA'];
+export const SCENES = ['ARCH', 'STARS', 'AURORA', 'MOON', 'FOREST', 'OCEAN', 'SUNSET', 'CATHEDRAL', 'GOLD', 'FIREWORKS', 'RAIN', 'SNOW', 'SPRING', 'DECO', 'NEBULA', 'VOYAGE', ...WORLDS3D];
+// on phones the ray-traced worlds give way to their painted versions
+const LITE_FALLBACK = { FOREST3D: 'FOREST', OCEAN3D: 'OCEAN', CLOUDS3D: 'SUNSET', PEAKS3D: 'AURORA' };
 const S = Object.fromEntries(SCENES.map((n, i) => [n, i]));
 // rough average light each world throws into the room (linear rgb, x brightness)
 const GLOW = {
@@ -15,48 +18,49 @@ const GLOW = {
   FOREST: [0.45, 0.75, 0.4, 0.45], OCEAN: [0.15, 0.55, 0.85, 0.45], SUNSET: [1.0, 0.55, 0.35, 0.65], CATHEDRAL: [0.6, 0.4, 0.75, 0.35],
   GOLD: [1.0, 0.75, 0.35, 0.5], FIREWORKS: [0.7, 0.5, 0.6, 0.25], RAIN: [0.35, 0.42, 0.55, 0.22], SNOW: [0.6, 0.7, 0.9, 0.35],
   SPRING: [0.75, 0.75, 0.95, 0.6], DECO: [0.9, 0.7, 0.4, 0.4], NEBULA: [0.55, 0.3, 0.75, 0.25],
+  VOYAGE: [0.35, 0.35, 0.65, 0.14], FOREST3D: [0.5, 0.68, 0.42, 0.5], OCEAN3D: [0.12, 0.48, 0.66, 0.38], CLOUDS3D: [1.0, 0.66, 0.45, 0.6], PEAKS3D: [0.3, 0.6, 0.62, 0.22],
 };
 
 // The show: which worlds go with which piece (in order; long pieces travel
 // through them). Anything not listed is chosen by its mood.
 export const VISUALS = {
-  'beethoven-ode-to-joy': ['SUNSET', 'CATHEDRAL', 'FIREWORKS'],
+  'beethoven-ode-to-joy': ['CLOUDS3D', 'CATHEDRAL', 'FIREWORKS'],
   'debussy-clair-de-lune': ['MOON', 'STARS'],
-  'bach-prelude-c': ['FOREST'],
-  'chopin-raindrop': ['RAIN', 'MOON', 'RAIN'],
+  'bach-prelude-c': ['FOREST3D'],
+  'chopin-raindrop': ['RAIN', 'FOREST3D', 'RAIN'],
   'mozart-turkish-march': ['GOLD', 'DECO'],
-  'beethoven-moonlight': ['MOON', 'NEBULA'],
-  greensleeves: ['SPRING', 'FOREST'],
-  'tchaikovsky-june': ['OCEAN', 'SUNSET'],
+  'beethoven-moonlight': ['MOON', 'VOYAGE'],
+  greensleeves: ['SPRING', 'FOREST3D'],
+  'tchaikovsky-june': ['OCEAN3D', 'CLOUDS3D'],
   'joplin-entertainer': ['DECO', 'GOLD'],
   'joplin-maple-leaf': ['DECO', 'GOLD'],
-  'schubert-lindenbaum': ['SNOW', 'FOREST'],
+  'schubert-lindenbaum': ['SNOW', 'FOREST3D'],
   'handel-lascia': ['CATHEDRAL'],
-  'grieg-march-of-trolls': ['AURORA', 'FOREST'],
-  'grieg-wedding-day': ['SPRING', 'SUNSET'],
-  'tchaikovsky-troika': ['SNOW', 'AURORA'],
-  'liliuokalani-aloha-oe': ['SUNSET', 'OCEAN'],
-  'bach-wachet-auf': ['CATHEDRAL', 'GOLD'],
-  'beethoven-fur-elise': ['STARS', 'NEBULA'],
+  'grieg-march-of-trolls': ['PEAKS3D', 'FOREST3D'],
+  'grieg-wedding-day': ['SPRING', 'CLOUDS3D'],
+  'tchaikovsky-troika': ['SNOW', 'PEAKS3D'],
+  'liliuokalani-aloha-oe': ['SUNSET', 'OCEAN3D'],
+  'bach-wachet-auf': ['CATHEDRAL', 'CLOUDS3D'],
+  'beethoven-fur-elise': ['STARS', 'VOYAGE'],
   'bach-nun-seid-ihr': ['CATHEDRAL', 'FIREWORKS'],
   'bach-o-haupt': ['CATHEDRAL'],
   'bach-brich-an': ['SUNSET', 'CATHEDRAL'],
   'bach-wir-singen': ['STARS', 'CATHEDRAL'],
   'chopin-prelude-4': ['RAIN'],
   'chopin-prelude-20': ['CATHEDRAL'],
-  'tchaikovsky-october': ['FOREST', 'RAIN'],
-  'grieg-to-spring': ['SPRING'],
+  'tchaikovsky-october': ['FOREST3D', 'RAIN'],
+  'grieg-to-spring': ['SPRING', 'FOREST3D'],
   'grieg-butterfly': ['SPRING'],
-  'grieg-notturno': ['STARS', 'AURORA'],
-  'schumann-traumerei': ['NEBULA', 'STARS'],
+  'grieg-notturno': ['PEAKS3D', 'STARS'],
+  'schumann-traumerei': ['VOYAGE', 'NEBULA'],
   'beethoven-pathetique-adagio': ['MOON', 'CATHEDRAL'],
-  'debussy-prelude': ['OCEAN', 'SPRING'],
+  'debussy-prelude': ['OCEAN3D', 'SPRING'],
   'debussy-passepied': ['SPRING', 'GOLD'],
   'mozart-k545': ['GOLD', 'SPRING'],
   'verdi-la-donna': ['DECO', 'SUNSET'],
   'weber-clarinet-concertino': ['GOLD', 'SPRING', 'FIREWORKS'],
 };
-const BY_MOOD = { calm: ['STARS', 'MOON', 'NEBULA', 'AURORA', 'FOREST', 'OCEAN'], lively: ['GOLD', 'DECO', 'SPRING'], grand: ['CATHEDRAL', 'SUNSET', 'FIREWORKS'] };
+const BY_MOOD = { calm: ['STARS', 'MOON', 'NEBULA', 'AURORA', 'FOREST3D', 'OCEAN3D', 'VOYAGE', 'PEAKS3D'], lively: ['GOLD', 'DECO', 'SPRING', 'CLOUDS3D'], grand: ['CATHEDRAL', 'CLOUDS3D', 'FIREWORKS'] };
 
 export function visualsFor(piece) {
   if (!piece) return ['STARS'];
@@ -64,7 +68,9 @@ export function visualsFor(piece) {
   const pool = BY_MOOD[piece.mood] || BY_MOOD.calm;
   let h = 0;
   for (const c of piece.id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return [pool[h % pool.length], pool[(h >> 4) % pool.length]];
+  const a = pool[h % pool.length];
+  const b = pool[(h >> 4) % pool.length];
+  return a === b ? [a] : [a, b];
 }
 
 // The Sphere setlist: an evening that travels from dawn through forest,
@@ -93,6 +99,8 @@ uniform int uA, uB;
 uniform vec3 uView;
 uniform vec2 uEdge;          // screen where y - k z > d
 uniform sampler2D uLiveTex, uCapTex;
+uniform samplerCube uCubeA, uCubeB; // the ray-traced worlds (dome3d.js)
+uniform int uCubeAId, uCubeBId;
 uniform vec4 uLiveRect;      // az0, az1, el0, el1
 
 #define PI 3.14159265
@@ -554,6 +562,35 @@ vec3 sSPRING(vec3 d, float az, float el) {
   return c * (0.9 + 0.15 * uLevel);
 }
 
+vec3 sVOYAGE(vec3 d, float az, float el) {
+  // drifting through deep space toward the stage: near stars stream past
+  // (real parallax - each sits in its own 3D cell), a nebula far beyond
+  vec3 c = vec3(0.004, 0.006, 0.018);
+  vec3 q = d * 1.3 + vec3(0.0, 0.0, uTime * 0.004);
+  float a = fbm(q + fbm(q * 1.6 + 2.0));
+  c += vec3(0.32, 0.1, 0.42) * pow(a, 3.0) * 1.2 + vec3(0.06, 0.2, 0.42) * pow(fbm(q * 2.1 - 4.0), 3.0) * 1.1;
+  c += milkyway(d) * 0.7 + starfield(d, 0.6, 1.0) * 0.6;
+  vec3 ro = vec3(0.0, 0.0, -uTime * 5.0);
+  const float CELL = 7.0;
+  for (int i = 0; i < 12; i++) {
+    float dist = 3.0 + float(i) * CELL * 0.75;
+    vec3 p = ro + d * dist;
+    vec3 cell = floor(p / CELL);
+    float h = hash1(cell);
+    if (h < 0.55) continue;
+    vec3 sp = (cell + 0.15 + 0.7 * vec3(hash1(cell + 7.0), hash1(cell + 13.0), hash1(cell + 29.0))) * CELL;
+    vec3 rel = sp - ro;
+    float along = dot(rel, d);
+    if (along < 0.5) continue;
+    float perp = length(rel - d * along);
+    float size = 0.012 + 0.03 * hash1(cell + 3.0);
+    float b = exp(-perp * perp / (size * size)) * (1.0 / (1.0 + along * 0.04));
+    vec3 sc = mix(vec3(0.7, 0.8, 1.0), vec3(1.0, 0.82, 0.6), hash1(cell + 5.0));
+    c += sc * b * 3.0;
+  }
+  return c * (0.9 + 0.3 * uLevel);
+}
+
 vec3 scene(int id, vec3 d, float az, float el) {
   if (id == 0) return sARCH(d, az, el);
   if (id == 1) return sSTARS(d, az, el);
@@ -569,7 +606,11 @@ vec3 scene(int id, vec3 d, float az, float el) {
   if (id == 11) return sSNOW(d, az, el);
   if (id == 12) return sSPRING(d, az, el);
   if (id == 13) return sDECO(d, az, el);
-  return sNEBULA(d, az, el);
+  if (id == 14) return sNEBULA(d, az, el);
+  if (id == 15) return sVOYAGE(d, az, el);
+  if (id == uCubeAId) return textureCube(uCubeA, d).rgb;
+  if (id == uCubeBId) return textureCube(uCubeB, d).rgb;
+  return vec3(0.0);
 }
 
 void main() {
@@ -623,7 +664,11 @@ void main() {
   #include <colorspace_fragment>
 }`;
 
-export function buildDome({ lite = false } = {}) {
+// renderer + quality: the ray-traced worlds need the renderer (they are
+// drawn into cube maps); phones (lite) show the painted versions instead
+export function buildDome({ lite = false, renderer = null, quality = 'high' } = {}) {
+  const worlds = renderer && !lite ? makeWorldRenderer(renderer, { size: quality === 'high' ? 512 : 384, every: quality === 'high' ? 1 : 2 }) : null;
+  const pick = (name) => (!worlds && LITE_FALLBACK[name]) || name;
   const uniforms = {
     uTime: { value: 0 }, uLevel: { value: 0 }, uBeat: { value: 0 }, uDown: { value: 0 },
     uMix: { value: 0 }, uReveal: { value: 0 }, uLive: { value: 0 }, uHouse: { value: 1 }, uBright: { value: 1 },
@@ -632,6 +677,7 @@ export function buildDome({ lite = false } = {}) {
     uEdge: { value: new THREE.Vector2(SP.EDGE.k, SP.EDGE.d) },
     uLiveTex: { value: null }, uCapTex: { value: null },
     uLiveRect: { value: new THREE.Vector4(-0.34, 0.34, -0.12, 0.26) }, // 16:9, over the shell
+    uCubeA: { value: null }, uCubeB: { value: null }, uCubeAId: { value: -1 }, uCubeBId: { value: -1 },
   };
   const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG(lite), side: THREE.BackSide, fog: false, depthWrite: true });
   const geo = new THREE.SphereGeometry(SP.R, lite ? 96 : 192, lite ? 64 : 128, 0, Math.PI * 2, 0, Math.PI * 0.62);
@@ -646,7 +692,8 @@ export function buildDome({ lite = false } = {}) {
     list: ['ARCH'], idx: 0, nextSwap: Infinity, live: 0, liveTarget: 0, bright: 1, brightTarget: 1,
     glow: new THREE.Color(), glowI: 0.2,
   };
-  function go(name, { dur = 4, reveal = false } = {}) {
+  function go(name0, { dur = 4, reveal = false } = {}) {
+    const name = pick(name0);
     if (name === st.cur && !st.next) return;
     if (st.next) { st.cur = st.next; }
     st.next = name;
@@ -675,7 +722,11 @@ export function buildDome({ lite = false } = {}) {
       st.brightTarget = 1;
     },
     finale() { go('FIREWORKS', { dur: 2.5 }); st.nextSwap = Infinity; },
+    // straight to a world (for trying them out: __fp.hall.dome.go('FOREST3D'))
+    go(name, opt = { dur: 1.5 }) { st.nextSwap = Infinity; go(name, opt); },
     dim(v) { st.brightTarget = v; },
+    // the quality setting changed: refresh the 3D worlds less often below 'high'
+    setQuality(q) { if (worlds) worlds.every = q === 'high' ? 1 : 2; },
     update(dt, { time = 0, level = 0, beat = 0, down = 0, playing = false } = {}) {
       uniforms.uTime.value += dt;
       uniforms.uLevel.value += (Math.min(1, level * 5) - uniforms.uLevel.value) * Math.min(1, dt * 4);
@@ -702,6 +753,16 @@ export function buildDome({ lite = false } = {}) {
       uniforms.uLive.value = st.live;
       st.bright += (st.brightTarget - st.bright) * Math.min(1, dt * 0.8);
       uniforms.uBright.value = st.bright;
+      // the ray-traced worlds on screen now (one, or two in a crossfade)
+      if (worlds) {
+        const want = [st.cur, st.next].filter((n) => n && WORLDS3D.includes(n));
+        worlds.update(want, uniforms.uTime.value, uniforms.uLevel.value);
+        const [a, b] = worlds.slots;
+        uniforms.uCubeA.value = a.world ? a.rt.texture : null;
+        uniforms.uCubeAId.value = a.world ? S[a.world] : -1;
+        uniforms.uCubeB.value = b.world ? b.rt.texture : null;
+        uniforms.uCubeBId.value = b.world ? S[b.world] : -1;
+      }
       // the light the dome throws into the room
       const ga = GLOW[st.cur];
       const gb = st.next ? GLOW[st.next] : ga;

@@ -103,7 +103,7 @@ const ui = new UI({ settings, onSetting });
 ui.touch = isTouch;
 ui.setLoading('공연장을 짓는 중', 0.03);
 
-const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE }) : buildHall({ quality, lite: LITE });
+const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE, renderer }) : buildHall({ quality, lite: LITE });
 scene.add(hall.group);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
@@ -608,6 +608,7 @@ function applyQuality() {
     hall.lights.key.shadow.map = null;
   }
   hall.lights.key.shadow.mapSize.set(q.shadowSize, q.shadowSize);
+  hall.dome?.setQuality(quality);
   scene.traverse((o) => { if (o.material) { const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach((m) => { m.needsUpdate = true; }); } });
   onResize();
   buildComposer();
