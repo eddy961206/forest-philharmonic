@@ -12,6 +12,7 @@ import { STAGE_Y, PODIUM } from '../layout.js';
 import {
   HALL, rakeY, lipZ, SHELL, shellPoint, DOORS, RISERS, PODIUM_R, PODIUM_H, STAGE_STAIRS,
   BALCONIES, BALCONY_AISLES, AISLE_HALF, balconyZ, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, BOX_DAIS_X, BOX_DAIS_H,
+  rowFloorY, treadStart,
 } from './hallplan.js';
 import { seatList, buildSeats } from './seats.js';
 import { buildFoyer } from './foyer.js';
@@ -66,6 +67,18 @@ function worldUV(g, axis = 'xz', tile = 1) {
     const [u, v] = axis === 'xz' ? [x, z] : axis === 'xy' ? [x, y] : [z, y];
     uv[i * 2] = u / tile;
     uv[i * 2 + 1] = v / tile;
+  }
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  return g;
+}
+
+// a carpet runner laid along z: u across [x0, x0 + w], v along the run
+function runnerXZ(g, x0, w) {
+  const p = g.attributes.position;
+  const uv = new Float32Array(p.count * 2);
+  for (let i = 0; i < p.count; i++) {
+    uv[i * 2] = (p.getX(i) - x0) / w;
+    uv[i * 2 + 1] = (p.getZ(i) + p.getY(i)) / (w * 1.4);
   }
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
   return g;
@@ -204,7 +217,7 @@ export function buildHall({ quality = 'high' } = {}) {
     return { light: pl, base: pl.intensity };
   });
   const under = new THREE.PointLight('#ffc98a', 1.6, 12, 1.2);
-  under.position.set(0, 4.2, 27);
+  under.position.set(0, rakeY(27) + 2.6, 27);
   group.add(under);
   house.push({ light: under, base: under.intensity });
   for (const l of foyer.lights) house.push({ light: l, base: l.intensity, foyer: true });
@@ -348,7 +361,7 @@ function buildStage(group) {
     }
     cs.closePath();
     // shape drawn in (x, -z): rotating -90deg about X lays it on the floor
-    treads.push(worldUV(new THREE.ShapeGeometry(cs).rotateX(-Math.PI / 2).translate(0, STAGE_Y - 0.002, 0), 'xz', 1.4));
+    treads.push(runnerXZ(new THREE.ShapeGeometry(cs).rotateX(-Math.PI / 2).translate(0, STAGE_Y - 0.002, 0), S.x0, S.w));
     for (let k = 1; k < S.n; k++) {
       const y = STAGE_Y - S.rise * k;
       const z0 = S.z0 + (k - 1) * S.tread;
@@ -357,7 +370,7 @@ function buildStage(group) {
       risersW.push(b);
       // carpet mapped in metres, so its pattern is not squeezed into the
       // shallow tread (that shimmered when you moved)
-      treads.push(worldUV(new THREE.PlaneGeometry(S.w - 0.06, S.tread - 0.03).rotateX(-Math.PI / 2).translate(S.cx, y + 0.01, z0 + S.tread / 2 + 0.01), 'xz', 1.4));
+      treads.push(runnerXZ(new THREE.PlaneGeometry(S.w - 0.06, S.tread - 0.03).rotateX(-Math.PI / 2).translate(S.cx, y + 0.01, z0 + S.tread / 2 + 0.01), S.x0, S.w));
       rails.push(new THREE.CylinderGeometry(0.012, 0.012, S.w, 6).rotateZ(Math.PI / 2).translate(S.cx, y + 0.01, z0 + 0.012));
     }
     for (const sx of [-1, 1]) {
@@ -614,63 +627,119 @@ function holeShape(wx, wy0, wy1) {
 // ================================================================ stalls
 function buildStalls(group) {
   const H = HALL;
-  const zs = [];
-  for (let z = H.prosZ; z <= H.back + 0.001; z += 0.5) zs.push(z);
-  const strip = (x0, x1, y = 0) => {
+  const H0 = rowFloorY(0);
+  const HL = rowFloorY(H.rows - 1);
+  const frontY = (z) => Math.min(rakeY(z), H0);
+  const backY = (z) => Math.max(rakeY(z), HL);
+  // Stepped floor over [xa, xb]: a ramp in front of the first row, one level
+  // tread per row (bowed like the row) with its riser, a ramp behind the last
+  const stepped = (xa, xb, lift = 0) => {
+    const n = Math.max(1, Math.ceil((xb - xa) / 0.5));
+    const xs = [];
+    for (let i = 0; i <= n; i++) xs.push(xa + ((xb - xa) * i) / n);
     const pos = [];
-    const idx = [];
-    zs.forEach((z, i) => {
-      pos.push(x0, rakeY(z) + y, z, x1, rakeY(z) + y, z);
-      if (i > 0) {
-        const a = (i - 1) * 2;
-        idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+    const quad = (a, b, c, d) => pos.push(...a, ...b, ...c, ...a, ...c, ...d);
+    const ramp = (x0, x1, za0, za1, zb0, zb1, f, N) => {
+      for (let k = 0; k < N; k++) {
+        const t0 = k / N;
+        const t1 = (k + 1) / N;
+        const a = za0 + (za1 - za0) * t0;
+        const a2 = za0 + (za1 - za0) * t1;
+        const b = zb0 + (zb1 - zb0) * t0;
+        const b2 = zb0 + (zb1 - zb0) * t1;
+        quad([x0, f(a) + lift, a], [x0, f(a2) + lift, a2], [x1, f(b2) + lift, b2], [x1, f(b) + lift, b]);
       }
-    });
+    };
+    for (let i = 0; i < xs.length - 1; i++) {
+      const x0 = xs[i];
+      const x1 = xs[i + 1];
+      ramp(x0, x1, H.prosZ, treadStart(0, x0), H.prosZ, treadStart(0, x1), frontY, 8);
+      for (let r = 0; r < H.rows; r++) {
+        const y = rowFloorY(r) + lift;
+        const a0 = treadStart(r, x0);
+        const a1 = treadStart(r + 1, x0);
+        const b0 = treadStart(r, x1);
+        const b1 = treadStart(r + 1, x1);
+        quad([x0, y, a0], [x0, y, a1], [x1, y, b1], [x1, y, b0]);
+        const ya = (r === 0 ? frontY(a0) : rowFloorY(r - 1)) + lift;
+        const yb = (r === 0 ? frontY(b0) : rowFloorY(r - 1)) + lift;
+        quad([x0, ya, a0], [x0, y, a0], [x1, y, b0], [x1, yb, b0]);
+      }
+      const e0 = treadStart(H.rows, x0);
+      const e1 = treadStart(H.rows, x1);
+      quad([x0, HL + lift, e0], [x0, backY(e0) + lift, e0], [x1, backY(e1) + lift, e1], [x1, HL + lift, e1]);
+      ramp(x0, x1, e0, H.back, e1, H.back, backY, 6);
+    }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.setIndex(idx);
     g.computeVertexNormals();
-    return worldUV(g, 'xz', 3);
+    return g;
   };
-  const floor = new THREE.Mesh(strip(-H.halfW, H.halfW), M.floorWood());
+  // runner uv: u across the runner (gold borders at its edges), v along it
+  const runnerUV = (g, across0, width, along = (x, y, z) => z + y) => {
+    const p = g.attributes.position;
+    const uv = new Float32Array(p.count * 2);
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i);
+      const y = p.getY(i);
+      const z = p.getZ(i);
+      uv[i * 2] = (x - across0) / width;
+      uv[i * 2 + 1] = along(x, y, z) / (width * 1.4);
+    }
+    g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    return g;
+  };
+
+  const floor = new THREE.Mesh(worldUV(stepped(-H.halfW, H.halfW), 'xz', 3), M.floorWood());
   floor.receiveShadow = true;
   group.add(floor);
-  // carpet runners: two aisles, along the walls, front and back cross-aisles
-  const carpets = [];
-  for (const ax of [-7.1, 7.1]) carpets.push(scaleUVx(strip(ax - 0.72, ax + 0.72, 0.012), 1.44));
-  for (const sx of [-1, 1]) carpets.push(scaleUVx(strip(sx > 0 ? 13.85 : -H.halfW, sx > 0 ? H.halfW : -13.85, 0.012), 1.15));
-  const cross = (z0, z1) => {
-    const g = new THREE.PlaneGeometry(H.halfW * 2, z1 - z0, 1, 8);
+
+  // carpeted stair runners in the aisles and along the walls, brass nosings
+  const runners = [];
+  const brass = [];
+  const lights = [];
+  const aisles = [[-7.82, -6.38], [6.38, 7.82], [-H.halfW, -13.85], [13.85, H.halfW]];
+  for (const [xa, xb] of aisles) {
+    runners.push(runnerUV(stepped(xa, xb, 0.012), xa, xb - xa));
+    for (let r = 1; r < H.rows; r++) {
+      const y = rowFloorY(r) + 0.02;
+      brass.push(new THREE.TubeGeometry(new THREE.LineCurve3(V(xa + 0.03, y, treadStart(r, xa) + 0.01), V(xb - 0.03, y, treadStart(r, xb) + 0.01)), 1, 0.011, 6));
+    }
+  }
+  // the two main aisles get a warm step light in every riser, both sides
+  for (const ax of [-7.1, 7.1]) {
+    for (let r = 1; r < H.rows; r++) {
+      const ym = (rowFloorY(r - 1) + rowFloorY(r)) / 2;
+      for (const s of [-1, 1]) {
+        const x = ax + s * 0.6;
+        lights.push(V(x, ym, treadStart(r, x) - 0.008));
+      }
+    }
+  }
+  // cross-aisles in front of the first row and at the back
+  const cross = (z0, z1, f) => {
+    const g = new THREE.PlaneGeometry(H.halfW * 2, z1 - z0, 1, 10);
     g.rotateX(-Math.PI / 2);
     const p = g.attributes.position;
-    for (let i = 0; i < p.count; i++) { const zz = p.getZ(i) + (z0 + z1) / 2; p.setZ(i, zz); p.setY(i, rakeY(zz) + 0.014); }
+    for (let i = 0; i < p.count; i++) {
+      const zz = p.getZ(i) + (z0 + z1) / 2;
+      p.setZ(i, zz);
+      p.setY(i, f(zz) + 0.014);
+    }
     g.computeVertexNormals();
-    return worldUV(g, 'xz', 3.0);
+    // a runner along x: borders run the length of the aisle
+    const uv = g.attributes.uv;
+    for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getZ(i) - z0) / (z1 - z0), p.getX(i) / ((z1 - z0) * 1.4));
+    return g;
   };
-  carpets.push(cross(1.2, 2.75), cross(H.back - 1.5, H.back));
-  addMesh(group, carpets, M.carpetRoyal());
-
-  // amber step lights along the aisles, one per row
-  const pts = [];
-  for (let r = 0; r < H.rows; r++) {
-    const z = H.firstRow + r * H.rowGap - 0.35;
-    for (const ax of [-7.1, 7.1]) for (const s of [-1, 1]) pts.push(V(ax + s * 0.74, rakeY(z) + 0.09, z + (ax * ax) * 0.005));
-  }
-  const lg = new THREE.BoxGeometry(0.06, 0.035, 0.1);
-  const lm = new THREE.InstancedMesh(lg, new THREE.MeshStandardMaterial({ color: '#ffd9a0', emissive: '#ffae4a', emissiveIntensity: 1.2 }), pts.length);
+  runners.push(cross(1.2, 2.6, () => 0), cross(H.back - 1.5, H.back, backY));
+  addMesh(group, runners, M.carpetRoyal());
+  addMesh(group, brass, M.brass());
+  const lg = new THREE.BoxGeometry(0.07, 0.025, 0.012);
+  const lm = new THREE.InstancedMesh(lg, new THREE.MeshStandardMaterial({ color: '#ffd9a0', emissive: '#ffae4a', emissiveIntensity: 1.3 }), lights.length);
   const m = new THREE.Matrix4();
-  pts.forEach((p, i) => { m.makeTranslation(p.x, p.y, p.z); lm.setMatrixAt(i, m); });
+  lights.forEach((p, i) => { m.makeTranslation(p.x, p.y, p.z); lm.setMatrixAt(i, m); });
   group.add(lm);
-}
-
-function scaleUVx(g, w) {
-  // runner texture across its width, repeating along its length
-  const p = g.attributes.position;
-  const uv = g.attributes.uv;
-  let minX = Infinity;
-  for (let i = 0; i < p.count; i++) minX = Math.min(minX, p.getX(i));
-  for (let i = 0; i < uv.count; i++) uv.setXY(i, (p.getX(i) - minX) / w, p.getZ(i) / (w * 1.4));
-  return g;
 }
 
 // ================================================================= walls
@@ -695,7 +764,7 @@ function buildWalls(group, halo) {
       const a = { x: sx * (H.halfW - 0.04), z: zs[i] };
       const b = { x: sx * (H.halfW - 0.04), z: zs[i + 1] };
       const y = rakeY((a.z + b.z) / 2);
-      wains.push(wallSeg(a, b, y, y + 1.25, 0.06));
+      wains.push(wallSeg(a, b, y - 0.2, y + 1.25, 0.06)); // reaches below the stepped floor
       giltG.push(wallSeg({ x: a.x - sx * 0.04, z: a.z }, { x: b.x - sx * 0.04, z: b.z }, y + 1.25, y + 1.31, 0.05));
     }
     // ivory pilasters with gilt capitals between the bays
@@ -948,7 +1017,7 @@ function buildBalconies(group, halo) {
       }
     }
   }
-  addMesh(group, steps, M.carpetRoyal());
+  addMesh(group, steps, M.carpetField());
   addMesh(group, soffits, M.ivoryPlaster());
   const fm = addMesh(group, fronts, M.ornament(), { cast: true });
   if (fm) fm.castShadow = true;

@@ -336,6 +336,39 @@ export function cofferTexture() {
   return c;
 }
 
+// Field carpet for large floors: a quiet lattice of small gold lozenges,
+// no borders (borders belong to runners)
+export function carpetFieldTexture() {
+  const [c, g] = canvas(256, 256);
+  const r = rng(23);
+  g.fillStyle = '#56111a';
+  g.fillRect(0, 0, 256, 256);
+  g.globalAlpha = 0.12;
+  for (let i = 0; i < 9000; i++) {
+    g.fillStyle = r() < 0.5 ? '#000' : '#b85546';
+    g.fillRect(r() * 256, r() * 256, 1, 1);
+  }
+  g.globalAlpha = 1;
+  g.strokeStyle = 'rgba(190,140,70,0.16)';
+  g.lineWidth = 1.2;
+  for (let y = 0; y < 256; y += 64) {
+    for (let x = 0; x < 256; x += 64) {
+      g.beginPath();
+      g.moveTo(x + 32, y); g.lineTo(x + 64, y + 32); g.lineTo(x + 32, y + 64); g.lineTo(x, y + 32); g.closePath();
+      g.stroke();
+    }
+  }
+  g.fillStyle = 'rgba(200,150,70,0.32)';
+  for (let y = 32; y < 256; y += 64) {
+    for (let x = 32; x < 256; x += 64) {
+      g.beginPath();
+      g.moveTo(x, y - 6); g.lineTo(x + 4, y); g.lineTo(x, y + 6); g.lineTo(x - 4, y); g.closePath();
+      g.fill();
+    }
+  }
+  return c;
+}
+
 export function carpetRoyalTexture() {
   const [c, g] = canvas(512, 512);
   const r = rng(19);
@@ -436,7 +469,9 @@ export const M = {
   })),
   marble: () => once('marble', () => new THREE.MeshStandardMaterial({ map: tex(marbleTexture({ seed: 29 }), { repeat: [1, 2] }), roughness: 0.4 })),
   marbleDark: () => once('marbleDark', () => new THREE.MeshStandardMaterial({ map: tex(marbleTexture({ base: '#3a2320', vein: '#a0715a', seed: 31 }), { repeat: [1, 2] }), roughness: 0.42 })),
-  carpetRoyal: () => once('carpetRoyal', () => new THREE.MeshStandardMaterial({ map: tex(carpetRoyalTexture(), { repeat: [1, 8] }), roughness: 0.95 })),
+  // runners: u runs across the runner (gold borders at its edges), v along it
+  carpetRoyal: () => once('carpetRoyal', () => new THREE.MeshStandardMaterial({ map: tex(carpetRoyalTexture(), { repeat: [1, 1] }), roughness: 0.95 })),
+  carpetField: () => once('carpetField', () => new THREE.MeshStandardMaterial({ map: tex(carpetFieldTexture(), { repeat: [1, 1] }), roughness: 0.95 })),
   velvetTint: () => once('velvetTint', () => new THREE.MeshPhysicalMaterial({
     map: tex(velvetTexture('#d8d8d8', 4)), color: '#ffffff', roughness: 0.9, sheen: 0.35, sheenColor: new THREE.Color('#b08a86'), sheenRoughness: 0.8,
   })),

@@ -25,6 +25,30 @@ export function rakeY(z) {
   return z < 2.6 ? 0 : (z - 2.6) * 0.15;
 }
 
+// The stalls are stepped: every row of seats stands on its own level
+// tread (curving with the row), with a low riser up to the next. In front
+// of the first row and behind the last, the floor ramps as before.
+export const ROW_CURVE = 0.005; // rows bow toward the stage: z += x^2 * k
+const TREAD0 = HALL.firstRow - 0.55; // the first tread starts in front of row A's feet
+export function rowFloorY(r) {
+  return rakeY(HALL.firstRow + r * HALL.rowGap);
+}
+// tread index under (x, z), or -1 in front of the rows, HALL.rows behind
+export function stallsRow(x, z) {
+  const s = z - x * x * ROW_CURVE;
+  const r = Math.floor((s - TREAD0) / HALL.rowGap);
+  return r < 0 ? -1 : Math.min(r, HALL.rows);
+}
+export function treadStart(r, x) {
+  return TREAD0 + r * HALL.rowGap + x * x * ROW_CURVE;
+}
+export function stallsY(x, z) {
+  const r = stallsRow(x, z);
+  if (r < 0) return Math.min(rakeY(z), rowFloorY(0));
+  if (r >= HALL.rows) return Math.max(rakeY(z), rowFloorY(HALL.rows - 1));
+  return rowFloorY(r);
+}
+
 // floor-to-floor levels: stalls top / lobby, then 2층, 3층, 4층
 export const Y1 = rakeY(HALL.back);
 export const LEVELS = [Y1, Y1 + 5, Y1 + 10, Y1 + 15];
@@ -281,7 +305,7 @@ export function surfacesAt(x, z, out = []) {
   if (st !== null) out.push(st);
   // stalls (raked); the sides in front of the stage too
   if (z <= HALL.back && (z > lipZ(Math.min(ax, HALL.stageHalfW) * Math.sign(x || 1)) || (ax > HALL.stageHalfW && z > HALL.prosZ + 0.25))) {
-    out.push(rakeY(z));
+    out.push(stallsY(x, z));
   }
   // balconies
   if (z > 4) for (const B of BALCONIES) { const y = balconyY(B, x, z); if (y !== null) out.push(y); }
@@ -294,7 +318,7 @@ export function floorAt(x, z) {
   if (onStage(x, z)) return stageFloorY(x, z);
   const st = stageStairsY(x, z);
   if (st !== null) return st;
-  return rakeY(z);
+  return stallsY(x, z);
 }
 
 const _s = [];

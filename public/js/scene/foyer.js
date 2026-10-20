@@ -75,9 +75,17 @@ export function buildFoyer(group, { halo }) {
   fm.receiveShadow = true;
   group.add(fm);
   // red carpet: entrance to the hall doors
+  // runner uvs: u across the runner (gold borders on its edges), v along it
+  const along = (g, fn) => {
+    const p = g.attributes.position;
+    const uv = new Float32Array(p.count * 2);
+    for (let i = 0; i < p.count; i++) { const [u, v] = fn(p.getX(i), p.getZ(i)); uv[i * 2] = u; uv[i * 2 + 1] = v; }
+    g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    return g;
+  };
   const runner = [
-    uvXZ(new THREE.PlaneGeometry(2.4, z1 - 33.4).rotateX(-Math.PI / 2).translate(0, Y1 + 0.006, (33.4 + z1) / 2), 2.4),
-    uvXZ(new THREE.PlaneGeometry(2.4, 16.6).rotateX(-Math.PI / 2).rotateY(Math.PI / 2).translate(0, Y1 + 0.007, 33.0), 2.4),
+    along(new THREE.PlaneGeometry(2.4, z1 - 34.2).rotateX(-Math.PI / 2).translate(0, Y1 + 0.006, (34.2 + z1) / 2), (x, z) => [(x + 1.2) / 2.4, z / 3.36]),
+    along(new THREE.PlaneGeometry(16.6, 2.4).rotateX(-Math.PI / 2).translate(0, Y1 + 0.01, 33.0), (x, z) => [(z - 31.8) / 2.4, x / 3.36]),
   ];
   add(group, runner, M.carpetRoyal());
 
@@ -338,7 +346,7 @@ export function buildFoyer(group, { halo }) {
   }
   add(group, posts, M.gilt());
   add(group, steps, M.marble());
-  add(group, stepCarpet, M.carpetRoyal());
+  add(group, stepCarpet, M.carpetField());
   add(group, soffit, M.ivoryPlaster());
   add(group, stringer, M.walnut());
   add(group, newels, M.marbleDark());

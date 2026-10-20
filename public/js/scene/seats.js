@@ -104,7 +104,7 @@ export function seatList() {
         const z = z0 + x * x * 0.005;
         if (z > H.back - 1.6) continue;
         rowSeats.push({
-          x, y: rakeY(z), z, yaw: towardStage(x, z, 0.75),
+          x, y: rakeY(z0), z, yaw: towardStage(x, z, 0.75), // the row's tread
           type: premium ? 'premium' : 'theater',
           color: premium ? '#8e1a2b' : '#6e1822',
           level: '1층', row: rowName(r), num: num++, pitch,
