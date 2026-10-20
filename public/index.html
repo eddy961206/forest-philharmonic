@@ -40,7 +40,7 @@
   <!-- start of the show: the musicians come on when you are ready -->
   <div id="startWrap" class="start-wrap" hidden>
     <button id="startBtn" class="btn-start">공연 시작</button>
-    <p class="start-hint" id="startHint">화면을 끌거나 클릭해서 둘러봐요 · <kbd>Space</kbd> 공연 시작</p>
+    <p class="start-hint" id="startHint">화면을 끌거나 클릭해서 둘러봐요 · <kbd>Space</kbd> 점프 · <kbd>K</kbd> 공연 시작</p>
   </div>
 
   <!-- how to look around -->
@@ -67,6 +67,7 @@
   <!-- touch controls -->
   <div id="joystick" class="joystick" hidden aria-hidden="true"><div class="joy-base"><div class="joy-knob" id="joyKnob"></div></div></div>
   <button id="sitBtn" class="sit-btn" hidden>앉기</button>
+  <button id="jumpBtn" class="jump-btn" hidden>점프</button>
 
   <!-- transport -->
   <footer id="transport" class="transport" hidden>
@@ -76,7 +77,7 @@
     <div class="transport-row">
       <div class="t-left">
         <button class="ib" id="btnPrev" aria-label="이전 곡" title="이전 곡 (P)"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
-        <button class="ib ib-main" id="btnPlay" aria-label="재생" title="재생 / 일시정지 (Space)"><svg id="icoPlay" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg><svg id="icoPause" viewBox="0 0 24 24" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+        <button class="ib ib-main" id="btnPlay" aria-label="재생" title="재생 / 일시정지 (K)"><svg id="icoPlay" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg><svg id="icoPause" viewBox="0 0 24 24" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
         <button class="ib" id="btnNext" aria-label="다음 곡" title="다음 곡 (N)"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
         <span class="time" id="time">0:00 / 0:00</span>
       </div>
@@ -163,7 +164,8 @@
         <dt>E</dt><dd>앞의 빈 좌석에 앉기 / 일어서기</dd>
         <dt>휠 · 두 손가락</dt><dd>확대 / 축소 (오페라글라스)</dd>
         <dt>두 번 클릭</dt><dd>연주자 곁으로 가서 듣기 · 좌석에 앉기</dd>
-        <dt>Space</dt><dd>공연 시작 · 재생 / 일시정지</dd>
+        <dt>Space</dt><dd>점프 — 난간을 넘어 아래층으로 뛰어내릴 수도 있어요</dd>
+        <dt>K</dt><dd>공연 시작 · 재생 / 일시정지</dd>
         <dt>N / P</dt><dd>다음 곡 / 이전 곡</dd>
         <dt>← →</dt><dd>10초 이동</dd>
         <dt>R</dt><dd>확대 초기화</dd>

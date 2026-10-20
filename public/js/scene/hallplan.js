@@ -337,6 +337,71 @@ export function stepTo(x, z, fy, { up = 0.45, down = 0.5, head = 1.8 } = {}) {
   return best;
 }
 
+// ------------------------------------------------- falling and jumping
+// The floor you would land on below feet height fy: the highest surface no
+// higher than fy + up. undefined where there is no floor at all (a wall,
+// outside), null where every floor is above you (the face of a higher one).
+export function groundBelow(x, z, fy, up = 0.45) {
+  surfacesAt(x, z, _s);
+  if (!_s.length) return undefined;
+  let best = null;
+  for (const h of _s) if (h <= fy + up && (best === null || h > best)) best = h;
+  return best;
+}
+
+// lowest slab underside above someone standing at fy (for jumps)
+export function headroomAt(x, z, fy) {
+  surfacesAt(x, z, _s);
+  let min = Infinity;
+  for (const h of _s) if (h > fy + 0.45) min = Math.min(min, h - 0.35);
+  return min;
+}
+
+// Railings and parapets: you cannot walk through them, but you can jump
+// over them (getting within VAULT of the top is enough to swing over).
+// Returns the top of a barrier in the way of feet at fy, or null.
+const VAULT = 0.2;
+export function barrierTop(x, z, fy) {
+  const ax = Math.abs(x);
+  for (const B of BALCONIES) {
+    const top = B.y0 + (B.level === 1 ? 0.86 : 0.74);
+    if (fy < B.y0 - 0.4 || fy >= top - VAULT) continue;
+    const s = balconyS(B, x, z);
+    if (ax <= B.sideX + 0.15 && s > -0.42 && s < 0.03) return top; // the bowed front
+    if (Math.abs(ax - B.sideX) < 0.17 && z > B.sideZ0 - 0.17 && s < 0.03) return top; // side gallery fronts
+    if (ax > B.sideX && Math.abs(z - B.sideZ0) < 0.17) return top; // their front ends
+  }
+  if (z <= FOYER.z0 || z >= FOYER.z1) return null;
+  for (let k = 1; k < LEVELS.length; k++) {
+    const Y = LEVELS[k];
+    if (fy < Y - 0.4 || fy >= Y + 0.95 - VAULT) continue;
+    const opening = SPIRAL.centers.some((c) => Math.abs(x - c.x) < FOYER.bridgeW / 2 - 0.12);
+    if (Math.abs(z - FOYER.galleryZ) < 0.16 && !opening) return Y + 0.95; // gallery balustrade
+    for (const c of SPIRAL.centers) {
+      const d = Math.abs(Math.abs(x - c.x) - FOYER.bridgeW / 2);
+      if (d < 0.16 && z > FOYER.galleryZ && z < BRIDGE_END(c)) return Y + 0.95; // bridge sides
+    }
+  }
+  const L = SPIRAL.landing;
+  for (const c of SPIRAL.centers) {
+    const r = Math.hypot(x - c.x, z - c.z);
+    if (r < SPIRAL.rIn || r > SPIRAL.rOut + 0.12) continue;
+    const u = spiralU(c, x, z);
+    if (r > SPIRAL.rOut - 0.2) {
+      // the outer rail, open only where a landing meets its bridge
+      const open = Math.abs(u - L / 2) < Math.asin(FOYER.bridgeW / 2 / SPIRAL.rOut) / TAU;
+      const floors = u < L ? LEVELS.slice(1) : [0, 1, 2].map((t) => spiralStepY(u, t));
+      for (const h of floors) {
+        if (fy >= h - 0.4 && fy < h + 0.95 - VAULT && !(u < L && open)) return h + 0.95;
+      }
+    }
+    // the top landing is closed on its far side
+    const Y4 = LEVELS[3];
+    if (fy >= Y4 - 0.4 && fy < Y4 + 0.95 - VAULT && Math.abs(u - L) * TAU * r < 0.12) return Y4 + 0.95;
+  }
+  return null;
+}
+
 // How open the hall is to a listener at (x, y, z): 1 anywhere inside it;
 // out in the foyer it falls off with the distance to the open doors (two
 // per floor), so the music swells as you walk up to a doorway.

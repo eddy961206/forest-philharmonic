@@ -46,6 +46,7 @@ export class UI {
     $('startWrap').hidden = false;
     if (touch) {
       $('joystick').hidden = false;
+      $('jumpBtn').hidden = false;
       $('startHint').textContent = '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요';
     }
   }
@@ -236,6 +237,7 @@ export class UI {
     click('btnFull', () => this.emit('fullscreen'));
     click('focusClose', () => this.emit('unfocus'));
     click('sitBtn', () => this.emit('sit'));
+    click('jumpBtn', () => this.emit('jump'));
     $('focusSolo').addEventListener('click', (e) => {
       const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
       e.currentTarget.setAttribute('aria-pressed', String(on));
@@ -292,7 +294,8 @@ export class UI {
       if (isFormTarget(t) && ['Space', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.code)) return;
       if (t instanceof HTMLButtonElement && (e.code === 'Space' || e.code === 'Enter')) return;
       const c = e.code;
-      if (c === 'Space') { e.preventDefault(); this.emit('toggle'); }
+      if (c === 'Space') e.preventDefault(); // jump (handled by the walker)
+      else if (c === 'KeyK') this.emit('toggle');
       else if (c === 'KeyN') this.emit('next');
       else if (c === 'KeyP') this.emit('prev');
       else if (c === 'KeyH') document.body.classList.toggle('ui-hidden');

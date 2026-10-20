@@ -247,6 +247,11 @@ body.locked .transport, body.aim .transport { opacity: 0.6; }
   position: fixed; z-index: 12; right: 22px; bottom: 170px; width: 84px; height: 84px; border-radius: 50%;
   border: 1px solid var(--brass); background: rgba(230, 192, 123, 0.9); color: var(--moss); font: 600 17px var(--sans); cursor: pointer;
 }
+.jump-btn {
+  position: fixed; z-index: 12; right: 118px; bottom: 182px; width: 64px; height: 64px; border-radius: 50%;
+  border: 1px solid var(--glass-line); background: rgba(15, 29, 23, 0.55); color: var(--paper); font: 600 15px var(--sans); cursor: pointer;
+  backdrop-filter: blur(6px);
+}
 .string-wrap { touch-action: none; }
 
 /* ------------------------------------------------------------------- help */

@@ -4,7 +4,7 @@
 // lock); dragging still works when the cursor is free. Zoom works like opera
 // glasses. An optional auto-director films the concert for you.
 import * as THREE from 'three';
-import { stepTo, surfacesAt, LEVELS } from './hallplan.js';
+import { stepTo, surfacesAt, LEVELS, groundBelow, headroomAt, barrierTop } from './hallplan.js';
 import { SECTIONS, PODIUM, STAGE_Y, sectionCenter } from '../layout.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -13,7 +13,9 @@ const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 export const ENTRANCE = { pos: V(0, LEVELS[0], 40.4), look: V(0, LEVELS[0] + 1.7, 30) };
 const EYE = 1.62;
-const BODY = 0.24; // keep this far from walls and drops
+const BODY = 0.24; // keep this far from walls and railings
+const GRAVITY = 9.8;
+const JUMP_SPEED = 4.7; // about 1.1 m: enough to swing over a railing
 
 export class Director {
   constructor(camera, dom, hall) {
@@ -47,6 +49,9 @@ export class Director {
     // cursor shows and the view holds still so the buttons can be clicked
     this.uiTop = () => Infinity;
     this.stepPhase = 0;
+    this.vy = 0;
+    this.grounded = true;
+    this.landDip = 0;
     this._bindInput();
     const la = this.lookAt(ENTRANCE.look, this.pos);
     this.yaw = la.yaw;
@@ -58,6 +63,8 @@ export class Director {
 
   placeAt(feet, look) {
     this.feet = feet.y;
+    this.vy = 0;
+    this.grounded = true;
     this.pos.set(feet.x, feet.y + EYE, feet.z);
     const la = this.lookAt(look, this.pos);
     this.yaw = la.yaw;
@@ -132,6 +139,8 @@ export class Director {
     const z = s.z + fwd.z * 0.5;
     const h = stepTo(x, z, s.y, { up: 0.6, down: 0.6 });
     this.feet = h ?? s.y;
+    this.vy = 0;
+    this.grounded = true;
     this.pos.set(h === null ? s.x : x, this.feet + EYE, h === null ? s.z : z);
     this.anim = null;
   }
@@ -147,8 +156,17 @@ export class Director {
       return;
     }
     this.feet = best;
+    this.vy = 0;
+    this.grounded = true;
     this.pos.y = best + EYE;
     this.anim = null;
+  }
+
+  jump() {
+    if (this.mode !== 'walk' || !this.grounded || this.anim) return false;
+    this.vy = JUMP_SPEED;
+    this.grounded = false;
+    return true;
   }
 
   toggleSit() {
@@ -330,6 +348,7 @@ export class Director {
       if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || t.getAttribute?.('role') === 'slider') return;
       if (e.code === 'KeyR' && !e.repeat) { this.targetFov = this.mode === 'walk' ? 64 : 50; return; }
       if (e.code === 'KeyE' && !e.repeat) { if (this.toggleSit()) e.preventDefault(); return; }
+      if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) this.jump(); return; }
       if (e.code === 'Escape' && this.locked) { this.releaseLock(); return; }
       if (MOVE.has(e.code)) {
         if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown'].includes(e.code) && this.mode !== 'walk') this.setMode('walk');
@@ -395,8 +414,12 @@ export class Director {
       mv.multiplyScalar(speed);
       this.vel.lerp(mv, 1 - Math.exp(-dt * 10));
       this._move(this.vel.x * dt, this.vel.z * dt);
-      // eyes follow the feet; stairs feel like steps, not a ramp
-      this.pos.y += (this.feet + EYE - this.pos.y) * (1 - Math.exp(-dt * 14));
+      this._fall(dt);
+      // eyes follow the feet; stairs feel like steps, not a ramp; in the
+      // air they follow exactly, and a landing gives a little dip
+      this.landDip *= Math.exp(-dt * 7);
+      if (this.grounded) this.pos.y += (this.feet + EYE - this.landDip - this.pos.y) * (1 - Math.exp(-dt * 14));
+      else this.pos.y = this.feet + EYE;
       const sp = Math.hypot(this.vel.x, this.vel.z);
       this.stepPhase += dt * sp * 3.4;
       const bob = Math.sin(this.stepPhase * 2) * 0.016 * Math.min(1, sp / 2);
@@ -411,28 +434,57 @@ export class Director {
   }
 
   // try the move, then slide along whatever stopped us
+  // Walk: step up stairs, stop at walls and railings, and walk off any
+  // edge without one - then gravity takes over (see _fall).
   _move(dx, dz) {
     const d = Math.hypot(dx, dz);
     if (d < 1e-6) return;
+    const up = this.grounded ? 0.45 : 0.08;
+    const ok = (x, z) => {
+      const g = groundBelow(x, z, this.feet, up);
+      if (g === undefined || g === null) return false; // a wall, or the face of a higher floor
+      if (barrierTop(x, z, this.feet) !== null) return false; // a railing
+      return headroomAt(x, z, this.feet) > this.feet + 1.75; // no slab at head height
+    };
     const tryAt = (mx, mz) => {
       const l = Math.hypot(mx, mz);
       if (l < 1e-6) return false;
       const nx = this.pos.x + mx;
       const nz = this.pos.z + mz;
-      // probe a body-width ahead so we stop short of walls and edges
-      const h = stepTo(nx + (mx / l) * BODY, nz + (mz / l) * BODY, this.feet);
-      if (h === null) return false;
-      const h2 = stepTo(nx, nz, this.feet);
-      if (h2 === null) return false;
+      // probe a body-width ahead so we stop short of walls and railings
+      if (!ok(nx + (mx / l) * BODY, nz + (mz / l) * BODY) || !ok(nx, nz)) return false;
       this.pos.x = nx;
       this.pos.z = nz;
-      this.feet = h2;
+      if (this.grounded) {
+        const g = groundBelow(nx, nz, this.feet, up);
+        if (g >= this.feet - 0.5) this.feet = g; // a step up or down
+        else { this.grounded = false; this.vy = 0; } // over the edge
+      }
       return true;
     };
     if (tryAt(dx, dz)) return;
     if (tryAt(dx, 0)) { this.vel.z *= 0.5; return; }
     if (tryAt(0, dz)) { this.vel.x *= 0.5; return; }
     this.vel.multiplyScalar(0.3);
+  }
+
+  _fall(dt) {
+    if (this.grounded) return;
+    const prev = this.feet;
+    this.vy -= GRAVITY * dt;
+    this.feet += this.vy * dt;
+    if (this.vy > 0) {
+      const ceil = headroomAt(this.pos.x, this.pos.z, prev);
+      if (this.feet + 1.75 > ceil) { this.feet = Math.max(prev, ceil - 1.75); this.vy = 0; }
+    }
+    const g = groundBelow(this.pos.x, this.pos.z, prev, 0.05);
+    if (g !== undefined && g !== null && this.feet <= g) {
+      this.landDip = Math.min(0.32, -this.vy * 0.035);
+      this.feet = g;
+      this.vy = 0;
+      this.grounded = true;
+      this.pos.y = this.feet + EYE;
+    }
   }
 
   // nearest free seat in front of you, within reach

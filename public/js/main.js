@@ -392,6 +392,7 @@ ui.on('mode', (m) => {
   if (m === 'cinema') ui.toast('편하게 보기: 지금 선율을 이끄는 악기를 따라가요. 드래그하면 다시 직접 봐요.', 2800);
 });
 ui.on('sit', () => director.toggleSit());
+ui.on('jump', () => director.jump());
 ui.on('mute', () => {
   muted = !muted;
   engine.setVolume(muted ? 0 : settings.volume);
