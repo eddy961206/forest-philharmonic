@@ -238,11 +238,12 @@ export const SPHERE_ENTRY = (() => {
 
 // wide shots for the auto-director (and nothing hall-specific)
 const WIDE = [
-  { kind: 'wide', pos: [0, 15, 40], look: [0, 5, -6], fov: 62, drift: [0, -1, -4] },
-  { kind: 'wide2', pos: [-22, 27, 46], look: [0, 6, -6], fov: 58, drift: [6, 0, 0] },
+  // (every one checked to be in open air - not inside a tier or under a slab)
+  { kind: 'wide', pos: [0, 12, 22], look: [0, 4, -6], fov: 60, drift: [0, -1, -4] },
+  { kind: 'wide2', pos: [-20.3, 30, 37.5], look: [0, 6, -6], fov: 58, drift: [6, 0, 0] },
   { kind: 'wide3', pos: [26, 9, 14], look: [-2, 5, -6], fov: 60, drift: [0, 0, 4] },
   { kind: 'floor', pos: [0, 1.7, 8], look: [0, 18, -14], fov: 74, drift: [2, 0, -2] },
-  { kind: 'top', pos: [0, 44, 66], look: [0, 10, -4], fov: 64, drift: [-4, 0, 0] },
+  { kind: 'top', pos: [0, 50, 63], look: [0, 10, -4], fov: 64, drift: [-4, 0, 0] },
   { kind: 'dome', pos: [0, 6, 12], look: [0, 40, 30], fov: 84, drift: [0, 0, 4] },
 ];
 

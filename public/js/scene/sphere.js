@@ -198,7 +198,7 @@ export function buildSphere({ quality = 'high', lite = false } = {}) {
     // (the tunnels and cars are lit from within: a warm emissive stands in
     // for their ceiling lights, which would cost a light each)
     tunnel: new THREE.MeshStandardMaterial({ color: '#2a2b30', roughness: 0.8, emissive: '#5a4630', emissiveIntensity: 0.22 }),
-    tunnelLight: new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#ffe2b8', emissiveIntensity: 1.4 }),
+    tunnelLight: new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#ffe2b8', emissiveIntensity: 1.1 }),
     car: new THREE.MeshStandardMaterial({ color: '#8a8f98', roughness: 0.35, metalness: 0.55, emissive: '#3c3e44', emissiveIntensity: 0.55 }),
     carFloor: new THREE.MeshStandardMaterial({ color: '#2a2b30', roughness: 0.6, emissive: '#2a2a2e', emissiveIntensity: 0.4 }),
     step: new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#ffd8a0', emissiveIntensity: 1.2 }),
@@ -368,7 +368,12 @@ export function buildSphere({ quality = 'high', lite = false } = {}) {
       acc.quad(at(u0, -w, y + h), at(u1, -w, y + h), at(u1, w, y + h), at(u0, w, y + h), [0, -1, 0]);
       acc.quad(at(u0, -w, y), at(u1, -w, y), at(u1, -w, y + h), at(u0, -w, y + h), tv);
       acc.quad(at(u0, w, y), at(u1, w, y), at(u1, w, y + h), at(u0, w, y + h), tv.map((q) => -q));
-      if (lightAcc) lightAcc.quad(at(u0 + 0.4, -0.25, y + h - 0.01), at(u1 - 0.4, -0.25, y + h - 0.01), at(u1 - 0.4, 0.25, y + h - 0.01), at(u0 + 0.4, 0.25, y + h - 0.01), [0, -1, 0]);
+      // small square ceiling lights every 1.3 m
+      if (lightAcc) {
+        for (let u = u0 + 0.8; u < u1 - 0.3; u += 1.3) {
+          lightAcc.quad(at(u - 0.17, -0.17, y + h - 0.01), at(u + 0.17, -0.17, y + h - 0.01), at(u + 0.17, 0.17, y + h - 0.01), at(u - 0.17, 0.17, y + h - 0.01), [0, -1, 0]);
+        }
+      }
     };
     box(A.tunnel, V.r0 - 0.02, V.r1, half, VOM.h, A.aisle, A.tunnelLight);
     box(A.car, V.r1, V.r2, ch, VOM.h, A.carFloor, A.tunnelLight);

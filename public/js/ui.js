@@ -393,6 +393,7 @@ export class UI {
   liftPanel(level) {
     const el = $('liftPanel');
     el.hidden = !level;
+    el.querySelector('small').style.display = this.touch ? 'none' : ''; // no number keys on a phone
     if (level) el.querySelectorAll('button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.level) === level)));
   }
 
