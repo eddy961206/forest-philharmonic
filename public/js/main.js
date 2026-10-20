@@ -502,7 +502,8 @@ const ndc = new THREE.Vector2();
 function hitTest(x, y) {
   ndc.set((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
-  const hits = raycaster.intersectObjects(orchestra.pickables, true);
+  // only musicians who are actually on stage (not waiting behind the doors)
+  const hits = raycaster.intersectObjects(orchestra.pickables.filter((o) => o.visible), true);
   const seatHit = raycaster.intersectObject(hall.seatMesh, false)[0];
   let player = null;
   let dist = Infinity;

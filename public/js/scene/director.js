@@ -107,7 +107,7 @@ export class Director {
     this.seat = seat;
     this.mode = 'seat';
     const fwd = V(-Math.sin(seat.yaw), 0, -Math.cos(seat.yaw));
-    const eye = V(seat.x, seat.y + 1.13, seat.z).addScaledVector(fwd, -0.02);
+    const eye = V(seat.x, seat.y + 1.2, seat.z).addScaledVector(fwd, -0.02);
     this.feet = seat.y;
     const near = this.pos.distanceTo(eye) < 3.5;
     this.flyTo(eye, near ? eye.clone().addScaledVector(fwd, 10).setY(STAGE_FOCUS.y + (eye.y - STAGE_FOCUS.y) * 0.5) : STAGE_FOCUS, near ? dur : 2.4, 50);
@@ -561,7 +561,7 @@ export class Director {
     const up = V(0, 1, 0).applyQuaternion(cam.quaternion);
     if (this.mode === 'cinema' && fixedSeat) {
       const s = fixedSeat;
-      const pos = V(s.x, s.y + 1.13, s.z);
+      const pos = V(s.x, s.y + 1.2, s.z);
       const f = new THREE.Vector3().subVectors(STAGE_FOCUS, pos).normalize();
       return { pos, fwd: f, up: V(0, 1, 0) };
     }

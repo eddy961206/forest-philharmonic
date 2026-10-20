@@ -771,6 +771,7 @@ function buildBalconies(group, halo) {
   const walnut = [];
   const lampPts = [];
   const downPts = [];
+  const railG = [];
   const xs = [];
   for (let x = -H.halfW; x <= H.halfW + 1e-3; x += 0.75) xs.push(x);
   for (const B of BALCONIES) {
@@ -847,10 +848,28 @@ function buildBalconies(group, halo) {
       [{ x: B.sideX, z: frontPts[frontPts.length - 1].z }, { x: B.sideX, z: B.sideZ0 }],
     ];
     const yb = B.y0 - 0.55;
-    const yt = B.y0 + 0.78; // low enough to see the stage floor over it
+    // a low ornamented front and, above it, a slim brass rail on posts:
+    // from the upper tiers you look steeply down, over the front, between
+    // the posts
+    const yt = B.y0 + (B.level === 1 ? 0.5 : 0.42);
+    const yr = B.y0 + (B.level === 1 ? 0.86 : 0.74); // the upper tiers look down more steeply
+    // the side galleries of the upper tiers look down across their own
+    // front at the steepest angle: their solid front is lower still
+    const sideTop = B.level === 3 ? B.y0 + 0.14 : B.level === 2 ? B.y0 + 0.25 : yt;
+    const railRun = (pa, pb, top = yt) => {
+      railG.push(new THREE.TubeGeometry(new THREE.LineCurve3(V(pa.x, yr, pa.z), V(pb.x, yr, pb.z)), 1, 0.022, 8));
+      const len = Math.hypot(pb.x - pa.x, pb.z - pa.z);
+      const n = Math.max(1, Math.round(len / 1.1));
+      for (let k = 0; k <= n; k++) {
+        const x = pa.x + ((pb.x - pa.x) * k) / n;
+        const z = pa.z + ((pb.z - pa.z) * k) / n;
+        railG.push(new THREE.CylinderGeometry(0.012, 0.016, yr - top, 8).translate(x, (yr + top) / 2, z));
+      }
+    };
     // which way each run faces (out over the stalls)
     const outward = [{ x: 1, z: 0 }, { x: 0, z: -1 }, { x: -1, z: 0 }];
     runs.forEach((run, ri) => {
+      const top = ri === 1 ? yt : sideTop;
       for (let i = 0; i < run.length - 1; i++) {
         const a = run[i];
         const b = run[i + 1];
@@ -859,10 +878,11 @@ function buildBalconies(group, halo) {
         for (let k = 0; k < nSub; k++) {
           const pa = { x: a.x + ((b.x - a.x) * k) / nSub, z: a.z + ((b.z - a.z) * k) / nSub };
           const pb = { x: a.x + ((b.x - a.x) * (k + 1)) / nSub, z: a.z + ((b.z - a.z) * (k + 1)) / nSub };
-          fronts.push(wallSeg(pa, pb, yb + 0.12, yt - 0.12, 0.3));
-          caps.push(wallSeg(pa, pb, yt - 0.12, yt, 0.26));
-          giltG.push(wallSeg(pa, pb, yt - 0.16, yt - 0.12, 0.38));
+          fronts.push(wallSeg(pa, pb, yb + 0.12, top - 0.08, 0.3));
+          caps.push(wallSeg(pa, pb, top - 0.08, top, 0.24));
+          giltG.push(wallSeg(pa, pb, top - 0.12, top - 0.08, 0.36));
           giltG.push(wallSeg(pa, pb, yb, yb + 0.12, 0.38));
+          railRun(pa, pb, top);
         }
         // lamps on the outer face of the front: they light the gilt
         // ornament for the stalls and never stand in anyone's view
@@ -877,9 +897,10 @@ function buildBalconies(group, halo) {
     for (const sx of [-1, 1]) {
       const a = { x: sx * B.sideX, z: B.sideZ0 };
       const b = { x: sx * H.halfW, z: B.sideZ0 };
-      fronts.push(wallSeg(a, b, yb + 0.12, yt - 0.12, 0.3));
-      caps.push(wallSeg(a, b, yt - 0.12, yt, 0.26));
+      fronts.push(wallSeg(a, b, yb + 0.12, sideTop - 0.08, 0.3));
+      caps.push(wallSeg(a, b, sideTop - 0.08, sideTop, 0.24));
       giltG.push(wallSeg(a, b, yb, yb + 0.12, 0.38));
+      railRun(a, b, sideTop);
       // side gallery slab and soffit
       const len = balconyZ(B, sx * 14, 0) - B.sideZ0;
       const slab = new THREE.BoxGeometry(H.halfW - B.sideX, 0.55, len);
@@ -916,6 +937,7 @@ function buildBalconies(group, halo) {
   addMesh(group, caps, new THREE.MeshPhysicalMaterial({ color: '#4e1019', roughness: 0.85, sheen: 0.7, sheenColor: new THREE.Color('#c86a5e') }));
   addMesh(group, giltG, M.gilt());
   addMesh(group, walnut, M.walnut());
+  addMesh(group, railG, M.brass());
   // balcony-front lamps: a frosted globe in a little gilt cup
   const post = new THREE.CylinderGeometry(0.055, 0.03, 0.07, 12).translate(0, -0.06, 0);
   const pm = new THREE.InstancedMesh(post, M.gilt(), lampPts.length);

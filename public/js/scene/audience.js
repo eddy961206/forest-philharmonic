@@ -137,7 +137,7 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random }
     const fur = pick(sp.fur, rand());
     const lady = rand() < 0.5;
     const outfit = lady ? pick(GOWNS, rand()) : pick(TUX, rand());
-    const sc = 0.9 + rand() * 0.2;
+    const sc = 0.8 + rand() * 0.12; // compact enough to see past
     q.setFromAxisAngle(Y, s.yaw + (rand() - 0.5) * 0.25);
     const m = m4.compose(V(s.x, s.y, s.z), q, V(sc, sc, sc)).clone();
     const phase = rand() * 100;

@@ -12,7 +12,7 @@ export const HALL = {
   front: -13.6, // stage back wall
   back: 31.5, // hall back wall (inner face)
   wallT: 0.4,
-  ceiling: 22.5,
+  ceiling: 23.5, // set from the floor levels below
   firstRow: 3.2,
   rowGap: 0.95,
   rows: 26,
@@ -21,12 +21,14 @@ export const HALL = {
 };
 
 export function rakeY(z) {
-  return z < 2.6 ? 0 : (z - 2.6) * 0.118;
+  // steep enough that every row sees over the heads in front
+  return z < 2.6 ? 0 : (z - 2.6) * 0.15;
 }
 
 // floor-to-floor levels: stalls top / lobby, then 2층, 3층, 4층
 export const Y1 = rakeY(HALL.back);
 export const LEVELS = [Y1, Y1 + 5, Y1 + 10, Y1 + 15];
+HALL.ceiling = Math.round((LEVELS[3] + 4.1) * 100) / 100;
 export const LEVEL_NAMES = ['1층', '2층', '3층', '4층'];
 
 // stage front lip: a gentle curve bulging toward the audience
@@ -149,8 +151,8 @@ function stageStairsY(x, z) {
 const bow = (x, c) => -c * (1 - (x / HALL.halfW) ** 2);
 export const BALCONIES = [
   { level: 1, name: '2층', zFront: 23.2, rows: 7, depth: 0.95, rise: 0.36, sideX: 12.6, sideZ0: 5.0, bow: 1.3 },
-  { level: 2, name: '3층', zFront: 25.1, rows: 5, depth: 0.95, rise: 0.42, sideX: 13.0, sideZ0: 6.5, bow: 1.0 },
-  { level: 3, name: '4층', zFront: 27.0, rows: 3, depth: 0.95, rise: 0.5, sideX: 13.4, sideZ0: 8.0, bow: 0.7 },
+  { level: 2, name: '3층', zFront: 25.1, rows: 5, depth: 0.95, rise: 0.46, sideX: 13.0, sideZ0: 6.5, bow: 1.0 },
+  { level: 3, name: '4층', zFront: 27.0, rows: 3, depth: 0.95, rise: 0.58, sideX: 13.4, sideZ0: 8.0, bow: 0.7 },
 ].map((B) => {
   const top = LEVELS[B.level];
   const y0 = top - B.rows * B.rise;

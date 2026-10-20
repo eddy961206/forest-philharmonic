@@ -21,12 +21,12 @@ const merge = (list) => mergeGeometries(list.map(strip));
 // Local frame: origin on the floor under the seat, sitter faces -z.
 function theaterSeat(width = 0.54, tall = false) {
   const w = width - 0.08;
-  const backH = tall ? 0.78 : 0.62;
+  const backH = tall ? 0.6 : 0.54; // low enough to see over from the row behind
   const fabric = [
     RB(w, 0.12, 0.46, 0.05).translate(0, 0.44, -0.03),
     RB(w, backH, 0.11, 0.05).rotateX(-0.14).translate(0, 0.5 + backH / 2, 0.25),
   ];
-  if (tall) fabric.push(RB(w * 0.8, 0.12, 0.13, 0.055).rotateX(-0.14).translate(0, 0.5 + backH - 0.02, 0.22)); // head roll
+  if (tall) fabric.push(RB(w * 0.8, 0.1, 0.12, 0.05).rotateX(-0.14).translate(0, 0.5 + backH - 0.08, 0.22)); // head roll
   const frame = [];
   for (const sx of [-1, 1]) {
     frame.push(RB(0.05, 0.6, 0.5, 0.02).translate(sx * (width / 2 - 0.02), 0.3, 0.06));
@@ -93,21 +93,25 @@ export function seatList() {
     for (const b of [{ x0: -13.5, x1: -7.95 }, { x0: -6.25, x1: 6.25, centre: true }, { x0: 7.95, x1: 13.5 }]) {
       const premium = b.centre && r >= 4 && r <= 11;
       const pitch = premium ? 0.68 : 0.56;
-      const n = Math.floor((b.x1 - b.x0) / pitch) + 1;
-      const span = (n - 1) * pitch;
-      const xs = b.x0 + ((b.x1 - b.x0) - span) / 2;
+      // every other row shifts half a seat: you look between two heads
+      const shift = r % 2 ? pitch / 2 : 0;
+      const n = Math.floor((b.x1 - b.x0 - shift) / pitch) + 1;
+      const span = (n - 1) * pitch + shift;
+      const xs = b.x0 + ((b.x1 - b.x0) - span) / 2 + shift;
+      const rowSeats = [];
       for (let i = 0; i < n; i++) {
         const x = xs + i * pitch;
         const z = z0 + x * x * 0.005;
         if (z > H.back - 1.6) continue;
-        list.push({
+        rowSeats.push({
           x, y: rakeY(z), z, yaw: towardStage(x, z, 0.75),
           type: premium ? 'premium' : 'theater',
           color: premium ? '#8e1a2b' : '#6e1822',
-          level: '1층', row: rowName(r), num: num++,
-          endL: i === 0, endR: i === n - 1, pitch,
+          level: '1층', row: rowName(r), num: num++, pitch,
         });
       }
+      if (rowSeats.length) { rowSeats[0].endL = true; rowSeats[rowSeats.length - 1].endR = true; }
+      list.push(...rowSeats);
     }
   }
   // ---- balconies
@@ -116,7 +120,7 @@ export function seatList() {
     for (let r = 0; r < B.rows; r++) {
       let num = 1;
       const s = r * B.depth + 0.6; // legroom behind the parapet
-      for (let x = -14.35; x <= 14.36; x += 0.56) {
+      for (let x = -14.35 + (r % 2) * 0.28; x <= 14.36; x += 0.56) {
         if (BALCONY_AISLES.some((c) => Math.abs(x - c) < AISLE_HALF + 0.27)) continue;
         const z = balconyZ(B, x, s);
         list.push({ x, y: B.y0 + r * B.rise, z, yaw: towardStage(x, z, 0.85), type: 'theater', color: tierColor[bi], level: B.name, row: rowName(r), num: num++ });
@@ -142,8 +146,11 @@ export function seatList() {
         }
       } else {
         let num = 1;
-        for (let z = B.sideZ0 + 0.5; z < zEnd; z += 0.6) {
-          const x = side * (B.sideX + 0.5);
+        // spaced so the next seat toward the stage is out of your sightline,
+        // and close to the edge: near the stage you look down under the rail,
+        // across the hall you look over it
+        for (let z = B.sideZ0 + 0.5; z < zEnd; z += 0.9) {
+          const x = side * (B.sideX + 0.45);
           list.push({ x, y: B.y0, z, yaw: towardStage(x, z, 1, -4), type: 'theater', color: tierColor[bi], level: B.name, row: 'SIDE', side: side < 0 ? 'L' : 'R', num: num++ });
         }
       }
