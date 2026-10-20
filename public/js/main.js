@@ -140,7 +140,8 @@ function seatAudience(on) {
   }
   refreshOccupied();
 }
-const effects = buildEffects(scene, { fireflies: LITE ? 40 : 170, dust: LITE ? 140 : 520 });
+// (no fireflies indoors at the Sphere - only dust in the light)
+const effects = buildEffects(scene, { fireflies: IS_SPHERE ? 0 : LITE ? 40 : 170, dust: LITE ? 140 : 520 });
 // in the Sphere the broadcast goes up on the dome (IMAG) instead of a screen
 // of its own; the dome stops sampling the picture while it is being drawn
 const screen = buildScreen(scene, renderer, IS_SPHERE ? {
