@@ -118,6 +118,13 @@
         <label class="slider">곡 사이 쉬는 시간 <input type="range" id="gap" min="2" max="20" step="1" value="7"><output id="gapOut">7초</output></label>
       </fieldset>
       <fieldset class="field">
+        <legend>잠들기 전에</legend>
+        <div class="seg" id="sleepSeg">
+          <button data-min="0" aria-pressed="true">끄지 않음</button><button data-min="15">15분</button><button data-min="30">30분</button><button data-min="60">1시간</button>
+        </div>
+        <p class="hint" id="sleepText">정한 시간이 지나면 30초에 걸쳐 소리를 줄이고 멈춰요.</p>
+      </fieldset>
+      <fieldset class="field">
         <legend>분위기</legend>
         <label class="check"><input type="checkbox" id="optNotes" checked> 떠오르는 음표</label>
         <label class="check"><input type="checkbox" id="optGlow" checked> 연주 중인 자리 빛</label>
@@ -134,8 +141,8 @@
         <dt>드래그</dt><dd>주변 둘러보기</dd>
         <dt>휠 · 두 손가락</dt><dd>확대 / 축소 (오페라글라스)</dd>
         <dt>W A S D</dt><dd>걷기 · Shift 빨리 · G 날기 모드 · Q/E 위아래</dd>
-        <dt>연주자 두 번 클릭</dt><dd>그 연주자 곁으로 가서 듣기</dd>
-        <dt>빈 좌석 두 번 클릭</dt><dd>그 자리에 앉기</dd>
+        <dt>연주자 두 번 누르기</dt><dd>그 연주자 곁으로 가서 듣기</dd>
+        <dt>빈 좌석 두 번 누르기</dt><dd>그 자리에 앉기</dd>
         <dt>Space</dt><dd>재생 / 일시정지</dd>
         <dt>← →</dt><dd>10초 이동 (걷기 모드 밖에서)</dd>
         <dt>N / P</dt><dd>다음 곡 / 이전 곡</dd>

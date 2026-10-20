@@ -83,8 +83,9 @@ export class UI {
   }
 
   setPlaying(on) {
-    $('icoPlay').hidden = on;
-    $('icoPause').hidden = !on;
+    // SVG elements have no .hidden property; toggle the attribute instead
+    $('icoPlay').toggleAttribute('hidden', on);
+    $('icoPause').toggleAttribute('hidden', !on);
     $('btnPlay').setAttribute('aria-label', on ? '일시정지' : '재생');
   }
 
@@ -136,6 +137,19 @@ export class UI {
     chip.hidden = false;
   }
 
+  setSleepLeft(ms) {
+    const el = $('sleepText');
+    if (!el) return;
+    if (ms > 0) {
+      const m = Math.floor(ms / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      el.textContent = `${m}분 ${String(s).padStart(2, '0')}초 뒤에 멈춰요.`;
+    } else {
+      el.textContent = '정한 시간이 지나면 30초에 걸쳐 소리를 줄이고 멈춰요.';
+      document.querySelectorAll('#sleepSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.min === '0')));
+    }
+  }
+
   setFps(fps, q) {
     const el = $('fpsText');
     if (el && !$('panel').hidden) el.textContent = `지금 ${Math.round(fps)} fps, 화질 ${({ high: '높음', medium: '보통', low: '낮음' })[q]}`;
@@ -160,12 +174,10 @@ export class UI {
     document.querySelectorAll('.mode').forEach((b) => b.addEventListener('click', () => this.emit('mode', b.dataset.mode)));
 
     // panel tabs
-    const titles = { program: '오늘의 프로그램', seats: '좌석 고르기', settings: '설정' };
     document.querySelectorAll('.tab-btn').forEach((b) => b.addEventListener('click', () => {
       const name = b.dataset.panel;
       const open = $('panel').hidden || this.openPanel !== name;
       this.showPanel(open ? name : null);
-      void titles;
     }));
     $('panelClose').addEventListener('click', () => this.showPanel(null));
 
@@ -196,6 +208,12 @@ export class UI {
     gap.addEventListener('input', () => {
       $('gapOut').textContent = `${gap.value}초`;
       this.onSetting('gap', Number(gap.value));
+    });
+    document.querySelectorAll('#sleepSeg button').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#sleepSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        this.emit('sleep', Number(b.dataset.min));
+      });
     });
     document.querySelectorAll('#qualitySeg button').forEach((b) => {
       b.setAttribute('aria-pressed', String(b.dataset.q === this.settings.quality));

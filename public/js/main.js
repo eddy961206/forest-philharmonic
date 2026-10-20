@@ -88,6 +88,8 @@ applyQuality();
 ui.buildSeatMap(hall.seats);
 
 const bestSeat = hall.seats.find((s) => s.level === '1층' && s.row === 'G' && Math.abs(s.x) < 0.35);
+const headPositions = orchestra.players.map((p) => p.char.root.position.clone().add(new THREE.Vector3(0, 1.25 * p.char.scale, 0)));
+headPositions.push(orchestra.conductor.char.root.position.clone().add(new THREE.Vector3(0, 1.35, 0)));
 
 // ------------------------------------------------------------------ audio
 const engine = new AudioEngine();
@@ -184,6 +186,11 @@ function togglePlay() {
   if (intermission) {
     clearTimeout(intermission);
     intermission = null;
+    // during the break after a piece, "play" means: begin the next one now
+    if (perf.pos >= perf.duration - 0.1) {
+      startPiece(nextIndex(), 0.6);
+      return;
+    }
     perf.play();
     ui.setPlaying(true);
     hall.setHouseLights(0.12);
@@ -239,6 +246,37 @@ ui.on('unfocus', () => {
   director.sitAt(director.lastSeat || bestSeat);
 });
 ui.on('solo', (on) => engine.setFocus(on && focused ? focused.sid : null));
+
+// sleep timer: fade the hall out gently, then pause
+let sleepAt = 0;
+let sleepFading = false;
+ui.on('sleep', (minutes) => {
+  sleepAt = minutes ? performance.now() + minutes * 60000 : 0;
+  sleepFading = false;
+  engine.setVolume(muted ? 0 : settings.volume);
+  ui.toast(minutes ? `${minutes}분 뒤에 천천히 소리를 줄이고 멈출게요.` : '끄기 예약을 취소했어요.', 2400);
+});
+setInterval(() => {
+  if (!sleepAt) return;
+  const left = sleepAt - performance.now();
+  ui.setSleepLeft(Math.max(0, left));
+  if (left <= 30000 && !sleepFading && perf.playing) {
+    sleepFading = true;
+    engine.master.gain.setTargetAtTime(0, engine.now, 8);
+  }
+  if (left <= 0) {
+    sleepAt = 0;
+    sleepFading = false;
+    clearTimeout(intermission);
+    intermission = null;
+    if (perf.playing) perf.pause();
+    ui.setPlaying(false);
+    hall.setHouseLights(0.25);
+    setTimeout(() => engine.setVolume(muted ? 0 : settings.volume), 800);
+    ui.setSleepLeft(0);
+    ui.toast('편안한 밤 되세요. 공연을 멈췄어요.', 4000);
+  }
+}, 1000);
 
 director.on((type, data) => {
   if (type === 'mode') {
@@ -422,7 +460,7 @@ function frame() {
     director.yaw = la.yaw;
     director.pitch = la.pitch;
   }
-  director.update(dt, { time: t, perf });
+  director.update(dt, { time: t, perf, obstacles: headPositions });
 
   if (engine.ctx) {
     const L = director.listener(settings.fixedEar ? bestSeat : null);

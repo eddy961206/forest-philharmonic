@@ -7,7 +7,6 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import zlib from 'node:zlib';
-import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
@@ -142,4 +141,3 @@ server.listen(PORT, HOST, () => {
 const shutdown = () => server.close(() => process.exit(0));
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
-void crypto;

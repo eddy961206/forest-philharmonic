@@ -207,7 +207,18 @@ export class Director {
       this.pitch = clamp(this.pitch + dy * k, -1.35, 1.35);
       this.anim = null;
     });
+    let lastTap = { t: 0, x: 0, y: 0 };
     const up = (e) => {
+      // touch screens: two quick taps in place = double-click
+      if (e.pointerType === 'touch' && moved < 10 && pointers.size === 1) {
+        const now = performance.now();
+        if (now - lastTap.t < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
+          this._emit('pick', { x: e.clientX, y: e.clientY });
+          lastTap.t = 0;
+        } else {
+          lastTap = { t: now, x: e.clientX, y: e.clientY };
+        }
+      }
       pointers.delete(e.pointerId);
       if (pointers.size < 2) pinch0 = 0;
       if (!pointers.size) dragging = false;
@@ -219,7 +230,10 @@ export class Director {
       e.preventDefault();
       this.zoom(e.deltaY);
     }, { passive: false });
-    el.addEventListener('dblclick', (e) => this._emit('pick', { x: e.clientX, y: e.clientY }));
+    el.addEventListener('dblclick', (e) => {
+      if (e.sourceCapabilities?.firesTouchEvents) return; // handled as a double-tap
+      this._emit('pick', { x: e.clientX, y: e.clientY });
+    });
     el.addEventListener('click', (e) => {
       if (moved < 6) this._emit('click', { x: e.clientX, y: e.clientY });
     });
@@ -321,7 +335,7 @@ export class Director {
   // screens keep the same horizontal field of view instead.
   _effectiveFov(f) {
     const a = this.camera.aspect;
-    const ref = 1.45;
+    const ref = 1.05;
     if (a >= ref) return f;
     const h = 2 * Math.atan(Math.tan((f * Math.PI) / 360) * ref);
     return Math.min(100, (2 * Math.atan(Math.tan(h / 2) / a) * 180) / Math.PI);
@@ -330,7 +344,6 @@ export class Director {
   // ------------------------------------------------------------ auto director
   _cinema(dt, ctx) {
     const c = this.cine;
-    const t = ctx.time;
     c.clock = (c.clock || 0) + dt;
     if (!c.shot || c.clock > c.until || (this.anim == null && c.drift == null)) {
       const shot = this._pickShot(ctx);
@@ -353,7 +366,6 @@ export class Director {
       this.yaw += (yaw - this.yaw) * (1 - Math.exp(-dt * 2));
       this.pitch += (pitch - this.pitch) * (1 - Math.exp(-dt * 2));
     }
-    void t;
   }
 
   _pickShot(ctx) {
@@ -397,6 +409,15 @@ export class Director {
         shot = { kind: 'section', pos, look, fov: 40, drift: lateral.clone().multiplyScalar(-0.9) };
       }
     } else shot = wide();
+    // keep the lens out of the musicians' heads
+    if (ctx.obstacles) {
+      for (let k = 0; k < 8; k++) {
+        const hit = ctx.obstacles.find((o) => o.distanceTo(shot.pos) < 0.95);
+        if (!hit) break;
+        const away = new THREE.Vector3().subVectors(shot.pos, shot.look).setY(0).normalize();
+        shot.pos.addScaledVector(away, 0.45).add(V(0, 0.3, 0));
+      }
+    }
     shot.hold = slow + Math.random() * 6;
     shot.cut = Math.random() < 0.2;
     return shot;

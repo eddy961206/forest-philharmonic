@@ -526,7 +526,6 @@ function buildSeats(seats) {
   // main floor: centre block + two side blocks, gently curved rows
   for (let r = 0; r < H.rows; r++) {
     const z = H.firstRow + r * H.rowGap;
-    const y = rakeY(z);
     const blocks = [
       { x0: -12.9, x1: -7.9 },
       { x0: -6.3, x1: 6.3 },
@@ -540,11 +539,10 @@ function buildSeats(seats) {
         const curve = (x * x) * 0.006; // rows curve toward the stage
         const zz = z + curve;
         if (zz > H.back - 0.6) continue;
-        const yaw = Math.atan2(-x, 18) * 0.6;
+        const yaw = Math.atan2(x, 18) * 0.6; // angle toward the stage centre
         list.push({ x, y: rakeY(zz), z: zz, yaw, level: '1층', row: rowName(r), num: num++ });
       }
     }
-    void y;
   }
   // rear balcony
   for (let r = 0; r < 5; r++) {
@@ -552,7 +550,7 @@ function buildSeats(seats) {
     const y = H.balconyY + r * 0.42;
     let num = 1;
     for (let x = -13.6; x <= 13.61; x += 0.58) {
-      list.push({ x, y, z, yaw: Math.atan2(-x, 30) * 0.5, level: '2층', row: rowName(r), num: num++ });
+      list.push({ x, y, z, yaw: Math.atan2(x, 30) * 0.5, level: '2층', row: rowName(r), num: num++ });
     }
   }
   // side boxes
