@@ -21,12 +21,49 @@
   <!-- splash / loading -->
   <section id="splash" class="splash" aria-live="polite">
     <div class="splash-inner">
-      <h1 class="splash-title">숲속 필하모닉</h1>
-      <p class="splash-sub">달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 쉰 곡을 들려드립니다.</p>
-      <p id="loadText" class="splash-load">공연장을 짓는 중</p>
-      <div class="splash-bar" aria-hidden="true"><span id="loadBar"></span></div>
-      <button id="enterBtn" class="btn-enter" disabled>공연장 입장</button>
-      <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. 걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></p>
+      <div class="splash-intro">
+        <h1 class="splash-title">숲속 필하모닉</h1>
+        <p class="splash-sub">달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 쉰 곡을 들려드립니다.</p>
+        <p id="loadText" class="splash-load">공연장을 짓는 중</p>
+        <div class="splash-bar" aria-hidden="true"><span id="loadBar"></span></div>
+        <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. 걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></p>
+      </div>
+
+      <!-- lobby: who you are, then a room to watch in (or alone) -->
+      <div class="lobby" id="lobby">
+        <div class="lb-who">
+          <label class="lb-field lb-name">닉네임<input id="lbName" maxlength="16" autocomplete="nickname" spellcheck="false"></label>
+          <label class="lb-field lb-animal">동물<select id="lbAvatar"></select></label>
+        </div>
+
+        <div id="lbInvite" class="lb-invite" hidden>
+          <p>초대받은 방 <b id="lbInviteCode"></b></p>
+          <button id="lbInviteGo" class="btn-enter lb-go" disabled>이 방으로 들어가기</button>
+        </div>
+
+        <div id="lbOnline" class="lb-online" hidden>
+          <div class="lb-head"><h2>같이 보는 방</h2><button id="lbRefresh" class="lb-mini" type="button">새로고침</button></div>
+          <ul id="lbRooms" class="lb-rooms" aria-live="polite"></ul>
+
+          <h2 class="lb-h">방 만들기</h2>
+          <div class="lb-create">
+            <input id="lbTitle" maxlength="30" placeholder="방 제목 (예: 금요일 밤 클래식)">
+            <label class="lb-cap"><input id="lbCap" type="number" min="1" max="50" value="50" inputmode="numeric"> 명</label>
+          </div>
+          <div class="lb-vis" id="lbVis">
+            <button type="button" data-pub="1" aria-pressed="true"><b>공개</b><small>방 목록에 보여요</small></button>
+            <button type="button" data-pub="0" aria-pressed="false"><b>비공개</b><small>초대 링크로만</small></button>
+          </div>
+          <button id="lbCreate" class="btn-enter lb-go" disabled>방 만들고 입장</button>
+          <details class="lb-code">
+            <summary>방 코드로 들어가기</summary>
+            <div><input id="lbCode" maxlength="6" placeholder="예: K7QH2M" autocapitalize="characters" spellcheck="false"><button id="lbJoinCode" class="lb-mini" type="button" disabled>들어가기</button></div>
+          </details>
+        </div>
+
+        <p id="lbError" class="lb-error" role="alert" hidden></p>
+        <button id="enterBtn" class="lb-solo" disabled>혼자 보기</button>
+      </div>
     </div>
   </section>
 
@@ -63,6 +100,14 @@
     <button id="focusSolo" class="chip-btn" aria-pressed="false">이 파트 크게 듣기</button>
     <button id="focusClose" class="chip-btn" aria-label="연주자 보기 닫기">닫기</button>
   </div>
+
+  <!-- watching together: the room, its people, chat -->
+  <button id="roomChip" class="room-chip" hidden aria-label="같이 보는 사람들"><span class="rc-dot" aria-hidden="true"></span><span id="roomChipTitle"></span><span id="roomChipCount" class="rc-count"></span></button>
+  <div id="chat" class="chat" hidden>
+    <ol id="chatLog" class="chat-log" aria-live="polite"></ol>
+    <form id="chatForm" class="chat-form" hidden autocomplete="off"><input id="chatInput" maxlength="140" enterkeyhint="send" placeholder="메시지 보내기 (Esc 닫기)"></form>
+  </div>
+  <button id="chatBtn" class="chat-btn" hidden aria-label="채팅">채팅</button>
 
   <!-- touch controls -->
   <div id="joystick" class="joystick" hidden aria-hidden="true"><div class="joy-base"><div class="joy-knob" id="joyKnob"></div></div></div>
@@ -111,6 +156,17 @@
         <label class="check"><input type="checkbox" id="optShuffle"> 무작위 순서</label>
         <label class="check"><input type="checkbox" id="optRepeatOne"> 한 곡 반복</label>
       </div>
+    </div>
+
+    <div class="panel-body" data-body="room" hidden>
+      <p class="room-title" id="roomTitle"></p>
+      <div class="room-invite">
+        <span>방 코드 <b id="roomCode"></b></span>
+        <button class="lb-mini" id="roomCopy" type="button">초대 링크 복사</button>
+      </div>
+      <p class="hint" id="roomHostHint"></p>
+      <ul class="room-members" id="roomMembers"></ul>
+      <button class="btn-plain room-leave" id="roomLeave" type="button">방 나가기</button>
     </div>
 
     <div class="panel-body" data-body="settings" hidden>
@@ -170,7 +226,7 @@
         <dt>← →</dt><dd>10초 이동</dd>
         <dt>R</dt><dd>확대 초기화</dd>
         <dt>H</dt><dd>화면 표시 숨기기</dd>
-        <dt>Enter</dt><dd>전체 화면</dd>
+        <dt>Enter</dt><dd>전체 화면 · 같이 보는 방에서는 채팅</dd>
         <dt>M</dt><dd>음소거</dd>
       </dl>
       <button class="btn-plain" id="helpClose">닫기</button>

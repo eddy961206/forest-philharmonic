@@ -20,6 +20,8 @@ import { setAnisotropy, setLite } from './scene/materials.js';
 import { hallOpenness } from './scene/hallplan.js';
 import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
+import { RoomClient, listRooms } from './net/room.js';
+import { Avatars, AVATARS, randomIdentity } from './scene/avatars.js';
 
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
@@ -99,16 +101,32 @@ const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
 let audience = null;
 let director = null;
+let room = null; // RoomClient while watching together
+const avatars = new Avatars(scene, hall.seats); // the other people in the room
+
+// a small seeded random generator: the same numbers on every screen
+function seeded(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 function seatAudience(on) {
   if (audience) { audience.dispose(); audience = null; }
   if (on) {
     // a new crowd every time: who comes, how many, and where they sit
+    // (in a room: the same crowd for everyone)
     const exclude = new Set();
     if (director?.seat && director.seat.index >= 0) exclude.add(director.seat.index);
-    audience = buildAudience(hall.seats, { exclude, lite: LITE });
+    audience = buildAudience(hall.seats, { exclude, lite: LITE, rand: room ? seeded(room.seed) : Math.random, reserveAll: !!room });
     scene.add(audience.group);
   }
-  if (director) director.occupied = audience ? audience.occupied : new Set();
+  refreshOccupied();
 }
 const effects = buildEffects(scene, { fireflies: LITE ? 40 : 170, dust: LITE ? 140 : 520 });
 const screen = buildScreen(scene, renderer, { lite: LITE });
@@ -166,13 +184,31 @@ async function boot() {
   ui.ready();
 }
 
-ui.on('enter', async () => {
-  // fullscreen must be requested inside the click itself
-  director.active = true;
+ui.on('enter', async (opt) => {
+  try { localStorage.setItem('fp-identity', JSON.stringify({ name: opt.name, avatar: opt.avatar })); } catch { /* private mode */ }
+  // fullscreen and sound must be started inside the click itself
   goFullscreen();
   // never wait on the audio context: some browsers settle it late
   try { engine.ctx.resume().catch(() => {}); } catch { /* ignored */ }
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
+  if (opt.mode !== 'solo') {
+    ui.lobbyBusy(true);
+    room = new RoomClient();
+    wireRoom(room);
+    try {
+      await room.enter({ name: opt.name, avatar: opt.avatar, code: opt.code, create: opt.mode === 'create' ? { title: opt.title, cap: opt.cap, pub: opt.pub } : null });
+    } catch (e) {
+      room.leave();
+      room = null;
+      ui.lobbyBusy(false);
+      ui.lobbyError(e.message || '방에 들어가지 못했어요.');
+      refreshRooms();
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      return;
+    }
+    ui.lobbyBusy(false);
+  }
+  director.active = true;
   ui.enter(isTouch);
   // you arrive in the foyer, in front of the doors to the stalls
   director.placeAt(ENTRANCE.pos, ENTRANCE.look);
@@ -180,6 +216,8 @@ ui.on('enter', async () => {
   concertStarted = true;
   hall.setHouseLights(1);
   requestWakeLock();
+  if (room && !room.isHost && pendingJoin !== undefined) followHost(pendingJoin, { joining: true });
+  pendingJoin = undefined;
 });
 
 function goFullscreen() {
@@ -193,7 +231,7 @@ function goFullscreen() {
 }
 
 function startShow() {
-  if (!concertStarted || showStarted) return;
+  if (!concertStarted || showStarted || hostOnly()) return;
   showStarted = true;
   ui.showStarted();
   runConcert(current);
@@ -215,11 +253,14 @@ const until = (cond, tok, timeout = 60000) => new Promise((r) => {
 function setPhase(p, seconds = 0) {
   phase = p;
   phaseUntil = performance.now() + seconds * 1000;
+  publish();
 }
 
 // Start piece i: musicians on stage, conductor in, then play.
-async function runConcert(i, { quick = false } = {}) {
+// remote: a guest following the host's 'run' (the host starts the music)
+async function runConcert(i, { quick = false, remote = false } = {}) {
   const tok = ++seq;
+  ceremony = true;
   if (perf.playing) perf.pause();
   if (quick) { engine.stopApplause(); clapUntil = 0; }
   ui.setPlaying(false);
@@ -227,6 +268,7 @@ async function runConcert(i, { quick = false } = {}) {
   current = (i + program.length) % program.length;
   const meta = program[current];
   nextPiece = meta;
+  if (!remote) sendCmd({ c: 'run', i: current, quick });
   const piece = perf.piece?.id === meta.id ? perf.piece : await perf.load(meta.id);
   if (tok !== seq || !piece) return;
   perf.seek(0);
@@ -270,14 +312,19 @@ async function runConcert(i, { quick = false } = {}) {
 
   hall.setHouseLights(0.12);
   setPhase('playing');
+  if (remote || guest()) {
+    // the host starts the music; we join on its clock (see applyPlayback).
+    // If the host leaves first and we take over, we start it ourselves.
+    ceremony = false;
+    if (!(await until(() => perf.playing || !guest(), tok, 1e9))) return;
+    if (perf.playing) return;
+  }
   if (!(await wait(900, tok))) return;
+  ceremony = false;
   perf.play();
   ui.setPlaying(true);
-  if (fx) {
-    const lively = piece.mood === 'lively' && settings.lasers;
-    fx.lasers.set(lively);
-    fx.wash.set(lively);
-  }
+  sendCmd(playMsg());
+  fxFor(piece);
 }
 
 perf.onEnd = () => endOfPiece();
@@ -335,6 +382,11 @@ async function endOfPiece() {
     if (!(await wait(700, tok))) return;
     stage.orchestraRise(false);
   }
+  if (guest()) {
+    // the host decides what comes next (unless we become the host meanwhile)
+    setPhase('intermission');
+    if (!(await until(() => !guest(), tok, 1e9))) return;
+  }
   const lastOfProgram = !settings.repeatOne && !settings.shuffle && current === program.length - 1;
   const next = nextIndex();
   nextPiece = program[next];
@@ -342,6 +394,7 @@ async function endOfPiece() {
   if (lastOfProgram) {
     // end of the programme: everyone leaves, the house comes up, then a new evening begins
     hall.setHouseLights(1);
+    sendCmd({ c: 'exit' });
     stage.exitAll();
     if (!(await until(() => stage.allOffstage, tok, 60000))) return;
     if (!(await wait(4000, tok))) return;
@@ -360,7 +413,7 @@ function nextIndex() {
 }
 
 function togglePlay() {
-  if (!concertStarted) return;
+  if (!concertStarted || hostOnly()) return;
   if (!showStarted) { startShow(); return; }
   if (phase !== 'playing') {
     // during a break: skip the ceremony and start the coming piece
@@ -377,23 +430,30 @@ function togglePlay() {
     ui.setPlaying(true);
     hall.setHouseLights(0.12);
   }
+  sendCmd(playMsg());
 }
 
 ui.on('toggle', togglePlay);
 const showOn = () => { if (!showStarted) { showStarted = true; ui.showStarted(); } };
-ui.on('next', () => { if (!concertStarted) return; showOn(); runConcert(settings.shuffle ? nextIndex() : current + 1, { quick: true }); });
+ui.on('next', () => { if (!concertStarted || hostOnly()) return; showOn(); runConcert(settings.shuffle ? nextIndex() : current + 1, { quick: true }); });
 ui.on('prev', () => {
-  if (!concertStarted) return;
-  if (phase === 'playing' && perf.time > 5) { perf.seek(0); return; }
+  if (!concertStarted || hostOnly()) return;
+  if (phase === 'playing' && perf.time > 5) { perf.seek(0); sendCmd(playMsg()); return; }
   showOn();
   runConcert(current - 1, { quick: true });
 });
-ui.on('select', (i) => { if (!concertStarted) return; showOn(); runConcert(i, { quick: true }); });
-ui.on('seek', (t) => { if (concertStarted && phase === 'playing') perf.seek(t); });
+ui.on('select', (i) => { if (!concertStarted || hostOnly()) return; showOn(); runConcert(i, { quick: true }); });
+ui.on('seek', (t) => {
+  if (!concertStarted || phase !== 'playing' || hostOnly()) return;
+  perf.seek(t);
+  sendCmd(playMsg());
+});
 ui.on('seekKey', (d, e) => {
   if (!concertStarted || phase !== 'playing' || director.mode === 'walk') return;
   e.preventDefault();
+  if (hostOnly()) return;
   perf.seek(perf.time + d);
+  sendCmd(playMsg());
 });
 ui.on('mode', (m) => {
   director.setMode(m);
@@ -437,6 +497,17 @@ setInterval(() => {
     sleepFading = true;
     engine.master.gain.setTargetAtTime(0, engine.now, 8);
   }
+  if (left <= 0 && guest()) {
+    // the show is the host's: a guest's timer just turns the sound off
+    sleepAt = 0;
+    sleepFading = false;
+    muted = true;
+    engine.setVolume(0);
+    ui.setMuted(true);
+    ui.setSleepLeft(0);
+    ui.toast('편안한 밤 되세요. 소리를 껐어요.', 4000);
+    return;
+  }
   if (left <= 0) {
     sleepAt = 0;
     sleepFading = false;
@@ -469,7 +540,7 @@ function onSetting(key, value) {
   if (key === 'volume') { muted = false; ui.setMuted(false); engine.setVolume(value); }
   if (key === 'reverb') engine.setReverb(value);
   if (key === 'quality') {
-    quality = value === 'auto' ? (isMobile ? 'medium' : 'high') : value;
+    quality = value === 'auto' ? (isMobile ? 'low' : 'high') : value;
     applyQuality();
   }
   if (key === 'fireflies') effects.setCounts(value);
@@ -576,6 +647,292 @@ function hoverAt(h, x, y) {
 }
 renderer.domElement.addEventListener('pointerleave', () => ui.tooltip(null));
 
+// ------------------------------------------------------ watching together
+// In a room the host (방장) runs the concert. Its client sends what it does
+// - run a piece, play or pause at a position on the server clock - and a
+// snapshot every few seconds. Everyone else performs the same walk-ons and
+// bows here and starts the music on the host's clock, so the whole room
+// hears the same bar together. Graphics and sound settings stay personal.
+let ceremony = false; // a piece's walk-on / greeting is running here
+let playTok = 0;
+let pendingJoin = undefined; // the room's state, applied once we are inside
+const guest = () => !!room && !room.isHost;
+
+function hostOnly() {
+  if (!guest()) return false;
+  ui.toast('공연 진행은 방장만 할 수 있어요.', 1600);
+  return true;
+}
+
+function snapshot() {
+  return {
+    started: showStarted, i: current, title: program[current]?.titleKo || '', phase,
+    playing: perf.playing, pos: perf.time, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
+  };
+}
+function publish() { if (room?.isHost && room.connected) room.state(snapshot()); }
+function sendCmd(c) { if (!room?.isHost) return; room.cmd(c); publish(); }
+const playMsg = () => ({ c: perf.playing ? 'play' : 'pause', i: current, pos: perf.time, at: room ? room.now() : 0 });
+
+function fxFor(piece) {
+  if (!fx) return;
+  const lively = piece?.mood === 'lively' && settings.lasers;
+  fx.lasers.set(lively);
+  fx.wash.set(lively);
+}
+
+// make piece i the current one (guests follow the host there)
+async function ensurePiece(i) {
+  if (current === i && perf.piece?.id === program[i]?.id) return true;
+  if (!program[i]) return false;
+  current = i;
+  nextPiece = program[i];
+  const piece = await perf.load(program[i].id);
+  if (!piece || current !== i) return false;
+  ui.setCurrent(i, piece);
+  ui.setTime(0, piece.duration);
+  updateMediaSession(piece);
+  return true;
+}
+
+// the host's playback: { i, playing, pos, at }
+async function applyPlayback(s) {
+  const tok = ++playTok;
+  if (!(await ensurePiece(s.i)) || tok !== playTok) return;
+  const piece = perf.piece;
+  if (ceremony || phase !== 'playing' || !stage.onstage || (!!piece.conducted !== stage.conductorOn)) {
+    // late, or still walking on: skip to where the show is
+    seq++;
+    ceremony = false;
+    stage.snapOnstage();
+    stage.snapConductor(!!piece.conducted);
+    engine.stopApplause();
+    clapUntil = 0;
+    setPhase('playing');
+  }
+  hall.setHouseLights(s.playing ? 0.12 : 0.4);
+  if (s.playing) {
+    // what the host hears right now; a little ahead, since starting takes a moment
+    const want = s.pos + Math.max(0, room.now() - s.at);
+    if (want >= perf.duration - 0.2) return;
+    if (!perf.playing) {
+      perf.seek(want + 0.12);
+      perf.play();
+      fxFor(piece);
+    } else if (Math.abs(perf.time - want) > 0.35) {
+      perf.seek(want + 0.12);
+    }
+    ui.setPlaying(true);
+  } else {
+    if (perf.playing) perf.pause();
+    if (Math.abs(perf.pos - s.pos) > 0.05) perf.seek(s.pos);
+    ui.setPlaying(false);
+  }
+}
+
+// a snapshot from the host (on joining, then every few seconds)
+async function followHost(s, { joining = false } = {}) {
+  if (!s || !room || room.isHost || !concertStarted || !s.started) return;
+  showOn();
+  if (s.phase === 'playing') { applyPlayback(s); return; }
+  if (!joining) return;
+  if (['entering', 'tuning', 'announce'].includes(s.phase)) {
+    // the orchestra is walking on right now: watch it (a little late)
+    runConcert(s.i, { remote: true });
+    return;
+  }
+  // between pieces: set the stage as it is and wait for the host
+  seq++;
+  ceremony = false;
+  if (!(await ensurePiece(s.i))) return;
+  if (s.onstage) stage.snapOnstage();
+  stage.snapConductor(!!s.cond && s.onstage);
+  hall.setHouseLights(s.onstage ? 0.5 : 1);
+  setPhase('intermission');
+}
+
+function onHostCmd(c) {
+  if (!room || room.isHost || !concertStarted || !c) return;
+  if (c.c === 'run') {
+    showOn();
+    runConcert(c.i, { quick: !!c.quick, remote: true });
+  } else if (c.c === 'play' || c.c === 'pause') {
+    showOn();
+    applyPlayback({ i: c.i, playing: c.c === 'play', pos: c.pos, at: c.at });
+  } else if (c.c === 'exit') {
+    seq++;
+    ceremony = false;
+    hall.setHouseLights(1);
+    if (stage.conductorOn) stage.conductorExit();
+    stage.exitAll();
+    setPhase('intermission');
+  }
+}
+
+// a guest who becomes the host carries the show on from where it is
+function takeOver() {
+  ui.toast('이제 내가 방장이에요. 공연 진행을 맡아요.', 2600);
+  ui.chatLine({ sys: true, text: '이제 내가 방장이에요.' });
+  publish();
+}
+
+function membersChanged() {
+  if (!room) return;
+  ui.setMembers([...room.members.values()], room.host, room.id);
+}
+
+function refreshOccupied() {
+  if (!director) return;
+  const s = new Set(audience ? audience.occupied : []);
+  for (const i of avatars.occupied()) s.add(i);
+  director.occupied = s;
+}
+
+function wireRoom(c) {
+  c.on('joined', (m, first) => {
+    avatars.clear();
+    for (const mm of c.members.values()) if (mm.id !== c.id) avatars.add(mm);
+    avatars.setHost(c.host);
+    ui.setRoom({ title: c.room.title, code: c.room.code, cap: c.room.cap });
+    ui.setOffline(false);
+    ui.setHostControls(c.isHost);
+    membersChanged();
+    if (first) {
+      seatAudience(settings.audience); // the same house for everyone in the room
+      try { history.replaceState(null, '', `?room=${c.room.code}`); } catch { /* file: */ }
+      ui.chatLine({ sys: true, text: c.isHost ? `방을 만들었어요. 방 코드는 ${c.room.code} — 오른쪽 위 방 이름을 눌러 초대 링크를 복사할 수 있어요.` : `「${c.room.title}」에 들어왔어요.` });
+    }
+    refreshOccupied();
+    lastPoseKey = '';
+    if (c.isHost) publish();
+    else if (!concertStarted) pendingJoin = m.state;
+    else followHost(m.state, { joining: true });
+  });
+  c.on('member', (m) => {
+    avatars.add(m);
+    avatars.setHost(c.host);
+    membersChanged();
+    ui.chatLine({ sys: true, text: `${m.name}님이 들어왔어요.` });
+  });
+  c.on('left', (id, who) => {
+    avatars.remove(id);
+    membersChanged();
+    refreshOccupied();
+    if (who) ui.chatLine({ sys: true, text: `${who.name}님이 나갔어요.` });
+  });
+  c.on('host', (id) => {
+    avatars.setHost(id);
+    membersChanged();
+    ui.setHostControls(c.isHost);
+    if (c.isHost) takeOver();
+    else ui.chatLine({ sys: true, text: `${c.members.get(id)?.name ?? '누군가'}님이 이제 방장이에요.` });
+  });
+  c.on('pose', (id, p) => {
+    const before = avatars.list.get(id)?.seat;
+    avatars.pose(id, p);
+    if (avatars.list.get(id)?.seat !== before) refreshOccupied();
+  });
+  c.on('state', (s) => { if (!c.isHost) followHost(s); });
+  c.on('cmd', onHostCmd);
+  c.on('chat', (m) => {
+    ui.chatLine({ name: m.name, text: m.text });
+    if (m.id !== c.id) avatars.say(m.id, m.text);
+  });
+  c.on('disconnected', () => { ui.setOffline(true); ui.toast('연결이 끊겼어요. 다시 잇는 중…', 3000); });
+  c.on('reconnected', () => ui.toast('다시 연결됐어요.', 1800));
+  c.on('lost', () => {
+    ui.chatLine({ sys: true, text: '방과 연결이 끊겼어요. 혼자 보기로 이어서 볼게요.' });
+    goSolo();
+  });
+}
+
+function goSolo() {
+  room?.leave();
+  room = null;
+  avatars.clear();
+  ui.setRoom(null);
+  refreshOccupied();
+  try { history.replaceState(null, '', location.pathname); } catch { /* file: */ }
+}
+
+ui.on('leaveRoom', () => {
+  room?.leave();
+  location.href = location.pathname; // back to the lobby
+});
+ui.on('copyInvite', async () => {
+  if (!room?.room) return;
+  const url = `${location.origin}${location.pathname}?room=${room.room.code}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    ui.toast('초대 링크를 복사했어요. 친구에게 보내 주세요.', 2400);
+  } catch {
+    window.prompt('이 링크를 복사해서 보내 주세요', url);
+  }
+});
+ui.on('handoff', (id, name) => {
+  if (!room?.isHost) return;
+  room.handoff(id);
+  ui.toast(`${name}님에게 방장을 넘겼어요.`, 2200);
+});
+ui.on('chat', (text) => room?.chat(text));
+ui.on('chatOpen', () => director.releaseLock());
+
+// where I am, for everyone else (a seat, or a spot and a heading)
+const EYE_H = 1.62;
+let poseT = 0;
+let lastPoseKey = '';
+function myPose() {
+  const d = director;
+  const seat = d.mode === 'seat' ? d.seat : d.mode === 'cinema' ? d.returnTo?.seat : null;
+  if (seat && seat.index >= 0) return { s: seat.index };
+  if (d.mode === 'cinema' && d.returnTo) {
+    const r = d.returnTo;
+    return { x: r.pos.x, y: r.feet, z: r.pos.z, r: r.yaw, s: -1 };
+  }
+  return { x: d.pos.x, y: d.pos.y - EYE_H, z: d.pos.z, r: d.yaw, s: -1 };
+}
+let pubT = 0;
+function roomTick(dt) {
+  if (!room || !concertStarted) return;
+  avatars.update(dt, camera.position);
+  if (room.isHost) {
+    pubT += dt;
+    if (pubT > 3) { pubT = 0; publish(); }
+  }
+  if (!room.connected) return;
+  poseT += dt;
+  if (poseT < 0.1) return;
+  poseT = 0;
+  const p = myPose();
+  const key = p.s >= 0 ? `s${p.s}` : `${p.x.toFixed(2)},${p.y.toFixed(2)},${p.z.toFixed(2)},${p.r.toFixed(2)}`;
+  if (key === lastPoseKey) return;
+  lastPoseKey = key;
+  room.pose(p);
+}
+
+// --------------------------------------------------------------- lobby
+const IDENTITY_KEY = 'fp-identity';
+function loadIdentity() {
+  try {
+    const v = JSON.parse(localStorage.getItem(IDENTITY_KEY) || 'null');
+    if (v?.name && AVATARS.some((a) => a.id === v.avatar)) return v;
+  } catch { /* private mode */ }
+  return randomIdentity();
+}
+const invite = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || null;
+ui.initLobby({ avatars: AVATARS, identity: loadIdentity(), invite });
+async function refreshRooms() {
+  try {
+    ui.setRooms(await listRooms());
+    ui.setOnline(true);
+  } catch {
+    ui.setOnline(false); // a static host: watching alone only
+  }
+}
+refreshRooms();
+ui.on('refreshRooms', refreshRooms);
+setInterval(() => { if (!concertStarted && !document.hidden) refreshRooms(); }, 10000);
+
 // -------------------------------------------------------- media & power
 function updateMediaSession(piece) {
   if (!('mediaSession' in navigator)) return;
@@ -583,8 +940,8 @@ function updateMediaSession(piece) {
     navigator.mediaSession.metadata = new MediaMetadata({ title: piece.titleKo, artist: `${piece.composerKo} · 숲속 필하모닉`, album: piece.ensembleKo });
     navigator.mediaSession.setActionHandler('play', () => { if (!perf.playing) togglePlay(); });
     navigator.mediaSession.setActionHandler('pause', () => { if (perf.playing) togglePlay(); });
-    navigator.mediaSession.setActionHandler('nexttrack', () => runConcert(current + 1, { quick: true }));
-    navigator.mediaSession.setActionHandler('previoustrack', () => runConcert(current - 1, { quick: true }));
+    navigator.mediaSession.setActionHandler('nexttrack', () => { if (!hostOnly()) runConcert(current + 1, { quick: true }); });
+    navigator.mediaSession.setActionHandler('previoustrack', () => { if (!hostOnly()) runConcert(current - 1, { quick: true }); });
   } catch { /* unsupported handler */ }
 }
 
@@ -634,6 +991,7 @@ function frame() {
   const running = perf.playing;
   orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing });
   stage.update(dt);
+  roomTick(dt);
   hall.update(dt, wall);
   effects.update(wall);
   director.joy.x = ui.joy.x;
@@ -709,7 +1067,7 @@ boot().catch((e) => {
 });
 
 window.__fp = {
-  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, get phase() { return phase; }, get audience() { return audience; }, startShow,
+  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
 };

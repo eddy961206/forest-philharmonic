@@ -36,28 +36,46 @@ const capsuleG = (r, len, cs, rs) => new THREE.CapsuleGeometry(r, len, isLite() 
 const liteArms = [];
 let liteSeg = null;
 let litePaw = null;
+const EXTRA = 60; // room for visitors' avatars (watching together)
 export function liteArmMeshes() {
   if (liteSeg || !liteArms.length) return [];
-  const make = (geo, list) => {
-    const m = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ roughness: 0.75 }), list.length);
-    list.forEach((e, i) => m.setColorAt(i, e.color));
+  const make = (geo, n) => {
+    const m = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ roughness: 0.75 }), n);
     m.frustumCulled = false;
-    m.userData.list = list;
     return m;
   };
-  liteSeg = make(new THREE.CapsuleGeometry(0.055, 0.17, 2, 8), liteArms.filter((e) => e.seg));
-  litePaw = make(new THREE.SphereGeometry(0.058, 10, 7), liteArms.filter((e) => !e.seg));
+  const segs = liteArms.filter((e) => e.seg).length;
+  liteSeg = make(new THREE.CapsuleGeometry(0.055, 0.17, 2, 8), segs + EXTRA * 4);
+  litePaw = make(new THREE.SphereGeometry(0.058, 10, 7), liteArms.length - segs + EXTRA * 2);
   return [liteSeg, litePaw];
 }
-const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+// a character that leaves the scene gives its arms back
+export function releaseCharacter(char) {
+  for (let i = liteArms.length - 1; i >= 0; i--) if (liteArms[i].root === char.root) liteArms.splice(i, 1);
+}
 const shown = (o) => { for (; o; o = o.parent) if (!o.visible) return false; return true; };
 export function syncLiteArms() {
   if (!liteSeg) return;
-  const roots = new Set(liteArms.map((e) => e.root));
-  for (const r of roots) if (shown(r)) r.updateMatrixWorld(true);
-  for (const m of [liteSeg, litePaw]) {
-    m.userData.list.forEach((e, i) => m.setMatrixAt(i, shown(e.proxy) ? e.proxy.matrixWorld : ZERO));
+  const roots = new Set();
+  let ns = 0;
+  let np = 0;
+  for (const e of liteArms) {
+    if (!roots.has(e.root)) {
+      roots.add(e.root);
+      e.root.userData.shown = shown(e.root);
+      if (e.root.userData.shown) e.root.updateMatrixWorld(true);
+    }
+    if (!e.root.userData.shown || !shown(e.proxy)) continue;
+    const m = e.seg ? liteSeg : litePaw;
+    const i = e.seg ? ns++ : np++;
+    if (i >= m.instanceMatrix.count) continue;
+    m.setMatrixAt(i, e.proxy.matrixWorld);
+    m.setColorAt(i, e.color);
+  }
+  for (const [m, n] of [[liteSeg, ns], [litePaw, np]]) {
+    m.count = Math.min(n, m.instanceMatrix.count);
     m.instanceMatrix.needsUpdate = true;
+    if (m.instanceColor) m.instanceColor.needsUpdate = true;
   }
 }
 

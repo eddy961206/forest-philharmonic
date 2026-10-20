@@ -24,6 +24,204 @@ export class UI {
   on(name, fn) { this.handlers[name] = fn; }
   emit(name, ...a) { if (this.handlers[name]) this.handlers[name](...a); }
 
+  // ------------------------------------------------------------------ lobby
+  // avatars: [{ id, ko }], identity: { name, avatar }, invite: room code or null
+  initLobby({ avatars, identity, invite }) {
+    this.avatars = avatars;
+    const sel = $('lbAvatar');
+    for (const a of avatars) {
+      const o = document.createElement('option');
+      o.value = a.id;
+      o.textContent = a.ko;
+      sel.appendChild(o);
+    }
+    sel.value = identity.avatar;
+    $('lbName').value = identity.name;
+    // a nickname that still names the old animal follows the new choice
+    sel.addEventListener('change', () => {
+      const name = $('lbName').value;
+      for (const a of avatars) {
+        if (name.endsWith(` ${a.ko}`)) { $('lbName').value = `${name.slice(0, -a.ko.length)}${avatars.find((x) => x.id === sel.value).ko}`; break; }
+      }
+    });
+    this.pub = true;
+    document.querySelectorAll('#lbVis button').forEach((b) => b.addEventListener('click', () => {
+      this.pub = b.dataset.pub === '1';
+      document.querySelectorAll('#lbVis button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    }));
+    if (invite) {
+      $('lbInvite').hidden = false;
+      $('lbInviteCode').textContent = invite;
+    }
+    this.invite = invite;
+    const go = (detail) => {
+      const name = $('lbName').value.trim();
+      if (!name) { this.lobbyError('닉네임을 적어 주세요.'); $('lbName').focus(); return; }
+      this.lobbyError(null);
+      this.emit('enter', { ...detail, name, avatar: sel.value });
+    };
+    this._go = go;
+    $('enterBtn').addEventListener('click', () => go({ mode: 'solo' }));
+    $('lbInviteGo').addEventListener('click', () => go({ mode: 'join', code: invite }));
+    $('lbCreate').addEventListener('click', () => {
+      const cap = Math.max(1, Math.min(50, Math.round(Number($('lbCap').value) || 50)));
+      $('lbCap').value = String(cap);
+      go({ mode: 'create', title: $('lbTitle').value.trim(), cap, pub: this.pub });
+    });
+    const joinCode = () => {
+      const code = $('lbCode').value.trim().toUpperCase();
+      if (code.length < 6) { this.lobbyError('방 코드 6자리를 적어 주세요.'); return; }
+      go({ mode: 'join', code });
+    };
+    $('lbJoinCode').addEventListener('click', joinCode);
+    $('lbCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') joinCode(); });
+    $('lbRefresh').addEventListener('click', () => this.emit('refreshRooms'));
+  }
+
+  // the server answers: rooms are possible (otherwise only "혼자 보기")
+  setOnline(on) {
+    $('lbOnline').hidden = !on;
+    $('lobby').classList.toggle('offline', !on);
+    if (!on) $('lbInvite').hidden = true;
+  }
+
+  setRooms(list) {
+    const ul = $('lbRooms');
+    ul.innerHTML = '';
+    if (!list.length) {
+      const li = document.createElement('li');
+      li.className = 'lb-empty';
+      li.textContent = '지금 열린 공개 방이 없어요. 첫 방을 만들어 보세요.';
+      ul.appendChild(li);
+      return;
+    }
+    for (const r of list) {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = '<span class="r-title"></span><span class="r-count"></span><span class="r-now"></span>';
+      b.querySelector('.r-title').textContent = r.title;
+      b.querySelector('.r-count').textContent = `${r.count} / ${r.cap}`;
+      b.querySelector('.r-now').textContent = r.piece ? `${r.playing ? '연주 중' : '쉬는 중'} · ${r.piece}` : '공연 시작 전';
+      const full = r.count >= r.cap;
+      b.disabled = full || !this.lobbyReady;
+      b.dataset.full = full ? '1' : '';
+      if (full) b.title = '방이 가득 찼어요';
+      b.addEventListener('click', () => this._go({ mode: 'join', code: r.code }));
+      li.appendChild(b);
+      ul.appendChild(li);
+    }
+  }
+
+  lobbyError(msg) {
+    const el = $('lbError');
+    el.hidden = !msg;
+    el.textContent = msg || '';
+  }
+
+  lobbyBusy(on) { $('lobby').classList.toggle('busy', on); }
+
+  // ------------------------------------------------------- watching together
+  // info: { title, code, cap } or null (watching alone)
+  setRoom(info) {
+    this.room = info;
+    $('roomChip').hidden = !info;
+    $('chat').hidden = !info;
+    $('chatBtn').hidden = !info || !this.touch;
+    if (!info) { this.setHostControls(true); return; }
+    $('roomChipTitle').textContent = info.title;
+    $('roomTitle').textContent = info.title;
+    $('roomCode').textContent = info.code;
+  }
+
+  setOffline(off) { $('roomChip').classList.toggle('offline', off); }
+
+  // members: [{ id, name, avatar }], host id, my id
+  setMembers(members, host, me) {
+    $('roomChipCount').textContent = `${members.length}/${this.room?.cap ?? ''}`;
+    const ul = $('roomMembers');
+    ul.innerHTML = '';
+    const sorted = [...members].sort((a, b) => (b.id === host) - (a.id === host) || (b.id === me) - (a.id === me) || a.id - b.id);
+    for (const m of sorted) {
+      const li = document.createElement('li');
+      if (m.id === me) li.className = 'me';
+      const name = document.createElement('span');
+      name.className = 'm-name';
+      name.textContent = m.id === me ? `${m.name} (나)` : m.name;
+      const animal = document.createElement('span');
+      animal.className = 'm-animal';
+      animal.textContent = this.avatars?.find((a) => a.id === m.avatar)?.ko || '';
+      li.append(name, animal);
+      if (m.id === host) {
+        const h = document.createElement('span');
+        h.className = 'm-host';
+        h.textContent = '👑 방장';
+        li.appendChild(h);
+      } else if (host === me) {
+        const b = document.createElement('button');
+        b.className = 'lb-mini';
+        b.type = 'button';
+        b.textContent = '방장 넘기기';
+        b.addEventListener('click', () => this.emit('handoff', m.id, m.name));
+        li.appendChild(b);
+      }
+      ul.appendChild(li);
+    }
+    $('roomHostHint').textContent = host === me
+      ? '내가 방장이에요. 공연 시작, 재생과 멈춤, 곡 넘기기는 방장만 할 수 있어요.'
+      : '공연 시작, 재생과 멈춤, 곡 넘기기는 방장이 해요. 화질과 소리 설정은 각자 바꿀 수 있어요.';
+  }
+
+  // guests see every control, but the show's controls are the host's
+  setHostControls(isHost) {
+    this.isHost = isHost;
+    const lock = (el) => {
+      if (!el) return;
+      el.classList.toggle('host-locked', !isHost);
+      if ('disabled' in el) el.disabled = !isHost;
+      if (!isHost) el.title = '방장만 할 수 있어요'; else el.removeAttribute('title');
+    };
+    for (const id of ['btnPlay', 'btnPrev', 'btnNext', 'startBtn', 'optShuffle', 'optRepeatOne', 'gap']) lock($(id));
+    lock($('seek'));
+    $('seek').setAttribute('aria-disabled', String(!isHost));
+    document.querySelectorAll('#programList button').forEach(lock);
+    $('startBtn').textContent = isHost ? '공연 시작' : '방장이 공연을 시작하면 연주자들이 들어와요';
+  }
+
+  // ------------------------------------------------------------------ chat
+  chatLine({ name = null, text, sys = false }) {
+    const ol = $('chatLog');
+    const li = document.createElement('li');
+    if (sys) li.className = 'sys';
+    if (name) {
+      const b = document.createElement('b');
+      b.textContent = name;
+      li.appendChild(b);
+    }
+    li.appendChild(document.createTextNode(text));
+    ol.appendChild(li);
+    while (ol.children.length > 40) ol.firstChild.remove();
+    // the latest few stay visible; older ones fade until the chat is opened
+    const visible = this.touch ? 4 : 7;
+    [...ol.children].forEach((x, i) => x.classList.toggle('old', i < ol.children.length - visible));
+    clearTimeout(li._t);
+    setTimeout(() => li.classList.add('old'), 14000);
+  }
+
+  openChat() {
+    if (!this.room) return;
+    $('chat').classList.add('open');
+    $('chatForm').hidden = false;
+    $('chatInput').focus();
+    this.emit('chatOpen');
+  }
+
+  closeChat() {
+    $('chat').classList.remove('open');
+    $('chatForm').hidden = true;
+    $('chatInput').blur();
+  }
+
   // ---------------------------------------------------------------- loading
   setLoading(text, frac) {
     $('loadText').textContent = text;
@@ -33,9 +231,10 @@ export class UI {
   ready() {
     $('loadText').textContent = '준비가 끝났어요';
     $('loadBar').style.width = '100%';
-    const b = $('enterBtn');
-    b.disabled = false;
-    b.focus();
+    this.lobbyReady = true;
+    for (const id of ['enterBtn', 'lbInviteGo', 'lbCreate', 'lbJoinCode']) $(id).disabled = false;
+    document.querySelectorAll('#lbRooms li > button').forEach((b) => { b.disabled = !!b.dataset.full; });
+    (this.invite ? $('lbInviteGo') : $('lbOnline').hidden ? $('enterBtn') : $('lbCreate')).focus({ preventScroll: true });
   }
 
   enter(touch) {
@@ -127,6 +326,7 @@ export class UI {
       li.appendChild(b);
       ol.appendChild(li);
     });
+    if (this.isHost === false) this.setHostControls(false);
   }
 
   setCurrent(i, piece) {
@@ -232,7 +432,6 @@ export class UI {
   // ---------------------------------------------------------------- binding
   _bind() {
     const click = (id, fn) => $(id).addEventListener('click', (e) => { fn(e); if (e.detail > 0) e.currentTarget.blur(); });
-    click('enterBtn', () => this.emit('enter'));
     click('startBtn', () => this.emit('start'));
     click('btnPlay', () => this.emit('toggle'));
     click('btnNext', () => this.emit('next'));
@@ -243,6 +442,20 @@ export class UI {
     click('btnFull', () => this.emit('fullscreen'));
     click('focusClose', () => this.emit('unfocus'));
     click('sitBtn', () => this.emit('sit'));
+    click('roomChip', () => { const open = $('panel').hidden || this.openPanel !== 'room'; this.showPanel(open ? 'room' : null); });
+    click('roomLeave', () => this.emit('leaveRoom'));
+    click('roomCopy', () => this.emit('copyInvite'));
+    click('chatBtn', () => ($('chatForm').hidden ? this.openChat() : this.closeChat()));
+    $('chatForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = $('chatInput').value.trim();
+      if (text) this.emit('chat', text);
+      $('chatInput').value = '';
+      this.closeChat();
+    });
+    $('chatInput').addEventListener('keydown', (e) => {
+      if (e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); this.closeChat(); }
+    });
     click('jumpBtn', () => this.emit('jump'));
     $('focusSolo').addEventListener('click', (e) => {
       const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
@@ -298,6 +511,10 @@ export class UI {
     window.addEventListener('keydown', (e) => {
       if (e.altKey || e.ctrlKey || e.metaKey) return;
       const t = e.target;
+      // typing (a nickname, a chat line): no shortcuts
+      if ((t instanceof HTMLInputElement && !['checkbox', 'range', 'radio'].includes(t.type)) || t instanceof HTMLTextAreaElement) return;
+      // still in the lobby
+      if ($('splash') && !$('splash').classList.contains('leaving')) return;
       if (isFormTarget(t) && ['Space', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.code)) return;
       if (t instanceof HTMLButtonElement && (e.code === 'Space' || e.code === 'Enter')) return;
       const c = e.code;
@@ -307,7 +524,7 @@ export class UI {
       else if (c === 'KeyP') this.emit('prev');
       else if (c === 'KeyH') document.body.classList.toggle('ui-hidden');
       else if (c === 'KeyM') this.emit('mute');
-      else if (c === 'Enter') this.emit('fullscreen');
+      else if (c === 'Enter') { if (this.room) { e.preventDefault(); this.openChat(); } else this.emit('fullscreen'); }
       else if (e.key === '?') $('help').hidden = !$('help').hidden;
       else if (c === 'Escape') { $('help').hidden = true; this.showPanel(null); }
       else if (c === 'ArrowLeft' || c === 'ArrowRight') this.emit('seekKey', c === 'ArrowLeft' ? -10 : 10, e);
@@ -344,7 +561,7 @@ export class UI {
     $('panel').hidden = !name;
     document.querySelectorAll('.tab-btn').forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.panel === name)));
     document.querySelectorAll('.panel-body').forEach((b) => { b.hidden = b.dataset.body !== name; });
-    const titles = { program: '오늘의 프로그램', settings: '설정' };
+    const titles = { program: '오늘의 프로그램', settings: '설정', room: '같이 보는 사람들' };
     if (name) $('panelTitle').textContent = titles[name];
     if (name === 'program') {
       const cur = $('programList').querySelector('.current');

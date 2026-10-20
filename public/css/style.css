@@ -37,7 +37,12 @@ button { font: inherit; color: inherit; }
   transition: opacity 1.2s ease;
 }
 .splash.leaving { opacity: 0; pointer-events: none; }
-.splash-inner { width: min(560px, calc(100vw - 2 * var(--gutter))); text-align: left; }
+.splash { overflow-y: auto; }
+.splash-inner {
+  width: min(1040px, calc(100vw - 2 * var(--gutter))); text-align: left;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px); gap: clamp(28px, 5vw, 72px); align-items: center;
+  padding: 32px 0;
+}
 .splash-title {
   font-family: var(--serif); font-weight: 700;
   font-size: clamp(44px, 8vw, 84px); line-height: 1.05; letter-spacing: -0.02em;
@@ -56,6 +61,120 @@ button { font: inherit; color: inherit; }
 .btn-enter:not(:disabled):hover { background: var(--brass); color: var(--moss); }
 .btn-enter:disabled { opacity: 0.35; cursor: progress; }
 .splash-hint { font-size: 13px; color: rgba(242, 237, 225, 0.45); margin-top: 22px; }
+
+/* lobby card */
+.lobby {
+  background: rgba(10, 16, 13, 0.82); border: 1px solid var(--glass-line); border-radius: 18px;
+  padding: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+.lobby h2 { font-family: var(--serif); font-size: 16px; font-weight: 700; color: var(--brass); margin: 0; }
+.lobby .lb-h { margin-top: 4px; }
+.lb-who { display: grid; grid-template-columns: 1fr 112px; gap: 10px; }
+.lb-field { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; color: var(--paper-dim); }
+.lobby input, .lobby select {
+  font: 15px var(--sans); color: var(--paper); background: rgba(242, 237, 225, 0.06);
+  border: 1px solid rgba(242, 237, 225, 0.14); border-radius: 10px; padding: 9px 12px; min-width: 0;
+}
+.lobby select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--brass) 50%), linear-gradient(135deg, var(--brass) 50%, transparent 50%); background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 26px; }
+.lobby select option { background: #14201a; color: var(--paper); }
+.lobby input:focus, .lobby select:focus { outline: none; border-color: var(--brass); }
+.lb-online { display: flex; flex-direction: column; gap: 10px; }
+.lb-head { display: flex; align-items: center; justify-content: space-between; }
+.lb-mini {
+  appearance: none; border: 1px solid var(--glass-line); background: rgba(242, 237, 225, 0.06); color: var(--paper);
+  font: 500 12.5px var(--sans); padding: 5px 12px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+}
+.lb-mini:not(:disabled):hover { border-color: var(--brass); color: var(--brass); }
+.lb-mini:disabled { opacity: 0.4; cursor: default; }
+.lb-rooms { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 196px; overflow-y: auto; scrollbar-width: thin; }
+.lb-rooms li > button {
+  width: 100%; text-align: left; appearance: none; cursor: pointer; color: var(--paper);
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 9px 12px;
+  background: rgba(242, 237, 225, 0.05); border: 1px solid rgba(242, 237, 225, 0.1); border-radius: 12px;
+}
+.lb-rooms li > button:not(:disabled):hover { border-color: var(--brass); background: rgba(230, 192, 123, 0.08); }
+.lb-rooms li > button:disabled { cursor: default; opacity: 0.55; }
+.lb-rooms .r-title { font-family: var(--serif); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-rooms .r-count { font-size: 12px; color: var(--brass); font-variant-numeric: tabular-nums; align-self: center; }
+.lb-rooms .r-now { grid-column: 1 / 3; font-size: 12px; color: var(--paper-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-empty { font-size: 13px; color: var(--paper-dim); padding: 10px 2px; }
+.lb-create { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.lb-cap { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--paper-dim); }
+.lobby .lb-cap input { width: 64px; text-align: center; }
+.lb-vis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.lb-vis button {
+  appearance: none; cursor: pointer; color: var(--paper-dim); background: rgba(242, 237, 225, 0.04);
+  border: 1px solid rgba(242, 237, 225, 0.12); border-radius: 12px; padding: 7px 10px; display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.lb-vis button b { font-size: 14px; font-weight: 600; }
+.lb-vis button small { font-size: 11.5px; }
+.lb-vis button[aria-pressed='true'] { color: var(--brass); border-color: var(--brass); background: rgba(230, 192, 123, 0.08); }
+.lb-go { width: 100%; font-size: 17px; padding: 11px 20px; }
+.lb-go:not(:disabled) { background: var(--brass); color: var(--moss); }
+.lb-go:not(:disabled):hover { filter: brightness(1.08); }
+.lb-code summary { font-size: 13px; color: var(--paper-dim); cursor: pointer; }
+.lb-code div { display: flex; gap: 8px; margin-top: 8px; }
+.lobby .lb-code input { flex: 1; text-transform: uppercase; letter-spacing: 0.12em; }
+.lb-invite { display: flex; flex-direction: column; gap: 10px; }
+.lb-invite p { margin: 0; font-size: 14px; color: var(--paper-dim); }
+.lb-invite b { color: var(--brass); letter-spacing: 0.1em; }
+.lb-error { margin: 0; font-size: 13px; color: #ffb4a8; background: rgba(160, 40, 30, 0.18); border: 1px solid rgba(255, 140, 120, 0.3); border-radius: 10px; padding: 8px 12px; }
+.lb-solo {
+  appearance: none; border: 0; background: none; color: var(--paper-dim); font: 14px var(--sans); cursor: pointer;
+  padding: 4px; text-decoration: underline; text-underline-offset: 3px; align-self: center;
+}
+.lb-solo:not(:disabled):hover { color: var(--paper); }
+.lb-solo:disabled { opacity: 0.4; cursor: progress; }
+.lobby.offline .lb-solo { font: 19px var(--serif); text-decoration: none; border: 1px solid var(--brass); color: var(--brass); border-radius: 999px; padding: 11px 30px; align-self: stretch; }
+.lobby.busy { pointer-events: none; opacity: 0.6; }
+
+/* ------------------------------------------------------- watching together */
+.room-chip {
+  position: fixed; z-index: 11; top: var(--gutter); right: var(--gutter);
+  display: flex; align-items: center; gap: 8px; max-width: min(320px, 46vw);
+  appearance: none; cursor: pointer; color: var(--paper); font: 13.5px var(--sans);
+  background: var(--glass); border: 1px solid var(--glass-line); border-radius: 999px; padding: 7px 14px; backdrop-filter: blur(10px);
+}
+.room-chip:hover { border-color: var(--brass); }
+.room-chip #roomChipTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--serif); }
+.rc-dot { width: 7px; height: 7px; border-radius: 50%; background: #7fd49a; box-shadow: 0 0 8px #7fd49a; flex: none; }
+.room-chip.offline .rc-dot { background: #e88a6d; box-shadow: 0 0 8px #e88a6d; }
+.rc-count { color: var(--brass); font-variant-numeric: tabular-nums; flex: none; }
+.room-title { font-family: var(--serif); font-size: 18px; margin: 4px 0 10px; }
+.room-invite { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--paper-dim); }
+.room-invite b { color: var(--brass); letter-spacing: 0.12em; }
+.room-members { list-style: none; margin: 8px 0 16px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.room-members li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; font-size: 14px; }
+.room-members li.me { background: rgba(242, 237, 225, 0.06); }
+.room-members .m-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.room-members .m-animal { font-size: 12px; color: var(--paper-dim); }
+.room-members .m-host { color: var(--brass); font-size: 12px; }
+.room-leave { margin-top: 4px; }
+
+.chat { position: fixed; z-index: 11; left: var(--gutter); bottom: 132px; width: min(340px, calc(100vw - 2 * var(--gutter))); pointer-events: none; }
+.chat-log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.chat-log li {
+  align-self: flex-start; max-width: 100%; font-size: 13.5px; line-height: 1.45; padding: 5px 11px; border-radius: 12px;
+  background: rgba(10, 14, 12, 0.6); backdrop-filter: blur(6px); overflow-wrap: anywhere; transition: opacity 0.8s;
+}
+.chat-log li b { color: var(--brass); font-weight: 600; margin-right: 6px; }
+.chat-log li.sys { color: var(--paper-dim); font-size: 12.5px; background: rgba(10, 14, 12, 0.4); }
+.chat-log li.old { opacity: 0; }
+.chat.open .chat-log li.old { opacity: 0.85; }
+.chat-form { margin-top: 6px; pointer-events: auto; }
+.chat-form input {
+  width: 100%; box-sizing: border-box; font: 14px var(--sans); color: var(--paper); background: rgba(10, 14, 12, 0.82);
+  border: 1px solid var(--brass); border-radius: 12px; padding: 9px 12px; outline: none;
+}
+.chat-btn {
+  position: fixed; z-index: 12; right: 22px; bottom: 286px; width: 56px; height: 56px; border-radius: 50%;
+  border: 1px solid var(--glass-line); background: rgba(15, 29, 23, 0.55); color: var(--paper); font: 600 13px var(--sans); cursor: pointer; backdrop-filter: blur(6px);
+}
+
+/* guests: the show belongs to the host */
+.host-locked { opacity: 0.38; cursor: not-allowed !important; }
+#seek.host-locked { pointer-events: none; }
+
 .splash-hint b { color: var(--brass); font-weight: 600; }
 
 /* ----------------------------------------------------------- now playing */
@@ -283,6 +402,13 @@ body.ui-hidden .transport { transform: translate(-50%, 20px); }
   .transport-row { flex-wrap: wrap; }
   /* above the joystick and the jump / sit buttons */
   .start-wrap { bottom: 316px; width: calc(100vw - 2 * var(--gutter)); }
+  .splash { place-items: start center; }
+  .splash-inner { grid-template-columns: 1fr; gap: 20px; padding: 28px 0 40px; }
+  .splash-sub { font-size: 15px; margin-bottom: 18px; }
+  .splash-hint { display: none; }
+  .room-chip { max-width: 44vw; padding: 6px 12px; }
+  .chat { top: 150px; bottom: auto; width: min(290px, calc(100vw - 2 * var(--gutter))); }
+  .chat-log li { font-size: 12.5px; }
   .look-hint { bottom: 132px; }
   .toast { bottom: auto; top: 112px; }
   .t-mid { order: 3; width: 100%; justify-content: center; border-left: 0; margin: 0; padding: 0; }

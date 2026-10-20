@@ -281,6 +281,38 @@ export class StageManager {
     }
   }
 
+  // Watching together, arriving late: put everyone where the show already
+  // is - the orchestra in place, the conductor on the podium or not
+  snapOnstage() {
+    this.onstage = true;
+    for (const w of this.walkers) {
+      w.path = [];
+      w.state = w.standingRole ? 'standing' : 'seated';
+      w.sit = w.sitTarget = w.standingRole ? 0 : 1;
+      w.bow = w.bowTarget = 0;
+      w.pos.copy(w.home);
+      w.yaw = w.homeYaw;
+      w.char.root.visible = true;
+      w.char.setStanding(1 - w.sit);
+      w.char.root.position.copy(w.pos);
+      w.char.root.rotation.y = w.yaw;
+    }
+  }
+
+  snapConductor(on) {
+    const c = this.conductor;
+    this.conductorOn = on;
+    c.bow = c.bowTarget = 0;
+    if (!on) { c.path = []; c.teleportOff(); return; }
+    c.path = [];
+    c.state = 'standing';
+    c.faceYaw = 0;
+    c.pos.copy(c.home);
+    c.yaw = 0;
+    c.char.root.visible = true;
+    c.char.setStanding(1);
+  }
+
   get allSeated() {
     return this.walkers.every((w) => w.state === 'seated' || w.state === 'standing');
   }

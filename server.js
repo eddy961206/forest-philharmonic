@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-// Forest Philharmonic static server. No dependencies: Node 18+.
+// Forest Philharmonic server: static files, plus rooms for watching
+// together (WebSocket at /ws, public room list at /api/rooms).
+// No dependencies: Node 18+.
 //   PORT=8080 HOST=0.0.0.0 node server.js
 import http from 'node:http';
 import fs from 'node:fs';
@@ -8,6 +10,7 @@ import path from 'node:path';
 import os from 'node:os';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+import { attachRooms, publicRooms } from './server/rooms.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const PORT = Number(process.env.PORT || 8080);
@@ -42,6 +45,11 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     const url = new URL(req.url, 'http://x');
+    if (url.pathname === '/api/rooms') {
+      const body = JSON.stringify(publicRooms());
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(body);
+      return;
+    }
     let rel = decodeURIComponent(url.pathname);
     if (rel.endsWith('/')) rel += 'index.html';
     const file = path.normalize(path.join(ROOT, rel));
@@ -126,6 +134,8 @@ const server = http.createServer(async (req, res) => {
     if (!res.headersSent) res.writeHead(500).end();
   }
 });
+
+attachRooms(server);
 
 server.listen(PORT, HOST, () => {
   const lines = [`\n  🌲🎻  숲속 필하모닉이 열렸어요\n`, `  이 컴퓨터:     http://localhost:${PORT}`];

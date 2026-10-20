@@ -107,7 +107,10 @@ const LITE_MAX = 200;
 
 // --------------------------------------------------------------- the crowd
 // seats: hall.seats; exclude: seat indices that must stay free
-export function buildAudience(seats, { exclude = new Set(), rand = Math.random, lite = false } = {}) {
+// rand: a seeded generator gives the same house to everyone in a room;
+// reserveAll: a phone draws fewer people but keeps all their seats taken,
+// so nobody sits in someone else's lap on another screen
+export function buildAudience(seats, { exclude = new Set(), rand = Math.random, lite = false, reserveAll = false } = {}) {
   const key = lite ? 'lite' : 'full';
   if (!GEO[key]) GEO[key] = parts(lite);
   const G = GEO[key];
@@ -116,7 +119,6 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random, 
   let prev = false;
   let prevRow = '';
   for (const s of seats) {
-    if (exclude.has(s.index)) { prev = false; continue; }
     const rowKey = `${s.level}${s.row}${s.box || ''}${s.side || ''}`;
     if (rowKey !== prevRow) prev = false;
     prevRow = rowKey;
@@ -127,8 +129,11 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random, 
     if (s.level === '4층') w = 0.75;
     const p = Math.min(0.95, fill * w * (prev ? 1.3 : 0.85));
     prev = rand() < p;
+    // (the draw is made even for a kept-free seat, so the house is the same)
+    if (prev && exclude.has(s.index)) prev = false;
     if (prev) chosen.push(s);
   }
+  const taken = new Set(chosen.map((s) => s.index));
 
   const lists = {};
   // a phone gets a smaller crowd, still spread round the house
@@ -201,7 +206,7 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random, 
   }
   return {
     group,
-    occupied: new Set(chosen.map((s) => s.index)),
+    occupied: reserveAll ? taken : new Set(chosen.map((s) => s.index)),
     count: chosen.length,
     dispose() {
       for (const im of meshes) { im.geometry.dispose(); im.material.dispose(); im.dispose?.(); }
