@@ -2,7 +2,9 @@
 // the lighting truss, and the sound of a brass fanfare.
 import * as THREE from 'three';
 import { STAGE_Y } from '../layout.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { glowTexture } from './materials.js';
+import { HALL } from './hallplan.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -176,44 +178,126 @@ function buildFireworks(scene, N = 2400) {
   };
 }
 
-// --------------------------------------------------------------- lasers
-function buildLasers(scene, n = 8) {
+// ------------------------------------------------------- moving lights
+// Not lasers: a few moving heads on the truss whose soft beams of warm
+// white, champagne and rose sweep slowly through the haze above the stage.
+function beamMaterial(color) {
+  return new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+    uniforms: { uColor: { value: new THREE.Color(color) }, uOpacity: { value: 0 }, uLen: { value: 16 } },
+    vertexShader: /* glsl */`
+      varying float vT; varying vec3 vN; varying vec3 vView;
+      uniform float uLen;
+      void main(){
+        vT = -position.y / uLen;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vView = normalize(-mv.xyz);
+        vN = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: /* glsl */`
+      varying float vT; varying vec3 vN; varying vec3 vView;
+      uniform float uOpacity; uniform vec3 uColor;
+      void main(){
+        float edge = pow(abs(dot(vN, vView)), 2.0);        // soft edges
+        float fall = smoothstep(0.0, 0.06, vT) * (1.0 - smoothstep(0.25, 1.0, vT)); // fades into the haze
+        gl_FragColor = vec4(uColor, uOpacity * edge * fall);
+      }`,
+  });
+}
+
+function buildLasers(scene, n = 6) {
   const group = new THREE.Group();
   group.visible = false;
   scene.add(group);
   const beams = [];
-  const colors = ['#ff3b6b', '#2ee6ff', '#b45cff', '#4dff88', '#ffd23b', '#ff7a2e', '#5b8bff', '#ff4ad5'];
-  // truss above the stage front
-  const truss = new THREE.Mesh(new THREE.BoxGeometry(16, 0.18, 0.18), new THREE.MeshStandardMaterial({ color: '#2a2a2e', metalness: 0.7, roughness: 0.5 }));
-  truss.position.set(0, 13.2, -1.5);
-  scene.add(truss);
-  for (let i = 0; i < n; i++) {
-    const len = 22;
-    const geo = new THREE.CylinderGeometry(0.035, 0.16, len, 8, 1, true);
-    geo.translate(0, -len / 2, 0);
-    const mat = new THREE.MeshBasicMaterial({ color: colors[i % colors.length], transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
-    const m = new THREE.Mesh(geo, mat);
-    m.position.set(-7 + (i / (n - 1)) * 14, 13.1, -1.5);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), new THREE.MeshBasicMaterial({ color: colors[i % colors.length], toneMapped: false }));
-    m.add(head);
-    group.add(m);
-    beams.push({ m, phase: i * 0.8, speed: 0.7 + (i % 3) * 0.25 });
+  const colors = ['#ffe9c8', '#ffd59a', '#f6c7b8', '#fff1dc', '#ffd59a', '#ffe9c8'];
+  // A lighting truss over the stage front. It lives up in the ceiling and
+  // is flown in on two wires only for the lively pieces, then flown out.
+  const Y_SHOW = 13.2;
+  const Y_HIDDEN = HALL.ceiling + 0.6;
+  const rig = new THREE.Group();
+  group.add(rig);
+  const metal = new THREE.MeshStandardMaterial({ color: '#3a3b40', metalness: 0.8, roughness: 0.45 });
+  const parts = [];
+  const L = 16;
+  const corners = [[0, 0.17], [-0.15, -0.09], [0.15, -0.09]]; // triangular section (y, z offsets)
+  for (const [cy, cz] of corners) {
+    parts.push(new THREE.CylinderGeometry(0.025, 0.025, L, 8).rotateZ(Math.PI / 2).translate(0, cy, cz));
   }
-  let level = 0;
+  for (let x = -L / 2; x <= L / 2 + 1e-3; x += 0.5) {
+    // lacing between the chords
+    for (let k = 0; k < 3; k++) {
+      const [ay, az] = corners[k];
+      const [by, bz] = corners[(k + 1) % 3];
+      const a = new THREE.Vector3(x, ay, az);
+      const b = new THREE.Vector3(Math.min(L / 2, x + 0.25), by, bz);
+      const d = b.clone().sub(a);
+      const c = new THREE.CylinderGeometry(0.009, 0.009, d.length(), 5);
+      c.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), d.clone().normalize()));
+      c.translate((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
+      parts.push(c);
+    }
+  }
+  const fixtureX = [];
+  for (let i = 0; i < n; i++) fixtureX.push(-6.5 + (i / (n - 1)) * 13);
+  for (const x of fixtureX) {
+    parts.push(new THREE.BoxGeometry(0.05, 0.16, 0.05).translate(x, -0.17, 0));
+    parts.push(new THREE.CylinderGeometry(0.11, 0.13, 0.26, 12).translate(x, -0.36, 0));
+  }
+  const truss = new THREE.Mesh(mergeGeometries(parts), metal);
+  rig.add(truss);
+  // the two wires up to the ceiling grid (their length follows the rig)
+  const wires = [-6.5, 6.5].map((x) => {
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 1, 4).translate(0, 0.5, 0), metal);
+    w.position.set(x, 0.17, 0);
+    rig.add(w);
+    return w;
+  });
+  const lens = new THREE.MeshStandardMaterial({ color: '#1a1712', emissive: '#ffdcae', emissiveIntensity: 0 });
+  for (let i = 0; i < n; i++) {
+    const len = 16;
+    const geo = new THREE.CylinderGeometry(0.07, 1.25, len, 40, 1, true);
+    geo.translate(0, -len / 2, 0);
+    const m = new THREE.Mesh(geo, beamMaterial(colors[i % colors.length]));
+    m.position.set(fixtureX[i], -0.5, 0);
+    m.frustumCulled = false;
+    m.renderOrder = 10;
+    const head = new THREE.Mesh(new THREE.CircleGeometry(0.1, 20).rotateX(Math.PI / 2), lens);
+    head.position.y = -0.005;
+    m.add(head);
+    rig.add(m);
+    beams.push({ m, phase: i * 1.3, speed: 0.22 + (i % 3) * 0.06, side: i < n / 2 ? -1 : 1 });
+  }
+  rig.position.set(0, Y_HIDDEN, -1.5);
+  let level = 0; // beams
+  let drop = 0; // 0 = up in the ceiling, 1 = in position over the stage
   let target = 0;
   return {
     set(on) { target = on ? 1 : 0; },
     update(dt, t, audio = 0.3) {
-      level += (target - level) * Math.min(1, dt * 1.5);
-      group.visible = level > 0.02;
+      // fly in first, then light up; go dark first, then fly out
+      const inPlace = drop > 0.985;
+      const dropTarget = target ? 1 : level < 0.03 ? 0 : 1;
+      drop += (dropTarget - drop) * Math.min(1, dt * 0.9);
+      level += ((target && inPlace ? 1 : 0) - level) * Math.min(1, dt * 1.5);
+      group.visible = drop > 0.002;
       if (!group.visible) return;
+      const e = drop * drop * (3 - 2 * drop);
+      rig.position.y = Y_HIDDEN + (Y_SHOW - Y_HIDDEN) * e;
+      for (const w of wires) w.scale.y = Math.max(0.01, HALL.ceiling - rig.position.y - 0.17);
+      lens.emissiveIntensity = 1.6 * level;
       for (const b of beams) {
+        b.m.visible = level > 0.01;
         const a = t * b.speed + b.phase;
-        // sweep in slow figure-eights, snap a little on strong beats
-        const rx = 0.35 + Math.sin(a * 1.3) * 0.35 + Math.sin(a * 0.37) * 0.15;
-        const rz = Math.sin(a) * 0.55;
+        // slow, graceful sweeps over the orchestra, mirrored left and right
+        const rx = 0.32 + Math.sin(a) * 0.18;
+        const rz = b.side * (0.18 + Math.sin(a * 0.7 + 1) * 0.16);
         b.m.rotation.set(rx, 0, rz);
-        b.m.material.opacity = (0.45 + audio * 0.6) * level;
+        b.m.material.uniforms.uOpacity.value = (0.07 + audio * 0.1) * level;
       }
     },
   };
@@ -223,7 +307,7 @@ function buildLasers(scene, n = 8) {
 // Moving-head colour wash on the stage floor for lively pieces
 function buildWash(scene) {
   const lights = [];
-  for (const [x, c] of [[-6, '#ff7ab6'], [6, '#7ad7ff']]) {
+  for (const [x, c] of [[-6, '#ffc58a'], [6, '#f3b9a8']]) {
     const l = new THREE.SpotLight(c, 0, 30, 0.5, 0.7, 1);
     l.position.set(x, 12.5, 2);
     l.target.position.set(0, STAGE_Y, -5);
