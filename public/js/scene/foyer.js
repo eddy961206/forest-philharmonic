@@ -4,7 +4,7 @@
 // moonlit forest. You arrive here, and you climb from here to the balconies.
 import * as THREE from 'three';
 import { M } from './materials.js';
-import { HALL, LEVELS, LEVEL_NAMES, FOYER, FOYER_COLUMNS, SPIRAL, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, spiralStepY } from './hallplan.js';
+import { HALL, LEVELS, LEVEL_NAMES, FOYER, FOYER_COLUMNS, SPIRAL, SPIRAL_RISE, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, spiralAngle, BRIDGE_END } from './hallplan.js';
 import { mergeAll, wallSeg, buildChandelier, nightForestTexture } from './hall.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -173,7 +173,7 @@ export function buildFoyer(group, { halo }) {
   const fascia = [];
   const balusterPts = [];
   const rails = [];
-  const bridgeEnd = (c) => c.z - SPIRAL.rOut + 0.35;
+  const bridgeEnd = BRIDGE_END;
   for (let k = 1; k < LEVELS.length; k++) {
     const Y = LEVELS[k];
     const depth = FOYER.galleryZ - z0;
@@ -193,13 +193,13 @@ export function buildFoyer(group, { halo }) {
     for (const c of SPIRAL.centers) {
       const zb = bridgeEnd(c);
       const len = zb - FOYER.galleryZ;
-      slabs.push(uvXZ(new THREE.PlaneGeometry(FOYER.bridgeW, len).rotateX(-Math.PI / 2).translate(c.x, Y + 0.001, FOYER.galleryZ + len / 2), 4.8));
+      slabs.push(uvXZ(new THREE.PlaneGeometry(FOYER.bridgeW, len).rotateX(-Math.PI / 2).translate(c.x, Y + 0.004, FOYER.galleryZ + len / 2), 4.8));
       under.push(new THREE.PlaneGeometry(FOYER.bridgeW, len).rotateX(Math.PI / 2).translate(c.x, Y - 0.4, FOYER.galleryZ + len / 2));
       for (const s of [-1, 1]) {
         const x = c.x + s * (FOYER.bridgeW / 2 - 0.05);
         fascia.push(new THREE.BoxGeometry(0.06, 0.4, len).translate(c.x + s * FOYER.bridgeW / 2, Y - 0.2, FOYER.galleryZ + len / 2));
-        for (let z = FOYER.galleryZ + 0.1; z < zb - 0.25; z += 0.26) balusterPts.push(V(x, Y, z));
-        rails.push(new THREE.BoxGeometry(0.14, 0.07, len - 0.3).translate(x, Y + 0.95, FOYER.galleryZ + (len - 0.3) / 2));
+        for (let z = FOYER.galleryZ + 0.1; z < zb - 0.1; z += 0.26) balusterPts.push(V(x, Y, z));
+        rails.push(new THREE.BoxGeometry(0.14, 0.07, len - 0.08).translate(x, Y + 0.95, FOYER.galleryZ + (len - 0.08) / 2));
       }
       sign(group, LEVEL_NAMES[k], '객석 · 계단', V(c.x, Y + 2.35, FOYER.galleryZ - 0.02 + 0.0), Math.PI, 1.0);
     }
@@ -221,54 +221,111 @@ export function buildFoyer(group, { halo }) {
   add(group, cols, M.marbleDark());
 
   // ------------------------------------------------------- spiral stairs
+  // A flat landing at every floor, centred on the bridge; between landings
+  // the treads climb one full floor. Handrail and balusters follow the
+  // stairs, run along the landing's edge and stop at the bridge opening
+  // with a gilt newel post on each side.
   const steps = [];
   const stepCarpet = [];
   const soffit = [];
   const stringer = [];
   const newels = [];
+  const posts = [];
   const S = SPIRAL.steps;
-  const dA = TAU / S;
+  const L = SPIRAL.landing;
+  const du = (1 - L) / S;
+  const rRail = SPIRAL.rOut - 0.06;
+  const open = Math.asin((FOYER.bridgeW / 2 + 0.06) / rRail) / TAU; // half the bridge opening, in turns
   for (const c of SPIRAL.centers) {
     const m = c.x < 0 ? -1 : 1;
     const P = (r, a) => V(c.x + r * Math.sin(a * m), 0, c.z - r * Math.cos(a * m));
+    const A = (u) => spiralAngle(u);
+    const railLine = [];
+    const arcRail = (u0, u1, yAt) => {
+      const n = Math.max(2, Math.ceil(((u1 - u0) * TAU * rRail) / 0.12));
+      const pts = [];
+      for (let i = 0; i <= n; i++) {
+        const u = u0 + ((u1 - u0) * i) / n;
+        const p = P(rRail, A(u));
+        pts.push(V(p.x, yAt(u) + 0.95, p.z));
+      }
+      return pts;
+    };
+    const post = (u, y) => {
+      const p = P(rRail, A(u));
+      posts.push(new THREE.CylinderGeometry(0.045, 0.055, 1.02, 12).translate(p.x, y + 0.51, p.z));
+      posts.push(new THREE.SphereGeometry(0.07, 12, 10).translate(p.x, y + 1.08, p.z));
+    };
+    const landBalusters = (u0, u1, y) => {
+      const n = Math.floor(((u1 - u0) * TAU * rRail) / 0.26);
+      for (let i = 1; i <= n; i++) {
+        const p = P(rRail, A(u0 + ((u1 - u0) * i) / (n + 1)));
+        balusterPts.push(V(p.x, y, p.z));
+      }
+    };
     for (let turn = 0; turn < 3; turn++) {
-      for (let j = 0; j < S; j++) {
-        if (turn === 0 && j === 0) continue; // that one is the floor
-        const y = spiralStepY((j + 0.5) / S, turn);
-        const a0 = j * dA;
-        steps.push(wedge(P, SPIRAL.rIn, SPIRAL.rOut, a0, a0 + dA * 1.04, y - 0.12, y));
-        stepCarpet.push(wedgeTop(P, 0.95, 2.05, a0 + dA * 0.04, a0 + dA * 0.96, y + 0.004));
-        const bp = P(SPIRAL.rOut - 0.06, a0 + dA * 0.5);
+      const Y0 = LEVELS[turn];
+      const Y1n = LEVELS[turn + 1];
+      // treads
+      for (let k = 0; k < S; k++) {
+        const u0 = L + k * du;
+        const y = Y0 + SPIRAL_RISE * (k + 1);
+        steps.push(wedge(P, SPIRAL.rIn, SPIRAL.rOut, A(u0), A(u0 + du * 1.04), y - 0.14, y));
+        stepCarpet.push(wedgeTop(P, 0.95, 2.05, A(u0 + du * 0.04), A(u0 + du * 0.96), y + 0.004));
+        const bp = P(rRail, A(u0 + du * 0.5));
         balusterPts.push(V(bp.x, y, bp.z));
       }
-      // continuous helical underside and outer stringer
+      // the landing at the top of this flight
+      steps.push(wedge(P, SPIRAL.rIn, SPIRAL.rOut, A(0), A(L), Y1n - 0.3, Y1n));
+      stepCarpet.push(wedgeTop(P, 0.95, 2.05, A(0.01), A(L - 0.01), Y1n + 0.004));
+      // smooth helical underside and outer stringer under the treads
       const N = S * 2;
+      const lineY = (u) => Y0 + SPIRAL.pitch * ((u - L) / (1 - L));
       for (let i = 0; i < N; i++) {
-        const ua = i / N;
-        const ub = (i + 1) / N;
-        if (turn === 0 && ua < 1 / S) continue;
-        const ya = LEVELS[0] + SPIRAL.pitch * (turn + ua) - 0.32;
-        const yb = LEVELS[0] + SPIRAL.pitch * (turn + ub) - 0.32;
-        const iA = P(SPIRAL.rIn, ua * TAU);
-        const oA = P(SPIRAL.rOut, ua * TAU);
-        const iB = P(SPIRAL.rIn, ub * TAU);
-        const oB = P(SPIRAL.rOut, ub * TAU);
+        const ua = L + ((1 - L) * i) / N;
+        const ub = L + ((1 - L) * (i + 1)) / N;
+        const ya = lineY(ua) - 0.32;
+        const yb = lineY(ub) - 0.32;
+        const iA = P(SPIRAL.rIn, A(ua));
+        const oA = P(SPIRAL.rOut, A(ua));
+        const iB = P(SPIRAL.rIn, A(ub));
+        const oB = P(SPIRAL.rOut, A(ub));
         soffit.push(tri([iA.x, ya, iA.z], [oB.x, yb, oB.z], [oA.x, ya, oA.z], m), tri([iA.x, ya, iA.z], [iB.x, yb, iB.z], [oB.x, yb, oB.z], m));
-        const oA2 = P(SPIRAL.rOut + 0.04, ua * TAU);
-        const oB2 = P(SPIRAL.rOut + 0.04, ub * TAU);
+        const oA2 = P(SPIRAL.rOut + 0.04, A(ua));
+        const oB2 = P(SPIRAL.rOut + 0.04, A(ub));
         stringer.push(tri([oA2.x, ya, oA2.z], [oB2.x, yb, oB2.z], [oB2.x, yb + 0.3, oB2.z], -m), tri([oA2.x, ya, oA2.z], [oB2.x, yb + 0.3, oB2.z], [oA2.x, ya + 0.3, oA2.z], -m));
       }
+      // handrail of this flight: from the far side of the lower landing's
+      // opening, up the treads, along the upper landing to its opening
+      const startU = turn === 0 ? L : L / 2 + open;
+      const rail = [
+        ...(turn === 0 ? [] : arcRail(startU, L, () => Y0)),
+        ...arcRail(L, 1, (u) => lineY(u) + 0.08).slice(turn === 0 ? 0 : 1),
+        ...arcRail(0, L / 2 - open, () => Y1n).slice(1), // u = 1 and u = 0 are the same spot
+      ];
+      railLine.push(rail);
+      if (turn === 0) post(L, Y0); else landBalusters(startU, L, Y0);
+      landBalusters(0, L / 2 - open, Y1n);
+      post(L / 2 - open, Y1n);
+      if (turn > 0) post(L / 2 + open, Y0);
     }
-    // handrail: a helix of walnut capped in gilt
-    const hp = [];
-    for (let i = 0; i <= S * 3; i++) {
-      const u = i / S;
-      if (u < 1 / S) continue;
-      const p = P(SPIRAL.rOut - 0.06, u * TAU);
-      hp.push(V(p.x, LEVELS[0] + SPIRAL.pitch * u + 0.95, p.z));
+    // the top landing has no flight above it: close its far side
+    const Ytop = LEVELS[3];
+    post(L / 2 + open, Ytop);
+    railLine.push(arcRail(L / 2 + open, L, () => Ytop));
+    landBalusters(L / 2 + open, L, Ytop);
+    for (let k = 1; k <= 7; k++) {
+      const r = SPIRAL.rIn + 0.1 + ((rRail - SPIRAL.rIn - 0.1) * k) / 8;
+      const p = P(r, A(L));
+      balusterPts.push(V(p.x, Ytop, p.z));
     }
-    rails.length = 0;
-    add(group, [new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hp), S * 6, 0.035, 8)], M.walnut());
+    const ra = P(SPIRAL.rIn + 0.06, A(L));
+    const rb = P(rRail, A(L));
+    railLine.push([V(ra.x, Ytop + 0.95, ra.z), V(rb.x, Ytop + 0.95, rb.z)]);
+    for (const pts of railLine) {
+      if (pts.length < 2) continue;
+      add(group, [new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'centripetal'), Math.max(4, pts.length * 2), 0.035, 8)], M.walnut());
+    }
     // the newel: marble, gilt rings at every floor, a lamp on top
     newels.push(new THREE.CylinderGeometry(SPIRAL.rIn, SPIRAL.rIn + 0.04, LEVELS[3] - Y1 + 1.2, 24).translate(c.x, (LEVELS[3] + Y1 + 1.2) / 2, c.z));
     for (const Y of LEVELS) giltG.push(new THREE.TorusGeometry(SPIRAL.rIn + 0.03, 0.03, 8, 32).rotateX(Math.PI / 2).translate(c.x, Y + 0.6, c.z));
@@ -279,6 +336,7 @@ export function buildFoyer(group, { halo }) {
     group.add(globe);
     sign(group, '계단', '2층 · 3층 · 4층', V(c.x, Y1 + 2.4, c.z + SPIRAL.rIn + 0.02), 0, 0.85);
   }
+  add(group, posts, M.gilt());
   add(group, steps, M.marble());
   add(group, stepCarpet, M.carpetRoyal());
   add(group, soffit, M.ivoryPlaster());

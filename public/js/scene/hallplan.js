@@ -198,24 +198,41 @@ export const HALL_DOORS = [-7.1, 7.1]; // through the back wall, every level
 export const HALL_DOOR_W = 2.0;
 export const HALL_DOOR_H = 2.6;
 
+// Each turn of a spiral climbs one floor. At every floor there is a flat
+// landing (a sector of the circle) facing the gallery bridge; the steps run
+// from one landing round to the next.
 export const SPIRAL = {
   centers: [{ x: -10.4, z: 38.4 }, { x: 10.4, z: 38.4 }],
   rIn: 0.42,
   rOut: 2.45,
   pitch: 5, // one turn per floor
-  steps: 28,
+  steps: 26, // treads between two landings
+  landing: 0.17, // fraction of a turn that is flat landing
 };
+export const SPIRAL_RISE = SPIRAL.pitch / (SPIRAL.steps + 1);
 
 const TAU = Math.PI * 2;
-// u in [0,1): fraction of a turn, 0 at the landing (pointing toward -z)
+// u in [0,1): fraction of a turn from the start of the landing; the landing
+// [0, landing) is centred on the bridge, which points toward -z
 function spiralU(c, x, z) {
   const a = Math.atan2(x - c.x, -(z - c.z)) * (c.x < 0 ? -1 : 1);
-  return (((a % TAU) + TAU) % TAU) / TAU;
+  const u = (((a % TAU) + TAU) % TAU) / TAU + SPIRAL.landing / 2;
+  return u - Math.floor(u);
 }
 
-export function spiralStepY(u, turn) {
-  return LEVELS[0] + SPIRAL.pitch * (turn + Math.floor(u * SPIRAL.steps) / SPIRAL.steps);
+// the angle (before mirroring) at which a given u lies
+export function spiralAngle(u) {
+  return (u - SPIRAL.landing / 2) * TAU;
 }
+
+// tread height on `turn` (0 = from the lobby) at u in [landing, 1)
+export function spiralStepY(u, turn) {
+  const L = SPIRAL.landing;
+  const k = Math.min(SPIRAL.steps - 1, Math.floor(((u - L) / (1 - L)) * SPIRAL.steps));
+  return LEVELS[0] + SPIRAL.pitch * turn + SPIRAL_RISE * (k + 1);
+}
+
+export const BRIDGE_END = (c) => c.z - 2.25;
 
 function foyerSurfaces(x, z, out) {
   const ax = Math.abs(x);
@@ -233,13 +250,14 @@ function foyerSurfaces(x, z, out) {
     if (r < SPIRAL.rIn + 0.1) { nearNewel = true; break; }
     if (r <= SPIRAL.rOut) {
       const u = spiralU(c, x, z);
-      for (let turn = 0; turn < 3; turn++) out.push(spiralStepY(u, turn));
+      if (u < SPIRAL.landing) for (let k = 1; k < LEVELS.length; k++) out.push(LEVELS[k]);
+      else for (let turn = 0; turn < 3; turn++) out.push(spiralStepY(u, turn));
     }
   }
   if (!nearNewel && !foyerColumnAt(x, z)) out.push(LEVELS[0]);
   // galleries and their bridges to the stairs
   const onGallery = z <= FOYER.galleryZ;
-  const onBridge = SPIRAL.centers.some((c) => Math.abs(x - c.x) < FOYER.bridgeW / 2 && z > FOYER.galleryZ - 0.01 && z < c.z - SPIRAL.rOut + 0.35);
+  const onBridge = SPIRAL.centers.some((c) => Math.abs(x - c.x) < FOYER.bridgeW / 2 && z > FOYER.galleryZ - 0.01 && z < BRIDGE_END(c));
   if (onGallery || onBridge) for (let k = 1; k < LEVELS.length; k++) out.push(LEVELS[k]);
 }
 
