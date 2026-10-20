@@ -28,10 +28,21 @@ samples used to perform them come from these sources:
   [tchaikovsky_seasons](https://github.com/DCMLab/tchaikovsky_seasons),
   [beethoven_piano_sonatas](https://github.com/DCMLab/beethoven_piano_sonatas),
   [grieg_lyric_pieces](https://github.com/DCMLab/grieg_lyric_pieces).
-  The performance files derived from them (`debussy-clair-de-lune.json`,
-  `schumann-traumerei.json`, `tchaikovsky-june.json`,
-  `beethoven-pathetique-adagio.json`, `grieg-notturno.json`) are shared under
-  the same CC BY-NC-SA 4.0 terms — non-commercial use only.
+  The performance files derived from them are shared under the same
+  CC BY-NC-SA 4.0 terms — non-commercial use only.
+
+- **Humdrum \*\*kern editions** by Craig Stuart Sapp —
+  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/):
+  [chopin-preludes](https://github.com/craigsapp/chopin-preludes),
+  [chopin-mazurkas](https://github.com/craigsapp/chopin-mazurkas),
+  [mozart-piano-sonatas](https://github.com/craigsapp/mozart-piano-sonatas),
+  [beethoven-piano-sonatas](https://github.com/craigsapp/beethoven-piano-sonatas),
+  [joplin](https://github.com/craigsapp/joplin),
+  [scarlatti-keyboard-sonatas](https://github.com/craigsapp/scarlatti-keyboard-sonatas).
+  Performance files derived from them carry the same non-commercial terms.
+- *Ode to Joy*, *Für Elise* (A section) and *Greensleeves* were written out
+  by hand for this project from the public-domain originals.
+- Choir, voice and tubular-bell samples are also from FluidR3_GM (CC BY 3.0).
 
 ## Libraries
 

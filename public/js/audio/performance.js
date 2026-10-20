@@ -11,6 +11,7 @@ const SECTION_LAG = { vn1: -0.004, vn2: 0.002, va: 0.004, vc: 0.006, cb: 0.012, 
 export class Performance {
   constructor(engine) {
     this.engine = engine;
+    this._req = 0;
     this.piece = null;
     this.playing = false;
     this.pos = 0; // seconds into the piece while paused
@@ -21,7 +22,10 @@ export class Performance {
   }
 
   async load(id) {
+    const req = ++this._req;
     const p = await (await fetch(`music/${id}.json`)).json();
+    if (req !== (this._req || 0)) return null; // a newer load superseded this one
+    if (this.playing) this.stop();
     this.piece = p;
     const events = [];
     p.tracks.forEach((tr, ti) => {
@@ -118,8 +122,12 @@ export class Performance {
       const t = ev[i + 1];
       const when = this.startCtx + (t - this.startPos) + (SECTION_LAG[tr.section] || 0) + (Math.random() - 0.5) * 0.01;
       const vel = ev[i + 4] * (1 + (Math.random() - 0.5) * 0.07);
-      e.playNote({ section: tr.section, inst: tr.inst, midi: ev[i + 3], vel, when, dur: ev[i + 2], gain: tr.gain ?? 1, layer: tr.layer });
       this.schedIdx++;
+      try {
+        e.playNote({ section: tr.section, inst: tr.inst, midi: ev[i + 3], vel, when, dur: ev[i + 2], gain: tr.gain ?? 1, layer: tr.layer });
+      } catch (err) {
+        console.warn('note skipped', err);
+      }
     }
     if (!this._ended && this.time > this.duration + 0.4) {
       this._ended = true;

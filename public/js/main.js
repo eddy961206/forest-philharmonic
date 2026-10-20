@@ -1,4 +1,4 @@
-// Forest Philharmonic - boot, render loop and concert flow.
+// Forest Philharmonic - boot, render loop and the running of the concert.
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -12,25 +12,30 @@ import { buildHall } from './scene/hall.js';
 import { buildOrchestra } from './scene/orchestra.js';
 import { buildAudience } from './scene/characters.js';
 import { buildEffects } from './scene/effects.js';
-import { Director } from './scene/director.js';
+import { buildScreen } from './scene/screen.js';
+import { buildFX } from './scene/fx.js';
+import { StageManager } from './scene/stage.js';
+import { Director, ENTRANCE } from './scene/director.js';
 import { setAnisotropy } from './scene/materials.js';
-import { SECTIONS } from './layout.js';
+import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
 
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
   fixedEar: true, applause: true, gap: 7, notes: true, glow: true, fireflies: true,
+  fx: true, lasers: true, screen: true,
 };
 const settings = { ...DEFAULTS };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || '{}')); } catch { /* private mode */ }
 const save = () => { try { localStorage.setItem('fp-settings', JSON.stringify(settings)); } catch { /* ignore */ } };
 
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (isTouch && window.innerWidth < 900);
 const QUALITY = {
-  high: { pr: Math.min(window.devicePixelRatio || 1, 2), shadows: true, shadowSize: 2048, bloom: true, msaa: 4 },
-  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: true, shadowSize: 1024, bloom: true, msaa: 2 },
-  low: { pr: 1, shadows: false, shadowSize: 512, bloom: false, msaa: 0 },
+  high: { pr: Math.min(window.devicePixelRatio || 1, 2), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenEvery: 2 },
+  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenEvery: 3 },
+  low: { pr: 1, shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenEvery: 4 },
 };
 let quality = settings.quality === 'auto' ? (isMobile ? 'medium' : 'high') : settings.quality;
 
@@ -50,8 +55,7 @@ setAnisotropy(Math.min(8, renderer.capabilities.getMaxAnisotropy()));
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#0b0806');
 scene.fog = new THREE.FogExp2('#140d08', 0.0105);
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.05, 220);
-camera.position.set(0, 9, 30);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 220);
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -62,47 +66,56 @@ let bloomPass;
 function buildComposer() {
   const q = QUALITY[quality];
   const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+  if (composer) composer.passes.forEach((p) => p.dispose?.());
   const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: q.msaa });
-  composer?.dispose?.();
   composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
   bloomPass = new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.28, 0.55, 0.95);
   bloomPass.enabled = q.bloom;
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
+  composer.setPixelRatio(renderer.getPixelRatio());
+  composer.setSize(window.innerWidth, window.innerHeight);
 }
 
 // ------------------------------------------------------------------ world
 const ui = new UI({ settings, onSetting });
+ui.touch = isTouch;
 ui.setLoading('공연장을 짓는 중', 0.03);
 
 const hall = buildHall({ quality });
 scene.add(hall.group);
 const orchestra = buildOrchestra(scene);
+const stage = new StageManager(orchestra);
 const audience = buildAudience(hall.seats, 0.42);
 scene.add(audience.group);
 const effects = buildEffects(scene, { fireflies: isMobile ? 90 : 170, dust: isMobile ? 260 : 520 });
+const screen = buildScreen(scene, renderer);
 const director = new Director(camera, renderer.domElement, hall);
+director.occupied = audience.occupied;
 buildComposer();
 applyQuality();
-ui.buildSeatMap(hall.seats);
 
 const bestSeat = hall.seats.find((s) => s.level === '1층' && s.row === 'G' && Math.abs(s.x) < 0.35);
-const headPositions = orchestra.players.map((p) => p.char.root.position.clone().add(new THREE.Vector3(0, 1.25 * p.char.scale, 0)));
-headPositions.push(orchestra.conductor.char.root.position.clone().add(new THREE.Vector3(0, 1.35, 0)));
+const headPositions = orchestra.players.map((p) => p.home.clone().add(new THREE.Vector3(0, 1.25 * p.char.scale, 0)));
+headPositions.push(orchestra.conductor.home.clone().add(new THREE.Vector3(0, 1.35, 0)));
 
 // ------------------------------------------------------------------ audio
 const engine = new AudioEngine();
 const perf = new Performance(engine);
+let fx = null;
 let program = [];
 let current = -1;
 let concertStarted = false;
-let intermission = null;
-let bowing = false;
-let clapUntil = 0;
 let muted = false;
 let focused = null;
 let wakeLock = null;
+let phase = 'lobby'; // lobby | entering | tuning | announce | playing | applause | intermission | leaving
+let phaseUntil = 0;
+let nextPiece = null;
+let clapUntil = 0;
+let bowing = false;
+let seq = 0; // generation token for the concert sequence
 
 async function boot() {
   try {
@@ -113,6 +126,7 @@ async function boot() {
   }
   engine.setVolume(settings.volume);
   engine.setReverb(settings.reverb);
+  fx = buildFX(scene, engine);
   program = await (await fetch('music/index.json')).json();
   ui.setProgram(program);
   await engine.loadSamples('samples', (done, total) => {
@@ -124,52 +138,167 @@ async function boot() {
   current = 0;
   const piece = await perf.load(program[0].id);
   ui.setCurrent(0, piece);
+  stage.clearStage();
   ui.ready();
 }
 
 ui.on('enter', async () => {
   try { await engine.ctx.resume(); } catch { /* ignored */ }
-  ui.enter();
-  director.sitAt(bestSeat, 4.5);
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
+  ui.enter(isTouch);
+  // you come in through the doors at the back of the stalls
+  director.pos.copy(ENTRANCE.pos).add(new THREE.Vector3(0, 1.62, 0));
+  const la = director.lookAt(ENTRANCE.look, director.pos);
+  director.yaw = la.yaw;
+  director.pitch = la.pitch;
+  director.targetFov = director.fov = 60;
   concertStarted = true;
   requestWakeLock();
-  startPiece(current, 3.5);
+  ui.toast(isTouch ? '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요. 빈 자리 앞에서 "앉기"를 눌러요.' : 'W A S D 로 걸어 들어가고, 마음에 드는 빈 자리 앞에서 E 를 눌러 앉아요.', 6000);
+  runConcert(current);
 });
 
 // --------------------------------------------------------- concert flow
-async function startPiece(i, delay = 2.0) {
-  clearTimeout(intermission);
-  intermission = null;
+const wait = (ms, tok) => new Promise((r) => setTimeout(() => r(tok === seq), ms));
+const until = (cond, tok, timeout = 60000) => new Promise((r) => {
+  const t0 = performance.now();
+  const tick = () => {
+    if (tok !== seq) return r(false);
+    if (cond() || performance.now() - t0 > timeout) return r(true);
+    setTimeout(tick, 120);
+  };
+  tick();
+});
+
+function setPhase(p, seconds = 0) {
+  phase = p;
+  phaseUntil = performance.now() + seconds * 1000;
+}
+
+// Start piece i: musicians on stage, conductor in, then play.
+async function runConcert(i, { quick = false } = {}) {
+  const tok = ++seq;
+  if (perf.playing) perf.pause();
+  ui.setPlaying(false);
   bowing = false;
-  if (perf.playing) perf.stop();
   current = (i + program.length) % program.length;
-  const piece = perf.piece?.id === program[current].id ? perf.piece : await perf.load(program[current].id);
+  const meta = program[current];
+  nextPiece = meta;
+  const piece = perf.piece?.id === meta.id ? perf.piece : await perf.load(meta.id);
+  if (tok !== seq || !piece) return;
   perf.seek(0);
   ui.setCurrent(current, piece);
   ui.setTime(0, piece.duration);
   updateMediaSession(piece);
+
+  if (!stage.onstage) {
+    // the orchestra walks on while the audience settles
+    setPhase('entering');
+    hall.setHouseLights(0.75);
+    if (settings.applause) engine.murmur(0.7);
+    stage.enterAll();
+    if (!(await until(() => stage.allSeated, tok, 60000))) return;
+    if (!(await wait(800, tok))) return;
+    setPhase('tuning');
+    const dur = engine.tuning();
+    if (!(await wait(dur * 1000, tok))) return;
+  }
+  if (piece.conducted) {
+    if (!stage.conductorOn) {
+      setPhase('announce');
+      stage.conductorEnter();
+      if (!(await until(() => stage.conductorReady, tok, 30000))) return;
+      // greets the audience, a short welcome applause, turns to the orchestra
+      if (settings.applause) { engine.applause(engine.now + 0.05, 0.6); clapUntil = performance.now() + 3200; }
+      stage.conductorBow(true);
+      if (!(await wait(1400, tok))) return;
+      stage.conductorBow(false);
+      if (!(await wait(900, tok))) return;
+      stage.conductorFace(false);
+      if (!(await wait(1500, tok))) return;
+    } else {
+      stage.conductorFace(false);
+      if (!(await wait(quick ? 600 : 1200, tok))) return;
+    }
+  } else if (stage.conductorOn) {
+    // a solo or chamber piece: the conductor leaves the stage to the players
+    stage.conductorExit();
+    if (!(await wait(quick ? 500 : 2500, tok))) return;
+  } else if (!(await wait(quick ? 300 : 1200, tok))) return;
+
+  engine.murmur(0);
   hall.setHouseLights(0.12);
-  intermission = setTimeout(() => {
-    intermission = null;
-    perf.play();
-    ui.setPlaying(true);
-  }, delay * 1000);
+  setPhase('playing');
+  if (!(await wait(900, tok))) return;
+  perf.play();
+  ui.setPlaying(true);
+  if (fx) {
+    const lively = piece.mood === 'lively' && settings.lasers;
+    fx.lasers.set(lively);
+    fx.wash.set(lively);
+  }
 }
 
-perf.onEnd = () => {
+perf.onEnd = () => endOfPiece();
+
+async function endOfPiece() {
+  const tok = ++seq;
+  const piece = perf.piece;
   ui.setPlaying(false);
-  hall.setHouseLights(0.55);
+  setPhase('applause');
+  fx?.lasers.set(false);
+  fx?.wash.set(false);
+  hall.setHouseLights(0.5);
+  const big = !!piece?.finale;
   if (settings.applause) {
-    engine.applause(engine.now + 0.5);
-    clapUntil = performance.now() + 7000;
+    engine.applause(engine.now + 0.4, big ? 1.3 : 1);
+    clapUntil = performance.now() + (big ? 9500 : 7000);
+    engine.murmur(0.35);
   }
-  bowing = !!perf.piece?.conducted;
-  setTimeout(() => { bowing = false; }, 4500);
-  intermission = setTimeout(() => {
-    intermission = null;
-    startPiece(nextIndex(), 2.6);
-  }, Math.max(2, settings.gap) * 1000 + 2500);
-};
+  if (settings.fx && big && fx) {
+    fx.fanfare(engine.now + 0.3);
+    fx.confettiCannons();
+    setTimeout(() => fx.fireworksShow(), 1500);
+  } else if (settings.fx && fx && piece?.mood === 'lively') {
+    fx.confettiCannons();
+  }
+  // bows
+  if (!(await wait(600, tok))) return;
+  if (stage.conductorOn) {
+    stage.conductorFace(true);
+    if (!(await wait(900, tok))) return;
+    stage.conductorBow(true);
+    if (!(await wait(1600, tok))) return;
+    stage.conductorBow(false);
+    if (!(await wait(700, tok))) return;
+    // the orchestra rises
+    stage.orchestraBow(true);
+    if (!(await wait(1800, tok))) return;
+    stage.orchestraBow(false);
+    if (!(await wait(600, tok))) return;
+    stage.conductorBow(true);
+    if (!(await wait(1300, tok))) return;
+    stage.conductorBow(false);
+    if (!(await wait(600, tok))) return;
+    stage.conductorExit();
+  } else {
+    stage.orchestraBow(true);
+    if (!(await wait(1800, tok))) return;
+    stage.orchestraBow(false);
+  }
+  const lastOfProgram = !settings.repeatOne && !settings.shuffle && current === program.length - 1;
+  const next = nextIndex();
+  nextPiece = program[next];
+  setPhase('intermission', Math.max(2, settings.gap));
+  if (lastOfProgram) {
+    // end of the programme: everyone leaves, the house comes up, then a new evening begins
+    hall.setHouseLights(1);
+    stage.exitAll();
+    if (!(await until(() => stage.allOffstage, tok, 40000))) return;
+    if (!(await wait(4000, tok))) return;
+  } else if (!(await wait(Math.max(2, settings.gap) * 1000, tok))) return;
+  runConcert(next);
+}
 
 function nextIndex() {
   if (settings.repeatOne) return current;
@@ -183,17 +312,9 @@ function nextIndex() {
 
 function togglePlay() {
   if (!concertStarted) return;
-  if (intermission) {
-    clearTimeout(intermission);
-    intermission = null;
-    // during the break after a piece, "play" means: begin the next one now
-    if (perf.pos >= perf.duration - 0.1) {
-      startPiece(nextIndex(), 0.6);
-      return;
-    }
-    perf.play();
-    ui.setPlaying(true);
-    hall.setHouseLights(0.12);
+  if (phase !== 'playing') {
+    // during a break: skip the ceremony and start the coming piece
+    runConcert(phase === 'intermission' ? nextIndex() : current, { quick: true });
     return;
   }
   if (perf.playing) {
@@ -209,27 +330,24 @@ function togglePlay() {
 }
 
 ui.on('toggle', togglePlay);
-ui.on('next', () => concertStarted && startPiece(settings.shuffle ? nextIndex() : current + 1, 1.2));
+ui.on('next', () => concertStarted && runConcert(settings.shuffle ? nextIndex() : current + 1, { quick: true }));
 ui.on('prev', () => {
   if (!concertStarted) return;
-  if (perf.time > 5) { perf.seek(0); return; }
-  startPiece(current - 1, 1.2);
+  if (phase === 'playing' && perf.time > 5) { perf.seek(0); return; }
+  runConcert(current - 1, { quick: true });
 });
-ui.on('select', (i) => concertStarted && startPiece(i, 1.2));
-ui.on('seek', (t) => { if (concertStarted) perf.seek(t); });
+ui.on('select', (i) => concertStarted && runConcert(i, { quick: true }));
+ui.on('seek', (t) => { if (concertStarted && phase === 'playing') perf.seek(t); });
 ui.on('seekKey', (d, e) => {
-  if (!concertStarted || director.mode === 'walk') return;
+  if (!concertStarted || phase !== 'playing' || director.mode === 'walk') return;
   e.preventDefault();
   perf.seek(perf.time + d);
 });
 ui.on('mode', (m) => {
   director.setMode(m);
-  if (m === 'walk') ui.toast('WASD로 걷고, 드래그로 둘러봐요. G를 누르면 날 수 있어요.', 3200);
-  if (m === 'cinema') ui.toast('자동 연출: 지금 선율을 이끄는 악기를 따라가요.', 2600);
+  if (m === 'cinema') ui.toast('편하게 보기: 지금 선율을 이끄는 악기를 따라가요. 드래그하면 다시 직접 봐요.', 2800);
 });
-ui.on('seatPreset', (id) => { director.sitPreset(id); });
-ui.on('stageSpot', (id) => { director.stageSpot(id); });
-ui.on('seat', (s) => director.sitAt(s));
+ui.on('sit', () => director.toggleSit());
 ui.on('mute', () => {
   muted = !muted;
   engine.setVolume(muted ? 0 : settings.volume);
@@ -243,17 +361,18 @@ ui.on('unfocus', () => {
   focused = null;
   engine.setFocus(null);
   ui.focus(null);
-  director.sitAt(director.lastSeat || bestSeat);
+  director.setMode('walk');
 });
 ui.on('solo', (on) => engine.setFocus(on && focused ? focused.sid : null));
 
-// sleep timer: fade the hall out gently, then pause
+// sleep timer
 let sleepAt = 0;
 let sleepFading = false;
 ui.on('sleep', (minutes) => {
   sleepAt = minutes ? performance.now() + minutes * 60000 : 0;
   sleepFading = false;
   engine.setVolume(muted ? 0 : settings.volume);
+  ui.setSleepLeft(0);
   ui.toast(minutes ? `${minutes}분 뒤에 천천히 소리를 줄이고 멈출게요.` : '끄기 예약을 취소했어요.', 2400);
 });
 setInterval(() => {
@@ -267,8 +386,7 @@ setInterval(() => {
   if (left <= 0) {
     sleepAt = 0;
     sleepFading = false;
-    clearTimeout(intermission);
-    intermission = null;
+    seq++;
     if (perf.playing) perf.pause();
     ui.setPlaying(false);
     hall.setHouseLights(0.25);
@@ -281,14 +399,13 @@ setInterval(() => {
 director.on((type, data) => {
   if (type === 'mode') {
     ui.setMode(data);
-    if (data !== 'seat') ui.setSeatLabel(data === 'walk' ? '자유롭게 걷는 중' : data === 'orbit' ? '무대 둘러보기' : '자동 연출');
+    if (data === 'walk') ui.setSeatLabel('공연장을 거니는 중');
+    if (data === 'cinema') ui.setSeatLabel('편하게 보기');
   }
-  if (type === 'seat') {
-    ui.setSeatLabel(data.label);
-    if (data.index >= 0) director.lastSeat = data;
-  }
-  if (type === 'fly') ui.toast(data ? '날기 모드: Q/E로 오르내려요' : '걷기 모드', 1600);
-  if (type === 'pick') onPick(data, true);
+  if (type === 'seat') ui.setSeatLabel(data.label);
+  if (type === 'nearSeat') ui.prompt(data ? `${data.label}에 앉기` : null, '앉기');
+  if (type === 'fly') ui.toast(data ? '날기 모드: Q / E 로 오르내려요' : '걷기 모드', 1600);
+  if (type === 'pick') onPick(data);
 });
 
 function onSetting(key, value) {
@@ -301,6 +418,8 @@ function onSetting(key, value) {
     applyQuality();
   }
   if (key === 'fireflies') effects.setCounts(value);
+  if (key === 'screen') screen.setEnabled(value);
+  if (key === 'lasers' && !value && fx) { fx.lasers.set(false); fx.wash.set(false); }
 }
 
 function applyQuality() {
@@ -335,29 +454,31 @@ function hitTest(x, y) {
     player = orchestra.players.find((p) => p.char.root === o) || (o === orchestra.conductor.char.root ? 'conductor' : null);
     dist = hits[0].distance;
   }
-  if (seatHit && seatHit.distance < dist) return { seat: hall.seats[seatHit.instanceId] };
-  return { player };
+  if (seatHit && seatHit.distance < dist) return { seat: hall.seats[seatHit.instanceId], dist: seatHit.distance };
+  return { player, dist };
 }
 
 function describe(player) {
   if (player === 'conductor') return { name: '부엉 선생', role: '지휘자' };
   const spec = player.char.spec;
-  return { name: spec.name, role: `${SECTIONS[player.sid].ko}${spec.title ? ` (${spec.title})` : ''}` };
+  const role = player.sid === 'choir' ? `합창단 ${CHOIR_VOICES[player.ci]}` : `${SECTIONS[player.sid].ko}${spec.title ? ` (${spec.title})` : ''}`;
+  return { name: spec.name, role };
 }
 
-function onPick({ x, y }, dbl) {
+function onPick({ x, y }) {
   const h = hitTest(x, y);
-  if (h.player && h.player !== 'conductor' && dbl) {
+  if (h.player && h.player !== 'conductor') {
     focused = h.player;
     director.focusPlayer(h.player);
     const d = describe(h.player);
     ui.focus(`${d.name}, ${d.role}`);
     engine.setFocus(null);
-  } else if (h.seat && dbl) {
+  } else if (h.seat) {
     if (audience.occupied.has(h.seat.index)) {
-      ui.toast(`${h.seat.label}에는 이미 관객이 앉아 있어요. 옆 빈자리를 골라 주세요.`, 2400);
+      ui.toast(`${h.seat.label}에는 이미 관객이 앉아 있어요.`, 2200);
       return;
     }
+    if (h.dist > 6) { ui.toast('좀 더 가까이 가서 앉아 보세요.', 1800); return; }
     focused = null;
     ui.focus(null);
     engine.setFocus(null);
@@ -367,6 +488,7 @@ function onPick({ x, y }, dbl) {
 
 let hoverT = 0;
 renderer.domElement.addEventListener('pointermove', (e) => {
+  if (isTouch) return;
   const now = performance.now();
   if (now - hoverT < 90 || e.buttons) return;
   hoverT = now;
@@ -374,7 +496,7 @@ renderer.domElement.addEventListener('pointermove', (e) => {
   if (h.player) {
     ui.tooltip(describe(h.player), e.clientX, e.clientY);
     renderer.domElement.style.cursor = 'pointer';
-  } else if (h.seat && !audience.occupied.has(h.seat.index)) {
+  } else if (h.seat && !audience.occupied.has(h.seat.index) && h.dist < 6) {
     ui.tooltip({ name: h.seat.label, role: '두 번 눌러 앉기' }, e.clientX, e.clientY);
     renderer.domElement.style.cursor = 'pointer';
   } else {
@@ -391,8 +513,8 @@ function updateMediaSession(piece) {
     navigator.mediaSession.metadata = new MediaMetadata({ title: piece.titleKo, artist: `${piece.composerKo} · 숲속 필하모닉`, album: piece.ensembleKo });
     navigator.mediaSession.setActionHandler('play', () => { if (!perf.playing) togglePlay(); });
     navigator.mediaSession.setActionHandler('pause', () => { if (perf.playing) togglePlay(); });
-    navigator.mediaSession.setActionHandler('nexttrack', () => startPiece(current + 1, 1.2));
-    navigator.mediaSession.setActionHandler('previoustrack', () => startPiece(current - 1, 1.2));
+    navigator.mediaSession.setActionHandler('nexttrack', () => runConcert(current + 1, { quick: true }));
+    navigator.mediaSession.setActionHandler('previoustrack', () => runConcert(current - 1, { quick: true }));
   } catch { /* unsupported handler */ }
 }
 
@@ -439,15 +561,13 @@ function frame() {
 
   let events = null;
   if (perf.piece) events = perf.updateVisual(t);
-  orchestra.update(t, dt, perf, {
-    running: perf.playing || (perf.piece && t > 0 && t < perf.duration && !intermission),
-    particles: settings.notes,
-    glow: settings.glow,
-    events,
-    bowing,
-  });
+  const running = perf.playing;
+  orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing });
+  stage.update(dt);
   hall.update(dt, wall);
   effects.update(wall);
+  director.joy.x = ui.joy.x;
+  director.joy.y = ui.joy.y;
   const clapping = performance.now() < clapUntil;
   if (fpsFrames % 2 === 0 || clapping) audience.place(wall, clapping, director.seat?.index ?? -1);
 
@@ -459,13 +579,16 @@ function frame() {
     const la = director.lookAt(new THREE.Vector3(0, 2.4, -5));
     director.yaw = la.yaw;
     director.pitch = la.pitch;
+    director.anim = null;
+    camera.position.copy(director.pos);
+    camera.quaternion.setFromEuler(new THREE.Euler(director.pitch, director.yaw, 0, 'YXZ'));
+  } else {
+    director.update(dt, { time: t, perf, obstacles: headPositions });
   }
-  director.update(dt, { time: t, perf, obstacles: headPositions });
 
   if (engine.ctx) {
     const L = director.listener(settings.fixedEar ? bestSeat : null);
     engine.setListener(L.pos, L.fwd, L.up);
-    // audio level for the vibrating string
     engine.analyser.getByteTimeDomainData(levelBuf);
     let sum = 0;
     for (let i = 0; i < levelBuf.length; i += 4) { const v = (levelBuf[i] - 128) / 128; sum += v * v; }
@@ -474,10 +597,13 @@ function frame() {
     ui.level = perf.playing ? levelSmoothed : levelSmoothed * 0.5;
   }
   if (perf.piece) ui.setTime(Math.min(perf.duration, t), perf.duration);
+  if (fx) fx.update(dt, wall, levelSmoothed);
+  if (settings.screen && concertStarted) {
+    screen.update(dt, { perf, time: t, phase, nextPiece, countdown: (phaseUntil - performance.now()) / 1000 }, QUALITY[quality].screenEvery);
+  }
 
   composer.render(dt);
 
-  // adaptive quality
   fpsAcc += dt;
   fpsFrames++;
   if (fpsAcc > 3) {
@@ -504,5 +630,8 @@ boot().catch((e) => {
   ui.setLoading(`불러오지 못했어요: ${e.message}. 서버가 켜져 있는지 확인하고 새로고침해 주세요.`, 0);
 });
 
-// handy for debugging from the console
-window.__fp = { scene, camera, renderer, engine, perf, director, orchestra, hall, settings };
+window.__fp = {
+  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, get phase() { return phase; },
+  triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
+  setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
+};

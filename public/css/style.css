@@ -56,6 +56,7 @@ button { font: inherit; color: inherit; }
 .btn-enter:not(:disabled):hover { background: var(--brass); color: var(--moss); }
 .btn-enter:disabled { opacity: 0.35; cursor: progress; }
 .splash-hint { font-size: 13px; color: rgba(242, 237, 225, 0.45); margin-top: 22px; }
+.splash-hint b { color: var(--brass); font-weight: 600; }
 
 /* ----------------------------------------------------------- now playing */
 .now {
@@ -184,6 +185,23 @@ input[type='range']::-moz-range-thumb { width: 12px; height: 12px; border: 0; bo
 }
 .presets button:hover { border-color: var(--brass); color: var(--brass); }
 
+/* ---------------------------------------------------------- prompt & touch */
+.prompt {
+  position: fixed; z-index: 12; left: 50%; top: 58%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; pointer-events: none;
+  background: var(--glass); border: 1px solid var(--glass-line); border-radius: 999px;
+  padding: 8px 16px 8px 8px; backdrop-filter: blur(10px); font-size: 15px;
+}
+.prompt kbd { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--brass); color: var(--moss); font: 600 15px var(--sans); }
+.joystick { position: fixed; z-index: 12; left: 22px; bottom: 150px; width: 128px; height: 128px; touch-action: none; }
+.joy-base { position: absolute; inset: 0; border-radius: 50%; background: rgba(15, 29, 23, 0.45); border: 1px solid var(--glass-line); backdrop-filter: blur(6px); }
+.joy-knob { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(242, 237, 225, 0.8); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4); }
+.sit-btn {
+  position: fixed; z-index: 12; right: 22px; bottom: 170px; width: 84px; height: 84px; border-radius: 50%;
+  border: 1px solid var(--brass); background: rgba(230, 192, 123, 0.9); color: var(--moss); font: 600 17px var(--sans); cursor: pointer;
+}
+.string-wrap { touch-action: none; }
+
 /* ------------------------------------------------------------------- help */
 .help { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(5, 9, 7, 0.6); backdrop-filter: blur(4px); }
 .help-card { background: var(--moss); border: 1px solid var(--glass-line); border-radius: 18px; padding: 24px 28px; width: min(520px, calc(100vw - 32px)); }
@@ -200,7 +218,7 @@ input[type='range']::-moz-range-thumb { width: 12px; height: 12px; border: 0; bo
   font-size: 14px; backdrop-filter: blur(10px); transition: opacity 0.4s;
 }
 
-body.ui-hidden .now, body.ui-hidden .transport, body.ui-hidden .panel, body.ui-hidden .focus-chip { opacity: 0; pointer-events: none; }
+body.ui-hidden .now, body.ui-hidden .transport, body.ui-hidden .panel, body.ui-hidden .focus-chip, body.ui-hidden .joystick, body.ui-hidden .sit-btn { opacity: 0; pointer-events: none; }
 body.ui-hidden .transport { transform: translateY(20px); }
 
 @media (max-width: 760px) {
@@ -208,6 +226,8 @@ body.ui-hidden .transport { transform: translateY(20px); }
   .t-mid { order: 3; width: 100%; justify-content: center; }
   .vol { display: none; }
   .panel { top: auto; bottom: 196px; max-height: calc(100vh - 300px); }
+  .joystick { bottom: 210px; }
+  .sit-btn { bottom: 226px; }
   .now-title { font-size: 19px; }
   .time { min-width: 0; }
 }

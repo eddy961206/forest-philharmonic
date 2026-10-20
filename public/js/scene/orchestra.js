@@ -34,7 +34,7 @@ const OPEN = {
   bass: [28, 33, 38, 43],
 };
 
-const RIG_FOR = { vn1: 'violin', vn2: 'violin', va: 'viola', vc: 'cello', cb: 'bass', fl: 'flute', ob: 'oboe', cl: 'clarinet', bn: 'bassoon', hn: 'horn', tp: 'trumpet', timp: 'timpani', harp: 'harp', piano: 'piano' };
+const RIG_FOR = { vn1: 'violin', vn2: 'violin', va: 'viola', vc: 'cello', cb: 'bass', fl: 'flute', ob: 'oboe', cl: 'clarinet', bn: 'bassoon', hn: 'horn', tp: 'trumpet', timp: 'timpani', harp: 'harp', piano: 'piano', choir: 'choir' };
 
 const MOUTH = V(0, 1.15, -0.27);
 
@@ -58,6 +58,7 @@ export function buildOrchestra(scene) {
       const rigKind = RIG_FOR[sid];
       if (rigKind === 'bass') spec.seatY = 0.68;
       if (rigKind === 'timpani') spec.seatY = 0.62;
+      if (sec.standing) spec.standing = true;
       const char = buildCharacter(spec, sec.color);
       const root = char.root;
       root.position.set(c.x, c.y, c.z);
@@ -77,10 +78,10 @@ export function buildOrchestra(scene) {
       const sc = char.scale;
       if (rigKind === 'bass' || rigKind === 'timpani') {
         stoolGeos.push(I.stoolGeometry(spec.seatY * sc).applyMatrix4(world));
-      } else if (rigKind !== 'piano') {
+      } else if (rigKind !== 'piano' && rigKind !== 'choir') {
         chairGeos.push(I.chairGeometry().applyMatrix4(world));
       }
-      if (!['piano', 'harp', 'timpani'].includes(rigKind)) {
+      if (!['piano', 'harp', 'timpani', 'choir'].includes(rigKind)) {
         const off = new THREE.Matrix4().makeTranslation(rigKind === 'cello' || rigKind === 'bass' ? 0.25 : 0.1, 0, -0.95 - (rigKind === 'bass' ? 0.2 : 0));
         const m = world.clone().multiply(off);
         const flip = new THREE.Matrix4().makeRotationY(0);
@@ -95,7 +96,7 @@ export function buildOrchestra(scene) {
       glow.position.set(c.x, c.y + 0.012, c.z);
       group.add(glow);
 
-      const p = { sid, ci, char, rigKind, glow, chair: c, yaw, ready: 0, sway: Math.random() * 10, anchor: new THREE.Vector3() };
+      const p = { sid, ci, char, rigKind, glow, chair: c, yaw, ready: 0, sway: Math.random() * 10, anchor: new THREE.Vector3(), home: new THREE.Vector3(c.x, c.y, c.z) };
       RIGS[rigKind].build(p);
       players.push(p);
     });
@@ -109,7 +110,7 @@ export function buildOrchestra(scene) {
   const baton = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.006, 0.34, 6), M.ivory());
   baton.geometry.translate(0, 0.17, 0);
   cond.body.add(baton);
-  const conductor = { char: cond, baton, bow: 0, turn: 0 };
+  const conductor = { char: cond, baton, bow: 0, turn: 0, home: cond.root.position.clone() };
   // conductor's score desk
   const deskGeo = mergeGeometries([
     new THREE.CylinderGeometry(0.018, 0.018, 0.72, 6).translate(0, 0.36, 0),
@@ -391,7 +392,10 @@ RIGS.timpani = {
     const inst = I.timpani();
     p.inst = inst;
     mergeChildren(inst.group);
-    p.char.root.add(inst.group); // drums stand on the floor, not swaying
+    // the drums stay on stage while the player comes and goes
+    inst.group.position.copy(p.char.root.position);
+    inst.group.rotation.y = p.yaw;
+    p.char.root.parent.add(inst.group);
     p.mallets = [I.mallet(), I.mallet()];
     p.mallets.forEach((m) => mergeChildren(m.group));
     p.char.body.add(p.mallets[0].group, p.mallets[1].group);
@@ -440,8 +444,12 @@ RIGS.harp = {
     p.inst = inst;
     mergeChildren(inst.group);
     inst.group.scale.setScalar(0.85);
-    inst.group.position.set(0.08, 0, -0.14);
-    p.char.root.add(inst.group);
+    // the harp stays on stage; place it in world space where the seated harpist expects it
+    const local = new THREE.Vector3(0.08, 0, -0.14).applyAxisAngle(new THREE.Vector3(0, 1, 0), p.yaw);
+    inst.group.position.copy(p.char.root.position).add(local);
+    inst.group.rotation.y = p.yaw;
+    p.char.root.parent.add(inst.group);
+    p.harpLocal = new THREE.Vector3(0.08, 0, -0.14);
     p.lastL = V(-0.02, 0.85, -0.45);
     p.lastR = V(0.16, 1.05, -0.22);
     p.pull = [0, 0];
@@ -449,8 +457,7 @@ RIGS.harp = {
   update(p, c) {
     const { dt, st } = c;
     const inst = p.inst;
-    const g = inst.group;
-    const sToBody = (v) => v.clone().multiplyScalar(0.85).add(g.position);
+    const sToBody = (v) => v.clone().multiplyScalar(0.85).add(p.harpLocal);
     if (st) {
       const act = st.active || [];
       if (st.strokes !== p.stroke) {
@@ -550,6 +557,40 @@ RIGS.piano = {
   },
 };
 
+RIGS.choir = {
+  build(p) {
+    // a music folder held at chest height
+    const folder = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.2, 0.015), plainMaterial('#1d1a2a', { roughness: 0.7 }));
+    folder.castShadow = true;
+    p.folder = folder;
+    p.char.body.add(folder);
+    p.char.mouthOpen.visible = true;
+    p.sing = 0;
+    p.breath = Math.random() * 6;
+  },
+  update(p, c) {
+    const { dt, st } = c;
+    const r = p.ready;
+    // folder rises from the hip to the chest as the choir gets ready
+    const fy = 0.78 + 0.22 * r;
+    const fz = -0.22 - 0.04 * r;
+    p.folder.position.set(0, fy, fz);
+    p.folder.rotation.x = -0.55 * r;
+    setArm(p.char, 'L', V(-0.11, fy - 0.07, fz + 0.02), V(-0.7, -0.6, 0.2));
+    setArm(p.char, 'R', V(0.11, fy - 0.07, fz + 0.02), V(0.7, -0.6, 0.2));
+    // mouth opens with the sung note; sopranos open a little wider
+    const target = c.playing && st ? 0.35 + 0.65 * (st.lastVel / 127) : 0;
+    p.sing = smooth(p.sing, target, 12, dt);
+    const vowel = c.playing && st ? 0.6 + 0.4 * Math.sin(c.t * 6 + p.breath) * 0.3 : 0;
+    p.char.mouthOpen.scale.set(0.9 + p.sing * 0.3, 0.05 + p.sing * (0.9 + vowel * 0.3), 0.5);
+    // head lifts to the conductor, chest expands on long notes
+    const h = p.char.head;
+    h.rotation.x = smooth(h.rotation.x, -0.12 * r, 3, dt);
+    p.char.torso.scale.y = 1 + p.sing * 0.03;
+    p.anchor.set(0, 1.25, -0.3);
+  },
+};
+
 // ------------------------------------------------------------- conductor
 const PATTERNS = {
   1: [[0, -0.2]],
@@ -561,12 +602,11 @@ const PATTERNS = {
 function updateConductor(cd, t, dt, perf, opts, energy) {
   const ch = cd.char;
   const piece = perf.piece;
-  const conducting = !!(piece && piece.conducted && opts.running);
+  const atPodium = !cd.walker || cd.walker.state === 'standing' || cd.walker.state === 'arrived';
+  const conducting = !!(piece && piece.conducted && opts.running && atPodium);
   cd.active = smooth(cd.active ?? 0, conducting ? 1 : 0, 2, dt);
-  // bow toward the audience at the end of a piece
-  cd.bow = smooth(cd.bow, opts.bowing ? 1 : 0, 2.2, dt);
-  ch.root.rotation.y = Math.PI * easeOut(cd.bow);
-  ch.body.rotation.x = -Math.sin(Math.min(1, cd.bow) * Math.PI) * 0.0 - (opts.bowing ? 0.45 * cd.bow : 0);
+  const walking = cd.walker && cd.walker.state === 'walking';
+  ch.body.rotation.x = 0;
 
   let tip = V(0.12, 1.0, -0.22);
   if (piece && piece.beats && piece.beats.length) {
@@ -593,10 +633,20 @@ function updateConductor(cd, t, dt, perf, opts, energy) {
     tip = V(0.06 + bx * size, 1.18 + by * size, -0.36);
   }
   const rest = V(0.16, 0.66, -0.12);
-  const hand = rest.clone().lerp(tip, cd.active);
+  let hand = rest.clone().lerp(tip, cd.active);
+  let lh = V(-0.2, 0.66, -0.12).lerp(V(-0.24, 1.0 + energy * 0.5, -0.32), cd.active * Math.min(1, 0.3 + energy * 2));
+  if (walking) {
+    // arms swing while walking, baton down at the side
+    const ph = cd.walker.phase;
+    hand = V(0.22, 0.62 + Math.sin(ph) * 0.06, -0.05 - Math.sin(ph) * 0.14);
+    lh = V(-0.22, 0.62 - Math.sin(ph) * 0.06, -0.05 + Math.sin(ph) * 0.14);
+  } else if (cd.walker && cd.walker.bow > 0.05) {
+    // hands together in front for the bow
+    const b = cd.walker.bow;
+    hand = hand.lerp(V(0.08, 0.72, -0.26), b);
+    lh = lh.lerp(V(-0.08, 0.72, -0.26), b);
+  }
   setArm(ch, 'R', hand, V(0.8, -0.5, 0.3));
-  // left hand: shapes phrases, rises with the music
-  const lh = V(-0.2, 0.66, -0.12).lerp(V(-0.24, 1.0 + energy * 0.5, -0.32), cd.active * Math.min(1, 0.3 + energy * 2));
   setArm(ch, 'L', lh, V(-0.8, -0.5, 0.3));
   // baton in the right paw, pointing forward and up
   const A = ch.arms.R;
@@ -605,7 +655,7 @@ function updateConductor(cd, t, dt, perf, opts, energy) {
   cd.baton.quaternion.setFromUnitVectors(V(0, 1, 0), dir);
   ch.head.rotation.x = smooth(ch.head.rotation.x, 0.08 * cd.active + Math.sin(t * 2.2) * 0.02 * cd.active, 3, dt);
   ch.body.rotation.z = Math.sin(t * 0.9) * 0.03 * cd.active;
-  updateFace(ch, dt, !conducting && piece && opts.running ? 1 : 0);
+  updateFace(ch, dt, !conducting && piece && opts.running && atPodium ? 1 : 0);
 }
 
 // --------------------------------------------------------- note particles
@@ -628,7 +678,8 @@ function buildNoteParticles(parent) {
     spawn(p, e, t) {
       const key = `${p.sid}:${p.ci}`;
       const gap = p.rigKind === 'piano' || p.rigKind === 'harp' ? 0.12 : 0.22;
-      if ((lastSpawn.get(key) ?? -9) > t - gap) return;
+      const last = lastSpawn.get(key);
+      if (last !== undefined && t >= last && t - last < gap) return;
       if (Math.random() > 0.35 + (e.vel / 127) * 0.5) return;
       lastSpawn.set(key, t);
       const it = pool[next];

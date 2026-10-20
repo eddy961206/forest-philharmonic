@@ -35,6 +35,9 @@ FLUID_SET = {
     "trumpet": ("trumpet", 52, 86, 2),
     "timpani": ("timpani", 36, 60, 2),
     "harp": ("orchestral_harp", 24, 103, 2),
+    "choir": ("choir_aahs", 43, 84, 2),
+    "voice": ("voice_oohs", 48, 84, 2),
+    "bells": ("tubular_bells", 55, 84, 3),
 }
 
 FLAT_NAMES = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]

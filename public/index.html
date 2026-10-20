@@ -2,9 +2,9 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <title>숲속 필하모닉</title>
-  <meta name="description" content="숲속 동물 오케스트라가 3D 콘서트홀에서 클래식을 연주합니다. 원하는 좌석에 앉아 공간 음향으로 감상하세요.">
+  <meta name="description" content="숲속 동물 오케스트라와 합창단이 연주하는 3D 콘서트홀. 직접 걸어 들어가 원하는 자리에 앉아 공간 음향으로 감상하세요.">
   <meta name="theme-color" content="#0f1d17">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%230f1d17'/><text x='32' y='44' font-size='34' text-anchor='middle' fill='%23e6c07b'>♪</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,11 +22,11 @@
   <section id="splash" class="splash" aria-live="polite">
     <div class="splash-inner">
       <h1 class="splash-title">숲속 필하모닉</h1>
-      <p class="splash-sub">달빛 아래 나무 공연장에서, 동물 연주자들이 오늘 밤 열일곱 곡을 들려드립니다.</p>
+      <p class="splash-sub">달빛 아래 나무 공연장. 입구에서 걸어 들어가 마음에 드는 자리에 앉으면, 동물 연주자들과 합창단이 오늘 밤 쉰 곡을 들려드립니다.</p>
       <p id="loadText" class="splash-load">공연장을 짓는 중</p>
       <div class="splash-bar" aria-hidden="true"><span id="loadBar"></span></div>
       <button id="enterBtn" class="btn-enter" disabled>공연장 입장</button>
-      <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리를 더 또렷하게 느낄 수 있어요.</p>
+      <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. 걷기 <b>W A S D</b> · 둘러보기 <b>드래그</b> · 앉기 <b>E</b></p>
     </div>
   </section>
 
@@ -37,6 +37,9 @@
     <p class="now-meta"><span id="npEnsemble"></span><span id="npSeat" class="now-seat"></span></p>
   </header>
 
+  <!-- interaction prompt -->
+  <div id="prompt" class="prompt" hidden><kbd>E</kbd><span id="promptText"></span></div>
+
   <!-- musician tooltip -->
   <div id="tooltip" class="tooltip" hidden></div>
 
@@ -46,6 +49,10 @@
     <button id="focusSolo" class="chip-btn" aria-pressed="false">이 파트 크게 듣기</button>
     <button id="focusClose" class="chip-btn" aria-label="연주자 보기 닫기">닫기</button>
   </div>
+
+  <!-- touch controls -->
+  <div id="joystick" class="joystick" hidden aria-hidden="true"><div class="joy-base"><div class="joy-knob" id="joyKnob"></div></div></div>
+  <button id="sitBtn" class="sit-btn" hidden>앉기</button>
 
   <!-- transport -->
   <footer id="transport" class="transport" hidden>
@@ -60,10 +67,8 @@
         <span class="time" id="time">0:00 / 0:00</span>
       </div>
       <div class="t-mid" role="group" aria-label="보기 방식">
-        <button class="mode" data-mode="seat" title="객석에 앉아 둘러보기 (1)">객석</button>
-        <button class="mode" data-mode="walk" title="걸어서 이동 (2, WASD)">걷기</button>
-        <button class="mode" data-mode="orbit" title="무대를 돌려 보기 (3)">둘러보기</button>
-        <button class="mode" data-mode="cinema" title="자동 카메라 연출 (4)">자동 연출</button>
+        <button class="mode" data-mode="walk" title="직접 걸어 다니기 (W A S D)">걷기</button>
+        <button class="mode" data-mode="cinema" title="자동 카메라로 편하게 보기">편하게 보기</button>
       </div>
       <div class="t-right">
         <label class="vol" title="음량 (M: 음소거)">
@@ -71,7 +76,6 @@
           <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8" aria-label="음량">
         </label>
         <button class="tab-btn" data-panel="program">프로그램</button>
-        <button class="tab-btn" data-panel="seats">좌석</button>
         <button class="tab-btn" data-panel="settings">설정</button>
         <button class="ib" id="btnHelp" aria-label="조작법" title="조작법 (?)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4V14" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="17" r="1.1"/></svg></button>
         <button class="ib" id="btnFull" aria-label="전체 화면" title="전체 화면 (Enter)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
@@ -94,14 +98,6 @@
       </div>
     </div>
 
-    <div class="panel-body" data-body="seats" hidden>
-      <p class="hint">지도의 점을 누르면 그 자리로 이동해요. 공연장 안의 빈 좌석을 두 번 눌러도 앉을 수 있어요.</p>
-      <svg id="seatMap" class="seatmap" viewBox="0 0 320 400" role="img" aria-label="좌석 배치도"></svg>
-      <div class="presets" id="seatPresets"></div>
-      <h4 class="sub">무대 위에서 듣기</h4>
-      <div class="presets" id="stagePresets"></div>
-    </div>
-
     <div class="panel-body" data-body="settings" hidden>
       <fieldset class="field">
         <legend>화질</legend>
@@ -113,8 +109,8 @@
       <fieldset class="field">
         <legend>소리</legend>
         <label class="slider">홀 잔향 <input type="range" id="reverb" min="0" max="1" step="0.01" value="0.45"></label>
-        <label class="check"><input type="checkbox" id="optFixedEar" checked> 자동 연출 중에는 1층 중앙 자리에서 듣기</label>
-        <label class="check"><input type="checkbox" id="optApplause" checked> 곡이 끝나면 박수</label>
+        <label class="check"><input type="checkbox" id="optFixedEar" checked> 편하게 보기 중에는 1층 중앙 자리에서 듣기</label>
+        <label class="check"><input type="checkbox" id="optApplause" checked> 박수와 관객 소리</label>
         <label class="slider">곡 사이 쉬는 시간 <input type="range" id="gap" min="2" max="20" step="1" value="7"><output id="gapOut">7초</output></label>
       </fieldset>
       <fieldset class="field">
@@ -125,7 +121,10 @@
         <p class="hint" id="sleepText">정한 시간이 지나면 30초에 걸쳐 소리를 줄이고 멈춰요.</p>
       </fieldset>
       <fieldset class="field">
-        <legend>분위기</legend>
+        <legend>무대 효과</legend>
+        <label class="check"><input type="checkbox" id="optFx" checked> 폭죽 · 색종이 · 팡파르</label>
+        <label class="check"><input type="checkbox" id="optLasers" checked> 레이저와 조명 쇼 (신나는 곡에서)</label>
+        <label class="check"><input type="checkbox" id="optScreen" checked> 무대 뒤 대형 스크린</label>
         <label class="check"><input type="checkbox" id="optNotes" checked> 떠오르는 음표</label>
         <label class="check"><input type="checkbox" id="optGlow" checked> 연주 중인 자리 빛</label>
         <label class="check"><input type="checkbox" id="optFireflies" checked> 반딧불과 빛 먼지</label>
@@ -138,15 +137,15 @@
     <div class="help-card">
       <h3 id="helpTitle">조작법</h3>
       <dl class="keys">
+        <dt>W A S D</dt><dd>걷기 · Shift 달리기 · 모바일은 왼쪽 조이스틱</dd>
         <dt>드래그</dt><dd>주변 둘러보기</dd>
+        <dt>E</dt><dd>앞의 빈 좌석에 앉기 / 일어서기</dd>
         <dt>휠 · 두 손가락</dt><dd>확대 / 축소 (오페라글라스)</dd>
-        <dt>W A S D</dt><dd>걷기 · Shift 빨리 · G 날기 모드 · Q/E 위아래</dd>
         <dt>연주자 두 번 누르기</dt><dd>그 연주자 곁으로 가서 듣기</dd>
-        <dt>빈 좌석 두 번 누르기</dt><dd>그 자리에 앉기</dd>
+        <dt>G</dt><dd>날기 모드 (Q / E 로 오르내리기)</dd>
         <dt>Space</dt><dd>재생 / 일시정지</dd>
-        <dt>← →</dt><dd>10초 이동 (걷기 모드 밖에서)</dd>
         <dt>N / P</dt><dd>다음 곡 / 이전 곡</dd>
-        <dt>1 2 3 4</dt><dd>객석 · 걷기 · 둘러보기 · 자동 연출</dd>
+        <dt>← →</dt><dd>10초 이동</dd>
         <dt>R</dt><dd>확대 초기화</dd>
         <dt>H</dt><dd>화면 표시 숨기기</dd>
         <dt>Enter</dt><dd>전체 화면</dd>

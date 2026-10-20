@@ -26,7 +26,9 @@ export function rakeY(z) {
 const RISERS = [
   { r0: 4.55, r1: 5.85, h: 0.3 },
   { r0: 5.85, r1: 7.15, h: 0.6 },
-  { r0: 7.15, r1: 9.2, h: 0.9 },
+  { r0: 7.15, r1: 8.55, h: 0.9 },
+  { r0: 8.55, r1: 9.3, h: 1.25, a: 48 },
+  { r0: 9.3, r1: 10.05, h: 1.6, a: 42 },
 ];
 
 export function stageFloorY(x, z) {
@@ -35,8 +37,8 @@ export function stageFloorY(x, z) {
   const r = Math.hypot(dx, dz);
   const ang = Math.atan2(dx, -dz);
   let y = STAGE_Y;
-  if (Math.abs(ang) < (80 * Math.PI) / 180 && dz < 0.5) {
-    for (const R of RISERS) if (r >= R.r0 && r < R.r1) y = STAGE_Y + R.h;
+  if (dz < 0.5) {
+    for (const R of RISERS) if (r >= R.r0 && r < R.r1 && Math.abs(ang) < ((R.a || 80) * Math.PI) / 180) y = STAGE_Y + R.h;
   }
   return y;
 }
@@ -77,8 +79,8 @@ export function buildHall({ quality = 'high' } = {}) {
     const riserGeos = [];
     for (const R of RISERS) {
       const s = new THREE.Shape();
-      const a0 = (-80 * Math.PI) / 180;
-      const a1 = (80 * Math.PI) / 180;
+      const a0 = (-(R.a || 80) * Math.PI) / 180;
+      const a1 = ((R.a || 80) * Math.PI) / 180;
       const N = 40;
       for (let i = 0; i <= N; i++) {
         const a = a0 + ((a1 - a0) * i) / N;
@@ -193,6 +195,32 @@ export function buildHall({ quality = 'high' } = {}) {
   // ---------------------------------------------------------------- seats
   const seatData = buildSeats(seats);
   group.add(seatData.group);
+
+  // ---------------------------------------------------------------- doors
+  {
+    const doorMat = new THREE.MeshStandardMaterial({ color: '#1a1008', roughness: 0.9 });
+    const frameMat = M.darkWood();
+    const mk = (x, y, z, w, h, rotY) => {
+      const g = new THREE.Group();
+      const dark = new THREE.Mesh(new THREE.PlaneGeometry(w, h), doorMat);
+      dark.position.set(0, h / 2, 0);
+      const fr = new THREE.Mesh(new THREE.BoxGeometry(w + 0.3, 0.14, 0.2), frameMat);
+      fr.position.set(0, h + 0.07, 0);
+      const pl = new THREE.Mesh(new THREE.BoxGeometry(0.14, h + 0.14, 0.2), frameMat);
+      pl.position.set(-w / 2 - 0.08, (h + 0.14) / 2, 0);
+      const pr = pl.clone();
+      pr.position.x = w / 2 + 0.08;
+      g.add(dark, fr, pl, pr);
+      g.position.set(x, y, z);
+      g.rotation.y = rotY;
+      group.add(g);
+    };
+    // stage wings (the musicians come and go through these)
+    mk(12.45, STAGE_Y, -5.6, 1.6, 2.4, -Math.PI / 2);
+    mk(-12.45, STAGE_Y, -5.6, 1.6, 2.4, Math.PI / 2);
+    // the audience doors at the back of the stalls, one per aisle
+    for (const x of [-7.1, 7.1]) mk(x, rakeY(H.back - 0.5), H.back - 0.05, 2.2, 2.6, Math.PI);
+  }
 
   // ------------------------------------------------------------- balconies
   {
@@ -461,7 +489,7 @@ export function buildHall({ quality = 'high' } = {}) {
 
   // warm house lights (dimmed during performance)
   const house = [];
-  for (const [x, z] of [[-9, 8], [9, 8], [-9, 20], [9, 20], [0, 14]]) {
+  for (const [x, z] of [[-9, 8], [9, 8], [-9, 20], [9, 20], [0, 14], [-8, 28], [8, 28], [0, 5]]) {
     const pl = new THREE.PointLight('#ffbf7a', 14, 26, 1.6);
     pl.position.set(x, 11.5, z);
     group.add(pl);
@@ -482,7 +510,7 @@ export function buildHall({ quality = 'high' } = {}) {
   update.push((dt, t) => {
     houseLevel += (houseTarget - houseLevel) * Math.min(1, dt * 0.8);
     for (const pl of house) pl.intensity = 14 * houseLevel;
-    lights.hemi.intensity = 0.22 + 0.22 * houseLevel;
+    lights.hemi.intensity = 0.22 + 0.3 * houseLevel;
     for (const l of lanternParts) {
       const flick = 0.92 + 0.08 * Math.sin(t * 2.3 + l.phase) * Math.sin(t * 5.1 + l.phase * 2);
       const lv = l.sconce ? 0.45 + 0.55 * houseLevel : 0.75 + 0.25 * houseLevel;

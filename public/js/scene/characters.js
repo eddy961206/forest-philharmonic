@@ -51,23 +51,32 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
 
   const seatY = spec.seatY ?? 0.5;
   const standing = !!spec.standing;
-  const hipY = standing ? 0.62 : seatY + 0.05;
+  const STAND_HIP = 0.62;
+  const hipY = standing ? STAND_HIP : seatY + 0.05;
+  const standLift = STAND_HIP - hipY; // how far the body rises when standing up
 
-  // ---- legs
-  const legs = new THREE.Group();
-  root.add(legs);
+  // ---- legs: a seated pair and a standing pair (swung while walking)
   const trouser = isDress ? coat : clothMaterial('#141318', 0.4);
+  const legsSit = new THREE.Group();
+  const legsStand = new THREE.Group();
+  root.add(legsSit, legsStand);
+  const legPivots = [];
   for (const sx of [-1, 1]) {
-    if (standing) {
-      add(legs, new THREE.CapsuleGeometry(0.075, hipY - 0.12, 4, 10), trouser, V(sx * 0.09, hipY / 2 + 0.02, 0));
-      add(legs, new THREE.SphereGeometry(0.085, 12, 8), dark, V(sx * 0.09, 0.05, -0.04)).scale.set(1, 0.6, 1.4);
-    } else {
-      const thigh = add(legs, new THREE.CapsuleGeometry(0.075, 0.2, 4, 10), trouser, V(sx * 0.1, hipY, -0.12));
+    const pivot = new THREE.Group();
+    pivot.position.set(sx * 0.09, STAND_HIP, 0);
+    add(pivot, new THREE.CapsuleGeometry(0.075, STAND_HIP - 0.12, 4, 10), trouser, V(0, -STAND_HIP / 2 + 0.02, 0));
+    add(pivot, new THREE.SphereGeometry(0.085, 12, 8), dark, V(0, -STAND_HIP + 0.05, -0.04)).scale.set(1, 0.6, 1.4);
+    legsStand.add(pivot);
+    legPivots.push(pivot);
+    if (!standing) {
+      const thigh = add(legsSit, new THREE.CapsuleGeometry(0.075, 0.2, 4, 10), trouser, V(sx * 0.1, hipY, -0.12));
       thigh.rotation.x = Math.PI / 2;
-      add(legs, new THREE.CapsuleGeometry(0.068, hipY - 0.16, 4, 10), trouser, V(sx * 0.11, hipY / 2 + 0.02, -0.26));
-      add(legs, new THREE.SphereGeometry(0.08, 12, 8), dark, V(sx * 0.11, 0.05, -0.31)).scale.set(1, 0.6, 1.4);
+      add(legsSit, new THREE.CapsuleGeometry(0.068, hipY - 0.16, 4, 10), trouser, V(sx * 0.11, hipY / 2 + 0.02, -0.26));
+      add(legsSit, new THREE.SphereGeometry(0.08, 12, 8), dark, V(sx * 0.11, 0.05, -0.31)).scale.set(1, 0.6, 1.4);
     }
   }
+  legsStand.visible = standing;
+  legsSit.visible = !standing;
 
   // ---- torso
   const torsoY = hipY + 0.2;
@@ -120,6 +129,12 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     const mouth = add(head, new THREE.TorusGeometry(0.022, 0.005, 6, 12, Math.PI), dark, V(0, -0.1, -0.29 - sp.snout * 0.05), { cast: false });
     mouth.rotation.z = Math.PI;
   }
+  // open mouth (singing); scaled by the choir rig, invisible otherwise
+  const mouthOpen = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), plainMaterial('#5a1d22', { roughness: 0.6 }));
+  mouthOpen.position.set(0, -0.1, -0.29 - sp.snout * 0.05);
+  mouthOpen.scale.set(1, 0.001, 0.5);
+  mouthOpen.visible = false;
+  head.add(mouthOpen);
   if (sp.beak) {
     const beak = add(head, new THREE.ConeGeometry(0.04, 0.09, 8), plainMaterial(sp.nose, { roughness: 0.3 }), V(0, -0.06, -0.26), { cast: false });
     beak.rotation.x = -Math.PI / 2 - 0.4;
@@ -293,17 +308,31 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   // bake rigid parts into a few meshes (animated parts stay separate)
   mergeChildren(eyes.open);
   mergeChildren(eyes.closed);
-  mergeChildren(head, [eyes.open, eyes.closed]);
+  mergeChildren(head, [eyes.open, eyes.closed, mouthOpen]);
   const armParts = Object.values(arms).flatMap((A) => [A.upper, A.fore, A.cuff, A.paw]);
   mergeChildren(body, [head, torso, ...armParts]);
-  mergeChildren(root, [body]);
+  mergeChildren(legsSit);
+  for (const lp of legPivots) mergeChildren(lp);
+  mergeChildren(root, [body, legsSit, legsStand]);
 
   root.scale.setScalar(scale);
   const char = {
-    root, body, head, torso, eyes, arms, scale, spec,
+    root, body, head, torso, eyes, arms, scale, spec, mouthOpen, legPivots,
     headBase: head.position.clone(),
     blinkT: Math.random() * 4,
     bliss: 0,
+    stand: standing ? 1 : 0,
+    // 0 = seated on the chair, 1 = standing; walking swings the legs
+    setStanding(t) {
+      this.stand = t;
+      body.position.y = standLift * t;
+      legsStand.visible = t > 0.5 || standing;
+      legsSit.visible = !standing && t <= 0.5;
+    },
+    walk(phase, amp) {
+      legPivots[0].rotation.x = Math.sin(phase) * amp;
+      legPivots[1].rotation.x = -Math.sin(phase) * amp;
+    },
   };
   // default arms resting on the lap
   setArm(char, 'L', V(-0.12, hipY + 0.1, -0.22), V(-0.4, -0.5, 0.3));

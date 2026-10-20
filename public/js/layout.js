@@ -31,7 +31,13 @@ export const SECTIONS = {
   tp: { ko: '트럼펫', color: '#ffb661', chairs: [at(7.7, 17, R3)] },
   timp: { ko: '팀파니', color: '#ea8a6d', chairs: [at(8.0, -3, R3)] },
   piano: { ko: '피아노', color: '#a8ece9', chairs: [{ x: -5.05, z: -0.95, y: STAGE_Y }] },
+  // choir on two risers behind the orchestra: sopranos, altos, tenors, basses
+  choir: { ko: '합창단', color: '#ffe9b5', standing: true, chairs: [
+    at(8.9, -37, 1.25), at(8.9, -22, 1.25), at(8.9, -7, 1.25), at(8.9, 7, 1.25), at(8.9, 22, 1.25), at(8.9, 37, 1.25),
+    at(9.65, -31, 1.6), at(9.65, -18, 1.6), at(9.65, -6, 1.6), at(9.65, 6, 1.6), at(9.65, 18, 1.6), at(9.65, 31, 1.6),
+  ] },
 };
+export const CHOIR_VOICES = ['소프라노', '소프라노', '소프라노', '알토', '알토', '알토', '테너', '테너', '테너', '베이스', '베이스', '베이스'];
 
 // Directivity: which way each section mostly radiates (unit xz vector).
 // Strings & woodwinds project toward the hall; horn bells face backward.
@@ -48,6 +54,7 @@ export function sectionCenter(id) {
   for (const c of ch) { p.x += c.x; p.y += c.y; p.z += c.z; }
   p.x /= ch.length; p.y = p.y / ch.length + 0.9; p.z /= ch.length;
   if (id === 'piano') { p.x += 1.3; }
+  if (id === 'choir') { p.y += 0.3; }
   return p;
 }
 
@@ -84,6 +91,20 @@ export const CAST = {
   tp: [{ species: 'fox', name: '불꽃', fur: '#d9662b', outfit: 'tail' }],
   timp: [{ species: 'panda', name: '둥둥', fur: '#f4f1ea', outfit: 'tail' }],
   piano: [{ species: 'cat', name: '쇼팽', fur: '#6f6a70', outfit: 'tail' }],
+  choir: [
+    { species: 'rabbit', name: '토토', fur: '#f6e9dc', outfit: 'dress' },
+    { species: 'cat', name: '나비', fur: '#d8c8b4', outfit: 'dress' },
+    { species: 'deer', name: '루비', fur: '#c99a6b', outfit: 'dress' },
+    { species: 'sheep', name: '솜이', fur: '#f3eee4', outfit: 'dress' },
+    { species: 'mouse', name: '콩이', fur: '#aaa39b', outfit: 'dress' },
+    { species: 'squirrel', name: '밤이', fur: '#a9643a', outfit: 'dress' },
+    { species: 'fox', name: '단풍', fur: '#d9742e', outfit: 'tail' },
+    { species: 'dog', name: '보리', fur: '#c28e55', outfit: 'tail' },
+    { species: 'raccoon', name: '너구', fur: '#8b8683', outfit: 'tail' },
+    { species: 'bear', name: '우람', fur: '#7a4f33', outfit: 'tail' },
+    { species: 'lion', name: '사자왕', fur: '#d9a35a', outfit: 'tail' },
+    { species: 'panda', name: '흑백', fur: '#f4f1ea', outfit: 'tail' },
+  ],
 };
 
 export const CONDUCTOR = { species: 'owl', name: '부엉 선생', title: '지휘자', fur: '#9b7653', outfit: 'tail' };

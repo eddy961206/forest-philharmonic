@@ -17,6 +17,7 @@ const FAMILY = {
   violin: 'strings', viola: 'strings', cello: 'strings', contrabass: 'strings', strings: 'strings',
   flute: 'winds', oboe: 'winds', clarinet: 'winds', bassoon: 'winds',
   horn: 'horn', trumpet: 'trumpet', piano: 'piano', harp: 'harp', timpani: 'timpani',
+  choir: 'choir', voice: 'choir', bells: 'bells',
 };
 
 // Per-family envelope and timbre. atk = [pianissimo, fortissimo] seconds.
@@ -28,6 +29,8 @@ const ENV = {
   piano: { atk: [0.002, 0.002], rel: 0.45, sustain: false, bright: [1800, 16000], level: 1.0 },
   harp: { atk: [0.002, 0.002], rel: 1.6, sustain: false, bright: [2200, 15000], level: 1.0 },
   timpani: { atk: [0.002, 0.002], rel: 1.0, sustain: false, bright: [700, 7000], level: 1.0 },
+  choir: { atk: [0.18, 0.07], rel: 0.35, sustain: true, bright: [1200, 7000], level: 0.9 },
+  bells: { atk: [0.002, 0.002], rel: 2.5, sustain: false, bright: [3000, 14000], level: 0.8 },
 };
 
 const LOOP_FROM = 0.55; // seconds into a sustained sample where the steady tone begins
@@ -376,7 +379,6 @@ export class AudioEngine {
       mk(startOff, when, total, false, false);
       return;
     }
-    const segLen = (smp.buf.duration - LOOP_FROM) / rate - 0.06;
     let t = when;
     let len = firstLen;
     mk(startOff, t, len, false, true);
@@ -385,9 +387,13 @@ export class AudioEngine {
     while (covered < total && guard++ < 64) {
       t = when + covered - XFADE;
       const remain = total - covered + XFADE;
+      // pick the segment start first, then measure how much sample is left
+      const off = LOOP_FROM + Math.random() * 0.25;
+      const segLen = (smp.buf.duration - off) / rate - 0.06;
       len = Math.min(segLen, remain);
-      const more = covered + len - XFADE < total;
-      mk(LOOP_FROM + Math.random() * 0.25, t, len, true, more);
+      const more = len < remain - 1e-3;
+      // a fade-out curve may not overlap the fade-in on a very short segment
+      mk(off, t, len, true, more && len > XFADE * 2.2);
       covered += len - XFADE;
     }
   }
@@ -396,12 +402,64 @@ export class AudioEngine {
     const t = this.ctx.currentTime;
     for (const v of this.voices) {
       try {
-        v.env.gain.cancelScheduledValues(t);
+        if (v.env.gain.cancelAndHoldAtTime) v.env.gain.cancelAndHoldAtTime(t); else v.env.gain.cancelScheduledValues(t);
         v.env.gain.setTargetAtTime(0, t, fade / 3);
         for (const s of v.srcs) s.stop(t + fade * 2);
       } catch { /* source may not have started yet */ }
     }
     this.voices.clear();
+  }
+
+  // ------------------------------------------------------------ ambience
+  // Audience murmur between pieces: filtered noise, looped, ducked under music
+  murmur(level) {
+    const ctx = this.ctx;
+    if (!this._murmur) {
+      const len = ctx.sampleRate * 6;
+      const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const d = buf.getChannelData(ch);
+        let b0 = 0, b1 = 0, b2 = 0;
+        for (let i = 0; i < len; i++) {
+          // pink-ish noise with slow amplitude swells, like many quiet voices
+          const w = Math.random() * 2 - 1;
+          b0 = 0.99765 * b0 + w * 0.099;
+          b1 = 0.963 * b1 + w * 0.2965;
+          b2 = 0.57 * b2 + w * 1.0526;
+          const swell = 0.6 + 0.4 * Math.sin(i / ctx.sampleRate * 1.3 + ch) * Math.sin(i / ctx.sampleRate * 0.41);
+          d[i] = (b0 + b1 + b2 + w * 0.18) * 0.05 * swell;
+        }
+      }
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 650;
+      bp.Q.value = 0.6;
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      src.connect(bp).connect(g);
+      g.connect(this.dryBus);
+      g.connect(this.reverbIn);
+      src.start();
+      this._murmur = g;
+    }
+    this._murmur.gain.setTargetAtTime(level * 0.9, ctx.currentTime, 1.2);
+  }
+
+  // The oboe gives the A, the strings tune to it
+  tuning(when = this.now + 0.1) {
+    this.playNote({ section: 'ob', inst: 'oboe', midi: 69, vel: 80, when, dur: 2.6, gain: 0.9 });
+    const strings = [['vn1', 'violin', 69], ['vn2', 'violin', 69], ['va', 'viola', 57], ['vc', 'cello', 45], ['cb', 'contrabass', 33], ['vn1', 'violin', 81], ['vc', 'cello', 57]];
+    strings.forEach(([sec, inst, m], i) => {
+      const t0 = when + 1.4 + i * 0.35 + Math.random() * 0.3;
+      this.playNote({ section: sec, inst, midi: m, vel: 60 + Math.random() * 20, when: t0, dur: 1.6 + Math.random() * 1.4, gain: 0.5 });
+      if (i % 2 === 0) this.playNote({ section: sec, inst, midi: m + 7, vel: 55, when: t0 + 0.9, dur: 1.2, gain: 0.4 });
+    });
+    this.playNote({ section: 'hn', inst: 'horn', midi: 57, vel: 60, when: when + 3.2, dur: 1.5, gain: 0.45 });
+    this.playNote({ section: 'fl', inst: 'flute', midi: 81, vel: 60, when: when + 3.6, dur: 1.2, gain: 0.45 });
+    return 6.5;
   }
 
   // ------------------------------------------------------------ applause
@@ -410,18 +468,18 @@ export class AudioEngine {
     if (!this._applauseBuf) this._applauseBuf = this._renderApplause(seconds, 1);
   }
 
-  applause(when) {
+  applause(when, intensity = 1) {
     this.prepareApplause();
     const ctx = this.ctx;
     const src = ctx.createBufferSource();
     src.buffer = this._applauseBuf;
-    src.playbackRate.value = 0.96 + Math.random() * 0.08;
+    src.playbackRate.value = (0.96 + Math.random() * 0.08) * (intensity < 0.8 ? 1.6 : 1);
     const bp = ctx.createBiquadFilter();
     bp.type = 'bandpass';
     bp.frequency.value = 2200;
     bp.Q.value = 0.5;
     const g = ctx.createGain();
-    g.gain.value = 0.5;
+    g.gain.value = 0.5 * Math.min(1.4, intensity);
     src.connect(bp).connect(g);
     g.connect(this.dryBus);
     g.connect(this.reverbIn);
