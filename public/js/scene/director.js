@@ -1,16 +1,19 @@
-// First-person presence: you walk into the hall, find a seat and sit down,
-// or wander anywhere (including onto the stage). Zoom works like opera
+// First-person presence: you arrive in the foyer, walk into the hall or up
+// the spiral stairs to the balconies, find a seat and sit down - or wander
+// onto the stage. The mouse looks around like a first-person game (pointer
+// lock); dragging still works when the cursor is free. Zoom works like opera
 // glasses. An optional auto-director films the concert for you.
 import * as THREE from 'three';
-import { HALL, floorAt } from './hall.js';
+import { stepTo, surfacesAt, LEVELS } from './hallplan.js';
 import { SECTIONS, PODIUM, STAGE_Y, sectionCenter } from '../layout.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 export const STAGE_FOCUS = V(0, STAGE_Y + 1.1, -4.6);
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-export const ENTRANCE = { pos: V(7.1, 0, 30.4), look: V(0, STAGE_Y + 1.2, -4) };
+export const ENTRANCE = { pos: V(0, LEVELS[0], 40.4), look: V(0, LEVELS[0] + 1.7, 30) };
 const EYE = 1.62;
+const BODY = 0.24; // keep this far from walls and drops
 
 export class Director {
   constructor(camera, dom, hall) {
@@ -20,8 +23,9 @@ export class Director {
     this.mode = 'walk'; // walk | seat | cinema
     this.yaw = 0;
     this.pitch = 0;
-    this.fov = 60;
-    this.targetFov = 60;
+    this.fov = 64;
+    this.targetFov = 64;
+    this.feet = ENTRANCE.pos.y;
     this.pos = ENTRANCE.pos.clone().add(V(0, EYE, 0));
     this.vel = V();
     this.keys = new Set();
@@ -29,10 +33,17 @@ export class Director {
     this.anim = null;
     this.seat = null;
     this.nearSeat = null;
-    this.fly = false;
     this.listeners = new Set();
     this.cine = { shot: null, until: 0 };
     this.occupied = new Set();
+    this.locked = false;
+    this.lookEnabled = true;
+    this.hoverLook = true; // first-person mouse look (setting)
+    this.lockFailed = false; // the browser refused to capture the mouse
+    this.userReleased = false; // Esc was pressed: leave the cursor free
+    this.active = false; // set once we are inside the hall
+    this.mouse = { x: 0, y: 0, inside: false };
+    this.stepPhase = 0;
     this._bindInput();
     const la = this.lookAt(ENTRANCE.look, this.pos);
     this.yaw = la.yaw;
@@ -42,26 +53,36 @@ export class Director {
   on(fn) { this.listeners.add(fn); }
   _emit(type, data) { for (const f of this.listeners) f(type, data); }
 
+  placeAt(feet, look) {
+    this.feet = feet.y;
+    this.pos.set(feet.x, feet.y + EYE, feet.z);
+    const la = this.lookAt(look, this.pos);
+    this.yaw = la.yaw;
+    this.pitch = la.pitch;
+    this.anim = null;
+    this.vel.set(0, 0, 0);
+  }
+
   // ------------------------------------------------------------ modes
   setMode(mode) {
     if (mode === this.mode) return;
     const prev = this.mode;
     this.mode = mode;
     if (mode === 'walk') {
-      if (prev === 'seat' && this.seat && this.seat.index >= 0) this._standUp();
+      if (prev === 'seat' && this.seat) this._standUp();
       this.seat = null;
-      this.targetFov = 60;
-      this.anim = null;
+      this.targetFov = 64;
     }
     if (mode === 'cinema') {
       this.cine.until = 0;
       this.cine.shot = null;
-      this.returnTo = { pos: this.pos.clone(), yaw: this.yaw, pitch: this.pitch, seat: prev === 'seat' ? this.seat : null };
+      this.returnTo = { pos: this.pos.clone(), yaw: this.yaw, pitch: this.pitch, seat: prev === 'seat' ? this.seat : null, feet: this.feet };
     }
     if (prev === 'cinema' && mode !== 'cinema' && this.returnTo) {
       // come back to where you were watching from
       const r = this.returnTo;
-      this.flyTo(r.pos, r.pos.clone().add(V(-Math.sin(r.yaw) * Math.cos(r.pitch), Math.sin(r.pitch), -Math.cos(r.yaw) * Math.cos(r.pitch))), 1.6, mode === 'seat' ? 50 : 60);
+      this.flyTo(r.pos, r.pos.clone().add(V(-Math.sin(r.yaw) * Math.cos(r.pitch), Math.sin(r.pitch), -Math.cos(r.yaw) * Math.cos(r.pitch))), 1.6, mode === 'seat' ? 50 : 64);
+      this.feet = r.feet;
       if (r.seat) this.seat = r.seat;
     }
     this._emit('mode', mode);
@@ -77,29 +98,53 @@ export class Director {
     let y0 = this.yaw;
     while (yaw - y0 > Math.PI) y0 += Math.PI * 2;
     while (yaw - y0 < -Math.PI) y0 -= Math.PI * 2;
-    this.anim = { p0: this.pos.clone(), p1: pos.clone(), y0, y1: yaw, q0: this.pitch, q1: pitch, t: 0, dur, fov0: this.targetFov, fov1: fov ?? this.targetFov };
+    this.anim = { p0: this.pos.clone(), p1: pos.clone(), y0, y1: yaw, q0: this.pitch, q1: pitch, t: 0, dur, fov0: this.targetFov, fov1: fov ?? this.targetFov, lift: dur > 1.5 };
   }
 
-  // sit in a seat: a short settle from standing beside it to seated
-  sitAt(seat, dur = 1.2) {
+  // sit in a seat: lower yourself into it, facing the stage
+  sitAt(seat, dur = 1.1) {
     if (!seat) return;
     this.seat = seat;
     this.mode = 'seat';
-    const eye = V(seat.x, seat.y + 1.18, seat.z + 0.06);
-    const keepLook = this.pos.distanceTo(eye) < 3;
-    if (keepLook) {
-      const d = V(-Math.sin(this.yaw), 0, -Math.cos(this.yaw));
-      this.flyTo(eye, eye.clone().add(d), dur, 50);
-    } else this.flyTo(eye, STAGE_FOCUS, Math.max(dur, 2.2), 50);
+    const fwd = V(-Math.sin(seat.yaw), 0, -Math.cos(seat.yaw));
+    const eye = V(seat.x, seat.y + 1.13, seat.z).addScaledVector(fwd, -0.02);
+    this.feet = seat.y;
+    const near = this.pos.distanceTo(eye) < 3.5;
+    this.flyTo(eye, near ? eye.clone().addScaledVector(fwd, 10).setY(STAGE_FOCUS.y + (eye.y - STAGE_FOCUS.y) * 0.5) : STAGE_FOCUS, near ? dur : 2.4, 50);
+    if (near) this.anim.lift = false;
     this._emit('mode', 'seat');
     this._emit('seat', seat);
   }
 
   _standUp() {
     const s = this.seat;
-    if (!s) return;
+    if (!s || s.index < 0) {
+      // from beside a musician: find the floor under us
+      this._settle();
+      return;
+    }
     // step out into the row in front of the seat
-    this.pos.set(s.x, floorAt(s.x, s.z - 0.45) + EYE, s.z - 0.45);
+    const fwd = V(-Math.sin(s.yaw), 0, -Math.cos(s.yaw));
+    const x = s.x + fwd.x * 0.5;
+    const z = s.z + fwd.z * 0.5;
+    const h = stepTo(x, z, s.y, { up: 0.6, down: 0.6 });
+    this.feet = h ?? s.y;
+    this.pos.set(h === null ? s.x : x, this.feet + EYE, h === null ? s.z : z);
+    this.anim = null;
+  }
+
+  // land on the nearest floor below the eye (after flying around)
+  _settle() {
+    const list = surfacesAt(this.pos.x, this.pos.z);
+    let best = null;
+    for (const h of list) if (h <= this.pos.y - 0.5 && (best === null || h > best)) best = h;
+    if (best === null) {
+      // nowhere to stand here: go back to the foyer
+      this.placeAt(ENTRANCE.pos, ENTRANCE.look);
+      return;
+    }
+    this.feet = best;
+    this.pos.y = best + EYE;
     this.anim = null;
   }
 
@@ -130,6 +175,48 @@ export class Director {
   }
 
   // ------------------------------------------------------------ input
+  requestLock() {
+    if (this.locked || !this.dom.requestPointerLock) return;
+    // raw mouse input where the platform offers it, plain pointer lock
+    // otherwise; embedded views may refuse both (dragging still works)
+    const plain = () => {
+      try {
+        const q = this.dom.requestPointerLock();
+        if (q && q.catch) q.catch(() => { this.lockFailed = true; });
+      } catch { this.lockFailed = true; }
+    };
+    try {
+      const p = this.dom.requestPointerLock({ unadjustedMovement: true });
+      if (p && p.catch) {
+        p.catch((e) => {
+          if (e?.name === 'NotSupportedError') plain();
+          else this.lockFailed = true;
+        });
+      }
+    } catch { plain(); }
+  }
+
+  releaseLock() {
+    this.userReleased = true;
+    if (document.pointerLockElement) document.exitPointerLock();
+  }
+
+  // hover look runs only when nothing else is steering the camera
+  _hoverActive() {
+    // only a fallback for browsers that refuse to capture the mouse: with
+    // the cursor visible the aim can never sit under it, so the real thing
+    // (cursor hidden, aim fixed at the centre) is always preferred
+    return this.hoverLook && this.lockFailed && this.lookEnabled && this.active && !this.locked && this.mouse.inside
+      && this.mode !== 'cinema' && !this.anim && document.hasFocus();
+  }
+
+  _look(dx, dy, k) {
+    if (this.mode === 'cinema') this.setMode(this.returnTo?.seat ? 'seat' : 'walk');
+    this.yaw -= dx * k;
+    this.pitch = clamp(this.pitch - dy * k, -1.4, 1.4);
+    if (this.anim && !this.anim.sitting) this.anim = null;
+  }
+
   _bindInput() {
     const el = this.dom;
     const pointers = new Map();
@@ -137,8 +224,37 @@ export class Director {
     let moved = 0;
     let lookPointer = null;
     let lastTap = { t: 0, x: 0, y: 0 };
+    document.addEventListener('pointerlockchange', () => {
+      const was = this.locked;
+      this.locked = document.pointerLockElement === el;
+      if (this.locked) { this.lockFailed = false; this.userReleased = false; }
+      else if (was) this.userReleased = true; // Esc (or the browser) let it go
+      this._emit('lock', this.locked);
+    });
+    document.addEventListener('pointerlockerror', () => { this.lockFailed = true; });
+    document.addEventListener('mousemove', (e) => {
+      if (!this.locked || !this.lookEnabled) return;
+      const k = (this.fov / 64) * 0.0021;
+      this._look(e.movementX, e.movementY, k);
+    });
+    // Hover look: without any click the view follows the mouse while the
+    // cursor is over the hall (not over the controls). Keeps the cursor free
+    // for the buttons; holding it at the left/right edge keeps turning.
+    el.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || this.locked) return;
+      this.mouse.x = e.clientX;
+      this.mouse.y = e.clientY;
+      this.mouse.inside = true;
+      if (!this._hoverActive()) return;
+      const mx = Math.max(-80, Math.min(80, e.movementX || 0));
+      const my = Math.max(-80, Math.min(80, e.movementY || 0));
+      this._look(mx, my, (this.fov / 64) * 0.0032);
+    });
+    el.addEventListener('pointerleave', () => { this.mouse.inside = false; });
+    window.addEventListener('blur', () => { this.mouse.inside = false; });
     el.addEventListener('pointerdown', (e) => {
-      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, type: e.pointerType });
+      if (this.locked) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
       if (pointers.size === 2) {
         const [a, b] = [...pointers.values()];
         pinch0 = Math.hypot(a.x - b.x, a.y - b.y);
@@ -148,6 +264,7 @@ export class Director {
       el.setPointerCapture(e.pointerId);
     });
     el.addEventListener('pointermove', (e) => {
+      if (this.locked) return;
       const p = pointers.get(e.pointerId);
       if (!p) return;
       const dx = e.clientX - p.x;
@@ -162,12 +279,11 @@ export class Director {
         pinch0 = d;
         return;
       }
-      if (e.pointerId !== lookPointer) return;
-      if (this.mode === 'cinema') this.setMode(this.returnTo?.seat ? 'seat' : 'walk');
-      const k = (this.fov / 50) * 0.0034;
-      this.yaw += dx * k;
-      this.pitch = clamp(this.pitch + dy * k, -1.35, 1.35);
-      this.anim = null;
+      if (e.pointerId !== lookPointer || !this.lookEnabled) return;
+      // with the mouse the view already follows the cursor (hover look)
+      if (e.pointerType === 'mouse' && this.hoverLook && this.lockFailed) return;
+      // drag the world: the view turns the way you pull
+      this._look(-dx, -dy, (this.fov / 50) * 0.0034);
     });
     const up = (e) => {
       const p = pointers.get(e.pointerId);
@@ -178,6 +294,7 @@ export class Director {
           lastTap.t = 0;
         } else lastTap = { t: now, x: e.clientX, y: e.clientY };
       }
+      if (p && p.type === 'mouse' && moved < 5 && !this.locked) this._emit('clickView', { x: e.clientX, y: e.clientY });
       pointers.delete(e.pointerId);
       if (e.pointerId === lookPointer) lookPointer = null;
       if (pointers.size < 2) pinch0 = 0;
@@ -187,17 +304,24 @@ export class Director {
     el.addEventListener('wheel', (e) => { e.preventDefault(); this.zoom(e.deltaY); }, { passive: false });
     el.addEventListener('dblclick', (e) => {
       if (e.sourceCapabilities?.firesTouchEvents) return;
-      this._emit('pick', { x: e.clientX, y: e.clientY });
+      if (this.locked) this._emit('pick', { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+      else this._emit('pick', { x: e.clientX, y: e.clientY });
     });
-    el.addEventListener('click', (e) => { if (moved < 6) this._emit('click', { x: e.clientX, y: e.clientY }); });
-    const MOVE = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft', 'ShiftRight']);
+    // while the pointer is locked a click picks what is under the crosshair
+    el.addEventListener('click', () => {
+      if (!this.locked) return;
+      const now = performance.now();
+      if (now - (this._lastLockClick || 0) < 320) this._emit('pick', { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+      this._lastLockClick = now;
+    });
+    const MOVE = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft', 'ShiftRight']);
     window.addEventListener('keydown', (e) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const t = e.target;
       if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || t.getAttribute?.('role') === 'slider') return;
-      if (e.code === 'KeyG' && !e.repeat && this.mode === 'walk') { this.fly = !this.fly; this._emit('fly', this.fly); return; }
-      if (e.code === 'KeyR' && !e.repeat) { this.targetFov = this.mode === 'walk' ? 60 : 50; return; }
-      if (e.code === 'KeyE' && !e.repeat && !this.fly) { if (this.toggleSit()) e.preventDefault(); return; }
+      if (e.code === 'KeyR' && !e.repeat) { this.targetFov = this.mode === 'walk' ? 64 : 50; return; }
+      if (e.code === 'KeyE' && !e.repeat) { if (this.toggleSit()) e.preventDefault(); return; }
+      if (e.code === 'Escape' && this.locked) { this.releaseLock(); return; }
       if (MOVE.has(e.code)) {
         if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown'].includes(e.code) && this.mode !== 'walk') this.setMode('walk');
         this.keys.add(e.code);
@@ -212,14 +336,23 @@ export class Director {
   update(dt, ctx) {
     const cam = this.camera;
     if (this.mode === 'cinema') this._cinema(dt, ctx);
+    // cursor resting at the left / right edge: keep turning that way
+    if (this._hoverActive()) {
+      const w = window.innerWidth;
+      const edge = Math.min(70, w * 0.05);
+      const x = this.mouse.x;
+      let turn = 0;
+      if (x < edge) turn = 1 - x / edge;
+      else if (x > w - edge) turn = -(1 - (w - x) / edge);
+      this.yaw += turn * dt * 1.7;
+    }
 
     if (this.anim) {
       const a = this.anim;
       a.t += dt;
       const x = ease(Math.min(1, a.t / a.dur));
       this.pos.lerpVectors(a.p0, a.p1, x);
-      const lift = Math.sin(x * Math.PI) * Math.min(2.5, a.p0.distanceTo(a.p1) * 0.12);
-      this.pos.y += lift;
+      if (a.lift) this.pos.y += Math.sin(x * Math.PI) * Math.min(2.5, a.p0.distanceTo(a.p1) * 0.12);
       this.yaw = a.y0 + (a.y1 - a.y0) * x;
       this.pitch = a.q0 + (a.q1 - a.q0) * x;
       this.targetFov = a.fov0 + (a.fov1 - a.fov0) * x;
@@ -229,9 +362,9 @@ export class Director {
       }
     }
 
-    if (this.mode === 'walk') {
+    if (this.mode === 'walk' && !this.anim) {
       const run = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
-      const speed = (run ? 4.8 : 2.2) * dt;
+      const speed = run ? 4.2 : 2.0;
       const fwd = V(-Math.sin(this.yaw), 0, -Math.cos(this.yaw));
       const right = V(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
       const mv = V();
@@ -239,24 +372,18 @@ export class Director {
       if (this.keys.has('KeyS') || this.keys.has('ArrowDown')) mv.sub(fwd);
       if (this.keys.has('KeyD')) mv.add(right);
       if (this.keys.has('KeyA')) mv.sub(right);
-      if (this.keys.has('ArrowLeft')) this.yaw += dt * 1.6;
-      if (this.keys.has('ArrowRight')) this.yaw -= dt * 1.6;
+      if (this.keys.has('ArrowLeft')) this.yaw += dt * 1.8;
+      if (this.keys.has('ArrowRight')) this.yaw -= dt * 1.8;
       mv.addScaledVector(fwd, -this.joy.y).addScaledVector(right, this.joy.x);
       if (mv.lengthSq() > 1) mv.normalize();
       mv.multiplyScalar(speed);
       this.vel.lerp(mv, 1 - Math.exp(-dt * 10));
-      this.pos.add(this.vel);
-      this.pos.x = clamp(this.pos.x, -HALL.halfW + 0.6, HALL.halfW - 0.6);
-      this.pos.z = clamp(this.pos.z, HALL.front + 0.8, HALL.back - 0.5);
-      if (this.fly) {
-        if (this.keys.has('KeyE')) this.pos.y += dt * 2.5;
-        if (this.keys.has('KeyQ')) this.pos.y -= dt * 2.5;
-        this.pos.y = clamp(this.pos.y, floorAt(this.pos.x, this.pos.z) + 0.4, HALL.ceiling - 1.2);
-      } else {
-        const ground = floorAt(this.pos.x, this.pos.z) + EYE;
-        this.pos.y += (ground - this.pos.y) * (1 - Math.exp(-dt * 8));
-      }
-      const bob = this.vel.length() > 0.001 && !this.fly ? Math.sin(performance.now() / 160) * 0.012 : 0;
+      this._move(this.vel.x * dt, this.vel.z * dt);
+      // eyes follow the feet; stairs feel like steps, not a ramp
+      this.pos.y += (this.feet + EYE - this.pos.y) * (1 - Math.exp(-dt * 14));
+      const sp = Math.hypot(this.vel.x, this.vel.z);
+      this.stepPhase += dt * sp * 3.4;
+      const bob = Math.sin(this.stepPhase * 2) * 0.016 * Math.min(1, sp / 2);
       cam.position.set(this.pos.x, this.pos.y + bob, this.pos.z);
       this._findSeat();
     } else {
@@ -267,21 +394,46 @@ export class Director {
     this._applyFov(dt);
   }
 
+  // try the move, then slide along whatever stopped us
+  _move(dx, dz) {
+    const d = Math.hypot(dx, dz);
+    if (d < 1e-6) return;
+    const tryAt = (mx, mz) => {
+      const l = Math.hypot(mx, mz);
+      if (l < 1e-6) return false;
+      const nx = this.pos.x + mx;
+      const nz = this.pos.z + mz;
+      // probe a body-width ahead so we stop short of walls and edges
+      const h = stepTo(nx + (mx / l) * BODY, nz + (mz / l) * BODY, this.feet);
+      if (h === null) return false;
+      const h2 = stepTo(nx, nz, this.feet);
+      if (h2 === null) return false;
+      this.pos.x = nx;
+      this.pos.z = nz;
+      this.feet = h2;
+      return true;
+    };
+    if (tryAt(dx, dz)) return;
+    if (tryAt(dx, 0)) { this.vel.z *= 0.5; return; }
+    if (tryAt(0, dz)) { this.vel.x *= 0.5; return; }
+    this.vel.multiplyScalar(0.3);
+  }
+
   // nearest free seat in front of you, within reach
   _findSeat() {
-    if (this.fly) return;
     const seats = this.hall.seats;
     const fwd = V(-Math.sin(this.yaw), 0, -Math.cos(this.yaw));
     let best = null;
-    let bestD = 2.1;
+    let bestD = 1.9;
     for (const s of seats) {
       const dx = s.x - this.pos.x;
       const dz = s.z - this.pos.z;
+      if (Math.abs(dx) > 2 || Math.abs(dz) > 2) continue;
       const d = Math.hypot(dx, dz);
-      if (d > bestD || Math.abs(s.y - (this.pos.y - EYE)) > 1.2) continue;
+      if (d > bestD || Math.abs(s.y - this.feet) > 0.75) continue;
       if (this.occupied.has(s.index)) continue;
       const dot = (dx * fwd.x + dz * fwd.z) / (d || 1);
-      if (dot < 0.2) continue;
+      if (dot < 0.25 && d > 0.6) continue;
       best = s;
       bestD = d;
     }
@@ -318,6 +470,7 @@ export class Director {
       c.clock = 0;
       c.until = shot.hold;
       this.flyTo(shot.pos, shot.look, shot.cut ? 0.001 : 3.2, shot.fov);
+      this.anim.lift = false;
       this.anim.after = () => { c.drift = { t: 0 }; };
       c.drift = null;
     }
@@ -342,10 +495,11 @@ export class Director {
     const dom = piece && perf.playing ? perf.dominantSection(t + 2, 8) : null;
     const wide = () => {
       const options = [
-        { kind: 'wide', pos: V(0, 4.2, 19), look: V(0, STAGE_Y + 1.4, -5), fov: 44, drift: V(0, -0.4, -3.5) },
-        { kind: 'wide2', pos: V(-9, 9.6, 27), look: V(0, STAGE_Y + 1, -5), fov: 40, drift: V(3, 0, 0) },
-        { kind: 'wide3', pos: V(11.5, 6.8, 6), look: V(-1, STAGE_Y + 1, -5.5), fov: 46, drift: V(0, 0, 3) },
-        { kind: 'wide4', pos: V(0, 13.5, 6), look: V(0, STAGE_Y, -5), fov: 52, drift: V(0, 0, -2.5) },
+        { kind: 'wide', pos: V(0, 4.4, 17), look: V(0, STAGE_Y + 1.4, -5), fov: 44, drift: V(0, -0.4, -3.5) },
+        { kind: 'wide2', pos: V(-8, LEVELS[1] + 0.5, 22.5), look: V(0, STAGE_Y + 1, -5), fov: 38, drift: V(3, 0, 0) },
+        { kind: 'wide3', pos: V(12.4, 7.6, 7), look: V(-1, STAGE_Y + 1, -5.5), fov: 46, drift: V(0, 0, 3) },
+        { kind: 'wide4', pos: V(0, 16.5, 6), look: V(0, STAGE_Y, -5), fov: 50, drift: V(0, 0, -2.5) },
+        { kind: 'hall', pos: V(0, 3.2, -1.5), look: V(0, 8, 24), fov: 62, drift: V(1.5, 0.6, 0) },
       ];
       return options[Math.floor(Math.random() * options.length)];
     };
@@ -395,7 +549,7 @@ export class Director {
     const up = V(0, 1, 0).applyQuaternion(cam.quaternion);
     if (this.mode === 'cinema' && fixedSeat) {
       const s = fixedSeat;
-      const pos = V(s.x, s.y + 1.18, s.z);
+      const pos = V(s.x, s.y + 1.13, s.z);
       const f = new THREE.Vector3().subVectors(STAGE_FOCUS, pos).normalize();
       return { pos, fwd: f, up: V(0, 1, 0) };
     }

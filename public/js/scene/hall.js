@@ -1,524 +1,239 @@
-// The concert hall: a shoebox hall (the acoustically classic shape) whose
-// columns grow into a vaulted forest canopy, with a moonlit forest seen
-// through the great window behind the stage.
+// The concert hall: a grand four-level shoebox in walnut, ivory and gold.
+// Raked stalls, three bowed balcony tiers with gilt fronts and boxes, a
+// coffered ceiling with crystal chandeliers, a fluted wooden shell around
+// the orchestra, a golden organ flanking the big screen and, above it, an
+// arched window onto the moonlit forest. Behind the stalls: the foyer with
+// its spiral staircases (see foyer.js). All floor heights come from
+// hallplan.js so the meshes and the walking agree.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { M, glowTexture } from './materials.js';
 import { STAGE_Y, PODIUM } from '../layout.js';
+import {
+  HALL, rakeY, lipZ, SHELL, shellPoint, DOORS, RISERS, PODIUM_R, PODIUM_H, STAGE_STAIRS,
+  BALCONIES, BALCONY_AISLES, AISLE_HALF, balconyZ, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, BOX_DAIS_X, BOX_DAIS_H,
+} from './hallplan.js';
+import { seatList, buildSeats } from './seats.js';
+import { buildFoyer } from './foyer.js';
 
-export const HALL = {
-  halfW: 15,
-  front: -13.6, // stage back wall
-  back: 31.5,
-  ceiling: 17.5,
-  firstRow: 3.2,
-  rowGap: 0.95,
-  rows: 25,
-  balconyY: 6.6,
-  balconyZ: 23.5,
-  sideBoxY: 5.3,
+export { HALL, rakeY, floorAt, stageFloorY } from './hallplan.js';
+
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const DEG = Math.PI / 180;
+
+// ----------------------------------------------------------------- helpers
+const clean = (g) => {
+  const n = g.index ? g.toNonIndexed() : g;
+  for (const k of Object.keys(n.attributes)) if (!['position', 'normal', 'uv'].includes(k)) n.deleteAttribute(k);
+  if (!n.attributes.uv) n.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(n.attributes.position.count * 2), 2));
+  return n;
 };
+export const mergeAll = (geos) => mergeGeometries(geos.map(clean));
 
-export function rakeY(z) {
-  return z < HALL.firstRow - 0.6 ? 0 : (z - (HALL.firstRow - 0.6)) * 0.118;
+function addMesh(parent, geos, mat, { cast = false, receive = true } = {}) {
+  if (!geos.length) return null;
+  const m = new THREE.Mesh(mergeAll(geos), mat);
+  m.castShadow = cast;
+  m.receiveShadow = receive;
+  parent.add(m);
+  return m;
 }
 
-const RISERS = [
-  { r0: 4.55, r1: 5.85, h: 0.3 },
-  { r0: 5.85, r1: 7.15, h: 0.6 },
-  { r0: 7.15, r1: 8.55, h: 0.9 },
-  { r0: 8.55, r1: 9.3, h: 1.25, a: 48 },
-  { r0: 9.3, r1: 10.05, h: 1.6, a: 42 },
-];
+// a box from a to b (xz) of given height and thickness, uv in metres / tile
+export function wallSeg(a, b, y0, y1, t, tile = 0) {
+  const len = Math.hypot(b.x - a.x, b.z - a.z);
+  const g = new THREE.BoxGeometry(len, y1 - y0, t);
+  if (tile) scaleUV(g, len / tile, (y1 - y0) / tile);
+  g.rotateY(-Math.atan2(b.z - a.z, b.x - a.x));
+  g.translate((a.x + b.x) / 2, (y0 + y1) / 2, (a.z + b.z) / 2);
+  return g;
+}
 
-export function stageFloorY(x, z) {
-  const dx = x - PODIUM.x;
-  const dz = z - PODIUM.z;
-  const r = Math.hypot(dx, dz);
-  const ang = Math.atan2(dx, -dz);
-  let y = STAGE_Y;
-  if (dz < 0.5) {
-    for (const R of RISERS) if (r >= R.r0 && r < R.r1 && Math.abs(ang) < ((R.a || 80) * Math.PI) / 180) y = STAGE_Y + R.h;
+function scaleUV(g, su, sv) {
+  const uv = g.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * su, uv.getY(i) * sv);
+  return g;
+}
+
+// planar uv from world xz (floors) or xy / zy (walls), in metres per tile
+function worldUV(g, axis = 'xz', tile = 1) {
+  const p = g.attributes.position;
+  const uv = new Float32Array(p.count * 2);
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i);
+    const y = p.getY(i);
+    const z = p.getZ(i);
+    const [u, v] = axis === 'xz' ? [x, z] : axis === 'xy' ? [x, y] : [z, y];
+    uv[i * 2] = u / tile;
+    uv[i * 2 + 1] = v / tile;
   }
-  return y;
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  return g;
 }
 
-// floor height for walking
-export function floorAt(x, z) {
-  if (z < 0.6 && Math.abs(x) < 12.2) return stageFloorY(x, z);
-  return rakeY(z);
+// annular sector prism around the podium; returns top and side geometries
+function sectorPrism(r0, r1, a0, a1, y0, y1, seg = 24) {
+  const top = [];
+  const side = [];
+  const P = (r, a) => [PODIUM.x + r * Math.sin(a), PODIUM.z - r * Math.cos(a)];
+  for (let i = 0; i < seg; i++) {
+    const aa = a0 + ((a1 - a0) * i) / seg;
+    const ab = a0 + ((a1 - a0) * (i + 1)) / seg;
+    const [ix0, iz0] = P(r0, aa);
+    const [ox0, oz0] = P(r1, aa);
+    const [ix1, iz1] = P(r0, ab);
+    const [ox1, oz1] = P(r1, ab);
+    top.push(ix0, y1, iz0, ox0, y1, oz0, ox1, y1, oz1, ix0, y1, iz0, ox1, y1, oz1, ix1, y1, iz1);
+    // inner (front) face and outer (back) face
+    side.push(ix0, y0, iz0, ix0, y1, iz0, ix1, y1, iz1, ix0, y0, iz0, ix1, y1, iz1, ix1, y0, iz1);
+    side.push(ox0, y0, oz0, ox1, y0, oz1, ox1, y1, oz1, ox0, y0, oz0, ox1, y1, oz1, ox0, y1, oz0);
+  }
+  // end caps
+  for (const a of [a0, a1]) {
+    const [ix, iz] = P(r0, a);
+    const [ox, oz] = P(r1, a);
+    const s = a === a0 ? 1 : -1;
+    if (s > 0) side.push(ix, y0, iz, ox, y0, oz, ox, y1, oz, ix, y0, iz, ox, y1, oz, ix, y1, iz);
+    else side.push(ix, y0, iz, ix, y1, iz, ox, y1, oz, ix, y0, iz, ox, y1, oz, ox, y0, oz);
+  }
+  const mk = (arr, axis) => {
+    // the loops above wind clockwise seen from outside; flip every triangle
+    for (let i = 0; i < arr.length; i += 9) {
+      for (let k = 0; k < 3; k++) { const t = arr[i + 3 + k]; arr[i + 3 + k] = arr[i + 6 + k]; arr[i + 6 + k] = t; }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
+    g.computeVertexNormals();
+    return worldUV(g, axis, 4);
+  };
+  return { top: mk(top, 'xz'), side: mk(side, 'xy') };
 }
 
+// ======================================================================
 export function buildHall({ quality = 'high' } = {}) {
   const group = new THREE.Group();
   group.name = 'hall';
-  const seats = [];
   const update = [];
   const H = HALL;
+  const glow = glowTexture('rgba(255,214,150,1)', 'rgba(255,170,90,0)');
+  const halos = []; // { sprite, base, house }
+  const halo = (pos, scale, opacity = 0.5, color = '#ffd29a', house = true) => {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending }));
+    s.position.copy(pos);
+    s.scale.setScalar(scale);
+    group.add(s);
+    halos.push({ s, base: opacity, house, phase: Math.random() * 10 });
+    return s;
+  };
 
-  // ---------------------------------------------------------------- stage
-  {
-    const shape = new THREE.Shape();
-    shape.moveTo(-12.4, H.front + 0.1);
-    shape.lineTo(12.4, H.front + 0.1);
-    shape.lineTo(12.4, -0.3);
-    shape.quadraticCurveTo(0, 1.6, -12.4, -0.3);
-    shape.closePath();
-    const geo = new THREE.ExtrudeGeometry(shape, { depth: STAGE_Y, bevelEnabled: false, curveSegments: 48 });
-    geo.rotateX(Math.PI / 2);
-    geo.translate(0, STAGE_Y, 0);
-    // planar UVs on the top
-    const pos = geo.attributes.position;
-    const uv = geo.attributes.uv;
-    for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / 4, pos.getZ(i) / 4);
-    const stage = new THREE.Mesh(geo, [M.stageWood(), M.darkWood()]);
-    stage.receiveShadow = true;
-    group.add(stage);
-
-    // risers (annular sectors around the podium)
-    const riserGeos = [];
-    for (const R of RISERS) {
-      const s = new THREE.Shape();
-      const a0 = (-(R.a || 80) * Math.PI) / 180;
-      const a1 = ((R.a || 80) * Math.PI) / 180;
-      const N = 40;
-      for (let i = 0; i <= N; i++) {
-        const a = a0 + ((a1 - a0) * i) / N;
-        const px = PODIUM.x + R.r1 * Math.sin(a);
-        const pz = PODIUM.z - R.r1 * Math.cos(a);
-        if (i === 0) s.moveTo(px, pz); else s.lineTo(px, pz);
-      }
-      for (let i = N; i >= 0; i--) {
-        const a = a0 + ((a1 - a0) * i) / N;
-        s.lineTo(PODIUM.x + R.r0 * Math.sin(a), PODIUM.z - R.r0 * Math.cos(a));
-      }
-      const g = new THREE.ExtrudeGeometry(s, { depth: R.h, bevelEnabled: false });
-      g.rotateX(Math.PI / 2);
-      g.translate(0, STAGE_Y + R.h, 0);
-      const p = g.attributes.position;
-      const u = g.attributes.uv;
-      for (let i = 0; i < p.count; i++) u.setXY(i, p.getX(i) / 4, p.getZ(i) / 4);
-      riserGeos.push(g);
-    }
-    const risers = new THREE.Mesh(mergeGeometries(riserGeos, true), [M.stageWood(), M.darkWood()]);
-    risers.receiveShadow = true;
-    risers.castShadow = true;
-    group.add(risers);
-
-    // conductor's podium with rail
-    const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.6, 0.22, 32), M.darkWood());
-    pod.position.set(PODIUM.x, STAGE_Y + 0.11, PODIUM.z);
-    pod.receiveShadow = true;
-    pod.castShadow = true;
-    group.add(pod);
-    const rail = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.02, 8, 32, Math.PI), M.brass());
-    rail.rotation.x = Math.PI / 2;
-    rail.rotation.z = Math.PI;
-    rail.position.set(PODIUM.x, STAGE_Y + 1.05, PODIUM.z + 0.02);
-    group.add(rail);
-    for (const a of [0.15, Math.PI / 2, Math.PI - 0.15]) {
-      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.84, 8), M.brass());
-      post.position.set(PODIUM.x + Math.cos(a) * 0.55, STAGE_Y + 0.63, PODIUM.z + Math.sin(a) * 0.55);
-      group.add(post);
-    }
-
-    // front lip trim (gold edge on the stage apron)
-    const curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(-12.4, STAGE_Y, -0.3), new THREE.Vector3(0, STAGE_Y, 1.6), new THREE.Vector3(12.4, STAGE_Y, -0.3));
-    const lip = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, 0.035, 8), M.gold());
-    group.add(lip);
-  }
-
-  // ------------------------------------------------------------ acoustic shell
-  {
-    const geos = [];
-    const R = 11.2;
-    const N = 15;
-    for (let i = 0; i < N; i++) {
-      const a = (-98 + (196 * (i + 0.5)) / N) * (Math.PI / 180);
-      const h = 4.6 + Math.cos(a) * 0.6;
-      const g = new THREE.BoxGeometry(2.25, h, 0.12);
-      g.rotateX(-0.08);
-      g.rotateY(-a);
-      g.translate(PODIUM.x + R * Math.sin(a), STAGE_Y + h / 2, PODIUM.z - R * Math.cos(a) * 0.9);
-      if (PODIUM.z - R * Math.cos(a) * 0.9 > H.front + 0.3 || Math.abs(a) > 1.2) geos.push(g);
-    }
-    const shell = new THREE.Mesh(mergeGeometries(geos), M.panelWood());
-    shell.receiveShadow = true;
-    group.add(shell);
-  }
-
-  // ---------------------------------------------------------- audience floor
-  {
-    // raked floor as a strip mesh
-    const w = H.halfW * 2;
-    const zs = [];
-    for (let z = 0.4; z <= H.back + 0.01; z += 0.5) zs.push(z);
-    const pos = [];
-    const uvs = [];
-    const idx = [];
-    zs.forEach((z, i) => {
-      pos.push(-H.halfW, rakeY(z), z, H.halfW, rakeY(z), z);
-      uvs.push(0, z / 3, w / 3, z / 3);
-      if (i > 0) {
-        const a = (i - 1) * 2;
-        idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
-      }
-    });
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-    g.setIndex(idx);
-    g.computeVertexNormals();
-    const floor = new THREE.Mesh(g, M.floorWood());
-    floor.receiveShadow = true;
-    group.add(floor);
-
-    // carpeted aisles
-    for (const ax of [-7.1, 7.1]) {
-      const ag = g.clone();
-      const p = ag.attributes.position;
-      for (let i = 0; i < p.count; i++) p.setX(i, i % 2 === 0 ? ax - 0.6 : ax + 0.6);
-      p.needsUpdate = true;
-      ag.translate(0, 0.01, 0);
-      const aisle = new THREE.Mesh(ag, M.carpet());
-      aisle.receiveShadow = true;
-      group.add(aisle);
-    }
-    // front cross-aisle
-    const front = new THREE.Mesh(new THREE.PlaneGeometry(w, 2.6), M.carpet());
-    front.rotation.x = -Math.PI / 2;
-    front.position.set(0, 0.005, 1.6);
-    front.receiveShadow = true;
-    group.add(front);
-  }
+  buildStage(group);
+  const doorLeaves = buildShell(group);
+  buildStageWall(group);
+  buildStalls(group);
+  buildWalls(group, halo);
+  buildBalconies(group, halo);
+  buildProscenium(group);
+  buildCeiling(group);
 
   // ---------------------------------------------------------------- seats
+  const seats = seatList();
   const seatData = buildSeats(seats);
   group.add(seatData.group);
 
-  // ---------------------------------------------------------------- doors
-  {
-    const doorMat = new THREE.MeshStandardMaterial({ color: '#1a1008', roughness: 0.9 });
-    const frameMat = M.darkWood();
-    const mk = (x, y, z, w, h, rotY) => {
-      const g = new THREE.Group();
-      const dark = new THREE.Mesh(new THREE.PlaneGeometry(w, h), doorMat);
-      dark.position.set(0, h / 2, 0);
-      const fr = new THREE.Mesh(new THREE.BoxGeometry(w + 0.3, 0.14, 0.2), frameMat);
-      fr.position.set(0, h + 0.07, 0);
-      const pl = new THREE.Mesh(new THREE.BoxGeometry(0.14, h + 0.14, 0.2), frameMat);
-      pl.position.set(-w / 2 - 0.08, (h + 0.14) / 2, 0);
-      const pr = pl.clone();
-      pr.position.x = w / 2 + 0.08;
-      g.add(dark, fr, pl, pr);
-      g.position.set(x, y, z);
-      g.rotation.y = rotY;
-      group.add(g);
-    };
-    // stage wings (the musicians come and go through these)
-    mk(12.45, STAGE_Y, -5.6, 1.6, 2.4, -Math.PI / 2);
-    mk(-12.45, STAGE_Y, -5.6, 1.6, 2.4, Math.PI / 2);
-    // the audience doors at the back of the stalls, one per aisle
-    for (const x of [-7.1, 7.1]) mk(x, rakeY(H.back - 0.5), H.back - 0.05, 2.2, 2.6, Math.PI);
+  // ------------------------------------------------------------ chandeliers
+  const chandeliers = [];
+  // hung clear of the sightlines from the upper tiers
+  for (const [z, s] of [[4.5, 0.85], [12.8, 1.1], [20.6, 0.8]]) {
+    const c = buildChandelier(s);
+    c.group.position.set(0, H.ceiling - 3.0 * s - 0.35, z);
+    group.add(c.group);
+    const topY = c.group.position.y + 0.45 * s;
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, H.ceiling - topY, 8), M.gilt());
+    rod.position.set(0, (H.ceiling + topY) / 2, z);
+    group.add(rod);
+    const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.9 * s, 1.15 * s, 0.12, 40), M.gilt());
+    ped.position.set(0, H.ceiling - 0.06, z);
+    group.add(ped);
+    chandeliers.push(c);
+    halo(c.group.position.clone().add(V(0, -0.4 * s, 0)), 6.5 * s, 0.32);
   }
 
-  // ------------------------------------------------------------- balconies
-  {
-    const geos = [];
-    const rails = [];
-    // rear balcony: stepped tiers
-    const bz = H.balconyZ;
-    const tiers = 5;
-    for (let r = 0; r < tiers; r++) {
-      const z0 = bz + r * 1.05;
-      const y = H.balconyY + r * 0.42;
-      const g = new THREE.BoxGeometry(H.halfW * 2 - 0.2, 0.4 + r * 0.42, 1.05);
-      g.translate(0, y - (0.4 + r * 0.42) / 2 + 0.2 - 0.2, z0 + 0.525);
-      geos.push(g);
-    }
-    // soffit (underside) of the balcony
-    const soff = new THREE.BoxGeometry(H.halfW * 2 - 0.2, 0.5, H.back - bz + 0.6);
-    soff.translate(0, H.balconyY - 0.45, (bz + H.back) / 2 - 0.3);
-    geos.push(soff);
-    // rail
-    const railCurve = new THREE.LineCurve3(new THREE.Vector3(-H.halfW + 0.2, H.balconyY + 0.82, bz - 0.15), new THREE.Vector3(H.halfW - 0.2, H.balconyY + 0.82, bz - 0.15));
-    rails.push(new THREE.TubeGeometry(railCurve, 2, 0.035, 8));
-    const front = new THREE.BoxGeometry(H.halfW * 2 - 0.2, 0.86, 0.18);
-    front.translate(0, H.balconyY + 0.36, bz - 0.12);
-    geos.push(front);
-
-    // side box balconies
-    for (const side of [-1, 1]) {
-      const bx = side * (H.halfW - 0.9);
-      const g = new THREE.BoxGeometry(1.8, 0.45, 19.5);
-      g.translate(bx, H.sideBoxY - 0.22, 12.5);
-      geos.push(g);
-      const f = new THREE.BoxGeometry(0.16, 0.95, 19.5);
-      f.translate(bx - side * 0.92, H.sideBoxY + 0.45, 12.5);
-      geos.push(f);
-      const c = new THREE.LineCurve3(new THREE.Vector3(bx - side * 0.92, H.sideBoxY + 0.96, 2.8), new THREE.Vector3(bx - side * 0.92, H.sideBoxY + 0.96, 22.2));
-      rails.push(new THREE.TubeGeometry(c, 2, 0.045, 8));
-    }
-    const balc = new THREE.Mesh(mergeGeometries(geos), M.darkWood());
-    balc.receiveShadow = true;
-    balc.castShadow = true;
-    group.add(balc);
-    group.add(new THREE.Mesh(mergeGeometries(rails), new THREE.MeshStandardMaterial({ color: '#8a6a3c', metalness: 0.7, roughness: 0.55 })));
-  }
-
-  // --------------------------------------------------------- walls & canopy
-  const lanterns = [];
-  {
-    const wallGeos = [];
-    const panelGeos = [];
-    // side walls
-    for (const side of [-1, 1]) {
-      const g = new THREE.BoxGeometry(0.4, H.ceiling, H.back - H.front);
-      g.translate(side * (H.halfW + 0.2), H.ceiling / 2, (H.back + H.front) / 2);
-      wallGeos.push(g);
-      // wainscot panels
-      for (let z = H.front + 1; z < H.back - 1; z += 2.2) {
-        const p = new THREE.BoxGeometry(0.08, 2.4, 1.9);
-        p.translate(side * (H.halfW - 0.02), rakeY(Math.max(z, 1)) + 1.4, z + 1.1);
-        panelGeos.push(p);
-      }
-    }
-    // back wall
-    const bw = new THREE.BoxGeometry(H.halfW * 2 + 0.8, H.ceiling, 0.4);
-    bw.translate(0, H.ceiling / 2, H.back + 0.2);
-    wallGeos.push(bw);
-    // ceiling
-    const cg = new THREE.BoxGeometry(H.halfW * 2 + 0.8, 0.4, H.back - H.front);
-    cg.translate(0, H.ceiling + 0.2, (H.back + H.front) / 2);
-    wallGeos.push(cg);
-    const walls = new THREE.Mesh(mergeGeometries(wallGeos), M.wall());
-    walls.receiveShadow = true;
-    group.add(walls);
-    const panels = new THREE.Mesh(mergeGeometries(panelGeos), M.panelWood());
-    panels.receiveShadow = true;
-    group.add(panels);
-
-    // stage-end wall with the great window opening
-    const shape = new THREE.Shape();
-    shape.moveTo(-H.halfW - 0.4, 0);
-    shape.lineTo(H.halfW + 0.4, 0);
-    shape.lineTo(H.halfW + 0.4, H.ceiling + 0.4);
-    shape.lineTo(-H.halfW - 0.4, H.ceiling + 0.4);
-    shape.closePath();
-    const hole = new THREE.Path();
-    const wx = 6.2;
-    const wy0 = 5.6;
-    const wy1 = 12.4;
-    hole.moveTo(-wx, wy0);
-    hole.lineTo(wx, wy0);
-    hole.lineTo(wx, wy1);
-    hole.absarc(0, wy1, wx, 0, Math.PI, false);
-    hole.lineTo(-wx, wy0);
-    shape.holes.push(hole);
-    const fw = new THREE.ExtrudeGeometry(shape, { depth: 0.6, bevelEnabled: false, curveSegments: 48 });
-    fw.translate(0, 0, H.front - 0.6);
-    const frontWall = new THREE.Mesh(fw, M.wall());
-    frontWall.receiveShadow = true;
-    group.add(frontWall);
-
-    // window frame + mullions
-    const frameGeos = [];
-    const arch = new THREE.EllipseCurve(0, wy1, wx, wx, 0, Math.PI, false);
-    const pts = arch.getPoints(48).map((p) => new THREE.Vector3(p.x, p.y, H.front + 0.02));
-    const archPath = new THREE.CatmullRomCurve3([new THREE.Vector3(wx, wy0, H.front + 0.02), ...pts, new THREE.Vector3(-wx, wy0, H.front + 0.02)]);
-    frameGeos.push(new THREE.TubeGeometry(archPath, 96, 0.14, 8));
-    frameGeos.push(new THREE.BoxGeometry(wx * 2 + 0.3, 0.22, 0.3).translate(0, wy0, H.front + 0.02));
-    for (let i = -2; i <= 2; i++) {
-      const x = (i * wx) / 3;
-      const top = wy1 + Math.sqrt(Math.max(0, wx * wx - x * x));
-      frameGeos.push(new THREE.BoxGeometry(0.07, top - wy0, 0.08).translate(x, (top + wy0) / 2, H.front + 0.02));
-    }
-    for (const y of [wy0 + 2.3, wy0 + 4.6, wy1 + 2.8]) {
-      const half = y <= wy1 ? wx : Math.sqrt(Math.max(0, wx * wx - (y - wy1) ** 2));
-      frameGeos.push(new THREE.BoxGeometry(half * 2, 0.06, 0.08).translate(0, y, H.front + 0.02));
-    }
-    group.add(new THREE.Mesh(mergeGeometries(frameGeos), new THREE.MeshStandardMaterial({ color: '#4a3622', metalness: 0.35, roughness: 0.55 })));
-
-    // the view: moonlit forest painted on a backdrop far behind the glass
-    const sky = new THREE.Mesh(new THREE.PlaneGeometry(60, 34), new THREE.MeshBasicMaterial({ map: nightForestTexture(), toneMapped: false, fog: false }));
-    sky.position.set(0, 10, H.front - 14);
-    group.add(sky);
-    // faint glass reflection
-    const glass = new THREE.Mesh(new THREE.PlaneGeometry(wx * 2, wy1 - wy0 + wx), new THREE.MeshPhysicalMaterial({ color: '#9fb4d0', transparent: true, opacity: 0.06, roughness: 0.05, metalness: 0, depthWrite: false }));
-    glass.position.set(0, (wy0 + wy1 + wx) / 2, H.front - 0.25);
-    group.add(glass);
-    // moonlight through the window
-    const moon = new THREE.SpotLight('#9ab8ff', 0, 40, 0.5, 0.8, 0);
-    moon.position.set(4, 16, H.front - 10);
-    moon.target.position.set(-1, STAGE_Y, -5);
-    moon.intensity = 0.5;
-    group.add(moon, moon.target);
-
-    // ---- forest canopy: tree-trunk pilasters that branch into vault ribs
-    const trunkGeos = [];
-    const ribGeos = [];
-    const leafPos = [];
-    const pilasterZ = [];
-    for (let z = H.front + 2.2; z < H.back - 0.5; z += 4.1) pilasterZ.push(z);
-    for (const z of pilasterZ) {
-      for (const side of [-1, 1]) {
-        const x = side * (H.halfW - 0.35);
-        const base = z < 0.6 ? 0 : rakeY(z);
-        const tg = new THREE.CylinderGeometry(0.32, 0.5, 13 - base, 10, 4);
-        // gnarl the trunk a little
-        const tp = tg.attributes.position;
-        for (let i = 0; i < tp.count; i++) {
-          const yy = tp.getY(i);
-          const k = 1 + 0.08 * Math.sin(yy * 2.1 + z) + 0.05 * Math.sin(Math.atan2(tp.getZ(i), tp.getX(i)) * 3 + yy);
-          tp.setX(i, tp.getX(i) * k);
-          tp.setZ(i, tp.getZ(i) * k);
-        }
-        tg.translate(x, base + (13 - base) / 2, z);
-        trunkGeos.push(tg);
-        // two branching ribs: one across the vault, one diagonal
-        for (const dz of [0, 1.6]) {
-          const c = new THREE.CubicBezierCurve3(
-            new THREE.Vector3(x, 12.4, z),
-            new THREE.Vector3(x * 0.92, 16.6, z + dz * 0.5),
-            new THREE.Vector3(x * 0.35, 17.6, z + dz),
-            new THREE.Vector3(0, 17.4, z + dz * 1.2),
-          );
-          ribGeos.push(new THREE.TubeGeometry(c, 24, dz ? 0.12 : 0.2, 6));
-          for (let k = 0; k < 7; k++) {
-            const p = c.getPoint(0.15 + (k / 7) * 0.85);
-            leafPos.push([p.x + (Math.random() - 0.5) * 1.2, p.y - 0.3 - Math.random() * 0.4, p.z + (Math.random() - 0.5) * 1.4]);
-          }
-        }
-        // lanterns hanging from ribs
-        if (Math.abs(z % 8.2) < 4.1) {
-          lanterns.push(new THREE.Vector3(x * 0.55, 13.2 + Math.random() * 1.6, z + 0.8));
-        }
-      }
-    }
-    const trunks = new THREE.Mesh(mergeGeometries(trunkGeos), M.bark());
-    trunks.castShadow = false;
-    trunks.receiveShadow = true;
-    group.add(trunks);
-    group.add(new THREE.Mesh(mergeGeometries(ribGeos), M.bark()));
-
-    // leaf clusters (instanced)
-    const leafGeo = new THREE.IcosahedronGeometry(0.55, 0);
-    const leaves = new THREE.InstancedMesh(leafGeo, M.leaf(), leafPos.length);
-    const leaves2 = new THREE.InstancedMesh(leafGeo, M.leafLight(), leafPos.length);
-    const m4 = new THREE.Matrix4();
-    const q = new THREE.Quaternion();
-    leafPos.forEach((p, i) => {
-      const s = 0.7 + Math.random() * 0.9;
-      q.setFromEuler(new THREE.Euler(Math.random() * 3, Math.random() * 3, Math.random() * 3));
-      m4.compose(new THREE.Vector3(...p), q, new THREE.Vector3(s * 1.3, s * 0.7, s));
-      leaves.setMatrixAt(i, m4);
-      m4.compose(new THREE.Vector3(p[0] + 0.4, p[1] - 0.2, p[2] + 0.3), q, new THREE.Vector3(s * 0.8, s * 0.5, s * 0.7));
-      leaves2.setMatrixAt(i, m4);
-    });
-    group.add(leaves, leaves2);
-  }
-
-  // --------------------------------------------------- lanterns & sconces
-  const glow = glowTexture('rgba(255,214,150,1)', 'rgba(255,170,90,0)');
-  const lanternMat = new THREE.MeshStandardMaterial({ color: '#ffcf8a', emissive: '#ffb45c', emissiveIntensity: 1.6, roughness: 0.4 });
-  const lanternGroup = new THREE.Group();
-  const lanternParts = [];
-  for (const p of lanterns) {
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 0.42, 8), lanternMat);
-    body.position.copy(p);
-    const cap = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.18, 8), M.gold());
-    cap.position.set(p.x, p.y + 0.3, p.z);
-    const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 17.4 - p.y, 4), M.ebony());
-    cord.position.set(p.x, (17.4 + p.y) / 2 + 0.2, p.z);
-    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color: '#ffd29a', transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending }));
-    halo.position.copy(p);
-    halo.scale.setScalar(1.8);
-    lanternGroup.add(body, cap, cord, halo);
-    lanternParts.push({ body, halo, phase: Math.random() * 10 });
-  }
-  group.add(lanternGroup);
-
-  // wall sconces on each pilaster
-  const sconceMat = new THREE.MeshStandardMaterial({ color: '#fff0d0', emissive: '#ffc77a', emissiveIntensity: 1.8, roughness: 0.3 });
-  for (let z = HALL.front + 2.2; z < HALL.back - 0.5; z += 4.1) {
-    for (const side of [-1, 1]) {
-      const y = (z < 0.6 ? 0 : rakeY(z)) + 3.6;
-      const b = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 8), sconceMat);
-      b.position.set(side * (HALL.halfW - 0.95), y, z);
-      const h = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color: '#ffc98a', transparent: true, opacity: 0.6, depthWrite: false, blending: THREE.AdditiveBlending }));
-      h.position.copy(b.position);
-      h.scale.setScalar(1.3);
-      group.add(b, h);
-      lanternParts.push({ body: b, halo: h, phase: Math.random() * 10, sconce: true });
-    }
-  }
+  // ---------------------------------------------------------------- foyer
+  const foyer = buildFoyer(group, { halo });
 
   // ------------------------------------------------------------------ lights
   const lights = {};
-  lights.hemi = new THREE.HemisphereLight('#ffdcb8', '#2a1a10', 0.4);
+  lights.hemi = new THREE.HemisphereLight('#ffe2c0', '#2a1a10', 0.35);
   group.add(lights.hemi);
 
-  const key = new THREE.SpotLight('#ffe7c4', 2.6, 0, 0.62, 0.55, 0);
-  key.position.set(0, 16.5, 9);
-  key.target.position.set(0, STAGE_Y, -5.2);
+  // front-of-house key from the ceiling, shadows on the stage
+  const key = new THREE.SpotLight('#ffe9cc', 950, 0, 0.36, 0.6, 2);
+  key.position.set(0, 20.5, 10);
+  key.target.position.set(0, STAGE_Y, -5.4);
   key.castShadow = quality !== 'low';
   key.shadow.mapSize.set(quality === 'high' ? 2048 : 1024, quality === 'high' ? 2048 : 1024);
-  key.shadow.camera.near = 6;
+  key.shadow.camera.near = 8;
   key.shadow.camera.far = 40;
-  key.shadow.bias = -0.00012;
-  key.shadow.normalBias = 0.02;
+  key.shadow.bias = -0.0001;
+  key.shadow.normalBias = 0.025;
   key.shadow.radius = 4;
   group.add(key, key.target);
   lights.key = key;
 
-  const fillL = new THREE.SpotLight('#ffcf9e', 0.95, 0, 0.55, 0.7, 0);
-  fillL.position.set(-13, 12, 6);
-  fillL.target.position.set(-2, STAGE_Y, -5);
-  const fillR = new THREE.SpotLight('#ffd9b0', 0.95, 0, 0.55, 0.7, 0);
-  fillR.position.set(13, 12, 6);
-  fillR.target.position.set(2, STAGE_Y, -5);
-  group.add(fillL, fillL.target, fillR, fillR.target);
-  lights.fills = [fillL, fillR];
-
-  // back-light rim from above the shell
-  const rim = new THREE.SpotLight('#ffd8a8', 0.9, 0, 0.8, 0.8, 0);
-  rim.position.set(0, 12, -13);
-  rim.target.position.set(0, STAGE_Y, -2);
+  const fills = [];
+  for (const sx of [-1, 1]) {
+    const f = new THREE.SpotLight(sx < 0 ? '#ffd7ae' : '#ffe0bf', 180, 0, 0.42, 0.75, 2);
+    f.position.set(sx * 13.2, 14.5, 3);
+    f.target.position.set(sx * 2.5, STAGE_Y, -5.5);
+    group.add(f, f.target);
+    fills.push(f);
+  }
+  lights.fills = fills;
+  // back light from above the organ: a warm rim around the players
+  const rim = new THREE.SpotLight('#ffd6a0', 210, 0, 0.62, 0.8, 2);
+  rim.position.set(0, 17, -12.5);
+  rim.target.position.set(0, STAGE_Y, -3);
   group.add(rim, rim.target);
   lights.rim = rim;
 
-  // warm house lights (dimmed during performance)
-  const house = [];
-  for (const [x, z] of [[-9, 8], [9, 8], [-9, 20], [9, 20], [0, 14], [-8, 28], [8, 28], [0, 5]]) {
-    const pl = new THREE.PointLight('#ffbf7a', 14, 26, 1.6);
-    pl.position.set(x, 11.5, z);
+  // chandeliers + a soft fill under the balcony + the foyer
+  const house = chandeliers.map((c, i) => {
+    const pl = new THREE.PointLight('#ffc98a', i === 1 ? 18 : 13, 34, 1.5);
+    pl.position.copy(c.group.position);
     group.add(pl);
-    house.push(pl);
-  }
+    return { light: pl, base: pl.intensity };
+  });
+  const under = new THREE.PointLight('#ffc98a', 1.6, 12, 1.2);
+  under.position.set(0, 4.2, 27);
+  group.add(under);
+  house.push({ light: under, base: under.intensity });
+  for (const l of foyer.lights) house.push({ light: l, base: l.intensity, foyer: true });
   lights.house = house;
 
-  // volumetric light beams from the key light (subtle, additive)
-  const beam = makeBeam(key.position, new THREE.Vector3(0, STAGE_Y, -4.6), 6.4);
-  group.add(beam);
-  const beamL = makeBeam(fillL.position, new THREE.Vector3(-3, STAGE_Y, -4), 4.6, 0.022);
-  const beamR = makeBeam(fillR.position, new THREE.Vector3(3, STAGE_Y, -4), 4.6, 0.022);
-  group.add(beamL, beamR);
+  // moonlight through the great window
+  const moon = new THREE.SpotLight('#9ab8ff', 60, 50, 0.5, 0.8, 2);
+  moon.position.set(4, 21, H.front - 8);
+  moon.target.position.set(-1, STAGE_Y, -5);
+  group.add(moon, moon.target);
 
   // ------------------------------------------------------------- animation
   let houseLevel = 1;
   let houseTarget = 1;
   update.push((dt, t) => {
     houseLevel += (houseTarget - houseLevel) * Math.min(1, dt * 0.8);
-    for (const pl of house) pl.intensity = 14 * houseLevel;
-    lights.hemi.intensity = 0.22 + 0.3 * houseLevel;
-    for (const l of lanternParts) {
-      const flick = 0.92 + 0.08 * Math.sin(t * 2.3 + l.phase) * Math.sin(t * 5.1 + l.phase * 2);
-      const lv = l.sconce ? 0.45 + 0.55 * houseLevel : 0.75 + 0.25 * houseLevel;
-      l.halo.material.opacity = (l.sconce ? 0.6 : 0.55) * flick * lv;
+    for (const h of house) h.light.intensity = h.base * (h.foyer ? 0.6 + 0.4 * houseLevel : houseLevel);
+    lights.hemi.intensity = 0.12 + 0.3 * houseLevel;
+    M.bulb().emissiveIntensity = 1.4 + 3.6 * houseLevel;
+    M.crystal().emissiveIntensity = 0.12 + 0.45 * houseLevel;
+    for (const h of halos) {
+      const flick = 0.94 + 0.06 * Math.sin(t * 2.3 + h.phase) * Math.sin(t * 5.1 + h.phase * 2);
+      h.s.material.opacity = h.base * flick * (h.house ? 0.25 + 0.75 * houseLevel : 1);
     }
-    lanternMat.emissiveIntensity = 1.6 * (0.8 + 0.2 * houseLevel);
-    sconceMat.emissiveIntensity = 1.8 * (0.4 + 0.6 * houseLevel);
-    beam.material.uniforms.uOpacity.value = 0.06 + 0.03 * (1 - houseLevel);
+    // the musicians' doors swing open for whoever passes
+    for (const d of doorLeaves) {
+      d.open += ((d.door.want ? 1 : 0) - d.open) * Math.min(1, dt * 3.2);
+      d.pivot.rotation.y = d.base + d.dir * d.open * 1.75;
+    }
   });
 
   return {
@@ -531,126 +246,840 @@ export function buildHall({ quality = 'high' } = {}) {
   };
 }
 
-// ------------------------------------------------------------------ seats
-function buildSeats(seats) {
+// ================================================================= stage
+function buildStage(group) {
   const H = HALL;
-  const group = new THREE.Group();
-  // one seat = cushion + back (fabric) and frame/armrests (wood)
-  const cushion = new THREE.BoxGeometry(0.48, 0.1, 0.46, 1, 1, 1);
-  cushion.translate(0, 0.45, 0.02);
-  const back = new THREE.BoxGeometry(0.48, 0.6, 0.09);
-  back.rotateX(-0.16);
-  back.translate(0, 0.8, 0.27);
-  const fabric = mergeGeometries([cushion, back]);
-  const armL = new THREE.BoxGeometry(0.05, 0.08, 0.5).translate(-0.27, 0.66, 0.08);
-  const armR = new THREE.BoxGeometry(0.05, 0.08, 0.5).translate(0.27, 0.66, 0.08);
-  const legL = new THREE.BoxGeometry(0.05, 0.62, 0.42).translate(-0.27, 0.31, 0.12);
-  const legR = new THREE.BoxGeometry(0.05, 0.62, 0.42).translate(0.27, 0.31, 0.12);
-  const backShell = new THREE.BoxGeometry(0.5, 0.64, 0.03).rotateX(-0.16).translate(0, 0.8, 0.33);
-  const frame = mergeGeometries([armL, armR, legL, legR, backShell]);
+  // platform: polished boards on top, walnut skirt
+  const shape = new THREE.Shape();
+  shape.moveTo(-H.stageHalfW, H.front + 0.1);
+  shape.lineTo(H.stageHalfW, H.front + 0.1);
+  shape.lineTo(H.stageHalfW, -0.3);
+  shape.quadraticCurveTo(0, 1.6, -H.stageHalfW, -0.3);
+  shape.closePath();
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: STAGE_Y, bevelEnabled: false, curveSegments: 64 });
+  geo.rotateX(Math.PI / 2);
+  geo.translate(0, STAGE_Y, 0);
+  const pos = geo.attributes.position;
+  const uv = geo.attributes.uv;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / 4, pos.getZ(i) / 4);
+  const stage = new THREE.Mesh(geo, [M.stageWood(), M.walnut()]);
+  stage.receiveShadow = true;
+  group.add(stage);
 
-  const list = [];
-  const rowName = (i) => String.fromCharCode(65 + i);
-  // main floor: centre block + two side blocks, gently curved rows
-  for (let r = 0; r < H.rows; r++) {
-    const z = H.firstRow + r * H.rowGap;
-    const blocks = [
-      { x0: -12.9, x1: -7.9 },
-      { x0: -6.3, x1: 6.3 },
-      { x0: 7.9, x1: 12.9 },
-    ];
-    let num = 1;
-    for (const b of blocks) {
-      const n = Math.floor((b.x1 - b.x0) / 0.56) + 1;
-      for (let i = 0; i < n; i++) {
-        const x = b.x0 + i * ((b.x1 - b.x0) / Math.max(1, n - 1));
-        const curve = (x * x) * 0.006; // rows curve toward the stage
-        const zz = z + curve;
-        if (zz > H.back - 0.6) continue;
-        const yaw = Math.atan2(x, 18) * 0.6; // angle toward the stage centre
-        list.push({ x, y: rakeY(zz), z: zz, yaw, level: '1층', row: rowName(r), num: num++ });
+  // apron: gilt lip, a warm glow strip under the nosing, gilt pilasters
+  const curve = (y, inset = 0) => new THREE.QuadraticBezierCurve3(V(-H.stageHalfW, y, -0.3 + inset), V(0, y, 1.6 + inset), V(H.stageHalfW, y, -0.3 + inset));
+  const gilt = [new THREE.TubeGeometry(curve(STAGE_Y), 96, 0.04, 8), new THREE.TubeGeometry(curve(0.16, 0.01), 96, 0.025, 6)];
+  const c0 = curve(0.5, 0.012);
+  for (let i = 1; i < 24; i++) {
+    const p = c0.getPoint(i / 24);
+    const tng = c0.getTangent(i / 24);
+    const g = new THREE.BoxGeometry(0.07, STAGE_Y - 0.3, 0.03);
+    g.rotateY(-Math.atan2(tng.z, tng.x));
+    g.translate(p.x, 0.16 + (STAGE_Y - 0.3) / 2 + 0.04, p.z);
+    gilt.push(g);
+  }
+  addMesh(group, gilt, M.gilt());
+  const strip = new THREE.Mesh(new THREE.TubeGeometry(curve(STAGE_Y - 0.09, 0.03), 96, 0.012, 6), new THREE.MeshStandardMaterial({ color: '#ffd9a0', emissive: '#ffb860', emissiveIntensity: 2.2 }));
+  group.add(strip);
+
+  // risers with gilt nosing and steps at both ends
+  const tops = [];
+  const sides = [];
+  const nosing = [];
+  for (const R of RISERS) {
+    const p = sectorPrism(R.r0, R.r1, -R.aRad, R.aRad, STAGE_Y, STAGE_Y + R.h, 48);
+    tops.push(p.top);
+    sides.push(p.side);
+    const arc = [];
+    for (let i = 0; i <= 48; i++) {
+      const a = -R.aRad + (2 * R.aRad * i) / 48;
+      arc.push(V(PODIUM.x + (R.r0 + 0.02) * Math.sin(a), STAGE_Y + R.h, PODIUM.z - (R.r0 + 0.02) * Math.cos(a)));
+    }
+    nosing.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(arc), 64, 0.018, 6));
+    for (const s of [-1, 1]) {
+      const dA = R.span / R.treads;
+      for (let k = 0; k < R.treads; k++) {
+        const a0 = R.aRad + k * dA;
+        const y = STAGE_Y + R.rise * (R.treads - k);
+        const q = s > 0 ? sectorPrism(R.r0, R.r1, a0, a0 + dA, STAGE_Y, y, 4) : sectorPrism(R.r0, R.r1, -a0 - dA, -a0, STAGE_Y, y, 4);
+        tops.push(q.top);
+        sides.push(q.side);
       }
     }
   }
-  // rear balcony
-  for (let r = 0; r < 5; r++) {
-    const z = H.balconyZ + 0.55 + r * 1.05;
-    const y = H.balconyY + r * 0.42;
-    let num = 1;
-    for (let x = -13.6; x <= 13.61; x += 0.58) {
-      list.push({ x, y, z, yaw: Math.atan2(x, 30) * 0.5, level: '2층', row: rowName(r), num: num++ });
-    }
-  }
-  // side boxes
-  for (const side of [-1, 1]) {
-    let num = 1;
-    for (let z = 3.4; z < 21.8; z += 0.62) {
-      list.push({ x: side * (H.halfW - 1.2), y: H.sideBoxY, z, yaw: side * 1.05 + Math.atan2(0, 1), level: side < 0 ? '박스석 L' : '박스석 R', row: 'BOX', num: num++ });
-    }
-  }
+  addMesh(group, tops, M.stageWood(), { cast: false });
+  addMesh(group, sides, M.walnut(), { cast: true });
+  addMesh(group, nosing, M.gilt());
 
-  const fabricMesh = new THREE.InstancedMesh(fabric, M.velvet(), list.length);
-  const frameMesh = new THREE.InstancedMesh(frame, M.darkWood(), list.length);
+  // conductor's podium with brass rail
+  const pod = new THREE.Mesh(new THREE.CylinderGeometry(PODIUM_R - 0.05, PODIUM_R, PODIUM_H, 40), M.walnut());
+  pod.position.set(PODIUM.x, STAGE_Y + PODIUM_H / 2, PODIUM.z);
+  pod.receiveShadow = true;
+  pod.castShadow = true;
+  group.add(pod);
+  const podGilt = [new THREE.TorusGeometry(PODIUM_R - 0.04, 0.012, 6, 48).rotateX(Math.PI / 2).translate(PODIUM.x, STAGE_Y + PODIUM_H, PODIUM.z)];
+  podGilt.push(new THREE.TorusGeometry(0.55, 0.02, 8, 32, Math.PI).rotateX(Math.PI / 2).rotateY(Math.PI).translate(PODIUM.x, STAGE_Y + 1.05, PODIUM.z + 0.02));
+  for (const a of [0.15, Math.PI / 2, Math.PI - 0.15]) {
+    podGilt.push(new THREE.CylinderGeometry(0.015, 0.015, 0.84, 8).translate(PODIUM.x + Math.cos(a) * 0.55, STAGE_Y + 0.63, PODIUM.z + Math.sin(a) * 0.55));
+  }
+  addMesh(group, podGilt, M.brass());
+
+  // carpeted stairs from the stalls up to the stage, brass rails
+  const treads = [];
+  const risersW = [];
+  const rails = [];
+  for (const S of STAGE_STAIRS) {
+    // landing from the lip to the first step
+    const land = new THREE.BoxGeometry(S.w, STAGE_Y, S.z0 - lipZ(S.cx) + 0.4);
+    land.translate(S.cx, STAGE_Y / 2, (S.z0 + lipZ(S.cx) - 0.4) / 2);
+    risersW.push(land);
+    for (let k = 1; k < S.n; k++) {
+      const y = STAGE_Y - S.rise * k;
+      const z0 = S.z0 + (k - 1) * S.tread;
+      const b = new THREE.BoxGeometry(S.w, y, S.tread + 0.02);
+      b.translate(S.cx, y / 2, z0 + S.tread / 2);
+      risersW.push(b);
+      treads.push(new THREE.PlaneGeometry(S.w - 0.06, S.tread - 0.03).rotateX(-Math.PI / 2).translate(S.cx, y + 0.004, z0 + S.tread / 2 + 0.01));
+      rails.push(new THREE.CylinderGeometry(0.012, 0.012, S.w, 6).rotateZ(Math.PI / 2).translate(S.cx, y + 0.01, z0 + 0.012));
+    }
+    for (const sx of [-1, 1]) {
+      const x = S.cx + sx * (S.w / 2 + 0.04);
+      const a = V(x, STAGE_Y + 0.92, S.z0 - 0.3);
+      const b = V(x, 0.92 + S.rise, S.z1 + 0.1);
+      rails.push(new THREE.TubeGeometry(new THREE.LineCurve3(a, b), 2, 0.025, 8));
+      for (let k = 0; k <= 3; k++) {
+        const p = a.clone().lerp(b, k / 3);
+        rails.push(new THREE.CylinderGeometry(0.014, 0.014, 0.92, 6).translate(p.x, p.y - 0.46, p.z));
+      }
+    }
+  }
+  addMesh(group, risersW, M.walnut(), { cast: true });
+  addMesh(group, treads, M.carpetRoyal());
+  addMesh(group, rails, M.brass());
+}
+
+// ================================================================= shell
+function buildShell(group) {
+  const top = STAGE_Y + SHELL.height;
+  const doorHalf = (SHELL.doorW / 2) / SHELL.R;
+  // sample the arc, splitting exactly at the door jambs
+  const angles = [];
+  const N = 64;
+  for (let i = 0; i <= N; i++) angles.push(SHELL.a0 + ((SHELL.a1 - SHELL.a0) * i) / N);
+  for (const d of DOORS) angles.push(d.a - doorHalf, d.a + doorHalf);
+  angles.sort((a, b) => a - b);
+  const inDoor = (a) => DOORS.find((d) => Math.abs(a - d.a) < doorHalf - 1e-4);
+  const panels = [];
+  const giltG = [];
+  const skirt = [];
+  const caps = [];
+  const T = 0.2;
+  const R = SHELL.R + T / 2;
+  for (let i = 0; i < angles.length - 1; i++) {
+    const a = angles[i];
+    const b = angles[i + 1];
+    if (b - a < 1e-4) continue;
+    const pa = shellPoint(a, R);
+    const pb = shellPoint(b, R);
+    const door = inDoor((a + b) / 2);
+    const y0 = door ? STAGE_Y + SHELL.doorH : STAGE_Y;
+    panels.push(wallSeg(pa, pb, y0, top, T));
+    caps.push(wallSeg(shellPoint(a, R + 0.05), shellPoint(b, R + 0.05), top, top + 0.16, T + 0.25));
+    giltG.push(wallSeg(shellPoint(a, R - 0.12), shellPoint(b, R - 0.12), top - 0.05, top + 0.02, 0.06));
+    if (!door) {
+      skirt.push(wallSeg(shellPoint(a, R - 0.12), shellPoint(b, R - 0.12), STAGE_Y, STAGE_Y + 0.22, 0.05));
+      giltG.push(wallSeg(shellPoint(a, R - 0.13), shellPoint(b, R - 0.13), STAGE_Y + 1.02, STAGE_Y + 1.06, 0.05));
+    }
+    // a slim gilt fillet at every other joint
+    if (i % 2 === 0 && !door && !inDoor(a + 1e-3)) {
+      const p = shellPoint(a, R - 0.12);
+      giltG.push(new THREE.BoxGeometry(0.035, SHELL.height - 0.4, 0.035).translate(p.x, STAGE_Y + SHELL.height / 2 + 0.1, p.z));
+    }
+  }
+  addMesh(group, panels, M.shell(), { cast: false });
+  addMesh(group, caps, M.walnut());
+  addMesh(group, skirt, M.walnut());
+  addMesh(group, giltG, M.gilt());
+
+  // shelf above the shell, out to the hall walls
+  const H = HALL;
+  const sh = new THREE.Shape();
+  sh.moveTo(-H.halfW, -H.prosZ);
+  sh.lineTo(-H.halfW, -H.front);
+  sh.lineTo(H.halfW, -H.front);
+  sh.lineTo(H.halfW, -H.prosZ);
+  for (let i = 0; i <= 80; i++) {
+    const a = SHELL.a1 - ((SHELL.a1 - SHELL.a0) * i) / 80;
+    const p = shellPoint(a, SHELL.R + T);
+    sh.lineTo(p.x, -p.z);
+  }
+  sh.closePath();
+  // shape is drawn in (x, -z) so that rotating -90deg about X lands it on xz
+  const shelfGeo = new THREE.ShapeGeometry(sh);
+  shelfGeo.rotateX(-Math.PI / 2);
+  shelfGeo.translate(0, top + 0.16, 0);
+  worldUV(shelfGeo, 'xz', 3);
+  const shelfMat = M.walnut().clone();
+  shelfMat.side = THREE.DoubleSide;
+  group.add(new THREE.Mesh(shelfGeo, shelfMat));
+
+  // backstage behind the doors stays dark
+  const back = [];
+  for (const d of DOORS) {
+    const b = d.behind;
+    const g = new THREE.BoxGeometry(2.6, 3.2, 2.4);
+    g.rotateY(-Math.atan2(d.normal.z, d.normal.x));
+    g.translate(b.x + d.normal.x * 0.4, STAGE_Y + 1.6, b.z + d.normal.z * 0.4);
+    back.push(g);
+  }
+  const dark = new THREE.Mesh(mergeAll(back), new THREE.MeshBasicMaterial({ color: '#0b0705', side: THREE.BackSide }));
+  group.add(dark);
+
+  // doors: gilt architrave, two walnut leaves that swing outward
+  const leaves = [];
+  const leafGeo = new THREE.BoxGeometry(SHELL.doorW / 2 - 0.02, SHELL.doorH - 0.04, 0.05).translate((SHELL.doorW / 2 - 0.02) / 2, (SHELL.doorH - 0.04) / 2, 0);
+  const panelGeo = mergeAll([
+    new THREE.BoxGeometry(0.42, 0.9, 0.012).translate(0.37, 1.65, 0.03),
+    new THREE.BoxGeometry(0.42, 0.9, 0.012).translate(0.37, 0.6, 0.03),
+    new THREE.BoxGeometry(0.42, 0.9, 0.012).translate(0.37, 1.65, -0.03),
+    new THREE.BoxGeometry(0.42, 0.9, 0.012).translate(0.37, 0.6, -0.03),
+    new THREE.SphereGeometry(0.03, 10, 8).translate(0.64, 1.1, 0.045),
+  ]);
+  for (const d of DOORS) {
+    const yaw = Math.atan2(d.normal.x, d.normal.z); // box depth along the normal
+    const tx = -d.normal.z;
+    const tz = d.normal.x; // along the wall
+    const fr = [];
+    for (const s of [-1, 1]) {
+      const jx = d.pos.x + tx * s * (SHELL.doorW / 2 + 0.05);
+      const jz = d.pos.z + tz * s * (SHELL.doorW / 2 + 0.05);
+      fr.push(new THREE.BoxGeometry(0.12, SHELL.doorH + 0.12, 0.3).rotateY(yaw).translate(jx, STAGE_Y + (SHELL.doorH + 0.12) / 2, jz));
+    }
+    fr.push(new THREE.BoxGeometry(SHELL.doorW + 0.34, 0.14, 0.3).rotateY(yaw).translate(d.pos.x, STAGE_Y + SHELL.doorH + 0.07, d.pos.z));
+    addMesh(group, fr, M.gilt());
+    for (const s of [-1, 1]) {
+      const pivot = new THREE.Group();
+      pivot.position.set(d.pos.x + tx * s * (SHELL.doorW / 2 - 0.01), STAGE_Y + 0.02, d.pos.z + tz * s * (SHELL.doorW / 2 - 0.01));
+      const leaf = new THREE.Mesh(leafGeo, M.walnut());
+      const pan = new THREE.Mesh(panelGeo, M.gilt());
+      leaf.castShadow = true;
+      pivot.add(leaf, pan);
+      // closed: local +x runs from the hinge toward the door centre (-s * t)
+      const base = Math.atan2(s * tz, -s * tx);
+      // opening swings the free edge outward, away from the stage
+      const dir = Math.sign(-Math.sin(base) * d.normal.x - Math.cos(base) * d.normal.z) || 1;
+      pivot.rotation.y = base;
+      group.add(pivot);
+      leaves.push({ pivot, door: d, open: 0, base, dir });
+    }
+  }
+  return leaves;
+}
+
+// ===================================================== stage end wall & organ
+function buildStageWall(group) {
+  const H = HALL;
+  const z = H.front;
+  // wall with the arched window hole
+  const wx = 4.2;
+  const wy0 = 14.8;
+  const wy1 = 17.8;
+  const shape = new THREE.Shape();
+  shape.moveTo(-H.halfW - 0.4, 0);
+  shape.lineTo(H.halfW + 0.4, 0);
+  shape.lineTo(H.halfW + 0.4, H.ceiling + 0.4);
+  shape.lineTo(-H.halfW - 0.4, H.ceiling + 0.4);
+  shape.closePath();
+  const hole = new THREE.Path();
+  hole.moveTo(-wx, wy0);
+  hole.lineTo(wx, wy0);
+  hole.lineTo(wx, wy1);
+  hole.absarc(0, wy1, wx, 0, Math.PI, false);
+  hole.lineTo(-wx, wy0);
+  shape.holes.push(hole);
+  const fw = new THREE.ShapeGeometry(shape, 48);
+  worldUV(fw, 'xy', 2.2);
+  fw.translate(0, 0, z);
+  group.add(new THREE.Mesh(fw, M.fluted()));
+  const reveal = new THREE.ExtrudeGeometry(holeShape(wx, wy0, wy1), { depth: 0.8, bevelEnabled: false, curveSegments: 48 });
+  reveal.translate(0, 0, z - 0.8);
+  group.add(new THREE.Mesh(reveal, M.walnut()));
+
+  // gilt window frame and mullions
+  const frame = [];
+  const arch = new THREE.EllipseCurve(0, wy1, wx, wx, 0, Math.PI, false);
+  const pts = arch.getPoints(48).map((p) => V(p.x, p.y, z + 0.04));
+  frame.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([V(wx, wy0, z + 0.04), ...pts, V(-wx, wy0, z + 0.04)]), 96, 0.12, 8));
+  frame.push(new THREE.BoxGeometry(wx * 2 + 0.4, 0.24, 0.3).translate(0, wy0, z + 0.04));
+  for (let i = -2; i <= 2; i++) {
+    const x = (i * wx) / 3;
+    const tp = wy1 + Math.sqrt(Math.max(0, wx * wx - x * x));
+    frame.push(new THREE.BoxGeometry(0.06, tp - wy0, 0.06).translate(x, (tp + wy0) / 2, z - 0.3));
+  }
+  for (const y of [wy0 + 1.5, wy1 + 1.6]) {
+    const half = y <= wy1 ? wx : Math.sqrt(Math.max(0, wx * wx - (y - wy1) ** 2));
+    frame.push(new THREE.BoxGeometry(half * 2, 0.05, 0.06).translate(0, y, z - 0.3));
+  }
+  addMesh(group, frame, M.gilt());
+  const sky = new THREE.Mesh(new THREE.PlaneGeometry(60, 34), new THREE.MeshBasicMaterial({ map: nightForestTexture(), toneMapped: false, fog: false }));
+  sky.position.set(0, 14, z - 16);
+  group.add(sky);
+
+  // organ case on the shelf, golden pipes either side of the screen
+  const caseG = [];
+  const giltG = [];
+  const pipes = [];
+  const shelfY = STAGE_Y + SHELL.height + 0.16;
+  for (const sx of [-1, 1]) {
+    const x0 = sx * 6.6;
+    const x1 = sx * 13.6;
+    const cx = (x0 + x1) / 2;
+    const w = Math.abs(x1 - x0);
+    caseG.push(new THREE.BoxGeometry(w, 1.1, 0.9).translate(cx, shelfY + 0.55, z + 0.5));
+    giltG.push(new THREE.BoxGeometry(w + 0.1, 0.08, 0.95).translate(cx, shelfY + 1.12, z + 0.52));
+    // towers and flats of pipes in a gentle V
+    const towers = [0, 0.25, 0.5, 0.75, 1];
+    towers.forEach((u, ti) => {
+      const tx = x0 + (x1 - x0) * u;
+      const big = ti % 2 === 0;
+      const n = big ? 5 : 7;
+      const r = big ? 0.13 : 0.085;
+      for (let k = 0; k < n; k++) {
+        const off = (k - (n - 1) / 2) * r * 2.25;
+        const hh = (big ? 6.2 : 4.3) - Math.abs(k - (n - 1) / 2) * (big ? 0.55 : 0.32) + (ti === 2 ? 1.2 : 0);
+        pipes.push({ x: tx + off, z: z + (big ? 0.62 : 0.4), r, h: hh, y: shelfY + 1.16 });
+      }
+      if (big) {
+        // a gilt crown above each tower
+        giltG.push(new THREE.BoxGeometry(n * r * 2.3 + 0.2, 0.14, 0.4).translate(tx, shelfY + 1.16 + 6.2 + (ti === 2 ? 1.2 : 0) + 0.3, z + 0.62));
+      }
+    });
+  }
+  addMesh(group, caseG, M.walnut());
+  addMesh(group, giltG, M.gilt());
+  // pipe body scales with its length; the conical foot and the mouth don't
+  const pipeGeo = new THREE.CylinderGeometry(1, 1, 1, 16, 1, true).translate(0, 0.5, 0);
+  const footGeo = new THREE.ConeGeometry(1, 0.5, 16, 1, true).rotateX(Math.PI).translate(0, -0.25, 0);
+  const mouthGeo = new THREE.BoxGeometry(1.1, 0.16, 0.25).translate(0, 0.14, 0.88);
+  const pm = new THREE.InstancedMesh(pipeGeo, M.gilt(), pipes.length);
+  const fm = new THREE.InstancedMesh(footGeo, M.gilt(), pipes.length);
+  const mm = new THREE.InstancedMesh(mouthGeo, M.ebony(), pipes.length);
+  const mat = new THREE.Matrix4();
+  const q0 = new THREE.Quaternion();
+  pipes.forEach((p, i) => {
+    mat.compose(V(p.x, p.y + 0.5, p.z), q0, V(p.r, p.h, p.r));
+    pm.setMatrixAt(i, mat);
+    mat.compose(V(p.x, p.y + 0.5, p.z), q0, V(p.r, 1, p.r));
+    fm.setMatrixAt(i, mat);
+    mm.setMatrixAt(i, mat);
+  });
+  group.add(pm, fm, mm);
+}
+
+function holeShape(wx, wy0, wy1) {
+  const s = new THREE.Shape();
+  s.moveTo(-wx - 0.25, wy0 - 0.25);
+  s.lineTo(wx + 0.25, wy0 - 0.25);
+  s.lineTo(wx + 0.25, wy1);
+  s.absarc(0, wy1, wx + 0.25, 0, Math.PI, false);
+  s.lineTo(-wx - 0.25, wy0 - 0.25);
+  const h = new THREE.Path();
+  h.moveTo(-wx, wy0);
+  h.lineTo(wx, wy0);
+  h.lineTo(wx, wy1);
+  h.absarc(0, wy1, wx, 0, Math.PI, false);
+  h.lineTo(-wx, wy0);
+  s.holes.push(h);
+  return s;
+}
+
+// ================================================================ stalls
+function buildStalls(group) {
+  const H = HALL;
+  const zs = [];
+  for (let z = H.prosZ; z <= H.back + 0.001; z += 0.5) zs.push(z);
+  const strip = (x0, x1, y = 0) => {
+    const pos = [];
+    const idx = [];
+    zs.forEach((z, i) => {
+      pos.push(x0, rakeY(z) + y, z, x1, rakeY(z) + y, z);
+      if (i > 0) {
+        const a = (i - 1) * 2;
+        idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+      }
+    });
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return worldUV(g, 'xz', 3);
+  };
+  const floor = new THREE.Mesh(strip(-H.halfW, H.halfW), M.floorWood());
+  floor.receiveShadow = true;
+  group.add(floor);
+  // carpet runners: two aisles, along the walls, front and back cross-aisles
+  const carpets = [];
+  for (const ax of [-7.1, 7.1]) carpets.push(scaleUVx(strip(ax - 0.72, ax + 0.72, 0.012), 1.44));
+  for (const sx of [-1, 1]) carpets.push(scaleUVx(strip(sx > 0 ? 13.85 : -H.halfW, sx > 0 ? H.halfW : -13.85, 0.012), 1.15));
+  const cross = (z0, z1) => {
+    const g = new THREE.PlaneGeometry(H.halfW * 2, z1 - z0, 1, 8);
+    g.rotateX(-Math.PI / 2);
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) { const zz = p.getZ(i) + (z0 + z1) / 2; p.setZ(i, zz); p.setY(i, rakeY(zz) + 0.014); }
+    g.computeVertexNormals();
+    return worldUV(g, 'xz', 3.0);
+  };
+  carpets.push(cross(1.2, 2.75), cross(H.back - 1.5, H.back));
+  addMesh(group, carpets, M.carpetRoyal());
+
+  // amber step lights along the aisles, one per row
+  const pts = [];
+  for (let r = 0; r < H.rows; r++) {
+    const z = H.firstRow + r * H.rowGap - 0.35;
+    for (const ax of [-7.1, 7.1]) for (const s of [-1, 1]) pts.push(V(ax + s * 0.74, rakeY(z) + 0.09, z + (ax * ax) * 0.005));
+  }
+  const lg = new THREE.BoxGeometry(0.06, 0.035, 0.1);
+  const lm = new THREE.InstancedMesh(lg, new THREE.MeshStandardMaterial({ color: '#ffd9a0', emissive: '#ffae4a', emissiveIntensity: 2.4 }), pts.length);
   const m = new THREE.Matrix4();
+  pts.forEach((p, i) => { m.makeTranslation(p.x, p.y, p.z); lm.setMatrixAt(i, m); });
+  group.add(lm);
+}
+
+function scaleUVx(g, w) {
+  // runner texture across its width, repeating along its length
+  const p = g.attributes.position;
+  const uv = g.attributes.uv;
+  let minX = Infinity;
+  for (let i = 0; i < p.count; i++) minX = Math.min(minX, p.getX(i));
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, (p.getX(i) - minX) / w, p.getZ(i) / (w * 1.4));
+  return g;
+}
+
+// ================================================================= walls
+function buildWalls(group, halo) {
+  const H = HALL;
+  // the side walls run the whole length, enclosing the stage house too
+  const len = H.back - H.front;
+  const wall = [];
+  const wains = [];
+  const giltG = [];
+  const pil = [];
+  for (const sx of [-1, 1]) {
+    const g = new THREE.PlaneGeometry(len, H.ceiling);
+    g.rotateY(-sx * Math.PI / 2);
+    g.translate(sx * H.halfW, H.ceiling / 2, (H.back + H.front) / 2);
+    worldUV(g, 'zy', 2.2);
+    wall.push(g);
+    // walnut wainscot following the rake, gilt chair rail
+    const zs = [];
+    for (let z = H.prosZ; z <= H.back; z += 1) zs.push(Math.min(z, H.back));
+    for (let i = 0; i < zs.length - 1; i++) {
+      const a = { x: sx * (H.halfW - 0.04), z: zs[i] };
+      const b = { x: sx * (H.halfW - 0.04), z: zs[i + 1] };
+      const y = rakeY((a.z + b.z) / 2);
+      wains.push(wallSeg(a, b, y, y + 1.25, 0.06));
+      giltG.push(wallSeg({ x: a.x - sx * 0.04, z: a.z }, { x: b.x - sx * 0.04, z: b.z }, y + 1.25, y + 1.31, 0.05));
+    }
+    // ivory pilasters with gilt capitals between the bays
+    for (let z = 1.5; z < H.back - 0.5; z += 4) {
+      const y0 = rakeY(z);
+      pil.push(new THREE.BoxGeometry(0.1, H.ceiling - y0 - 0.9, 0.5).translate(sx * (H.halfW - 0.06), (H.ceiling + y0 - 0.9) / 2, z));
+      for (const L of [...BALCONIES.map((B) => B.y0 - 0.75), H.ceiling - 1.1]) {
+        giltG.push(new THREE.BoxGeometry(0.22, 0.3, 0.7).translate(sx * (H.halfW - 0.1), L, z));
+      }
+      // sconces: a pair of candles on a gilt arm, at stalls height and on each tier
+      for (const y of [y0 + 2.7, ...BALCONIES.map((B) => B.y0 + 2.1)]) {
+        if (y > H.ceiling - 2) continue;
+        for (const dz of [-0.16, 0.16]) {
+          const p = V(sx * (H.halfW - 0.28), y, z + 0.9 + dz);
+          giltG.push(new THREE.CylinderGeometry(0.012, 0.012, 0.3, 6).rotateZ(Math.PI / 2).translate(p.x + sx * 0.12, y - 0.08, p.z));
+          giltG.push(new THREE.CylinderGeometry(0.03, 0.02, 0.06, 8).translate(p.x, y - 0.07, p.z));
+          sconceBulbs.push(p);
+        }
+        halo(V(sx * (H.halfW - 0.3), y, z + 0.9), 1.25, 0.42);
+      }
+    }
+  }
+  const wm = new THREE.Mesh(mergeAll(wall), M.fluted());
+  wm.receiveShadow = true;
+  group.add(wm);
+  addMesh(group, wains, M.walnut());
+  addMesh(group, giltG, M.gilt());
+  addMesh(group, pil, M.ivoryPlaster());
+  // candle bulbs (shared bulb material dims with the house lights)
+  const bg = new THREE.SphereGeometry(0.035, 10, 8).scale(1, 1.5, 1);
+  const bm = new THREE.InstancedMesh(bg, M.bulb(), sconceBulbs.length);
+  const m = new THREE.Matrix4();
+  sconceBulbs.forEach((p, i) => { m.makeTranslation(p.x, p.y, p.z); bm.setMatrixAt(i, m); });
+  group.add(bm);
+  sconceBulbs.length = 0;
+
+  // back wall of the hall: doors on every level into the foyer
+  const z = H.back;
+  const shape = new THREE.Shape();
+  shape.moveTo(-H.halfW, 0);
+  shape.lineTo(H.halfW, 0);
+  shape.lineTo(H.halfW, H.ceiling);
+  shape.lineTo(-H.halfW, H.ceiling);
+  shape.closePath();
+  const frames = [];
+  const reveals = [];
+  for (const Y of LEVELS) {
+    for (const dx of HALL_DOORS) {
+      const p = new THREE.Path();
+      const x0 = dx - HALL_DOOR_W / 2;
+      const x1 = dx + HALL_DOOR_W / 2;
+      p.moveTo(x0, Y);
+      p.lineTo(x1, Y);
+      p.lineTo(x1, Y + HALL_DOOR_H);
+      p.lineTo(x0, Y + HALL_DOOR_H);
+      p.lineTo(x0, Y);
+      shape.holes.push(p);
+      // architrave on the hall side and the reveal through the wall
+      for (const s of [-1, 1]) {
+        frames.push(new THREE.BoxGeometry(0.14, HALL_DOOR_H + 0.14, 0.08).translate(dx + s * (HALL_DOOR_W / 2 + 0.07), Y + (HALL_DOOR_H + 0.14) / 2, z - 0.04));
+        reveals.push(new THREE.BoxGeometry(0.04, HALL_DOOR_H, H.wallT).translate(dx + s * (HALL_DOOR_W / 2 + 0.02), Y + HALL_DOOR_H / 2, z + H.wallT / 2));
+      }
+      frames.push(new THREE.BoxGeometry(HALL_DOOR_W + 0.42, 0.18, 0.1).translate(dx, Y + HALL_DOOR_H + 0.09, z - 0.05));
+      frames.push(new THREE.BoxGeometry(HALL_DOOR_W + 0.7, 0.08, 0.16).translate(dx, Y + HALL_DOOR_H + 0.24, z - 0.06));
+      reveals.push(new THREE.BoxGeometry(HALL_DOOR_W, 0.04, H.wallT).translate(dx, Y + HALL_DOOR_H + 0.02, z + H.wallT / 2));
+    }
+  }
+  const hallSide = new THREE.ShapeGeometry(shape);
+  worldUV(hallSide, 'xy', 2.2);
+  hallSide.rotateY(Math.PI);
+  hallSide.translate(0, 0, z);
+  // ShapeGeometry faces +z; after the flip the hall side faces -z (into the hall)
+  group.add(new THREE.Mesh(hallSide, M.fluted()));
+  const foyerSide = new THREE.ShapeGeometry(shape);
+  worldUV(foyerSide, 'xy', 3);
+  foyerSide.translate(0, 0, z + H.wallT);
+  group.add(new THREE.Mesh(foyerSide, M.marble()));
+  addMesh(group, frames, M.gilt());
+  addMesh(group, reveals, M.walnut());
+}
+const sconceBulbs = [];
+
+// ============================================================== balconies
+function buildBalconies(group, halo) {
+  const H = HALL;
+  const steps = [];
+  const soffits = [];
+  const fronts = [];
+  const caps = [];
+  const giltG = [];
+  const walnut = [];
+  const lampPts = [];
+  const downPts = [];
+  const xs = [];
+  for (let x = -H.halfW; x <= H.halfW + 1e-3; x += 0.75) xs.push(x);
+  for (const B of BALCONIES) {
+    // stepped floor: tread + riser per row, following the bow
+    const pos = [];
+    const quad = (a, b, c, d) => pos.push(...a, ...b, ...c, ...a, ...c, ...d);
+    for (let i = 0; i < xs.length - 1; i++) {
+      const xa = xs[i];
+      const xb = xs[i + 1];
+      for (let r = 0; r <= B.rows; r++) {
+        const y = r < B.rows ? B.y0 + r * B.rise : B.top;
+        const s0 = r * B.depth;
+        const s1 = r < B.rows ? s0 + B.depth : null;
+        const za0 = balconyZ(B, xa, s0);
+        const zb0 = balconyZ(B, xb, s0);
+        const za1 = s1 === null ? H.back : balconyZ(B, xa, s1);
+        const zb1 = s1 === null ? H.back : balconyZ(B, xb, s1);
+        quad([xa, y, za0], [xa, y, za1], [xb, y, zb1], [xb, y, zb0]);
+        if (r > 0) {
+          const yp = B.y0 + (r - 1) * B.rise;
+          quad([xa, yp, za0], [xa, y, za0], [xb, y, zb0], [xb, yp, zb0]);
+        }
+      }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.computeVertexNormals();
+    steps.push(worldUV(g, 'xz', 2));
+    // half steps in the aisles
+    for (const ax of BALCONY_AISLES) {
+      for (let r = 0; r < B.rows; r++) {
+        const y = B.y0 + r * B.rise + B.rise / 2;
+        const s = r * B.depth + B.depth / 2;
+        const zc = balconyZ(B, ax, s + B.depth / 4);
+        const b = new THREE.BoxGeometry(AISLE_HALF * 2, B.rise / 2, B.depth / 2);
+        b.translate(ax, y - B.rise / 4, zc);
+        walnut.push(b);
+        steps.push(worldUV(new THREE.PlaneGeometry(AISLE_HALF * 2, B.depth / 2).rotateX(-Math.PI / 2).translate(ax, y + 0.003, zc), 'xz', 2));
+      }
+    }
+    // soffit under the tier: it climbs with the rows above it (the way a
+    // real balcony's underside does), then runs level under the back aisle
+    // to the wall - well above the doors below. Recessed downlights.
+    const rowsLen = B.rows * B.depth;
+    const sA = -0.35;
+    const yA = B.y0 - 0.55;
+    const yB = B.top - 0.5;
+    const soffY = (s) => (s >= rowsLen ? yB : yA + ((s - sA) / (rowsLen - sA)) * (yB - yA));
+    const soff = [];
+    for (let i = 0; i < xs.length - 1; i++) {
+      const xa = xs[i];
+      const xb = xs[i + 1];
+      const za0 = balconyZ(B, xa, sA);
+      const zb0 = balconyZ(B, xb, sA);
+      const za1 = balconyZ(B, xa, rowsLen);
+      const zb1 = balconyZ(B, xb, rowsLen);
+      soff.push(xa, yA, za0, xb, yA, zb0, xb, yB, zb1, xa, yA, za0, xb, yB, zb1, xa, yB, za1);
+      soff.push(xa, yB, za1, xb, yB, zb1, xb, yB, H.back, xa, yB, za1, xb, yB, H.back, xa, yB, H.back);
+    }
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.Float32BufferAttribute(soff, 3));
+    sg.computeVertexNormals();
+    soffits.push(worldUV(sg, 'xz', 3));
+    for (let x = -12; x <= 12.01; x += 3) {
+      for (let s = 0.8; balconyZ(B, x, s) < H.back - 0.5; s += 2.6) downPts.push(V(x, soffY(s) - 0.04, balconyZ(B, x, s)));
+    }
+
+    // the bowed front: ornament face, velvet-padded rail, gilt mouldings
+    const frontPts = [];
+    for (let x = -B.sideX; x <= B.sideX + 1e-3; x += (B.sideX * 2) / 14) frontPts.push({ x, z: balconyZ(B, x, -0.2) });
+    const runs = [
+      [{ x: -B.sideX, z: B.sideZ0 }, { x: -B.sideX, z: frontPts[0].z }],
+      frontPts,
+      [{ x: B.sideX, z: frontPts[frontPts.length - 1].z }, { x: B.sideX, z: B.sideZ0 }],
+    ];
+    const yb = B.y0 - 0.55;
+    const yt = B.y0 + 0.78; // low enough to see the stage floor over it
+    // which way each run faces (out over the stalls)
+    const outward = [{ x: 1, z: 0 }, { x: 0, z: -1 }, { x: -1, z: 0 }];
+    runs.forEach((run, ri) => {
+      for (let i = 0; i < run.length - 1; i++) {
+        const a = run[i];
+        const b = run[i + 1];
+        const segLen = Math.hypot(b.x - a.x, b.z - a.z);
+        const nSub = Math.max(1, Math.round(segLen / 2.2));
+        for (let k = 0; k < nSub; k++) {
+          const pa = { x: a.x + ((b.x - a.x) * k) / nSub, z: a.z + ((b.z - a.z) * k) / nSub };
+          const pb = { x: a.x + ((b.x - a.x) * (k + 1)) / nSub, z: a.z + ((b.z - a.z) * (k + 1)) / nSub };
+          fronts.push(wallSeg(pa, pb, yb + 0.12, yt - 0.12, 0.3));
+          caps.push(wallSeg(pa, pb, yt - 0.12, yt, 0.26));
+          giltG.push(wallSeg(pa, pb, yt - 0.16, yt - 0.12, 0.38));
+          giltG.push(wallSeg(pa, pb, yb, yb + 0.12, 0.38));
+        }
+        // lamps on the outer face of the front: they light the gilt
+        // ornament for the stalls and never stand in anyone's view
+        if (ri !== 1 || i % 2 === 1) {
+          const o = outward[ri];
+          const m = ri === 1 ? b : { x: (a.x + b.x) / 2, z: (a.z + b.z) / 2 };
+          lampPts.push(V(m.x + o.x * 0.24, B.y0 + 0.12, m.z + o.z * 0.24));
+        }
+      }
+    });
+    // the short return at the front end of each side gallery
+    for (const sx of [-1, 1]) {
+      const a = { x: sx * B.sideX, z: B.sideZ0 };
+      const b = { x: sx * H.halfW, z: B.sideZ0 };
+      fronts.push(wallSeg(a, b, yb + 0.12, yt - 0.12, 0.3));
+      caps.push(wallSeg(a, b, yt - 0.12, yt, 0.26));
+      giltG.push(wallSeg(a, b, yb, yb + 0.12, 0.38));
+      // side gallery slab and soffit
+      const len = balconyZ(B, sx * 14, 0) - B.sideZ0;
+      const slab = new THREE.BoxGeometry(H.halfW - B.sideX, 0.55, len);
+      slab.translate(sx * (H.halfW + B.sideX) / 2, B.y0 - 0.275, B.sideZ0 + len / 2);
+      walnut.push(slab);
+      steps.push(worldUV(new THREE.PlaneGeometry(H.halfW - B.sideX, len).rotateX(-Math.PI / 2).translate(sx * (H.halfW + B.sideX) / 2, B.y0 + 0.002, B.sideZ0 + len / 2), 'xz', 2));
+      // carved corbels under the gallery front
+      for (let z = B.sideZ0 + 1.2; z < B.sideZ0 + len - 0.5; z += 3) {
+        const c = new THREE.BoxGeometry(0.22, 0.8, 0.22).translate(sx * (B.sideX + 0.25), B.y0 - 0.95, z);
+        giltG.push(c);
+        giltG.push(new THREE.SphereGeometry(0.1, 10, 8).translate(sx * (B.sideX + 0.25), B.y0 - 1.38, z));
+      }
+      // the 2층 boxes: low partitions that keep the view open, and a
+      // carpeted dais for the second row of chairs
+      if (B.level === 1) {
+        const px0 = B.sideX + 0.7;
+        const pw = H.halfW - px0;
+        for (let z = B.sideZ0 + 3; z < B.sideZ0 + len - 0.5; z += 3) {
+          walnut.push(new THREE.BoxGeometry(pw, 0.78, 0.06).translate(sx * (px0 + pw / 2), B.y0 + 0.39, z));
+          giltG.push(new THREE.BoxGeometry(pw, 0.04, 0.09).translate(sx * (px0 + pw / 2), B.y0 + 0.8, z));
+          giltG.push(new THREE.SphereGeometry(0.05, 10, 8).translate(sx * px0, B.y0 + 0.86, z));
+        }
+        const dw = H.halfW - BOX_DAIS_X;
+        walnut.push(new THREE.BoxGeometry(dw, BOX_DAIS_H, len).translate(sx * (BOX_DAIS_X + dw / 2), B.y0 + BOX_DAIS_H / 2, B.sideZ0 + len / 2));
+        steps.push(worldUV(new THREE.PlaneGeometry(dw, len).rotateX(-Math.PI / 2).translate(sx * (BOX_DAIS_X + dw / 2), B.y0 + BOX_DAIS_H + 0.003, B.sideZ0 + len / 2), 'xz', 2));
+        giltG.push(new THREE.BoxGeometry(0.04, 0.03, len).translate(sx * BOX_DAIS_X, B.y0 + BOX_DAIS_H, B.sideZ0 + len / 2));
+      }
+    }
+  }
+  addMesh(group, steps, M.carpetRoyal());
+  addMesh(group, soffits, M.ivoryPlaster());
+  const fm = addMesh(group, fronts, M.ornament(), { cast: true });
+  if (fm) fm.castShadow = true;
+  addMesh(group, caps, new THREE.MeshPhysicalMaterial({ color: '#4e1019', roughness: 0.85, sheen: 0.7, sheenColor: new THREE.Color('#c86a5e') }));
+  addMesh(group, giltG, M.gilt());
+  addMesh(group, walnut, M.walnut());
+  // balcony-front lamps: a frosted globe in a little gilt cup
+  const post = new THREE.CylinderGeometry(0.055, 0.03, 0.07, 12).translate(0, -0.06, 0);
+  const pm = new THREE.InstancedMesh(post, M.gilt(), lampPts.length);
+  const gm = new THREE.InstancedMesh(new THREE.SphereGeometry(0.055, 12, 10), M.bulb(), lampPts.length);
+  const m = new THREE.Matrix4();
+  lampPts.forEach((p, i) => {
+    m.makeTranslation(p.x, p.y, p.z);
+    pm.setMatrixAt(i, m);
+    gm.setMatrixAt(i, m);
+    halo(p, 0.55, 0.3);
+  });
+  group.add(pm, gm);
+  // soffit downlights
+  const dm = new THREE.InstancedMesh(new THREE.CircleGeometry(0.09, 16).rotateX(Math.PI / 2), M.bulb(), downPts.length);
+  downPts.forEach((p, i) => { m.makeTranslation(p.x, p.y, p.z); dm.setMatrixAt(i, m); });
+  group.add(dm);
+}
+
+// ============================================================= proscenium
+function buildProscenium(group) {
+  const H = HALL;
+  const z = H.prosZ;
+  const marble = [];
+  const giltG = [];
+  const dark = [];
+  for (const sx of [-1, 1]) {
+    // flank wall from the end of the shell to the side wall
+    const x0 = sx * (SHELL.R * Math.sin(SHELL.a1) + 0.1);
+    const x1 = sx * H.halfW;
+    marble.push(wallSeg({ x: x0, z: z - 0.15 }, { x: x1, z: z - 0.15 }, 0, H.ceiling, 0.3, 2.5));
+    // twin columns with gilt capitals and bases
+    for (const cx of [sx * 12.8, sx * 14.5]) {
+      marble.push(new THREE.CylinderGeometry(0.3, 0.34, H.ceiling - 3.4, 24).translate(cx, (H.ceiling - 3.4) / 2 + 0.5, z + 0.25));
+      giltG.push(new THREE.CylinderGeometry(0.42, 0.42, 0.5, 24).translate(cx, 0.25, z + 0.25));
+      giltG.push(new THREE.CylinderGeometry(0.46, 0.3, 0.6, 24).translate(cx, H.ceiling - 2.6, z + 0.25));
+      giltG.push(new THREE.BoxGeometry(0.98, 0.16, 0.98).translate(cx, H.ceiling - 2.22, z + 0.25));
+      for (let k = 0; k < 3; k++) giltG.push(new THREE.TorusGeometry(0.31, 0.025, 6, 24).rotateX(Math.PI / 2).translate(cx, 4 + k * 6, z + 0.25));
+    }
+    // a tall niche between the columns
+    const cx = sx * 13.65;
+    dark.push(new THREE.BoxGeometry(0.9, 7, 0.1).translate(cx, 9, z - 0.01));
+    giltG.push(new THREE.TorusGeometry(0.45, 0.04, 8, 32, Math.PI).translate(cx, 12.5, z + 0.02));
+    for (const s of [-1, 1]) giltG.push(new THREE.BoxGeometry(0.08, 7, 0.08).translate(cx + s * 0.47, 9, z + 0.02));
+    giltG.push(new THREE.BoxGeometry(1.05, 0.12, 0.2).translate(cx, 5.45, z + 0.04));
+  }
+  // the great entablature across the top of the stage opening
+  marble.push(new THREE.BoxGeometry(H.halfW * 2, 2.1, 0.8).translate(0, H.ceiling - 1.05, z + 0.1));
+  giltG.push(new THREE.BoxGeometry(H.halfW * 2, 0.14, 0.95).translate(0, H.ceiling - 2.1, z + 0.12));
+  giltG.push(new THREE.BoxGeometry(H.halfW * 2, 0.1, 0.9).translate(0, H.ceiling - 0.25, z + 0.12));
+  // central cartouche with a lyre
+  giltG.push(new THREE.TorusGeometry(0.85, 0.07, 10, 48).scale(1, 0.75, 1).translate(0, H.ceiling - 1.1, z + 0.55));
+  const lyre = new THREE.Shape();
+  lyre.moveTo(-0.35, -0.4);
+  lyre.quadraticCurveTo(-0.6, 0.1, -0.3, 0.45);
+  lyre.lineTo(-0.22, 0.42);
+  lyre.quadraticCurveTo(-0.45, 0.1, -0.25, -0.3);
+  lyre.lineTo(0.25, -0.3);
+  lyre.quadraticCurveTo(0.45, 0.1, 0.22, 0.42);
+  lyre.lineTo(0.3, 0.45);
+  lyre.quadraticCurveTo(0.6, 0.1, 0.35, -0.4);
+  lyre.closePath();
+  giltG.push(new THREE.ExtrudeGeometry(lyre, { depth: 0.06, bevelEnabled: false }).translate(0, H.ceiling - 1.1, z + 0.52));
+  addMesh(group, marble, M.marbleDark(), { receive: true });
+  addMesh(group, giltG, M.gilt());
+  addMesh(group, dark, M.walnut());
+}
+
+// ================================================================ ceiling
+function buildCeiling(group) {
+  const H = HALL;
+  const y = H.ceiling;
+  const z0 = H.front;
+  const z1 = H.back;
+  const recess = new THREE.PlaneGeometry(H.halfW * 2, z1 - z0);
+  recess.rotateX(Math.PI / 2);
+  recess.translate(0, y, (z0 + z1) / 2);
+  worldUV(recess, 'xz', 3);
+  group.add(new THREE.Mesh(recess, M.coffer()));
+  const ribs = [];
+  const giltG = [];
+  for (let x = -H.halfW; x <= H.halfW + 1e-3; x += 3) {
+    ribs.push(new THREE.BoxGeometry(0.34, 0.5, z1 - z0).translate(x, y - 0.25, (z0 + z1) / 2));
+    giltG.push(new THREE.BoxGeometry(0.38, 0.04, z1 - z0).translate(x, y - 0.5, (z0 + z1) / 2));
+  }
+  for (let z = z0; z <= z1 + 1e-3; z += 3) {
+    ribs.push(new THREE.BoxGeometry(H.halfW * 2, 0.5, 0.34).translate(0, y - 0.25, Math.min(z, z1)));
+    giltG.push(new THREE.BoxGeometry(H.halfW * 2, 0.04, 0.38).translate(0, y - 0.5, Math.min(z, z1)));
+  }
+  // cornice round the room
+  for (const sx of [-1, 1]) {
+    ribs.push(new THREE.BoxGeometry(0.9, 0.7, z1 - z0).translate(sx * (H.halfW - 0.45), y - 0.35, (z0 + z1) / 2));
+    giltG.push(new THREE.BoxGeometry(0.95, 0.06, z1 - z0).translate(sx * (H.halfW - 0.47), y - 0.72, (z0 + z1) / 2));
+  }
+  addMesh(group, ribs, M.ivoryPlaster());
+  addMesh(group, giltG, M.gilt());
+  // a warm cove glow just under the cornice
+  const cove = [];
+  for (const sx of [-1, 1]) cove.push(new THREE.BoxGeometry(0.04, 0.04, z1 - z0).translate(sx * (H.halfW - 0.92), y - 0.75, (z0 + z1) / 2));
+  group.add(new THREE.Mesh(mergeAll(cove), new THREE.MeshStandardMaterial({ color: '#ffe0b0', emissive: '#ffb966', emissiveIntensity: 1.6 })));
+}
+
+// ============================================================= chandelier
+// Gilt tiers of candle arms hung with crystal drops. One InstancedMesh per
+// kind of part; the group origin is the centre of the top tier.
+export function buildChandelier(scale = 1) {
+  const group = new THREE.Group();
+  const giltG = [];
+  const bulbs = [];
+  const drops = [];
+  const tiers = [{ y: 0, r: 1.25, n: 16 }, { y: -0.95, r: 0.9, n: 12 }, { y: -1.75, r: 0.5, n: 8 }];
+  giltG.push(new THREE.CylinderGeometry(0.06, 0.06, 2.6, 10).translate(0, -0.9, 0));
+  giltG.push(new THREE.SphereGeometry(0.22, 16, 12).translate(0, -2.3, 0));
+  giltG.push(new THREE.ConeGeometry(0.12, 0.45, 12).rotateX(Math.PI).translate(0, -2.65, 0));
+  giltG.push(new THREE.SphereGeometry(0.16, 16, 12).translate(0, 0.35, 0));
+  for (const T of tiers) {
+    giltG.push(new THREE.TorusGeometry(T.r, 0.03, 8, 64).rotateX(Math.PI / 2).translate(0, T.y, 0));
+    giltG.push(new THREE.TorusGeometry(T.r * 0.55, 0.02, 6, 40).rotateX(Math.PI / 2).translate(0, T.y + 0.25, 0));
+    for (let i = 0; i < T.n; i++) {
+      const a = (i / T.n) * Math.PI * 2;
+      const x = Math.cos(a) * T.r;
+      const z = Math.sin(a) * T.r;
+      // S-curved arm up to a candle cup
+      const arm = new THREE.CatmullRomCurve3([V(x * 0.15, T.y - 0.2, z * 0.15), V(x * 0.7, T.y - 0.12, z * 0.7), V(x, T.y, z), V(x * 1.04, T.y + 0.16, z * 1.04)]);
+      giltG.push(new THREE.TubeGeometry(arm, 8, 0.016, 5));
+      giltG.push(new THREE.CylinderGeometry(0.045, 0.03, 0.06, 10).translate(x * 1.04, T.y + 0.19, z * 1.04));
+      bulbs.push(V(x * 1.04, T.y + 0.29, z * 1.04));
+      // festoons of crystals between arms
+      for (let k = 1; k <= 3; k++) {
+        const a2 = a + (k / 4) * ((Math.PI * 2) / T.n);
+        const sag = Math.sin((k / 4) * Math.PI) * 0.22;
+        drops.push({ p: V(Math.cos(a2) * T.r, T.y - 0.05 - sag, Math.sin(a2) * T.r), s: 0.6 });
+      }
+      drops.push({ p: V(x, T.y - 0.16, z), s: 1.3 });
+    }
+  }
+  // cascade of drops under the bottom tier
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
+    const r = 0.3 + (i % 2) * 0.12;
+    drops.push({ p: V(Math.cos(a) * r, -2.0 - (i % 3) * 0.12, Math.sin(a) * r), s: 1 });
+  }
+  const gm = new THREE.Mesh(mergeAll(giltG), M.gilt());
+  group.add(gm);
+  const bg = new THREE.CylinderGeometry(0.018, 0.018, 0.16, 8);
+  const flame = new THREE.SphereGeometry(0.045, 10, 8).scale(1, 1.6, 1).translate(0, 0.12, 0);
+  const bm = new THREE.InstancedMesh(mergeAll([bg, flame]), M.bulb(), bulbs.length);
+  const m = new THREE.Matrix4();
+  bulbs.forEach((p, i) => { m.makeTranslation(p.x, p.y - 0.08, p.z); bm.setMatrixAt(i, m); });
+  group.add(bm);
+  const dg = new THREE.OctahedronGeometry(0.05, 0).scale(0.8, 1.6, 0.8);
+  const dm = new THREE.InstancedMesh(dg, M.crystal(), drops.length);
   const q = new THREE.Quaternion();
-  const one = new THREE.Vector3(1, 1, 1);
-  list.forEach((s, i) => {
-    // seats face the stage: local -z toward stage => rotate PI
-    q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), s.yaw);
-    m.compose(new THREE.Vector3(s.x, s.y, s.z), q, one);
-    fabricMesh.setMatrixAt(i, m);
-    frameMesh.setMatrixAt(i, m);
-    s.label = s.row === 'BOX' ? `${s.level} ${s.num}번` : `${s.level} ${s.row}열 ${s.num}번`;
-    s.index = i;
-    seats.push(s);
+  drops.forEach((d, i) => {
+    q.setFromAxisAngle(V(0, 1, 0), i * 0.7);
+    m.compose(d.p, q, V(d.s, d.s, d.s));
+    dm.setMatrixAt(i, m);
   });
-  fabricMesh.receiveShadow = true;
-  frameMesh.receiveShadow = true;
-  fabricMesh.castShadow = true;
-  group.add(fabricMesh, frameMesh);
-  return { group, pick: fabricMesh };
+  group.add(dm);
+  group.scale.setScalar(scale);
+  return { group };
 }
 
-// --------------------------------------------------------------- helpers
-function makeBeam(from, to, radius, opacity = 0.07) {
-  const dir = new THREE.Vector3().subVectors(to, from);
-  const len = dir.length();
-  const geo = new THREE.CylinderGeometry(0.15, radius, len, 48, 1, true);
-  geo.translate(0, -len / 2, 0);
-  const mat = new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-    side: THREE.DoubleSide,
-    uniforms: { uOpacity: { value: opacity }, uColor: { value: new THREE.Color('#ffe2b8') }, uLen: { value: len } },
-    vertexShader: /* glsl */`
-      varying float vT; varying vec3 vN; varying vec3 vView;
-      uniform float uLen;
-      void main(){
-        vT = -position.y / uLen;
-        vec4 mv = modelViewMatrix * vec4(position,1.0);
-        vView = normalize(-mv.xyz);
-        vN = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * mv;
-      }`,
-    fragmentShader: /* glsl */`
-      varying float vT; varying vec3 vN; varying vec3 vView;
-      uniform float uOpacity; uniform vec3 uColor;
-      void main(){
-        float edge = pow(abs(dot(vN, vView)), 1.6);
-        float fall = smoothstep(0.0, 0.25, vT) * (1.0 - smoothstep(0.75, 1.0, vT));
-        gl_FragColor = vec4(uColor, uOpacity * edge * fall);
-      }`,
-  });
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.copy(from);
-  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir.normalize());
-  mesh.renderOrder = 10;
-  mesh.frustumCulled = false;
-  return mesh;
-}
-
-function nightForestTexture() {
+// --------------------------------------------------------------- backdrop
+export function nightForestTexture() {
   const c = document.createElement('canvas');
   c.width = 2048;
   c.height = 1160;
@@ -664,7 +1093,6 @@ function nightForestTexture() {
   sky.addColorStop(1, '#3b3557');
   g.fillStyle = sky;
   g.fillRect(0, 0, c.width, c.height);
-  // milky way haze
   g.save();
   g.translate(1024, 380);
   g.rotate(-0.35);
@@ -677,7 +1105,6 @@ function nightForestTexture() {
   g.arc(0, 0, 900, 0, Math.PI * 2);
   g.fill();
   g.restore();
-  // stars
   for (let i = 0; i < 1600; i++) {
     const x = r() * c.width;
     const y = r() * c.height * 0.8;
@@ -687,14 +1114,13 @@ function nightForestTexture() {
     g.arc(x, y, 0.5 + m * 1.8, 0, Math.PI * 2);
     g.fill();
   }
-  // moon with halo
-  const mx = 1310;
-  const my = 300;
-  const halo = g.createRadialGradient(mx, my, 20, mx, my, 360);
-  halo.addColorStop(0, 'rgba(255,244,214,0.55)');
-  halo.addColorStop(0.2, 'rgba(220,226,255,0.18)');
-  halo.addColorStop(1, 'rgba(200,210,255,0)');
-  g.fillStyle = halo;
+  const mx = 1180;
+  const my = 330;
+  const hl = g.createRadialGradient(mx, my, 20, mx, my, 360);
+  hl.addColorStop(0, 'rgba(255,244,214,0.55)');
+  hl.addColorStop(0.2, 'rgba(220,226,255,0.18)');
+  hl.addColorStop(1, 'rgba(200,210,255,0)');
+  g.fillStyle = hl;
   g.fillRect(0, 0, c.width, c.height);
   const moon = g.createRadialGradient(mx - 14, my - 14, 4, mx, my, 62);
   moon.addColorStop(0, '#fffaf0');
@@ -709,7 +1135,6 @@ function nightForestTexture() {
     g.arc(mx + dx, my + dy, rr, 0, Math.PI * 2);
     g.fill();
   }
-  // layered forest silhouettes (far = bluish, near = black)
   const layers = [
     { y: 760, h: 260, col: '#1d2547', n: 70 },
     { y: 860, h: 300, col: '#121831', n: 50 },
@@ -722,7 +1147,6 @@ function nightForestTexture() {
       const x = r() * c.width;
       const h = L.h * (0.5 + r() * 0.6);
       const w = h * (0.22 + r() * 0.12);
-      // conifer: stacked triangles
       for (let k = 0; k < 4; k++) {
         const ty = L.y - h + (k * h) / 4.6;
         const tw = w * (0.45 + k * 0.22);
@@ -735,7 +1159,6 @@ function nightForestTexture() {
       }
     }
   }
-  // mist between layers
   const mist = g.createLinearGradient(0, 760, 0, 1000);
   mist.addColorStop(0, 'rgba(150,160,210,0)');
   mist.addColorStop(0.5, 'rgba(150,160,210,0.12)');

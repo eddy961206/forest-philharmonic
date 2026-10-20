@@ -68,8 +68,10 @@ export function buildEffects(scene, { fireflies = 160, dust = 500 } = {}) {
     group.add(pts);
     return pts;
   };
-  const ff = mk(fireflies, { x: [-HALL.halfW + 1, HALL.halfW - 1], y: [4, 15], z: [HALL.front + 2, HALL.back - 2] }, { color: '#ffe48a', size: 0.16, flicker: 1, opacity: 0.95 });
-  const motes = mk(dust, { x: [-7, 7], y: [STAGE_Y + 0.5, 12], z: [-9, 6] }, { color: '#ffe9c8', size: 0.035, flicker: 0.4, opacity: 0.55 });
+  // a few fireflies that slipped in from the forest, drifting up near the
+  // window; dust motes hanging in the stage light
+  const ff = mk(Math.round(fireflies * 0.2), { x: [-9, 9], y: [9, 20], z: [HALL.front + 1, -2] }, { color: '#ffe48a', size: 0.11, flicker: 1, opacity: 0.8 });
+  const motes = mk(dust, { x: [-7, 7], y: [STAGE_Y + 0.5, 12], z: [-9, 6] }, { color: '#ffe9c8', size: 0.03, flicker: 0.4, opacity: 0.45 });
   return {
     group,
     setCounts(on) { ff.visible = on; motes.visible = on; },

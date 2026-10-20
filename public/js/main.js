@@ -10,7 +10,7 @@ import { AudioEngine } from './audio/engine.js';
 import { Performance } from './audio/performance.js';
 import { buildHall } from './scene/hall.js';
 import { buildOrchestra } from './scene/orchestra.js';
-import { buildAudience } from './scene/characters.js';
+import { buildAudience, animateAudience } from './scene/audience.js';
 import { buildEffects } from './scene/effects.js';
 import { buildScreen } from './scene/screen.js';
 import { buildFX } from './scene/fx.js';
@@ -24,7 +24,7 @@ import { UI } from './ui.js';
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
   fixedEar: true, applause: true, gap: 7, notes: true, glow: true, fireflies: true,
-  fx: true, lasers: true, screen: true,
+  fx: true, lasers: true, screen: true, audience: true, mouseLook: true,
 };
 const settings = { ...DEFAULTS };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || '{}')); } catch { /* private mode */ }
@@ -54,8 +54,8 @@ setAnisotropy(Math.min(8, renderer.capabilities.getMaxAnisotropy()));
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#0b0806');
-scene.fog = new THREE.FogExp2('#140d08', 0.0105);
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.05, 220);
+scene.fog = new THREE.FogExp2('#140d08', 0.006);
+const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, 0.05, 260);
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -70,7 +70,8 @@ function buildComposer() {
   const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: q.msaa });
   composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
-  bloomPass = new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.28, 0.55, 0.95);
+  // only true light sources bloom: bulbs, chandeliers, lasers - never fur
+  bloomPass = new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.32, 0.45, 1.05);
   bloomPass.enabled = q.bloom;
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
@@ -87,16 +88,28 @@ const hall = buildHall({ quality });
 scene.add(hall.group);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
-const audience = buildAudience(hall.seats, 0.42);
-scene.add(audience.group);
+let audience = null;
+let director = null;
+function seatAudience(on) {
+  if (audience) { audience.dispose(); audience = null; }
+  if (on) {
+    // a new crowd every time: who comes, how many, and where they sit
+    const exclude = new Set();
+    if (director?.seat && director.seat.index >= 0) exclude.add(director.seat.index);
+    audience = buildAudience(hall.seats, { exclude });
+    scene.add(audience.group);
+  }
+  if (director) director.occupied = audience ? audience.occupied : new Set();
+}
 const effects = buildEffects(scene, { fireflies: isMobile ? 90 : 170, dust: isMobile ? 260 : 520 });
 const screen = buildScreen(scene, renderer);
-const director = new Director(camera, renderer.domElement, hall);
-director.occupied = audience.occupied;
+director = new Director(camera, renderer.domElement, hall);
+director.hoverLook = settings.mouseLook;
+seatAudience(settings.audience);
 buildComposer();
 applyQuality();
 
-const bestSeat = hall.seats.find((s) => s.level === '1층' && s.row === 'G' && Math.abs(s.x) < 0.35);
+const bestSeat = hall.seats.filter((s) => s.level === '1층' && s.row === 'H').sort((a, b) => Math.abs(a.x) - Math.abs(b.x))[0];
 const headPositions = orchestra.players.map((p) => p.home.clone().add(new THREE.Vector3(0, 1.25 * p.char.scale, 0)));
 headPositions.push(orchestra.conductor.home.clone().add(new THREE.Vector3(0, 1.35, 0)));
 
@@ -106,7 +119,8 @@ const perf = new Performance(engine);
 let fx = null;
 let program = [];
 let current = -1;
-let concertStarted = false;
+let concertStarted = false; // we are inside
+let showStarted = false; // the musicians have been called
 let muted = false;
 let focused = null;
 let wakeLock = null;
@@ -143,20 +157,44 @@ async function boot() {
 }
 
 ui.on('enter', async () => {
+  // Order matters, and all of it must happen inside the click itself:
+  // capture the mouse first (first-person look, cursor hidden, aim at the
+  // centre), then go fullscreen - entering fullscreen uses up the click.
+  director.active = true;
+  if (!isTouch && settings.mouseLook) director.requestLock();
+  goFullscreen();
   try { await engine.ctx.resume(); } catch { /* ignored */ }
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
   ui.enter(isTouch);
-  // you come in through the doors at the back of the stalls
-  director.pos.copy(ENTRANCE.pos).add(new THREE.Vector3(0, 1.62, 0));
-  const la = director.lookAt(ENTRANCE.look, director.pos);
-  director.yaw = la.yaw;
-  director.pitch = la.pitch;
-  director.targetFov = director.fov = 60;
+  // you arrive in the foyer, in front of the doors to the stalls
+  director.placeAt(ENTRANCE.pos, ENTRANCE.look);
+  director.targetFov = director.fov = 64;
   concertStarted = true;
+  hall.setHouseLights(1);
   requestWakeLock();
-  ui.toast(isTouch ? '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요. 빈 자리 앞에서 "앉기"를 눌러요.' : 'W A S D 로 걸어 들어가고, 마음에 드는 빈 자리 앞에서 E 를 눌러 앉아요.', 6000);
-  runConcert(current);
+  ui.toast(isTouch ? '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요. 준비되면 "공연 시작"을 눌러요.' : 'W A S D 로 걷고, 마우스를 움직이면 시선이 따라가요. 자리를 잡고 Space 나 "공연 시작"을 눌러요.', 6500);
 });
+
+function goFullscreen() {
+  const el = document.documentElement;
+  if (document.fullscreenElement || !el.requestFullscreen) return;
+  el.requestFullscreen({ navigationUI: 'hide' })
+    .then(() => {
+      try { navigator.keyboard?.lock?.(['Escape']); } catch { /* unsupported */ }
+      // browsers allow the capture again once fullscreen is up, in case the
+      // switch dropped it
+      if (!isTouch && settings.mouseLook && !director.locked && !director.userReleased) director.requestLock();
+    })
+    .catch(() => {});
+}
+
+function startShow() {
+  if (!concertStarted || showStarted) return;
+  showStarted = true;
+  ui.showStarted();
+  runConcert(current);
+}
+ui.on('start', startShow);
 
 // --------------------------------------------------------- concert flow
 const wait = (ms, tok) => new Promise((r) => setTimeout(() => r(tok === seq), ms));
@@ -179,6 +217,7 @@ function setPhase(p, seconds = 0) {
 async function runConcert(i, { quick = false } = {}) {
   const tok = ++seq;
   if (perf.playing) perf.pause();
+  if (quick) { engine.stopApplause(); clapUntil = 0; }
   ui.setPlaying(false);
   bowing = false;
   current = (i + program.length) % program.length;
@@ -195,9 +234,8 @@ async function runConcert(i, { quick = false } = {}) {
     // the orchestra walks on while the audience settles
     setPhase('entering');
     hall.setHouseLights(0.75);
-    if (settings.applause) engine.murmur(0.7);
     stage.enterAll();
-    if (!(await until(() => stage.allSeated, tok, 60000))) return;
+    if (!(await until(() => stage.allSeated, tok, 90000))) return;
     if (!(await wait(800, tok))) return;
     setPhase('tuning');
     const dur = engine.tuning();
@@ -226,7 +264,6 @@ async function runConcert(i, { quick = false } = {}) {
     if (!(await wait(quick ? 500 : 2500, tok))) return;
   } else if (!(await wait(quick ? 300 : 1200, tok))) return;
 
-  engine.murmur(0);
   hall.setHouseLights(0.12);
   setPhase('playing');
   if (!(await wait(900, tok))) return;
@@ -251,9 +288,8 @@ async function endOfPiece() {
   hall.setHouseLights(0.5);
   const big = !!piece?.finale;
   if (settings.applause) {
-    engine.applause(engine.now + 0.4, big ? 1.3 : 1);
-    clapUntil = performance.now() + (big ? 9500 : 7000);
-    engine.murmur(0.35);
+    engine.applause(engine.now + 0.35, big ? 1.3 : 1);
+    clapUntil = performance.now() + (big ? 12500 : 7600);
   }
   if (settings.fx && big && fx) {
     fx.fanfare(engine.now + 0.3);
@@ -271,20 +307,29 @@ async function endOfPiece() {
     if (!(await wait(1600, tok))) return;
     stage.conductorBow(false);
     if (!(await wait(700, tok))) return;
-    // the orchestra rises
+    // the conductor turns to the orchestra and they rise together
+    stage.conductorFace(false);
+    stage.orchestraRise(true);
+    if (!(await wait(1300, tok))) return;
+    stage.conductorFace(true);
     stage.orchestraBow(true);
-    if (!(await wait(1800, tok))) return;
+    if (!(await wait(1500, tok))) return;
     stage.orchestraBow(false);
-    if (!(await wait(600, tok))) return;
+    if (!(await wait(800, tok))) return;
+    stage.orchestraRise(false);
     stage.conductorBow(true);
     if (!(await wait(1300, tok))) return;
     stage.conductorBow(false);
     if (!(await wait(600, tok))) return;
     stage.conductorExit();
   } else {
+    stage.orchestraRise(true);
+    if (!(await wait(1300, tok))) return;
     stage.orchestraBow(true);
-    if (!(await wait(1800, tok))) return;
+    if (!(await wait(1500, tok))) return;
     stage.orchestraBow(false);
+    if (!(await wait(700, tok))) return;
+    stage.orchestraRise(false);
   }
   const lastOfProgram = !settings.repeatOne && !settings.shuffle && current === program.length - 1;
   const next = nextIndex();
@@ -294,7 +339,7 @@ async function endOfPiece() {
     // end of the programme: everyone leaves, the house comes up, then a new evening begins
     hall.setHouseLights(1);
     stage.exitAll();
-    if (!(await until(() => stage.allOffstage, tok, 40000))) return;
+    if (!(await until(() => stage.allOffstage, tok, 60000))) return;
     if (!(await wait(4000, tok))) return;
   } else if (!(await wait(Math.max(2, settings.gap) * 1000, tok))) return;
   runConcert(next);
@@ -312,6 +357,7 @@ function nextIndex() {
 
 function togglePlay() {
   if (!concertStarted) return;
+  if (!showStarted) { startShow(); return; }
   if (phase !== 'playing') {
     // during a break: skip the ceremony and start the coming piece
     runConcert(phase === 'intermission' ? nextIndex() : current, { quick: true });
@@ -330,13 +376,15 @@ function togglePlay() {
 }
 
 ui.on('toggle', togglePlay);
-ui.on('next', () => concertStarted && runConcert(settings.shuffle ? nextIndex() : current + 1, { quick: true }));
+const showOn = () => { if (!showStarted) { showStarted = true; ui.showStarted(); } };
+ui.on('next', () => { if (!concertStarted) return; showOn(); runConcert(settings.shuffle ? nextIndex() : current + 1, { quick: true }); });
 ui.on('prev', () => {
   if (!concertStarted) return;
   if (phase === 'playing' && perf.time > 5) { perf.seek(0); return; }
+  showOn();
   runConcert(current - 1, { quick: true });
 });
-ui.on('select', (i) => concertStarted && runConcert(i, { quick: true }));
+ui.on('select', (i) => { if (!concertStarted) return; showOn(); runConcert(i, { quick: true }); });
 ui.on('seek', (t) => { if (concertStarted && phase === 'playing') perf.seek(t); });
 ui.on('seekKey', (d, e) => {
   if (!concertStarted || phase !== 'playing' || director.mode === 'walk') return;
@@ -397,15 +445,14 @@ setInterval(() => {
 }, 1000);
 
 director.on((type, data) => {
-  if (type === 'mode') {
-    ui.setMode(data);
-    if (data === 'walk') ui.setSeatLabel('공연장을 거니는 중');
-    if (data === 'cinema') ui.setSeatLabel('편하게 보기');
-  }
-  if (type === 'seat') ui.setSeatLabel(data.label);
+  if (type === 'mode') ui.setMode(data);
   if (type === 'nearSeat') ui.prompt(data ? `${data.label}에 앉기` : null, '앉기');
-  if (type === 'fly') ui.toast(data ? '날기 모드: Q / E 로 오르내려요' : '걷기 모드', 1600);
   if (type === 'pick') onPick(data);
+  if (type === 'lock') {
+    ui.setLocked(data);
+    if (!data && concertStarted && settings.mouseLook && !isTouch) ui.toast('화면을 클릭하면 다시 마우스로 둘러봐요', 2400);
+  }
+  if (type === 'clickView' && concertStarted && !isTouch && settings.mouseLook) director.requestLock();
 });
 
 function onSetting(key, value) {
@@ -420,6 +467,14 @@ function onSetting(key, value) {
   if (key === 'fireflies') effects.setCounts(value);
   if (key === 'screen') screen.setEnabled(value);
   if (key === 'lasers' && !value && fx) { fx.lasers.set(false); fx.wash.set(false); }
+  if (key === 'audience') {
+    seatAudience(value);
+    if (value) ui.toast(`오늘 밤 관객 ${audience.count.toLocaleString()}명이 자리를 잡았어요.`, 2600);
+  }
+  if (key === 'mouseLook') {
+    director.hoverLook = value;
+    if (!value) director.releaseLock();
+  }
 }
 
 function applyQuality() {
@@ -474,7 +529,7 @@ function onPick({ x, y }) {
     ui.focus(`${d.name}, ${d.role}`);
     engine.setFocus(null);
   } else if (h.seat) {
-    if (audience.occupied.has(h.seat.index)) {
+    if (director.occupied.has(h.seat.index)) {
       ui.toast(`${h.seat.label}에는 이미 관객이 앉아 있어요.`, 2200);
       return;
     }
@@ -487,23 +542,38 @@ function onPick({ x, y }) {
 }
 
 let hoverT = 0;
+function hover(x, y) {
+  const h = hitTest(x, y);
+  if (director.locked) {
+    // what the crosshair rests on
+    if (h.player) ui.target(describe(h.player));
+    else if (h.seat && !director.occupied.has(h.seat.index) && h.dist < 6) ui.target({ name: h.seat.label, role: '두 번 클릭해서 앉기' });
+    else ui.target(null);
+    return;
+  }
+  hoverAt(h, x, y);
+}
+setInterval(() => { if (director.locked && concertStarted) hover(window.innerWidth / 2, window.innerHeight / 2); }, 160);
 renderer.domElement.addEventListener('pointermove', (e) => {
-  if (isTouch) return;
+  if (isTouch || director.locked) return;
   const now = performance.now();
   if (now - hoverT < 90 || e.buttons) return;
   hoverT = now;
-  const h = hitTest(e.clientX, e.clientY);
+  hover(e.clientX, e.clientY);
+});
+function hoverAt(h, x, y) {
+  const e = { clientX: x, clientY: y };
   if (h.player) {
     ui.tooltip(describe(h.player), e.clientX, e.clientY);
     renderer.domElement.style.cursor = 'pointer';
-  } else if (h.seat && !audience.occupied.has(h.seat.index) && h.dist < 6) {
+  } else if (h.seat && !director.occupied.has(h.seat.index) && h.dist < 6) {
     ui.tooltip({ name: h.seat.label, role: '두 번 눌러 앉기' }, e.clientX, e.clientY);
     renderer.domElement.style.cursor = 'pointer';
   } else {
     ui.tooltip(null);
     renderer.domElement.style.cursor = '';
   }
-});
+}
 renderer.domElement.addEventListener('pointerleave', () => ui.tooltip(null));
 
 // -------------------------------------------------------- media & power
@@ -568,15 +638,14 @@ function frame() {
   effects.update(wall);
   director.joy.x = ui.joy.x;
   director.joy.y = ui.joy.y;
-  const clapping = performance.now() < clapUntil;
-  if (fpsFrames % 2 === 0 || clapping) audience.place(wall, clapping, director.seat?.index ?? -1);
+  animateAudience(wall, dt, performance.now() < clapUntil);
 
   if (!concertStarted) {
     // slow establishing shot behind the splash
     introT += dt;
     const a = introT * 0.05;
-    director.pos.set(Math.sin(a) * 12, 7 + Math.sin(a * 0.7), 18 + Math.cos(a) * 6);
-    const la = director.lookAt(new THREE.Vector3(0, 2.4, -5));
+    director.pos.set(Math.sin(a) * 9, 9 + Math.sin(a * 0.7) * 2, 14 + Math.cos(a) * 7);
+    const la = director.lookAt(new THREE.Vector3(0, 3.2, -5));
     director.yaw = la.yaw;
     director.pitch = la.pitch;
     director.anim = null;
@@ -599,7 +668,7 @@ function frame() {
   if (perf.piece) ui.setTime(Math.min(perf.duration, t), perf.duration);
   if (fx) fx.update(dt, wall, levelSmoothed);
   if (settings.screen && concertStarted) {
-    screen.update(dt, { perf, time: t, phase, nextPiece, countdown: (phaseUntil - performance.now()) / 1000 }, QUALITY[quality].screenEvery);
+    screen.update(dt, { perf, time: t, phase, nextPiece }, QUALITY[quality].screenEvery);
   }
 
   composer.render(dt);
@@ -631,7 +700,7 @@ boot().catch((e) => {
 });
 
 window.__fp = {
-  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, get phase() { return phase; },
+  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
 };

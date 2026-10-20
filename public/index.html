@@ -22,11 +22,11 @@
   <section id="splash" class="splash" aria-live="polite">
     <div class="splash-inner">
       <h1 class="splash-title">숲속 필하모닉</h1>
-      <p class="splash-sub">달빛 아래 나무 공연장. 입구에서 걸어 들어가 마음에 드는 자리에 앉으면, 동물 연주자들과 합창단이 오늘 밤 쉰 곡을 들려드립니다.</p>
+      <p class="splash-sub">달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 쉰 곡을 들려드립니다.</p>
       <p id="loadText" class="splash-load">공연장을 짓는 중</p>
       <div class="splash-bar" aria-hidden="true"><span id="loadBar"></span></div>
       <button id="enterBtn" class="btn-enter" disabled>공연장 입장</button>
-      <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. 걷기 <b>W A S D</b> · 둘러보기 <b>드래그</b> · 앉기 <b>E</b></p>
+      <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. 걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></p>
     </div>
   </section>
 
@@ -34,8 +34,19 @@
   <header id="nowPlaying" class="now" hidden>
     <p class="now-composer" id="npComposer"></p>
     <h2 class="now-title" id="npTitle"></h2>
-    <p class="now-meta"><span id="npEnsemble"></span><span id="npSeat" class="now-seat"></span></p>
+    <p class="now-meta"><span id="npEnsemble"></span></p>
   </header>
+
+  <!-- start of the show: the musicians come on when you are ready -->
+  <div id="startWrap" class="start-wrap" hidden>
+    <button id="startBtn" class="btn-start">공연 시작</button>
+    <p class="start-hint"><kbd>Space</kbd> 로도 시작할 수 있어요</p>
+  </div>
+
+  <!-- first-person crosshair and what it rests on -->
+  <div class="crosshair" aria-hidden="true"></div>
+  <div id="target" class="target" hidden></div>
+  <p class="lock-hint" aria-hidden="true"><kbd>Esc</kbd> 마우스 꺼내기</p>
 
   <!-- interaction prompt -->
   <div id="prompt" class="prompt" hidden><kbd>E</kbd><span id="promptText"></span></div>
@@ -110,8 +121,18 @@
         <legend>소리</legend>
         <label class="slider">홀 잔향 <input type="range" id="reverb" min="0" max="1" step="0.01" value="0.45"></label>
         <label class="check"><input type="checkbox" id="optFixedEar" checked> 편하게 보기 중에는 1층 중앙 자리에서 듣기</label>
-        <label class="check"><input type="checkbox" id="optApplause" checked> 박수와 관객 소리</label>
+        <label class="check"><input type="checkbox" id="optApplause" checked> 박수 소리</label>
         <label class="slider">곡 사이 쉬는 시간 <input type="range" id="gap" min="2" max="20" step="1" value="7"><output id="gapOut">7초</output></label>
+      </fieldset>
+      <fieldset class="field">
+        <legend>조작</legend>
+        <label class="check"><input type="checkbox" id="optMouseLook" checked> FPS처럼 마우스로 둘러보기</label>
+        <p class="hint">입장하면 마우스가 화면에 고정되고 가운데 점이 시선이에요. Esc 로 풀고, 화면을 클릭하면 다시 고정돼요.</p>
+      </fieldset>
+      <fieldset class="field">
+        <legend>관객</legend>
+        <label class="check"><input type="checkbox" id="optAudience" checked> 관객석에 관객 앉히기</label>
+        <p class="hint">켤 때마다 관객 수와 얼굴, 앉는 자리가 새로 바뀌어요.</p>
       </fieldset>
       <fieldset class="field">
         <legend>잠들기 전에</legend>
@@ -138,12 +159,13 @@
       <h3 id="helpTitle">조작법</h3>
       <dl class="keys">
         <dt>W A S D</dt><dd>걷기 · Shift 달리기 · 모바일은 왼쪽 조이스틱</dd>
-        <dt>드래그</dt><dd>주변 둘러보기</dd>
+        <dt>마우스</dt><dd>FPS처럼 둘러보기 (가운데 점이 시선)</dd>
+        <dt>Esc</dt><dd>마우스 꺼내기 · 화면을 클릭하면 다시 고정</dd>
+        <dt>계단</dt><dd>로비 양쪽 나선 계단으로 2층 · 3층 · 4층</dd>
         <dt>E</dt><dd>앞의 빈 좌석에 앉기 / 일어서기</dd>
         <dt>휠 · 두 손가락</dt><dd>확대 / 축소 (오페라글라스)</dd>
-        <dt>연주자 두 번 누르기</dt><dd>그 연주자 곁으로 가서 듣기</dd>
-        <dt>G</dt><dd>날기 모드 (Q / E 로 오르내리기)</dd>
-        <dt>Space</dt><dd>재생 / 일시정지</dd>
+        <dt>두 번 클릭</dt><dd>연주자 곁으로 가서 듣기 · 좌석에 앉기</dd>
+        <dt>Space</dt><dd>공연 시작 · 재생 / 일시정지</dd>
         <dt>N / P</dt><dd>다음 곡 / 이전 곡</dd>
         <dt>← →</dt><dd>10초 이동</dd>
         <dt>R</dt><dd>확대 초기화</dd>

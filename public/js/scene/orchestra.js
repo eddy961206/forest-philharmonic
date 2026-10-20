@@ -6,6 +6,7 @@ import { buildCharacter, setArm, updateFace } from './characters.js';
 import * as I from './instruments.js';
 import { M, plainMaterial, glowTexture, noteGlyphTexture } from './materials.js';
 import { mergeChildren } from './merge.js';
+import { stageFloorY, PODIUM_H } from './hallplan.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const tmpM = new THREE.Matrix4();
@@ -47,10 +48,9 @@ export function buildOrchestra(scene) {
   const stoolGeos = [];
   const standMetal = [];
   const standPaper = [];
-  const standLamp = [];
+  const obstacles = [];
   const glowMat = (color) => new THREE.MeshBasicMaterial({ map: glowTexture('rgba(255,255,255,1)', 'rgba(255,255,255,0)'), color, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
 
-  const stand = I.standParts(0.86);
 
   for (const [sid, sec] of Object.entries(SECTIONS)) {
     sec.chairs.forEach((c, ci) => {
@@ -82,13 +82,20 @@ export function buildOrchestra(scene) {
         chairGeos.push(I.chairGeometry().applyMatrix4(world));
       }
       if (!['piano', 'harp', 'timpani', 'choir'].includes(rigKind)) {
-        const off = new THREE.Matrix4().makeTranslation(rigKind === 'cello' || rigKind === 'bass' ? 0.25 : 0.1, 0, -0.95 - (rigKind === 'bass' ? 0.2 : 0));
-        const m = world.clone().multiply(off);
-        const flip = new THREE.Matrix4().makeRotationY(0);
-        standMetal.push(stand.metal.clone().applyMatrix4(flip).applyMatrix4(m));
-        standPaper.push(stand.paper.clone().applyMatrix4(flip).applyMatrix4(m));
-        standLamp.push(stand.lamp.clone().applyMatrix4(flip).applyMatrix4(m));
+        // the stand stands on whatever floor is in front (it may be the step
+        // below a riser) and reaches up to the player's eye line
+        const lx = rigKind === 'cello' || rigKind === 'bass' ? 0.24 : 0.1;
+        const lz = -0.78 - (rigKind === 'bass' ? 0.16 : rigKind === 'cello' ? 0.06 : 0);
+        const sp = V(lx, 0, lz).applyAxisAngle(V(0, 1, 0), yaw).add(root.position);
+        const fy = stageFloorY(sp.x, sp.z);
+        const parts = I.standParts(0.86 + (c.y - fy) + (rigKind === 'bass' ? 0.12 : 0));
+        const m = new THREE.Matrix4().compose(V(sp.x, fy, sp.z), new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), yaw), V(1, 1, 1));
+        standMetal.push(parts.metal.applyMatrix4(m));
+        standPaper.push(parts.paper.applyMatrix4(m));
+        obstacles.push({ x: sp.x, z: sp.z, r: 0.2 });
       }
+      // chairs are furniture; the choir's places are just spots on the riser
+      if (rigKind !== 'piano' && !sec.standing) obstacles.push({ x: c.x, z: c.z, r: 0.26 });
 
       // floor glow under the player
       const glow = new THREE.Mesh(new THREE.CircleGeometry(0.85 * sc, 32), glowMat(sec.color));
@@ -104,7 +111,7 @@ export function buildOrchestra(scene) {
 
   // conductor
   const cond = buildCharacter({ ...CONDUCTOR, standing: true }, '#fff1c1');
-  cond.root.position.set(PODIUM.x, STAGE_Y + 0.22, PODIUM.z + 0.05);
+  cond.root.position.set(PODIUM.x, STAGE_Y + PODIUM_H, PODIUM.z + 0.05);
   cond.root.rotation.y = 0;
   group.add(cond.root);
   const baton = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.006, 0.34, 6), M.ivory());
@@ -117,7 +124,7 @@ export function buildOrchestra(scene) {
     new THREE.BoxGeometry(0.46, 0.3, 0.02).rotateX(-1.05).translate(0, 0.76, 0),
   ]);
   const desk = new THREE.Mesh(deskGeo, M.darkWood());
-  desk.position.set(PODIUM.x, STAGE_Y + 0.22, PODIUM.z - 0.42);
+  desk.position.set(PODIUM.x, STAGE_Y + PODIUM_H, PODIUM.z - 0.42);
   desk.castShadow = true;
   group.add(desk);
 
@@ -133,13 +140,27 @@ export function buildOrchestra(scene) {
   add(stoolGeos, plainMaterial('#1a1716', { roughness: 0.55 }));
   add(standMetal, plainMaterial('#121214', { roughness: 0.35, metalness: 0.6 }));
   add(standPaper, M.paper(), false);
-  add(standLamp, new THREE.MeshStandardMaterial({ color: '#fff3d6', emissive: '#ffc982', emissiveIntensity: 0.3 }), false);
+
+  // instruments that live on the stage are obstacles for the walkers
+  group.updateMatrixWorld(true);
+  for (const p of players) {
+    if (p.rigKind === 'piano' || p.rigKind === 'harp' || p.rigKind === 'timpani') {
+      const box = new THREE.Box3().setFromObject(p.inst.group);
+      if (p.rigKind === 'piano') {
+        // keep the bench side open: the pianist sits down from behind it
+        const toBench = V(0, 0, 1).applyQuaternion(p.inst.group.quaternion);
+        if (Math.abs(toBench.x) > 0.5) { if (toBench.x > 0) box.max.x -= 0.75; else box.min.x += 0.75; } else if (toBench.z > 0) box.max.z -= 0.75; else box.min.z += 0.75;
+      }
+      obstacles.push({ box });
+    }
+  }
+  obstacles.push({ x: PODIUM.x, z: PODIUM.z - 0.42, r: 0.25 }); // the conductor's desk
 
   const particles = buildNoteParticles(group);
   const byKey = new Map(players.map((p) => [`${p.sid}:${p.ci}`, p]));
 
   return {
-    group, players, conductor, particles,
+    group, players, conductor, particles, obstacles,
     playerAt: (sid, ci) => byKey.get(`${sid}:${ci}`),
     update(t, dt, perf, opts) { updateAll(players, conductor, particles, t, dt, perf, opts); },
     pickables: players.map((p) => p.char.root).concat([cond.root]),
@@ -444,12 +465,16 @@ RIGS.harp = {
     p.inst = inst;
     mergeChildren(inst.group);
     inst.group.scale.setScalar(0.85);
-    // the harp stays on stage; place it in world space where the seated harpist expects it
-    const local = new THREE.Vector3(0.08, 0, -0.14).applyAxisAngle(new THREE.Vector3(0, 1, 0), p.yaw);
+    // the harp stays on stage, between the harpist's knees with the
+    // soundboard on the right shoulder: the strings run past the right side
+    // of the face and angle away from it
+    p.harpLocal = new THREE.Vector3(0.3, 0, -0.08);
+    p.harpYaw = -0.25;
+    p.harpQ = new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), p.harpYaw);
+    const local = p.harpLocal.clone().applyAxisAngle(V(0, 1, 0), p.yaw);
     inst.group.position.copy(p.char.root.position).add(local);
-    inst.group.rotation.y = p.yaw;
+    inst.group.rotation.y = p.yaw + p.harpYaw;
     p.char.root.parent.add(inst.group);
-    p.harpLocal = new THREE.Vector3(0.08, 0, -0.14);
     p.lastL = V(-0.02, 0.85, -0.45);
     p.lastR = V(0.16, 1.05, -0.22);
     p.pull = [0, 0];
@@ -457,7 +482,7 @@ RIGS.harp = {
   update(p, c) {
     const { dt, st } = c;
     const inst = p.inst;
-    const sToBody = (v) => v.clone().multiplyScalar(0.85).add(p.harpLocal);
+    const sToBody = (v) => v.clone().multiplyScalar(0.85).applyQuaternion(p.harpQ).add(p.harpLocal);
     if (st) {
       const act = st.active || [];
       if (st.strokes !== p.stroke) {

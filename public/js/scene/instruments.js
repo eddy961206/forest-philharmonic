@@ -585,13 +585,23 @@ export function stoolGeometry(h = 0.72) {
   return mergeGeometries([seat, ring, ...legs]);
 }
 
-// Music stand with sheet music and a little stand lamp
+// Orchestral music stand (tripod, telescopic pole, solid desk with a lip)
+// with the part on it. Local -z faces the player... the desk tilts back
+// toward +z, where the musician sits.
 export function standParts(height = 1.05) {
-  const pole = new THREE.CylinderGeometry(0.012, 0.012, height, 6).translate(0, height / 2, 0);
-  const foot = new THREE.CylinderGeometry(0.16, 0.18, 0.02, 3).translate(0, 0.01, 0);
-  const desk = new THREE.BoxGeometry(0.5, 0.34, 0.012).rotateX(-0.55).translate(0, height + 0.1, 0.02);
-  const lampArm = new THREE.CylinderGeometry(0.004, 0.004, 0.2, 4).rotateX(-0.9).translate(0, height + 0.32, 0.1);
-  const paper = new THREE.PlaneGeometry(0.46, 0.3).translate(0, 0, 0.008).rotateX(-0.55).translate(0, height + 0.1, 0.02);
-  const lamp = new THREE.BoxGeometry(0.11, 0.016, 0.028).translate(0, height + 0.36, 0.14);
-  return { metal: mergeGeometries([pole, foot, desk, lampArm]), paper, lamp };
+  const parts = [];
+  const pole = new THREE.CylinderGeometry(0.011, 0.011, height - 0.04, 6).translate(0, height / 2, 0);
+  const sleeve = new THREE.CylinderGeometry(0.016, 0.016, height * 0.45, 6).translate(0, height * 0.25 + 0.05, 0);
+  parts.push(pole, sleeve);
+  for (let i = 0; i < 3; i++) {
+    const a = (i / 3) * Math.PI * 2 + Math.PI / 6;
+    const leg = new THREE.CylinderGeometry(0.007, 0.008, 0.3, 4);
+    leg.rotateZ(1.25).rotateY(-a).translate(Math.cos(a) * 0.13, 0.06, Math.sin(a) * 0.13);
+    parts.push(leg);
+  }
+  const desk = new THREE.BoxGeometry(0.52, 0.36, 0.01).rotateX(-0.42).translate(0, height + 0.1, 0.02);
+  const lip = new THREE.BoxGeometry(0.52, 0.012, 0.045).translate(0, height - 0.065, 0.075);
+  parts.push(desk, lip);
+  const paper = new THREE.PlaneGeometry(0.44, 0.3).translate(0, 0.01, 0.007).rotateX(-0.42).translate(0, height + 0.1, 0.02);
+  return { metal: mergeGeometries(parts), paper };
 }

@@ -43,7 +43,35 @@ export class UI {
     setTimeout(() => $('splash').remove(), 1300);
     $('nowPlaying').hidden = false;
     $('transport').hidden = false;
+    $('startWrap').hidden = false;
     if (touch) $('joystick').hidden = false;
+  }
+
+  // the musicians have been called on stage
+  showStarted() {
+    const w = $('startWrap');
+    w.classList.add('leaving');
+    setTimeout(() => { w.hidden = true; }, 600);
+  }
+
+  // first-person mouse look: crosshair on, cursor hidden
+  setLocked(on) {
+    document.body.classList.toggle('locked', on);
+    if (!on) this.target(null);
+    this.tooltip(null);
+  }
+
+  // what the crosshair rests on
+  target(info) {
+    const el = $('target');
+    if (!info) { el.hidden = true; return; }
+    el.innerHTML = '';
+    const b = document.createElement('b');
+    b.textContent = info.name;
+    const sm = document.createElement('small');
+    sm.textContent = info.role;
+    el.append(b, sm);
+    el.hidden = false;
   }
 
   // ------------------------------------------------------------- programme
@@ -75,10 +103,6 @@ export class UI {
     $('npEnsemble').textContent = piece.ensembleKo;
     this.duration = piece.duration;
     document.title = `${piece.titleKo} · 숲속 필하모닉`;
-  }
-
-  setSeatLabel(label) {
-    $('npSeat').textContent = label ? `지금 자리: ${label}` : '';
   }
 
   setPlaying(on) {
@@ -168,6 +192,7 @@ export class UI {
   _bind() {
     const click = (id, fn) => $(id).addEventListener('click', (e) => { fn(e); if (e.detail > 0) e.currentTarget.blur(); });
     click('enterBtn', () => this.emit('enter'));
+    click('startBtn', () => this.emit('start'));
     click('btnPlay', () => this.emit('toggle'));
     click('btnNext', () => this.emit('next'));
     click('btnPrev', () => this.emit('prev'));
@@ -201,7 +226,7 @@ export class UI {
       el.checked = !!this.settings[key];
       el.addEventListener('change', () => this.onSetting(key, el.checked));
     };
-    for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optApplause', 'applause'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen']]) bindCheck(id, key);
+    for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optApplause', 'applause'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen'], ['optAudience', 'audience'], ['optMouseLook', 'mouseLook']]) bindCheck(id, key);
     const rev = $('reverb');
     rev.value = String(this.settings.reverb);
     rev.addEventListener('input', () => this.onSetting('reverb', Number(rev.value)));

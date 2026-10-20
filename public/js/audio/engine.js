@@ -12,6 +12,7 @@
 // roll-off - the same cues that make seats sound different in a real hall.
 
 import { SECTIONS, sectionCenter, sectionFacing } from '../layout.js';
+import { renderApplause } from './crowd.js';
 
 const FAMILY = {
   violin: 'strings', viola: 'strings', cello: 'strings', contrabass: 'strings', strings: 'strings',
@@ -410,44 +411,6 @@ export class AudioEngine {
     this.voices.clear();
   }
 
-  // ------------------------------------------------------------ ambience
-  // Audience murmur between pieces: filtered noise, looped, ducked under music
-  murmur(level) {
-    const ctx = this.ctx;
-    if (!this._murmur) {
-      const len = ctx.sampleRate * 6;
-      const buf = ctx.createBuffer(2, len, ctx.sampleRate);
-      for (let ch = 0; ch < 2; ch++) {
-        const d = buf.getChannelData(ch);
-        let b0 = 0, b1 = 0, b2 = 0;
-        for (let i = 0; i < len; i++) {
-          // pink-ish noise with slow amplitude swells, like many quiet voices
-          const w = Math.random() * 2 - 1;
-          b0 = 0.99765 * b0 + w * 0.099;
-          b1 = 0.963 * b1 + w * 0.2965;
-          b2 = 0.57 * b2 + w * 1.0526;
-          const swell = 0.6 + 0.4 * Math.sin(i / ctx.sampleRate * 1.3 + ch) * Math.sin(i / ctx.sampleRate * 0.41);
-          d[i] = (b0 + b1 + b2 + w * 0.18) * 0.05 * swell;
-        }
-      }
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      src.loop = true;
-      const bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass';
-      bp.frequency.value = 650;
-      bp.Q.value = 0.6;
-      const g = ctx.createGain();
-      g.gain.value = 0;
-      src.connect(bp).connect(g);
-      g.connect(this.dryBus);
-      g.connect(this.reverbIn);
-      src.start();
-      this._murmur = g;
-    }
-    this._murmur.gain.setTargetAtTime(level * 0.9, ctx.currentTime, 1.2);
-  }
-
   // The oboe gives the A, the strings tune to it
   tuning(when = this.now + 0.1) {
     this.playNote({ section: 'ob', inst: 'oboe', midi: 69, vel: 80, when, dur: 2.6, gain: 0.9 });
@@ -463,54 +426,58 @@ export class AudioEngine {
   }
 
   // ------------------------------------------------------------ applause
-  // Pre-render the applause once (it's a few hundred thousand tiny claps)
-  prepareApplause(seconds = 6.5) {
-    if (!this._applauseBuf) this._applauseBuf = this._renderApplause(seconds, 1);
+  _prepareCrowd() {
+    if (this._crowd) return;
+    const ctx = this.ctx;
+    this._crowd = {
+      welcome: renderApplause(ctx, { seconds: 5.5, people: 120, seed: 11 }),
+      normal: [renderApplause(ctx, { seconds: 10, people: 170, seed: 21 }), renderApplause(ctx, { seconds: 10, people: 170, seed: 22 })],
+      finale: renderApplause(ctx, { seconds: 15, people: 240, seed: 31, rhythmic: true }),
+    };
   }
 
+  // Pre-render the crowd once (a few hundred milliseconds at load)
+  prepareApplause() {
+    this._prepareCrowd();
+  }
+
+  // intensity < 0.8: a short welcome; >= 1.2: the finale with rhythmic
+  // clapping; otherwise the ordinary applause after a piece
   applause(when, intensity = 1) {
-    this.prepareApplause();
+    this._prepareCrowd();
     const ctx = this.ctx;
+    const C = this._crowd;
+    const buf = intensity < 0.8 ? C.welcome : intensity >= 1.2 ? C.finale : C.normal[(this._appN = (this._appN || 0) + 1) % 2];
     const src = ctx.createBufferSource();
-    src.buffer = this._applauseBuf;
-    src.playbackRate.value = (0.96 + Math.random() * 0.08) * (intensity < 0.8 ? 1.6 : 1);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.value = 2200;
-    bp.Q.value = 0.5;
+    src.buffer = buf;
+    src.playbackRate.value = 0.98 + Math.random() * 0.04;
+    // the hall takes the edge off: a soft high cut and a little low cut
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 180;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 6500;
+    lp.Q.value = 0.5;
     const g = ctx.createGain();
-    g.gain.value = 0.5 * Math.min(1.4, intensity);
-    src.connect(bp).connect(g);
-    g.connect(this.dryBus);
+    g.gain.value = 0.034 * Math.min(1.25, intensity);
+    src.connect(hp).connect(lp).connect(g);
+    const dry = ctx.createGain();
+    dry.gain.value = 0.55;
+    g.connect(dry).connect(this.dryBus);
     g.connect(this.reverbIn);
     src.start(when);
+    this._lastApplause = { src, g };
     return src;
   }
 
-  _renderApplause(seconds, intensity) {
-    const ctx = this.ctx;
-    const len = Math.floor(ctx.sampleRate * seconds);
-    const buf = ctx.createBuffer(2, len, ctx.sampleRate);
-    for (let ch = 0; ch < 2; ch++) {
-      const d = buf.getChannelData(ch);
-      // hundreds of individual claps with random timing and tone
-      const claps = Math.floor(900 * seconds * intensity);
-      for (let i = 0; i < claps; i++) {
-        const t0 = Math.floor(Math.pow(Math.random(), 0.8) * len);
-        const decay = 0.004 + Math.random() * 0.008;
-        const amp = 0.06 + Math.random() * 0.12;
-        const n = Math.floor(decay * 6 * ctx.sampleRate);
-        for (let k = 0; k < n && t0 + k < len; k++) {
-          d[t0 + k] += (Math.random() * 2 - 1) * amp * Math.exp(-k / (decay * ctx.sampleRate));
-        }
-      }
-      // swell in, fade out
-      for (let i = 0; i < len; i++) {
-        const x = i / len;
-        d[i] *= Math.min(1, x * 5) * Math.min(1, (1 - x) * 2.2);
-      }
-    }
-    return buf;
+  stopApplause(fade = 0.6) {
+    const a = this._lastApplause;
+    if (!a) return;
+    const t = this.ctx.currentTime;
+    a.g.gain.setTargetAtTime(0, t, fade / 3);
+    try { a.src.stop(t + fade * 2); } catch { /* not started */ }
+    this._lastApplause = null;
   }
 }
 

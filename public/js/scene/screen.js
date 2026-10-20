@@ -17,7 +17,7 @@ export function buildScreen(scene, renderer) {
   const sw = 11.6;
   const sh = sw * (H / W);
   const cx = 0;
-  const cy = 9.1 + sh / 2;
+  const cy = 7.75 + sh / 2; // above the shell, below the great window
   const cz = HALL.front + 0.42; // in front of the window frame
 
   // bezel + the live picture + a transparent caption layer in front of it
@@ -28,11 +28,13 @@ export function buildScreen(scene, renderer) {
   const pic = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: rt.texture, toneMapped: false }));
   pic.position.set(cx, cy, cz);
   group.add(pic);
-  // a faint glow so the screen lights the choir a little
-  const screenLight = new THREE.SpotLight('#cfd8ff', 0.6, 14, 0.9, 0.9, 1.2);
-  screenLight.position.set(cx, cy, cz + 0.3);
-  screenLight.target.position.set(0, STAGE_Y + 1.5, -9);
-  group.add(screenLight, screenLight.target);
+  // gilt frame round the bezel
+  const fr = [];
+  for (const [w, h, x, y] of [[sw + 0.8, 0.14, 0, sh / 2 + 0.32], [sw + 0.8, 0.14, 0, -sh / 2 - 0.32], [0.14, sh + 0.78, sw / 2 + 0.33, 0], [0.14, sh + 0.78, -sw / 2 - 0.33, 0]]) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.12), M.gilt());
+    m.position.set(cx + x, cy + y, cz - 0.05);
+    group.add(m);
+  }
 
   const cv = document.createElement('canvas');
   cv.width = W;
@@ -92,88 +94,49 @@ export function buildScreen(scene, renderer) {
     return shot;
   }
 
+  // Captions kept to the essentials: the title as a piece begins, and
+  // what comes next during the break. No badges, no countdowns.
   function drawCaption(ctx, now) {
     const piece = ctx.perf.piece;
     let mode = 'none';
     let key = '';
-    if (ctx.phase === 'intermission' && ctx.nextPiece) { mode = 'next'; key = `next:${ctx.nextPiece.id}:${Math.floor(ctx.countdown || 0)}`; }
-    else if (ctx.phase === 'applause') { mode = 'applause'; key = 'applause'; }
-    else if (piece && ctx.perf.playing && (ctx.time < 9 || (ctx.time % 100) < 8)) { mode = 'title'; key = `title:${piece.id}:${ctx.time < 9 ? 0 : Math.floor(ctx.time / 100)}`; }
-    else if (ctx.phase === 'entering') { mode = 'welcome'; key = 'welcome'; }
+    if (ctx.phase === 'intermission' && ctx.nextPiece) { mode = 'next'; key = `next:${ctx.nextPiece.id}`; }
+    else if (piece && ctx.perf.playing && ctx.time < 10) { mode = 'title'; key = `title:${piece.id}`; }
     if (key !== lastCapKey) {
       lastCapKey = key;
       captionState = { mode, since: now };
     }
     const age = now - captionState.since;
-    const alpha = Math.min(1, age * 1.5);
+    const alpha = Math.min(1, age * 1.5) * (mode === 'title' ? Math.min(1, Math.max(0, (10 - ctx.time) / 1.2)) : 1);
     g.clearRect(0, 0, W, H);
-    // letterbox vignette makes the picture read as a broadcast
-    const vg = g.createLinearGradient(0, H * 0.7, 0, H);
-    vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(1, 'rgba(0,0,0,0.55)');
-    g.fillStyle = vg;
-    g.fillRect(0, H * 0.7, W, H * 0.3);
-    // live bug
-    g.fillStyle = 'rgba(0,0,0,0.45)';
-    g.beginPath();
-    g.roundRect(34, 30, 112, 38, 8);
-    g.fill();
-    g.fillStyle = (Math.floor(now * 1.2) % 2) ? '#ff4b4b' : '#ff8a8a';
-    g.beginPath();
-    g.arc(56, 49, 7, 0, Math.PI * 2);
-    g.fill();
-    g.fillStyle = '#fff';
-    g.font = '600 20px "IBM Plex Sans KR", sans-serif';
-    g.textBaseline = 'middle';
-    g.fillText('LIVE', 72, 50);
-    g.textAlign = 'right';
-    g.font = '500 18px "IBM Plex Sans KR", sans-serif';
-    g.fillStyle = 'rgba(255,255,255,0.75)';
-    g.fillText('숲속 필하모닉', W - 36, 50);
-    g.textAlign = 'left';
-    if (mode === 'none') { capTex.needsUpdate = true; return; }
+    if (mode === 'none' || alpha <= 0) { capTex.needsUpdate = true; return; }
     g.globalAlpha = alpha;
-    const x = 56;
-    const y = H - 120;
+    const vg = g.createLinearGradient(0, H * 0.62, 0, H);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.6)');
+    g.fillStyle = vg;
+    g.fillRect(0, H * 0.62, W, H * 0.38);
+    const x = 64;
+    const y = H - 112;
+    const slide = (1 - ease(Math.min(1, age * 1.4))) * 40;
+    g.textAlign = 'left';
+    g.textBaseline = 'middle';
     if (mode === 'title' && piece) {
-      const slide = (1 - ease(Math.min(1, age * 1.4))) * 60;
       g.fillStyle = '#e6c07b';
-      g.fillRect(x - slide, y - 4, 6, 92);
-      g.fillStyle = 'rgba(8,12,10,0.72)';
-      g.fillRect(x + 6 - slide, y - 4, 620, 92);
-      g.fillStyle = '#e6c07b';
+      g.fillRect(x - slide, y - 2, 4, 76);
       g.font = '500 20px "IBM Plex Sans KR", sans-serif';
-      g.fillText(`${piece.composerKo} · ${piece.composer} (${piece.year})`, x + 24 - slide, y + 18);
+      g.fillText(`${piece.composerKo} · ${piece.year}`, x + 20 - slide, y + 14);
+      g.fillStyle = '#fff';
+      g.font = '700 32px "Gowun Batang", serif';
+      g.fillText(fit(piece.titleKo, 820, g), x + 20 - slide, y + 52);
+    } else if (mode === 'next' && ctx.nextPiece) {
+      g.fillStyle = '#e6c07b';
+      g.fillRect(x - slide, y - 2, 4, 76);
+      g.font = '500 20px "IBM Plex Sans KR", sans-serif';
+      g.fillText('다음 곡', x + 20 - slide, y + 14);
       g.fillStyle = '#fff';
       g.font = '700 30px "Gowun Batang", serif';
-      g.fillText(fit(piece.titleKo, 580, g), x + 24 - slide, y + 58);
-    } else if (mode === 'next' && ctx.nextPiece) {
-      g.fillStyle = 'rgba(8,12,10,0.72)';
-      g.fillRect(x, y - 4, 620, 92);
-      g.fillStyle = '#86ad8f';
-      g.font = '500 20px "IBM Plex Sans KR", sans-serif';
-      g.fillText(`다음 곡  ·  ${ctx.countdown > 0 ? `${Math.ceil(ctx.countdown)}초 뒤` : '곧 시작'}`, x + 24, y + 18);
-      g.fillStyle = '#fff';
-      g.font = '700 28px "Gowun Batang", serif';
-      g.fillText(fit(`${ctx.nextPiece.composerKo} — ${ctx.nextPiece.titleKo}`, 580, g), x + 24, y + 58);
-    } else if (mode === 'applause') {
-      g.textAlign = 'center';
-      g.fillStyle = '#fff';
-      g.font = '700 54px "Gowun Batang", serif';
-      g.shadowColor = 'rgba(0,0,0,0.6)';
-      g.shadowBlur = 18;
-      g.fillText('Bravo!', W / 2, H / 2 + Math.sin(now * 3) * 4);
-      g.shadowBlur = 0;
-      g.textAlign = 'left';
-    } else if (mode === 'welcome') {
-      g.textAlign = 'center';
-      g.fillStyle = '#fff';
-      g.font = '700 40px "Gowun Batang", serif';
-      g.fillText('숲속 필하모닉에 오신 것을 환영합니다', W / 2, H / 2 - 10);
-      g.font = '400 22px "IBM Plex Sans KR", sans-serif';
-      g.fillStyle = 'rgba(255,255,255,0.8)';
-      g.fillText('연주자들이 자리에 앉는 중입니다', W / 2, H / 2 + 36);
-      g.textAlign = 'left';
+      g.fillText(fit(`${ctx.nextPiece.composerKo} — ${ctx.nextPiece.titleKo}`, 820, g), x + 20 - slide, y + 52);
     }
     g.globalAlpha = 1;
     capTex.needsUpdate = true;
