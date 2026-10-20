@@ -170,7 +170,6 @@ ui.on('enter', async () => {
   concertStarted = true;
   hall.setHouseLights(1);
   requestWakeLock();
-  ui.toast(isTouch ? '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요. 준비되면 "공연 시작"을 눌러요.' : 'W A S D 로 걷고, 화면을 끌거나 클릭해서 둘러봐요. 자리를 잡고 Space 나 "공연 시작"을 눌러요.', 6500);
 });
 
 function goFullscreen() {
@@ -447,6 +446,7 @@ director.on((type, data) => {
   if (type === 'pick') onPick(data);
   if (type === 'aim') ui.setAim(data);
   if (type === 'lock') ui.setLocked(data);
+  if (type === 'looked') ui.hideLookHint();
   // a click (not a drag) on the hall captures the mouse for free looking
   if (type === 'clickView' && concertStarted && !isTouch) director.requestLock();
 });

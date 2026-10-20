@@ -44,8 +44,10 @@ export class UI {
     $('nowPlaying').hidden = false;
     $('transport').hidden = false;
     $('startWrap').hidden = false;
-    if (touch) $('joystick').hidden = false;
-    else $('lookHint').hidden = false;
+    if (touch) {
+      $('joystick').hidden = false;
+      $('startHint').textContent = '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요';
+    }
   }
 
   // the musicians have been called on stage
@@ -53,12 +55,23 @@ export class UI {
     const w = $('startWrap');
     w.classList.add('leaving');
     setTimeout(() => { w.hidden = true; }, 600);
+    // one short reminder of how to look around, unless you already have
+    if (!this.touch && !this.looked) {
+      $('lookHint').hidden = false;
+      clearTimeout(this._lookT);
+      this._lookT = setTimeout(() => this.hideLookHint(), 7000);
+    }
+  }
+
+  hideLookHint() {
+    this.looked = true;
+    $('lookHint').hidden = true;
   }
 
   // first-person mouse look: crosshair on, cursor hidden
   setLocked(on) {
     document.body.classList.toggle('locked', on);
-    if (!this.touch) $('lookHint').hidden = on;
+    if (on) this.hideLookHint();
     if (!on) this.target(null);
     this.tooltip(null);
   }

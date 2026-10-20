@@ -218,6 +218,7 @@ export class Director {
   }
 
   _look(dx, dy, k) {
+    if (!this._looked) { this._looked = true; this._emit('looked'); }
     if (this.mode === 'cinema') this.setMode(this.returnTo?.seat ? 'seat' : 'walk');
     this.yaw -= dx * k;
     this.pitch = clamp(this.pitch - dy * k, -1.4, 1.4);
