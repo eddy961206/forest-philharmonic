@@ -450,6 +450,7 @@ director.on((type, data) => {
   // Touch screens keep the plain "앉기" button - it is their only way to sit.
   if (type === 'nearSeat' && isTouch) ui.prompt(data ? '앉기' : null, '앉기');
   if (type === 'pick') onPick(data);
+  if (type === 'aim') ui.setAim(data);
   if (type === 'lock') {
     ui.setLocked(data);
     if (!data && concertStarted && settings.mouseLook && !isTouch) ui.toast('화면을 클릭하면 다시 마우스로 둘러봐요', 2400);
@@ -546,16 +547,16 @@ function onPick({ x, y }) {
 let hoverT = 0;
 function hover(x, y) {
   const h = hitTest(x, y);
-  if (director.locked) {
+  if (director.locked || director.aiming) {
     // what the crosshair rests on
     ui.target(h.player ? describe(h.player) : null);
     return;
   }
   hoverAt(h, x, y);
 }
-setInterval(() => { if (director.locked && concertStarted) hover(window.innerWidth / 2, window.innerHeight / 2); }, 160);
+setInterval(() => { if ((director.locked || director.aiming) && concertStarted) hover(window.innerWidth / 2, window.innerHeight / 2); }, 160);
 renderer.domElement.addEventListener('pointermove', (e) => {
-  if (isTouch || director.locked) return;
+  if (isTouch || director.locked || director.aiming) return;
   const now = performance.now();
   if (now - hoverT < 90 || e.buttons) return;
   hoverT = now;

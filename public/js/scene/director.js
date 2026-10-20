@@ -202,12 +202,16 @@ export class Director {
   }
 
   // hover look runs only when nothing else is steering the camera
+  // Aim mode: the mouse is over the hall without being captured. The cursor
+  // is hidden and a dot marks the centre - the view turns with the mouse
+  // exactly like a captured first-person view, so the aim always sits at the
+  // centre. Over the controls the normal cursor comes back.
+  get aiming() {
+    return this.hoverLook && this.active && !this.locked && this.mouse.inside && this.mode !== 'cinema';
+  }
+
   _hoverActive() {
-    // only a fallback for browsers that refuse to capture the mouse: with
-    // the cursor visible the aim can never sit under it, so the real thing
-    // (cursor hidden, aim fixed at the centre) is always preferred
-    return this.hoverLook && this.lockFailed && this.lookEnabled && this.active && !this.locked && this.mouse.inside
-      && this.mode !== 'cinema' && !this.anim && document.hasFocus();
+    return this.aiming && this.lookEnabled && !this.anim && document.visibilityState === 'visible';
   }
 
   _look(dx, dy, k) {
@@ -281,7 +285,7 @@ export class Director {
       }
       if (e.pointerId !== lookPointer || !this.lookEnabled) return;
       // with the mouse the view already follows the cursor (hover look)
-      if (e.pointerType === 'mouse' && this.hoverLook && this.lockFailed) return;
+      if (e.pointerType === 'mouse' && this.hoverLook) return;
       // drag the world: the view turns the way you pull
       this._look(-dx, -dy, (this.fov / 50) * 0.0034);
     });
@@ -304,7 +308,8 @@ export class Director {
     el.addEventListener('wheel', (e) => { e.preventDefault(); this.zoom(e.deltaY); }, { passive: false });
     el.addEventListener('dblclick', (e) => {
       if (e.sourceCapabilities?.firesTouchEvents) return;
-      if (this.locked) this._emit('pick', { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+      // with the crosshair showing, you pick what it rests on
+      if (this.locked || this.aiming) this._emit('pick', { x: window.innerWidth / 2, y: window.innerHeight / 2 });
       else this._emit('pick', { x: e.clientX, y: e.clientY });
     });
     // while the pointer is locked a click picks what is under the crosshair
@@ -336,6 +341,13 @@ export class Director {
   update(dt, ctx) {
     const cam = this.camera;
     if (this.mode === 'cinema') this._cinema(dt, ctx);
+    // show / hide the crosshair and the cursor as aim mode comes and goes
+    const aim = this.aiming;
+    if (aim !== this._aimShown) {
+      this._aimShown = aim;
+      this.dom.style.cursor = aim ? 'none' : '';
+      this._emit('aim', aim);
+    }
     // cursor resting at the left / right edge: keep turning that way
     if (this._hoverActive()) {
       const w = window.innerWidth;

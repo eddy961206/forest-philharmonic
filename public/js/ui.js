@@ -61,6 +61,13 @@ export class UI {
     this.tooltip(null);
   }
 
+  // mouse over the hall, not captured: crosshair on, cursor hidden there
+  setAim(on) {
+    document.body.classList.toggle('aim', on);
+    if (!on && !document.body.classList.contains('locked')) this.target(null);
+    if (on) this.tooltip(null);
+  }
+
   // what the crosshair rests on
   target(info) {
     const el = $('target');

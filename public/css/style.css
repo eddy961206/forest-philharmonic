@@ -206,7 +206,7 @@ input[type='range']::-moz-range-thumb { width: 12px; height: 12px; border: 0; bo
 /* ------------------------------------------------- first-person crosshair */
 .crosshair { display: none; position: fixed; z-index: 9; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(242, 237, 225, 0.85); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35); pointer-events: none; }
 .lock-hint { display: none; position: fixed; z-index: 9; right: var(--gutter); top: var(--gutter); margin: 0; font-size: 12.5px; color: var(--paper-dim); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8); pointer-events: none; }
-body.locked .crosshair, body.locked .lock-hint { display: block; }
+body.locked .crosshair, body.locked .lock-hint, body.aim .crosshair { display: block; }
 body.locked .transport { opacity: 0.55; }
 .target {
   position: fixed; z-index: 9; left: 50%; top: calc(50% + 18px); transform: translateX(-50%);
