@@ -245,14 +245,14 @@ vec3 sFOREST(vec3 d, float az, float el) {
   float up = clamp(d.y, -0.2, 1.0);
   vec3 sky = mix(vec3(0.62, 0.8, 0.95), vec3(0.95, 0.96, 0.9), smoothstep(0.75, 1.0, up));
   vec3 c = sky;
-  // distant tree lines, three layers fading into the morning haze
+  // distant tree lines, three layers of bumpy crowns fading into the haze
   for (int l = 0; l < 3; l++) {
     float fl = float(l);
-    float h = 0.07 + fl * 0.07 + 0.06 * fbm(vec3(az * (2.5 + fl), fl * 4.0, 1.0)) + 0.025 * noise(vec3(az * 40.0, fl, 0.0));
-    float m = smoothstep(h + 0.004, h - 0.004, el);
-    vec3 tree = mix(vec3(0.12, 0.2, 0.14), vec3(0.42, 0.56, 0.55), 1.0 - fl / 2.5);
-    tree = mix(tree, sky, 0.55 - fl * 0.2);
-    c = mix(c, tree * (0.85 + 0.15 * noise(vec3(az * 60.0, el * 60.0, fl))), m);
+    float h = 0.035 + fl * 0.04 + 0.035 * fbm(vec3(az * (3.0 + fl * 2.0), fl * 4.0, 1.0)) + 0.02 * abs(sin(az * (90.0 - fl * 25.0) + fl)) ;
+    float m = smoothstep(h + 0.003, h - 0.003, el);
+    vec3 tree = mix(vec3(0.05, 0.12, 0.07), vec3(0.3, 0.42, 0.4), 1.0 - fl / 2.5);
+    tree = mix(tree, sky, 0.5 - fl * 0.2);
+    c = mix(c, tree * (0.8 + 0.25 * noise(vec3(az * 80.0, el * 80.0, fl))), m);
   }
   // the canopy overhead, with gaps of sky; sunlit edges
   vec2 pp = d.xz / max(d.y + 0.15, 0.05);
@@ -264,14 +264,16 @@ vec3 sFOREST(vec3 d, float az, float el) {
   leafCol += vec3(0.75, 0.7, 0.25) * smoothstep(0.05, 0.0, abs(leaves - 0.5)) * 0.45;
   c = mix(c, leafCol, canopy * cover);
   // trunks: dark columns rising from the tree line into the canopy
-  float N = 16.0;
-  float u = (az + PI) / (2.0 * PI) * N + 0.25 * noise(vec3(az * 3.0, 0.0, 2.0));
+  float N = 34.0;
+  float u = (az + PI) / (2.0 * PI) * N + 0.2 * noise(vec3(az * 3.0, 0.0, 2.0));
   float idx = floor(u);
-  float on = step(0.3, hash2(vec2(idx, 7.0)));
-  float w = mix(0.3, 0.06, smoothstep(0.0, 0.8, el)) * (0.6 + 0.6 * hash2(vec2(idx, 1.0)));
-  float trunk = smoothstep(w, w - 0.04, abs(fract(u) - 0.5)) * smoothstep(-0.05, 0.12, el) * (1.0 - smoothstep(0.55, 0.85, el)) * on;
-  vec3 bark = vec3(0.12, 0.085, 0.06) * (0.55 + 0.6 * noise(vec3(u * 6.0, el * 50.0, 0.0)));
-  bark += vec3(0.5, 0.42, 0.2) * smoothstep(-0.1, 0.5, fract(u) - 0.5) * 0.25; // lit side
+  float on = step(0.35, hash2(vec2(idx, 7.0)));
+  float w = mix(0.2, 0.05, smoothstep(0.0, 0.8, el)) * (0.55 + 0.6 * hash2(vec2(idx, 1.0)));
+  float cxu = fract(u) - 0.5;
+  float trunk = smoothstep(w, w - 0.015, abs(cxu)) * smoothstep(-0.02, 0.06, el) * (1.0 - smoothstep(0.5, 0.8, el)) * on;
+  float barkLines = noise(vec3(u * 40.0, el * 6.0, idx));
+  vec3 bark = vec3(0.1, 0.07, 0.05) * (0.6 + 0.7 * barkLines);
+  bark += vec3(0.55, 0.45, 0.25) * smoothstep(0.0, w, cxu) * 0.35; // the sunlit side
   c = mix(c, bark, trunk);
   // light shafts from the sun high in front
   vec3 sd = normalize(vec3(0.15, 0.75, -0.65));
@@ -352,15 +354,15 @@ vec3 sCATHEDRAL(vec3 d, float az, float el) {
   float R = 0.42;
   if (a < R) {
     float rr = a / R;
-    float seg = 16.0;
+    float ring = floor(rr * 7.0);
+    float seg = 12.0 + ring * 6.0;
     float sa = ang / (2.0 * PI) * seg;
-    float ring = floor(rr * 5.0);
     float cell = floor(sa + ring * 0.5);
     float h = hash2(vec2(cell, ring));
     vec3 glass = h < 0.33 ? vec3(0.1, 0.25, 0.85) : h < 0.6 ? vec3(0.85, 0.1, 0.15) : h < 0.82 ? vec3(0.95, 0.75, 0.2) : vec3(0.1, 0.6, 0.35);
-    float lead = smoothstep(0.0, 0.08, abs(fract(sa + ring * 0.5) - 0.5) - 0.42) + smoothstep(0.0, 0.06, abs(fract(rr * 5.0) - 0.5) - 0.44);
+    float lead = smoothstep(0.0, 0.08, abs(fract(sa + ring * 0.5) - 0.5) - 0.42) + smoothstep(0.0, 0.06, abs(fract(rr * 7.0) - 0.5) - 0.44);
     float petal = smoothstep(0.02, 0.0, abs(rr - 0.5 - 0.08 * cos(ang * 8.0)) - 0.012);
-    vec3 win = glass * (0.9 + 0.5 * noise(vec3(sa * 3.0, rr * 9.0, 0.0))) * (0.9 + 0.8 * uLevel + 0.5 * uBeat);
+    vec3 win = glass * (0.55 + 0.8 * noise(vec3(sa * 4.0, rr * 30.0, 0.0))) * (0.9 + 0.8 * uLevel + 0.5 * uBeat);
     win = mix(win, vec3(0.02), clamp(lead + petal, 0.0, 1.0));
     win = mix(win, vec3(1.0, 0.9, 0.7) * 1.5, smoothstep(0.08, 0.0, rr));
     c = mix(c, win, smoothstep(R, R - 0.01, a));
