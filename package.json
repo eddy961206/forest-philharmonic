@@ -1,0 +1,17 @@
+{
+  "name": "forest-philharmonic",
+  "version": "1.0.0",
+  "description": "숲속 동물 오케스트라가 3D 콘서트홀에서 클래식을 연주하는 힐링 웹 — spatial-audio animal orchestra in the browser",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "build:music": "python3 tools/build_music.py --fetch",
+    "build:samples": "python3 tools/fetch_samples.py && python3 tools/analyze_samples.py"
+  }
+}
