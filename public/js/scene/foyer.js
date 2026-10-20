@@ -3,7 +3,7 @@
 // floors, a crystal chandelier in the atrium and tall windows onto the
 // moonlit forest. You arrive here, and you climb from here to the balconies.
 import * as THREE from 'three';
-import { M } from './materials.js';
+import { M, phys } from './materials.js';
 import { HALL, LEVELS, LEVEL_NAMES, FOYER, FOYER_COLUMNS, SPIRAL, SPIRAL_RISE, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, spiralAngle, BRIDGE_END } from './hallplan.js';
 import { mergeAll, wallSeg, buildChandelier, nightForestTexture } from './hall.js';
 
@@ -60,7 +60,7 @@ function sign(parent, text, sub, pos, yaw, w = 1.2) {
   parent.add(m);
 }
 
-export function buildFoyer(group, { halo }) {
+export function buildFoyer(group, { halo, lite = false }) {
   const H = HALL;
   const Y1 = LEVELS[0];
   const top = LEVELS[3] + 5;
@@ -419,7 +419,7 @@ export function buildFoyer(group, { halo }) {
     ott.push(new THREE.CylinderGeometry(0.28, 0.32, 0.6, 20).translate(x, Y1 + 0.6, 37.6));
     giltG.push(new THREE.TorusGeometry(1.0, 0.03, 6, 40).rotateX(Math.PI / 2).translate(x, Y1 + 0.05, 37.6));
   }
-  add(group, ott, new THREE.MeshPhysicalMaterial({ color: '#5c1520', roughness: 0.8, sheen: 1, sheenColor: new THREE.Color('#ff9a8a') }));
+  add(group, ott, phys({ color: '#5c1520', roughness: 0.8, sheen: 1, sheenColor: new THREE.Color('#ff9a8a') }));
   add(group, giltG, M.gilt());
 
   // ---------------------------------------------------------- chandelier
@@ -434,6 +434,7 @@ export function buildFoyer(group, { halo }) {
   pl.position.copy(ch.group.position).add(V(0, -1, 0));
   group.add(pl);
   lights.push(pl);
+  if (lite) return { lights };
   const low = new THREE.PointLight('#ffd6a8', 3, 18, 1.4);
   low.position.set(0, Y1 + 4.6, 37.5);
   group.add(low);

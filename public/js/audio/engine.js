@@ -48,9 +48,11 @@ export class AudioEngine {
     this.volume = 0.8;
   }
 
-  async init() {
+  // lite: phones - a lower sample rate, shorter samples, cheaper panning
+  async init({ lite = false } = {}) {
+    this.lite = lite;
     const AC = window.AudioContext || window.webkitAudioContext;
-    this.ctx = new AC({ latencyHint: 'playback', sampleRate: 48000 });
+    this.ctx = new AC({ latencyHint: 'playback', sampleRate: lite ? 24000 : 48000 });
     const ctx = this.ctx;
 
     // make-up gain in front of the dynamics so the glue/limiter see real levels
@@ -100,7 +102,7 @@ export class AudioEngine {
     const occ = (src) => {
       const lp = ctx.createBiquadFilter();
       lp.type = 'lowpass';
-      lp.frequency.value = 20000;
+      lp.frequency.value = this._hz(20000);
       lp.Q.value = 0.5;
       const g = ctx.createGain();
       src.connect(lp).connect(g).connect(this.makeup);
@@ -123,7 +125,10 @@ export class AudioEngine {
     const manifest = await (await fetch(`${base}/manifest.json`)).json();
     const jobs = [];
     for (const [inst, notes] of Object.entries(manifest)) {
-      const midis = Object.keys(notes).map(Number).sort((a, b) => a - b);
+      let midis = Object.keys(notes).map(Number).sort((a, b) => a - b);
+      // phones: every other sample (neighbours are pitch-shifted a little
+      // further), half the memory and half the loading
+      if (this.lite && midis.length > 8) midis = midis.filter((_, i) => i % 2 === 0 || i === midis.length - 1);
       this.samples[inst] = { notes: midis, buf: new Map(), meta: notes };
       for (const m of midis) jobs.push([inst, m]);
     }
@@ -136,7 +141,7 @@ export class AudioEngine {
             const res = await fetch(`${base}/${inst}/${m}.mp3`);
             const arr = await res.arrayBuffer();
             const buf = await this.ctx.decodeAudioData(arr);
-            this.samples[inst].buf.set(m, buf);
+            this.samples[inst].buf.set(m, this._compact(buf, this.samples[inst].meta[m]));
             break;
           } catch (e) {
             if (attempt === 2) console.warn('sample failed', inst, m, e);
@@ -148,6 +153,30 @@ export class AudioEngine {
     };
     await Promise.all(Array.from({ length: 6 }, worker));
   }
+
+  // Keep samples small: every section is summed to mono before its panner
+  // anyway, so store mono (half the memory, same sound). On phones also cut
+  // the long decays after 4.5 s with a short fade.
+  _compact(buf, meta) {
+    const sr = buf.sampleRate;
+    const keep = this.lite ? Math.min(buf.length, Math.floor(((meta?.s || 0) + 4.5) * sr)) : buf.length;
+    const out = this.ctx.createBuffer(1, keep, sr);
+    const o = out.getChannelData(0);
+    const n = buf.numberOfChannels;
+    for (let c = 0; c < n; c++) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < keep; i++) o[i] += d[i] / n;
+    }
+    if (keep < buf.length) {
+      const f = Math.floor(0.25 * sr);
+      for (let i = 0; i < f; i++) o[keep - f + i] *= 1 - i / f;
+    }
+    return out;
+  }
+
+  // filter cutoffs stay under Nyquist (phones run at 24 kHz; above it
+  // every update logs a warning)
+  _hz(f) { return Math.min(f, this.ctx.sampleRate * 0.49); }
 
   _nearest(inst, midi) {
     const s = this.samples[inst];
@@ -195,7 +224,7 @@ export class AudioEngine {
       const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
       s.distance = d;
       const cutoff = Math.max(3800, 21000 / (1 + d * 0.055));
-      s.air.frequency.setTargetAtTime(cutoff, t, 0.08);
+      s.air.frequency.setTargetAtTime(this._hz(cutoff), t, 0.08);
     }
   }
 
@@ -210,10 +239,10 @@ export class AudioEngine {
       const focus = new GainNode(ctx, { channelCount: 1, channelCountMode: 'explicit', channelInterpretation: 'speakers' });
       const air = ctx.createBiquadFilter();
       air.type = 'lowpass';
-      air.frequency.value = 16000;
+      air.frequency.value = this._hz(16000);
       air.Q.value = 0.5;
       const panner = new PannerNode(ctx, {
-        panningModel: 'HRTF',
+        panningModel: this.lite ? 'equalpower' : 'HRTF',
         distanceModel: 'inverse',
         refDistance: 3.2,
         maxDistance: 120,
@@ -252,8 +281,8 @@ export class AudioEngine {
     this._open = open;
     const t = this.ctx.currentTime;
     const cutoff = 650 * Math.pow(20000 / 650, Math.pow(open, 0.8));
-    this.occDry.lp.frequency.setTargetAtTime(cutoff, t, 0.3);
-    this.occWet.lp.frequency.setTargetAtTime(Math.min(20000, cutoff * 1.6), t, 0.3);
+    this.occDry.lp.frequency.setTargetAtTime(this._hz(cutoff), t, 0.3);
+    this.occWet.lp.frequency.setTargetAtTime(this._hz(cutoff * 1.6), t, 0.3);
     this.occDry.g.gain.setTargetAtTime(0.17 + 0.83 * Math.pow(open, 1.3), t, 0.3);
     this.occWet.g.gain.setTargetAtTime(0.48 + 0.52 * open, t, 0.3);
   }
@@ -316,7 +345,7 @@ export class AudioEngine {
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     const pitchLift = Math.pow(2, (midi - 60) / 36);
-    filter.frequency.value = Math.min(20000, (fam.bright[0] + (fam.bright[1] - fam.bright[0]) * v * v) * pitchLift);
+    filter.frequency.value = this._hz((fam.bright[0] + (fam.bright[1] - fam.bright[0]) * v * v) * pitchLift);
     filter.Q.value = 0.4;
     const env = ctx.createGain();
     env.gain.value = 0;
@@ -546,7 +575,7 @@ export async function generateHallIR(ctx, { rt60 = 2.3, preDelay = 0.02, length 
   const lp = off.createBiquadFilter();
   lp.type = 'lowpass';
   lp.Q.value = 0.3;
-  lp.frequency.setValueAtTime(14000, 0);
+  lp.frequency.setValueAtTime(Math.min(14000, off.sampleRate * 0.49), 0);
   lp.frequency.exponentialRampToValueAtTime(5200, 0.25);
   lp.frequency.exponentialRampToValueAtTime(1400, length * 0.75);
   lp.frequency.exponentialRampToValueAtTime(700, length);

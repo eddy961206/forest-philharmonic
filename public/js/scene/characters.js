@@ -2,8 +2,8 @@
 // arms. Local frame: right = +X, up = +Y, forward = -Z. Origin on the floor
 // under the seat.
 import * as THREE from 'three';
-import { furMaterial, clothMaterial, plainMaterial, M } from './materials.js';
-import { mergeChildren } from './merge.js';
+import { furMaterial, clothMaterial, plainMaterial, isLite, M } from './materials.js';
+import { mergeChildren, bakeColor } from './merge.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const UP = V(0, 1, 0);
@@ -25,6 +25,41 @@ const SPECIES = {
   lion: { ears: 'round', snout: 0.4, muzzle: '#f7e2bd', nose: '#5a3a2a', mane: '#b5652a' },
   owl: { ears: 'tufts', snout: 0, muzzle: '#f2e2c4', nose: '#e0a33a', beak: true, bigEyes: true },
 };
+
+// phones: half the tessellation
+const sphereG = (r, w, h, ...rest) => new THREE.SphereGeometry(r, isLite() ? Math.max(6, Math.round(w / 2)) : w, isLite() ? Math.max(4, Math.round(h / 2)) : h, ...rest);
+const capsuleG = (r, len, cs, rs) => new THREE.CapsuleGeometry(r, len, isLite() ? Math.max(2, cs >> 1) : cs, isLite() ? Math.max(6, rs >> 1) : rs);
+
+// Phones: the arms of every animal are drawn as two instanced meshes (arm
+// segments, paws). The IK still moves per-character proxies; syncLiteArms()
+// copies their world matrices across before each render.
+const liteArms = [];
+let liteSeg = null;
+let litePaw = null;
+export function liteArmMeshes() {
+  if (liteSeg || !liteArms.length) return [];
+  const make = (geo, list) => {
+    const m = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ roughness: 0.75 }), list.length);
+    list.forEach((e, i) => m.setColorAt(i, e.color));
+    m.frustumCulled = false;
+    m.userData.list = list;
+    return m;
+  };
+  liteSeg = make(new THREE.CapsuleGeometry(0.055, 0.17, 2, 8), liteArms.filter((e) => e.seg));
+  litePaw = make(new THREE.SphereGeometry(0.058, 10, 7), liteArms.filter((e) => !e.seg));
+  return [liteSeg, litePaw];
+}
+const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+const shown = (o) => { for (; o; o = o.parent) if (!o.visible) return false; return true; };
+export function syncLiteArms() {
+  if (!liteSeg) return;
+  const roots = new Set(liteArms.map((e) => e.root));
+  for (const r of roots) if (shown(r)) r.updateMatrixWorld(true);
+  for (const m of [liteSeg, litePaw]) {
+    m.userData.list.forEach((e, i) => m.setMatrixAt(i, shown(e.proxy) ? e.proxy.matrixWorld : ZERO));
+    m.instanceMatrix.needsUpdate = true;
+  }
+}
 
 export function buildCharacter(spec, sectionColor = '#ffffff') {
   const sp = SPECIES[spec.species] || SPECIES.bear;
@@ -64,15 +99,15 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   for (const sx of [-1, 1]) {
     const pivot = new THREE.Group();
     pivot.position.set(sx * 0.09, STAND_HIP, 0);
-    add(pivot, new THREE.CapsuleGeometry(0.075, STAND_HIP - 0.12, 4, 10), trouser, V(0, -STAND_HIP / 2 + 0.02, 0));
-    add(pivot, new THREE.SphereGeometry(0.085, 12, 8), dark, V(0, -STAND_HIP + 0.05, -0.04)).scale.set(1, 0.6, 1.4);
+    add(pivot, capsuleG(0.075, STAND_HIP - 0.12, 4, 10), trouser, V(0, -STAND_HIP / 2 + 0.02, 0));
+    add(pivot, sphereG(0.085, 12, 8), dark, V(0, -STAND_HIP + 0.05, -0.04)).scale.set(1, 0.6, 1.4);
     legsStand.add(pivot);
     legPivots.push(pivot);
     if (!standing) {
-      const thigh = add(legsSit, new THREE.CapsuleGeometry(0.075, 0.2, 4, 10), trouser, V(sx * 0.1, hipY, -0.12));
+      const thigh = add(legsSit, capsuleG(0.075, 0.2, 4, 10), trouser, V(sx * 0.1, hipY, -0.12));
       thigh.rotation.x = Math.PI / 2;
-      add(legsSit, new THREE.CapsuleGeometry(0.068, hipY - 0.16, 4, 10), trouser, V(sx * 0.11, hipY / 2 + 0.02, -0.26));
-      add(legsSit, new THREE.SphereGeometry(0.08, 12, 8), dark, V(sx * 0.11, 0.05, -0.31)).scale.set(1, 0.6, 1.4);
+      add(legsSit, capsuleG(0.068, hipY - 0.16, 4, 10), trouser, V(sx * 0.11, hipY / 2 + 0.02, -0.26));
+      add(legsSit, sphereG(0.08, 12, 8), dark, V(sx * 0.11, 0.05, -0.31)).scale.set(1, 0.6, 1.4);
     }
   }
   legsStand.visible = standing;
@@ -80,7 +115,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
 
   // ---- torso
   const torsoY = hipY + 0.2;
-  const torso = add(body, new THREE.CapsuleGeometry(0.19, 0.2, 6, 16), coat, V(0, torsoY, 0));
+  const torso = add(body, capsuleG(0.19, 0.2, 6, 16), coat, V(0, torsoY, 0));
   torso.scale.set(1.08, 1, 0.92);
   if (isDress) {
     // flowing skirt over the lap/legs
@@ -93,7 +128,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     sash.scale.set(1.08, 0.92, 1);
   } else {
     // shirt front and bow tie
-    const front = add(body, new THREE.SphereGeometry(0.12, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), shirt, V(0, torsoY + 0.1, -0.14), { cast: false });
+    const front = add(body, sphereG(0.12, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), shirt, V(0, torsoY + 0.1, -0.14), { cast: false });
     front.rotation.x = -Math.PI / 2 - 0.25;
     front.scale.set(0.8, 1, 0.55);
     // tails behind the chair
@@ -107,7 +142,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     const w = add(tie, new THREE.ConeGeometry(0.035, 0.07, 4), accent, V(sx * 0.035, 0, 0), { cast: false });
     w.rotation.z = (sx * Math.PI) / 2;
   }
-  add(tie, new THREE.SphereGeometry(0.018, 8, 6), accent, V(0, 0, 0), { cast: false });
+  add(tie, sphereG(0.018, 8, 6), accent, V(0, 0, 0), { cast: false });
 
   // ---- head
   const neckY = torsoY + 0.3;
@@ -115,22 +150,22 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   head.position.set(0, neckY + 0.22, 0);
   body.add(head);
   const headR = 0.27;
-  const skull = add(head, new THREE.SphereGeometry(headR, 32, 24), sp.face ? furMaterial(sp.face) : fur, V(0, 0, 0));
+  const skull = add(head, sphereG(headR, 32, 24), sp.face ? furMaterial(sp.face) : fur, V(0, 0, 0));
   skull.scale.set(1.05, 0.95, 0.97);
 
   // snout / muzzle
   if (sp.snout > 0) {
-    const sn = add(head, new THREE.SphereGeometry(0.11, 20, 14), muzzleMat, V(0, -0.07, -0.21));
+    const sn = add(head, sphereG(0.11, 20, 14), muzzleMat, V(0, -0.07, -0.21));
     sn.scale.set(1.15, 0.8, 0.7 + sp.snout * 0.9);
     if (sp.pointy) sn.scale.set(0.95, 0.7, 1.5);
-    const nose = add(head, new THREE.SphereGeometry(sp.bigNose ? 0.05 : 0.028, 12, 8), plainMaterial(sp.nose, { roughness: 0.25 }), V(0, -0.03, -0.23 - sp.snout * 0.11 - (sp.pointy ? 0.06 : 0)), { cast: false });
+    const nose = add(head, sphereG(sp.bigNose ? 0.05 : 0.028, 12, 8), plainMaterial(sp.nose, { roughness: 0.25 }), V(0, -0.03, -0.23 - sp.snout * 0.11 - (sp.pointy ? 0.06 : 0)), { cast: false });
     nose.scale.set(1.3, sp.bigNose ? 1.4 : 0.9, 1);
     // mouth: small smile
     const mouth = add(head, new THREE.TorusGeometry(0.022, 0.005, 6, 12, Math.PI), dark, V(0, -0.1, -0.29 - sp.snout * 0.05), { cast: false });
     mouth.rotation.z = Math.PI;
   }
   // open mouth (singing); scaled by the choir rig, invisible otherwise
-  const mouthOpen = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), plainMaterial('#5a1d22', { roughness: 0.6 }));
+  const mouthOpen = new THREE.Mesh(sphereG(0.03, 12, 8), plainMaterial('#5a1d22', { roughness: 0.6 }));
   mouthOpen.position.set(0, -0.1, -0.29 - sp.snout * 0.05);
   mouthOpen.scale.set(1, 0.001, 0.5);
   mouthOpen.visible = false;
@@ -138,20 +173,20 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   if (sp.beak) {
     const beak = add(head, new THREE.ConeGeometry(0.04, 0.09, 8), plainMaterial(sp.nose, { roughness: 0.3 }), V(0, -0.06, -0.26), { cast: false });
     beak.rotation.x = -Math.PI / 2 - 0.4;
-    const face = add(head, new THREE.SphereGeometry(0.2, 20, 14), muzzleMat, V(0, -0.01, -0.12));
+    const face = add(head, sphereG(0.2, 20, 14), muzzleMat, V(0, -0.01, -0.12));
     face.scale.set(1.15, 0.85, 0.6);
   }
 
   // patches & masks
   if (sp.patches) {
     for (const sx of [-1, 1]) {
-      const p = add(head, new THREE.SphereGeometry(0.065, 12, 8), plainMaterial(sp.patches), V(sx * 0.1, 0.02, -0.2), { cast: false });
+      const p = add(head, sphereG(0.065, 12, 8), plainMaterial(sp.patches), V(sx * 0.1, 0.02, -0.2), { cast: false });
       p.scale.set(1, 1.3, 0.5);
       p.rotation.z = sx * 0.5;
     }
   }
   if (sp.mask) {
-    const mk = add(head, new THREE.SphereGeometry(0.26, 24, 12, 0, Math.PI * 2, Math.PI * 0.42, Math.PI * 0.16), plainMaterial(sp.mask), V(0, 0, 0), { cast: false });
+    const mk = add(head, sphereG(0.26, 24, 12, 0, Math.PI * 2, Math.PI * 0.42, Math.PI * 0.16), plainMaterial(sp.mask), V(0, 0, 0), { cast: false });
     mk.scale.set(1.08, 0.98, 1.0);
   }
 
@@ -163,9 +198,9 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   for (const sx of [-1, 1]) {
     const ep = V(sx * (sp.bigEyes ? 0.1 : 0.095), 0.03, -0.235);
     if (sp.bigEyes) add(head, new THREE.CircleGeometry(0.075, 20), plainMaterial('#fff6dc', { roughness: 0.5 }), ep.clone().add(V(0, 0, 0.012)), { cast: false }).rotation.y = Math.PI;
-    const eye = add(eyes.open, new THREE.SphereGeometry(eyeR, 16, 12), plainMaterial('#120c0a', { roughness: 0.15 }), ep, { cast: false });
+    const eye = add(eyes.open, sphereG(eyeR, 16, 12), plainMaterial('#120c0a', { roughness: 0.15 }), ep, { cast: false });
     eye.scale.set(1, 1.15, 0.6);
-    add(eye, new THREE.SphereGeometry(eyeR * 0.32, 8, 6), new THREE.MeshBasicMaterial({ color: '#ffffff' }), V(eyeR * 0.3, eyeR * 0.35, -eyeR * 0.7), { cast: false });
+    add(eye, sphereG(eyeR * 0.32, 8, 6), new THREE.MeshBasicMaterial({ color: '#ffffff' }), V(eyeR * 0.3, eyeR * 0.35, -eyeR * 0.7), { cast: false });
     add(eyes.closed, new THREE.TorusGeometry(eyeR * 0.85, 0.008, 6, 12, Math.PI), dark, ep.clone().add(V(0, -0.005, 0)), { cast: false });
   }
   // blush
@@ -189,28 +224,28 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   for (const sx of [-1, 1]) {
     switch (sp.ears) {
       case 'round': {
-        const e = add(head, new THREE.SphereGeometry(0.085, 16, 12), earMat, V(sx * 0.19, 0.19, 0.01));
+        const e = add(head, sphereG(0.085, 16, 12), earMat, V(sx * 0.19, 0.19, 0.01));
         e.scale.set(1, 1, 0.5);
         break;
       }
       case 'big': {
-        const e = add(head, new THREE.SphereGeometry(0.12, 16, 12), earMat, V(sx * 0.2, 0.2, 0.03));
+        const e = add(head, sphereG(0.12, 16, 12), earMat, V(sx * 0.2, 0.2, 0.03));
         e.scale.set(1, 1, 0.35);
-        const i = add(head, new THREE.SphereGeometry(0.085, 16, 12), innerMat, V(sx * 0.2, 0.2, -0.0), { cast: false });
+        const i = add(head, sphereG(0.085, 16, 12), innerMat, V(sx * 0.2, 0.2, -0.0), { cast: false });
         i.scale.set(1, 1, 0.2);
         break;
       }
       case 'fluffy': {
-        const e = add(head, new THREE.SphereGeometry(0.11, 16, 12), earMat, V(sx * 0.25, 0.13, 0.02));
+        const e = add(head, sphereG(0.11, 16, 12), earMat, V(sx * 0.25, 0.13, 0.02));
         e.scale.set(0.8, 1, 0.55);
-        add(head, new THREE.SphereGeometry(0.07, 12, 10), furMaterial('#f1efea'), V(sx * 0.25, 0.13, -0.03), { cast: false }).scale.set(0.8, 1, 0.4);
+        add(head, sphereG(0.07, 12, 10), furMaterial('#f1efea'), V(sx * 0.25, 0.13, -0.03), { cast: false }).scale.set(0.8, 1, 0.4);
         break;
       }
       case 'long': {
-        const e = add(head, new THREE.CapsuleGeometry(0.055, 0.28, 6, 12), earMat, V(sx * 0.09, 0.38, 0.02));
+        const e = add(head, capsuleG(0.055, 0.28, 6, 12), earMat, V(sx * 0.09, 0.38, 0.02));
         e.rotation.z = -sx * 0.12;
         e.scale.set(1, 1, 0.5);
-        const i = add(head, new THREE.CapsuleGeometry(0.034, 0.22, 6, 10), innerMat, V(sx * 0.09, 0.38, -0.01), { cast: false });
+        const i = add(head, capsuleG(0.034, 0.22, 6, 10), innerMat, V(sx * 0.09, 0.38, -0.01), { cast: false });
         i.rotation.z = -sx * 0.12;
         i.scale.set(1, 1, 0.3);
         break;
@@ -231,13 +266,13 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
         break;
       }
       case 'side': {
-        const e = add(head, new THREE.SphereGeometry(0.08, 14, 10), earMat, V(sx * 0.26, 0.08, 0.02));
+        const e = add(head, sphereG(0.08, 14, 10), earMat, V(sx * 0.26, 0.08, 0.02));
         e.scale.set(1.5, 0.55, 0.35);
         e.rotation.z = sx * 0.35;
         break;
       }
       case 'small': {
-        add(head, new THREE.SphereGeometry(0.05, 12, 8), earMat, V(sx * 0.18, 0.17, 0.0)).scale.set(1, 1, 0.5);
+        add(head, sphereG(0.05, 12, 8), earMat, V(sx * 0.18, 0.17, 0.0)).scale.set(1, 1, 0.5);
         break;
       }
       case 'tufts': {
@@ -252,9 +287,9 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     for (let i = 0; i < 16; i++) {
       const a = (i / 16) * Math.PI * 2;
       const r = 0.2 + (i % 2) * 0.03;
-      add(head, new THREE.SphereGeometry(0.075, 10, 8), fur, V(Math.cos(a) * r * 0.9, 0.14 + Math.sin(a * 2) * 0.03, Math.sin(a) * r * 0.75 + 0.03));
+      add(head, sphereG(0.075, 10, 8), fur, V(Math.cos(a) * r * 0.9, 0.14 + Math.sin(a * 2) * 0.03, Math.sin(a) * r * 0.75 + 0.03));
     }
-    add(head, new THREE.SphereGeometry(0.12, 12, 10), fur, V(0, 0.22, 0.02));
+    add(head, sphereG(0.12, 12, 10), fur, V(0, 0.22, 0.02));
   }
   if (sp.spines) {
     const spineMat = plainMaterial(sp.spines, { roughness: 0.8 });
@@ -271,7 +306,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     const maneMat = furMaterial(sp.mane);
     for (let i = 0; i < 14; i++) {
       const a = (i / 14) * Math.PI * 2;
-      add(head, new THREE.SphereGeometry(0.1, 10, 8), maneMat, V(Math.cos(a) * 0.27, Math.sin(a) * 0.25 - 0.02, 0.06));
+      add(head, sphereG(0.1, 10, 8), maneMat, V(Math.cos(a) * 0.27, Math.sin(a) * 0.25 - 0.02, 0.06));
     }
   }
   if (sp.spots) {
@@ -282,9 +317,9 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   // tails (behind the chair)
   if (['fox', 'cat', 'squirrel', 'lion', 'raccoon', 'mouse'].includes(spec.species)) {
     const big = spec.species === 'squirrel' || spec.species === 'fox';
-    const tail = add(root, new THREE.CapsuleGeometry(big ? 0.1 : 0.04, big ? 0.36 : 0.32, 6, 10), fur, V(0.08, hipY + (big ? 0.25 : 0.05), 0.32));
+    const tail = add(root, capsuleG(big ? 0.1 : 0.04, big ? 0.36 : 0.32, 6, 10), fur, V(0.08, hipY + (big ? 0.25 : 0.05), 0.32));
     tail.rotation.x = big ? -0.35 : 0.9;
-    if (spec.species === 'fox') add(tail, new THREE.SphereGeometry(0.08, 10, 8), furMaterial('#fff6ea'), V(0, big ? 0.26 : 0.2, 0));
+    if (spec.species === 'fox') add(tail, sphereG(0.08, 10, 8), furMaterial('#fff6ea'), V(0, big ? 0.26 : 0.2, 0));
     if (spec.species === 'raccoon') {
       for (let k = 0; k < 3; k++) add(tail, new THREE.TorusGeometry(0.042, 0.012, 6, 12), plainMaterial('#3b3634'), V(0, -0.1 + k * 0.1, 0), { cast: false }).rotation.x = Math.PI / 2;
     }
@@ -297,14 +332,38 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   for (const side of ['L', 'R']) {
     const sx = side === 'R' ? 1 : -1;
     const shoulder = V(sx * 0.2, shoulderY, -0.01);
-    const upper = add(body, new THREE.CapsuleGeometry(0.055, 0.17, 4, 10), sleeve, V());
-    const fore = add(body, new THREE.CapsuleGeometry(0.048, 0.17, 4, 10), sleeve, V());
+    const upper = add(body, capsuleG(0.055, 0.17, 4, 10), sleeve, V());
+    const fore = add(body, capsuleG(0.048, 0.17, 4, 10), sleeve, V());
     const cuff = add(body, new THREE.CylinderGeometry(0.05, 0.05, 0.03, 12), shirt, V(), { cast: false });
-    const paw = add(body, new THREE.SphereGeometry(0.058, 14, 10), fur, V());
+    const paw = add(body, sphereG(0.058, 14, 10), fur, V());
     paw.scale.set(1, 0.85, 1.1);
     arms[side] = { shoulder, upper, fore, cuff, paw, a: 0.25, b: 0.25, elbow: V(), wrist: V() };
   }
 
+  if (isLite()) {
+    // phones: no see-through blush; every part takes the shared vertex-coloured
+    // material (see merge.js), and the cuff rides on the paw: one mesh per hand
+    const blush = [];
+    root.traverse((o) => { if (o.isMesh && o.material.transparent) blush.push(o); });
+    for (const o of blush) o.parent.remove(o);
+    root.traverse((o) => { if (o.isMesh) bakeColor(o); });
+    // arms become proxies for the shared instanced arms (no cuffs)
+    for (const A of Object.values(arms)) {
+      for (const k of ['upper', 'fore', 'paw', 'cuff']) {
+        const px = new THREE.Object3D();
+        px.scale.copy(A[k].scale);
+        body.remove(A[k]);
+        if (k !== 'cuff') body.add(px);
+        A[k] = px;
+      }
+      A.fore.scale.set(0.048 / 0.055, 1, 0.048 / 0.055);
+      liteArms.push(
+        { proxy: A.upper, root, color: sleeve.color, seg: true },
+        { proxy: A.fore, root, color: sleeve.color, seg: true },
+        { proxy: A.paw, root, color: fur.color, seg: false },
+      );
+    }
+  }
   // bake rigid parts into a few meshes (animated parts stay separate)
   mergeChildren(eyes.open);
   mergeChildren(eyes.closed);

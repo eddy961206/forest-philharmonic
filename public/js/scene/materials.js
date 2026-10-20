@@ -4,6 +4,19 @@ import * as THREE from 'three';
 let maxAniso = 8;
 export function setAnisotropy(n) { maxAniso = n; }
 
+// Lite (phones): physical extras - clearcoat, sheen - are dropped and the
+// same looks are made with the plain standard material.
+let lite = false;
+export function setLite(v) { lite = v; }
+export const isLite = () => lite;
+const PHYSICAL_ONLY = ['clearcoat', 'clearcoatRoughness', 'sheen', 'sheenColor', 'sheenRoughness', 'transmission', 'thickness', 'ior', 'iridescence'];
+export function phys(opts) {
+  if (!lite) return new THREE.MeshPhysicalMaterial(opts);
+  const o = { ...opts };
+  for (const k of PHYSICAL_ONLY) delete o[k];
+  return new THREE.MeshStandardMaterial(o);
+}
+
 function canvas(w, h) {
   const c = document.createElement('canvas');
   c.width = w;
@@ -408,7 +421,7 @@ function once(key, fn) {
 }
 
 export const M = {
-  stageWood: () => once('stageWood', () => new THREE.MeshPhysicalMaterial({
+  stageWood: () => once('stageWood', () => phys({
     map: tex(woodTexture({ base: '#a8743f', dark: '#6b4220', light: '#d2a36a', seed: 11, planks: 6 }), { repeat: [7, 7] }),
     roughness: 0.55, clearcoat: 0.12, clearcoatRoughness: 0.55,
   })),
@@ -427,14 +440,14 @@ export const M = {
   carpet: () => once('carpet', () => new THREE.MeshStandardMaterial({
     map: tex(carpetTexture(), { repeat: [3, 18] }), roughness: 0.95,
   })),
-  velvet: () => once('velvet', () => new THREE.MeshPhysicalMaterial({
+  velvet: () => once('velvet', () => phys({
     map: tex(velvetTexture()), color: '#ffffff', roughness: 0.85, sheen: 1, sheenColor: new THREE.Color('#ff8a8a'), sheenRoughness: 0.45,
   })),
   gold: () => once('gold', () => new THREE.MeshStandardMaterial({ color: '#b98b45', metalness: 1, roughness: 0.4 })),
   brass: () => once('brass', () => new THREE.MeshStandardMaterial({ color: '#e2b851', metalness: 1, roughness: 0.18 })),
   silver: () => once('silver', () => new THREE.MeshStandardMaterial({ color: '#e7e9ee', metalness: 1, roughness: 0.15 })),
   copper: () => once('copper', () => new THREE.MeshStandardMaterial({ color: '#c47a4a', metalness: 1, roughness: 0.3 })),
-  blackLacquer: () => once('blackLacquer', () => new THREE.MeshPhysicalMaterial({ color: '#08080a', roughness: 0.22, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05 })),
+  blackLacquer: () => once('blackLacquer', () => phys({ color: '#08080a', roughness: 0.22, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05 })),
   blackMatte: () => once('blackMatte', () => new THREE.MeshStandardMaterial({ color: '#141416', roughness: 0.7 })),
   ebony: () => once('ebony', () => new THREE.MeshStandardMaterial({ color: '#0d0b0a', roughness: 0.35 })),
   ivory: () => once('ivory', () => new THREE.MeshStandardMaterial({ color: '#ddd5c2', roughness: 0.5 })),
@@ -456,7 +469,7 @@ export const M = {
     roughness: 0.42,
   })),
   fluted: () => once('fluted', () => new THREE.MeshStandardMaterial({ map: tex(flutedTexture(), { repeat: [1, 1] }), roughness: 0.5 })),
-  shell: () => once('shell', () => new THREE.MeshPhysicalMaterial({
+  shell: () => once('shell', () => phys({
     map: tex(flutedTexture({ base: '#9a5a2c', seed: 17, flutes: 12 }), { repeat: [1, 1] }),
     roughness: 0.55, clearcoat: 0.08, clearcoatRoughness: 0.6,
   })),
@@ -464,7 +477,7 @@ export const M = {
   creamWall: () => once('creamWall', () => new THREE.MeshStandardMaterial({ color: '#b39b78', roughness: 0.9 })),
   ornament: () => once('ornament', () => new THREE.MeshStandardMaterial({ map: tex(ornamentTexture(), { repeat: [1, 1] }), roughness: 0.55, metalness: 0.15 })),
   coffer: () => once('coffer', () => new THREE.MeshStandardMaterial({ map: tex(cofferTexture(), { repeat: [1, 1] }), roughness: 0.75 })),
-  marbleFloor: () => once('marbleFloor', () => new THREE.MeshPhysicalMaterial({
+  marbleFloor: () => once('marbleFloor', () => phys({
     map: tex(marbleTexture({ tiles: 4, seed: 23 }), { repeat: [1, 1] }), roughness: 0.32, clearcoat: 0.2, clearcoatRoughness: 0.35,
   })),
   marble: () => once('marble', () => new THREE.MeshStandardMaterial({ map: tex(marbleTexture({ seed: 29 }), { repeat: [1, 2] }), roughness: 0.4 })),
@@ -472,13 +485,13 @@ export const M = {
   // runners: u runs across the runner (gold borders at its edges), v along it
   carpetRoyal: () => once('carpetRoyal', () => new THREE.MeshStandardMaterial({ map: tex(carpetRoyalTexture(), { repeat: [1, 1] }), roughness: 0.95 })),
   carpetField: () => once('carpetField', () => new THREE.MeshStandardMaterial({ map: tex(carpetFieldTexture(), { repeat: [1, 1] }), roughness: 0.95 })),
-  velvetTint: () => once('velvetTint', () => new THREE.MeshPhysicalMaterial({
+  velvetTint: () => once('velvetTint', () => phys({
     map: tex(velvetTexture('#d8d8d8', 4)), color: '#ffffff', roughness: 0.9, sheen: 0.35, sheenColor: new THREE.Color('#b08a86'), sheenRoughness: 0.8,
   })),
   bulb: () => once('bulb', () => new THREE.MeshStandardMaterial({ color: '#fff2d6', emissive: '#ffcf8a', emissiveIntensity: 2.4, roughness: 0.4 })),
   crystal: () => once('crystal', () => new THREE.MeshStandardMaterial({ color: '#f4efe6', emissive: '#ffe2b0', emissiveIntensity: 0.2, metalness: 0.4, roughness: 0.2, flatShading: true })),
   // string instrument varnish: deep amber with clearcoat
-  varnish: (hue = '#8c3a12') => once(`varnish${hue}`, () => new THREE.MeshPhysicalMaterial({
+  varnish: (hue = '#8c3a12') => once(`varnish${hue}`, () => phys({
     color: hue,
     map: tex(woodTexture({ base: '#c98a52', dark: '#7a4320', light: '#e8b27a', seed: 61, w: 256, h: 512 })),
     roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.12, sheen: 0.2,
@@ -500,14 +513,14 @@ const tame = (color, max = 0.78) => {
 export function furMaterial(color) {
   return once(`fur${color}`, () => {
     const c = tame(color);
-    return new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.9, sheen: 0.22, sheenRoughness: 0.75, sheenColor: c.clone().lerp(new THREE.Color('#ffffff'), 0.1) });
+    return phys({ color: c, roughness: 0.9, sheen: 0.22, sheenRoughness: 0.75, sheenColor: c.clone().lerp(new THREE.Color('#ffffff'), 0.1) });
   });
 }
 
 export function clothMaterial(color, sheen = 0.6) {
   return once(`cloth${color}${sheen}`, () => {
     const c = tame(color, 0.8);
-    return new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.78, sheen: sheen * 0.6, sheenRoughness: 0.55, sheenColor: c.clone().lerp(new THREE.Color('#ffffff'), 0.2) });
+    return phys({ color: c, roughness: 0.78, sheen: sheen * 0.6, sheenRoughness: 0.55, sheenColor: c.clone().lerp(new THREE.Color('#ffffff'), 0.2) });
   });
 }
 

@@ -36,10 +36,11 @@ const TIES = ['#e6c07b', '#c62a3a', '#f3efe6', '#2b4a8a', '#d06a92'];
 
 // --------------------------------------------------------- part geometry
 // Seat-local frame: origin on the floor under the seat, facing -z.
-function parts() {
-  const S = (r, w = 16, h = 12) => new THREE.SphereGeometry(r, w, h);
+// lite: about a quarter of the triangles (phones)
+function parts(lite = false) {
+  const S = (r, w = 16, h = 12) => new THREE.SphereGeometry(r, lite ? Math.max(6, w >> 1) : w, lite ? Math.max(4, h >> 1) : h);
   const P = {};
-  P.torso = merge([new THREE.CapsuleGeometry(0.15, 0.13, 6, 14).scale(1.08, 1, 0.86).translate(0, 0.71, 0.11)]);
+  P.torso = merge([new THREE.CapsuleGeometry(0.15, 0.13, lite ? 3 : 6, lite ? 8 : 14).scale(1.08, 1, 0.86).translate(0, 0.71, 0.11)]);
   const legs = [];
   for (const sx of [-1, 1]) {
     legs.push(new THREE.CapsuleGeometry(0.068, 0.2, 4, 10).rotateX(Math.PI / 2).translate(sx * 0.085, 0.52, -0.05));
@@ -57,13 +58,13 @@ function parts() {
   P.patches = merge([-1, 1].map((sx) => S(0.04, 12, 8).scale(1, 1.25, 0.5).rotateZ(sx * 0.5).translate(sx * 0.064, 1.085, -0.095)));
   P.round = merge([-1, 1].map((sx) => S(0.055, 12, 8).scale(1, 1, 0.5).translate(sx * 0.115, 1.19, 0.06)));
   P.big = merge([-1, 1].map((sx) => S(0.078, 12, 8).scale(1, 1, 0.4).translate(sx * 0.14, 1.17, 0.06)));
-  P.long = merge([-1, 1].map((sx) => new THREE.CapsuleGeometry(0.036, 0.18, 4, 10).scale(1, 1, 0.5).rotateZ(-sx * 0.14).translate(sx * 0.06, 1.34, 0.07)));
+  P.long = merge([-1, 1].map((sx) => new THREE.CapsuleGeometry(0.036, 0.18, lite ? 2 : 4, lite ? 6 : 10).scale(1, 1, 0.5).rotateZ(-sx * 0.14).translate(sx * 0.06, 1.34, 0.07)));
   P.pointed = merge([-1, 1].map((sx) => new THREE.ConeGeometry(0.05, 0.1, 4).rotateY(Math.PI / 4).scale(1, 1, 0.55).rotateZ(-sx * 0.32).translate(sx * 0.095, 1.21, 0.06)));
   P.floppy = merge([-1, 1].map((sx) => S(0.06, 12, 8).scale(0.6, 1.3, 0.5).rotateZ(sx * 0.4).translate(sx * 0.16, 1.04, 0.07)));
   P.side = merge([-1, 1].map((sx) => S(0.06, 12, 8).scale(1.45, 0.5, 0.4).rotateZ(sx * 0.3).translate(sx * 0.18, 1.1, 0.06)));
-  P.mane = merge([new THREE.TorusGeometry(0.16, 0.065, 10, 20).translate(0, 1.06, 0.1)]);
+  P.mane = merge([new THREE.TorusGeometry(0.16, 0.065, lite ? 5 : 10, lite ? 10 : 20).translate(0, 1.06, 0.1)]);
   P.wool = merge([[0, 1.22, 0.05, 0.09], [-0.08, 1.19, 0.07, 0.07], [0.08, 1.19, 0.07, 0.07], [0, 1.2, 0.13, 0.07]].map(([x, y, z, r]) => S(r, 10, 8).translate(x, y, z)));
-  P.hat = merge([new THREE.CylinderGeometry(0.085, 0.09, 0.16, 18).translate(0, 1.29, 0.05), new THREE.CylinderGeometry(0.14, 0.14, 0.012, 22).translate(0, 1.212, 0.05)]);
+  P.hat = merge([new THREE.CylinderGeometry(0.085, 0.09, 0.16, lite ? 8 : 18).translate(0, 1.29, 0.05), new THREE.CylinderGeometry(0.14, 0.14, 0.012, lite ? 8 : 22).translate(0, 1.212, 0.05)]);
   P.flower = merge([[0, 0, 0], [0.025, 0.02, 0], [-0.02, 0.025, 0.01], [0.01, -0.02, 0.01]].map(([x, y, z]) => S(0.022, 8, 6).translate(0.1 + x, 1.2 + y, 0.02 + z)));
   // paws with a forearm, resting on the lap (animated toward a clap)
   for (const [k, sx] of [['pawL', -1], ['pawR', 1]]) {
@@ -99,12 +100,17 @@ function animated(mat, kind) {
 
 const KIND = { pawL: 'pawL', sleeveL: 'pawL', pawR: 'pawR', sleeveR: 'pawR', torso: 'body', legs: 'body', shoes: 'body', shirt: 'body', tie: 'body' };
 
-let GEO = null;
+const GEO = {};
+// on phones only what reads at a distance: body, head, face, ears, paws
+const LITE_PARTS = new Set(['torso', 'head', 'muzzle', 'nose', 'eyes', 'round', 'big', 'long', 'pointed', 'floppy', 'side', 'mane', 'hat', 'tie', 'pawL', 'pawR']);
+const LITE_MAX = 200;
 
 // --------------------------------------------------------------- the crowd
 // seats: hall.seats; exclude: seat indices that must stay free
-export function buildAudience(seats, { exclude = new Set(), rand = Math.random } = {}) {
-  if (!GEO) GEO = parts();
+export function buildAudience(seats, { exclude = new Set(), rand = Math.random, lite = false } = {}) {
+  const key = lite ? 'lite' : 'full';
+  if (!GEO[key]) GEO[key] = parts(lite);
+  const G = GEO[key];
   const fill = 0.22 + rand() * 0.45; // tonight's house: from a fifth to four fifths full
   const chosen = [];
   let prev = false;
@@ -125,7 +131,13 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random }
   }
 
   const lists = {};
+  // a phone gets a smaller crowd, still spread round the house
+  if (lite && chosen.length > LITE_MAX) {
+    for (let i = chosen.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [chosen[i], chosen[j]] = [chosen[j], chosen[i]]; }
+    chosen.length = LITE_MAX;
+  }
   const push = (part, m, color, phase) => {
+    if (lite && !LITE_PARTS.has(part)) return;
     if (!lists[part]) lists[part] = [];
     lists[part].push({ m, color, phase });
   };
@@ -168,7 +180,7 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random }
   const meshes = [];
   const c = new THREE.Color();
   for (const [part, list] of Object.entries(lists)) {
-    const geo = GEO[part].clone();
+    const geo = G[part].clone();
     const phases = new Float32Array(list.length);
     list.forEach((it, i) => { phases[i] = it.phase; });
     geo.setAttribute('aPhase', new THREE.InstancedBufferAttribute(phases, 1));

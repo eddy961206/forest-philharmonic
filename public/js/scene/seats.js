@@ -167,10 +167,26 @@ export function seatList() {
   return list;
 }
 
-export function buildSeats(list) {
+// Phones: the same seats as plain boxes (a tenth of the triangles)
+function liteSeat(width, armchairStyle = false) {
+  const B = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+  const w = width - 0.08;
+  const fabric = [B(w, 0.11, 0.46).translate(0, 0.44, -0.03), B(w, armchairStyle ? 0.5 : 0.56, 0.1).rotateX(-0.14).translate(0, armchairStyle ? 0.86 : 0.78, 0.25)];
+  const frame = armchairStyle
+    ? [B(0.52, 0.05, 0.48).translate(0, 0.39, -0.01), ...[[-0.21, -0.19], [0.21, -0.19], [-0.21, 0.19], [0.21, 0.19]].map(([x, z]) => B(0.035, 0.42, 0.035).translate(x, 0.21, z))]
+    : [B(0.05, 0.6, 0.5).translate(-(width / 2 - 0.02), 0.3, 0.06), B(0.05, 0.6, 0.5).translate(width / 2 - 0.02, 0.3, 0.06), B(w + 0.04, 0.6, 0.035).rotateX(-0.14).translate(0, 0.78, 0.315)];
+  const accent = [B(0.08, 0.03, 0.006).translate(0, armchairStyle ? 1.12 : 1.02, 0.34)];
+  return { fabric: merge(fabric), frame: merge(frame), accent: merge(accent) };
+}
+
+export function buildSeats(list, { lite = false } = {}) {
   const group = new THREE.Group();
   group.name = 'seats';
-  const kinds = {
+  const kinds = lite ? {
+    theater: liteSeat(0.54),
+    premium: liteSeat(0.64),
+    armchair: liteSeat(0.56, true),
+  } : {
     theater: theaterSeat(0.54),
     premium: theaterSeat(0.64, true),
     armchair: armchair(),

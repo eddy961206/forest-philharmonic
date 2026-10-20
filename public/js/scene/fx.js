@@ -98,6 +98,7 @@ function buildFireworks(scene, N = 2400) {
   let next = 0;
   const flash = new THREE.PointLight('#ffffff', 0, 40, 1.5);
   flash.position.set(0, 12, -4);
+  flash.visible = false;
   scene.add(flash);
   let flashT = 0;
   const palette = ['#ffd166', '#ff6b6b', '#4ecdc4', '#c084fc', '#f8fafc', '#fb923c', '#86efac'];
@@ -153,6 +154,7 @@ function buildFireworks(scene, N = 2400) {
       }
       flashT = Math.max(0, flashT - dt);
       flash.intensity = flashT > 0 ? 120 * (flashT / 0.25) : 0;
+      flash.visible = flashT > 0;
       let alive = 0;
       for (let i = 0; i < N; i++) {
         const it = P[i];
@@ -322,6 +324,7 @@ function buildWash(scene) {
       level += (target - level) * Math.min(1, dt * 1.2);
       lights.forEach((l, i) => {
         l.intensity = 2.2 * level;
+        l.visible = level > 0.01; // an unlit light still costs every pixel
         l.target.position.set(Math.sin(t * 0.6 + i * 2) * 5, STAGE_Y, -5 + Math.cos(t * 0.45 + i) * 3);
       });
     },

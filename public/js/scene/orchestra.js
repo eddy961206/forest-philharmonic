@@ -2,9 +2,9 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { SECTIONS, CAST, CONDUCTOR, PODIUM, STAGE_Y } from '../layout.js';
-import { buildCharacter, setArm, updateFace } from './characters.js';
+import { buildCharacter, setArm, updateFace, liteArmMeshes, syncLiteArms } from './characters.js';
 import * as I from './instruments.js';
-import { M, plainMaterial, glowTexture, noteGlyphTexture } from './materials.js';
+import { M, plainMaterial, glowTexture, noteGlyphTexture, isLite } from './materials.js';
 import { mergeChildren } from './merge.js';
 import { stageFloorY, PODIUM_H } from './hallplan.js';
 
@@ -156,6 +156,8 @@ export function buildOrchestra(scene) {
   }
   obstacles.push({ x: PODIUM.x, z: PODIUM.z - 0.42, r: 0.25 }); // the conductor's desk
 
+  // phones: everyone's arms in two instanced draws (see characters.js)
+  for (const m of liteArmMeshes()) scene.add(m);
   const particles = buildNoteParticles(group);
   const byKey = new Map(players.map((p) => [`${p.sid}:${p.ci}`, p]));
 
@@ -163,6 +165,7 @@ export function buildOrchestra(scene) {
     group, players, conductor, particles, obstacles,
     playerAt: (sid, ci) => byKey.get(`${sid}:${ci}`),
     update(t, dt, perf, opts) { updateAll(players, conductor, particles, t, dt, perf, opts); },
+    syncLite: syncLiteArms, // call after everything has moved, before rendering
     pickables: players.map((p) => p.char.root).concat([cond.root]),
   };
 }
@@ -195,6 +198,7 @@ function updateAll(players, conductor, particles, t, dt, perf, opts) {
     updateFace(p.char, dt, bliss);
     const g = opts.glow ? p.energy * 0.32 * p.ready : 0;
     p.glow.material.opacity = smooth(p.glow.material.opacity, g, 6, dt);
+    p.glow.visible = p.glow.material.opacity > 0.004; // unlit glows cost a draw each
   }
   // note particles
   if (opts.particles && opts.events) {
@@ -686,7 +690,9 @@ function updateConductor(cd, t, dt, perf, opts, energy) {
 // --------------------------------------------------------- note particles
 function buildNoteParticles(parent) {
   const glyphs = ['♪', '♫', '♩', '♬'].map(noteGlyphTexture);
-  const N = 220;
+  // each note is a draw call: phones keep a small pool and spawn half as often
+  const lite = isLite();
+  const N = lite ? 36 : 220;
   const pool = [];
   for (let i = 0; i < N; i++) {
     const mat = new THREE.SpriteMaterial({ map: glyphs[i % 4], transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
@@ -702,7 +708,7 @@ function buildNoteParticles(parent) {
   return {
     spawn(p, e, t) {
       const key = `${p.sid}:${p.ci}`;
-      const gap = p.rigKind === 'piano' || p.rigKind === 'harp' ? 0.12 : 0.22;
+      const gap = (p.rigKind === 'piano' || p.rigKind === 'harp' ? 0.12 : 0.22) * (lite ? 2 : 1);
       const last = lastSpawn.get(key);
       if (last !== undefined && t >= last && t - last < gap) return;
       if (Math.random() > 0.35 + (e.vel / 127) * 0.5) return;

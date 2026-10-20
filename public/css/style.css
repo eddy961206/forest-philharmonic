@@ -277,9 +277,10 @@ body.ui-hidden .transport { transform: translate(-50%, 20px); }
   body { font-size: 14px; }
   .transport { width: calc(100vw - 2 * var(--gutter)); }
   .transport-row { flex-wrap: wrap; }
-  .start-wrap { bottom: 170px; }
+  /* above the joystick and the jump / sit buttons */
+  .start-wrap { bottom: 316px; width: calc(100vw - 2 * var(--gutter)); }
   .look-hint { bottom: 132px; }
-  .toast { bottom: 250px; }
+  .toast { bottom: auto; top: 112px; }
   .t-mid { order: 3; width: 100%; justify-content: center; border-left: 0; margin: 0; padding: 0; }
   .vol { display: none; }
   .panel { top: auto; bottom: 150px; max-height: calc(100vh - 250px); }

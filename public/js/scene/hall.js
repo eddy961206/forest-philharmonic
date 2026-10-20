@@ -7,7 +7,7 @@
 // hallplan.js so the meshes and the walking agree.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { M, glowTexture } from './materials.js';
+import { M, glowTexture, phys } from './materials.js';
 import { STAGE_Y, PODIUM } from '../layout.js';
 import {
   HALL, rakeY, lipZ, SHELL, shellPoint, DOORS, RISERS, PODIUM_R, PODIUM_H, STAGE_STAIRS,
@@ -123,7 +123,8 @@ function sectorPrism(r0, r1, a0, a1, y0, y1, seg = 24) {
 }
 
 // ======================================================================
-export function buildHall({ quality = 'high' } = {}) {
+// lite (phones): far fewer lights, simpler seats - see main.js
+export function buildHall({ quality = 'high', lite = false } = {}) {
   const group = new THREE.Group();
   group.name = 'hall';
   const update = [];
@@ -131,6 +132,8 @@ export function buildHall({ quality = 'high' } = {}) {
   const glow = glowTexture('rgba(255,214,150,1)', 'rgba(255,170,90,0)');
   const halos = []; // { sprite, base, house }
   const halo = (pos, scale, opacity = 0.5, color = '#ffd29a', house = true) => {
+    // each glow is a draw call: phones keep only the big ones (chandeliers)
+    if (lite && scale < 2) return null;
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending }));
     s.position.copy(pos);
     s.scale.setScalar(scale * 0.7);
@@ -150,7 +153,7 @@ export function buildHall({ quality = 'high' } = {}) {
 
   // ---------------------------------------------------------------- seats
   const seats = seatList();
-  const seatData = buildSeats(seats);
+  const seatData = buildSeats(seats, { lite });
   group.add(seatData.group);
 
   // ------------------------------------------------------------ chandeliers
@@ -172,7 +175,7 @@ export function buildHall({ quality = 'high' } = {}) {
   }
 
   // ---------------------------------------------------------------- foyer
-  const foyer = buildFoyer(group, { halo });
+  const foyer = buildFoyer(group, { halo, lite });
 
   // ------------------------------------------------------------------ lights
   const lights = {};
@@ -193,8 +196,11 @@ export function buildHall({ quality = 'high' } = {}) {
   group.add(key, key.target);
   lights.key = key;
 
+  // every light is paid for by every pixel on a phone: lite keeps the key,
+  // the hemisphere and one chandelier, and makes the key a little stronger
+  if (lite) key.intensity *= 1.35;
   const fills = [];
-  for (const sx of [-1, 1]) {
+  for (const sx of lite ? [] : [-1, 1]) {
     const f = new THREE.SpotLight(sx < 0 ? '#ffd7ae' : '#ffe0bf', 180, 0, 0.42, 0.75, 2);
     f.position.set(sx * 13.2, 14.5, 3);
     f.target.position.set(sx * 2.5, STAGE_Y, -5.5);
@@ -203,31 +209,38 @@ export function buildHall({ quality = 'high' } = {}) {
   }
   lights.fills = fills;
   // back light from above the organ: a warm rim around the players
-  const rim = new THREE.SpotLight('#ffd6a0', 210, 0, 0.62, 0.8, 2);
-  rim.position.set(0, 17, -12.5);
-  rim.target.position.set(0, STAGE_Y, -3);
-  group.add(rim, rim.target);
-  lights.rim = rim;
+  if (!lite) {
+    const rim = new THREE.SpotLight('#ffd6a0', 210, 0, 0.62, 0.8, 2);
+    rim.position.set(0, 17, -12.5);
+    rim.target.position.set(0, STAGE_Y, -3);
+    group.add(rim, rim.target);
+    lights.rim = rim;
+  }
 
   // chandeliers + a soft fill under the balcony + the foyer
-  const house = chandeliers.map((c, i) => {
-    const pl = new THREE.PointLight('#ffc98a', i === 1 ? 18 : 13, 34, 1.5);
+  const house = chandeliers.filter((c, i) => !lite || i === 1).map((c) => {
+    const big = c === chandeliers[1];
+    const pl = new THREE.PointLight('#ffc98a', lite ? 30 : big ? 18 : 13, lite ? 40 : 34, 1.5);
     pl.position.copy(c.group.position);
     group.add(pl);
     return { light: pl, base: pl.intensity };
   });
-  const under = new THREE.PointLight('#ffc98a', 1.6, 12, 1.2);
-  under.position.set(0, rakeY(27) + 2.6, 27);
-  group.add(under);
-  house.push({ light: under, base: under.intensity });
+  if (!lite) {
+    const under = new THREE.PointLight('#ffc98a', 1.6, 12, 1.2);
+    under.position.set(0, rakeY(27) + 2.6, 27);
+    group.add(under);
+    house.push({ light: under, base: under.intensity });
+  }
   for (const l of foyer.lights) house.push({ light: l, base: l.intensity, foyer: true });
   lights.house = house;
 
   // moonlight through the great window
-  const moon = new THREE.SpotLight('#9ab8ff', 60, 50, 0.5, 0.8, 2);
-  moon.position.set(4, 21, H.front - 8);
-  moon.target.position.set(-1, STAGE_Y, -5);
-  group.add(moon, moon.target);
+  if (!lite) {
+    const moon = new THREE.SpotLight('#9ab8ff', 60, 50, 0.5, 0.8, 2);
+    moon.position.set(4, 21, H.front - 8);
+    moon.target.position.set(-1, STAGE_Y, -5);
+    group.add(moon, moon.target);
+  }
 
   // ------------------------------------------------------------- animation
   let houseLevel = 1;
@@ -1021,7 +1034,7 @@ function buildBalconies(group, halo) {
   addMesh(group, soffits, M.ivoryPlaster());
   const fm = addMesh(group, fronts, M.ornament(), { cast: true });
   if (fm) fm.castShadow = true;
-  addMesh(group, caps, new THREE.MeshPhysicalMaterial({ color: '#4e1019', roughness: 0.85, sheen: 0.7, sheenColor: new THREE.Color('#c86a5e') }));
+  addMesh(group, caps, phys({ color: '#4e1019', roughness: 0.85, sheen: 0.7, sheenColor: new THREE.Color('#c86a5e') }));
   addMesh(group, giltG, M.gilt());
   addMesh(group, walnut, M.walnut());
   addMesh(group, railG, M.brass());

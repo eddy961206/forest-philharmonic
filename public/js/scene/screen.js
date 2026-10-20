@@ -11,7 +11,7 @@ const W = 1024;
 const H = 576;
 const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
 
-export function buildScreen(scene, renderer) {
+export function buildScreen(scene, renderer, { lite = false } = {}) {
   const group = new THREE.Group();
   scene.add(group);
   const sw = 11.6;
@@ -24,7 +24,8 @@ export function buildScreen(scene, renderer) {
   const bezel = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.5, sh + 0.5, 0.25), M.blackMatte());
   bezel.position.set(cx, cy, cz - 0.15);
   group.add(bezel);
-  const rt = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
+  // phones: a small picture, refreshed now and then
+  const rt = lite ? new THREE.WebGLRenderTarget(384, 216) : new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
   const pic = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: rt.texture, toneMapped: false }));
   pic.position.set(cx, cy, cz);
   group.add(pic);

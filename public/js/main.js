@@ -16,7 +16,7 @@ import { buildScreen } from './scene/screen.js';
 import { buildFX } from './scene/fx.js';
 import { StageManager } from './scene/stage.js';
 import { Director, ENTRANCE } from './scene/director.js';
-import { setAnisotropy } from './scene/materials.js';
+import { setAnisotropy, setLite } from './scene/materials.js';
 import { hallOpenness } from './scene/hallplan.js';
 import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
@@ -34,11 +34,17 @@ const save = () => { try { localStorage.setItem('fp-settings', JSON.stringify(se
 const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (isTouch && window.innerWidth < 900);
 const QUALITY = {
-  high: { pr: Math.min(window.devicePixelRatio || 1, 2), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenEvery: 2 },
-  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenEvery: 3 },
-  low: { pr: 1, shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenEvery: 4 },
+  high: { pr: Math.min(window.devicePixelRatio || 1, 2), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenEvery: 2, post: true },
+  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenEvery: 3, post: true },
+  // phones: no post-processing pass, no shadows, the big screen redrawn
+  // only every ~1.5 s at a small size
+  low: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenEvery: 90, post: false },
 };
-let quality = settings.quality === 'auto' ? (isMobile ? 'medium' : 'high') : settings.quality;
+let quality = settings.quality === 'auto' ? (isMobile ? 'low' : 'high') : settings.quality;
+// Lite build (phones, or 'low' chosen): simpler seats, a smaller crowd, far
+// fewer lights, plain materials, lighter audio. Decided once at load.
+const LITE = isMobile || quality === 'low';
+let renderScale = 1; // phones: lowered further while the frame rate is poor
 
 // --------------------------------------------------------------- render
 const container = document.getElementById('stage');
@@ -51,7 +57,8 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 container.appendChild(renderer.domElement);
-setAnisotropy(Math.min(8, renderer.capabilities.getMaxAnisotropy()));
+setAnisotropy(Math.min(LITE ? 2 : 8, renderer.capabilities.getMaxAnisotropy()));
+setLite(LITE);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#0b0806');
@@ -66,8 +73,9 @@ let composer;
 let bloomPass;
 function buildComposer() {
   const q = QUALITY[quality];
+  if (composer) { composer.passes.forEach((p) => p.dispose?.()); composer.renderTarget1?.dispose(); composer.renderTarget2?.dispose(); }
+  if (!q.post) { composer = null; return; } // render straight to the screen
   const size = renderer.getDrawingBufferSize(new THREE.Vector2());
-  if (composer) composer.passes.forEach((p) => p.dispose?.());
   const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: q.msaa });
   composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
@@ -85,7 +93,7 @@ const ui = new UI({ settings, onSetting });
 ui.touch = isTouch;
 ui.setLoading('공연장을 짓는 중', 0.03);
 
-const hall = buildHall({ quality });
+const hall = buildHall({ quality, lite: LITE });
 scene.add(hall.group);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
@@ -97,13 +105,13 @@ function seatAudience(on) {
     // a new crowd every time: who comes, how many, and where they sit
     const exclude = new Set();
     if (director?.seat && director.seat.index >= 0) exclude.add(director.seat.index);
-    audience = buildAudience(hall.seats, { exclude });
+    audience = buildAudience(hall.seats, { exclude, lite: LITE });
     scene.add(audience.group);
   }
   if (director) director.occupied = audience ? audience.occupied : new Set();
 }
-const effects = buildEffects(scene, { fireflies: isMobile ? 90 : 170, dust: isMobile ? 260 : 520 });
-const screen = buildScreen(scene, renderer);
+const effects = buildEffects(scene, { fireflies: LITE ? 40 : 170, dust: LITE ? 140 : 520 });
+const screen = buildScreen(scene, renderer, { lite: LITE });
 director = new Director(camera, renderer.domElement, hall);
 director.uiTop = () => ui.bottomUiTop();
 director.hoverLook = false; // look by dragging, or click to capture the mouse
@@ -135,7 +143,7 @@ let seq = 0; // generation token for the concert sequence
 
 async function boot() {
   try {
-    await engine.init();
+    await engine.init({ lite: LITE });
   } catch (e) {
     ui.setLoading('이 브라우저에서는 소리를 낼 수 없어요. 최신 Chrome, Edge, Firefox, Safari에서 열어 주세요.', 0);
     throw e;
@@ -474,7 +482,7 @@ function onSetting(key, value) {
 
 function applyQuality() {
   const q = QUALITY[quality];
-  renderer.setPixelRatio(q.pr);
+  renderer.setPixelRatio(q.pr * (quality === 'low' ? renderScale : 1));
   renderer.shadowMap.enabled = q.shadows;
   hall.lights.key.castShadow = q.shadows;
   if (hall.lights.key.shadow.map && hall.lights.key.shadow.mapSize.x !== q.shadowSize) {
@@ -663,7 +671,9 @@ function frame() {
     screen.update(dt, { perf, time: t, phase, nextPiece }, QUALITY[quality].screenEvery);
   }
 
-  composer.render(dt);
+  orchestra.syncLite();
+  if (composer) composer.render(dt);
+  else renderer.render(scene, camera);
 
   fpsAcc += dt;
   fpsFrames++;
@@ -672,6 +682,12 @@ function frame() {
     ui.setFps(fps, quality);
     if (settings.quality === 'auto' && concertStarted) {
       if (fps < 36) lowStreak++; else lowStreak = 0;
+      if (quality === 'low' && fps < 30 && renderScale > 0.6) {
+        // already at the lightest settings: render fewer pixels
+        renderScale *= 0.85;
+        renderer.setPixelRatio(QUALITY.low.pr * renderScale);
+        onResize();
+      }
       if (lowStreak >= 2 && quality !== 'low') {
         quality = quality === 'high' ? 'medium' : 'low';
         applyQuality();
