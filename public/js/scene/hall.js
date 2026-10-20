@@ -273,7 +273,16 @@ export function buildHall({ quality = 'high', lite = false } = {}) {
 }
 
 // ================================================================= stage
-function buildStage(group) {
+// Materials of the stage and shell. The hall dresses them in walnut and
+// gilt; other venues pass their own (see sphere.js).
+const HALL_STYLE = {
+  boards: () => M.stageWood(), skirt: () => M.walnut(), trim: () => M.gilt(), rail: () => M.brass(),
+  carpet: () => M.carpetRoyal(), shell: () => M.shell(), leaf: () => M.walnut(),
+  strip: { color: '#ffd9a0', emissive: '#ffb860', intensity: 0.8 },
+  backstage: '#0b0705', shelf: true, apronPilasters: true,
+};
+
+export function buildStage(group, S = HALL_STYLE) {
   const H = HALL;
   // platform: polished boards on top, walnut skirt
   const shape = new THREE.Shape();
@@ -288,7 +297,7 @@ function buildStage(group) {
   const pos = geo.attributes.position;
   const uv = geo.attributes.uv;
   for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i) / 4, pos.getZ(i) / 4);
-  const stage = new THREE.Mesh(geo, [M.stageWood(), M.walnut()]);
+  const stage = new THREE.Mesh(geo, [S.boards(), S.skirt()]);
   stage.receiveShadow = true;
   group.add(stage);
 
@@ -296,7 +305,7 @@ function buildStage(group) {
   const curve = (y, inset = 0) => new THREE.QuadraticBezierCurve3(V(-H.stageHalfW, y, -0.3 + inset), V(0, y, 1.6 + inset), V(H.stageHalfW, y, -0.3 + inset));
   const gilt = [new THREE.TubeGeometry(curve(STAGE_Y), 96, 0.04, 8), new THREE.TubeGeometry(curve(0.16, 0.01), 96, 0.025, 6)];
   const c0 = curve(0.5, 0.012);
-  for (let i = 1; i < 24; i++) {
+  for (let i = 1; i < (S.apronPilasters ? 24 : 0); i++) {
     const p = c0.getPoint(i / 24);
     const tng = c0.getTangent(i / 24);
     const g = new THREE.BoxGeometry(0.07, STAGE_Y - 0.3, 0.03);
@@ -304,8 +313,8 @@ function buildStage(group) {
     g.translate(p.x, 0.16 + (STAGE_Y - 0.3) / 2 + 0.04, p.z);
     gilt.push(g);
   }
-  addMesh(group, gilt, M.gilt());
-  const strip = new THREE.Mesh(new THREE.TubeGeometry(curve(STAGE_Y - 0.09, 0.03), 96, 0.012, 6), new THREE.MeshStandardMaterial({ color: '#ffd9a0', emissive: '#ffb860', emissiveIntensity: 0.8 }));
+  addMesh(group, gilt, S.trim());
+  const strip = new THREE.Mesh(new THREE.TubeGeometry(curve(STAGE_Y - 0.09, 0.03), 96, 0.012, 6), new THREE.MeshStandardMaterial({ color: S.strip.color, emissive: S.strip.emissive, emissiveIntensity: S.strip.intensity }));
   group.add(strip);
 
   // risers with gilt nosing and steps at both ends
@@ -333,12 +342,12 @@ function buildStage(group) {
       }
     }
   }
-  addMesh(group, tops, M.stageWood(), { cast: false });
-  addMesh(group, sides, M.walnut(), { cast: true });
-  addMesh(group, nosing, M.gilt());
+  addMesh(group, tops, S.boards(), { cast: false });
+  addMesh(group, sides, S.skirt(), { cast: true });
+  addMesh(group, nosing, S.trim());
 
   // conductor's podium with brass rail
-  const pod = new THREE.Mesh(new THREE.CylinderGeometry(PODIUM_R - 0.05, PODIUM_R, PODIUM_H, 40), M.walnut());
+  const pod = new THREE.Mesh(new THREE.CylinderGeometry(PODIUM_R - 0.05, PODIUM_R, PODIUM_H, 40), S.skirt());
   pod.position.set(PODIUM.x, STAGE_Y + PODIUM_H / 2, PODIUM.z);
   pod.receiveShadow = true;
   pod.castShadow = true;
@@ -348,7 +357,7 @@ function buildStage(group) {
   for (const a of [0.15, Math.PI / 2, Math.PI - 0.15]) {
     podGilt.push(new THREE.CylinderGeometry(0.015, 0.015, 0.84, 8).translate(PODIUM.x + Math.cos(a) * 0.55, STAGE_Y + 0.63, PODIUM.z + Math.sin(a) * 0.55));
   }
-  addMesh(group, podGilt, M.brass());
+  addMesh(group, podGilt, S.rail());
 
   // carpeted stairs from the stalls up to the stage, brass rails
   const treads = [];
@@ -397,13 +406,13 @@ function buildStage(group) {
       }
     }
   }
-  addMesh(group, risersW, M.walnut(), { cast: true });
-  addMesh(group, treads, M.carpetRoyal());
-  addMesh(group, rails, M.brass());
+  addMesh(group, risersW, S.skirt(), { cast: true });
+  addMesh(group, treads, S.carpet());
+  addMesh(group, rails, S.rail());
 }
 
 // ================================================================= shell
-function buildShell(group) {
+export function buildShell(group, S = HALL_STYLE) {
   const top = STAGE_Y + SHELL.height;
   const doorHalf = (SHELL.doorW / 2) / SHELL.R;
   // sample the arc, splitting exactly at the door jambs
@@ -440,10 +449,10 @@ function buildShell(group) {
       giltG.push(new THREE.BoxGeometry(0.035, SHELL.height - 0.4, 0.035).translate(p.x, STAGE_Y + SHELL.height / 2 + 0.1, p.z));
     }
   }
-  addMesh(group, panels, M.shell(), { cast: false });
-  addMesh(group, caps, M.walnut());
-  addMesh(group, skirt, M.walnut());
-  addMesh(group, giltG, M.gilt());
+  addMesh(group, panels, S.shell(), { cast: false });
+  addMesh(group, caps, S.skirt());
+  addMesh(group, skirt, S.skirt());
+  addMesh(group, giltG, S.trim());
 
   // shelf above the shell, out to the hall walls
   const H = HALL;
@@ -463,9 +472,9 @@ function buildShell(group) {
   shelfGeo.rotateX(-Math.PI / 2);
   shelfGeo.translate(0, top + 0.16, 0);
   worldUV(shelfGeo, 'xz', 3);
-  const shelfMat = M.walnut().clone();
+  const shelfMat = S.skirt().clone();
   shelfMat.side = THREE.DoubleSide;
-  group.add(new THREE.Mesh(shelfGeo, shelfMat));
+  if (S.shelf) group.add(new THREE.Mesh(shelfGeo, shelfMat));
 
   // backstage behind the doors stays dark
   const back = [];
@@ -476,7 +485,7 @@ function buildShell(group) {
     g.translate(b.x + d.normal.x * 0.4, STAGE_Y + 1.6, b.z + d.normal.z * 0.4);
     back.push(g);
   }
-  const dark = new THREE.Mesh(mergeAll(back), new THREE.MeshBasicMaterial({ color: '#0b0705', side: THREE.BackSide }));
+  const dark = new THREE.Mesh(mergeAll(back), new THREE.MeshBasicMaterial({ color: S.backstage, side: THREE.BackSide }));
   group.add(dark);
 
   // doors: gilt architrave, two walnut leaves that swing outward
@@ -500,12 +509,12 @@ function buildShell(group) {
       fr.push(new THREE.BoxGeometry(0.12, SHELL.doorH + 0.12, 0.3).rotateY(yaw).translate(jx, STAGE_Y + (SHELL.doorH + 0.12) / 2, jz));
     }
     fr.push(new THREE.BoxGeometry(SHELL.doorW + 0.34, 0.14, 0.3).rotateY(yaw).translate(d.pos.x, STAGE_Y + SHELL.doorH + 0.07, d.pos.z));
-    addMesh(group, fr, M.gilt());
+    addMesh(group, fr, S.trim());
     for (const s of [-1, 1]) {
       const pivot = new THREE.Group();
       pivot.position.set(d.pos.x + tx * s * (SHELL.doorW / 2 - 0.01), STAGE_Y + 0.02, d.pos.z + tz * s * (SHELL.doorW / 2 - 0.01));
-      const leaf = new THREE.Mesh(leafGeo, M.walnut());
-      const pan = new THREE.Mesh(panelGeo, M.gilt());
+      const leaf = new THREE.Mesh(leafGeo, S.leaf());
+      const pan = new THREE.Mesh(panelGeo, S.trim());
       leaf.castShadow = true;
       pivot.add(leaf, pan);
       // closed: local +x runs from the hinge toward the door centre (-s * t)

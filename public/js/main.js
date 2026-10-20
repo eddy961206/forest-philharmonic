@@ -6,6 +6,12 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
+// the venue first: the Sphere takes over the walking plan before anything reads it
+import { IS_SPHERE, VENUE, VENUES, goVenue } from './scene/venue.js';
+import { SPHERE_ACOUSTICS, SP } from './scene/sphereplan.js';
+import { buildSphere } from './scene/sphere.js';
+import { SPHERE_SETLIST } from './scene/domeshow.js';
+
 import { AudioEngine } from './audio/engine.js';
 import { Performance } from './audio/performance.js';
 import { buildHall } from './scene/hall.js';
@@ -63,13 +69,15 @@ setAnisotropy(Math.min(LITE ? 2 : 8, renderer.capabilities.getMaxAnisotropy()));
 setLite(LITE);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color('#0b0806');
-scene.fog = new THREE.FogExp2('#140d08', 0.006);
+scene.background = new THREE.Color(IS_SPHERE ? '#000000' : '#0b0806');
+// the Sphere is a black bowl lit by its screen: only a trace of haze
+scene.fog = IS_SPHERE ? new THREE.FogExp2('#06070b', 0.0028) : new THREE.FogExp2('#140d08', 0.006);
 const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, 0.1, 260); // near 0.1: better depth precision, no flicker
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-scene.environmentIntensity = 0.2;
+// (the Sphere is a black room: the bright studio reflections would glow)
+scene.environmentIntensity = IS_SPHERE ? 0.05 : 0.2;
 
 let composer;
 let bloomPass;
@@ -95,7 +103,7 @@ const ui = new UI({ settings, onSetting });
 ui.touch = isTouch;
 ui.setLoading('공연장을 짓는 중', 0.03);
 
-const hall = buildHall({ quality, lite: LITE });
+const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE }) : buildHall({ quality, lite: LITE });
 scene.add(hall.group);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
@@ -123,13 +131,25 @@ function seatAudience(on) {
     // (in a room: the same crowd for everyone)
     const exclude = new Set();
     if (director?.seat && director.seat.index >= 0) exclude.add(director.seat.index);
-    audience = buildAudience(hall.seats, { exclude, lite: LITE, rand: room ? seeded(room.seed) : Math.random, reserveAll: !!room });
+    const rand = room ? seeded(room.seed) : Math.random;
+    // the Sphere sells out: thousands of guests, drawn in full only near you
+    const big = IS_SPHERE ? { fill: 0.62 + rand() * 0.3, detail: LITE ? 120 : 1100, cap: LITE ? 2500 : Infinity } : {};
+    audience = buildAudience(hall.seats, { exclude, lite: LITE, rand, reserveAll: !!room, ...big });
+    audience.updateLOD?.(camera.position, true);
     scene.add(audience.group);
   }
   refreshOccupied();
 }
 const effects = buildEffects(scene, { fireflies: LITE ? 40 : 170, dust: LITE ? 140 : 520 });
-const screen = buildScreen(scene, renderer, { lite: LITE });
+// in the Sphere the broadcast goes up on the dome (IMAG) instead of a screen
+// of its own; the dome stops sampling the picture while it is being drawn
+const screen = buildScreen(scene, renderer, IS_SPHERE ? {
+  lite: LITE,
+  headless: true,
+  before: () => hall.dome.setLive(null, null),
+  after: () => hall.dome.setLive(screen.texture, screen.capTex),
+} : { lite: LITE });
+if (IS_SPHERE) hall.dome.setLive(screen.texture, screen.capTex);
 director = new Director(camera, renderer.domElement, hall);
 director.uiTop = () => ui.bottomUiTop();
 director.hoverLook = false; // look by dragging, or click to capture the mouse
@@ -137,7 +157,11 @@ seatAudience(settings.audience);
 buildComposer();
 applyQuality();
 
-const bestSeat = hall.seats.filter((s) => s.level === '1층' && s.row === 'H').sort((a, b) => Math.abs(a.x) - Math.abs(b.x))[0];
+// where the ear sits while the camera roams (cinema): 1층 H열, or the
+// Sphere's sweet spot in section 204
+const bestSeat = (IS_SPHERE
+  ? hall.seats.filter((s) => s.section === '204' && s.row === '8')
+  : hall.seats.filter((s) => s.level === '1층' && s.row === 'H')).sort((a, b) => Math.abs(a.x) - Math.abs(b.x))[0];
 const headPositions = orchestra.players.map((p) => p.home.clone().add(new THREE.Vector3(0, 1.25 * p.char.scale, 0)));
 headPositions.push(orchestra.conductor.home.clone().add(new THREE.Vector3(0, 1.35, 0)));
 
@@ -146,6 +170,7 @@ const engine = new AudioEngine();
 const perf = new Performance(engine);
 let fx = null;
 let program = [];
+let eveningLen = 0; // the evening's programme (the rest can still be picked)
 let current = -1;
 let concertStarted = false; // we are inside
 let showStarted = false; // the musicians have been called
@@ -161,7 +186,7 @@ let seq = 0; // generation token for the concert sequence
 
 async function boot() {
   try {
-    await engine.init({ lite: LITE });
+    await engine.init({ lite: LITE, acoustics: IS_SPHERE ? SPHERE_ACOUSTICS : null });
   } catch (e) {
     ui.setLoading('이 브라우저에서는 소리를 낼 수 없어요. 최신 Chrome, Edge, Firefox, Safari에서 열어 주세요.', 0);
     throw e;
@@ -170,6 +195,13 @@ async function boot() {
   engine.setReverb(settings.reverb);
   fx = buildFX(scene, engine);
   program = await (await fetch('music/index.json')).json();
+  if (IS_SPHERE) {
+    // tonight's show at the Sphere first, then everything else on request
+    const byId = new Map(program.map((p) => [p.id, p]));
+    const set = SPHERE_SETLIST.map((id) => byId.get(id)).filter(Boolean);
+    program = [...set, ...program.filter((p) => !SPHERE_SETLIST.includes(p.id))];
+    eveningLen = set.length;
+  } else eveningLen = program.length;
   ui.setProgram(program);
   await engine.loadSamples('samples', (done, total) => {
     ui.setLoading(`악기를 조율하는 중  ${done} / ${total}`, 0.08 + 0.85 * (done / total));
@@ -196,8 +228,15 @@ ui.on('enter', async (opt) => {
     room = new RoomClient();
     wireRoom(room);
     try {
-      await room.enter({ name: opt.name, avatar: opt.avatar, code: opt.code, create: opt.mode === 'create' ? { title: opt.title, cap: opt.cap, pub: opt.pub } : null });
+      await room.enter({ name: opt.name, avatar: opt.avatar, venue: VENUE, code: opt.code, create: opt.mode === 'create' ? { title: opt.title, cap: opt.cap, pub: opt.pub } : null });
     } catch (e) {
+      if (e.code === 'venue' && VENUES[e.venue]) {
+        // the room is in the other building: go there (the invite comes along)
+        room.leave();
+        ui.lobbyError(e.message);
+        setTimeout(() => goVenue(e.venue, { room: opt.code }), 700);
+        return;
+      }
       room.leave();
       room = null;
       ui.lobbyBusy(false);
@@ -253,6 +292,8 @@ const until = (cond, tok, timeout = 60000) => new Promise((r) => {
 function setPhase(p, seconds = 0) {
   phase = p;
   phaseUntil = performance.now() + seconds * 1000;
+  // the Sphere's dome follows the evening
+  if (p === 'playing') hall.show?.('playing', { piece: perf.piece, time: perf.time });
   publish();
 }
 
@@ -338,6 +379,7 @@ async function endOfPiece() {
   fx?.wash.set(false);
   hall.setHouseLights(0.5);
   const big = !!piece?.finale;
+  if (big) hall.show?.('finale');
   if (settings.applause) {
     engine.applause(engine.now + 0.35, big ? 1.3 : 1);
     clapUntil = performance.now() + (big ? 12500 : 7600);
@@ -387,13 +429,14 @@ async function endOfPiece() {
     setPhase('intermission');
     if (!(await until(() => !guest(), tok, 1e9))) return;
   }
-  const lastOfProgram = !settings.repeatOne && !settings.shuffle && current === program.length - 1;
+  const lastOfProgram = !settings.repeatOne && !settings.shuffle && (current === program.length - 1 || current === eveningLen - 1);
   const next = nextIndex();
   nextPiece = program[next];
   setPhase('intermission', Math.max(2, settings.gap));
   if (lastOfProgram) {
     // end of the programme: everyone leaves, the house comes up, then a new evening begins
     hall.setHouseLights(1);
+    hall.show?.('house');
     sendCmd({ c: 'exit' });
     stage.exitAll();
     if (!(await until(() => stage.allOffstage, tok, 60000))) return;
@@ -409,6 +452,8 @@ function nextIndex() {
     while (program.length > 1 && n === current) n = Math.floor(Math.random() * program.length);
     return n;
   }
+  // after the evening's last piece a new evening begins
+  if (current === eveningLen - 1) return 0;
   return current + 1;
 }
 
@@ -763,6 +808,7 @@ function onHostCmd(c) {
     seq++;
     ceremony = false;
     hall.setHouseLights(1);
+    hall.show?.('house');
     if (stage.conductorOn) stage.conductorExit();
     stage.exitAll();
     setPhase('intermission');
@@ -799,7 +845,7 @@ function wireRoom(c) {
     membersChanged();
     if (first) {
       seatAudience(settings.audience); // the same house for everyone in the room
-      try { history.replaceState(null, '', `?room=${c.room.code}`); } catch { /* file: */ }
+      try { history.replaceState(null, '', `?${VENUE !== 'hall' ? `venue=${VENUE}&` : ''}room=${c.room.code}`); } catch { /* file: */ }
       ui.chatLine({ sys: true, text: c.isHost ? `방을 만들었어요. 방 코드는 ${c.room.code} — 오른쪽 위 방 이름을 눌러 초대 링크를 복사할 수 있어요.` : `「${c.room.title}」에 들어왔어요.` });
     }
     refreshOccupied();
@@ -852,16 +898,16 @@ function goSolo() {
   avatars.clear();
   ui.setRoom(null);
   refreshOccupied();
-  try { history.replaceState(null, '', location.pathname); } catch { /* file: */ }
+  try { history.replaceState(null, '', location.pathname + (VENUE !== 'hall' ? `?venue=${VENUE}` : '')); } catch { /* file: */ }
 }
 
 ui.on('leaveRoom', () => {
   room?.leave();
-  location.href = location.pathname; // back to the lobby
+  location.href = location.pathname + (VENUE !== 'hall' ? `?venue=${VENUE}` : ''); // back to the lobby
 });
 ui.on('copyInvite', async () => {
   if (!room?.room) return;
-  const url = `${location.origin}${location.pathname}?room=${room.room.code}`;
+  const url = `${location.origin}${location.pathname}?${VENUE !== 'hall' ? `venue=${VENUE}&` : ''}room=${room.room.code}`;
   try {
     await navigator.clipboard.writeText(url);
     ui.toast('초대 링크를 복사했어요. 친구에게 보내 주세요.', 2400);
@@ -920,7 +966,8 @@ function loadIdentity() {
   return randomIdentity();
 }
 const invite = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || null;
-ui.initLobby({ avatars: AVATARS, identity: loadIdentity(), invite });
+ui.initLobby({ avatars: AVATARS, identity: loadIdentity(), invite, venue: VENUE, venues: VENUES });
+ui.on('venue', (id) => goVenue(id, { room: invite }));
 async function refreshRooms() {
   try {
     ui.setRooms(await listRooms());
@@ -968,6 +1015,78 @@ function onResize() {
 }
 window.addEventListener('resize', onResize);
 
+// -------------------------------------------------------- the Sphere
+// The dome hears the music (level) and knows the time; the live picture
+// (IMAG) is up while the orchestra walks on, bows and between pieces, and
+// for the title at the start of each piece - then the dome is all show.
+// The lifts behind the vomitories take you between the levels.
+let liftShown = 0;
+function sphereTick(dt, t) {
+  hall.feed({ time: t, level: perf.playing ? levelSmoothed : 0, playing: perf.playing });
+  const live = settings.screen && concertStarted && showStarted && (phase !== 'playing' || !perf.playing || t < 11);
+  hall.dome.showLive(live);
+  if (!concertStarted) return;
+  const d = director;
+  hall.lifts.near(d.pos.x, d.pos.z, d.feet);
+  const car = d.mode === 'walk' ? hall.lifts.carAt(d.pos.x, d.pos.z, d.feet) : null;
+  const lvl = car ? car.V.tier.n : 0;
+  if (lvl !== liftShown) { liftShown = lvl; ui.liftPanel(lvl || null); }
+}
+function rideLift(n) {
+  if (!IS_SPHERE || !concertStarted) return;
+  const d = director;
+  const car = hall.lifts.carAt(d.pos.x, d.pos.z, d.feet);
+  if (!car || hall.lifts.busy) return;
+  if (car.V.tier.n === n) { ui.toast(`여기가 ${n}00 레벨이에요.`, 1400); return; }
+  const ok = hall.lifts.go(car, n, (from, to) => {
+    // still in the car? carry the rider over, same spot, same heading
+    const now = hall.lifts.carAt(d.pos.x, d.pos.z, d.feet);
+    if (now !== from) return;
+    const sF = Math.sin(from.V.th);
+    const cF = Math.cos(from.V.th);
+    const dx = d.pos.x - SP.F.x; // relative to the fan's centre
+    const dz = d.pos.z - SP.F.z;
+    const u = dx * sF + dz * cF - from.V.r1 + to.V.r1;
+    const v = dx * cF - dz * sF;
+    const eye = d.pos.y - d.feet;
+    const sT = Math.sin(to.V.th);
+    const cT = Math.cos(to.V.th);
+    d.feet = to.V.y;
+    d.pos.set(SP.F.x + u * sT + v * cT, to.V.y + eye, SP.F.z + u * cT - v * sT);
+    d.yaw += to.V.th - from.V.th;
+    d.vel.set(0, 0, 0);
+    d.vy = 0;
+    d.grounded = true;
+    ding(true);
+  });
+  if (ok) { ding(false); ui.toast(`${n}00 레벨로 ${n > car.V.tier.n ? '올라가요' : '내려가요'}`, 1800); }
+}
+// a soft two-note chime, as lifts make
+function ding(arrive) {
+  const ctx = engine.ctx;
+  if (!ctx || muted) return;
+  const t0 = ctx.currentTime + 0.02;
+  const notes = arrive ? [880, 1108.7] : [1108.7, 880];
+  notes.forEach((f, i) => {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.value = f;
+    g.gain.setValueAtTime(0, t0 + i * 0.32);
+    g.gain.linearRampToValueAtTime(0.06 * settings.volume, t0 + i * 0.32 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.32 + 1.1);
+    o.connect(g).connect(ctx.destination);
+    o.start(t0 + i * 0.32);
+    o.stop(t0 + i * 0.32 + 1.2);
+  });
+}
+ui.on('lift', rideLift);
+window.addEventListener('keydown', (e) => {
+  if (!IS_SPHERE || e.repeat || e.target?.closest?.('input, textarea, select')) return;
+  const m = /^Digit([1-4])$/.exec(e.code) || /^Numpad([1-4])$/.exec(e.code);
+  if (m && liftShown) { e.preventDefault(); rideLift(Number(m[1])); }
+});
+
 // ------------------------------------------------------------ main loop
 let lastNow = performance.now();
 let wallT = 0;
@@ -992,6 +1111,7 @@ function frame() {
   orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing });
   stage.update(dt);
   roomTick(dt);
+  if (IS_SPHERE) sphereTick(dt, t);
   hall.update(dt, wall);
   effects.update(wall);
   director.joy.x = ui.joy.x;
@@ -1002,8 +1122,9 @@ function frame() {
     // slow establishing shot behind the splash
     introT += dt;
     const a = introT * 0.05;
-    director.pos.set(Math.sin(a) * 9, 9 + Math.sin(a * 0.7) * 2, 14 + Math.cos(a) * 7);
-    const la = director.lookAt(new THREE.Vector3(0, 3.2, -5));
+    if (IS_SPHERE) director.pos.set(Math.sin(a) * 22, 14 + Math.sin(a * 0.7) * 4, 26 + Math.cos(a) * 12);
+    else director.pos.set(Math.sin(a) * 9, 9 + Math.sin(a * 0.7) * 2, 14 + Math.cos(a) * 7);
+    const la = director.lookAt(IS_SPHERE ? new THREE.Vector3(0, 12, -8) : new THREE.Vector3(0, 3.2, -5));
     director.yaw = la.yaw;
     director.pitch = la.pitch;
     director.anim = null;
@@ -1026,6 +1147,7 @@ function frame() {
   }
   if (perf.piece) ui.setTime(Math.min(perf.duration, t), perf.duration);
   if (fx) fx.update(dt, wall, levelSmoothed);
+  audience?.updateLOD?.(camera.position);
   if (settings.screen && concertStarted) {
     screen.update(dt, { perf, time: t, phase, nextPiece }, QUALITY[quality].screenEvery);
   }

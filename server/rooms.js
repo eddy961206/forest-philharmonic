@@ -3,7 +3,7 @@
 // also shares where they stand or sit, and can chat.
 //
 // client -> server                       server -> client
-//   create {name, avatar, title, cap, pub} joined {room, you, host, members, state, seed}
+//   create {name, avatar, title, cap, pub, venue} joined {room, you, host, members, state, seed}
 //   join   {name, avatar, code}            member {m}  left {id}  host {id}
 //   pose   {p}                             pose {id, p}
 //   state  {s}        (host only)          state {s}
@@ -28,6 +28,9 @@ let nextId = 1;
 const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u001f\u007f\u200b-\u200f\u2028-\u202e]/g, '').trim().slice(0, max);
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : 0);
 
+// the buildings a room can be in (see public/js/scene/venue.js)
+const VENUES = new Set(['hall', 'sphere']);
+
 function newCode() {
   for (;;) {
     let c = '';
@@ -47,7 +50,7 @@ function broadcast(room, msg, except = null) {
 export function publicRooms() {
   return [...rooms.values()]
     .filter((r) => r.pub)
-    .map((r) => ({ code: r.code, title: r.title, count: r.members.size, cap: r.cap, playing: !!r.state?.playing, piece: r.state?.title || '' }))
+    .map((r) => ({ code: r.code, title: r.title, count: r.members.size, cap: r.cap, venue: r.venue, playing: !!r.state?.playing, piece: r.state?.title || '' }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 60);
 }
@@ -73,7 +76,7 @@ function enter(m, room) {
   room.members.set(m.id, m);
   m.sock.send({
     t: 'joined',
-    room: { code: room.code, title: room.title, cap: room.cap, pub: room.pub },
+    room: { code: room.code, title: room.title, cap: room.cap, pub: room.pub, venue: room.venue },
     you: m.id,
     host: room.host,
     members: [...room.members.values()].map(info),
@@ -98,13 +101,15 @@ function onMessage(m, msg) {
       if (msg.t === 'create') {
         if (rooms.size >= MAX_ROOMS) { m.sock.send({ t: 'error', code: 'busy', msg: '지금은 방이 너무 많아요. 잠시 뒤에 다시 해 주세요.' }); return; }
         const cap = Math.round(num(msg.cap, 1, MAX_CAP)) || MAX_CAP;
-        const room = { code: newCode(), title: clean(msg.title, 30) || `${m.name}의 공연`, cap, pub: msg.pub !== false, host: m.id, members: new Map(), state: null, seed: crypto.randomBytes(4).readUInt32BE(0), created: now };
+        const room = { code: newCode(), title: clean(msg.title, 30) || `${m.name}의 공연`, cap, pub: msg.pub !== false, venue: VENUES.has(msg.venue) ? msg.venue : 'hall', host: m.id, members: new Map(), state: null, seed: crypto.randomBytes(4).readUInt32BE(0), created: now };
         rooms.set(room.code, room);
         enter(m, room);
       } else {
         const room = rooms.get(clean(msg.code, 8).toUpperCase());
         if (!room) { m.sock.send({ t: 'error', code: 'notfound', msg: '그런 방이 없어요. 코드를 다시 확인해 주세요.' }); return; }
         if (room.members.size >= room.cap) { m.sock.send({ t: 'error', code: 'full', msg: `방이 가득 찼어요 (${room.cap}명).` }); return; }
+        // the room is in the other building: the client reloads there and joins again
+        if ((VENUES.has(msg.venue) ? msg.venue : 'hall') !== room.venue) { m.sock.send({ t: 'error', code: 'venue', venue: room.venue, msg: '다른 공연장의 방이에요. 그 공연장으로 옮겨 갈게요.' }); return; }
         enter(m, room);
       }
       return;

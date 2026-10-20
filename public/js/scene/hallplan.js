@@ -55,6 +55,13 @@ export const LEVELS = [Y1, Y1 + 5, Y1 + 10, Y1 + 15];
 HALL.ceiling = Math.round((LEVELS[3] + 4.1) * 100) / 100;
 export const LEVEL_NAMES = ['1층', '2층', '3층', '4층'];
 
+// Another venue (sphereplan.js) can take over the walking plan: the stage,
+// its risers, shell and stairs stay shared; the room around them is theirs.
+let OV = null;
+export function setPlanOverride(o) { OV = o; }
+// where you arrive, and the auto-director's wide shots (venues may replace)
+export const ENTRY = { pos: { x: 0, y: LEVELS[0], z: 40.4 }, look: { x: 0, y: LEVELS[0] + 1.7, z: 30 }, wide: null };
+
 // stage front lip: a gentle curve bulging toward the audience
 export function lipZ(x) {
   const t = (x + HALL.stageHalfW) / (HALL.stageHalfW * 2);
@@ -158,7 +165,7 @@ export const STAGE_STAIRS = [-1, 1].map((side) => {
   return { side, cx, w, x0: cx - w / 2, x1: cx + w / 2, z0: top, tread: 0.3, n, rise: STAGE_Y / n, z1: top + (n - 1) * 0.3 };
 });
 
-function stageStairsY(x, z) {
+export function stageStairsY(x, z) {
   for (const S of STAGE_STAIRS) {
     if (x < S.x0 || x > S.x1) continue;
     if (z <= lipZ(x) || z >= S.z1) continue;
@@ -297,6 +304,7 @@ function foyerColumnAt(x, z) {
 // no surface exists.
 export function surfacesAt(x, z, out = []) {
   out.length = 0;
+  if (OV) return OV.surfacesAt(x, z, out);
   const ax = Math.abs(x);
   if (ax > HALL.halfW - 0.25) return out;
   // stage and its stairs
@@ -316,6 +324,7 @@ export function surfacesAt(x, z, out = []) {
 // the stage-or-stalls ground (lowest level), for the stage crew
 export function floorAt(x, z) {
   if (onStage(x, z)) return stageFloorY(x, z);
+  if (OV) return OV.floorAt(x, z);
   const st = stageStairsY(x, z);
   if (st !== null) return st;
   return stallsY(x, z);
@@ -362,6 +371,7 @@ export function headroomAt(x, z, fy) {
 // Returns the top of a barrier in the way of feet at fy, or null.
 const VAULT = 0.2;
 export function barrierTop(x, z, fy) {
+  if (OV) return OV.barrierTop(x, z, fy);
   const ax = Math.abs(x);
   for (const B of BALCONIES) {
     const top = B.y0 + (B.level === 1 ? 0.86 : 0.74);
@@ -412,6 +422,7 @@ export function barrierTop(x, z, fy) {
 // out in the foyer it falls off with the distance to the open doors (two
 // per floor), so the music swells as you walk up to a doorway.
 export function hallOpenness(x, y, z) {
+  if (OV) return 1;
   if (z <= HALL.back) return 1;
   let closed = 1;
   for (const Y of LEVELS) {
@@ -425,6 +436,7 @@ export function hallOpenness(x, y, z) {
 
 // which floor are we on (for labels)
 export function levelName(y) {
+  if (OV) return OV.levelName(y);
   let k = 0;
   for (let i = 0; i < LEVELS.length; i++) if (y > LEVELS[i] - 2.2) k = i;
   return LEVEL_NAMES[k];

@@ -4,14 +4,14 @@
 // lock); dragging still works when the cursor is free. Zoom works like opera
 // glasses. An optional auto-director films the concert for you.
 import * as THREE from 'three';
-import { stepTo, surfacesAt, LEVELS, groundBelow, headroomAt, barrierTop } from './hallplan.js';
+import { stepTo, surfacesAt, LEVELS, groundBelow, headroomAt, barrierTop, ENTRY } from './hallplan.js';
 import { SECTIONS, PODIUM, STAGE_Y, sectionCenter } from '../layout.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 export const STAGE_FOCUS = V(0, STAGE_Y + 1.1, -4.6);
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
-export const ENTRANCE = { pos: V(0, LEVELS[0], 40.4), look: V(0, LEVELS[0] + 1.7, 30) };
+export const ENTRANCE = { pos: V(ENTRY.pos.x, ENTRY.pos.y, ENTRY.pos.z), look: V(ENTRY.look.x, ENTRY.look.y, ENTRY.look.z) };
 const EYE = 1.62;
 const BODY = 0.24; // keep this far from walls and railings
 const GRAVITY = 9.8;
@@ -627,7 +627,8 @@ export class Director {
         { kind: 'wide4', pos: V(0, 16.5, 6), look: V(0, STAGE_Y, -5), fov: 50, drift: V(0, 0, -2.5) },
         { kind: 'hall', pos: V(0, 3.2, -1.5), look: V(0, 8, 24), fov: 62, drift: V(1.5, 0.6, 0) },
       ];
-      return options[Math.floor(Math.random() * options.length)];
+      const list = ENTRY.wide ? ENTRY.wide.map((o) => ({ ...o, pos: V(o.pos[0], o.pos[1], o.pos[2]), look: V(o.look[0], o.look[1], o.look[2]), drift: V(o.drift[0], o.drift[1], o.drift[2]) })) : options;
+      return list[Math.floor(Math.random() * list.length)];
     };
     let shot;
     if (!piece || !perf.playing || r < 0.28 || (last === 'section' && r < 0.4)) shot = wide();

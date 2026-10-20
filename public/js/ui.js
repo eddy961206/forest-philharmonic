@@ -26,8 +26,19 @@ export class UI {
 
   // ------------------------------------------------------------------ lobby
   // avatars: [{ id, ko }], identity: { name, avatar }, invite: room code or null
-  initLobby({ avatars, identity, invite }) {
+  initLobby({ avatars, identity, invite, venue = 'hall', venues = {} }) {
     this.avatars = avatars;
+    this.venue = venue;
+    this.venues = venues;
+    // which building: the splash speaks of it, the other one is a click away
+    const V = venues[venue];
+    if (V?.title) $('splashTitle').textContent = V.title;
+    if (V?.intro) $('splashSub').textContent = V.intro;
+    document.querySelectorAll('#lbVenue button').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.venue === venue));
+      b.addEventListener('click', () => { if (b.dataset.venue !== this.venue) this.emit('venue', b.dataset.venue); });
+    });
+    document.querySelectorAll('#liftPanel button').forEach((b) => b.addEventListener('click', () => this.emit('lift', Number(b.dataset.level))));
     const sel = $('lbAvatar');
     for (const a of avatars) {
       const o = document.createElement('option');
@@ -103,6 +114,12 @@ export class UI {
       b.querySelector('.r-title').textContent = r.title;
       b.querySelector('.r-count').textContent = `${r.count} / ${r.cap}`;
       b.querySelector('.r-now').textContent = r.piece ? `${r.playing ? '연주 중' : '쉬는 중'} · ${r.piece}` : '공연 시작 전';
+      if (r.venue && r.venue !== this.venue) {
+        const tag = document.createElement('span');
+        tag.className = 'r-venue';
+        tag.textContent = ` · ${this.venues[r.venue]?.short || r.venue}`;
+        b.querySelector('.r-now').appendChild(tag);
+      }
       const full = r.count >= r.cap;
       b.disabled = full || !this.lobbyReady;
       b.dataset.full = full ? '1' : '';
@@ -370,6 +387,13 @@ export class UI {
     el.hidden = this.touch;
     sit.textContent = touchLabel || text;
     sit.hidden = !this.touch;
+  }
+
+  // the Sphere's lift panel: the level you are on, or null to hide it
+  liftPanel(level) {
+    const el = $('liftPanel');
+    el.hidden = !level;
+    if (level) el.querySelectorAll('button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.level) === level)));
   }
 
   setMuted(m) {

@@ -22,8 +22,8 @@
   <section id="splash" class="splash" aria-live="polite">
     <div class="splash-inner">
       <div class="splash-intro">
-        <h1 class="splash-title">숲속 필하모닉</h1>
-        <p class="splash-sub">달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 쉰 곡을 들려드립니다.</p>
+        <h1 class="splash-title" id="splashTitle">숲속 필하모닉</h1>
+        <p class="splash-sub" id="splashSub">달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 쉰 곡을 들려드립니다.</p>
         <p id="loadText" class="splash-load">공연장을 짓는 중</p>
         <div class="splash-bar" aria-hidden="true"><span id="loadBar"></span></div>
         <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. 걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></p>
@@ -34,6 +34,11 @@
         <div class="lb-who">
           <label class="lb-field lb-name">닉네임<input id="lbName" maxlength="16" autocomplete="nickname" spellcheck="false"></label>
           <label class="lb-field lb-animal">동물<select id="lbAvatar"></select></label>
+        </div>
+
+        <div class="lb-venue" id="lbVenue" role="group" aria-label="공연장">
+          <button type="button" data-venue="hall" aria-pressed="true"><b>숲속 필하모닉 홀</b><small>달빛 숲 4층 그랜드 콘서트홀</small></button>
+          <button type="button" data-venue="sphere" aria-pressed="false"><b>스피어 · 라스베이거스</b><small>머리 위를 감싸는 16K 돔</small></button>
         </div>
 
         <div id="lbInvite" class="lb-invite" hidden>
@@ -90,6 +95,17 @@
 
   <!-- interaction prompt -->
   <div id="prompt" class="prompt" hidden><kbd>E</kbd><span id="promptText"></span></div>
+
+  <!-- the Sphere's lifts: which level to go to -->
+  <div id="liftPanel" class="lift-panel" hidden>
+    <p>엘리베이터 <small>숫자 키 1–4</small></p>
+    <div class="lift-btns">
+      <button type="button" data-level="4">400</button>
+      <button type="button" data-level="3">300</button>
+      <button type="button" data-level="2">200</button>
+      <button type="button" data-level="1">100</button>
+    </div>
+  </div>
 
   <!-- musician tooltip -->
   <div id="tooltip" class="tooltip" hidden></div>

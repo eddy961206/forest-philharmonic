@@ -48,14 +48,14 @@ export class RoomClient {
   }
 
   // create: { title, cap, pub }  or  join: { code }
-  async enter({ name, avatar, create = null, code = null }) {
-    this.me = { name, avatar };
+  async enter({ name, avatar, create = null, code = null, venue = 'hall' }) {
+    this.me = { name, avatar, venue };
     this.closedByUs = false;
     if (!this.connected) await this._open();
     return new Promise((resolve, reject) => {
       this._pending = { resolve, reject };
-      if (create) this._send({ t: 'create', name, avatar, title: create.title, cap: create.cap, pub: create.pub });
-      else this._send({ t: 'join', name, avatar, code });
+      if (create) this._send({ t: 'create', name, avatar, venue, title: create.title, cap: create.cap, pub: create.pub });
+      else this._send({ t: 'join', name, avatar, venue, code });
     });
   }
 
@@ -108,7 +108,7 @@ export class RoomClient {
         return;
       }
       case 'error':
-        if (this._pending) { this._pending.reject(Object.assign(new Error(m.msg), { code: m.code })); this._pending = null; }
+        if (this._pending) { this._pending.reject(Object.assign(new Error(m.msg), { code: m.code, venue: m.venue })); this._pending = null; }
         else this._emit('error', m);
         return;
       case 'member':

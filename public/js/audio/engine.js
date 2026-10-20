@@ -49,15 +49,17 @@ export class AudioEngine {
   }
 
   // lite: phones - a lower sample rate, shorter samples, cheaper panning
-  async init({ lite = false } = {}) {
+  // acoustics: the room (a venue other than the hall passes its own)
+  async init({ lite = false, acoustics = null } = {}) {
     this.lite = lite;
+    this.ac = { rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15, airMin: 3800, airK: 0.055, reverb: 1, level: 1, ...(acoustics || {}) };
     const AC = window.AudioContext || window.webkitAudioContext;
     this.ctx = new AC({ latencyHint: 'playback', sampleRate: lite ? 24000 : 48000 });
     const ctx = this.ctx;
 
     // make-up gain in front of the dynamics so the glue/limiter see real levels
     this.makeup = ctx.createGain();
-    this.makeup.gain.value = 12;
+    this.makeup.gain.value = 12 * this.ac.level;
     this.glue = ctx.createDynamicsCompressor();
     this.glue.threshold.value = -16;
     this.glue.knee.value = 12;
@@ -85,7 +87,7 @@ export class AudioEngine {
     // Hall reverb: generated impulse response (no external files)
     this.reverb = ctx.createConvolver();
     this.reverb.normalize = true;
-    this.reverb.buffer = await generateHallIR(ctx, { rt60: 2.35, preDelay: 0.022, length: 3.8 });
+    this.reverb.buffer = await generateHallIR(ctx, { rt60: this.ac.rt60, preDelay: this.ac.preDelay, length: this.ac.length });
     this.reverbIn = ctx.createGain();
     this.reverbIn.gain.value = 1;
     const revHP = ctx.createBiquadFilter();
@@ -223,7 +225,7 @@ export class AudioEngine {
       const dz = s.pos.z - pos.z;
       const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
       s.distance = d;
-      const cutoff = Math.max(3800, 21000 / (1 + d * 0.055));
+      const cutoff = Math.max(this.ac.airMin, 21000 / (1 + d * this.ac.airK));
       s.air.frequency.setTargetAtTime(this._hz(cutoff), t, 0.08);
     }
   }
@@ -244,9 +246,9 @@ export class AudioEngine {
       const panner = new PannerNode(ctx, {
         panningModel: this.lite ? 'equalpower' : 'HRTF',
         distanceModel: 'inverse',
-        refDistance: 3.2,
+        refDistance: this.ac.refDistance,
         maxDistance: 120,
-        rolloffFactor: 1.15,
+        rolloffFactor: this.ac.rolloff,
         coneInnerAngle: 210,
         coneOuterAngle: 340,
         coneOuterGain: 0.45,
@@ -294,7 +296,7 @@ export class AudioEngine {
 
   setReverb(amount) {
     // amount 0..1 -> return gain
-    this.reverbReturn.gain.setTargetAtTime(0.1 + amount * 0.75, this.ctx.currentTime, 0.1);
+    this.reverbReturn.gain.setTargetAtTime((0.1 + amount * 0.75) * this.ac.reverb, this.ctx.currentTime, 0.1);
   }
 
   // ------------------------------------------------------------ timer

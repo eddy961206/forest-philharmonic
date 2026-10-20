@@ -11,7 +11,10 @@ const W = 1024;
 const H = 576;
 const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
 
-export function buildScreen(scene, renderer, { lite = false } = {}) {
+// headless: no screen in the room - only the picture and captions, for a
+// venue that shows them elsewhere (the Sphere's dome); before / after run
+// round the broadcast render (to keep the picture from filming itself)
+export function buildScreen(scene, renderer, { lite = false, headless = false, before = null, after = null } = {}) {
   const group = new THREE.Group();
   scene.add(group);
   const sw = 11.6;
@@ -23,18 +26,18 @@ export function buildScreen(scene, renderer, { lite = false } = {}) {
   // bezel + the live picture + a transparent caption layer in front of it
   const bezel = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.5, sh + 0.5, 0.25), M.blackMatte());
   bezel.position.set(cx, cy, cz - 0.15);
-  group.add(bezel);
+  if (!headless) group.add(bezel);
   // phones: a small picture, refreshed now and then
   const rt = lite ? new THREE.WebGLRenderTarget(384, 216) : new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
   const pic = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: rt.texture, toneMapped: false }));
   pic.position.set(cx, cy, cz);
-  group.add(pic);
+  if (!headless) group.add(pic);
   // gilt frame round the bezel
   const fr = [];
   for (const [w, h, x, y] of [[sw + 0.8, 0.14, 0, sh / 2 + 0.32], [sw + 0.8, 0.14, 0, -sh / 2 - 0.32], [0.14, sh + 0.78, sw / 2 + 0.33, 0], [0.14, sh + 0.78, -sw / 2 - 0.33, 0]]) {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.12), M.gilt());
     m.position.set(cx + x, cy + y, cz - 0.05);
-    group.add(m);
+    if (!headless) group.add(m);
   }
 
   const cv = document.createElement('canvas');
@@ -45,7 +48,7 @@ export function buildScreen(scene, renderer, { lite = false } = {}) {
   capTex.colorSpace = THREE.SRGBColorSpace;
   const cap = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: capTex, transparent: true, toneMapped: false, depthWrite: false }));
   cap.position.set(cx, cy, cz + 0.02);
-  group.add(cap);
+  if (!headless) group.add(cap);
 
   // broadcast camera
   const cam = new THREE.PerspectiveCamera(40, W / H, 0.1, 160);
@@ -150,7 +153,7 @@ export function buildScreen(scene, renderer, { lite = false } = {}) {
   }
 
   return {
-    group, cam,
+    group, cam, texture: rt.texture, capTex,
     // every call advances the broadcast; renders every `every` frames
     update(dt, ctx, every = 2) {
       frame++;
@@ -180,10 +183,12 @@ export function buildScreen(scene, renderer, { lite = false } = {}) {
       cam.updateProjectionMatrix();
       if (frame % every === 0) {
         group.visible = false; // the screen must not film itself
+        before?.();
         const prevRT = renderer.getRenderTarget();
         renderer.setRenderTarget(rt);
         renderer.render(scene, cam);
         renderer.setRenderTarget(prevRT);
+        after?.();
         group.visible = true;
       }
       if (frame % 3 === 0) drawCaption(ctx, now);

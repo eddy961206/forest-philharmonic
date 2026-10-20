@@ -101,14 +101,16 @@ button { font: inherit; color: inherit; }
 .lb-create { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
 .lb-cap { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--paper-dim); }
 .lobby .lb-cap input { width: 64px; text-align: center; }
-.lb-vis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.lb-vis button {
+.lb-vis, .lb-venue { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.lb-venue { margin: 2px 0 4px; }
+.lb-vis button, .lb-venue button {
   appearance: none; cursor: pointer; color: var(--paper-dim); background: rgba(242, 237, 225, 0.04);
   border: 1px solid rgba(242, 237, 225, 0.12); border-radius: 12px; padding: 7px 10px; display: flex; flex-direction: column; align-items: center; gap: 1px;
 }
-.lb-vis button b { font-size: 14px; font-weight: 600; }
-.lb-vis button small { font-size: 11.5px; }
-.lb-vis button[aria-pressed='true'] { color: var(--brass); border-color: var(--brass); background: rgba(230, 192, 123, 0.08); }
+.lb-vis button b, .lb-venue button b { font-size: 14px; font-weight: 600; }
+.lb-vis button small, .lb-venue button small { font-size: 11.5px; }
+.lb-venue button { padding: 9px 10px; }
+.lb-venue button[aria-pressed='true'], .lb-vis button[aria-pressed='true'] { color: var(--brass); border-color: var(--brass); background: rgba(230, 192, 123, 0.08); }
 .lb-go { width: 100%; font-size: 17px; padding: 11px 20px; }
 .lb-go:not(:disabled) { background: var(--brass); color: var(--moss); }
 .lb-go:not(:disabled):hover { filter: brightness(1.08); }
@@ -431,3 +433,20 @@ body.ui-hidden .transport { transform: translate(-50%, 20px); }
 @media (prefers-reduced-motion: reduce) {
   .splash, .transport, .now { transition: none; }
 }
+
+/* the Sphere's lift panel */
+.lift-panel {
+  position: fixed; right: 18px; top: 50%; transform: translateY(-50%);
+  background: rgba(10, 11, 14, 0.82); border: 1px solid rgba(200, 210, 225, 0.22); border-radius: 14px;
+  padding: 10px 12px 12px; color: #dfe4ec; font: 500 13px var(--sans); backdrop-filter: blur(6px); z-index: 12;
+}
+.lift-panel p { margin: 0 0 8px; font-weight: 600; }
+.lift-panel p small { display: block; font-weight: 400; color: #9aa3b0; font-size: 11px; }
+.lift-btns { display: grid; gap: 6px; }
+.lift-btns button {
+  appearance: none; cursor: pointer; width: 64px; height: 38px; border-radius: 19px; font: 600 15px var(--sans);
+  color: #dfe4ec; background: #1b1d22; border: 1px solid #5c6068;
+}
+.lift-btns button[aria-current='true'] { background: #ffd27a; color: #1a1206; border-color: #ffd27a; }
+.lift-btns button:hover:not([aria-current='true']) { border-color: #cfd3da; }
+.r-venue { color: #8fd0ff; }
