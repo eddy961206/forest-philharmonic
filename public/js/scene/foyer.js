@@ -298,9 +298,15 @@ export function buildFoyer(group, { halo }) {
   // ------------------------------------------- hall doors from the foyer
   // the doors stand open for the audience, leaves folded back to the wall
   const doorLeaves = [];
+  const sills = [];
   for (const Y of LEVELS) {
     for (const dx of HALL_DOORS) {
       const z = z0 + 0.02;
+      // marble sill through the thickness of the wall, so the hall floor and
+      // the foyer floor meet - no gap to look down through
+      const sd = z0 - H.back + 0.1;
+      sills.push(new THREE.BoxGeometry(HALL_DOOR_W + 0.02, 0.5, sd).translate(dx, Y - 0.252, (H.back + z0) / 2));
+      giltG.push(new THREE.BoxGeometry(HALL_DOOR_W, 0.012, 0.05).translate(dx, Y + 0.006, z0 - 0.02));
       for (const s of [-1, 1]) {
         giltG.push(new THREE.BoxGeometry(0.16, HALL_DOOR_H + 0.16, 0.1).translate(dx + s * (HALL_DOOR_W / 2 + 0.08), Y + (HALL_DOOR_H + 0.16) / 2, z));
         const lx = dx + s * (HALL_DOOR_W / 2 + 0.2 + HALL_DOOR_W / 4);
@@ -314,6 +320,7 @@ export function buildFoyer(group, { halo }) {
     }
   }
   add(group, doorLeaves, M.walnut());
+  add(group, sills, M.marbleDark());
 
   // the moonlit forest the hall is named for, in a great gilt frame
   const pw = 5.6;
