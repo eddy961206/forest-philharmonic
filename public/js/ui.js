@@ -1,5 +1,7 @@
 // DOM interface: now-playing card, the vibrating "string" seek bar,
 // transport, side panel (programme, settings), touch controls, prompts.
+import { thumbStick } from './joystick.js';
+
 const $ = (id) => document.getElementById(id);
 const fmt = (s) => {
   s = Math.max(0, Math.floor(s || 0));
@@ -39,22 +41,10 @@ export class UI {
       b.addEventListener('click', () => { if (b.dataset.venue !== this.venue) this.emit('venue', b.dataset.venue); });
     });
     document.querySelectorAll('#liftPanel button').forEach((b) => b.addEventListener('click', () => this.emit('lift', Number(b.dataset.level))));
-    const sel = $('lbAvatar');
-    for (const a of avatars) {
-      const o = document.createElement('option');
-      o.value = a.id;
-      o.textContent = a.ko;
-      sel.appendChild(o);
-    }
-    sel.value = identity.avatar;
+    // your animal is drawn once and kept (no changing it); only the name is yours
+    const mine = avatars.find((a) => a.id === identity.avatar);
+    $('lbAnimal').textContent = mine ? `${identity.emoji || ''} ${mine.ko}`.trim() : '';
     $('lbName').value = identity.name;
-    // a nickname that still names the old animal follows the new choice
-    sel.addEventListener('change', () => {
-      const name = $('lbName').value;
-      for (const a of avatars) {
-        if (name.endsWith(` ${a.ko}`)) { $('lbName').value = `${name.slice(0, -a.ko.length)}${avatars.find((x) => x.id === sel.value).ko}`; break; }
-      }
-    });
     this.pub = true;
     document.querySelectorAll('#lbVis button').forEach((b) => b.addEventListener('click', () => {
       this.pub = b.dataset.pub === '1';
@@ -69,7 +59,7 @@ export class UI {
       const name = $('lbName').value.trim();
       if (!name) { this.lobbyError('닉네임을 적어 주세요.'); $('lbName').focus(); return; }
       this.lobbyError(null);
-      this.emit('enter', { ...detail, name, avatar: sel.value });
+      this.emit('enter', { ...detail, name, avatar: identity.avatar });
     };
     this._go = go;
     $('enterBtn').addEventListener('click', () => go({ mode: 'solo' }));
@@ -130,13 +120,45 @@ export class UI {
     }
   }
 
+  // ------------------------------------------------ the usher at the door
+  // You came from the square with a ticket: it is checked here instead of
+  // the lobby, and "입장하기" (a click: sound may start) takes you in.
+  ticketMode(ticket, card) {
+    this.ticket = ticket;
+    $('lobby').hidden = true;
+    $('ticketCheck').hidden = false;
+    $('tcTicket').innerHTML = '';
+    $('tcTicket').appendChild(card);
+    $('splashSub').textContent = '입구에서 표를 확인하고 있어요. 공연장 불이 켜지면 들어가요.';
+    $('tcEnter').addEventListener('click', () => {
+      $('tcError').hidden = true;
+      $('tcFallback').hidden = true;
+      this.emit('enter', { mode: ticket.mode, code: ticket.code, title: ticket.title, cap: ticket.cap, pub: ticket.pub, name: ticket.name, avatar: ticket.avatar });
+    });
+    $('tcSolo').addEventListener('click', () => {
+      $('tcError').hidden = true;
+      $('tcFallback').hidden = true;
+      this.emit('enter', { mode: 'solo', name: ticket.name, avatar: ticket.avatar });
+    });
+  }
+
   lobbyError(msg) {
+    if (this.ticket) {
+      $('tcError').hidden = !msg;
+      $('tcError').textContent = msg || '';
+      $('tcFallback').hidden = !msg;
+      if (msg) $('tcEnter').disabled = false;
+      return;
+    }
     const el = $('lbError');
     el.hidden = !msg;
     el.textContent = msg || '';
   }
 
-  lobbyBusy(on) { $('lobby').classList.toggle('busy', on); }
+  lobbyBusy(on) {
+    $('lobby').classList.toggle('busy', on);
+    if (this.ticket) { $('tcEnter').disabled = on; $('tcLine').textContent = on ? '방을 찾아 자리로 안내하는 중이에요…' : '입장 준비가 끝났어요. 표를 내밀어 주세요.'; }
+  }
 
   // ------------------------------------------------------- watching together
   // info: { title, code, cap } or null (watching alone)
@@ -252,6 +274,12 @@ export class UI {
     this.lobbyReady = true;
     for (const id of ['enterBtn', 'lbInviteGo', 'lbCreate', 'lbJoinCode']) $(id).disabled = false;
     document.querySelectorAll('#lbRooms li > button').forEach((b) => { b.disabled = !!b.dataset.full; });
+    if (this.ticket) {
+      $('tcEnter').disabled = false;
+      $('tcLine').textContent = '입장 준비가 끝났어요. 표를 내밀어 주세요.';
+      $('tcEnter').focus({ preventScroll: true });
+      return;
+    }
     (this.invite ? $('lbInviteGo') : $('lbOnline').hidden ? $('enterBtn') : $('lbCreate')).focus({ preventScroll: true });
   }
 
@@ -264,6 +292,7 @@ export class UI {
     $('startWrap').hidden = false;
     if (touch) {
       $('joystick').hidden = false;
+      $('joyZone').hidden = false;
       $('jumpBtn').hidden = false;
       $('startHint').textContent = '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요';
     }
@@ -605,6 +634,7 @@ export class UI {
     click('btnHelp', () => { $('help').hidden = false; $('helpClose').focus(); });
     click('helpClose', () => { $('help').hidden = true; });
     click('leafBtn', () => this.emit('leaf'));
+    click('plazaBtn', () => this.emit('toPlaza'));
     click('intervalTea', () => this.emit('tea'));
     click('recitalStage', () => this.emit('stageSeat', false));
     click('recitalTurner', () => this.emit('stageSeat', true));
@@ -756,39 +786,8 @@ export class UI {
 
   // ------------------------------------------------------------ joystick
   _initJoystick() {
-    const base = $('joystick');
-    const knob = $('joyKnob');
-    let id = null;
-    let cx = 0;
-    let cy = 0;
-    const R = 46;
-    base.addEventListener('pointerdown', (e) => {
-      id = e.pointerId;
-      const r = base.getBoundingClientRect();
-      cx = r.left + r.width / 2;
-      cy = r.top + r.height / 2;
-      base.setPointerCapture(id);
-      e.preventDefault();
-    });
-    base.addEventListener('pointermove', (e) => {
-      if (e.pointerId !== id) return;
-      let dx = e.clientX - cx;
-      let dy = e.clientY - cy;
-      const d = Math.hypot(dx, dy);
-      if (d > R) { dx *= R / d; dy *= R / d; }
-      knob.style.transform = `translate(${dx}px, ${dy}px)`;
-      this.joy.x = dx / R;
-      this.joy.y = dy / R;
-    });
-    const end = (e) => {
-      if (e.pointerId !== id) return;
-      id = null;
-      knob.style.transform = '';
-      this.joy.x = 0;
-      this.joy.y = 0;
-    };
-    base.addEventListener('pointerup', end);
-    base.addEventListener('pointercancel', end);
+    // (a thumb stick that comes to your left thumb: see joystick.js)
+    this.joy = thumbStick({ base: $('joystick'), knob: $('joyKnob'), zone: $('joyZone') });
   }
 
   // --------------------------------------------- the string progress bar

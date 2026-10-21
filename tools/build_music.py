@@ -369,7 +369,7 @@ def bass_pad(notes: list[Note], measures: list[Measure], part_name: str, every: 
 # Hand-written scores (for pieces no corpus has): a tiny text notation
 # --------------------------------------------------------------------------
 #   parts = {"melody": "@q | F#4 F#4 G4 A4 | A4 G4 F#4 E4 | ..."}
-#   token  PITCH[:DUR]   DUR in w h q e s (dot allowed: q.)  r = rest
+#   token  PITCH[:DUR]   DUR in w h q e s (dot allowed: q.) or quarters (2.5)  r = rest
 #          [C4 E4 G4]:h  chord     @q sets the default duration
 #   chords = "D D G D | D G D A | ..."  one symbol per beat (DUR suffix ok)
 #   realised into __bass / __tenor / __alto voices with smooth voice leading
@@ -388,6 +388,8 @@ def pitch_midi(tok: str) -> int:
 def dur_of(tok: str, default: float) -> float:
     if not tok:
         return default
+    if tok[0].isdigit():
+        return float(tok)  # a length in quarters (e.g. 2.5)
     d = DUR[tok[0]]
     if tok.endswith("."):
         d *= 1.5
