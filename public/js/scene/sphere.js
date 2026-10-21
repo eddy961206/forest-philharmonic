@@ -155,8 +155,10 @@ function buildSeatMeshes(list, lite) {
   const Y = V3(0, 1, 0);
   const c = new THREE.Color();
   // the floor and each level in its own deep tone, a few seats in a
-  // slightly different dye, as in a real house
-  const tone = { 플로어: '#2a2d36', '100 레벨': '#272a33', '200 레벨': '#2b2833', '300 레벨': '#262b31', '400 레벨': '#2a2a2e' };
+  // slightly different dye, as in a real house (dark, but not black: lit
+  // only by a night-sky world during a piece, the empty rows must still
+  // read as rows)
+  const tone = { 플로어: '#414552', '100 레벨': '#3d414e', '200 레벨': '#433e4e', '300 레벨': '#3c434b', '400 레벨': '#414147' };
   // one chunk per section: sections off screen are skipped whole (and by
   // the seat picker's ray), far ones drawn simply
   const bySection = new Map();
@@ -179,7 +181,7 @@ function buildSeatMeshes(list, lite) {
       near.setMatrixAt(j, m);
       far.setMatrixAt(j, m);
       pick.setMatrixAt(j, m);
-      c.set(tone[s.level] || '#2a2d36').multiplyScalar(0.92 + ((si * 7919) % 17) / 100);
+      c.set(tone[s.level] || tone.플로어).multiplyScalar(0.92 + ((si * 7919) % 17) / 100);
       near.setColorAt(j, c);
       far.setColorAt(j, c);
     });
@@ -530,6 +532,15 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
   let prevLevel = 0;
   const glowCol = new THREE.Color();
   const ledBase = new THREE.Color('#8fd0ff');
+  const white = new THREE.Color('#ffffff');
+  // The house lights go almost out for a piece, and a night-sky world
+  // (stars, a nebula, deep space) throws hardly any light of its own: the
+  // bowl would go black. So the screen never lights the room less than a
+  // moonlit sky would - enough to see the rows, the aisles and the stage,
+  // still dark enough that the dome is the show. Brighter worlds are above
+  // this anyway. The aisle lights stay on low, as they do in a real house.
+  const GLOW_MIN = 0.36;
+  const AISLE_MIN = 0.32;
   update.push((dt, t) => {
     houseLevel += (houseTarget - houseLevel) * Math.min(1, dt * 0.8);
     // a crude onset: the level jumping above its recent average
@@ -539,16 +550,18 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
     live.down = Math.max(live.down * Math.exp(-dt * 3), Math.min(1, onset * 30));
     live.beat = live.down;
     const g = dome.update(dt, { time: live.time, level: lv, beat: live.beat, down: live.down, playing: live.playing });
+    const room = Math.max(g.intensity, GLOW_MIN);
     glowCol.copy(g.color);
-    lights.hemi.color.copy(glowCol).lerp(new THREE.Color('#ffffff'), 0.25);
-    lights.hemi.intensity = 0.25 + g.intensity * 1.6 + 0.25 * houseLevel;
+    lights.hemi.color.copy(glowCol).lerp(white, 0.25);
+    lights.hemi.intensity = 0.25 + room * 1.6 + 0.25 * houseLevel;
     domeLight.color.copy(glowCol);
-    domeLight.intensity = 0.15 + g.intensity * 1.1;
+    domeLight.intensity = 0.15 + room * 1.1;
     // the LED ribbons follow the screen
     mat.led.emissive.copy(ledBase).lerp(glowCol, 0.75);
     mat.led.emissiveIntensity = 0.6 + 1.6 * g.intensity + 0.6 * live.down;
-    mat.step.emissiveIntensity = 0.5 + 0.9 * houseLevel;
-    mat.down.emissiveIntensity = 0.15 + 1.6 * houseLevel;
+    const aisle = Math.max(houseLevel, AISLE_MIN);
+    mat.step.emissiveIntensity = 0.5 + 0.9 * aisle;
+    mat.down.emissiveIntensity = 0.15 + 1.6 * aisle;
     mat.tunnelLight.emissiveIntensity = 0.9 + 0.6 * houseLevel;
     fix.update(dt, t, { level: lv, down: live.down, on: live.playing && live.lively, color: glowCol, house: houseLevel });
     lifts.update(dt);
@@ -602,10 +615,14 @@ function buildFixtures(group, list, lite) {
     vertexShader: `varying float vAlong; varying vec3 vN; varying vec3 vV;
       void main(){ vAlong = clamp(-position.z / 30.0, 0.0, 1.0);
         vec4 w = modelMatrix * instanceMatrix * vec4(position, 1.0);
-        vN = normalize(mat3(modelMatrix * instanceMatrix) * normal); vV = normalize(cameraPosition - w.xyz);
+        vec3 n = mat3(modelMatrix * instanceMatrix) * normal; vec3 v = cameraPosition - w.xyz;
+        vN = n * inversesqrt(max(dot(n, n), 1e-8)); vV = v * inversesqrt(max(dot(v, v), 1e-8));
         gl_Position = projectionMatrix * viewMatrix * w; }`,
     fragmentShader: `uniform vec3 uColor; uniform float uI; varying float vAlong; varying vec3 vN; varying vec3 vV;
-      void main(){ float edge = pow(abs(dot(vN, vV)), 1.6); float a = edge * pow(1.0 - vAlong, 1.7) * smoothstep(0.0, 0.12, vAlong) * uI * 0.16;
+      // (every pow() base kept in 0..1: the interpolated vAlong can creep a
+      // hair past 1, and pow() of a negative number is NaN - which the bloom
+      // spread into a black screen for whole pieces)
+      void main(){ float along = clamp(vAlong, 0.0, 1.0); float edge = pow(clamp(abs(dot(vN, vV)), 0.0, 1.0), 1.6); float a = edge * pow(max(1.0 - along, 0.0), 1.7) * smoothstep(0.0, 0.12, along) * uI * 0.16;
         gl_FragColor = vec4(uColor * a, a); }`,
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
   });
