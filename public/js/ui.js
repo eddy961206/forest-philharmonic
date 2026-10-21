@@ -1,6 +1,7 @@
 // DOM interface: now-playing card, the vibrating "string" seek bar,
 // transport, side panel (programme, settings), touch controls, prompts.
 import { thumbStick } from './joystick.js';
+import { IS_SPHERE } from './scene/venue.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (s) => {
@@ -32,6 +33,7 @@ export class UI {
     this.avatars = avatars;
     this.venue = venue;
     this.venues = venues;
+    document.body.dataset.venue = venue; // (the help speaks of this building: stairs or lifts)
     // which building: the splash speaks of it, the other one is a click away
     const V = venues[venue];
     if (V?.title) $('splashTitle').textContent = V.title;
@@ -75,6 +77,8 @@ export class UI {
       go({ mode: 'join', code });
     };
     $('lbJoinCode').addEventListener('click', joinCode);
+    // (a pasted "K7Q-H2M" or " k7qh2m ": the letters and digits are the code)
+    $('lbCode').addEventListener('input', () => { $('lbCode').value = $('lbCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); });
     $('lbCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') joinCode(); });
     $('lbRefresh').addEventListener('click', () => this.emit('refreshRooms'));
   }
@@ -88,6 +92,11 @@ export class UI {
 
   setRooms(list) {
     const ul = $('lbRooms');
+    // (the same list again: left alone - no lost focus or click, nothing read out twice)
+    const key = JSON.stringify(list) + !!this.lobbyReady;
+    if (key === this._roomsKey) return;
+    this._roomsKey = key;
+    const had = ul.contains(document.activeElement) ? document.activeElement.dataset.code : null;
     ul.innerHTML = '';
     if (!list.length) {
       const li = document.createElement('li');
@@ -114,10 +123,12 @@ export class UI {
       b.disabled = full || !this.lobbyReady;
       b.dataset.full = full ? '1' : '';
       if (full) b.title = '방이 가득 찼어요';
+      b.dataset.code = r.code;
       b.addEventListener('click', () => this._go({ mode: 'join', code: r.code }));
       li.appendChild(b);
       ul.appendChild(li);
     }
+    if (had) ul.querySelector(`button[data-code="${had}"]`)?.focus({ preventScroll: true });
   }
 
   // ------------------------------------------------ the usher at the door
@@ -142,24 +153,38 @@ export class UI {
       $('tcFallback').hidden = true;
       this.emit('enter', { mode: 'solo', name: ticket.name, avatar: ticket.avatar });
     });
+    // back to the square: a ticket for a room that is gone stays here
+    $('tcPlaza')?.addEventListener('click', () => { if (this.ticketDead) this.emit('dropTicket'); });
   }
 
-  lobbyError(msg) {
+  // msg: what went wrong (null: nothing). note: news, not a fault (on the
+  // way to the other building). dead: that room is gone, so the ticket's
+  // own button would only fail again - the ways in that still work come first
+  lobbyError(msg, { note = false, dead = false } = {}) {
     if (this.ticket) {
-      $('tcError').hidden = !msg;
-      $('tcError').textContent = msg || '';
-      $('tcFallback').hidden = !msg;
-      if (msg) $('tcEnter').disabled = false;
+      $('tcError').hidden = !msg || note;
+      $('tcError').textContent = note ? '' : msg || '';
+      $('tcFallback').hidden = !msg || note;
+      if (note) { $('tcLine').textContent = msg; return; }
+      if (!msg) return;
+      this.ticketDead = dead;
+      $('tcLine').textContent = dead ? '표에 적힌 방에는 들어갈 수 없어요.' : '아직 들어가지 못했어요. 다시 해 보거나 혼자 보기로 들어가요.';
+      $('tcEnter').disabled = dead;
+      $('tcEnter').hidden = dead;
+      $('tcEnter').textContent = dead ? '입장하기' : '다시 해 보기';
+      if (dead) $('tcSolo').focus();
       return;
     }
     const el = $('lbError');
     el.hidden = !msg;
     el.textContent = msg || '';
+    if (dead && this.invite) $('lbInvite').hidden = true; // (that invite is no more)
+    if (msg) el.scrollIntoView?.({ block: 'nearest' });
   }
 
   lobbyBusy(on) {
     $('lobby').classList.toggle('busy', on);
-    if (this.ticket) { $('tcEnter').disabled = on; $('tcLine').textContent = on ? '방을 찾아 자리로 안내하는 중이에요…' : '입장 준비가 끝났어요. 표를 내밀어 주세요.'; }
+    if (this.ticket && !this.ticketDead) { $('tcEnter').disabled = on; $('tcLine').textContent = on ? '방을 찾아 자리로 안내하는 중이에요…' : '입장 준비가 끝났어요. 표를 내밀어 주세요.'; }
   }
 
   // ------------------------------------------------------- watching together
@@ -228,6 +253,12 @@ export class UI {
     $('seek').setAttribute('aria-disabled', String(!isHost));
     document.querySelectorAll('#programList button').forEach(lock);
     $('startBtn').textContent = isHost ? '공연 시작' : '방장이 공연을 시작하면 연주자들이 들어와요';
+    // (a guest's K would only say the show is the host's: the hint leaves it out)
+    const hint = $('startHint');
+    if (hint && !document.body.classList.contains('touch')) {
+      hint._full ??= hint.innerHTML;
+      hint.innerHTML = isHost ? hint._full : hint._full.replace(/ · <kbd>K<\/kbd> 공연 시작/, ' · <kbd>Enter</kbd> 채팅');
+    }
   }
 
   // ------------------------------------------------------------------ chat
@@ -300,6 +331,24 @@ export class UI {
       $('jumpBtn').hidden = false;
       $('startHint').textContent = '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요';
     }
+    // (layout) what sits above the dock - the start button, toasts, the stick,
+    // a phone's panel - reads its real top edge: --dock and --start-top, in px
+    // from the bottom of the screen (the dock wraps to more rows on a phone)
+    const sync = () => {
+      const root = document.documentElement.style;
+      const t = $('transport').getBoundingClientRect();
+      if (t.height) root.setProperty('--dock', `${Math.round(window.innerHeight - t.top)}px`);
+      const s = $('startWrap');
+      const r = s.hidden ? null : s.getBoundingClientRect();
+      root.setProperty('--start-top', r && r.height ? `${Math.round(window.innerHeight - r.top)}px` : '0px');
+    };
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(sync);
+      ro.observe($('transport'));
+      ro.observe($('startWrap'));
+    }
+    window.addEventListener('resize', sync);
+    sync();
   }
 
   // the musicians have been called on stage
@@ -410,7 +459,8 @@ export class UI {
   }
 
   setMode(mode) {
-    document.querySelectorAll('.mode').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode || (mode === 'seat' && b.dataset.mode === 'walk'))));
+    // (seated, neither is on: '걷기' is the way up again)
+    document.querySelectorAll('.mode').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
   }
 
   // "E 앉기" style prompt near the centre of the screen
@@ -450,6 +500,21 @@ export class UI {
     }, ms);
   }
 
+  // the help dialog: focus goes into it, and back to where it was when it closes
+  showHelp(on) {
+    const h = $('help');
+    if (on && h.hidden) {
+      this._helpFrom = document.activeElement;
+      h.hidden = false;
+      $('helpClose').focus({ preventScroll: true });
+    } else if (!on && !h.hidden) {
+      h.hidden = true;
+      const back = this._helpFrom;
+      this._helpFrom = null;
+      if (back && back !== document.body && back.isConnected && !back.closest('[hidden]')) back.focus({ preventScroll: true });
+    }
+  }
+
   tooltip(info, x, y) {
     const el = $('tooltip');
     if (!info) { el.hidden = true; return; }
@@ -462,6 +527,11 @@ export class UI {
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
     el.hidden = false;
+    // near the right or bottom edge it opens to the other side of the cursor
+    const w = el.offsetWidth, h = el.offsetHeight;
+    const dx = x + 14 + w > window.innerWidth - 8 ? -14 - w : 14;
+    const dy = y + 14 + h > window.innerHeight - 8 ? -14 - h : 14;
+    el.style.transform = `translate(${dx}px, ${dy}px)`;
   }
 
   focus(info) {
@@ -474,6 +544,18 @@ export class UI {
   setFps(fps, q) {
     const el = $('fpsText');
     if (el && !$('panel').hidden) el.textContent = `지금 ${Math.round(fps)} fps, 화질 ${({ high: '높음', medium: '보통', low: '낮음' })[q]}`;
+  }
+
+  // how many guests are in the house now; roomCap: watching together, the
+  // house is shared and does not grow past the room's (that per cent)
+  // (drawn: a phone draws only so many of them)
+  setCrowdCount(n, roomCap = 0, drawn = n) {
+    const el = $('crowdText');
+    if (!el) return;
+    const few = drawn < n ? ` 이 기기에서는 ${drawn.toLocaleString()}명까지만 보여요.` : '';
+    el.textContent = roomCap
+      ? `같이 볼 때는 모두 같은 객석이라 ${roomCap}%까지만 앉아요. 지금 ${n.toLocaleString()}명.${few}`
+      : n > 0 ? `지금 ${n.toLocaleString()}명이 앉아 있어요.${few}` : '오늘은 빈 객석이에요.';
   }
 
   setSleepLeft(ms) {
@@ -627,13 +709,41 @@ export class UI {
 
   // ---------------------------------------------------------------- binding
   _bind() {
-    const click = (id, fn) => $(id).addEventListener('click', (e) => { fn(e); if (e.detail > 0) e.currentTarget.blur(); });
+    // A finger's tap counts when it lifts on the button: the browser makes no
+    // click of a tap while another finger is down (the left thumb on the
+    // stick), so a jump, a pause or a sit would be lost while walking. The
+    // mouse and the keyboard keep the plain click (and the click that
+    // follows a lone finger's tap is not counted twice).
+    const tap = (el, fn, { onDown = false } = {}) => {
+      let finger = null;
+      let tapped = 0;
+      const fire = (e) => { tapped = this._tapAt = performance.now(); fn(e); el.blur(); };
+      el.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' || el.disabled) return;
+        if (onDown) fire(e); else finger = e.pointerId;
+      });
+      el.addEventListener('pointerup', (e) => {
+        if (e.pointerId !== finger) return;
+        finger = null;
+        const r = el.getBoundingClientRect();
+        if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) fire(e);
+      });
+      el.addEventListener('pointercancel', () => { finger = null; });
+      el.addEventListener('click', (e) => {
+        if (performance.now() - tapped < 800) return;
+        fn(e);
+        if (e.detail > 0) el.blur();
+      });
+    };
+    const click = (id, fn, opt) => tap($(id), fn, opt);
     click('startBtn', () => this.emit('start'));
     click('btnPlay', () => this.emit('toggle'));
     click('btnNext', () => this.emit('next'));
     click('btnPrev', () => this.emit('prev'));
-    click('btnHelp', () => { $('help').hidden = false; $('helpClose').focus(); });
-    click('helpClose', () => { $('help').hidden = true; });
+    click('btnHelp', () => this.showHelp(true));
+    click('helpClose', () => this.showHelp(false));
+    // (a dialog: Tab stays in it - its one button)
+    $('help').addEventListener('keydown', (e) => { if (e.key === 'Tab') { e.preventDefault(); $('helpClose').focus(); } });
     click('leafBtn', () => this.emit('leaf'));
     click('plazaBtn', () => this.emit('toPlaza'));
     click('intervalTea', () => this.emit('tea'));
@@ -643,7 +753,10 @@ export class UI {
     click('intervalGo', () => this.emit('secondHalf'));
     click('actBtn', () => this.emit('act'));
     click('newsClose', () => { $('news').hidden = true; });
-    $('news').addEventListener('click', (e) => { if (e.target.id === 'news') $('news').hidden = true; });
+    // (the click a finger's tap leaves behind lands on the backdrop of the dialog
+    // it just opened: not a click outside the card, so it does not close it)
+    const outside = (e, id) => e.target.id === id && performance.now() - (this._tapAt || 0) > 700;
+    $('news').addEventListener('click', (e) => { if (outside(e, 'news')) $('news').hidden = true; });
     document.querySelectorAll('#intervalSeg button').forEach((b) => {
       b.setAttribute('aria-pressed', String(Number(b.dataset.min) === this.settings.interval));
       b.addEventListener('click', () => {
@@ -652,8 +765,8 @@ export class UI {
       });
     });
     click('leafClose', () => { $('leaf').hidden = true; });
-    $('leaf').addEventListener('click', (e) => { if (e.target.id === 'leaf') $('leaf').hidden = true; });
-    $('help').addEventListener('click', (e) => { if (e.target.id === 'help') $('help').hidden = true; });
+    $('leaf').addEventListener('click', (e) => { if (outside(e, 'leaf')) $('leaf').hidden = true; });
+    $('help').addEventListener('click', (e) => { if (outside(e, 'help')) this.showHelp(false); });
     click('btnFull', () => this.emit('fullscreen'));
     click('focusClose', () => this.emit('unfocus'));
     click('sitBtn', () => this.emit('sit'));
@@ -669,21 +782,20 @@ export class UI {
       this.closeChat();
     });
     $('chatInput').addEventListener('keydown', (e) => {
-      if (e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); this.closeChat(); }
+      if (e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); $('chatInput').value = ''; this.closeChat(); } // (Esc: the line is not sent - not now, not glued to the next one)
     });
-    click('jumpBtn', () => this.emit('jump'));
+    click('jumpBtn', () => this.emit('jump'), { onDown: true }); // (at once, as a game's jump)
     $('focusSolo').addEventListener('click', (e) => {
       const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
       e.currentTarget.setAttribute('aria-pressed', String(on));
       this.emit('solo', on);
     });
-    document.querySelectorAll('.mode').forEach((b) => b.addEventListener('click', (e) => { this.emit('mode', b.dataset.mode); if (e.detail > 0) b.blur(); }));
+    document.querySelectorAll('.mode').forEach((b) => tap(b, () => this.emit('mode', b.dataset.mode)));
 
-    document.querySelectorAll('.tab-btn').forEach((b) => b.addEventListener('click', (e) => {
+    document.querySelectorAll('.tab-btn').forEach((b) => tap(b, () => {
       const name = b.dataset.panel;
       const open = $('panel').hidden || this.openPanel !== name;
       this.showPanel(open ? name : null);
-      if (e.detail > 0) b.blur();
     }));
     click('panelClose', () => this.showPanel(null));
 
@@ -697,7 +809,20 @@ export class UI {
       el.checked = !!this.settings[key];
       el.addEventListener('change', () => this.onSetting(key, el.checked));
     };
-    for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optApplause', 'applause'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen'], ['optAudience', 'audience']]) bindCheck(id, key);
+    for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optApplause', 'applause'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen']]) bindCheck(id, key);
+    // the audience: how full this venue's house is (each venue keeps its own)
+    const crowd = $('crowd');
+    const crowdKey = IS_SPHERE ? 'crowdSphere' : 'crowdHall';
+    const showCrowd = () => {
+      $('crowdOut').textContent = `${crowd.value}%`;
+      crowd.style.setProperty('--fill', `${crowd.value}%`);
+    };
+    crowd.value = String(this.settings[crowdKey] ?? 0);
+    showCrowd();
+    crowd.addEventListener('input', () => {
+      showCrowd();
+      this.onSetting(crowdKey, Number(crowd.value));
+    });
     const rev = $('reverb');
     rev.value = String(this.settings.reverb);
     rev.addEventListener('input', () => this.onSetting('reverb', Number(rev.value)));
@@ -740,8 +865,14 @@ export class UI {
       else if (c === 'KeyH') document.body.classList.toggle('ui-hidden');
       else if (c === 'KeyM') this.emit('mute');
       else if (c === 'Enter') { if (this.room) { e.preventDefault(); this.openChat(); } else this.emit('fullscreen'); }
-      else if (e.key === '?') $('help').hidden = !$('help').hidden;
-      else if (c === 'Escape') { $('help').hidden = true; $('leaf').hidden = true; $('news').hidden = true; this.showPanel(null); }
+      else if (e.key === '?') {
+        this.showHelp($('help').hidden);
+        // (the help has buttons to press: the mouse comes back for them)
+        if (!$('help').hidden && document.pointerLockElement) document.exitPointerLock();
+      }
+      // Esc while the mouse is captured only lets the mouse go (the walker
+      // does that); the next Esc closes what is open
+      else if (c === 'Escape') { if (!e.defaultPrevented && !document.pointerLockElement) { this.showHelp(false); $('leaf').hidden = true; $('news').hidden = true; this.showPanel(null); } }
       else if (c === 'KeyF') { if (!$('actBtn').hidden) this.emit('act'); }
       else if (c === 'ArrowLeft' || c === 'ArrowRight') this.emit('seekKey', c === 'ArrowLeft' ? -10 : 10, e);
     });

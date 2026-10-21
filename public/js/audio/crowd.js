@@ -1,6 +1,13 @@
 // Applause synthesised once at load, made of individual clappers (each with
-// their own hands, tempo, position in the hall, and a moment they start and
+// their own hands, tempo, seat in the house, and a moment they start and
 // stop). No recordings; everything is generated here.
+//
+// Two layers, mixed at play time by how many guests are in:
+//   close - the neighbours you can pick out (a dozen around you, crisp, from
+//           every side) and the rows nearby;
+//   wash  - the rest of the house: hundreds of pairs of hands further away,
+//           darker and diffuse, each reaching the two ears at a slightly
+//           different time - the wide, dense roar of a full hall.
 
 function rng(seed) {
   let s = seed >>> 0;
@@ -14,9 +21,9 @@ function gauss(r) {
   return Math.sqrt(-2 * Math.log(Math.max(1e-9, r()))) * Math.cos(2 * Math.PI * r());
 }
 
-// RBJ band-pass (0 dB peak), direct form I, in place
+// RBJ band-pass (0 dB peak), direct form I
 function bandpass(x, fs, f, q) {
-  const w = (2 * Math.PI * f) / fs;
+  const w = (2 * Math.PI * Math.min(f, fs * 0.45)) / fs;
   const al = Math.sin(w) / (2 * q);
   const a0 = 1 + al;
   const b0 = al / a0;
@@ -43,8 +50,8 @@ function onePoleLP(x, fs, f) {
 
 // One pair of hands: a sharp noise burst exciting the air pocket between
 // the palms (a resonance between ~0.7 and 2.4 kHz) plus the skin slap.
-function clapTemplate(fs, r) {
-  const n = Math.floor(fs * 0.05);
+function clapTemplate(fs, r, ms = 50) {
+  const n = Math.floor((fs * ms) / 1000);
   const ex = new Float32Array(n);
   const tauE = 0.0012 + r() * 0.0025;
   for (let i = 0; i < n; i++) {
@@ -59,74 +66,123 @@ function clapTemplate(fs, r) {
   const out = new Float32Array(n);
   let peak = 0;
   for (let i = 0; i < n; i++) {
-    out[i] = body[i] * (2.2 + cupped) + air[i] * 0.9 + ex[i] * 0.12;
+    // the last few ms fade so a short template never ends on a step
+    const tail = Math.min(1, (n - i) / (fs * 0.004));
+    out[i] = (body[i] * (2.2 + cupped) + air[i] * 0.9 + ex[i] * 0.12) * tail;
     peak = Math.max(peak, Math.abs(out[i]));
   }
   for (let i = 0; i < n; i++) out[i] /= peak;
   return out;
 }
 
-// seconds: length; people: how many clap; rhythmic: the finale's
-// synchronised clapping joins in the second half
-export function renderApplause(ctx, { seconds = 8, people = 150, seed = 1, rhythmic = false, sr = 44100 } = {}) {
+// One person clapping into L/R: from t0 until they stop, with their own
+// tempo; joins the shared beat in a rhythmic finale.
+function clapper(L, R, fs, seconds, r, o) {
+  const len = L.length;
+  const { tA, tB, gl, gr, itd, rhythmic } = o;
+  const period = 1 / (3.2 + r() * 2.1);
+  // most hands come in within the first second (a few eager ones first, a
+  // few late ones after), and drop out over the last few seconds
+  let t = 0.05 + Math.pow(r(), 1.6) * 0.9 + Math.abs(gauss(r)) * 0.12 + (r() < 0.1 ? r() * 1.5 : 0);
+  const stop = seconds - 3.2 + gauss(r) * 1.0 - (r() < 0.25 ? r() * 2.2 : 0) + (r() < 0.06 ? 1.6 : 0);
+  const joins = rhythmic && r() < 0.65;
+  const syncFrom = seconds * 0.45 + r() * 1.5;
+  const beat = 0.43;
+  const amp = 0.75 + r() * 0.5;
+  let k = 0;
+  const iL = itd > 0 ? itd : 0;
+  const iR = itd < 0 ? -itd : 0;
+  while (t < Math.min(stop, seconds - 0.1)) {
+    // a crescendo as they get going, softer as they tire
+    const rise = Math.min(1, (t + 0.25) / 1.1);
+    const tire = Math.max(0.3, 1 - Math.max(0, t - (stop - 1.4)) / 1.8);
+    const a = amp * (0.8 + r() * 0.4) * rise * tire;
+    const tpl = k % 3 === 0 ? tB : tA;
+    const i0 = Math.floor(t * fs);
+    const al = a * gl;
+    const ar = a * gr;
+    const nL = Math.min(tpl.length, len - i0 - iL);
+    for (let i = 0; i < nL; i++) L[i0 + iL + i] += tpl[i] * al;
+    const nR = Math.min(tpl.length, len - i0 - iR);
+    for (let i = 0; i < nR; i++) R[i0 + iR + i] += tpl[i] * ar;
+    k++;
+    if (joins && t > syncFrom) {
+      // lock onto the shared beat (with human timing)
+      const next = Math.ceil((t + 0.05) / beat) * beat;
+      t = next + gauss(r) * 0.014;
+    } else {
+      t += period * (1 + gauss(r) * 0.07);
+    }
+  }
+}
+
+// RMS over the steady part (20-50 % of the length)
+function steadyRms(L, R) {
+  let e = 0;
+  const a = Math.floor(L.length * 0.2);
+  const b = Math.floor(L.length * 0.5);
+  for (let i = a; i < b; i++) e += L[i] * L[i] + R[i] * R[i];
+  return Math.sqrt(e / (2 * Math.max(1, b - a)));
+}
+
+// scale to the wanted level; the odd clap right at your ear is rounded off
+// (soft, ~12 dB over the crowd's RMS: big, never spiky)
+function toBuffer(ctx, L, R, fs, scale, rms) {
+  const buf = ctx.createBuffer(2, L.length, fs);
+  const bl = buf.getChannelData(0);
+  const br = buf.getChannelData(1);
+  const len = L.length;
+  const T = 4 * rms;
+  for (let i = 0; i < len; i++) {
+    const x = i / len;
+    const f = Math.min(1, x * 60) * Math.min(1, (1 - x) * 14);
+    bl[i] = T * Math.tanh((L[i] * scale * f) / T);
+    br[i] = T * Math.tanh((R[i] * scale * f) / T);
+  }
+  return buf;
+}
+
+// seconds: length; people: how many make the wash; rhythmic: the finale's
+// synchronised clapping joins in the second half; sr: the crowd is
+// band-limited anyway (it is played through a 5-8 kHz low-pass), so it is
+// rendered at a low rate - a quarter of the work.
+// Returns { close, wash } (stereo AudioBuffers, each at a fixed RMS so the
+// two mix predictably: the house 4 dB over the neighbours).
+export function renderApplause(ctx, { seconds = 8, people = 320, seed = 1, rhythmic = false, sr = 24000 } = {}) {
   const r = rng(seed);
   const fs = sr;
   const len = Math.floor(fs * seconds);
-  const L = new Float32Array(len);
-  const R = new Float32Array(len);
-  const near = Array.from({ length: 32 }, () => clapTemplate(fs, r));
-  const far = near.map((t) => onePoleLP(t, fs, 2600));
+  const near = Array.from({ length: 24 }, () => clapTemplate(fs, r, 50));
+  const far = Array.from({ length: 24 }, () => onePoleLP(clapTemplate(fs, r, 30), fs, 2300));
+  const pick = (set) => set[Math.floor(r() * set.length)];
+  const side = (pan) => [Math.cos(((pan + 1) * Math.PI) / 4), Math.sin(((pan + 1) * Math.PI) / 4)];
+
+  // close: your neighbours (all around, incl. behind) and the rows nearby
+  const cL = new Float32Array(len);
+  const cR = new Float32Array(len);
+  const nClose = 60;
+  for (let p = 0; p < nClose; p++) {
+    const neighbour = p < 12;
+    const d = neighbour ? 1.0 + r() * 2.5 : 3.5 + Math.pow(r(), 0.8) * 9;
+    const g = (0.6 + r() * 0.4) / (1 + d / 2.5);
+    const pan = neighbour ? r() * 1.9 - 0.95 : Math.max(-1, Math.min(1, gauss(r) * 0.6));
+    const [sl, sr2] = side(pan);
+    const itd = Math.round(pan * 0.0005 * fs);
+    clapper(cL, cR, fs, seconds, r, { tA: pick(near), tB: pick(near), gl: g * sl, gr: g * sr2, itd, rhythmic });
+  }
+  const close = toBuffer(ctx, cL, cR, fs, 0.06 / (steadyRms(cL, cR) || 1), 0.06);
+
+  // wash: the house
+  const wL = new Float32Array(len);
+  const wR = new Float32Array(len);
   for (let p = 0; p < people; p++) {
-    // where they sit: a few close by, most further away in the hall
-    const d = 2.5 + Math.pow(r(), 0.7) * 30;
-    const g = (0.55 + r() * 0.45) / (1 + d / 5);
-    const pan = Math.max(-1, Math.min(1, gauss(r) * 0.55));
-    const gl = g * Math.cos(((pan + 1) * Math.PI) / 4);
-    const gr = g * Math.sin(((pan + 1) * Math.PI) / 4);
-    const tset = d > 12 ? far : near;
-    const tA = tset[Math.floor(r() * tset.length)];
-    const tB = tset[Math.floor(r() * tset.length)];
-    const period = 1 / (3.3 + r() * 1.9);
-    let t = 0.04 + Math.abs(gauss(r)) * 0.35 + (r() < 0.12 ? r() * 1.4 : 0);
-    const stop = seconds - 2.6 + gauss(r) * 0.9 - (r() < 0.2 ? r() * 2 : 0);
-    const joins = rhythmic && r() < 0.65;
-    const syncFrom = seconds * 0.45 + r() * 1.5;
-    const beat = 0.43;
-    let k = 0;
-    while (t < Math.min(stop, seconds - 0.08)) {
-      // crescendo in the first second, a softer tail as each person tires
-      const rise = Math.min(1, (t + 0.15) / 0.9);
-      const tire = Math.max(0.35, 1 - Math.max(0, t - (stop - 1.2)) / 1.6);
-      const a = (0.75 + r() * 0.5) * rise * tire;
-      const tpl = k % 3 === 0 ? tB : tA;
-      const i0 = Math.floor(t * fs);
-      for (let i = 0; i < tpl.length && i0 + i < len; i++) {
-        L[i0 + i] += tpl[i] * a * gl;
-        R[i0 + i] += tpl[i] * a * gr;
-      }
-      k++;
-      if (joins && t > syncFrom) {
-        // lock onto the shared beat (with human timing)
-        const next = Math.ceil((t + 0.05) / beat) * beat;
-        t = next + gauss(r) * 0.012;
-      } else {
-        t += period * (1 + gauss(r) * 0.06);
-      }
-    }
+    const d = 10 + Math.pow(r(), 0.9) * 35;
+    const g = (0.6 + r() * 0.4) / (1 + d / 8);
+    const pan = r() * 2 - 1;
+    const [sl, sr2] = side(pan * 0.95);
+    const itd = Math.round(pan * 0.0006 * fs) + Math.round(gauss(r) * 0.0002 * fs);
+    clapper(wL, wR, fs, seconds, r, { tA: pick(far), tB: pick(far), gl: g * sl, gr: g * sr2, itd, rhythmic });
   }
-  // gentle fade in/out at the very ends, then normalise
-  let peak = 0;
-  for (let i = 0; i < len; i++) {
-    const x = i / len;
-    const f = Math.min(1, x * 40) * Math.min(1, (1 - x) * 12);
-    L[i] *= f;
-    R[i] *= f;
-    peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i]));
-  }
-  const buf = ctx.createBuffer(2, len, fs);
-  const k = 0.8 / (peak || 1);
-  const bl = buf.getChannelData(0);
-  const br = buf.getChannelData(1);
-  for (let i = 0; i < len; i++) { bl[i] = L[i] * k; br[i] = R[i] * k; }
-  return buf;
+  const wash = toBuffer(ctx, wL, wR, fs, 0.1 / (steadyRms(wL, wR) || 1), 0.1);
+  return { close, wash };
 }

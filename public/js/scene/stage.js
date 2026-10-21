@@ -45,7 +45,8 @@ class Walker {
     this.bow = 0;
     this.bowTarget = 0;
     this.delay = 0;
-    this.speed = WALK_SPEED * (0.92 + Math.random() * 0.16);
+    this.pace = WALK_SPEED * (0.92 + Math.random() * 0.16); // (each walks at their own pace)
+    this.speed = this.pace;
   }
 
   teleportOff() {
@@ -221,6 +222,7 @@ export class StageManager {
       const list = this.walkers.filter((w) => w.door === side).sort((a, b) => b.routeLen - a.routeLen);
       let t = 0.4;
       for (const w of list) {
+        w.speed = w.pace;
         w.wasSeated = false;
         w.teleportOff();
         w.walk(w.route, this._arrive(w), t);
@@ -312,7 +314,12 @@ export class StageManager {
     for (const side of ['L', 'R']) {
       const mine = list.filter((w) => w.door === side).sort((a, b) => a.routeLen - b.routeLen);
       let t = 0.5;
+      let ahead = Infinity;
       for (const w of mine) {
+        // (all heading for the same door: nobody catches up with - and walks
+        // through - a slower colleague ahead in the queue)
+        w.speed = Math.min(w.pace, ahead);
+        ahead = w.speed;
         w.wasSeated = w.state === 'seated' || w.state === 'standing';
         w.leaving = true;
         w.walk([...w.route].reverse().slice(1), () => { w.leaving = false; w.teleportOff(); }, t);
@@ -327,6 +334,7 @@ export class StageManager {
       const mine = list.filter((w) => w.door === side).sort((a, b) => b.routeLen - a.routeLen);
       let t = 0.4;
       for (const w of mine) {
+        w.speed = w.pace;
         w.wasSeated = false;
         w.leaving = false;
         w.teleportOff();
