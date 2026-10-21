@@ -47,7 +47,7 @@ setLite(LITE);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#05080d');
 const camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 400);
-const world = buildPlaza(scene, { lite: LITE });
+const world = buildPlaza(scene, { lite: LITE, pixelRatio: () => renderer.getPixelRatio() });
 
 // ------------------------------------------------------------- who you are
 let me = identity();
@@ -56,42 +56,16 @@ $('pzAni').textContent = EMOJI[me.avatar] || '🐾';
 $('pzName').textContent = me.name;
 $('pzKind').textContent = `오늘 밤 나는 ${kind.ko}`;
 
-function nameTag(text) {
-  const c = document.createElement('canvas');
-  const g = c.getContext('2d');
-  const font = '600 30px "IBM Plex Sans KR", system-ui, sans-serif';
-  g.font = font;
-  const w = Math.ceil(g.measureText(text).width) + 40;
-  c.width = w;
-  c.height = 56;
-  g.font = font;
-  g.fillStyle = 'rgba(14, 11, 9, 0.6)';
-  g.beginPath();
-  g.roundRect(1, 1, w - 2, 54, 27);
-  g.fill();
-  g.fillStyle = '#f6efe0';
-  g.textBaseline = 'middle';
-  g.textAlign = 'center';
-  g.fillText(text, w / 2, 29);
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
-  s.scale.set(w / 330, 56 / 330, 1);
-  return s;
-}
-
 const player = {
   char: buildCharacter({ species: me.avatar, fur: kind.fur, outfit: Math.random() < 0.5 ? 'dress' : 'tail', standing: true }, '#e6c07b'),
   pos: V(PLAZA.spawn.x, 0, PLAZA.spawn.z),
   vel: V(),
   yaw: 0, // facing the booth (-z)
   phase: 0,
-  tag: null,
 };
 player.char.setStanding(1);
-player.tag = nameTag(me.name);
-player.tag.position.set(0, 1.95, 0);
-player.char.root.add(player.tag);
+// (no name over your own head: seen from behind it sat in the middle of
+// everything you were looking at - the corner of the screen says who you are)
 scene.add(player.char.root);
 
 // the squirrel at the window
@@ -163,8 +137,9 @@ const sfx = {
     this.out = ctx.createGain();
     this.out.gain.value = 0.7;
     this.out.connect(ctx.destination);
-    // wind: soft filtered noise
-    const len = ctx.sampleRate * 3;
+    const t = ctx.currentTime;
+    // wind: soft filtered noise, rising in (no click) and slowly breathing
+    const len = ctx.sampleRate * 4;
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
@@ -174,35 +149,50 @@ const sfx = {
     src.loop = true;
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
-    lp.frequency.value = 380;
+    lp.frequency.value = 360;
+    const lfo = ctx.createOscillator();
+    const lfoAmt = ctx.createGain();
+    lfo.frequency.value = 0.07;
+    lfoAmt.gain.value = 120;
+    lfo.connect(lfoAmt).connect(lp.frequency);
     const g = ctx.createGain();
-    g.gain.value = 0.035;
+    g.gain.setValueAtTime(0, t);
+    g.gain.setTargetAtTime(0.032, t, 1.5);
     src.connect(lp).connect(g).connect(this.out);
-    src.start();
-    // crickets: short chirps from here and there
-    const chirp = () => {
+    src.start(t);
+    lfo.start(t);
+    // crickets: four of them, each in its own place in the grass with its
+    // own voice - they call, rest, and call again
+    const crickets = [-0.75, -0.3, 0.35, 0.8].map((x, i) => ({ pan: x, f: 4050 + i * 170 + Math.random() * 80, v: 0.005 + Math.random() * 0.006 }));
+    const chirp = (c) => {
       if (!this.ctx) return;
+      if (document.hidden) { setTimeout(() => chirp(c), 1500); return; }
       const t0 = ctx.currentTime + 0.02;
-      const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
       const o = ctx.createOscillator();
       const a = ctx.createGain();
       o.type = 'sine';
-      o.frequency.value = 4100 + Math.random() * 600;
-      a.gain.value = 0;
+      o.frequency.setValueAtTime(c.f, t0);
       const n = 3 + Math.floor(Math.random() * 3);
-      const v = 0.006 + Math.random() * 0.01;
+      // (each pulse a hair lower: the wing slowing)
+      o.frequency.linearRampToValueAtTime(c.f * 0.985, t0 + n * 0.07);
+      a.gain.value = 0;
       for (let k = 0; k < n; k++) {
         a.gain.setValueAtTime(0, t0 + k * 0.07);
-        a.gain.linearRampToValueAtTime(v, t0 + k * 0.07 + 0.012);
+        a.gain.linearRampToValueAtTime(c.v, t0 + k * 0.07 + 0.012);
         a.gain.linearRampToValueAtTime(0, t0 + k * 0.07 + 0.045);
       }
       o.connect(a);
-      if (pan) { pan.pan.value = Math.random() * 2 - 1; a.connect(pan).connect(this.out); } else a.connect(this.out);
+      if (ctx.createStereoPanner) { const pan = ctx.createStereoPanner(); pan.pan.value = c.pan; a.connect(pan).connect(this.out); } else a.connect(this.out);
       o.start(t0);
       o.stop(t0 + n * 0.07 + 0.05);
-      setTimeout(chirp, 300 + Math.random() * 1400);
+      setTimeout(() => chirp(c), 900 + Math.random() * 2600);
     };
-    setTimeout(chirp, 400);
+    crickets.forEach((c, i) => setTimeout(() => chirp(c), 500 + i * 650 + Math.random() * 900));
+    // a background tab is silent
+    document.addEventListener('visibilitychange', () => {
+      if (!this.ctx || this.leaving) return;
+      if (document.hidden) this.ctx.suspend().catch(() => {}); else this.ctx.resume().catch(() => {});
+    });
   },
   tone(f, at, dur, v = 0.08, type = 'sine') {
     const ctx = this.ctx;
@@ -221,7 +211,14 @@ const sfx = {
   clink() {
     if (!this.ctx) return;
     const t = this.ctx.currentTime + 0.02;
-    [0, 0.12, 0.26].forEach((dt, i) => this.tone(1900 + i * 260 + Math.random() * 80, t + dt, 0.25, 0.06, 'triangle'));
+    // little things dropping on the wooden counter: a knock and a ring
+    // (a pure tone with one inharmonic partial - not the buzz of a triangle)
+    [0, 0.11, 0.24].forEach((dt, i) => {
+      const f = 1500 + i * 210 + Math.random() * 90;
+      this.tone(f, t + dt, 0.22, 0.05);
+      this.tone(f * 2.76, t + dt, 0.09, 0.016);
+      this.tone(180 + i * 20, t + dt, 0.06, 0.05, 'triangle');
+    });
   },
   stamp() {
     const ctx = this.ctx;
@@ -261,26 +258,32 @@ const sfx = {
     s.connect(bp).connect(g).connect(this.out);
     s.start(t);
     s.stop(t + 2.4);
-    this.out.gain.setTargetAtTime(0, t + 1.2, 0.4);
+    // (all quiet by the time the page changes, 1.6 s from now)
+    this.leaving = true;
+    this.out.gain.setTargetAtTime(0, t + 0.8, 0.22);
   },
 };
-for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => sfx.init(), { capture: true });
+// (a touch only counts as permission for sound when it ends: pointerup, click)
+for (const ev of ['pointerdown', 'pointerup', 'click', 'keydown']) window.addEventListener(ev, () => sfx.init(), { capture: true });
 
 // ----------------------------------------------------------------- toast
 let toastT = 0;
+let toastOff = 0;
 function toast(text, ms = 2400) {
   const el = $('pzToast');
   el.textContent = text;
   el.hidden = false;
   el.style.opacity = '1';
   clearTimeout(toastT);
-  toastT = setTimeout(() => { el.style.opacity = '0'; setTimeout(() => { el.hidden = true; }, 400); }, ms);
+  clearTimeout(toastOff);
+  toastT = setTimeout(() => { el.style.opacity = '0'; toastOff = setTimeout(() => { el.hidden = true; }, 400); }, ms);
 }
 
 // ------------------------------------------------------------- the booth
 const booth = { step: 1, venue: null, mode: null, room: null, pieces: null, online: null };
 let index = null;
-fetch('music/index.json').then((r) => r.json()).then((list) => { index = new Map(list.map((p) => [p.id, p])); buildVenueCards(); }).catch(() => {});
+// (the cards are there at once; the setlists fill in when they arrive)
+fetch('music/index.json').then((r) => (r.ok ? r.json() : Promise.reject(r.status))).then((list) => { index = new Map(list.map((p) => [p.id, p])); buildVenueCards(); }).catch(() => {});
 
 const INTRO = {
   hall: '달빛 숲 가장자리의 4층 그랜드 콘서트홀. 독주회와 현악 4중주, 합창 코랄이 진짜 공연장 울림으로 들려요. 환희의 송가로 열고 위풍당당 행진곡으로 닫아요.',
@@ -302,6 +305,7 @@ function buildVenueCards() {
     card.querySelector('.vc-art span').textContent = VENUE_NAMES[v];
     card.querySelector('.vc-intro').textContent = INTRO[v];
     card.querySelector('.vc-facts').textContent = list.length ? `${list.length}곡 · 약 ${Math.round(total / 60)}분 · 피아노 독주 ${solos}곡 · 합창 ${choir}곡 · 인터미션 한 번` : '';
+    if (!list.length) card.querySelector('details').hidden = true;
     const ol = card.querySelector('ol');
     for (const p of list) {
       const li = document.createElement('li');
@@ -313,7 +317,12 @@ function buildVenueCards() {
     }
     const b = card.querySelector('button');
     b.textContent = `${VENUE_NAMES[v]} 표로 할게요`;
-    b.addEventListener('click', () => { booth.venue = v; goStep(2); });
+    b.addEventListener('click', () => {
+      // (another building: what was chosen for the first one does not carry over)
+      if (booth.venue !== v) { booth.mode = 'solo'; booth.room = null; $('bkCode').value = ''; }
+      booth.venue = v;
+      goStep(2);
+    });
     box.appendChild(card);
   }
 }
@@ -339,10 +348,17 @@ function goStep(n) {
 
 async function refreshModes() {
   // is the server there for rooms? and which rooms are open in this building
+  // (until it answers, only "alone" can be chosen)
+  if (booth.online !== true) document.querySelectorAll('.mode-card').forEach((b) => { b.disabled = b.dataset.mode !== 'solo'; });
   let rooms = [];
-  try { rooms = await listRooms(); booth.online = true; } catch { booth.online = false; }
+  try {
+    rooms = await Promise.race([listRooms(), new Promise((_, no) => setTimeout(() => no(new Error('slow')), 5000))]);
+    booth.online = true;
+  } catch { booth.online = false; }
+  if (booth.step !== 2) return;
   $('boothOffline').hidden = booth.online;
   document.querySelectorAll('.mode-card').forEach((b) => { b.disabled = !booth.online && b.dataset.mode !== 'solo'; });
+  if (!booth.online) booth.mode = 'solo';
   const mine = rooms.filter((r) => (r.venue || 'hall') === booth.venue && r.count < r.cap);
   $('openRooms').hidden = !mine.length;
   const ul = $('openList');
@@ -400,7 +416,10 @@ function fillPay() {
   $('payBtn').textContent = `${pay.icon} ${pay.what} 내고 표 받기`;
 }
 
+let paying = false;
 $('payBtn').addEventListener('click', () => {
+  if (paying) return;
+  paying = true;
   me = setName($('bkName').value);
   $('pzName').textContent = me.name;
   // the payment drops on the counter
@@ -428,35 +447,39 @@ $('payBtn').addEventListener('click', () => {
       cap: booth.mode === 'create' ? Math.max(1, Math.min(50, Math.round(Number($('bkCap').value) || 50))) : undefined,
       pub: booth.mode === 'create' ? pub : undefined,
     });
-    // (a fresh name tag, if the name changed)
-    player.char.root.remove(player.tag);
-    player.tag = nameTag(me.name);
-    player.tag.position.set(0, 1.95, 0);
-    player.char.root.add(player.tag);
     sfx.stamp();
     $('boothTicket').innerHTML = '';
     $('boothTicket').appendChild(ticketElement(ticket));
     const side = ticket.venue === 'hall' ? '왼쪽' : '오른쪽';
     $('boothGo').textContent = `표를 들고 ${side} 숲길의 ${VENUE_NAMES[ticket.venue]} 입구로 가요. 빛나는 문이에요.`;
     $('payBtn').disabled = false;
+    paying = false;
     goStep(4);
+    $('boothDone').focus();
   }, 650);
 });
 
+const BEHIND = ['pzQuick', 'pzStub', 'pzAct', 'pzMe'];
 function openBooth() {
-  if (busy) return;
+  if (busy || boothOpen) return;
   boothOpen = true;
   $('booth').hidden = false;
   setAct(null, null);
   autoTo = null;
   keys.clear();
-  goStep(ticket ? 1 : 1);
-  if (index) buildVenueCards();
+  if (!$('venueCards').children.length) buildVenueCards();
+  goStep(1);
+  // (what is behind the dialog cannot be reached while it is open)
+  for (const id of BEHIND) $(id)?.setAttribute('inert', '');
+  requestAnimationFrame(() => $('venueCards').querySelector('button')?.focus({ preventScroll: true }));
 }
 function closeBooth() {
+  if (paying || !boothOpen) return;
   boothOpen = false;
   $('booth').hidden = true;
+  for (const id of BEHIND) $(id)?.removeAttribute('inert');
   showStub();
+  renderer.domElement.focus?.({ preventScroll: true });
 }
 $('boothClose').addEventListener('click', closeBooth);
 $('boothDone').addEventListener('click', closeBooth);
@@ -482,12 +505,30 @@ function enterGate(venue) {
   setTimeout(() => { location.href = `./?venue=${venue}`; }, 2300);
 }
 
+// Back from a building with the browser's back button: the page can come
+// back exactly as it was left - dark, mid-way through the gate. Start over.
+window.addEventListener('pageshow', (e) => {
+  if (!e.persisted) return;
+  busy = false;
+  $('pzGate').hidden = true;
+  $('pzGate').classList.remove('dark');
+  ticket = heldTicket();
+  showStub();
+  if (sfx.ctx) {
+    sfx.leaving = false;
+    sfx.ctx.resume().catch(() => {});
+    sfx.out.gain.cancelScheduledValues(sfx.ctx.currentTime);
+    sfx.out.gain.setTargetAtTime(0.7, sfx.ctx.currentTime, 0.3);
+  }
+  lastT = performance.now();
+});
+
 // ------------------------------------------------------------ the input
 const keys = new Set();
 let boothOpen = false;
 window.addEventListener('keydown', (e) => {
-  if (e.target instanceof HTMLInputElement) return;
   if (e.code === 'Escape' && boothOpen) { closeBooth(); return; }
+  if (e.target instanceof HTMLInputElement) return;
   if (boothOpen || busy) return;
   if (e.code === 'KeyF' || e.code === 'KeyE') { if (act) act(); return; }
   if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft', 'ShiftRight'].includes(e.code)) {
@@ -502,13 +543,19 @@ window.addEventListener('blur', () => keys.clear());
 // the camera: behind you, turned by dragging, nearer or farther with the wheel
 const cam = { yaw: 0, pitch: 0.32, dist: 4.2 };
 // (a tall, narrow screen sees less to the sides: stand the camera farther back)
-const fitCam = () => { cam.dist = Math.max(cam.dist, window.innerWidth / window.innerHeight < 0.8 ? 6.4 : 4.2); };
+let camFit = 0;
+const fitCam = () => {
+  // (follows the screen when it turns; a zoom of your own is kept)
+  const want = window.innerWidth / window.innerHeight < 0.8 ? 6.4 : 4.2;
+  if (!camFit || Math.abs(cam.dist - camFit) < 0.01) cam.dist = want;
+  camFit = want;
+};
 fitCam();
 let drag = null;
 const canvas = renderer.domElement;
 canvas.style.touchAction = 'none';
 canvas.addEventListener('pointerdown', (e) => {
-  if (boothOpen || busy) return;
+  if (boothOpen || busy || drag || e.button !== 0) return;
   drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 };
   try { canvas.setPointerCapture(e.pointerId); } catch { /* a pointer already gone */ }
 });
@@ -528,6 +575,7 @@ canvas.addEventListener('pointerup', (e) => {
   drag = null;
   if (tap) onTap(e.clientX, e.clientY);
 });
+canvas.addEventListener('pointercancel', (e) => { if (drag && e.pointerId === drag.id) drag = null; });
 canvas.addEventListener('wheel', (e) => { cam.dist = Math.min(8, Math.max(2.4, cam.dist * Math.exp(e.deltaY * 0.001))); e.preventDefault(); }, { passive: false });
 
 // a tap on the booth or a gate walks you there
@@ -552,7 +600,6 @@ function onTap(x, y) {
 // the thumb stick (touch screens): it comes to your left thumb
 const joy = isTouch ? thumbStick({ base: $('pzJoy'), knob: $('pzKnob'), zone: $('pzJoyZone') }) : { x: 0, y: 0 };
 if (isTouch) { $('pzJoy').hidden = false; $('pzJoyZone').hidden = false; }
-setInterval(() => { if (joy.active) autoTo = null; }, 100);
 
 // what F (or the button) does here
 let act = null;
@@ -584,6 +631,7 @@ function movePlayer(dt) {
     const s = (k('KeyD') || k('ArrowRight') ? 1 : 0) - (k('KeyA') || k('ArrowLeft') ? 1 : 0) + joy.x;
     mx = _f.x * f + _r.x * s;
     mz = _f.z * f + _r.z * s;
+    if (joy.active && (mx || mz)) autoTo = null;
     if (autoTo && !mx && !mz) {
       const dx = autoTo.x - p.pos.x;
       const dz = autoTo.z - p.pos.z;
@@ -609,6 +657,10 @@ function movePlayer(dt) {
   return sp;
 }
 
+const _aL = V();
+const _aR = V();
+const _eL = V(-0.2, 0, 0.6);
+const _eR = V(0.2, 0, 0.6);
 function animateWalker(ch, pos, yaw, sp, phaseObj, dt) {
   const walking = sp > 0.2;
   if (walking) phaseObj.phase += dt * 7.2 * Math.min(1.8, sp / 1.25);
@@ -617,8 +669,8 @@ function animateWalker(ch, pos, yaw, sp, phaseObj, dt) {
   ch.root.position.set(pos.x, pos.y + (walking ? Math.abs(Math.sin(phaseObj.phase)) * 0.03 : 0), pos.z);
   ch.root.rotation.y = yaw;
   const sw = Math.sin(phaseObj.phase) * 0.13 * (amp * 2);
-  setArm(ch, 'L', V(-0.26, 0.5, 0.02 + sw), V(-0.2, 0, 0.6));
-  setArm(ch, 'R', V(0.26, 0.5, 0.02 - sw), V(0.2, 0, 0.6));
+  setArm(ch, 'L', _aL.set(-0.26, 0.5, 0.02 + sw), _eL);
+  setArm(ch, 'R', _aR.set(0.26, 0.5, 0.02 - sw), _eR);
   ch.torso.scale.y = 1 + Math.sin(performance.now() / 600 + phaseObj.phase) * 0.012;
   updateFace(ch, dt, 0);
 }
@@ -666,9 +718,29 @@ function updateStrollers(dt) {
       if (!(t.pause > 0)) s.path.shift();
       if (t.out) { s.path = []; s.wait = 6 + Math.random() * 10; }
     } else {
-      s.pos.x += (dx / d) * step;
-      s.pos.z += (dz / d) * step;
-      s.yaw = lerpAngle(s.yaw, Math.atan2(-dx, -dz), 1 - Math.exp(-dt * 6));
+      const ux = dx / d;
+      const uz = dz / d;
+      let vx = ux;
+      let vz = uz;
+      // (you are in the way: bend round you, a good step to the side)
+      const px = player.pos.x - s.pos.x;
+      const pz = player.pos.z - s.pos.z;
+      const pd = Math.hypot(px, pz);
+      if (pd < 1.6 && pd > 0.01 && px * ux + pz * uz > -0.3) {
+        let nx0 = uz;
+        let nz0 = -ux;
+        if (nx0 * px + nz0 * pz > 0) { nx0 = -nx0; nz0 = -nz0; } // the side away from you
+        const k = (1.6 - pd) / 1.6;
+        vx = ux + nx0 * k * 1.6 - (px / pd) * k * 0.8;
+        vz = uz + nz0 * k * 1.6 - (pz / pd) * k * 0.8;
+        const n = Math.hypot(vx, vz) || 1;
+        vx /= n;
+        vz /= n;
+      }
+      const nx = s.pos.x + vx * step;
+      const nz = s.pos.z + vz * step;
+      if (walkable(nx, nz)) { s.pos.x = nx; s.pos.z = nz; } else { s.pos.x += ux * step; s.pos.z += uz * step; }
+      s.yaw = lerpAngle(s.yaw, Math.atan2(-vx, -vz), 1 - Math.exp(-dt * 6));
     }
     animateWalker(ch, s.pos, s.yaw, d > step ? 1.15 : 0, s, dt);
   }
@@ -676,6 +748,9 @@ function updateStrollers(dt) {
 
 // the clerk: breathes, looks your way, waves when you come near
 const clerkState = { phase: 0, wave: 0 };
+const _cR = V(0.4, -0.2, 0.3);
+const _cL = V(-0.4, -0.5, 0.3);
+const _cLh = V(-0.2, 0.62, -0.18);
 function updateClerk(dt, t) {
   const d = Math.hypot(player.pos.x - PLAZA.window.x, player.pos.z - PLAZA.window.z);
   const near = d < 3.2 && !busy;
@@ -687,8 +762,8 @@ function updateClerk(dt, t) {
   clerk.torso.scale.y = 1 + Math.sin(t * 1.6) * 0.015;
   const w = clerkState.wave;
   const wv = Math.sin(t * 9) * 0.08 * w;
-  setArm(clerk, 'R', V(0.26 + 0.08 * w, 0.5 + 0.62 * w, 0.02 - 0.1 * w + wv), V(0.4, -0.2, 0.3));
-  setArm(clerk, 'L', V(-0.2, 0.62, -0.18), V(-0.4, -0.5, 0.3));
+  setArm(clerk, 'R', _aR.set(0.26 + 0.08 * w, 0.5 + 0.62 * w, 0.02 - 0.1 * w + wv), _cR);
+  setArm(clerk, 'L', _cLh, _cL);
   updateFace(clerk, dt, 0);
 }
 
@@ -714,14 +789,17 @@ function placeCamera(dt, first = false) {
 let lastT = performance.now();
 let elapsed = 0;
 placeCamera(0, true);
+let skip = 0;
 function frame() {
+  requestAnimationFrame(frame);
   const now = performance.now();
+  // (behind the booth's blurred glass, every other frame is plenty)
+  if ((boothOpen || busy) && (++skip & 1)) return;
   const dt = Math.min(0.05, (now - lastT) / 1000);
   lastT = now;
   step(dt, now);
   syncLiteArms();
   renderer.render(scene, camera);
-  requestAnimationFrame(frame);
 }
 
 // one moment of the square (without drawing it)

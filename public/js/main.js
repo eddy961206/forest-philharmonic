@@ -186,6 +186,17 @@ const screen = buildScreen(scene, renderer, IS_SPHERE ? {
 } : { lite: LITE });
 if (IS_SPHERE) {
   hall.dome.setLive(screen.texture, screen.capTex);
+  // The dome's shader is big: compiled in the background (where the browser
+  // can) while the rest loads, and the dome is drawn once it is ready -
+  // never a frozen page waiting for it.
+  {
+    const dm = hall.dome.mesh;
+    try {
+      const ready = renderer.compileAsync(dm, camera, scene);
+      dm.visible = false;
+      ready.catch(() => {}).finally(() => { dm.visible = true; });
+    } catch { /* compiled on first use instead */ }
+  }
   // the 3D worlds are drawn only where these cameras can see the dome
   // (the broadcast cuts between shots of the stage: its faces are fixed -
   // everything but behind the house and under the floor)
@@ -257,6 +268,7 @@ async function boot() {
   // every material the evening will need, compiled now (the players, the
   // recital's chairs, ...) rather than with a hitch the first time they appear
   recital.show(true);
+  try { hall.dome?.warm(); } catch { /* fine: compiled on first use */ }
   try { renderer.compile(scene, camera); } catch { /* fine: compiled on first use */ }
   warmTextures();
   recital.show(false);
@@ -279,7 +291,9 @@ function warmTextures() {
   for (const t of seen) { try { renderer.initTexture(t); } catch { /* uploaded on first use instead */ } }
 }
 
+let joining = false;
 ui.on('enter', async (opt) => {
+  if (concertStarted || joining) return; // (one entrance, however many presses)
   setName(opt.name); // (the animal stays the one you were given)
   // fullscreen and sound must be started inside the click itself
   goFullscreen();
@@ -287,6 +301,7 @@ ui.on('enter', async (opt) => {
   try { engine.ctx.resume().catch(() => {}); } catch { /* ignored */ }
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
   if (opt.mode !== 'solo') {
+    joining = true;
     ui.lobbyBusy(true);
     room = new RoomClient();
     wireRoom(room);
@@ -298,6 +313,7 @@ ui.on('enter', async (opt) => {
         // ticket, now for that building - comes along)
         room.leave();
         ui.lobbyError(e.message);
+        ui.lobbyBusy(true); // (on the way: nothing to press meanwhile)
         if (ticket) {
           updateTicket({ venue: e.venue });
           setTimeout(() => { location.href = `${location.pathname}?venue=${e.venue}`; }, 900);
@@ -306,12 +322,14 @@ ui.on('enter', async (opt) => {
       }
       room.leave();
       room = null;
+      joining = false;
       ui.lobbyBusy(false);
       ui.lobbyError(e.message || '방에 들어가지 못했어요.');
       refreshRooms();
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       return;
     }
+    joining = false;
     ui.lobbyBusy(false);
     // a reload keeps you in the room you made (not a second one)
     if (ticket && room?.room) updateTicket({ mode: 'join', code: room.room.code });
@@ -1620,16 +1638,21 @@ function goSolo() {
   try { history.replaceState(null, '', location.pathname + (VENUE !== 'hall' ? `?venue=${VENUE}` : '')); } catch { /* file: */ }
 }
 
+// out to the square: the music fades for a moment instead of stopping dead
+function outToSquare() {
+  try { if (engine.master) engine.master.gain.setTargetAtTime(0, engine.ctx.currentTime, 0.08); } catch { /* no sound yet */ }
+  setTimeout(() => { location.href = location.pathname; }, 320);
+}
 ui.on('leaveRoom', () => {
   room?.leave();
   dropTicket();
-  location.href = location.pathname; // back out to the square
+  outToSquare();
 });
 ui.on('toPlaza', () => {
   room?.leave();
   leaf.save();
   dropTicket();
-  location.href = location.pathname;
+  outToSquare();
 });
 ui.on('copyInvite', async () => {
   if (!room?.room) return;

@@ -35,8 +35,10 @@ export function thumbStick({ base, knob, zone, radius = 46 }) {
     const d = Math.hypot(dx, dy);
     if (d > radius) { dx *= radius / d; dy *= radius / d; }
     knob.style.transform = `translate(${dx}px, ${dy}px)`;
-    out.x = dx / radius;
-    out.y = dy / radius;
+    // (a resting thumb trembles: the first few pixels are no movement)
+    const k = d < 6 ? 0 : 1;
+    out.x = (dx / radius) * k;
+    out.y = (dy / radius) * k;
   };
   const end = (e) => {
     if (e.pointerId !== id) return;
@@ -54,6 +56,7 @@ export function thumbStick({ base, knob, zone, radius = 46 }) {
     el.addEventListener('pointermove', move);
     el.addEventListener('pointerup', end);
     el.addEventListener('pointercancel', end);
+    el.addEventListener('lostpointercapture', end); // (taken away without a pointerup)
   }
   // the screen turned or resized: measure the resting place again
   window.addEventListener('resize', () => { rest = null; });
