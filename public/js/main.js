@@ -46,14 +46,28 @@ const save = () => { try { localStorage.setItem('fp-settings', JSON.stringify(se
 
 const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (isTouch && window.innerWidth < 900);
+// (the hall is paid for per pixel - a dozen lights on every one: beyond 1.5
+// pixels per point a sharper picture is hard to see and costs half again)
 const QUALITY = {
-  high: { pr: Math.min(window.devicePixelRatio || 1, 2), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenEvery: 2, post: true },
-  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenEvery: 3, post: true },
+  high: { pr: Math.min(window.devicePixelRatio || 1, 1.5), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenEvery: 2, post: true },
+  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25) * 0.85, shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenEvery: 3, post: true },
   // phones: no post-processing pass, no shadows, the big screen redrawn
   // only every ~1.5 s at a small size
   low: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenEvery: 90, post: false },
 };
-let quality = settings.quality === 'auto' ? (isMobile ? 'low' : 'high') : settings.quality;
+// A computer's built-in graphics (most laptops, and desktops without a card
+// in use): automatic quality starts one step down and climbs if it can
+const weakGPU = (() => {
+  try {
+    const gl = document.createElement('canvas').getContext('webgl2');
+    const ext = gl?.getExtension('WEBGL_debug_renderer_info');
+    const name = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
+    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    return /Intel|Radeon\(TM\) Graphics|Radeon Graphics|Vega \d+ Graphics|SwiftShader|llvmpipe/i.test(name) && !/Arc\(TM\) A|Arc A\d/i.test(name);
+  } catch { return false; }
+})();
+const autoStart = () => (isMobile ? 'low' : weakGPU ? 'medium' : 'high');
+let quality = settings.quality === 'auto' ? autoStart() : settings.quality;
 // Lite build (phones, or 'low' chosen): simpler seats, a smaller crowd, far
 // fewer lights, plain materials, lighter audio. Decided once at load.
 const LITE = isMobile || quality === 'low';
@@ -1242,7 +1256,8 @@ function onSetting(key, value) {
   if (key === 'volume') { muted = false; ui.setMuted(false); engine.setVolume(value); }
   if (key === 'reverb') engine.setReverb(value);
   if (key === 'quality') {
-    quality = value === 'auto' ? (isMobile ? 'low' : 'high') : value;
+    quality = value === 'auto' ? autoStart() : value;
+    renderScale = 1;
     applyQuality();
   }
   if (key === 'fireflies') effects.setCounts(value);
@@ -1257,7 +1272,7 @@ function onSetting(key, value) {
 function applyQuality() {
   holdQuality(4500); // every material is rebuilt: a hitch, not a slow machine
   const q = QUALITY[quality];
-  renderer.setPixelRatio(q.pr * (quality === 'low' ? renderScale : 1));
+  renderer.setPixelRatio(q.pr * renderScale);
   renderer.shadowMap.enabled = q.shadows;
   hall.lights.key.castShadow = q.shadows;
   if (hall.lights.key.shadow.map && hall.lights.key.shadow.mapSize.x !== q.shadowSize) {
@@ -1906,26 +1921,28 @@ function autoQuality(fps) {
   if (now < qualityHold) { lowStreak = 0; goodStreak = 0; return; }
   if (fps < 36) lowStreak++; else lowStreak = 0;
   if (fps > 56) goodStreak++; else goodStreak = 0;
-  if (quality === 'low' && fps < 30 && renderScale > 0.6) {
-    // already at the lightest settings: render fewer pixels
+  // Below 'high', fewer pixels rather than a lower setting: 'low' trades every
+  // material for a plainer one, and rebuilding them all freezes the picture
+  // for seconds on the very machine that is struggling. (Phones start low.)
+  if (quality !== 'high' && fps < 30 && renderScale > 0.6) {
     renderScale *= 0.85;
-    renderer.setPixelRatio(QUALITY.low.pr * renderScale);
+    renderer.setPixelRatio(QUALITY[quality].pr * renderScale);
     onResize();
     return;
   }
   // (in the middle of a piece only when it is really poor; otherwise between pieces)
-  if (lowStreak >= 2 && quality !== 'low' && (phase !== 'playing' || fps < 26)) {
+  if (lowStreak >= 2 && quality === 'high' && (phase !== 'playing' || fps < 26)) {
     if (now - raisedAt < 60000) raiseBlocked = true; // it could not hold the higher setting
-    quality = quality === 'high' ? 'medium' : 'low';
+    quality = 'medium';
     applyQuality();
-    ui.toast(`부드럽게 보이도록 화질을 '${quality === 'medium' ? '보통' : '낮음'}'으로 낮췄어요.`, 2600);
+    ui.toast("부드럽게 보이도록 화질을 '보통'으로 낮췄어요.", 2600);
     return;
   }
   // (steps up only between pieces: rebuilding the materials can hitch)
   if (goodStreak < 5 || phase === 'playing' || raiseBlocked) return;
-  if (quality === 'low' && renderScale < 1) {
+  if (renderScale < 1) {
     renderScale = Math.min(1, renderScale / 0.85);
-    renderer.setPixelRatio(QUALITY.low.pr * renderScale);
+    renderer.setPixelRatio(QUALITY[quality].pr * renderScale);
     onResize();
     goodStreak = 0;
   } else if (quality !== AUTO_TOP) {
