@@ -1000,6 +1000,11 @@ async function encoreVote(tok) {
   if (IS_SPHERE) hall.dome?.go('STARS', { dur: 3 });
   sendCmd({ c: 'encore', cands, until: endsAt });
   encoreShow();
+  return countEncore(tok);
+}
+
+// wait for the lanterns, count them: the winner's index, or null
+async function countEncore(tok) {
   // alone, your lantern decides (a moment after you raise it)
   let chosenAt = 0;
   const ok = await until(() => {
@@ -1018,6 +1023,15 @@ async function encoreVote(tok) {
   ui.encore(null);
   ui.toast(`앙코르: 「${program[win].titleKo}」`, 3200);
   return win;
+}
+
+// a guest who became the host while the lanterns were up: count and go on
+async function finishEncore(tok) {
+  const win = await countEncore(tok);
+  if (win === null) return;
+  encoreActive = true;
+  ritualNext = true;
+  runConcert(win);
 }
 
 // a guest: the host's vote, as the host counts it (from the snapshots)
@@ -1070,6 +1084,7 @@ setInterval(() => {
 }, 1000);
 function endEvening() {
   intervalDone = false; // a new evening has its own interval
+  playedTonight.clear();
   if (!leaf.worthKeeping) return;
   leaf.save();
   ui.showLeaf(leaf.card(), Leaf.history());
@@ -1083,7 +1098,9 @@ let sleepAt = 0;
 let sleepFading = false;
 let sleepy = false; // the house nods off (the last minute)
 let asleep = false; // everything stopped: nothing drawn, the sound suspended
+let sleepGen = 0; // a changed timer cancels what the old one scheduled
 ui.on('sleep', (minutes) => {
+  sleepGen++;
   sleepAt = minutes ? performance.now() + minutes * 60000 : 0;
   sleepFading = false;
   if (!minutes && sleepy) { sleepy = false; effects.dim(1); }
@@ -1115,7 +1132,27 @@ setInterval(() => {
     ui.setMuted(true);
     ui.setSleepLeft(0);
     ui.toast('편안한 밤 되세요. 소리를 껐어요.', 4000);
-    setTimeout(goToSleep, 4000);
+    const gen = sleepGen;
+    setTimeout(() => goToSleep(gen), 4000);
+    return;
+  }
+  if (left <= 0 && room?.isHost && room.members.size > 1) {
+    // 5. the host falls asleep: the show goes on for the others - the
+    // longest-present guest takes it over, and only this screen sleeps
+    const next = [...room.members.values()].filter((m) => m.id !== room.id).sort((a, b) => (a.since ?? 0) - (b.since ?? 0) || a.id - b.id)[0];
+    if (next) {
+      room.handoff(next.id);
+      ui.chatLine({ sys: true, text: `잠들기 전에 ${next.name}님에게 방장을 넘겼어요.` });
+    }
+    sleepAt = 0;
+    sleepFading = false;
+    muted = true;
+    engine.setVolume(0);
+    ui.setMuted(true);
+    ui.setSleepLeft(0);
+    ui.toast('편안한 밤 되세요. 방장을 넘기고 소리를 껐어요.', 4000);
+    const gen = sleepGen;
+    setTimeout(() => goToSleep(gen), 4000);
     return;
   }
   if (left <= 0) {
@@ -1133,14 +1170,15 @@ setInterval(() => {
     encoreUi(null);
     if (stage.conductorOn) stage.conductorExit();
     stage.exitAll();
-    setTimeout(goToSleep, 9000);
+    const gen = sleepGen;
+    setTimeout(() => goToSleep(gen), 9000);
   }
 }, 1000);
 
 // Asleep: nothing is drawn and the sound is suspended (and the screen lock
 // let go, so a phone can rest too). A touch or a key wakes it all.
-function goToSleep() {
-  if (asleep || sleepAt) return;
+function goToSleep(gen = sleepGen) {
+  if (asleep || sleepAt || gen !== sleepGen) return;
   asleep = true;
   ui.sleep(true);
   try { engine.ctx.suspend(); } catch { /* fine */ }
@@ -1389,7 +1427,7 @@ async function applyPlayback(s) {
 async function followHost(s, { joining = false } = {}) {
   if (!s || !room || room.isHost || !concertStarted || !s.started) return;
   showOn();
-  if (s.phase === 'encore' && s.ev) { guestEncore(s.ev); if (!joining) return; }
+  if (s.phase === 'encore' && s.ev && !joining) { guestEncore(s.ev); return; }
   if (s.phase === 'playing') { applyPlayback(s); return; }
   if (!joining) return;
   if (['changing', 'entering', 'tuning', 'announce', 'hush'].includes(s.phase)) {
@@ -1405,6 +1443,7 @@ async function followHost(s, { joining = false } = {}) {
   else if (s.onstage) stage.snapOnstage();
   stage.snapConductor(!!s.cond && s.onstage);
   if (s.phase === 'interval' && s.iu) { beginInterval(s.iu, s.inext ?? s.i); return; }
+  if (s.phase === 'encore' && s.ev) { guestEncore(s.ev, true); return; }
   hall.setHouseLights(s.onstage ? 0.5 : 1);
   setPhase('intermission');
 }
@@ -1443,6 +1482,17 @@ function onHostCmd(c) {
 function takeOver() {
   ui.toast('이제 내가 방장이에요. 공연 진행을 맡아요.', 2600);
   ui.chatLine({ sys: true, text: '이제 내가 방장이에요.' });
+  // in the middle of the interval or the encore vote: carry it to its end
+  if (intervalState) {
+    ui.interval(true, true);
+    const tok = ++seq;
+    const next = intervalState.next;
+    until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9).then((ok) => { if (ok) { ritualNext = true; runConcert(next); } });
+  } else if (encore && !encore.votes) {
+    encore.votes = new Map();
+    if (encore.mine >= 0) encore.votes.set(room.id, encore.mine);
+    finishEncore(++seq);
+  }
   publish();
 }
 
@@ -1487,6 +1537,7 @@ function wireRoom(c) {
   });
   c.on('left', (id, who) => {
     avatars.remove(id);
+    if (encore?.votes?.delete(id)) encoreShow(); // (a lantern leaves with its holder)
     membersChanged();
     refreshOccupied();
     if (who) ui.chatLine({ sys: true, text: `${who.name}님이 나갔어요.` });
@@ -1506,7 +1557,7 @@ function wireRoom(c) {
   c.on('state', (s) => { if (!c.isHost) followHost(s); });
   c.on('cmd', onHostCmd);
   c.on('vote', (id, k) => {
-    if (!c.isHost || !encore) return;
+    if (!c.isHost || !encore?.votes || !c.members.has(id)) return;
     if (k >= 0 && k < encore.cands.length) encore.votes.set(id, k); else encore.votes.delete(id);
     encoreShow();
     publish();
@@ -1831,7 +1882,8 @@ function autoQuality(fps) {
     onResize();
     return;
   }
-  if (lowStreak >= 2 && quality !== 'low') {
+  // (in the middle of a piece only when it is really poor; otherwise between pieces)
+  if (lowStreak >= 2 && quality !== 'low' && (phase !== 'playing' || fps < 26)) {
     if (now - raisedAt < 60000) raiseBlocked = true; // it could not hold the higher setting
     quality = quality === 'high' ? 'medium' : 'low';
     applyQuality();
