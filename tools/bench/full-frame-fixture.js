@@ -20,7 +20,89 @@ director.update=function(...args){
 };
 for(const [obj,key,label] of [[perf,'updateVisual','visual'],[orchestra,'update','orchestra'],[stage,'update','stage'],[hall,'update','hall'],[director,'update','director'],[engine,'setListener','listener'],[engine,'setRoom','audioRoom'],[effects,'update','effects'],[screen,'update','broadcast'],[hall,'updateLOD','seatLOD'],[orchestra,'syncLite','syncLite'],[renderer,'render','renderSubmit']])benchWrap(obj,key,label);
 if(hall.dome)benchWrap(hall.dome,'drawWorlds','worlds');
+
+// Dome readiness evidence is collected only during the existing warmup.
+// Restore every original hook before measuring; never make a hidden dome visible.
+let benchDomeProbe=null;
+function benchAssertDomeVisible(){
+  if(hall.dome&&hall.dome.mesh.visible!==true)throw new Error('Sphere dome is hidden; exclude this frame and wait for shader readiness.');
+}
+function benchBeginDomeWarmup(){
+  if(benchDomeProbe)throw new Error('Dome warmup probe is already active.');
+  if(!hall.dome)return;
+  benchAssertDomeVisible();
+  const dome=hall.dome,base=dome.mesh;
+  const overlay=base.children.find(o=>o.isMesh&&o.material?.uniforms?.uOverlay?.value===1);
+  const twoPass=!!dome.uniforms.uOverlay;
+  const roles=[{name:'base',mesh:base}];
+  if(overlay)roles.push({name:'overlay',mesh:overlay});
+  benchDomeProbe={roles,twoPass,overlayExpected:twoPass&&dome.uniforms.uMix.value>0.001};
+  for(const role of roles){
+    role.draws=0;role.mainCameraDraws=0;role.original=role.mesh.onAfterRender;
+    role.hook=function(...args){
+      role.draws++;
+      if(args[2]===camera)role.mainCameraDraws++;
+      return role.original?.apply(this,args);
+    };
+    role.mesh.onAfterRender=role.hook;
+  }
+}
+function benchDomeProgram(mesh,used){
+  if(!used)return {status:'NOT_USED_IN_WARMUP',ready:null,linked:null};
+  try{
+    const p=renderer.properties?.get(mesh.material)?.currentProgram;
+    if(!p)return {status:'UNAVAILABLE',reason:'No currentProgram for a drawn dome material.',ready:null,linked:null};
+    const gl=renderer.getContext();
+    const ready=typeof p.isReady==='function'?p.isReady():null;
+    // Do not turn an unfinished compilation into a verified warmup by forcing
+    // a blocking LINK_STATUS query. Missing evidence fails the readiness gate.
+    const linked=ready!==false&&p.program?gl.getProgramParameter(p.program,gl.LINK_STATUS):null;
+    const runnable=p.diagnostics?.runnable??null;
+    const status=ready===false?'PENDING':linked===false||runnable===false?'LINK_FAILED':ready===true&&linked===true?'VERIFIED':'UNAVAILABLE';
+    return {status,id:p.id??null,ready,linked,diagnosticsRunnable:runnable,
+      ...(linked===false?{programLog:String(gl.getProgramInfoLog(p.program)||'').slice(0,4000)}:{})};
+  }catch(error){return {status:'INSPECTION_ERROR',ready:null,linked:null,error:error.message};}
+}
+function benchEndDomeWarmup(){
+  if(!hall.dome)return {status:'NOT_APPLICABLE',reason:'This venue has no dome.'};
+  const probe=benchDomeProbe;
+  if(!probe)return {status:'UNVERIFIED',failures:['No warmup probe was started.']};
+  benchDomeProbe=null;
+  const failures=[];
+  // Remove hooks before GL/program queries and before the measured samples.
+  for(const role of probe.roles){
+    if(role.mesh.onAfterRender===role.hook)role.mesh.onAfterRender=role.original;
+    else failures.push(`${role.name}: onAfterRender changed while probing.`);
+  }
+  const dome=hall.dome,mix=dome.uniforms.uMix.value;
+  const overlayExpected=probe.overlayExpected||(probe.twoPass&&mix>0.001);
+  const roles=probe.roles.map(role=>({
+    role:role.name,draws:role.draws,mainCameraDraws:role.mainCameraDraws,visible:role.mesh.visible,
+    required:role.name==='base'||overlayExpected,program:benchDomeProgram(role.mesh,role.mainCameraDraws>0),
+  }));
+  if(dome.mesh.visible!==true)failures.push('Dome is hidden after warmup.');
+  if(probe.twoPass&&!roles.some(role=>role.role==='overlay'))failures.push('Two-pass dome has no overlay mesh.');
+  for(const role of roles){
+    if(role.required&&role.mainCameraDraws===0)failures.push(`${role.role}: no main-camera draw during warmup.`);
+    if(role.mainCameraDraws>0&&role.program.status!=='VERIFIED')failures.push(`${role.role}: program ${role.program.status}.`);
+    if(role.role==='overlay'&&mix>0.001&&!role.visible)failures.push('Active transition overlay is hidden.');
+  }
+  let contextLost=null,parallelShaderCompile=null;
+  try{
+    const gl=renderer.getContext();
+    contextLost=gl.isContextLost();
+    parallelShaderCompile=!!gl.getExtension('KHR_parallel_shader_compile');
+  }catch(error){failures.push(`Context inspection failed: ${error.message}`);}
+  if(contextLost)failures.push('WebGL context is lost.');
+  return {status:failures.length?'UNVERIFIED':'VERIFIED',failures,roles,
+    path:probe.twoPass?'two-pass':'single-pass',overlay:probe.twoPass?(roles.some(role=>role.role==='overlay')?'present':'MISSING'):'NOT_APPLICABLE_SINGLE_PASS',
+    mix,reveal:dome.uniforms.uReveal.value,world:dome.current,contextLost,
+    parallelShaderCompile,
+    interpretation:'Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples.'};
+}
 window.__bench={
+  beginDomeWarmup:benchBeginDomeWarmup,
+  endDomeWarmup:benchEndDomeWarmup,
   async setup(){
     await perf.load('beethoven-ode-to-joy');
     engine.stopAll();perf._schedule=()=>{};
@@ -87,6 +169,7 @@ window.__bench={
   step(complete=true){
     if(document.hidden)throw new Error('Benchmark page is hidden; keep the tab visible and rerun.');
     if(window.__fp.asleep)throw new Error('Benchmark app is asleep; wake it before measuring.');
+    benchAssertDomeVisible();
     for(const key in benchTimes)benchTimes[key]=0;
     if(settings.quality!=='auto')lastNow=performance.now()-1000/60;
     renderer.info.reset();
@@ -95,7 +178,9 @@ window.__bench={
     const submit=performance.now();
     const gl=renderer.getContext();
     if(complete)gl.readPixels(0,0,1,1,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(4));
-    const end=performance.now();benchIndex++;benchT+=1/60;
+    const end=performance.now();
+    benchAssertDomeVisible();
+    benchIndex++;benchT+=1/60;
     return {completeMs:complete?end-start:null,submitMs:submit-start,completionWaitMs:complete?end-submit:null,completed:complete,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,times:{...benchTimes},geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,heap:performance.memory?.usedJSHeapSize??null,quality,renderScale,visibility:document.visibilityState,asleep:!!window.__fp.asleep,glError:gl.getError(),contextLost:gl.isContextLost()};
   },
   meta(){const gl=renderer.getContext(),e=gl.getExtension('WEBGL_debug_renderer_info');return {renderer:e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):null,gpuTimer:!!gl.getExtension('EXT_disjoint_timer_query_webgl2'),pixelRatio:renderer.getPixelRatio(),viewport:[innerWidth,innerHeight],quality,renderScale,hardwareConcurrency:navigator.hardwareConcurrency,userAgent:navigator.userAgent};}

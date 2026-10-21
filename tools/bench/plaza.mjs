@@ -11,16 +11,21 @@ if (args.includes('--help')) {
 기본값은 두 공연장 × desktop/mobile을 순서대로 검사해.
 광장 첫 화면 → 매표소 → 공연장/혼자 보기 선택 → 이름/결제 연출 → 발권 →
 입구까지 이동 → 실제 표 검사/입장 버튼 → 공연장 WebGL → 광장 복귀를 확인해.
+새 main 1f의 매표소 background inert/Tab, 이름 입력 중 Escape 취소·재개,
+표 stub 실제 탭, 페이지 이동 간 저장 표 동일성과 복귀 후 표 반납도 검사해.
+CSS/index/tickets/plazaWorld를 포함한 실제 제공 소스를 실행 전후 해시로 남겨.
+이 추가 HTTP 요청은 로딩 시간 측정에 사용할 수 없어.
 NAVIGATION=ui(기본)는 키보드/엄지스틱, canvas 클릭/터치와 드래그로 이동해.
 NAVIGATION=placement는 매표소·입구 앞 위치만 명시적 fixture로 배치해.
 후자는 이동/충돌의 실제 UI 성공으로 계산하지 않고 결과에 별도로 표시해.
 두 모드 모두 발권·공연장 입장·복귀는 실제 UI로 실행해.
 환경: BASE_URL, REVISION, LABEL, OUTPUT_DIR, PLAYWRIGHT_MODULE,
-CHROME_EXECUTABLE, CHROME_ARGS, SOFTWARE_RENDERER=1, FONT_MODE, FONT_ROOT,
+CHROME_EXECUTABLE, CHROME_ARGS, SOFTWARE_RENDERER=0|1, FONT_MODE, FONT_ROOT,
 HEADLESS=0, WIDTH, HEIGHT, DPR, TIMEOUT_MS, SCREENSHOTS=0.
 공연장은 수동 low/관객 기본값으로 열어. 광장 렌더 품질은 앱 기본값이야.
 주 렌더 루프와 오디오 시계를 바꾸지 않아. 모바일은 viewport/UA/touch 에뮬레이션이야.
-FPS·장시간 음질·실기기 발열·단체석 발권은 이 검사 범위가 아니야.
+FPS·장시간 음질·실기기 발열·단체석 발권·BFCache·저장소 차단·전체 키보드
+포커스 순환은 이 검사 범위가 아니야. 미도달 검사는 NOT_RUN으로 남겨.
 --help는 브라우저를 실행하지 않아.`);
   process.exit(0);
 }
@@ -34,9 +39,31 @@ const entry = new URL(cfg.baseURL);
 entry.search = ''; entry.hash = '';
 const fixtureSourceSha256 = sha256(await fs.readFile(new URL(import.meta.url)));
 const helperSourceSha256 = sha256(await fs.readFile(new URL('./browser.mjs', import.meta.url)));
+const plazaSources = ['index.html', 'css/style.css', 'js/plaza.js', 'js/tickets.js', 'js/joystick.js', 'js/scene/plazaWorld.js', 'js/ui.js'];
+const backgroundIds = ['pzQuick', 'pzStub', 'pzAct', 'pzMe'];
+const regressionNames = ['boothDialogAndTab', 'escapeFromName', 'ticketStubInput', 'ticketPersistence', 'returnToPlaza', 'noTicketGuard'];
 const cases = (args[0] ? [args[0]] : ['hall', 'sphere']).flatMap(venue =>
   (args[1] ? [args[1]] : ['desktop', 'mobile']).map(device => ({ venue, device })));
 await fs.mkdir(cfg.outputDir, { recursive: true });
+const summaryFilename = `${cfg.label}-plaza-summary.json`;
+// Reserve the summary too: a reused LABEL must not replace an earlier run's
+// summary after the per-case exclusive file creation has rejected it.
+await fs.writeFile(path.join(cfg.outputDir, summaryFilename), JSON.stringify({
+  schema: 2, suite: 'plaza-ticket-ui', status: 'RUNNING', navigation, revision: cfg.revision,
+  fixtureSourceSha256, helperSourceSha256, results: [],
+}, null, 2) + '\n', { flag: 'wx' });
+
+async function captureSources(page) {
+  const hashes = await sourceHashes(page, cfg.baseURL);
+  for (const file of plazaSources) {
+    const response = await page.request.get(new URL(file, cfg.baseURL).href);
+    assert.ok(response.ok(), `Missing source: ${file}`);
+    const bytes = await response.body();
+    hashes[file] = { sha256: sha256(bytes), bytes: bytes.length, httpStatus: response.status() };
+  }
+  for (const [file, source] of Object.entries(hashes)) assert.match(source.sha256 || '', /^[a-f0-9]{64}$/, `Missing source hash: ${file}`);
+  return hashes;
+}
 
 async function runCase({ venue, device }) {
   const mobile = device === 'mobile';
@@ -44,29 +71,37 @@ async function runCase({ venue, device }) {
   const stem = `${cfg.label}-plaza-${venue}-${device}`;
   const filename = `${stem}.json`;
   const report = {
-    schema: 1, suite: 'plaza-ticket-ui', venue, device, navigation, status: 'RUNNING',
+    schema: 2, suite: 'plaza-ticket-ui', venue, device, navigation, status: 'RUNNING',
     label: cfg.label, revision: cfg.revision, url: entry.href,
     fixtureSourceSha256, helperSourceSha256, viewport: [size.width, size.height], devicePixelRatio: size.dpr,
     startedAt: new Date().toISOString(), checks: {}, fixtures: [], screenshots: [], navigationAttempts: [],
+    regressions: Object.fromEntries(regressionNames.map(name => [name, { status: 'NOT_RUN' }])),
+    sourceConsistency: { status: 'NOT_RUN' }, functionalStatus: 'NOT_RUN',
+    sourceEvidencePolicy: 'Read-only HTTP body hashes before and after the functional flow, including CSS/index/tickets/plazaWorld. Extra requests make this unsuitable for initial-load timing.',
     method: 'Real purchase/admission/return UI and native app render loop. Read-only scene projection locates canvas targets. No performance or physical-mobile claim.',
-    unchecked: ['multiplayer ticket purchase (rooms/protocol are separate)', 'long-duration audio', 'physical mobile, Safari, thermal and power behavior'],
+    unchecked: ['multiplayer ticket purchase (rooms/protocol are separate)', 'long-duration audio', 'physical mobile, Safari, thermal and power behavior',
+      'BFCache/browser-back restoration (return uses the app plaza button)', 'blocked storage/offline/slow rooms',
+      'full keyboard focus cycle, focus return and screen-reader accessibility', 'landscape/orientation and multiple simultaneous pointers'],
   };
   // Do not replace an earlier failure or a completed run by accident.
   await fs.writeFile(path.join(cfg.outputDir, filename), JSON.stringify(report, null, 2) + '\n', { flag: 'wx' });
   let session;
   const persist = () => save(cfg, filename, report);
   const log = stage => console.log(JSON.stringify({ venue, device, stage, navigation }));
+  const verify = async (name, action) => {
+    const record = report.regressions[name];
+    record.status = 'RUNNING';
+    await persist();
+    try { await action(record); record.status = 'PASS'; }
+    catch (error) { record.status = 'FAIL'; record.failure = error.message; throw error; }
+    finally { await persist(); }
+  };
   try {
     session = await openPage(cfg, device, size);
     const { page } = session;
     report.environment = session.environment;
     report.diagnostics = session.diagnostics;
-    report.sourceHashes = await sourceHashes(page, cfg.baseURL);
-    for (const file of ['index.html', 'js/boot.js', 'js/plaza.js', 'js/tickets.js', 'js/joystick.js', 'js/scene/plazaWorld.js', 'js/ui.js']) {
-      const response = await page.request.get(new URL(file, cfg.baseURL).href);
-      assert.ok(response.ok(), `Missing source: ${file}`);
-      report.sourceHashes[file] = { sha256: sha256(await response.body()) };
-    }
+    report.sourceHashes = await captureSources(page);
     const requests = [];
     page.on('request', request => requests.push(request.url()));
     await page.addInitScript(() => {
@@ -77,9 +112,16 @@ async function runCase({ venue, device }) {
     const activate = locator => mobile ? locator.tap() : locator.click();
     const screenshot = async name => {
       if (process.env.SCREENSHOTS === '0') return;
+      // plazaWorld repaints text textures when fonts settle. Wait for the
+      // app's native frames, without issuing an extra WebGL render ourselves.
+      const readiness = await page.evaluate(async () => {
+        await document.fonts.ready;
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        return { fonts: document.fonts.status, visibility: document.visibilityState, nativeFrameCallbacks: 2 };
+      });
       const file = `${stem}-${name}.png`;
       await page.screenshot({ path: path.join(cfg.outputDir, file), fullPage: false });
-      report.screenshots.push({ name, file, url: page.url() });
+      report.screenshots.push({ name, file, url: page.url(), readiness });
       await persist();
     };
     const readPlaza = () => page.evaluate(() => {
@@ -87,6 +129,7 @@ async function runCase({ venue, device }) {
       return {
         identity: JSON.parse(localStorage.getItem('fp-identity') || 'null'),
         ticket: JSON.parse(sessionStorage.getItem('fp-ticket') || 'null'),
+        lastTicket: JSON.parse(localStorage.getItem('fp-last-ticket') || 'null'),
         position: plaza.player.pos.toArray(), camera: plaza.camera.position.toArray(),
         calls: plaza.renderer.info.render.calls, triangles: plaza.renderer.info.render.triangles,
         glError: gl.getError(), contextLost: gl.isContextLost(),
@@ -100,6 +143,31 @@ async function runCase({ venue, device }) {
       await page.locator('#pzLoading.done').waitFor({ state: 'attached' });
       assert.match(await page.title(), /숲속 공연 광장/);
       assert.ok(await page.locator('#plaza h1').isVisible(), 'The plaza heading is visible');
+    };
+    const readBooth = () => page.evaluate(ids => {
+      const booth = document.getElementById('booth'), active = document.activeElement;
+      return {
+        hidden: booth.hidden, role: booth.getAttribute('role'), ariaModal: booth.getAttribute('aria-modal'),
+        focus: { id: active?.id || null, tag: active?.tagName || null, inBooth: booth.contains(active) },
+        background: ids.map(id => {
+          const el = document.getElementById(id);
+          return { id, exists: !!el, inert: !!el?.inert, hasInert: !!el?.hasAttribute('inert') };
+        }),
+      };
+    }, backgroundIds);
+    const assertBackground = (state, inert) => {
+      for (const item of state.background) {
+        assert.ok(item.exists, `The background element ${item.id} exists`);
+        assert.equal(item.inert, inert, `${item.id}.inert is ${inert}`);
+        assert.equal(item.hasInert, inert, `${item.id} inert attribute is ${inert}`);
+      }
+    };
+    const chooseSolo = async () => {
+      await page.locator(`.venue-card.${venue} button`).waitFor({ state: 'visible' });
+      await activate(page.locator(`.venue-card.${venue} button`));
+      await activate(page.locator('.mode-card[data-mode="solo"]'));
+      await activate(page.locator('#toPay'));
+      await page.locator('#bkName').waitFor({ state: 'visible' });
     };
     // Reading the built geometry locates an actual raycastable mesh. This
     // never invokes openBooth(), enterGate(), issueTicket(), or game controls.
@@ -245,12 +313,40 @@ async function runCase({ venue, device }) {
     }
     await page.locator('#booth').waitFor({ state: 'visible' });
     report.checks.atBooth = await readPlaza();
-    assert.ok(Math.hypot(report.checks.atBooth.position[0], report.checks.atBooth.position[2] + 1.05) < 2.1, 'Player arrived at the real booth');
-    await page.locator(`.venue-card.${venue} button`).waitFor({ state: 'visible' });
-    await activate(page.locator(`.venue-card.${venue} button`));
-    await activate(page.locator('.mode-card[data-mode="solo"]'));
-    await activate(page.locator('#toPay'));
+    report.checks.atBooth.window = await page.evaluate(() => ({ ...window.__plaza.PLAZA.window }));
+    assert.ok(Math.hypot(report.checks.atBooth.position[0] - report.checks.atBooth.window.x,
+      report.checks.atBooth.position[2] - report.checks.atBooth.window.z) < 2.1, 'Player arrived at the actual booth window');
+    await verify('boothDialogAndTab', async record => {
+      await page.waitForFunction(() => document.getElementById('booth').contains(document.activeElement), null, { polling: 100 });
+      record.opened = await readBooth();
+      assert.equal(record.opened.role, 'dialog');
+      assert.equal(record.opened.ariaModal, 'true');
+      assertBackground(record.opened, true);
+      await page.keyboard.press('Tab');
+      record.afterTab = await readBooth();
+      assert.equal(record.afterTab.focus.inBooth, true, 'A real Tab from the initial dialog focus stays inside the booth');
+      record.scope = 'One real Tab plus background inert state; not a full keyboard focus-cycle or screen-reader audit';
+    });
+    await chooseSolo();
     const chosenName = mobile ? 'QA 모바일 관객' : 'QA 데스크톱 관객';
+    await page.locator('#bkName').fill(chosenName);
+    await verify('escapeFromName', async record => {
+      record.before = await readBooth();
+      assert.equal(record.before.focus.id, 'bkName', 'The real name input is focused before Escape');
+      await page.keyboard.press('Escape');
+      await page.locator('#booth').waitFor({ state: 'hidden' });
+      record.afterEscape = await readBooth();
+      record.plazaAfterEscape = await readPlaza();
+      assertBackground(record.afterEscape, false);
+      assert.equal(record.plazaAfterEscape.ticket, null, 'Closing before payment does not issue a ticket');
+      await page.locator('#pzAct').waitFor({ state: 'visible' });
+      await activate(page.locator('#pzAct'));
+      await page.locator('#booth').waitFor({ state: 'visible' });
+      record.reopened = await readBooth();
+      assertBackground(record.reopened, true);
+      record.input = 'Real Escape while bkName is focused, followed by the real plaza action button';
+    });
+    await chooseSolo();
     await page.locator('#bkName').fill(chosenName);
     await activate(page.locator('#payBtn'));
     await page.locator('#boothTicket .ticket').waitFor({ state: 'visible' });
@@ -262,7 +358,22 @@ async function runCase({ venue, device }) {
     assert.equal(await page.locator('#boothTicket .t-title').textContent(), venue === 'hall' ? '숲속 필하모닉 홀' : '스피어');
     await screenshot('issued-ticket');
     await activate(page.locator('#boothDone'));
-    assert.ok(await page.locator('#pzStub').isVisible(), 'Issued ticket stub is carried in the plaza');
+    await verify('ticketStubInput', async record => {
+      await page.locator('#booth').waitFor({ state: 'hidden' });
+      record.closed = await readBooth();
+      assertBackground(record.closed, false);
+      assert.ok(await page.locator('#pzStub').isVisible(), 'Issued ticket stub is carried in the plaza');
+      record.targetBox = await page.locator('#pzStub').boundingBox();
+      record.input = mobile ? 'Playwright native touch tap on the visible ticket stub' : 'Playwright mouse click on the visible ticket stub';
+      await activate(page.locator('#pzStub'));
+      await page.waitForFunction(no => {
+        const toast = document.getElementById('pzToast');
+        return !toast.hidden && toast.textContent.includes(no);
+      }, ticket.no, { polling: 100 });
+      record.toastText = await page.locator('#pzToast').innerText();
+      record.plaza = await readPlaza();
+      assert.deepEqual(record.plaza.ticket, ticket, 'Viewing the ticket stub does not replace the ticket');
+    });
     log('ticket-issued');
 
     if (navigation === 'placement') {
@@ -277,7 +388,24 @@ async function runCase({ venue, device }) {
     await page.locator('#ticketCheck').waitFor({ state: 'visible' });
     await page.waitForFunction(() => !!window.__fp && !document.getElementById('tcEnter').disabled,
       null, { polling: 100 });
-    report.checks.admission = { url: page.url(), title: await page.title(), ticketText: await page.locator('#tcTicket').innerText() };
+    report.checks.admission = {
+      url: page.url(), title: await page.title(), ticketText: await page.locator('#tcTicket').innerText(),
+      stored: await page.evaluate(() => ({
+        ticket: JSON.parse(sessionStorage.getItem('fp-ticket') || 'null'),
+        identity: JSON.parse(localStorage.getItem('fp-identity') || 'null'),
+        lastTicket: JSON.parse(localStorage.getItem('fp-last-ticket') || 'null'),
+      })),
+    };
+    await verify('ticketPersistence', async record => {
+      record.issued = ticket;
+      record.admission = report.checks.admission.stored;
+      record.scope = 'Real full-document plaza-to-venue navigation in the same tab; not storage-denied or browser-restart persistence';
+      assert.deepEqual(record.admission.ticket, ticket, 'The same issued ticket survives the real gate navigation');
+      assert.equal(record.admission.identity?.name, chosenName);
+      assert.equal(record.admission.identity?.avatar, ticket.avatar);
+      assert.equal(record.admission.lastTicket?.venue, venue);
+      assert.equal(record.admission.lastTicket?.mode, 'solo');
+    });
     assert.ok(report.checks.admission.ticketText.includes(chosenName));
     assert.equal(await page.locator('#lobby').isVisible(), false, 'A held ticket opens the ticket check');
     await screenshot('ticket-check');
@@ -297,34 +425,52 @@ async function runCase({ venue, device }) {
     assert.equal(report.checks.concert.audioState, 'running');
     assert.equal(report.checks.concert.hasDome, venue === 'sphere');
     assert.equal(report.checks.concert.identity.avatar, ticket.avatar);
+    assert.deepEqual(report.checks.concert.ticket, ticket, 'Solo admission preserves the stored ticket');
     assert.equal(report.checks.concert.glError, 0); assert.equal(report.checks.concert.contextLost, false);
     assert.deepEqual(report.checks.concert.contextLosses, []);
     await screenshot('concert-entered');
     log('concert-entered');
 
-    await activate(page.locator('.tab-btn[data-panel="program"]'));
-    await activate(page.locator('#plazaBtn'));
-    await page.waitForURL(url => !url.searchParams.has('venue') && !url.searchParams.has('room'));
-    await readyPlaza();
-    report.checks.returned = await readPlaza();
-    assert.equal(report.checks.returned.ticket, null, 'Returning to the plaza relinquishes the ticket');
-    assert.equal(report.checks.returned.identity.avatar, ticket.avatar);
-    assert.equal(report.checks.returned.identity.name, chosenName);
-    assert.equal(report.checks.returned.glError, 0); assert.equal(report.checks.returned.contextLost, false);
-    assert.equal(await page.locator('#pzStub').isVisible(), false);
+    await verify('returnToPlaza', async record => {
+      record.input = 'Actual concert program tab and plaza button; this is not browser Back/BFCache';
+      await activate(page.locator('.tab-btn[data-panel="program"]'));
+      await activate(page.locator('#plazaBtn'));
+      await page.waitForURL(url => !url.searchParams.has('venue') && !url.searchParams.has('room'));
+      await readyPlaza();
+      report.checks.returned = await readPlaza();
+      record.state = report.checks.returned;
+      assert.equal(record.state.ticket, null, 'Returning to the plaza relinquishes the ticket');
+      assert.equal(record.state.identity.avatar, ticket.avatar);
+      assert.equal(record.state.identity.name, chosenName);
+      assert.equal(record.state.glError, 0); assert.equal(record.state.contextLost, false);
+      assert.equal(await page.locator('#pzStub').isVisible(), false);
+      assert.equal(record.state.lastTicket?.venue, venue);
+      assert.equal(record.state.lastTicket?.mode, 'solo');
+      record.quickVisible = await page.locator('#pzQuick').isVisible();
+      record.quickText = await page.locator('#pzQuickWhat').innerText();
+      assert.equal(record.quickVisible, true, 'The remembered ticket shortcut is offered after returning');
+      assert.ok(record.quickText.includes(venue === 'hall' ? '숲속 필하모닉 홀' : '스피어'));
+    });
     await screenshot('returned-to-plaza');
     const withoutTicket = new URL(entry.href);
     withoutTicket.searchParams.set('venue', venue);
-    await page.goto(withoutTicket.href, { waitUntil: 'domcontentloaded' });
-    await page.waitForURL(url => !url.searchParams.has('venue'));
-    await readyPlaza();
-    report.checks.ticketGuard = { requested: withoutTicket.href, returned: page.url(), state: await readPlaza() };
-    assert.equal(report.checks.ticketGuard.state.ticket, null);
-    assert.equal(report.checks.ticketGuard.state.identity.avatar, ticket.avatar);
-    report.status = diagnosticsFailed(session.diagnostics) ? 'FAIL' : 'PASS';
+    await verify('noTicketGuard', async record => {
+      record.requested = withoutTicket.href;
+      await page.goto(withoutTicket.href, { waitUntil: 'domcontentloaded' });
+      await page.waitForURL(url => !url.searchParams.has('venue'));
+      await readyPlaza();
+      report.checks.ticketGuard = { requested: withoutTicket.href, returned: page.url(), state: await readPlaza() };
+      record.navigation = report.checks.ticketGuard;
+      assert.equal(record.navigation.state.ticket, null);
+      assert.equal(record.navigation.state.identity.avatar, ticket.avatar);
+    });
+    assert.ok(Object.values(report.regressions).every(check => check.status === 'PASS'), 'All declared core regressions were actually reached and passed');
+    report.functionalStatus = diagnosticsFailed(session.diagnostics) ? 'FAIL' : 'PASS';
+    if (report.functionalStatus === 'FAIL') report.status = 'FAIL';
+    // Overall PASS is only assigned after the final source-consistency check.
     await persist();
   } catch (error) {
-    report.status = 'FAIL'; report.failure = { message: error.message, stack: error.stack };
+    report.status = 'FAIL'; report.functionalStatus = 'FAIL'; report.failure = { message: error.message, stack: error.stack };
     if (session) {
       try {
         report.failureUrl = session.page.url();
@@ -334,12 +480,29 @@ async function runCase({ venue, device }) {
       } catch (secondary) { report.failureScreenshotError = secondary.message; }
     }
   } finally {
+    if (session && report.sourceHashes) {
+      try {
+        report.sourceHashesAfter = await captureSources(session.page);
+        const changed = [...new Set([...Object.keys(report.sourceHashes), ...Object.keys(report.sourceHashesAfter)])]
+          .filter(file => report.sourceHashes[file]?.sha256 !== report.sourceHashesAfter[file]?.sha256);
+        report.sourceConsistency = { status: changed.length ? 'FAIL' : 'PASS', changed };
+        if (changed.length) {
+          report.status = 'FAIL';
+          report.sourceEvidenceFailure = `Served source changed during this case: ${changed.join(', ')}`;
+        }
+      } catch (error) {
+        report.status = 'FAIL';
+        report.sourceConsistency = { status: 'FAIL', error: error.message };
+        report.sourceEvidenceFailure = error.message;
+      }
+    }
+    if (report.status !== 'FAIL') report.status = report.functionalStatus === 'PASS' && report.sourceConsistency.status === 'PASS' ? 'PASS' : 'FAIL';
     report.finishedAt = new Date().toISOString();
     await persist();
     if (session) await session.browser.close();
   }
   log(report.status);
-  return { venue, device, status: report.status, file: filename, failure: report.failure?.message };
+  return { venue, device, status: report.status, file: filename, failure: report.failure?.message || report.sourceEvidenceFailure };
 }
 
 const results = [];
@@ -347,6 +510,7 @@ for (const entry of cases) {
   try { results.push(await runCase(entry)); }
   catch (error) { results.push({ ...entry, status: 'FAIL', failure: error.message }); }
 }
-await save(cfg, `${cfg.label}-plaza-summary.json`, { schema: 1, suite: 'plaza-ticket-ui', navigation, revision: cfg.revision, results });
+await save(cfg, summaryFilename, { schema: 2, suite: 'plaza-ticket-ui', status: results.every(result => result.status === 'PASS') ? 'PASS' : 'FAIL',
+  navigation, revision: cfg.revision, fixtureSourceSha256, helperSourceSha256, results });
 console.log(JSON.stringify({ results }));
 if (results.some(result => result.status !== 'PASS')) process.exitCode = 1;

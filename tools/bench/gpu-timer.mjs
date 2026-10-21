@@ -247,7 +247,9 @@ try {
     } catch (error) { session.diagnostics.pageErrors.push(`main fixture: ${error.message}`); await route.abort(); }
   });
   await page.goto(appURL(cfg.baseURL, venue), { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => !!window.__bench && !!window.__gpuTimer && !document.getElementById('enterBtn').disabled, null, { polling: 100 });
+  await page.waitForFunction(() => !!window.__bench && !!window.__gpuTimer && !document.getElementById('enterBtn').disabled
+    && (!window.__fp.hall.dome || window.__fp.hall.dome.mesh.visible === true), null, { polling: 100 });
+  result.domeVisibleBeforeSetup = await page.evaluate(() => window.__fp.hall.dome?.mesh.visible ?? null);
   result.meta = await page.evaluate(() => window.__bench.meta());
   result.support = await page.evaluate(() => window.__gpuTimer.support);
   result.clocks.browserReady = await browserClock(page);

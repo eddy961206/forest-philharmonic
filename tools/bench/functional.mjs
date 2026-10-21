@@ -24,6 +24,10 @@ SCOPE=transport는 같은 입장·이동·좌석·시작·일시정지·seek·�
 프로그램·quality·중계 토글 등 이후 항목은 unchecked에 남겨. 전체 PASS가 아니야.
 CONTINUE_ON_TRANSPORT_FAIL=1은 full 진단 전용이야. 재개 2초 검사를 실패해도
 실제 일시정지 후 후속 조작을 검사해. 원래 실패·trace를 보존하고 최종 FAIL/exit 1을 유지해.
+입장 버튼 준비 뒤 Sphere의 dome.mesh.visible===true를 별도로 기다리고
+대기 전/후 상태·시점을 기록해. 최초 조작/명시적 렌더 전에만 적용하며 Hall은 해당 없어.
+이 플래그는 compile 성공이나 첫 실제 GPU 프레임 완료의 증거가 아니야.
+TIMEOUT_MS 안에 보이지 않으면 원래 timeout과 상태를 FAIL 결과에 보존해.
 --help는 Playwright를 로드하거나 브라우저를 시작하지 않아.`);
   process.exit(0);
 }
@@ -57,6 +61,53 @@ const distance = (a, b) => Math.hypot(...a.map((x, i) => x - b[i]));
 function closeVector(actual, expected, label, tolerance = 1e-8) {
   assert.equal(actual?.length, expected.length, `${label}: missing vector`);
   assert.ok(distance(actual, expected) < tolerance, `${label}: ${actual} != ${expected}`);
+}
+
+// The compileAsync finally path may show the mesh even after a rejected
+// compilation. Observing visible is not a shader-success or first-pixel test.
+function readDomeVisibility(requireVisible = false) {
+  const fp = window.__fp, mesh = fp?.hall?.dome?.mesh;
+  if (requireVisible && (!fp || mesh?.visible !== true)) return false;
+  const enter = document.getElementById('enterBtn');
+  return {
+    performanceNowMs: performance.now(), wallTimeMs: Date.now(), timeOriginMs: performance.timeOrigin,
+    fpAvailable: !!fp, domeAvailable: !!fp?.hall?.dome, meshAvailable: !!mesh,
+    meshVisible: typeof mesh?.visible === 'boolean' ? mesh.visible : null,
+    entryButtonPresent: !!enter, entryButtonEnabled: !!enter && !enter.disabled,
+    capturedMainFrame: typeof window.__qaMainFrame === 'function', visibility: document.visibilityState,
+  };
+}
+
+async function observeDomeVisibility(page, venue, record) {
+  const started = performance.now();
+  let waitStarted = null, waitSettled = null, handle;
+  record.status = 'RUNNING';
+  record.startedAt = new Date().toISOString();
+  try {
+    record.before = await page.evaluate(readDomeVisibility);
+    if (venue !== 'sphere') { record.status = 'NOT_APPLICABLE'; return; }
+    record.alreadyVisibleAtStart = record.before.meshVisible === true;
+    waitStarted = performance.now();
+    handle = await page.waitForFunction(readDomeVisibility, true, { timeout: cfg.timeoutMs, polling: 100 });
+    waitSettled = performance.now();
+    record.after = await handle.jsonValue();
+    record.status = 'OBSERVED_VISIBLE';
+    record.observedVisibleAtMs = record.after.performanceNowMs;
+  } catch (error) {
+    waitSettled ??= performance.now();
+    if (error.name === 'TimeoutError' && !error.code) error.code = 'QA_DOME_VISIBILITY_TIMEOUT';
+    record.status = 'FAIL';
+    record.failure = { message: error.message, code: error.code };
+    try {
+      record.after = await withTimeout(page.evaluate(readDomeVisibility), 'post-failure dome visibility', 1000, 'QA_DIAGNOSTIC_TIMEOUT');
+    } catch (secondary) { record.afterObservationError = { message: secondary.message, code: secondary.code }; }
+    throw error;
+  } finally {
+    record.elapsedWallMs = performance.now() - started;
+    record.additionalWaitWallMs = waitStarted === null ? null : (waitSettled ?? performance.now()) - waitStarted;
+    record.finishedAt = new Date().toISOString();
+    if (handle) await handle.dispose().catch(() => {});
+  }
 }
 
 // Serialized into the page. Observes real state without substituting controls.
@@ -199,7 +250,11 @@ async function runCase({ venue, device }) {
       'Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.',
     ],
     unchecked: scope === 'transport' ? ['programme-switch', 'quality-presets-and-world-target-resize', 'audience-toggle', 'broadcast-toggle', 'automatic-preset-reset', 'final-mobile-layout'] : [],
-    checks: {}, frames: [], failures: [], errors: [], warnings: [], failedRequests: [],
+    checks: { domeVisibility: {
+      status: 'NOT_RUN', applicable: venue === 'sphere', before: null, after: null,
+      observedVisibleAtMs: null, additionalWaitWallMs: null, timeoutMs: cfg.timeoutMs, pollingMs: 100,
+      method: 'Read-only mesh.visible===true observation after the existing entry-button-ready wait and before first UI entry or requested main render. The UI-ready condition remains separate. No visibility assignment, compile call, render frame or audio mutation. This does not prove compile success or first-pixel readiness.',
+    } }, frames: [], failures: [], errors: [], warnings: [], failedRequests: [],
   };
   let browser, page, cdp, session;
   const log = stage => console.log(JSON.stringify({ venue, device, stage }));
@@ -399,7 +454,12 @@ async function runCase({ venue, device }) {
     };
 
     await page.goto(report.url, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => !!window.__fp && !document.getElementById('enterBtn').disabled && !!window.__qaMainFrame, null, { timeout: cfg.timeoutMs, polling: 100 });
+    await page.waitForFunction(() => {
+      const enter = document.getElementById('enterBtn');
+      return !!window.__fp && !!enter && !enter.disabled && !!window.__qaMainFrame;
+    }, null, { timeout: cfg.timeoutMs, polling: 100 });
+    await observeDomeVisibility(page, venue, report.checks.domeVisibility);
+    log(`dome-visibility:${report.checks.domeVisibility.status}`);
     await page.evaluate(() => {
       // Observation wrapper only: the original renderer and scene hooks execute.
       const { renderer, scene, camera, engine } = window.__fp;

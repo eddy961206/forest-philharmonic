@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "subject": "plaza.mjs core regressions for main 1f8e5f1",
+  "recordedAt": "2026-10-21T10:37:24.663Z",
+  "runtimeExecuted": false,
+  "browserExecuted": false,
+  "productFilesModifiedByThisTask": false,
+  "earlierResultsModifiedByThisTask": false,
+  "scope": "Syntax/help/diff checks and source snapshot hashing only. Browser regressions are implemented but NOT_RUN.",
+  "collector": {
+    "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/plaza.mjs",
+    "sha256": "08b9bc81034582c30ffcabd94c220ead66cf223fb8f1666a3d7466670b8e22ce",
+    "bytes": 31228
+  },
+  "originalSnapshot": {
+    "path": "/workspace/scratch/296fafc0af7f/verification/tool-snapshots/plaza-before-main1f-a7d841739d4c.mjs",
+    "sha256": "a7d841739d4c5bb43aa687771a938edbb781e59a40468d8ca333e52a3cf8039a",
+    "bytes": 21038
+  },
+  "helper": {
+    "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/browser.mjs",
+    "sha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+    "bytes": 9075
+  },
+  "commands": [
+    {
+      "name": "syntax",
+      "command": "node --check tools/bench/plaza.mjs",
+      "exitCode": 0,
+      "stdout": ""
+    },
+    {
+      "name": "help",
+      "command": "node tools/bench/plaza.mjs --help",
+      "exitCode": 0,
+      "stdout": "node tools/bench/plaza.mjs [hall|sphere] [desktop|mobile]\n기본값은 두 공연장 × desktop/mobile을 순서대로 검사해.\n광장 첫 화면 → 매표소 → 공연장/혼자 보기 선택 → 이름/결제 연출 → 발권 →\n입구까지 이동 → 실제 표 검사/입장 버튼 → 공연장 WebGL → 광장 복귀를 확인해.\n새 main 1f의 매표소 background inert/Tab, 이름 입력 중 Escape 취소·재개,\n표 stub 실제 탭, 페이지 이동 간 저장 표 동일성과 복귀 후 표 반납도 검사해.\nCSS/index/tickets/plazaWorld를 포함한 실제 제공 소스를 실행 전후 해시로 남겨.\n이 추가 HTTP 요청은 로딩 시간 측정에 사용할 수 없어.\nNAVIGATION=ui(기본)는 키보드/엄지스틱, canvas 클릭/터치와 드래그로 이동해.\nNAVIGATION=placement는 매표소·입구 앞 위치만 명시적 fixture로 배치해.\n후자는 이동/충돌의 실제 UI 성공으로 계산하지 않고 결과에 별도로 표시해.\n두 모드 모두 발권·공연장 입장·복귀는 실제 UI로 실행해.\n환경: BASE_URL, REVISION, LABEL, OUTPUT_DIR, PLAYWRIGHT_MODULE,\nCHROME_EXECUTABLE, CHROME_ARGS, SOFTWARE_RENDERER=0|1, FONT_MODE, FONT_ROOT,\nHEADLESS=0, WIDTH, HEIGHT, DPR, TIMEOUT_MS, SCREENSHOTS=0.\n공연장은 수동 low/관객 기본값으로 열어. 광장 렌더 품질은 앱 기본값이야.\n주 렌더 루프와 오디오 시계를 바꾸지 않아. 모바일은 viewport/UA/touch 에뮬레이션이야.\nFPS·장시간 음질·실기기 발열·단체석 발권·BFCache·저장소 차단·전체 키보드\n포커스 순환은 이 검사 범위가 아니야. 미도달 검사는 NOT_RUN으로 남겨.\n--help는 브라우저를 실행하지 않아.\n"
+    },
+    {
+      "name": "diff-whitespace",
+      "command": "git diff --check -- tools/bench/plaza.mjs",
+      "exitCode": 0,
+      "stdout": ""
+    }
+  ],
+  "implementedButNotRun": [
+    "booth role/aria-modal/background inert and one real Tab",
+    "Escape from the focused name input and reopen via the action button",
+    "real ticket-stub click/tap",
+    "ticket and identity persistence over actual plaza-to-venue navigation",
+    "actual app return with ticket relinquished and last-ticket shortcut offered",
+    "ticketless URL guard",
+    "served source equality before/after flow"
+  ],
+  "excluded": [
+    "BFCache restoration",
+    "blocked storage",
+    "offline or slow room listing",
+    "multiplayer ticket purchase",
+    "full keyboard focus cycle or screen-reader audit",
+    "landscape/orientation",
+    "physical-device performance, sound, thermal behavior"
+  ],
+  "summaryPreservation": "Every invocation needs a new LABEL in its OUTPUT_DIR; both summary and per-case files use exclusive initial creation."
+}
+

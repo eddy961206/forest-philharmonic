@@ -4,7 +4,7 @@ import path from 'node:path';
 import { appURL, choice, config, diagnosticsFailed, integer, openPage, save, sha256, sourceHashes, summarize, viewport } from './browser.mjs';
 
 if (process.argv.includes('--help')) {
-  console.log('node tools/bench/full-frame.mjs [label] [hall|sphere] [high|medium|low|auto] [desktop|mobile] [front,wide,...]\n환경: BASE_URL, REVISION, PLAYWRIGHT_MODULE, CHROME_EXECUTABLE, OUTPUT_DIR, MODE=sync|cadence, SAMPLES, WARMUP, SOFTWARE_RENDERER=1, FONT_ROOT, WIDTH, HEIGHT, DPR, SCREENSHOTS=1, TIMEOUT_MS=180000\nTIMEOUT_MS는 브라우저 준비·조작 대기와 각 cadence 장면의 전체 표본 수집 제한이야. 준비 프레임과 sync 표본 수집 전체를 감싸는 제한은 아니야. cadence 시간 초과는 FAIL로 저장하고 브라우저를 닫아.');
+  console.log('node tools/bench/full-frame.mjs [label] [hall|sphere] [high|medium|low|auto] [desktop|mobile] [front,wide,...]\n환경: BASE_URL, REVISION, PLAYWRIGHT_MODULE, CHROME_EXECUTABLE, OUTPUT_DIR, MODE=sync|cadence, SAMPLES, WARMUP, SOFTWARE_RENDERER=1, FONT_ROOT, WIDTH, HEIGHT, DPR, SCREENSHOTS=1, TIMEOUT_MS=180000\nTIMEOUT_MS는 브라우저 준비·조작 대기와 각 cadence 장면의 전체 표본 수집 제한이야. 준비 프레임과 sync 표본 수집 전체를 감싸는 제한은 아니야. cadence 시간 초과는 FAIL로 저장하고 브라우저를 닫아.\nSphere는 UI 준비와 dome.mesh.visible을 기다리고, 기존 WARMUP 프레임에서 실제 base/사용 중 overlay draw 및 프로그램 완료·링크를 확인해. 미확인 상태는 FAIL로 보존해. 카운터는 warmup 뒤 복원하고 프로그램 검사는 측정 구간 밖에서만 실행해. Hall의 돔 검사는 해당 없음으로 기록해.');
   process.exit(0);
 }
 const [label = 'candidate', venue = 'hall', quality = 'high', device = 'desktop', scenarioList = 'front,wide'] = process.argv.slice(2);
@@ -41,6 +41,7 @@ const result = {
     ui: 'hidden', included: 'musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing',
     effectsPeak: 'two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers',
     effectsShow: 'warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams',
+    domeReadiness: 'wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step',
   },
   measurement: mode === 'sync'
     ? '전체 frame() + readPixels 완료 시간. 앱 FPS나 순수 GPU 시간이 아니야.'
@@ -91,7 +92,23 @@ try {
     } catch (error) { session.diagnostics.pageErrors.push(`main fixture: ${error.message}`); await route.abort(); }
   });
   await page.goto(appURL(cfg.baseURL, venue), { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => !!window.__bench && !document.getElementById('enterBtn').disabled, null, { polling: 100 });
+  result.initialReadiness = { status: 'WAITING', policy: 'existing UI readiness plus visible Sphere dome; no forced visibility' };
+  try {
+    await page.waitForFunction(() => {
+      const enter = document.getElementById('enterBtn'), fp = window.__fp;
+      return !!window.__bench && !!enter && !enter.disabled && !!fp &&
+        (!fp.hall.dome || fp.hall.dome.mesh.visible === true);
+    }, null, { polling: 100 });
+    Object.assign(result.initialReadiness, await page.evaluate(() => ({
+      status: 'READY', uiReady: !document.getElementById('enterBtn').disabled,
+      dome: window.__fp.hall.dome ? { visible: window.__fp.hall.dome.mesh.visible } : { status: 'NOT_APPLICABLE' },
+      interpretation: 'UI and visibility gate only; actual draw and program evidence is checked after each scenario warmup.',
+    })));
+  } catch (error) {
+    result.initialReadiness.status = 'WAIT_FAILED';
+    result.initialReadiness.error = error.message;
+    throw error;
+  }
   result.fixture = await page.evaluate(() => window.__bench.setup());
   await page.addStyleTag({ content: 'body > :not(#stage) { visibility: hidden !important; }' });
   result.meta = await page.evaluate(() => window.__bench.meta());
@@ -99,7 +116,17 @@ try {
   for (const name of names) {
     const scenario = await page.evaluate(name => window.__bench.scenario(name), name);
     console.log(JSON.stringify({ label, name, stage: 'warmup' }));
-    for (let i = 0; i < warmupFrames; i++) await page.evaluate(() => window.__bench.step(true));
+    await page.evaluate(() => window.__bench.beginDomeWarmup());
+    let domeReadiness;
+    try {
+      for (let i = 0; i < warmupFrames; i++) await page.evaluate(() => window.__bench.step(true));
+    } finally {
+      domeReadiness = await page.evaluate(() => window.__bench.endDomeWarmup());
+      result.scenarios[name] = { scenario, domeReadiness };
+    }
+    if (venue === 'sphere' && domeReadiness.status !== 'VERIFIED') {
+      throw new Error(`${name}: dome warmup is ${domeReadiness.status}: ${(domeReadiness.failures || []).join(' ')}`);
+    }
     const metricsBefore = (await cdp.send('Performance.getMetrics')).metrics;
     let samples;
     if (mode === 'cadence') {
@@ -139,7 +166,7 @@ try {
     const afterByName = Object.fromEntries(metricsAfter.map(m => [m.name, m.value]));
     const cdpDurationDeltaMs = Object.fromEntries(['TaskDuration', 'ScriptDuration', 'LayoutDuration', 'RecalcStyleDuration'].map(key =>
       [key, Number.isFinite(beforeByName[key]) && Number.isFinite(afterByName[key]) ? (afterByName[key] - beforeByName[key]) * 1000 : null]));
-    result.scenarios[name] = { scenario, samples, ...summary, cdpMetricsBefore: metricsBefore, cdpMetricsSnapshot: metricsAfter, cdpDurationDeltaMs,
+    result.scenarios[name] = { scenario, domeReadiness, samples, ...summary, cdpMetricsBefore: metricsBefore, cdpMetricsSnapshot: metricsAfter, cdpDurationDeltaMs,
       cdpInterpretation: 'Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time.' };
     if (samples.some(s => s.glError || s.contextLost)) throw new Error(`${name}: WebGL 오류가 생겼어.`);
     await save(cfg, filename, result);

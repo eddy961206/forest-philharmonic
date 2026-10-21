@@ -12,6 +12,10 @@ if (args.includes('--help')) {
 기본: 두 공연장 × desktop/mobile, 새 문맥에서 수동 low, 관객·효과 기본값 유지.
 SCENARIO=all|foyer|recital|interval|sleep 으로 한 묶음만 다시 확인할 수 있어.
 foyer는 Hall 전용이야. Sphere에서 그 항목은 NOT_APPLICABLE로 남겨.
+이번 6a 계획의 범위는 Hall SCENARIO=all, Sphere SCENARIO=sleep이야.
+Sphere all/recital/interval에는 아직 Hall 전용 선택곡 fixture가 남아 있어.
+현재 Sphere 프로그램에는 그 곡이 없으므로 기본 all을 두 공연장 전체 통과
+검사로 해석하지 마. Sphere는 SCENARIO=sleep을 명시해 실행해.
 
 필수 환경: BASE_URL, REVISION (연산자가 적는 commit/작업 트리 식별자)
 공통 환경: OUTPUT_DIR, LABEL, PLAYWRIGHT_MODULE, CHROME_EXECUTABLE,
@@ -516,23 +520,33 @@ async function runCase({ venue, device }) {
 
     await runGroup('foyer', async () => {
       const placement = await fixture('foyer-outward-placement', async () => {
-        const { HALL, LEVELS } = await import(new URL('./js/scene/hallplan.js', location.href).href);
+        const { HALL, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H } = await import(new URL('./js/scene/hallplan.js', location.href).href);
         const { director: d, camera: c } = window.__fp;
         d.setMode('walk');
         const z = HALL.back + 8.9;
         d.placeAt(c.position.clone().set(0, LEVELS[0], z), c.position.clone().set(0, LEVELS[0] + 1.6, z + 10));
-        return { x: 0, feet: LEVELS[0], z, look: 'away from hall doors', method: 'Skip the long entry walk only.' };
+        // Portrait FOV cannot see either side door when facing yaw=0 from
+        // this point. Aim the real drag at one actual doorway instead.
+        const doorX = HALL_DOORS[0];
+        if (!Number.isFinite(doorX)) throw new Error('No hall doorway available for the foyer visibility fixture');
+        const center = [doorX, LEVELS[0] + HALL_DOOR_H / 2, HALL.back];
+        const targetYaw = d.lookAt(c.position.clone().set(...center)).yaw;
+        const targetDoor = { index: 0, level: 0, center,
+          min: [doorX - HALL_DOOR_W / 2, LEVELS[0], HALL.back - 0.6],
+          max: [doorX + HALL_DOOR_W / 2, LEVELS[0] + HALL_DOOR_H, HALL.back + 0.6] };
+        return { x: 0, feet: LEVELS[0], z, look: 'away from hall doors', targetYaw, targetDoor,
+          method: 'Skip the long entry walk only. Target the first actual doorway; its bounds match interiorCull.' };
       });
       const outward = await render('foyer-away');
       check('Foyer outward view hides both ancestor groups', outward.seatGroupVisible === false && outward.audience?.visible === false, outward);
       await screenshot('foyer-away');
       const drags = [];
       for (let attempt = 0; attempt < 12; attempt++) {
-        const angle = await page.evaluate(() => {
+        const angle = await page.evaluate(targetYaw => {
           const d = window.__fp.director;
-          const delta = Math.atan2(Math.sin(-d.yaw), Math.cos(-d.yaw));
-          return { delta, fov: d.fov, yaw: d.yaw };
-        });
+          const delta = Math.atan2(Math.sin(targetYaw - d.yaw), Math.cos(targetYaw - d.yaw));
+          return { delta, targetYaw, fov: d.fov, yaw: d.yaw };
+        }, placement.targetYaw);
         if (Math.abs(angle.delta) < 0.025) break;
         const drag = await page.evaluate(({ delta, fov }) => {
           const canvas = window.__fp.renderer.domElement;
@@ -555,10 +569,24 @@ async function runCase({ venue, device }) {
         drags.push({ input: mobile ? 'CDP real touch drag' : 'real mouse drag', before: angle, ...drag });
       }
       const inward = await render('foyer-doors-restored');
-      check('Real drag faces the doors again', Math.abs(Math.atan2(Math.sin(inward.yaw), Math.cos(inward.yaw))) < 0.05, { outward: outward.yaw, inward: inward.yaw, drags });
+      const yawError = Math.atan2(Math.sin(placement.targetYaw - inward.yaw), Math.cos(placement.targetYaw - inward.yaw));
+      check('Real drag faces the selected hall doorway', Math.abs(yawError) < 0.05,
+        { outward: outward.yaw, inward: inward.yaw, targetYaw: placement.targetYaw, yawError, drags });
+      const doorView = await bounded(page.evaluate(async door => {
+        const { Matrix4, Frustum, Box3, Vector3 } = await import(new URL('./vendor/three/three.module.js', location.href).href);
+        const { camera } = window.__fp;
+        camera.updateMatrixWorld();
+        const projectionView = new Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+        const frustum = new Frustum().setFromProjectionMatrix(projectionView);
+        const box = new Box3(new Vector3(...door.min), new Vector3(...door.max));
+        return { door, intersectsDoorBox: frustum.intersectsBox(box), containsDoorCenter: frustum.containsPoint(new Vector3(...door.center)),
+          camera: { position: camera.position.toArray(), quaternion: camera.quaternion.toArray(), fov: camera.fov, aspect: camera.aspect },
+          projectionView: projectionView.toArray() };
+      }, placement.targetDoor), 'foyer doorway frustum evidence');
+      check('Selected hall doorway is inside the actual camera frustum', doorView.intersectsDoorBox && doorView.containsDoorCenter, doorView);
       check('Foyer inward view restores both ancestor groups', inward.seatGroupVisible === true && inward.audience?.visible === true, inward);
       listenerCheck(inward, 'foyer return');
-      return { placement, outward, inward, drags };
+      return { placement, outward, inward, drags, doorView };
     });
 
     // An actual regular-seat input establishes the return destination used by
