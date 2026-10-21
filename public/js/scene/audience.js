@@ -1,7 +1,8 @@
-// The audience: a well-dressed crowd of forest animals. Every evening (each
-// time the audience is switched on) a new crowd arrives - how many, who, and
-// where they sit is random, with friends sitting together. All instanced and
-// animated on the GPU: breathing, a little swaying, and clapping paws.
+// The audience: a well-dressed crowd of forest animals. Every evening a new
+// crowd arrives - who comes and where they sit is random, with friends
+// sitting together; how full the house is, is the audience setting. All
+// instanced and animated on the GPU: breathing, a little swaying, and
+// clapping paws.
 import * as THREE from 'three';
 import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
@@ -149,54 +150,103 @@ function dress(s, rand, push) {
   return { m, fur, outfit, phase };
 }
 
+// a small seeded random generator (the same numbers on every screen)
+function seeded(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+// one guest's own draws: from tonight's seed and their seat
+const guestRand = (seed, s) => seeded((seed ^ Math.imul(s.index + 1, 0x9e3779b1)) >>> 0);
+
+// --------------------------------------------------------------- the evening
+// Who comes tonight, and in what order they arrive. People come in parties
+// of one to four - friends and couples, who sit together - and good seats
+// sell first. A house that is a quarter full is simply the first quarter to
+// arrive: moving the audience slider lets more people in or sends the last
+// ones home, and everyone already seated stays exactly as they were (their
+// looks come from tonight's seed and their own seat).
+// rand: a seeded generator gives the same evening to everyone in a room.
+export function planHouse(seats, rand = Math.random) {
+  const seed = Math.floor(rand() * 4294967296);
+  const n = seats.length;
+  const key = new Float32Array(n);
+  let prevRow = '';
+  let left = 0;
+  let at = 0;
+  for (let i = 0; i < n; i++) {
+    const s = seats[i];
+    const rowKey = `${s.level}${s.row}${s.box || ''}${s.side || ''}${s.section || ''}`;
+    if (rowKey !== prevRow || left <= 0) {
+      prevRow = rowKey;
+      const r = rand();
+      left = r < 0.3 ? 1 : r < 0.72 ? 2 : r < 0.86 ? 3 : 4;
+      // good seats sell first: an arrival time drawn at the seat's own pace
+      let w = 1;
+      if (s.level === '1층') w = 1.15 - Math.min(0.45, Math.abs(s.x) / 30) - Math.abs(s.z - 12) / 60;
+      if (s.type === 'premium' || s.type === 'armchair') w = 1.3;
+      if (s.level === '4층') w = 0.75;
+      if (s.tier !== undefined) w = [1.2, 1.15, 1.05, 0.9, 0.7][s.tier] ?? 1; // the Sphere: the lower bowl first
+      at = -Math.log(1 - rand() * 0.999) / Math.max(0.2, w);
+    }
+    key[i] = at + i * 1e-7; // (a party in seat order)
+    left--;
+  }
+  const idx = Array.from({ length: n }, (_, i) => i).sort((a, b) => key[a] - key[b]);
+  return { order: idx.map((i) => seats[i]), seed };
+}
+
 // --------------------------------------------------------------- the crowd
-// seats: hall.seats; exclude: seat indices that must stay free
-// rand: a seeded generator gives the same house to everyone in a room;
-// reserveAll: a phone draws fewer people but keeps all their seats taken,
-// so nobody sits in someone else's lap on another screen
+// plan: planHouse(); share: how full the house is (0..1)
+// exclude: seat indices that must stay free (your own seat)
+// reserve: in a room, the share of the house whose seats are taken for
+// everyone (the same on every screen). This screen may draw fewer of them
+// (a phone, or a smaller share chosen here), but their seats stay taken,
+// so nobody sits in someone else's lap on another screen.
 // Very large houses (the Sphere) pass detail: only that many people nearest
 // the camera are drawn in full; everyone else is a simple seated figure in
 // their own colours, swapped as you move (see updateLOD).
-export function buildAudience(seats, { exclude = new Set(), rand = Math.random, lite = false, reserveAll = false, fill: fillIn = null, detail = Infinity, mid = 0, cap = Infinity } = {}) {
+export function buildAudience(plan, { share = 0.45, reserve = null, exclude = new Set(), lite = false, detail = Infinity, mid = 0, cap = Infinity } = {}) {
   const key = lite ? 'lite' : 'full';
   if (!GEO[key]) GEO[key] = parts(lite);
   const G = GEO[key];
-  const fill = fillIn ?? 0.22 + rand() * 0.45; // tonight's house: from a fifth to four fifths full
+  const { order, seed } = plan;
+  const upTo = (f) => Math.round(Math.min(1, Math.max(0, f)) * order.length);
+  const nDraw = upTo(reserve === null ? share : Math.min(share, reserve));
+  const nKeep = reserve === null ? nDraw : upTo(reserve);
   const chosen = [];
-  let prev = false;
-  let prevRow = '';
-  for (const s of seats) {
-    const rowKey = `${s.level}${s.row}${s.box || ''}${s.side || ''}`;
-    if (rowKey !== prevRow) prev = false;
-    prevRow = rowKey;
-    // good seats sell first; friends and couples sit together
-    let w = 1;
-    if (s.level === '1층') w = 1.15 - Math.min(0.45, Math.abs(s.x) / 30) - Math.abs(s.z - 12) / 60;
-    if (s.type === 'premium' || s.type === 'armchair') w = 1.3;
-    if (s.level === '4층') w = 0.75;
-    const p = Math.min(0.95, fill * w * (prev ? 1.3 : 0.85));
-    prev = rand() < p;
-    // (the draw is made even for a kept-free seat, so the house is the same)
-    if (prev && exclude.has(s.index)) prev = false;
-    if (prev) chosen.push(s);
+  const taken = new Set();
+  for (let i = 0; i < Math.max(nDraw, nKeep); i++) {
+    const s = order[i];
+    if (exclude.has(s.index)) continue;
+    if (i < nKeep) taken.add(s.index);
+    if (i < nDraw) chosen.push(s);
   }
-  const taken = new Set(chosen.map((s) => s.index));
+  const house = chosen.length; // guests here tonight (before a phone thins them)
 
   const lists = {};
   const lod = Number.isFinite(detail);
-  // a phone gets a smaller crowd, still spread round the house
+  // a phone gets a smaller crowd, still spread round the house (always the
+  // same people for the same share)
   const max = lod ? cap : lite ? LITE_MAX : Infinity;
   if (chosen.length > max) {
-    for (let i = chosen.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [chosen[i], chosen[j]] = [chosen[j], chosen[i]]; }
+    const lot = new Map(chosen.map((s) => [s, guestRand(seed ^ 0x5bd1e995, s)()]));
+    chosen.sort((a, b) => lot.get(a) - lot.get(b));
     chosen.length = max;
   }
-  if (lod) return lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail, mid });
+  const occupied = reserve === null ? new Set(chosen.map((s) => s.index)) : taken;
+  if (lod) return lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid });
   const push = (part, m, color, phase) => {
     if (lite && !LITE_PARTS.has(part)) return;
     if (!lists[part]) lists[part] = [];
     lists[part].push({ m, color, phase });
   };
-  for (const s of chosen) dress(s, rand, push);
+  for (const s of chosen) dress(s, guestRand(seed, s), push);
 
   const group = new THREE.Group();
   group.name = 'audience';
@@ -225,8 +275,11 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random, 
   }
   return {
     group,
-    occupied: reserveAll ? taken : new Set(chosen.map((s) => s.index)),
-    count: chosen.length,
+    occupied,
+    // the guests in the house tonight - what the applause should sound like
+    // (a phone draws fewer of them, but they are all there)
+    count: house,
+    drawn: chosen.length,
     dispose() {
       for (const im of meshes) { im.geometry.dispose(); im.material.dispose(); im.dispose?.(); }
       group.removeFromParent();
@@ -332,14 +385,14 @@ function kth(src, k) {
   return a[k];
 }
 
-function lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail, mid }) {
+function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid }) {
   if (lite) mid = 0; // phones: near guests and far figures only
   const GL = GEO.lite || (GEO.lite = parts(true));
   const people = [];
   // each guest's parts (the same draws, in the same order, as a small house)
   for (const s of chosen) {
     const ps = [];
-    const info = dress(s, rand, (part, m, color) => { if (lite && !LITE_PARTS.has(part)) return; ps.push([part, new THREE.Color(color)]); });
+    const info = dress(s, guestRand(seed, s), (part, m, color) => { if (lite && !LITE_PARTS.has(part)) return; ps.push([part, new THREE.Color(color)]); });
     people.push({ s, m: info.m, fur: new THREE.Color(info.fur), outfit: new THREE.Color(info.outfit), phase: info.phase, parts: ps, tier: -1, chunk: null, slot: 0 });
   }
   const group = new THREE.Group();
@@ -464,8 +517,9 @@ function lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail, mid }) {
   }
   return {
     group,
-    occupied: reserveAll ? taken : new Set(chosen.map((s) => s.index)),
-    count: chosen.length,
+    occupied,
+    count: house,
+    drawn: chosen.length,
     updateLOD,
     dispose() {
       for (const im of meshes) { im.geometry.dispose(); if (im.material !== blobMat) im.material.dispose(); im.dispose?.(); }

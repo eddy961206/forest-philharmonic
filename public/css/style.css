@@ -296,6 +296,10 @@ input[type='range']::-moz-range-thumb { width: 12px; height: 12px; border: 0; bo
 .check input { accent-color: var(--brass); width: 16px; height: 16px; }
 .slider { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; font-size: 14px; padding: 6px 0; }
 .slider output { font-size: 12px; color: var(--paper-dim); min-width: 32px; text-align: right; }
+/* the audience slider: the track fills up like the house */
+#crowd { width: 120px; }
+#crowd::-webkit-slider-runnable-track { background: linear-gradient(90deg, var(--brass) var(--fill, 0%), rgba(242, 237, 225, 0.25) var(--fill, 0%)); }
+#crowd::-moz-range-track { background: linear-gradient(90deg, var(--brass) var(--fill, 0%), rgba(242, 237, 225, 0.25) var(--fill, 0%)); }
 
 .field { border: 0; padding: 0; margin: 0 0 18px; }
 .field legend { font-family: var(--serif); font-size: 16px; color: var(--brass); padding: 0; margin-bottom: 8px; }
@@ -317,12 +321,15 @@ input[type='range']::-moz-range-thumb { width: 12px; height: 12px; border: 0; bo
 .presets button:hover { border-color: var(--brass); color: var(--brass); }
 
 /* ------------------------------------------------------------ start show */
+/* (above the thumb stick's zone: all of the button starts the show; the
+   hint under it lets a touch through to the stick) */
 .start-wrap {
-  position: fixed; z-index: 11; left: 50%; bottom: 136px; transform: translateX(-50%);
+  position: fixed; z-index: 13; left: 50%; bottom: 136px; transform: translateX(-50%); pointer-events: none;
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   transition: opacity 0.6s, transform 0.6s;
 }
 .start-wrap.leaving { opacity: 0; transform: translate(-50%, 12px); pointer-events: none; }
+.start-wrap:not(.leaving) > .btn-start { pointer-events: auto; }
 .btn-start {
   appearance: none; cursor: pointer;
   font-family: var(--serif); font-size: 21px; letter-spacing: 0.04em;
@@ -553,14 +560,18 @@ body.touch .act-btn kbd { display: none; }
    card stock with a little grain, a printed band, the perforation with two
    notches, ADMIT ONE up the stub, a barcode, the serial in red ink */
 .ticket { --ink: #2b1f15; --band: #24412f; --band2: #335a40; --accent: #a8782c; --paper: #f6ecd2; --red: #b3261e;
-  display: flex; width: min(440px, 100%); border-radius: 10px; overflow: hidden; color: var(--ink); font-family: var(--sans); position: relative;
+  display: flex; width: min(440px, 100%); border-radius: 10px; overflow: hidden; color: var(--ink); font-family: var(--sans); position: relative; }
+/* (the card stock is painted on the face and on the stub, not under both:
+   torn at the door, the ticket really ends at the perforation) */
+.ticket .t-main {
   background:
     radial-gradient(120% 140% at 0% 0%, rgba(255, 255, 255, 0.55), transparent 55%),
     repeating-linear-gradient(115deg, rgba(120, 90, 40, 0.035) 0 2px, transparent 2px 5px),
     repeating-linear-gradient(25deg, rgba(120, 90, 40, 0.03) 0 1px, transparent 1px 4px),
     var(--paper);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 18px 46px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35); }
-.ticket.sphere { --ink: #e8f1ff; --band: #0c1430; --band2: #23306a; --accent: #7fd3ff; --paper: #121a33; --red: #ff6b7d;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset; }
+.ticket.sphere { --ink: #e8f1ff; --band: #0c1430; --band2: #23306a; --accent: #7fd3ff; --paper: #121a33; --red: #ff6b7d; }
+.ticket.sphere .t-main {
   background:
     radial-gradient(120% 140% at 0% 0%, rgba(120, 160, 255, 0.18), transparent 55%),
     repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 5px),
@@ -581,11 +592,12 @@ body.touch .act-btn kbd { display: none; }
 .ticket .t-cell:nth-child(3), .ticket .t-cell:nth-child(5) { border-right: 0; }
 .ticket .t-cell:nth-child(n+4) { border-bottom: 0; }
 .ticket .t-cell.wide { grid-column: span 2; }
-.ticket .t-cell span { display: block; font-size: 8.5px; letter-spacing: 0.14em; opacity: 0.6; }
-.ticket .t-cell b { display: block; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ticket .t-cell span { display: block; font-size: 9px; letter-spacing: 0.14em; opacity: 0.68; }
+/* (a long payment or name takes a second line rather than losing its end) */
+.ticket .t-cell b { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 12px; font-weight: 600; line-height: 1.25; overflow: hidden; text-wrap: balance; }
 .ticket .t-mode { margin: 7px 10px 0 16px; font: 600 11px var(--sans); color: var(--accent); }
 .ticket.hall .t-mode { color: #7a5418; }
-.ticket .t-fine { margin: 5px 14px 0 16px; font-size: 8px; line-height: 1.4; opacity: 0.5; }
+.ticket .t-fine { margin: 5px 14px 0 16px; font-size: 9px; line-height: 1.4; opacity: 0.66; }
 .ticket .t-seal { position: absolute; right: 16px; top: 34px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
   font: 700 16px var(--serif); color: rgba(150, 40, 30, 0.75); border: 2px solid rgba(150, 40, 30, 0.55); transform: rotate(-14deg);
   box-shadow: 0 0 0 3px rgba(150, 40, 30, 0.12) inset; }
@@ -646,7 +658,18 @@ body.touch .act-btn kbd { display: none; }
 .venue-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
 .venue-card { border-radius: 16px; overflow: hidden; border: 1px solid rgba(242, 237, 225, 0.12); background: rgba(242, 237, 225, 0.04); display: flex; flex-direction: column; }
 .venue-card .vc-art { height: 96px; position: relative; }
-.venue-card.hall .vc-art { background: radial-gradient(60% 90% at 50% 120%, rgba(255, 196, 110, 0.75), transparent 70%), linear-gradient(180deg, #0c1424, #2b1d14); }
+.venue-card.hall .vc-art { background: radial-gradient(60% 90% at 50% 120%, rgba(255, 196, 110, 0.75), transparent 70%), linear-gradient(180deg, #0c1424, #2b1d14); overflow: hidden; }
+/* the hall on its card: a stone front with rows of warm arched windows and
+   the doors open, under a pitched roof (drawn with gradients, no image) */
+.venue-card.hall .vc-art::before { content: ""; position: absolute; right: 7%; bottom: 0; width: 44%; height: 62%;
+  background:
+    radial-gradient(70% 60% at 50% 100%, rgba(255, 205, 130, 0.9), rgba(255, 170, 80, 0.35) 45%, transparent 70%) center bottom / 18% 46% no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 6%, rgba(255, 196, 110, 0.85) 6% 10%, transparent 10% 14%) 0 22% / 100% 22% no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 6%, rgba(255, 196, 110, 0.6) 6% 10%, transparent 10% 14%) 0 60% / 100% 20% no-repeat,
+    linear-gradient(180deg, #2a2420, #1a1512);
+  border-radius: 2px 2px 0 0; box-shadow: 0 0 40px rgba(255, 170, 80, 0.25); }
+.venue-card.hall .vc-art::after { content: ""; position: absolute; right: 5%; bottom: 62%; width: 48%; height: 22%;
+  background: linear-gradient(180deg, #4a3c32, #2a221d); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
 .venue-card.sphere .vc-art { background: radial-gradient(45% 80% at 50% 110%, #59a2ff, #7c4dff 45%, transparent 75%), linear-gradient(180deg, #050812, #10163a); }
 .venue-card .vc-art span { position: absolute; left: 14px; bottom: 10px; font-family: var(--serif); font-size: 20px; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6); }
 .venue-card .vc-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
@@ -731,6 +754,28 @@ body { word-break: keep-all; overflow-wrap: break-word; }
 .pz-stub { z-index: 13; } /* (above the thumb stick's corner) */
 /* phones: the blur behind the booth is redrawn every frame - a plain veil instead */
 body.touch .booth { backdrop-filter: none; background: rgba(4, 7, 10, 0.72); }
+/* the square's messages are only read: a thumb or a click goes through them */
+.plaza .toast { pointer-events: none; }
+/* a touch screen: the thumb's corner is the stick's. Messages sit above the
+   stick, and on anything wider than a phone the stub goes up under your name
+   (the shortcut that is there is hidden while you hold a ticket) */
+body.touch .plaza .toast { bottom: calc(max(64px, 12vh) + 136px); }
+@media (min-width: 641px) {
+  body.touch .pz-stub { top: 72px; bottom: auto; left: auto; right: var(--gutter); transform: rotate(-3deg) scale(0.86); transform-origin: right top; }
+}
+/* a mouse on a middling screen: a message starts to the right of the stub */
+@media (min-width: 641px) and (max-width: 1100px) {
+  body:not(.touch) .plaza:has(#pzStub:not([hidden])) .toast { left: calc(var(--gutter) + 270px); transform: none; max-width: calc(100vw - 2 * var(--gutter) - 270px); }
+}
+.booth-x { width: 44px; height: 44px; } /* (a finger's size) */
+/* the booth's card hangs from the top: a step of another height moves only
+   its lower edge, not the buttons you are about to press */
+.booth { align-items: start; }
+.booth-card { margin-top: min(6vh, 48px); max-height: calc(100dvh - 32px - min(6vh, 48px)); }
+/* the header over the hall's lit windows: still readable */
+.pz-top p { color: var(--paper); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 14px rgba(0, 0, 0, 0.8); }
+/* the setlist: what, by whom and how long on a line of its own */
+.venue-card ol small { display: block; font-size: 11.5px; opacity: 0.85; }
 /* a ticket on a narrow screen: room for what is written on it */
 @media (max-width: 480px) {
   .ticket { --stub: 74px; }
@@ -752,3 +797,165 @@ body.touch .booth { backdrop-filter: none; background: rgba(4, 7, 10, 0.72); }
 .now { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55), 0 1px 14px rgba(0, 0, 0, 0.75); }
 .now::before { content: ""; position: absolute; inset: -40px -90px -34px -60px; z-index: -1; pointer-events: none;
   background: radial-gradient(closest-side, rgba(4, 6, 10, 0.5), rgba(4, 6, 10, 0.22) 60%, transparent); }
+
+/* =========================================================================
+   ---- venue HUD layout pass: phones (portrait and landscape), tablets, big
+   screens. --dock / --start-top are the px from the bottom of the screen to
+   the top of the dock / of the start stack, kept by ui.js (ui.enter) ---- */
+:root { --panel-w: min(380px, calc(100vw - 2 * var(--gutter))); }
+body { --r-room: 0px; --r-chip: 0px; --r-focus: 0px; }
+.panel { width: var(--panel-w); right: max(var(--gutter), env(safe-area-inset-right)); }
+/* the start stack above the thumb stick's touch zone (both were z 11) */
+.start-wrap { z-index: 13; }
+/* centred floating things use the screen's width, not half of it */
+.toast, .focus-chip, .act-btn, .prompt, .interval-chip, .look-hint, .target {
+  width: max-content; max-width: calc(100vw - 2 * var(--gutter)); box-sizing: border-box; }
+.toast { border-radius: 16px; text-align: center; pointer-events: none; bottom: max(214px, calc(var(--start-top, 0px) + 12px)); }
+.chip-btn { white-space: nowrap; }
+.focus-chip span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.interval-chip { flex-wrap: wrap; justify-content: center; row-gap: 4px; border-radius: 24px; top: calc(14px + var(--r-room)); }
+/* (a pressed tea: dark letters on the brass, not brass on brass) */
+.interval-chip .chip-btn[aria-pressed='true'] { color: var(--moss); background: var(--brass); border-color: var(--brass); }
+@media (max-width: 560px) { .interval-chip { top: calc(8px + var(--r-room)); } }
+@media (max-width: 400px) { .interval-chip .ic-title { display: none; } }
+/* the top band: the room chip, the interval / recital chip and a musician's
+   chip each take a row, and the now-playing block steps down under them */
+body:has(#intervalChip:not([hidden])), body:has(#recitalChip:not([hidden])) { --r-chip: 60px; }
+body:has(#focusChip:not([hidden])) { --r-focus: 58px; }
+@media (max-width: 900px) { body:has(#roomChip:not([hidden])) { --r-room: 46px; } }
+.focus-chip { top: calc(var(--gutter) + var(--r-room) + var(--r-chip)); }
+.now { left: max(var(--gutter), env(safe-area-inset-left)); max-width: min(560px, calc(100vw - 2 * var(--gutter))); transition: opacity 0.6s, top 0.35s ease; }
+@media (max-width: 1700px) { .now { top: calc(var(--gutter) + var(--r-room) + var(--r-chip) + var(--r-focus)); } }
+.now-title { text-wrap: balance; }
+/* legible over the bright foyer: a tight dark edge on the small lines, a
+   fuller shade behind the block, the start hint on a dark pill */
+.now-composer, .now-meta { text-shadow: 0 1px 2px #000, 0 0 8px rgba(0, 0, 0, 0.9), 0 0 18px rgba(0, 0, 0, 0.6); }
+.now::before { inset: -56px -130px -50px -90px; background: radial-gradient(closest-side at 42% 46%, rgba(4, 6, 10, 0.78), rgba(4, 6, 10, 0.62) 50%, rgba(4, 6, 10, 0.3) 78%, transparent); }
+.now-composer { color: #f2d597; }
+.start-hint { color: var(--paper); background: rgba(10, 12, 10, 0.6); padding: 4px 12px; border-radius: 999px; text-align: center; backdrop-filter: blur(6px); }
+.start-hint kbd { background: rgba(0, 0, 0, 0.35); border-color: rgba(230, 192, 123, 0.4); }
+/* safe areas (a notch at the side of a landscape phone) */
+.room-chip { right: max(var(--gutter), env(safe-area-inset-right)); }
+.lift-panel { right: max(18px, env(safe-area-inset-right)); }
+#joystick { left: max(18px, 6vw, env(safe-area-inset-left)); }
+.sit-btn, .chat-btn { right: max(22px, env(safe-area-inset-right)); }
+.jump-btn { right: calc(max(22px, env(safe-area-inset-right)) + 96px); }
+.chat { left: max(var(--gutter), env(safe-area-inset-left)); }
+/* help: fits any screen (scrolls), and speaks of keys or fingers, stairs or lifts */
+.help { padding: 16px; overflow-y: auto; }
+.help-card { max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--brass-dim) transparent; }
+#helpClose { position: sticky; bottom: 0; background: var(--moss); }
+.keys .h-touch, .splash-hint .h-touch { display: none; }
+html.touch .keys .h-key, body.touch .keys .h-key, html.touch .splash-hint .h-key { display: none; }
+html.touch .keys .h-touch, body.touch .keys .h-touch { display: block; }
+html.touch .splash-hint .h-touch { display: inline; }
+body[data-venue='sphere'] .keys .h-hall, body:not([data-venue='sphere']) .keys .h-sphere { display: none; }
+/* with the side panel open: the start stack, the interval chip and the lift
+   buttons move into the free space to its left */
+@media (min-width: 761px), (orientation: landscape) and (max-height: 500px) {
+  body:has(#panel:not([hidden])) .start-wrap { left: calc((100vw - var(--panel-w) - var(--gutter)) / 2); }
+  body.touch:has(#panel:not([hidden])) .start-wrap { left: calc((max(18px, 6vw) + 132px + 100vw - var(--panel-w) - var(--gutter)) / 2); }
+  body.touch:has(#panel:not([hidden])) .start-hint { display: none; }
+  body:has(#panel:not([hidden])) .interval-chip { left: calc((100vw - var(--panel-w) - var(--gutter)) / 2); max-width: calc(100vw - var(--panel-w) - 3 * var(--gutter)); }
+  body:has(#panel:not([hidden])) .lift-panel { right: calc(var(--panel-w) + 2 * var(--gutter)); }
+}
+/* fingers: thumb-sized targets */
+html.touch .ib { width: 44px; height: 44px; }
+html.touch .ib-main { width: 46px; height: 46px; }
+html.touch .mode, html.touch .tab-btn { min-height: 44px; padding: 5px 12px; }
+html.touch .chip-btn { min-height: 40px; padding: 6px 14px; }
+html.touch .seg button { min-height: 44px; }
+html.touch .presets button, html.touch .lb-mini, html.touch .btn-plain { min-height: 44px; }
+html.touch .lift-btns button { height: 44px; border-radius: 22px; }
+html.touch .check { min-height: 44px; }
+html.touch .check input { width: 20px; height: 20px; }
+/* (the string keeps its thin look; a finger may land a little above or below it) */
+html.touch .string-wrap::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; bottom: -6px; }
+/* (iOS zooms the page into a field whose text is under 16px) */
+html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']), html.touch select, html.touch textarea { font-size: 16px !important; }
+/* portrait phones: everything above the dock follows its real height */
+@media (max-width: 760px) and (min-height: 501px) {
+  #joystick { bottom: calc(var(--dock, 156px) + 16px); }
+  #joyZone { bottom: calc(var(--dock, 156px) + 14px); }
+  .sit-btn { bottom: calc(var(--dock, 156px) + 30px); }
+  .jump-btn { bottom: calc(var(--dock, 156px) + 36px); }
+  .chat-btn { bottom: calc(var(--dock, 156px) + 130px); }
+  .start-wrap { bottom: calc(var(--dock, 156px) + 160px); width: max-content; max-width: calc(100vw - 2 * var(--gutter)); }
+  .panel { bottom: calc(var(--dock, 156px) + 8px); max-height: calc(100dvh - var(--dock, 156px) - 110px); }
+  .look-hint { bottom: calc(var(--dock, 156px) + 10px); }
+  .toast { top: calc(var(--gutter) + var(--r-room) + var(--r-chip) + var(--r-focus) + 96px); bottom: auto; }
+  .encore { bottom: calc(var(--dock, 156px) + 10px); max-height: calc(100dvh - var(--dock, 156px) - 40px); overflow-y: auto; }
+  .encore-cands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) and (min-height: 700px) {
+  /* (tall phones: the encore above the stick and the jump button) */
+  .encore { bottom: calc(var(--dock, 156px) + 150px); max-height: calc(100dvh - var(--dock, 156px) - 180px); }
+}
+/* landscape phones (short screens): the dock in one row at the bottom, the
+   stick and the buttons in the lower corners above it, the start button just
+   over the dock, the panel down the right side */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root { --panel-w: min(340px, 46vw); }
+  .transport { width: max-content; max-width: calc(100vw - 2 * var(--gutter)); bottom: calc(6px + env(safe-area-inset-bottom)); padding: 0 10px 4px; }
+  .transport-row { flex-wrap: wrap; }
+  .t-mid { order: 0; width: auto; border-left: 1px solid rgba(242, 237, 225, 0.12); margin: 0 0 0 4px; padding: 0 0 0 8px; }
+  .t-right { border-left: 1px solid rgba(242, 237, 225, 0.12); margin-left: 4px; padding-left: 8px; }
+  .vol input[type='range'] { width: 56px; }
+  .time { min-width: 0; }
+  html.touch .ib { width: 40px; height: 40px; }
+  html.touch .ib-main { width: 44px; height: 44px; }
+  html.touch .mode, html.touch .tab-btn { min-height: 40px; padding: 4px 9px; }
+  .now-composer { font-size: 13px; }
+  .now-title { font-size: 17px; margin-bottom: 2px; }
+  .now-meta { font-size: 12px; }
+  .start-wrap { bottom: calc(var(--dock, 84px) + 10px); width: max-content; max-width: calc(100vw - 320px); gap: 6px; }
+  .btn-start { padding: 10px 32px; font-size: 19px; }
+  #joystick { width: 104px; height: 104px; left: max(14px, env(safe-area-inset-left)); bottom: calc(var(--dock, 84px) + 10px); }
+  #joyKnob { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
+  #joyZone { bottom: calc(var(--dock, 84px) + 6px); width: min(36vw, 300px); height: max(120px, calc(100dvh - var(--dock, 84px) - 116px)); }
+  .sit-btn { right: max(16px, env(safe-area-inset-right)); bottom: calc(var(--dock, 84px) + 10px); width: 72px; height: 72px; font-size: 16px; }
+  .jump-btn { right: calc(max(16px, env(safe-area-inset-right)) + 84px); bottom: calc(var(--dock, 84px) + 14px); width: 56px; height: 56px; }
+  .chat-btn { right: max(16px, env(safe-area-inset-right)); bottom: calc(var(--dock, 84px) + 92px); width: 48px; height: 48px; }
+  .panel { top: var(--gutter); bottom: calc(var(--dock, 84px) + 8px); max-height: none; }
+  .panel-head { padding: 8px 8px 2px 16px; }
+  .panel-head h3 { font-size: 17px; }
+  .panel-body { padding: 2px 16px 14px; }
+  .toast { top: auto; bottom: max(calc(var(--dock, 84px) + 64px), calc(var(--start-top, 0px) + 10px)); }
+  .look-hint { bottom: calc(var(--dock, 84px) + 8px); }
+  .encore { bottom: calc(var(--dock, 84px) + 8px); width: min(560px, calc(100vw - 320px)); padding: 8px 12px 10px; }
+  .encore-title { font-size: 17px; }
+  .encore-sub { display: none; }
+  .encore-cands { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; }
+  .encore-cands button { padding: 7px 10px; }
+  .encore-cands small { display: none; }
+  .help-card { padding: 16px 20px; }
+  .help-card h3 { font-size: 19px; margin-bottom: 8px; }
+  .keys { gap: 4px 14px; font-size: 13px; margin-bottom: 12px; }
+}
+/* very big screens: the HUD grows with the screen instead of staying phone-sized */
+@media (min-width: 2200px) and (min-height: 1200px) {
+  .now, .transport, .panel, .start-wrap, .focus-chip, .interval-chip, .room-chip, .encore, .lift-panel, .prompt, #actBtn, .look-hint, .target { zoom: 1.25; }
+  #toast { font-size: 17px; padding: 10px 22px; }
+  .help-card { width: min(620px, calc(100vw - 32px)); font-size: 16px; }
+  .keys { font-size: 16px; }
+  /* (the panel leaves the centre free anyway) */
+  body:has(#panel:not([hidden])) .start-wrap, body:has(#panel:not([hidden])) .interval-chip { left: 50%; }
+}
+/* (a 360-wide phone: the interval chip's three buttons still on one line) */
+@media (max-width: 400px) {
+  .interval-chip { gap: 3px; padding: 4px 4px 4px 10px; }
+  .interval-chip .ic-left { min-width: 2.6em; }
+  .interval-chip .chip-btn, html.touch .interval-chip .chip-btn { padding: 4px 8px; }
+}
+/* (a landscape phone has no height for three rows of chips and a title:
+   the title alone under one chip, nothing under two) */
+@media (orientation: landscape) and (max-height: 500px) {
+  body:has(#intervalChip:not([hidden])) .now :is(.now-composer, .now-meta),
+  body:has(#recitalChip:not([hidden])) .now :is(.now-composer, .now-meta),
+  body:has(#focusChip:not([hidden])) .now :is(.now-composer, .now-meta) { display: none; }
+  body:has(#focusChip:not([hidden])):has(#intervalChip:not([hidden])) .now,
+  body:has(#focusChip:not([hidden])):has(#recitalChip:not([hidden])) .now { opacity: 0; }
+}
+/* (a tablet: the encore above the thumb stick and the jump button) */
+@media (min-width: 761px) and (min-height: 700px) { html.touch .encore { bottom: 290px; } }
+/* ---- end of the venue HUD layout pass ---- */

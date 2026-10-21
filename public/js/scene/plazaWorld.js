@@ -333,7 +333,8 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
     gg.rotation.y = yaw;
     group.add(gg);
     gates[id] = { group: gg, ring, veil, crown, call: 0, want: 0 };
-    pickables[`gate:${id}`] = [arch, board];
+    // (the doorway answers a tap too: the light in it is what you aim at)
+    pickables[`gate:${id}`] = [arch, board, veil];
     for (const s of [-1, 1]) halos.push(new THREE.Vector3(s * 1.55, 3.0, 0.3).applyAxisAngle(V(0, 1, 0), yaw).add(V(g.x, 0, g.z)));
   }
 
@@ -479,7 +480,8 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
     flies.material.uniforms.uTime.value = t;
     flies.material.uniforms.uScale.value = (window.innerHeight / 2) * pixelRatio(); // (in drawn pixels)
     exo.uniforms.uTime.value = t;
-    for (const g of Object.values(gates)) {
+    for (const id in gates) {
+      const g = gates[id];
       g.call += (g.want - g.call) * Math.min(1, dt * 2);
       const pulse = 0.75 + 0.25 * Math.sin(t * 2.6);
       g.ring.material.opacity = 0.15 + g.call * 0.85 * pulse;
@@ -507,7 +509,8 @@ export function walkable(x, z) {
     const a = (i / 6) * Math.PI * 2 + Math.PI / 6;
     if (Math.hypot(x - Math.sin(a) * (PLAZA.R - 0.9), z - Math.cos(a) * (PLAZA.R - 0.9)) < 0.45) return false;
   }
-  for (const g of Object.values(PLAZA.gates)) {
+  for (const id in PLAZA.gates) {
+    const g = PLAZA.gates[id];
     const yaw = gateYaw(g);
     for (const s of [-1, 1]) {
       const px = g.x + Math.cos(yaw) * s * 1.55;

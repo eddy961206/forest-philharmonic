@@ -2,16 +2,21 @@
 //
 // Signal flow per stage section:
 //
-//   voices ─► section in ─┬─► air absorption (LPF by distance) ─► HRTF panner ─► dry bus ─┐
-//                         └─► reverb send (pre-panner, diffuse field) ─► hall convolver ──┤
-//                                                                                          ▼
-//                                     glue compressor ─► volume ─► brick-wall limiter ─► out
+//   voices ─► section in ─┬─► air absorption ─┬─► HRTF panner (the section) ──────┐
+//                         │                   └─► desks: drifting delays ─► panners ┤ music trim ─► dry bus ─┐
+//                         └─► reverb send (pre-panner, diffuse field) ─► music trim ─► room convolver ────────┤
+//                                                                                                             ▼
+//                       warmth / de-harsh EQ ─► glue compressor ─► volume ─► brick-wall limiter ─► out
 //
 // The listener follows the camera every frame, so where you sit or walk
 // changes direction, distance, direct-to-reverb ratio and high-frequency
 // roll-off - the same cues that make seats sound different in a real hall.
+// A section is more than one player: its "desks" are copies of the section
+// sound through slowly drifting short delays (each its own small timing and
+// pitch scatter) sounding from either side of it, so a string section or the
+// choir has a width and the shimmer of many players.
 
-import { SECTIONS, sectionCenter, sectionFacing } from '../layout.js';
+import { SECTIONS, sectionCenter, sectionFacing, PODIUM } from '../layout.js';
 import { renderApplause } from './crowd.js';
 
 const FAMILY = {
@@ -23,19 +28,32 @@ const FAMILY = {
 
 // Per-family envelope and timbre. atk = [pianissimo, fortissimo] seconds.
 const ENV = {
-  strings: { atk: [0.16, 0.045], rel: 0.32, sustain: true, bright: [900, 9000], level: 0.95 },
-  winds: { atk: [0.07, 0.025], rel: 0.16, sustain: true, bright: [1400, 11000], level: 0.85 },
-  horn: { atk: [0.11, 0.04], rel: 0.3, sustain: true, bright: [700, 6000], level: 0.9 },
-  trumpet: { atk: [0.04, 0.015], rel: 0.16, sustain: true, bright: [1300, 12000], level: 0.8 },
+  strings: { atk: [0.18, 0.045], rel: 0.34, sustain: true, bright: [1500, 10000], level: 0.95 },
+  winds: { atk: [0.07, 0.025], rel: 0.16, sustain: true, bright: [1700, 11000], level: 0.85 },
+  horn: { atk: [0.12, 0.04], rel: 0.3, sustain: true, bright: [800, 6500], level: 0.9 },
+  trumpet: { atk: [0.04, 0.015], rel: 0.16, sustain: true, bright: [1300, 11000], level: 0.8 },
   piano: { atk: [0.002, 0.002], rel: 0.45, sustain: false, bright: [1800, 16000], level: 1.0 },
   harp: { atk: [0.002, 0.002], rel: 1.6, sustain: false, bright: [2200, 15000], level: 1.0 },
   timpani: { atk: [0.002, 0.002], rel: 1.0, sustain: false, bright: [700, 7000], level: 1.0 },
-  choir: { atk: [0.18, 0.07], rel: 0.35, sustain: true, bright: [1200, 7000], level: 0.9 },
+  choir: { atk: [0.2, 0.07], rel: 0.38, sustain: true, bright: [1500, 8000], level: 0.9 },
   bells: { atk: [0.002, 0.002], rel: 2.5, sustain: false, bright: [3000, 14000], level: 0.8 },
+};
+
+// Desks per section (beside the section's own sound): [desktop, phone]
+const DESKS = { vn1: [2, 1], vn2: [2, 1], va: [2, 0], vc: [2, 1], cb: [1, 0], choir: [2, 1], hn: [1, 0] };
+const DESK_GAIN = 0.62;
+
+// Rooms a venue can ask for by name (merged over its acoustics)
+const ROOMS = {
+  // the Sphere: a huge, well-damped modern arena with an immersive sound
+  // system - a wide, enveloping field from everywhere around you, a shorter
+  // and darker tail than the hall, late and soft first reflections
+  arena: { rt60: 1.95, preDelay: 0.034, length: 3.4, reverb: 2.4, er: 'arena', dark: 0.72, erLevel: 0.3, spread: 4.2, level: 0.29 },
 };
 
 const LOOP_FROM = 0.55; // seconds into a sustained sample where the steady tone begins
 const XFADE = 0.38;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
 export class AudioEngine {
   constructor() {
@@ -46,13 +64,15 @@ export class AudioEngine {
     this.tickHandlers = new Set();
     this.listenerMode = 'camera';
     this.volume = 0.8;
+    this.failed = [];
   }
 
   // lite: phones - a lower sample rate, shorter samples, cheaper panning
   // acoustics: the room (a venue other than the hall passes its own)
   async init({ lite = false, acoustics = null } = {}) {
     this.lite = lite;
-    this.ac = { rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15, airMin: 3800, airK: 0.055, reverb: 1, level: 1, model: 'inverse', ...(acoustics || {}) };
+    this.ac = { rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15, airMin: 3800, airK: 0.055, reverb: 1, level: 1, model: 'inverse', er: 'hall', dark: 1, erLevel: 0.5, spread: 1, ...(acoustics || {}) };
+    if (this.ac.room && ROOMS[this.ac.room]) Object.assign(this.ac, ROOMS[this.ac.room]);
     const AC = window.AudioContext || window.webkitAudioContext;
     this.ctx = new AC({ latencyHint: 'playback', sampleRate: lite ? 24000 : 48000 });
     const ctx = this.ctx;
@@ -60,6 +80,10 @@ export class AudioEngine {
     // make-up gain in front of the dynamics so the glue/limiter see real levels
     this.makeup = ctx.createGain();
     this.makeup.gain.value = 12 * this.ac.level;
+    // warmth (the weight of the basses and the hall's bass ratio) and a
+    // gentle dip where massed strings and brass turn hard
+    this.warm = new BiquadFilterNode(ctx, { type: 'lowshelf', frequency: 150, gain: 2.5 });
+    this.soften = new BiquadFilterNode(ctx, { type: 'peaking', frequency: 3400, Q: 1.2, gain: -1 });
     this.glue = ctx.createDynamicsCompressor();
     this.glue.threshold.value = -16;
     this.glue.knee.value = 12;
@@ -68,7 +92,7 @@ export class AudioEngine {
     this.glue.release.value = 0.35;
 
     this.master = ctx.createGain();
-    this.master.gain.value = this.volume;
+    this.master.gain.value = this._volGain(this.volume);
 
     this.limiter = ctx.createDynamicsCompressor();
     this.limiter.threshold.value = -1.5;
@@ -84,18 +108,25 @@ export class AudioEngine {
     this.dryBus = ctx.createGain();
     this.dryBus.gain.value = 1.0;
 
-    // Hall reverb: generated impulse response (no external files)
+    // Room reverb: generated impulse response (no external files)
     this.reverb = ctx.createConvolver();
     this.reverb.normalize = true;
-    this.reverb.buffer = await generateHallIR(ctx, { rt60: this.ac.rt60, preDelay: this.ac.preDelay, length: this.ac.length });
+    this.reverb.buffer = await generateHallIR(ctx, this.ac);
     this.reverbIn = ctx.createGain();
     this.reverbIn.gain.value = 1;
     const revHP = ctx.createBiquadFilter();
     revHP.type = 'highpass';
     revHP.frequency.value = 110;
     this.reverbReturn = ctx.createGain();
-    this.reverbReturn.gain.value = 0.42;
+    this.reverbReturn.gain.value = 0.42 * this.ac.reverb;
     this.reverbIn.connect(revHP).connect(this.reverb).connect(this.reverbReturn);
+
+    // the music's own level (each piece is levelled, see setTrim); applause
+    // and the foyer bypass it
+    this.musicDry = ctx.createGain();
+    this.musicWet = ctx.createGain();
+    this.musicDry.connect(this.dryBus);
+    this.musicWet.connect(this.reverbIn);
 
     // Room transmission: inside the hall both paths pass untouched; out in
     // the foyer the music comes through the walls and open doors, so the
@@ -113,7 +144,7 @@ export class AudioEngine {
     this.occDry = occ(this.dryBus);
     this.occWet = occ(this.reverbReturn);
     this._open = 1;
-    this.makeup.connect(this.glue).connect(this.master).connect(this.limiter);
+    this.makeup.connect(this.warm).connect(this.soften).connect(this.glue).connect(this.master).connect(this.limiter);
     this.limiter.connect(this.analyser);
     this.limiter.connect(ctx.destination);
 
@@ -124,7 +155,14 @@ export class AudioEngine {
 
   // ------------------------------------------------------------ samples
   async loadSamples(base, onProgress = () => {}) {
-    const manifest = await (await fetch(`${base}/manifest.json`)).json();
+    const get = async (url) => {
+      // a stalled request must never hang the loading screen
+      const signal = typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined;
+      const res = await fetch(url, signal ? { signal } : undefined);
+      if (!res.ok) throw new Error(`${res.status} ${url}`);
+      return res;
+    };
+    const manifest = await (await get(`${base}/manifest.json`)).json();
     const jobs = [];
     for (const [inst, notes] of Object.entries(manifest)) {
       let midis = Object.keys(notes).map(Number).sort((a, b) => a - b);
@@ -134,26 +172,31 @@ export class AudioEngine {
       this.samples[inst] = { notes: midis, buf: new Map(), meta: notes };
       for (const m of midis) jobs.push([inst, m]);
     }
+    const total = jobs.length;
     let done = 0;
     const worker = async () => {
       while (jobs.length) {
         const [inst, m] = jobs.shift();
-        for (let attempt = 0; attempt < 3; attempt++) {
+        let ok = false;
+        for (let attempt = 0; attempt < 3 && !ok; attempt++) {
           try {
-            const res = await fetch(`${base}/${inst}/${m}.mp3`);
-            const arr = await res.arrayBuffer();
+            const arr = await (await get(`${base}/${inst}/${m}.mp3`)).arrayBuffer();
             const buf = await this.ctx.decodeAudioData(arr);
             this.samples[inst].buf.set(m, this._compact(buf, this.samples[inst].meta[m]));
-            break;
+            ok = true;
           } catch (e) {
             if (attempt === 2) console.warn('sample failed', inst, m, e);
           }
         }
+        if (!ok) this.failed.push(`${inst}/${m}`);
         done++;
-        onProgress(done, done + jobs.length);
+        onProgress(done, total);
       }
     };
     await Promise.all(Array.from({ length: 6 }, worker));
+    // a sample that never came: its neighbours stand in for it
+    for (const s of Object.values(this.samples)) s.notes = s.notes.filter((m) => s.buf.has(m));
+    return { total, failed: this.failed.length };
   }
 
   // Keep samples small: every section is summed to mono before its panner
@@ -182,7 +225,7 @@ export class AudioEngine {
 
   _nearest(inst, midi) {
     const s = this.samples[inst];
-    if (!s) return null;
+    if (!s || !s.notes.length) return null;
     const arr = s.notes;
     let lo = 0;
     let hi = arr.length - 1;
@@ -230,10 +273,30 @@ export class AudioEngine {
     }
   }
 
+  _panner(pos, face, cheap = false) {
+    return new PannerNode(this.ctx, {
+      panningModel: this.lite || cheap ? 'equalpower' : 'HRTF',
+      distanceModel: this.ac.model,
+      refDistance: this.ac.refDistance,
+      maxDistance: 120,
+      rolloffFactor: this.ac.rolloff,
+      coneInnerAngle: 210,
+      coneOuterAngle: 340,
+      coneOuterGain: 0.45,
+      positionX: pos.x, positionY: pos.y, positionZ: pos.z,
+      orientationX: face.x, orientationY: 0, orientationZ: face.z,
+    });
+  }
+
   _initSections() {
     const ctx = this.ctx;
+    const spread = this.ac.spread || 1;
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     for (const id of Object.keys(SECTIONS)) {
-      const pos = sectionCenter(id);
+      const c = sectionCenter(id);
+      // (a venue with a sound system of its own spreads the stage wider)
+      const pos = { x: c.x * spread, y: c.y, z: c.z };
       const face = sectionFacing(id);
       const input = ctx.createGain();
       // Soundfont samples carry General MIDI panning baked into stereo; a
@@ -243,24 +306,42 @@ export class AudioEngine {
       air.type = 'lowpass';
       air.frequency.value = this._hz(16000);
       air.Q.value = 0.5;
-      const panner = new PannerNode(ctx, {
-        panningModel: this.lite ? 'equalpower' : 'HRTF',
-        distanceModel: this.ac.model,
-        refDistance: this.ac.refDistance,
-        maxDistance: 120,
-        rolloffFactor: this.ac.rolloff,
-        coneInnerAngle: 210,
-        coneOuterAngle: 340,
-        coneOuterGain: 0.45,
-        positionX: pos.x, positionY: pos.y, positionZ: pos.z,
-        orientationX: face.x, orientationY: 0, orientationZ: face.z,
-      });
+      const panner = this._panner(pos, face);
       const send = ctx.createGain();
       send.gain.value = 0.55;
       input.connect(focus);
-      focus.connect(air).connect(panner).connect(this.dryBus);
-      focus.connect(send).connect(this.reverbIn);
-      this.sections[id] = { id, input, focus, air, panner, send, pos, distance: 10 };
+      focus.connect(air).connect(panner).connect(this.musicDry);
+      focus.connect(send).connect(this.musicWet);
+      // the desks: the rest of the section either side of (and behind) it
+      const desks = [];
+      const nDesk = (DESKS[id] || [0, 0])[this.lite ? 1 : 0];
+      if (nDesk) {
+        let dx = c.x - PODIUM.x;
+        let dz = c.z - PODIUM.z;
+        const dl = Math.hypot(dx, dz) || 1;
+        dx /= dl; dz /= dl;
+        const w = id === 'choir' ? 3.6 : id === 'cb' || id === 'hn' ? 1.1 : 1.5;
+        for (let k = 0; k < nDesk; k++) {
+          const side = nDesk === 1 ? (id === 'hn' ? 1 : -Math.sign(c.x || 1)) : k === 0 ? -1 : 1;
+          const back = 0.5 + 0.5 * k;
+          const p = { x: (c.x + -dz * side * w + dx * back) * spread, y: c.y + 0.1 * k, z: c.z + dx * side * w + dz * back };
+          // each desk a little late and drifting in pitch (a few cents)
+          const delay = new DelayNode(ctx, { maxDelayTime: 0.08, delayTime: 0.012 + 0.009 * k + rnd() * 0.005 });
+          const lfo = new OscillatorNode(ctx, { frequency: 0.19 + 0.16 * k + rnd() * 0.1 });
+          const depth = new GainNode(ctx, { gain: 0.0011 + rnd() * 0.0006 });
+          // (k-rate: one drift step per render quantum is plenty, and cheaper)
+          try { delay.delayTime.automationRate = 'k-rate'; } catch { /* a-rate then */ }
+          lfo.connect(depth).connect(delay.delayTime);
+          lfo.start();
+          const g = new GainNode(ctx, { gain: id === 'choir' ? 0.7 : DESK_GAIN });
+          // (level panning for the desks: wide, and a fraction of an HRTF's cost)
+          const pn = this._panner(p, face, true);
+          air.connect(delay).connect(g).connect(pn).connect(this.musicDry);
+          g.connect(send);
+          desks.push({ delay, lfo, g, panner: pn });
+        }
+      }
+      this.sections[id] = { id, input, focus, air, panner, send, pos, distance: 10, desks };
     }
   }
 
@@ -336,14 +417,54 @@ export class AudioEngine {
     for (const sec of Object.values(this.sections)) if (sec.spot) this._spotRoom(sec, open);
   }
 
+  // the slider is perceptual: gain = v² (scaled so the default 0.8 is unchanged)
+  _volGain(v) {
+    v = clamp(+v || 0, 0, 1);
+    return v * v * 1.25;
+  }
+
   setVolume(v) {
     this.volume = v;
-    if (this.master) this.master.gain.setTargetAtTime(v, this.ctx.currentTime, 0.05);
+    if (this.master) this.master.gain.setTargetAtTime(this._volGain(v), this.ctx.currentTime, 0.05);
   }
 
   setReverb(amount) {
     // amount 0..1 -> return gain
     this.reverbReturn.gain.setTargetAtTime((0.1 + amount * 0.75) * this.ac.reverb, this.ctx.currentTime, 0.1);
+  }
+
+  // The music's level in dB (each piece is levelled when it loads, so a
+  // piano rag is not louder than the orchestra); glides between pieces.
+  setTrim(db, glide = 0.6) {
+    if (!this.musicDry) return;
+    const g = Math.pow(10, clamp(db, -12, 9) / 20);
+    const t = this.ctx.currentTime;
+    for (const n of [this.musicDry, this.musicWet]) {
+      n.gain.cancelScheduledValues(t);
+      n.gain.setTargetAtTime(g, t, glide / 3);
+    }
+    this.trimDb = db;
+  }
+
+  // Roughly how much energy a note puts out (relative), for levelling a
+  // piece from its score before it plays: amplitude² x how long it sounds.
+  noteEnergy(section, inst, midi, vel, dur, gain = 1, layer = null) {
+    const main = this._nearest(inst, midi);
+    if (!main) return 0;
+    const fam = ENV[FAMILY[inst]] || ENV.winds;
+    const v = clamp(vel / 127, 0.05, 1);
+    const amp = fam.level * gain * (0.12 + 0.88 * Math.pow(v, 1.7)) * Math.min(4, main.meta.g);
+    let e = amp * amp;
+    if (layer && fam.sustain) e *= 1.3;
+    const nDesk = (DESKS[section] || [0, 0])[this.lite ? 1 : 0];
+    e *= 1 + nDesk * DESK_GAIN * DESK_GAIN;
+    // (the brightness filter: soft notes lose part of their energy)
+    e *= 0.55 + 0.45 * v;
+    // a held tone carries less energy than its peak level suggests (fitted to
+    // the measured loudness of the programme: strings vs piano, -10 dB)
+    if (fam.sustain) e *= 0.093;
+    const t = fam.sustain ? dur + fam.rel * 0.5 : Math.min(dur + 0.3, 1.4) * 0.5;
+    return e * t;
   }
 
   // ------------------------------------------------------------ timer
@@ -379,15 +500,19 @@ export class AudioEngine {
   }
 
   // ------------------------------------------------------------ voices
-  playNote({ section, inst, midi, vel, when, dur, gain = 1, layer = null }) {
+  // skip: seconds of the note already gone (a note held through a pause or
+  // a seek comes back in where it was, with a short swell instead of a new
+  // attack)
+  playNote({ section, inst, midi, vel, when, dur, gain = 1, layer = null, skip = 0 }) {
     const ctx = this.ctx;
     const sec = this.sections[section];
     const main = this._nearest(inst, midi);
     if (!sec || !main) return;
     const fam = ENV[FAMILY[inst]] || ENV.winds;
+    if (skip > 0 && !fam.sustain) return; // a struck note is not struck again
     const v = Math.min(1, Math.max(0.05, vel / 127));
     const amp = fam.level * gain * 0.2 * (0.12 + 0.88 * Math.pow(v, 1.7)) * Math.min(4, main.meta.g);
-    const atk = fam.atk[0] + (fam.atk[1] - fam.atk[0]) * v;
+    const atk = skip > 0 ? 0.08 : fam.atk[0] + (fam.atk[1] - fam.atk[0]) * v;
     when = Math.max(when, ctx.currentTime + 0.005);
 
     // Timbre: louder = brighter (the main thing that makes dynamics sound real)
@@ -404,29 +529,31 @@ export class AudioEngine {
     const rate = Math.pow(2, (midi - main.root) / 12);
 
     if (fam.sustain) {
-      this._sustained(voice, main, rate, when, dur, filter, 1);
+      const off = when + Math.max(dur, atk + 0.02);
+      // the sources run until the release has died away (no hard stop)
+      const total = off - when + fam.rel * 2.4 + 0.05;
+      this._sustained(voice, main, rate, when, total, filter, 1, skip);
       if (layer) {
         const lay = this._nearest(layer, midi);
         if (lay) {
           const lg = ctx.createGain();
           lg.gain.value = 0.55 * Math.min(4, lay.meta.g) / Math.min(4, main.meta.g);
           lg.connect(filter);
-          this._sustained(voice, lay, Math.pow(2, (midi - lay.root) / 12), when + 0.012, dur, lg, 1);
+          this._sustained(voice, lay, Math.pow(2, (midi - lay.root) / 12), when + 0.012, total - 0.012, lg, 1, skip);
         }
       }
       // Envelope with a little messa di voce on long notes
       const g = env.gain;
       g.setValueAtTime(0, when);
       g.linearRampToValueAtTime(amp, when + atk);
-      if (dur > 1.2) {
+      if (dur > 1.2 && !skip) {
         g.linearRampToValueAtTime(amp * 1.1, when + dur * 0.45);
         g.linearRampToValueAtTime(amp * 0.92, when + dur);
       } else {
         g.setValueAtTime(amp, Math.max(when + atk, when + dur - 0.01));
       }
-      const off = when + Math.max(dur, atk + 0.02);
       g.setTargetAtTime(0, off, fam.rel / 3);
-      voice.end = off + fam.rel * 2;
+      voice.end = when + total;
     } else {
       // Plucked / struck: play the natural decay; dampers cut at note end
       const src = ctx.createBufferSource();
@@ -455,14 +582,15 @@ export class AudioEngine {
     };
   }
 
-  // Plays a sustained sample for `dur` seconds; when the note is longer than
-  // the recording, chains further segments from the steady part of the sample
-  // with equal-power crossfades (no loop clicks).
-  _sustained(voice, smp, rate, when, dur, dest, level) {
+  // Plays a sustained sample for `total` seconds (release included); when the
+  // note is longer than the recording, chains further segments from the
+  // steady part of the sample with equal-power crossfades (no loop clicks).
+  _sustained(voice, smp, rate, when, total, dest, level, skip = 0) {
     const ctx = this.ctx;
-    const startOff = smp.meta.s;
-    const total = dur + 0.6; // include release
-    const firstLen = (smp.buf.duration - startOff) / rate - 0.05;
+    const dur = smp.buf.duration;
+    let startOff = smp.meta.s + skip * rate;
+    if (skip > 0 && startOff > dur - 1.2) startOff = LOOP_FROM + Math.random() * 0.25;
+    const firstLen = (dur - startOff) / rate - 0.05;
     const mk = (offset, t0, len, fadeIn, fadeOut) => {
       const src = ctx.createBufferSource();
       src.buffer = smp.buf;
@@ -471,7 +599,7 @@ export class AudioEngine {
       src.connect(g).connect(dest);
       const p = g.gain;
       if (fadeIn) {
-        p.setValueAtTime(0, t0);
+        p.value = 0;
         p.setValueCurveAtTime(EQ_IN, t0, XFADE);
       } else {
         p.setValueAtTime(level, t0);
@@ -483,21 +611,21 @@ export class AudioEngine {
       src.stop(t0 + len + 0.02);
       voice.srcs.push(src);
     };
-    if (total <= firstLen) {
-      mk(startOff, when, total, false, false);
-      return;
+    if (total <= firstLen || firstLen < XFADE * 2.2) {
+      mk(startOff, when, Math.min(total, Math.max(0.05, firstLen)), false, false);
+      if (total <= firstLen) return;
     }
     let t = when;
     let len = firstLen;
-    mk(startOff, t, len, false, true);
     let covered = len;
+    if (firstLen >= XFADE * 2.2) mk(startOff, t, len, false, true);
     let guard = 0;
     while (covered < total && guard++ < 64) {
       t = when + covered - XFADE;
       const remain = total - covered + XFADE;
       // pick the segment start first, then measure how much sample is left
       const off = LOOP_FROM + Math.random() * 0.25;
-      const segLen = (smp.buf.duration - off) / rate - 0.06;
+      const segLen = (dur - off) / rate - 0.06;
       len = Math.min(segLen, remain);
       const more = len < remain - 1e-3;
       // a fade-out curve may not overlap the fade-in on a very short segment
@@ -532,14 +660,47 @@ export class AudioEngine {
     return 6.5;
   }
 
+  // A soft chime (the foyer bells, the lifts): through the volume, mute and
+  // limiter like everything else, with a little of the room around it.
+  // notes: [[hz, at (s from now)], ...]
+  chime(notes, level = 0.05, ring = 1.4) {
+    const ctx = this.ctx;
+    if (!ctx || !this.master) return;
+    const t0 = ctx.currentTime + 0.03;
+    const out = ctx.createGain();
+    out.gain.value = level;
+    out.connect(this.master);
+    const send = ctx.createGain();
+    send.gain.value = 0.25 / (12 * this.ac.level);
+    out.connect(send).connect(this.reverbIn);
+    let end = t0;
+    for (const [f, at] of notes) {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = f;
+      const s = t0 + at;
+      g.gain.setValueAtTime(0, s);
+      g.gain.linearRampToValueAtTime(1, s + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, s + ring);
+      o.connect(g).connect(out);
+      o.start(s);
+      o.stop(s + ring + 0.1);
+      end = Math.max(end, s + ring + 0.1);
+    }
+    setTimeout(() => { try { out.disconnect(); send.disconnect(); } catch { /* gone */ } }, (end - ctx.currentTime + 4) * 1000);
+  }
+
   // ------------------------------------------------------------ applause
   _prepareCrowd() {
     if (this._crowd) return;
     const ctx = this.ctx;
+    const sr = this.lite ? 16000 : 24000;
+    const wash = this.lite ? 200 : 320;
     this._crowd = {
-      welcome: renderApplause(ctx, { seconds: 5.5, people: 120, seed: 11 }),
-      normal: [renderApplause(ctx, { seconds: 10, people: 170, seed: 21 }), renderApplause(ctx, { seconds: 10, people: 170, seed: 22 })],
-      finale: renderApplause(ctx, { seconds: 15, people: 240, seed: 31, rhythmic: true }),
+      welcome: renderApplause(ctx, { seconds: 5.5, people: wash, seed: 11, sr }),
+      normal: [renderApplause(ctx, { seconds: 10, people: wash, seed: 21, sr }), renderApplause(ctx, { seconds: 10, people: wash, seed: 22, sr })],
+      finale: renderApplause(ctx, { seconds: 15, people: wash, seed: 31, rhythmic: true, sr }),
     };
   }
 
@@ -549,33 +710,46 @@ export class AudioEngine {
   }
 
   // intensity < 0.8: a short welcome; >= 1.2: the finale with rhythmic
-  // clapping; otherwise the ordinary applause after a piece
-  applause(when, intensity = 1) {
+  // clapping; otherwise the ordinary applause after a piece.
+  // people: how many are in the house (the wash grows with the crowd, the
+  // neighbours you can pick out depend on how full it is around you)
+  applause(when, intensity = 1, people = null) {
     this._prepareCrowd();
     const ctx = this.ctx;
     const C = this._crowd;
-    const buf = intensity < 0.8 ? C.welcome : intensity >= 1.2 ? C.finale : C.normal[(this._appN = (this._appN || 0) + 1) % 2];
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.playbackRate.value = 0.98 + Math.random() * 0.04;
-    // the hall takes the edge off: a soft high cut and a little low cut
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 180;
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
-    lp.frequency.value = 6500;
-    lp.Q.value = 0.5;
+    const pair = intensity < 0.8 ? C.welcome : intensity >= 1.2 ? C.finale : C.normal[(this._appN = (this._appN || 0) + 1) % 2];
+    const n = people == null ? 700 : Math.max(0, people);
+    const washG = clamp(Math.pow(n / 900, 0.35), n > 0 ? 0.12 : 0, 1.2);
+    const closeG = clamp(0.3 + 0.7 * Math.min(1, n / 350), 0.3, 1);
+    const rate = 0.98 + Math.random() * 0.04;
+    // the whole crowd: one gain (stopApplause fades it)
     const g = ctx.createGain();
-    g.gain.value = 0.034 * Math.min(1.25, intensity);
-    src.connect(hp).connect(lp).connect(g);
+    g.gain.value = 0.085 * Math.min(1.2, intensity) / this.ac.level;
     const dry = ctx.createGain();
-    dry.gain.value = 0.55;
+    dry.gain.value = 0.62;
     g.connect(dry).connect(this.dryBus);
-    g.connect(this.reverbIn);
-    src.start(when);
+    // (the crowd's share of the room is the same in every venue: a venue
+    // with a stronger reverb return gets a smaller send)
+    const wet = ctx.createGain();
+    wet.gain.value = 0.9 / Math.max(0.5, this.ac.reverb);
+    g.connect(wet).connect(this.reverbIn);
+    const srcs = [];
+    const layer = (buf, gain, hp, lp) => {
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.playbackRate.value = rate;
+      const h = new BiquadFilterNode(ctx, { type: 'highpass', frequency: hp });
+      const l = new BiquadFilterNode(ctx, { type: 'lowpass', frequency: this._hz(lp), Q: 0.5 });
+      const lg = new GainNode(ctx, { gain });
+      src.connect(h).connect(l).connect(lg).connect(g);
+      src.start(when);
+      srcs.push(src);
+    };
+    layer(pair.close, closeG, 170, 8500);
+    if (washG > 0) layer(pair.wash, washG, 140, 5200);
+    const src = { stop: (t) => { for (const s of srcs) try { s.stop(t); } catch { /* not started */ } } };
     this._lastApplause = { src, g };
-    return src;
+    return srcs[0];
   }
 
   stopApplause(fade = 0.6) {
@@ -591,43 +765,82 @@ export class AudioEngine {
 const EQ_IN = new Float32Array(32).map((_, i) => Math.sin((i / 31) * Math.PI / 2));
 const EQ_OUT = new Float32Array(32).map((_, i) => Math.cos((i / 31) * Math.PI / 2));
 
-// --------------------------------------------------------------- hall IR
-// A concert-hall impulse response built from: a sparse set of early
-// reflections (side walls, ceiling, stage shell) followed by a diffuse,
-// exponentially decaying tail whose high end dies faster than the low end.
-export async function generateHallIR(ctx, { rt60 = 2.3, preDelay = 0.02, length = 3.5 } = {}) {
+// --------------------------------------------------------------- room IR
+// A room impulse response built from: early reflections (in the hall the
+// strong lateral ones from the side walls, the ceiling and the stage shell;
+// in the arena later, softer, scattered ones from far surfaces) followed by
+// a diffuse, exponentially decaying tail - independent in each ear - whose
+// high end dies faster than the low end (dark: < 1 for a darker room).
+export async function generateHallIR(ctx, { rt60 = 2.3, preDelay = 0.02, length = 3.5, er = 'hall', dark = 1, erLevel = 0.5 } = {}) {
   const sr = ctx.sampleRate;
   const n = Math.floor(sr * length);
   const off = new OfflineAudioContext(2, n, sr);
   const raw = off.createBuffer(2, n, sr);
   const pd = Math.floor(preDelay * sr);
-  for (let ch = 0; ch < 2; ch++) {
-    const d = raw.getChannelData(ch);
-    // early reflections
-    const taps = 22;
-    for (let i = 0; i < taps; i++) {
-      const t = preDelay + 0.004 + Math.pow(i / taps, 1.4) * 0.085 + (Math.random() - 0.5) * 0.004;
-      const idx = Math.floor(t * sr);
-      const a = (0.55 + Math.random() * 0.4) * Math.exp(-i / 9) * (Math.random() < 0.5 ? -1 : 1);
-      if (idx < n) d[idx] += a;
-    }
-    // diffuse tail with a soft build-up
-    const k = 6.907755 / rt60;
+  const L = raw.getChannelData(0);
+  const R = raw.getChannelData(1);
+  // diffuse tail with a soft build-up
+  const k = 6.907755 / rt60;
+  const build = er === 'arena' ? 0.11 : 0.06;
+  let eTail = 0;
+  for (const d of [L, R]) {
     for (let i = pd; i < n; i++) {
       const t = (i - pd) / sr;
-      const build = Math.min(1, t / 0.07);
-      d[i] += (Math.random() * 2 - 1) * Math.exp(-k * t) * build * 0.42;
+      const v = (Math.random() * 2 - 1) * Math.exp(-k * t) * Math.min(1, t / build) * 0.42;
+      d[i] = v;
+      eTail += v * v;
     }
   }
+  // early reflections: short bursts of scattered noise, each reaching the
+  // two ears at slightly different times and levels
+  const ers = [];
+  if (er === 'arena') {
+    for (let i = 0; i < 30; i++) {
+      const t = preDelay + 0.014 + Math.pow(Math.random(), 0.85) * 0.14;
+      const a = (0.4 + Math.random() * 0.6) * Math.exp(-(t - preDelay) / 0.1);
+      ers.push([t, a, Math.random() * 2 - 1, 0.004]);
+    }
+  } else {
+    ers.push([preDelay + 0.009, 0.8, 0, 0.0015]); // ceiling (both ears alike)
+    const lat = [0.016, 0.022, 0.029, 0.035, 0.043, 0.051, 0.06, 0.07];
+    lat.forEach((t, i) => ers.push([preDelay + t + (Math.random() - 0.5) * 0.003, 1.0 * Math.exp(-i / 6), i % 2 ? 0.8 : -0.8, 0.0015]));
+    ers.push([preDelay + 0.026, 0.6, 0.1, 0.002]); // the stage shell
+    for (let i = 0; i < 26; i++) {
+      const t = preDelay + 0.02 + Math.pow(i / 26, 1.25) * 0.085 + (Math.random() - 0.5) * 0.004;
+      ers.push([t, (0.35 + Math.random() * 0.35) * Math.exp(-i / 11), Math.random() * 1.6 - 0.8, 0.002]);
+    }
+  }
+  const eL = new Float32Array(n);
+  const eR = new Float32Array(n);
+  let eEr = 0;
+  for (const [t, a, pan, tau] of ers) {
+    const i0 = Math.floor(t * sr);
+    const itd = Math.round(Math.abs(pan) * 0.0006 * sr);
+    const gl = a * Math.sqrt(0.5 * (1 - pan * 0.7));
+    const gr = a * Math.sqrt(0.5 * (1 + pan * 0.7));
+    const iL = i0 + (pan > 0 ? itd : 0);
+    const iR = i0 + (pan < 0 ? itd : 0);
+    const len = Math.floor(tau * 5 * sr);
+    for (let j = 0; j < len; j++) {
+      const env = Math.exp(-j / (tau * sr));
+      const s = (Math.random() * 2 - 1) * env;
+      const s2 = 0.6 * s + 0.4 * (Math.random() * 2 - 1) * env;
+      if (iL + j < n) eL[iL + j] += s * gl;
+      if (iR + j < n) eR[iR + j] += s2 * gr;
+    }
+  }
+  for (let i = 0; i < n; i++) eEr += eL[i] * eL[i] + eR[i] * eR[i];
+  const sc = Math.sqrt((erLevel * eTail) / Math.max(1e-9, eEr));
+  for (let i = 0; i < n; i++) { L[i] += eL[i] * sc; R[i] += eR[i] * sc; }
   const src = off.createBufferSource();
   src.buffer = raw;
   const lp = off.createBiquadFilter();
   lp.type = 'lowpass';
   lp.Q.value = 0.3;
-  lp.frequency.setValueAtTime(Math.min(14000, off.sampleRate * 0.49), 0);
-  lp.frequency.exponentialRampToValueAtTime(5200, 0.25);
-  lp.frequency.exponentialRampToValueAtTime(1400, length * 0.75);
-  lp.frequency.exponentialRampToValueAtTime(700, length);
+  lp.frequency.setValueAtTime(Math.min(14000 * dark, off.sampleRate * 0.49), 0);
+  lp.frequency.exponentialRampToValueAtTime(Math.min(5200 * dark, off.sampleRate * 0.49), 0.25);
+  lp.frequency.exponentialRampToValueAtTime(1400 * dark, length * 0.75);
+  lp.frequency.exponentialRampToValueAtTime(700 * dark, length);
   const ls = off.createBiquadFilter();
   ls.type = 'lowshelf';
   ls.frequency.value = 220;

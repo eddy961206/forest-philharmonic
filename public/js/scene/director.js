@@ -93,11 +93,25 @@ export class Director {
       this.returnTo = { pos: this.pos.clone(), yaw: this.yaw, pitch: this.pitch, seat: prev === 'seat' ? this.seat : null, feet: this.feet };
     }
     if (prev === 'cinema' && mode !== 'cinema' && this.returnTo) {
-      // come back to where you were watching from
+      // come back to where you were watching from (walking off from a seat:
+      // to the legroom in front of it, not into the seat itself)
       const r = this.returnTo;
-      this.flyTo(r.pos, r.pos.clone().add(V(-Math.sin(r.yaw) * Math.cos(r.pitch), Math.sin(r.pitch), -Math.cos(r.yaw) * Math.cos(r.pitch))), 1.6, mode === 'seat' ? 50 : 64);
-      this.feet = r.feet;
-      if (r.seat) this.seat = r.seat;
+      let to = r.pos;
+      let feet = r.feet;
+      if (mode === 'walk' && r.seat && r.seat.index >= 0) {
+        const s = this._freeSpotNear(r.seat);
+        to = V(s.x, s.y + EYE, s.z);
+        feet = s.y;
+      }
+      // (from far away - the stage, the dome - a cut: a straight flight
+      // there would pass through walls and floors)
+      const far = this.pos.distanceTo(to) > 8;
+      this.flyTo(to, to.clone().add(V(-Math.sin(r.yaw) * Math.cos(r.pitch), Math.sin(r.pitch), -Math.cos(r.yaw) * Math.cos(r.pitch))), far ? 0.001 : 1.6, mode === 'seat' ? 50 : 64);
+      this.anim.home = true;
+      this.feet = feet;
+      this.vy = 0;
+      this.grounded = true;
+      if (r.seat && mode === 'seat') this.seat = r.seat;
     }
     this._emit('mode', mode);
   }
@@ -126,7 +140,10 @@ export class Director {
     const near = this.pos.distanceTo(eye) < 3.5;
     // (a seat may know what it is for: the keys, from a chair on the stage)
     const look = seat.look ? V(seat.look.x, seat.look.y, seat.look.z) : near ? eye.clone().addScaledVector(fwd, 10).setY(STAGE_FOCUS.y + (eye.y - STAGE_FOCUS.y) * 0.5) : STAGE_FOCUS;
-    this.flyTo(eye, look, near ? dur : 2.4, 50);
+    // (from far off - the foyer, another level - straight there: a flight
+    // would pass through the walls and floors in between)
+    const far = this.pos.distanceTo(eye) > 12;
+    this.flyTo(eye, look, near ? dur : far ? 0.001 : 2.4, 50);
     if (near) this.anim.lift = false;
     this._emit('mode', 'seat');
     this._emit('seat', seat);
@@ -264,7 +281,10 @@ export class Director {
 
   _look(dx, dy, k) {
     if (!this._looked) { this._looked = true; this._emit('looked'); }
-    if (this.mode === 'cinema') this.setMode(this.returnTo?.seat ? 'seat' : 'walk');
+    // out of the auto-director: first back home (the flight there is not
+    // cut short by the same drag), then the drag turns the view again
+    if (this.mode === 'cinema') { this.setMode(this.returnTo?.seat ? 'seat' : 'walk'); return; }
+    if (this.anim?.home) return;
     this.yaw -= dx * k;
     this.pitch = clamp(this.pitch - dy * k, -1.4, 1.4);
     if (this.anim && !this.anim.sitting) this.anim = null;
@@ -276,6 +296,7 @@ export class Director {
     let pinch0 = 0;
     let moved = 0;
     let lookPointer = null;
+    let multi = false; // more than one finger down since the last time none was
     let lastTap = { t: 0, x: 0, y: 0 };
     document.addEventListener('pointerlockchange', () => {
       const was = this.locked;
@@ -308,14 +329,18 @@ export class Director {
     window.addEventListener('blur', () => { this.mouse.inside = false; });
     el.addEventListener('pointerdown', (e) => {
       if (this.locked) return;
-      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType });
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType, moved: 0 });
       if (pointers.size === 2) {
         const [a, b] = [...pointers.values()];
         pinch0 = Math.hypot(a.x - b.x, a.y - b.y);
       }
+      // two fingers at once are a pinch (or a drag and a tap): none of them
+      // is a tap, and no tap before it can make a double tap with what follows
+      if (pointers.size > 1) { multi = true; lastTap.t = 0; }
       if (lookPointer === null) lookPointer = e.pointerId;
       moved = 0;
-      el.setPointerCapture(e.pointerId);
+      // (a second click while the mouse is being captured cannot be held)
+      try { el.setPointerCapture(e.pointerId); } catch { /* fine */ }
     });
     el.addEventListener('pointermove', (e) => {
       if (this.locked) return;
@@ -326,6 +351,7 @@ export class Director {
       p.x = e.clientX;
       p.y = e.clientY;
       moved += Math.abs(dx) + Math.abs(dy);
+      p.moved += Math.abs(dx) + Math.abs(dy);
       if (pointers.size === 2) {
         const [a, b] = [...pointers.values()];
         const d = Math.hypot(a.x - b.x, a.y - b.y);
@@ -340,7 +366,8 @@ export class Director {
     });
     const up = (e) => {
       const p = pointers.get(e.pointerId);
-      if (p && p.type === 'touch' && moved < 10 && pointers.size === 1) {
+      // (a tap: this finger stayed put, alone, and was lifted - not cancelled)
+      if (p && p.type === 'touch' && e.type === 'pointerup' && p.moved < 10 && pointers.size === 1 && !multi) {
         const now = performance.now();
         if (now - lastTap.t < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
           this._emit('pick', { x: e.clientX, y: e.clientY });
@@ -349,8 +376,10 @@ export class Director {
       }
       if (p && p.type === 'mouse' && moved < 5 && !this.locked) this._emit('clickView', { x: e.clientX, y: e.clientY });
       pointers.delete(e.pointerId);
-      if (e.pointerId === lookPointer) lookPointer = null;
+      // the finger that stays after a pinch keeps turning the view
+      if (e.pointerId === lookPointer) lookPointer = pointers.size ? pointers.keys().next().value : null;
       if (pointers.size < 2) pinch0 = 0;
+      if (!pointers.size) multi = false;
     };
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', up);
@@ -375,8 +404,10 @@ export class Director {
       if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || t.getAttribute?.('role') === 'slider') return;
       if (e.code === 'KeyR' && !e.repeat) { this.targetFov = this.mode === 'walk' ? 64 : 50; return; }
       if (e.code === 'KeyE' && !e.repeat) { if (this.toggleSit()) e.preventDefault(); return; }
-      if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) this.jump(); return; }
-      if (e.code === 'Escape' && this.locked) { this.releaseLock(); return; }
+      // (Space on a focused button presses the button, as everywhere else)
+      if (e.code === 'Space' && !t.closest?.('button, [role=button], a, summary')) { e.preventDefault(); if (!e.repeat) this.jump(); return; }
+      // (only the mouse comes back: an open panel stays open - see ui.js)
+      if (e.code === 'Escape' && this.locked) { e.preventDefault(); this.releaseLock(); return; }
       if (MOVE.has(e.code)) {
         if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown'].includes(e.code) && this.mode !== 'walk') this.setMode('walk');
         this.keys.add(e.code);
@@ -414,7 +445,13 @@ export class Director {
       a.t += dt;
       const x = ease(Math.min(1, a.t / a.dur));
       this.pos.lerpVectors(a.p0, a.p1, x);
-      if (a.lift) this.pos.y += Math.sin(x * Math.PI) * Math.min(2.5, a.p0.distanceTo(a.p1) * 0.12);
+      if (a.lift) {
+        const base = this.pos.y;
+        this.pos.y += Math.sin(x * Math.PI) * Math.min(2.5, a.p0.distanceTo(a.p1) * 0.12);
+        // (the arc never rises into the slab above: a balcony's ceiling)
+        const ceil = headroomAt(this.pos.x, this.pos.z, base - EYE) - 0.15;
+        if (this.pos.y > ceil) this.pos.y = Math.max(base, ceil);
+      }
       this.yaw = a.y0 + (a.y1 - a.y0) * x;
       this.pitch = a.q0 + (a.q1 - a.q0) * x;
       this.targetFov = a.fov0 + (a.fov1 - a.fov0) * x;
@@ -424,8 +461,15 @@ export class Director {
       }
     }
 
+    // the thumb stick does what W does: up out of a seat, out of the
+    // auto-director's view
+    const push = Math.hypot(this.joy.x, this.joy.y);
+    if (push > 0.6 && ((this.mode === 'seat' && !this.anim) || this.mode === 'cinema')) this.setMode('walk');
+
     if (this.mode === 'walk' && !this.anim) {
-      const run = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
+      // (touch: the stick held at its rim for a moment breaks into a run)
+      this._rimT = push > 0.92 ? (this._rimT || 0) + dt : 0;
+      const run = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight') || this._rimT > 1.2;
       const speed = run ? 4.2 : 2.0;
       const fwd = V(-Math.sin(this.yaw), 0, -Math.cos(this.yaw));
       const right = V(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
@@ -592,8 +636,16 @@ export class Director {
       const ceil = headroomAt(this.pos.x, this.pos.z, prev);
       if (this.feet + 1.75 > ceil) { this.feet = Math.max(prev, ceil - 1.75); this.vy = 0; }
     }
-    const g = groundBelow(this.pos.x, this.pos.z, prev, 0.05);
-    if (g !== undefined && g !== null && this.feet <= g) {
+    // (the same reach up as a step in the air, see _move: a floor we were
+    // let onto is a floor we land on)
+    const g = groundBelow(this.pos.x, this.pos.z, prev, 0.08);
+    if (g === undefined || g === null) {
+      // a safety net: no floor anywhere under us, and falling for over a
+      // second (some ten metres) - back to the foyer, not falling forever
+      if (this.vy < -14) this.placeAt(ENTRANCE.pos, ENTRANCE.look);
+      return;
+    }
+    if (this.feet <= g) {
       this.landDip = Math.min(0.32, -this.vy * 0.035);
       this.feet = g;
       this.vy = 0;
@@ -748,7 +800,12 @@ export class Director {
       c.shot = shot;
       c.clock = 0;
       c.until = shot.hold;
-      this.flyTo(shot.pos, shot.look, shot.cut ? 0.001 : 3.2, shot.fov);
+      // a short move glides (never faster than a few metres a second); a
+      // long one - across the hall, up to the dome - is a cut, as on film,
+      // rather than a rush through the players and the walls
+      const d = this.pos.distanceTo(shot.pos);
+      if (d > 6) shot.cut = true;
+      this.flyTo(shot.pos, shot.look, shot.cut ? 0.001 : clamp(d / 1.8, 2.4, 3.6), shot.fov);
       this.anim.lift = false;
       this.anim.after = () => { c.drift = { t: 0 }; };
       c.drift = null;

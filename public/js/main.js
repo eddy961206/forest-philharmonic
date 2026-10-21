@@ -18,7 +18,7 @@ import { AudioEngine } from './audio/engine.js';
 import { Performance } from './audio/performance.js';
 import { buildHall } from './scene/hall.js';
 import { buildOrchestra } from './scene/orchestra.js';
-import { buildAudience, animateAudience } from './scene/audience.js';
+import { buildAudience, planHouse, animateAudience } from './scene/audience.js';
 import { buildEffects } from './scene/effects.js';
 import { buildScreen } from './scene/screen.js';
 import { buildFX } from './scene/fx.js';
@@ -38,10 +38,17 @@ import { Avatars, AVATARS } from './scene/avatars.js';
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
   fixedEar: true, applause: true, gap: 7, notes: true, glow: true, fireflies: true,
-  fx: true, lasers: true, screen: true, audience: true, interval: 3,
+  fx: true, lasers: true, screen: true, interval: 3,
+  // how full the house is, in per cent, for each venue: the Sphere seats
+  // nearly fourteen thousand - a quarter of that is already a big crowd
+  crowdHall: 45, crowdSphere: 25,
 };
 const settings = { ...DEFAULTS };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || '{}')); } catch { /* private mode */ }
+// (the old on/off switch for the audience: off is an empty house)
+if (settings.audience === false) { settings.crowdHall = 0; settings.crowdSphere = 0; }
+delete settings.audience;
+const CROWD = IS_SPHERE ? 'crowdSphere' : 'crowdHall'; // this venue's audience setting
 const save = () => { try { localStorage.setItem('fp-settings', JSON.stringify(settings)); } catch { /* ignore */ } };
 
 const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
@@ -163,22 +170,38 @@ function seeded(seed) {
   };
 }
 
-function seatAudience(on) {
+// Tonight's crowd: who comes and in what order they arrive (see planHouse),
+// drawn once per visit - the audience slider only lets more or fewer of
+// them in, so the people already seated stay put while it moves.
+// Watching together, the evening comes from the room's seed and the seats
+// that count as taken are the venue's usual house (the default share), the
+// same on every screen whatever anyone's slider says: a smaller share
+// here only draws fewer of those guests (their seats stay taken, as on a
+// phone), and a larger one is not drawn beyond them - a guest drawn in a
+// seat someone else may sit in would end up in their lap.
+let housePlan = null;
+let housePlanFor = null;
+function seatAudience() {
   if (audience) { audience.dispose(); audience = null; }
-  if (on) {
-    // a new crowd every time: who comes, how many, and where they sit
-    // (in a room: the same crowd for everyone)
+  const share = Math.max(0, Math.min(100, Number(settings[CROWD]) || 0)) / 100;
+  const reserve = room ? DEFAULTS[CROWD] / 100 : null;
+  if (share > 0 || reserve) {
+    // (a room's evening stays on after the room is left: the same guests)
+    if (!housePlan || (room && housePlanFor !== room.seed)) {
+      housePlan = planHouse(hall.seats.filter((s) => !s.stage), room ? seeded(room.seed) : Math.random);
+      housePlanFor = room ? room.seed : null;
+    }
     const exclude = new Set();
     if (director?.seat && director.seat.index >= 0) exclude.add(director.seat.index);
-    const rand = room ? seeded(room.seed) : Math.random;
-    // the Sphere sells out: thousands of guests, drawn in full only near you
-    const big = IS_SPHERE ? { fill: 0.62 + rand() * 0.3, detail: LITE ? 80 : 220, mid: LITE ? 0 : 900, cap: LITE ? 2500 : Infinity } : {};
-    audience = buildAudience(hall.seats.filter((s) => !s.stage), { exclude, lite: LITE, rand, reserveAll: !!room, ...big });
+    // the Sphere: thousands of guests, drawn in full only near you
+    const big = IS_SPHERE ? { detail: LITE ? 80 : 220, mid: LITE ? 0 : 900, cap: LITE ? 2500 : Infinity } : {};
+    audience = buildAudience(housePlan, { share, reserve, exclude, lite: LITE, ...big });
     audience.updateLOD?.(camera.position, true);
     audience.group.visible = interiorShown;
     scene.add(audience.group);
     holdQuality();
   }
+  ui.setCrowdCount(audience ? audience.count : 0, reserve !== null && share > reserve ? Math.round(reserve * 100) : 0, audience ? audience.drawn : 0);
   refreshOccupied();
 }
 // (no fireflies indoors at the Sphere - only dust in the light)
@@ -212,7 +235,7 @@ if (IS_SPHERE) {
 director = new Director(camera, renderer.domElement, hall);
 director.uiTop = () => ui.bottomUiTop();
 director.hoverLook = false; // look by dragging, or click to capture the mouse
-seatAudience(settings.audience);
+seatAudience();
 buildComposer();
 applyQuality();
 
@@ -248,7 +271,7 @@ let leaf = new Leaf(VENUE); // tonight, for the leaf programme
 
 async function boot() {
   try {
-    await engine.init({ lite: LITE, acoustics: IS_SPHERE ? SPHERE_ACOUSTICS : null });
+    await engine.init({ lite: LITE, acoustics: IS_SPHERE ? { ...SPHERE_ACOUSTICS, room: 'arena' } : null });
   } catch (e) {
     ui.setLoading('이 브라우저에서는 소리를 낼 수 없어요. 최신 Chrome, Edge, Firefox, Safari에서 열어 주세요.', 0);
     throw e;
@@ -265,6 +288,8 @@ async function boot() {
   ui.setProgram(program);
   await engine.loadSamples('samples', (done, total) => {
     ui.setLoading(`악기를 조율하는 중  ${done} / ${total}`, 0.08 + 0.85 * (done / total));
+  }).then((r) => {
+    if (r?.failed) setTimeout(() => ui.toast(`악기 소리 ${r.failed}개를 불러오지 못했어요. 비슷한 음으로 대신 연주해요.`, 4200), 4000);
   });
   ui.setLoading('객석을 채우는 중', 0.95);
   await new Promise((r) => setTimeout(r, 30));
@@ -319,8 +344,9 @@ ui.on('enter', async (opt) => {
         // the room is in the other building: go there (the invite - or the
         // ticket, now for that building - comes along)
         room.leave();
-        ui.lobbyError(e.message);
         ui.lobbyBusy(true); // (on the way: nothing to press meanwhile)
+        ui.lobbyError(e.message, { note: true });
+        try { localStorage.setItem('fp-venue', e.venue); } catch { /* private mode */ }
         if (ticket) {
           updateTicket({ venue: e.venue });
           setTimeout(() => { location.href = `${location.pathname}?venue=${e.venue}`; }, 900);
@@ -331,7 +357,11 @@ ui.on('enter', async (opt) => {
       room = null;
       joining = false;
       ui.lobbyBusy(false);
-      ui.lobbyError(e.message || '방에 들어가지 못했어요.');
+      // a room that is gone stays gone: the ticket becomes a seat of your own
+      // (a reload is then the usher with that, not the same failure again)
+      const gone = e.code === 'notfound';
+      if (gone) soloTicket();
+      ui.lobbyError(e.message || '방에 들어가지 못했어요.', { dead: gone });
       refreshRooms();
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       return;
@@ -340,7 +370,7 @@ ui.on('enter', async (opt) => {
     ui.lobbyBusy(false);
     // a reload keeps you in the room you made (not a second one)
     if (ticket && room?.room) updateTicket({ mode: 'join', code: room.room.code });
-  }
+  } else soloTicket(); // (혼자 보기 after a room would not have you: a reload is the same)
   director.active = true;
   ui.enter(isTouch);
   // you arrive in the foyer, in front of the doors to the stalls
@@ -353,6 +383,20 @@ ui.on('enter', async (opt) => {
   if (room && !room.isHost && pendingJoin !== undefined) followHost(pendingJoin, { joining: true });
   pendingJoin = undefined;
 });
+
+// watching alone from now on: the ticket (if any) says so, and the address
+// is this building's - a reload is not the room that is gone
+function soloTicket() {
+  if (ticket && ticket.mode !== 'solo') updateTicket({ mode: 'solo', code: undefined });
+  try {
+    const u = new URL(location.href);
+    if (!u.searchParams.has('room')) return;
+    u.searchParams.delete('room');
+    u.searchParams.set('venue', VENUE);
+    if (!ticket) u.searchParams.set('lobby', '1'); // (no ticket: this building's lobby, not the square)
+    history.replaceState(null, '', u.pathname + u.search);
+  } catch { /* file: */ }
+}
 
 function goFullscreen() {
   const el = document.documentElement;
@@ -437,6 +481,7 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
   ceremony = true;
   if (perf.playing) perf.pause();
   if (quick) { engine.stopApplause(); clapUntil = 0; }
+  if (quick && phase === 'tuning') engine.stopAll(); // (skipped: the tuning-up stops too)
   ui.setPlaying(false);
   bowing = false;
   current = (i + program.length) % program.length;
@@ -464,8 +509,12 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
   if (!isRecital) closeRecital();
   encoreUi(null);
   const { exits, enters } = stage.plan(target, keep);
-  if (quick && (exits.length || enters.length)) {
-    // skipping ahead: no procession, the stage straight as it should be
+  // Skipping ahead - or in a background tab, where nothing is drawn and so
+  // nobody would walk - there is no procession: the stage straight as it
+  // should be (also when ▶ is pressed while they are still walking on)
+  const snap = quick || document.hidden;
+  const moving = stage.walkers.some((w) => w.state === 'walking' || w.state === 'queued' || w.leaving);
+  if (snap && (exits.length || enters.length || moving)) {
     const keys = new Set([...stage.onstageKeys()].filter((k) => target.has(k) || keep.has(k)));
     for (const k of target) keys.add(k);
     stage.snapRoster(keys);
@@ -482,7 +531,10 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
       hall.setHouseLights(0.75);
       // a soloist (or a duo) walks on to stand at their place for the welcome
       const soloists = !piece.conducted && enters.length <= 3;
-      stage.callOn(enters, undefined, { stand: soloists });
+      // (a whole orchestra comes on closer together: it is a long walk-on)
+      stage.callOn(enters, enters.length >= 16 ? 0.7 : undefined, { stand: soloists });
+      // the stage fills in silence: say so (and that it can be skipped)
+      if (enters.length >= 6 && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 6000);
       if (!(await until(() => stage.arrived(enters), tok, 90000))) return;
       if (!(await wait(800, tok))) return;
       if (enters.length >= 6 && enters.some((w) => STRINGS.test(StageManager.key(w)))) {
@@ -493,7 +545,7 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
       } else if (soloists) {
         // ... is welcomed with applause, bows, and sits down to play
         setPhase('announce');
-        if (settings.applause) { engine.applause(engine.now + 0.05, 0.5); clapUntil = performance.now() + 2800; }
+        if (settings.applause) { engine.applause(engine.now + 0.05, 0.5, audience ? audience.count : 0); clapUntil = performance.now() + 2800; }
         stage.greet(enters, true);
         if (!(await wait(1400, tok))) return;
         stage.greet(enters, false);
@@ -504,12 +556,16 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
     }
   }
   if (piece.conducted) {
-    if (!stage.conductorOn) {
+    if (snap && !(stage.conductorOn && stage.conductorReady)) {
+      // (skipping ahead: already on the podium, turned to the orchestra)
+      stage.snapConductor(true);
+      if (!(await wait(600, tok))) return;
+    } else if (!stage.conductorOn) {
       setPhase('announce');
       stage.conductorEnter();
       if (!(await until(() => stage.conductorReady, tok, 30000))) return;
       // greets the audience, a short welcome applause, turns to the orchestra
-      if (settings.applause) { engine.applause(engine.now + 0.05, 0.6); clapUntil = performance.now() + 3200; }
+      if (settings.applause) { engine.applause(engine.now + 0.05, 0.6, audience ? audience.count : 0); clapUntil = performance.now() + 3200; }
       stage.conductorBow(true);
       if (!(await wait(1400, tok))) return;
       stage.conductorBow(false);
@@ -520,6 +576,10 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
       stage.conductorFace(false);
       if (!(await wait(quick ? 600 : 1200, tok))) return;
     }
+  } else if (snap && !stage.conductorOffstage) {
+    // (skipping ahead: gone already, not still walking off during the music)
+    stage.snapConductor(false);
+    if (!(await wait(500, tok))) return;
   } else if (stage.conductorOn) {
     // a solo or chamber piece: the conductor leaves the stage to the players
     stage.conductorExit();
@@ -580,7 +640,7 @@ async function endOfPiece() {
   hall.setHouseLights(kind === 'solo' ? 0.3 : 0.5);
   if (big) hall.show?.('finale');
   if (settings.applause) {
-    engine.applause(engine.now + 0.35, big ? 1.3 : 1);
+    engine.applause(engine.now + 0.35, big ? 1.3 : 1, audience ? audience.count : 0);
     clapUntil = performance.now() + (big ? 12500 : 7600);
   }
   if (settings.fx && big && fx) {
@@ -722,9 +782,12 @@ function togglePlay() {
 
 ui.on('toggle', togglePlay);
 const showOn = () => { if (!showStarted) { showStarted = true; ui.showStarted(); } };
-ui.on('next', () => { if (!concertStarted || hostOnly()) return; showOn(); runConcert(settings.shuffle ? nextIndex() : current + 1, { quick: true }); });
+// (before the show ⏮ / ⏭ open the evening as ▶ does - from its first piece,
+// not from its last)
+ui.on('next', () => { if (!concertStarted || hostOnly()) return; if (!showStarted) { startShow(); return; } runConcert(settings.shuffle ? nextIndex() : current + 1, { quick: true }); });
 ui.on('prev', () => {
   if (!concertStarted || hostOnly()) return;
+  if (!showStarted) { startShow(); return; }
   if (phase === 'playing' && perf.time > 5) { perf.seek(0); sendCmd(playMsg()); return; }
   showOn();
   runConcert(current - 1, { quick: true });
@@ -736,7 +799,8 @@ ui.on('seek', (t) => {
   sendCmd(playMsg());
 });
 ui.on('seekKey', (d, e) => {
-  if (!concertStarted || phase !== 'playing' || director.mode === 'walk') return;
+  // (walking, ← → turn you - except on the focused position slider itself)
+  if (!concertStarted || phase !== 'playing' || (director.mode === 'walk' && e.target?.id !== 'seek')) return;
   e.preventDefault();
   if (hostOnly()) return;
   perf.seek(perf.time + d);
@@ -885,7 +949,7 @@ function nearBoard() {
 }
 // (outside the interval the board can still be read)
 setInterval(() => {
-  if (!concertStarted || intervalState || !BOARD) return;
+  if (!concertStarted || intervalState || !BOARD || asleep) return;
   ui.act(nearBoard() ? '숲속 소식 읽기' : null);
 }, 300);
 
@@ -903,23 +967,10 @@ setInterval(() => {
 function bells(times) {
   const ctx = engine.ctx;
   if (!ctx || muted) return;
-  const t0 = ctx.currentTime + 0.05;
-  const notes = [1046.5, 880, 698.5];
-  for (let k = 0; k < times; k++) {
-    notes.forEach((f, i) => {
-      const at = t0 + k * 1.6 + i * 0.36;
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = 'sine';
-      o.frequency.value = f;
-      g.gain.setValueAtTime(0, at);
-      g.gain.linearRampToValueAtTime(0.05 * settings.volume, at + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, at + 1.4);
-      o.connect(g).connect(ctx.destination);
-      o.start(at);
-      o.stop(at + 1.5);
-    });
-  }
+  // (through the engine's master: volume, mute and the limiter apply)
+  const notes = [];
+  for (let k = 0; k < times; k++) [1046.5, 880, 698.5].forEach((f, i) => notes.push([f, 0.02 + k * 1.6 + i * 0.36]));
+  engine.chime(notes, 0.05, 1.4);
 }
 
 async function showNews() {
@@ -1265,14 +1316,21 @@ director.on((type, data) => {
   if (type === 'mode') ui.setMode(data);
   if (type === 'seat' && data?.index >= 0 && !data.stage) lastSeat = data;
   // no seat labels on screen; E (or a double-click) still sits you down.
-  // Touch screens keep the plain "앉기" button - it is their only way to sit.
-  if (type === 'nearSeat' && isTouch) ui.prompt(data ? '앉기' : null, '앉기');
+  // Touch screens keep the plain "앉기" button - it is their only way to sit -
+  // and, seated, the same button stands you up again
+  if (type === 'nearSeat' && isTouch && director.mode !== 'seat') ui.prompt(data ? '앉기' : null, '앉기');
+  if (type === 'mode' && isTouch) {
+    if (data === 'seat') ui.prompt('일어서기', '일어서기');
+    else ui.prompt(data === 'walk' && director.nearSeat ? '앉기' : null, '앉기');
+  }
   if (type === 'pick') onPick(data);
   if (type === 'aim') ui.setAim(data);
   if (type === 'lock') ui.setLocked(data);
   if (type === 'looked') ui.hideLookHint();
   // a click (not a drag) on the hall captures the mouse for free looking
-  if (type === 'clickView' && concertStarted && !isTouch) director.requestLock();
+  // (not the second click of a double-click on 입장하기, falling through
+  // the fading splash)
+  if (type === 'clickView' && concertStarted && !isTouch && !document.getElementById('splash')) director.requestLock();
 });
 
 function onSetting(key, value) {
@@ -1288,11 +1346,14 @@ function onSetting(key, value) {
   if (key === 'fireflies') effects.setCounts(value);
   if (key === 'screen') screen.setEnabled(value);
   if (key === 'lasers' && !value && fx) { fx.lasers.set(false); fx.wash.set(false); }
-  if (key === 'audience') {
-    seatAudience(value);
-    if (value) ui.toast(`오늘 밤 관객 ${audience.count.toLocaleString()}명이 자리를 잡았어요.`, 2600);
+  // the audience slider: the crowd is rebuilt once the slider rests for a
+  // moment, not on every step of a drag
+  if (key === CROWD) {
+    clearTimeout(crowdTimer);
+    crowdTimer = setTimeout(seatAudience, 180);
   }
 }
+let crowdTimer = 0;
 
 function applyQuality() {
   holdQuality(4500); // every material is rebuilt: a hitch, not a slow machine
@@ -1372,7 +1433,8 @@ function hover(x, y) {
   }
   hoverAt(h, x, y);
 }
-setInterval(() => { if ((director.locked || director.aiming) && concertStarted) hover(window.innerWidth / 2, window.innerHeight / 2); }, 160);
+// (asleep or in a background tab nothing is seen: no aiming either)
+setInterval(() => { if ((director.locked || director.aiming) && concertStarted && !asleep && !document.hidden) hover(window.innerWidth / 2, window.innerHeight / 2); }, 160);
 renderer.domElement.addEventListener('pointermove', (e) => {
   if (isTouch || director.locked || director.aiming) return;
   const now = performance.now();
@@ -1507,6 +1569,7 @@ async function followHost(s, { joining = false } = {}) {
   if (s.phase === 'interval' && s.iu) { beginInterval(s.iu, s.inext ?? s.i); return; }
   if (s.phase === 'encore' && s.ev) { guestEncore(s.ev, true); return; }
   hall.setHouseLights(s.onstage ? 0.5 : 1);
+  adrift = seq; // (nothing of ours waits to go on: see carryOn)
   setPhase('intermission');
 }
 
@@ -1514,6 +1577,7 @@ function onHostCmd(c) {
   if (!room || room.isHost || !concertStarted || !c) return;
   if (c.c === 'run') {
     showOn();
+    if (phase === 'encore' && program[c.i]) ui.toast(`앙코르: 「${program[c.i].titleKo}」`, 3200); // (the lanterns' choice, for everyone)
     ritualNext = !!c.ritual;
     runConcert(c.i, { quick: !!c.quick, remote: true });
   } else if (c.c === 'play' || c.c === 'pause') {
@@ -1527,6 +1591,14 @@ function onHostCmd(c) {
     seq++;
     ceremony = false;
     beginInterval(c.until, c.i);
+  } else if (c.c === 'away') {
+    // the host's page went to the background (its walk-ons wait for it);
+    // the music already playing is not affected, so only a waiting room is told
+    if (c.on && !perf.playing) {
+      awayTold = true;
+      ui.toast('방장의 화면이 잠시 다른 곳에 가 있어요. 돌아오면 무대가 이어져요.', 4200);
+      ui.chatLine({ sys: true, text: '방장의 화면이 가려져 무대가 기다리는 중이에요. 오래 비면 다른 사람이 방장을 맡아요.' });
+    } else if (!c.on && awayTold) { awayTold = false; ui.toast('방장이 돌아왔어요.', 1600); }
   } else if (c.c === 'exit') {
     seq++;
     playTok++;
@@ -1544,7 +1616,16 @@ function onHostCmd(c) {
 function takeOver() {
   ui.toast('이제 내가 방장이에요. 공연 진행을 맡아요.', 2600);
   ui.chatLine({ sys: true, text: '이제 내가 방장이에요.' });
-  // in the middle of the interval or the encore vote: carry it to its end
+  carryOn();
+  publish();
+}
+
+// the show is ours now (the host's role came to us, or the room was lost):
+// whatever was under way goes on - the interval or the lantern vote to its
+// end, or, between pieces with nothing of ours waiting (we came in during
+// the bows), the next piece after the usual gap
+let adrift = -1; // the seq in which we set the stage as the host had it, with nothing to follow
+function carryOn() {
   if (intervalState) {
     ui.interval(true, true);
     const tok = ++seq;
@@ -1552,11 +1633,51 @@ function takeOver() {
     until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9).then((ok) => { if (ok) { ritualNext = true; runConcert(next); } });
   } else if (encore && !encore.votes) {
     encore.votes = new Map();
-    if (encore.mine >= 0) encore.votes.set(room.id, encore.mine);
+    if (encore.mine >= 0) encore.votes.set(room ? room.id : 0, encore.mine);
+    // (a moment for the lanterns already up to reach us before they are counted)
+    if (room) encore.until = Math.max(encore.until, clockNow() + 1.5);
     finishEncore(++seq);
+  } else if (adrift === seq && showStarted && !ceremony && !perf.playing) {
+    const tok = ++seq;
+    const last = current === eveningLen - 1 || current === program.length - 1;
+    wait(Math.max(2, settings.gap) * 1000, tok).then(async (ok) => {
+      if (!ok) return;
+      if (last && !encoreActive) {
+        const win = await encoreVote(tok);
+        if (win === null) return;
+        if (win >= 0) { encoreActive = true; ritualNext = true; runConcert(win); return; }
+      }
+      encoreActive = false;
+      runConcert(nextIndex());
+    });
   }
-  publish();
 }
+
+// the host's page in the background: its show stops where it is drawn
+// frame by frame (the walk-ons, the bows). The guests are told, and if it
+// stays stuck for long the show passes to the longest-present guest
+let awayTold = false;
+let stuckFor = 0;
+let awayCheck = 0;
+const AWAY_HANDOFF = 30; // seconds of a stuck show in a hidden host's page
+document.addEventListener('visibilitychange', () => {
+  clearInterval(awayCheck);
+  stuckFor = 0;
+  if (!room?.isHost || !concertStarted) return;
+  room.cmd({ c: 'away', on: document.hidden });
+  if (!document.hidden) return;
+  awayCheck = setInterval(() => {
+    if (!document.hidden || !room?.isHost) { clearInterval(awayCheck); return; }
+    const stuck = showStarted && (ceremony || (!perf.playing && !['interval', 'encore'].includes(phase)));
+    stuckFor = stuck ? stuckFor + 5 : 0;
+    if (stuckFor < AWAY_HANDOFF || room.members.size < 2) return;
+    clearInterval(awayCheck);
+    const next = [...room.members.values()].filter((m) => m.id !== room.id).sort((a, b) => (a.since ?? 0) - (b.since ?? 0) || a.id - b.id)[0];
+    if (!next) return;
+    room.handoff(next.id);
+    ui.chatLine({ sys: true, text: `화면을 오래 비운 사이 ${next.name}님에게 방장을 넘겼어요.` });
+  }, 5000);
+});
 
 function membersChanged() {
   if (!room) return;
@@ -1571,7 +1692,12 @@ function refreshOccupied() {
   director.occupied = s;
 }
 
+// the invite: this building and the room (a friend whose last visit was the
+// other building still comes here)
+const roomAddress = (code) => `?venue=${VENUE}&room=${code}`;
+
 function wireRoom(c) {
+  let wasHost = false;
   c.on('joined', (m, first) => {
     avatars.clear();
     for (const mm of c.members.values()) if (mm.id !== c.id) avatars.add(mm);
@@ -1581,20 +1707,34 @@ function wireRoom(c) {
     ui.setHostControls(c.isHost);
     membersChanged();
     if (first) {
-      seatAudience(settings.audience); // the same house for everyone in the room
-      try { history.replaceState(null, '', `?${VENUE !== 'hall' ? `venue=${VENUE}&` : ''}room=${c.room.code}`); } catch { /* file: */ }
+      seatAudience(); // the same house for everyone in the room
+      try { history.replaceState(null, '', roomAddress(c.room.code)); } catch { /* file: */ }
       ui.chatLine({ sys: true, text: c.isHost ? `방을 만들었어요. 방 코드는 ${c.room.code} — 오른쪽 위 방 이름을 눌러 초대 링크를 복사할 수 있어요.` : `「${c.room.title}」에 들어왔어요.` });
     }
     refreshOccupied();
     lastPoseKey = '';
+    // back from a dropped line: the show may have come to us (the room was
+    // empty) or gone on without us (someone else carries it now)
+    const role = !first && c.isHost !== wasHost;
+    wasHost = c.isHost;
+    if (role && c.isHost) { takeOver(); return; }
+    if (role) {
+      ui.chatLine({ sys: true, text: '연결이 끊긴 사이 다른 사람이 방장이 됐어요. 그 무대를 따라가요.' });
+      if (encore?.votes) { seq++; encore.votes = null; } // (the count is theirs now)
+    }
+    if (!first && !c.isHost && encore?.mine >= 0) c.vote(encore.mine); // (our lantern left with the line: up again)
     if (c.isHost) publish();
     else if (!concertStarted) pendingJoin = m.state;
     else followHost(m.state, { joining: true });
   });
+  // (a dropped line that comes straight back - the same id - is not news:
+  // "left" is said only once they have stayed away a few seconds)
+  const goneSay = new Map();
   c.on('member', (m) => {
     avatars.add(m);
     avatars.setHost(c.host);
     membersChanged();
+    if (goneSay.has(m.id)) { clearTimeout(goneSay.get(m.id)); goneSay.delete(m.id); return; }
     ui.chatLine({ sys: true, text: `${m.name}님이 들어왔어요.` });
   });
   c.on('left', (id, who) => {
@@ -1602,14 +1742,21 @@ function wireRoom(c) {
     if (encore?.votes?.delete(id)) encoreShow(); // (a lantern leaves with its holder)
     membersChanged();
     refreshOccupied();
-    if (who) ui.chatLine({ sys: true, text: `${who.name}님이 나갔어요.` });
+    if (who) goneSay.set(id, setTimeout(() => { goneSay.delete(id); if (room === c) ui.chatLine({ sys: true, text: `${who.name}님이 나갔어요.` }); }, 6000));
   });
   c.on('host', (id) => {
     avatars.setHost(id);
     membersChanged();
     ui.setHostControls(c.isHost);
-    if (c.isHost) takeOver();
-    else ui.chatLine({ sys: true, text: `${c.members.get(id)?.name ?? '누군가'}님이 이제 방장이에요.` });
+    const handed = wasHost && !c.isHost;
+    wasHost = c.isHost;
+    if (c.isHost) { takeOver(); return; }
+    ui.chatLine({ sys: true, text: `${c.members.get(id)?.name ?? '누군가'}님이 이제 방장이에요.` });
+    if (encore) {
+      // the lanterns are counted by the new host now: ours goes to them
+      if (handed && encore.votes) { seq++; encore.counts = encoreCounts(); encore.votes = null; }
+      if (encore.mine >= 0) c.vote(encore.mine);
+    }
   });
   c.on('pose', (id, p) => {
     const before = avatars.list.get(id)?.seat;
@@ -1628,6 +1775,7 @@ function wireRoom(c) {
     ui.chatLine({ name: m.name, text: m.text });
     if (m.id !== c.id) avatars.say(m.id, m.text);
   });
+  c.on('error', (e) => { if (e?.msg) ui.toast(e.msg, 2000); }); // (the room's answer to something we sent)
   c.on('disconnected', () => { ui.setOffline(true); ui.toast('연결이 끊겼어요. 다시 잇는 중…', 3000); });
   c.on('reconnected', () => ui.toast('다시 연결됐어요.', 1800));
   c.on('lost', () => {
@@ -1637,12 +1785,17 @@ function wireRoom(c) {
 }
 
 function goSolo() {
+  // (what was under way was timed on the room's clock: from now on, this page's)
+  const shift = room ? performance.now() / 1000 - room.now() : 0;
   room?.leave();
   room = null;
   avatars.clear();
   ui.setRoom(null);
   refreshOccupied();
-  try { history.replaceState(null, '', location.pathname + (VENUE !== 'hall' ? `?venue=${VENUE}` : '')); } catch { /* file: */ }
+  if (intervalState) { intervalState.until += shift; ui.setIntervalLeft(intervalState.until - clockNow()); }
+  if (encore) encore.until += shift;
+  carryOn(); // (the interval, the lanterns: ours to finish now)
+  soloTicket();
 }
 
 // out to the square: the music fades for a moment instead of stopping dead
@@ -1663,7 +1816,7 @@ ui.on('toPlaza', () => {
 });
 ui.on('copyInvite', async () => {
   if (!room?.room) return;
-  const url = `${location.origin}${location.pathname}?${VENUE !== 'hall' ? `venue=${VENUE}&` : ''}room=${room.room.code}`;
+  const url = `${location.origin}${location.pathname}${roomAddress(room.room.code)}`;
   try {
     await navigator.clipboard.writeText(url);
     ui.toast('초대 링크를 복사했어요. 친구에게 보내 주세요.', 2400);
@@ -1716,7 +1869,8 @@ function roomTick(dt) {
 // --------------------------------------------------------------- lobby
 // you: the animal drawn on your first visit (kept; see tickets.js)
 const me = identity();
-const invite = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || null;
+// (a code is six letters and digits: anything else is no invite at all)
+const invite = ((c) => (/^[A-Z0-9]{6}$/.test(c) ? c : null))((new URLSearchParams(location.search).get('room') || '').trim().toUpperCase());
 ui.initLobby({ avatars: AVATARS, identity: { ...me, emoji: EMOJI[me.avatar] }, invite, venue: VENUE, venues: VENUES });
 // came from the square with a ticket for this building: the usher checks it
 // (a room's address after a reload: your ticket for that very room still counts)
@@ -1724,6 +1878,7 @@ const held = heldTicket(VENUE);
 const ticket = held && (!invite || held.code === invite) ? held : null;
 if (ticket) ui.ticketMode(ticket, ticketElement(ticket));
 ui.on('venue', (id) => goVenue(id, { room: invite }));
+ui.on('dropTicket', () => dropTicket()); // (back to the square from a room that is gone: buy afresh)
 async function refreshRooms() {
   try {
     ui.setRooms(await listRooms());
@@ -1821,20 +1976,8 @@ function rideLift(n) {
 function ding(arrive) {
   const ctx = engine.ctx;
   if (!ctx || muted) return;
-  const t0 = ctx.currentTime + 0.02;
   const notes = arrive ? [880, 1108.7] : [1108.7, 880];
-  notes.forEach((f, i) => {
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = 'sine';
-    o.frequency.value = f;
-    g.gain.setValueAtTime(0, t0 + i * 0.32);
-    g.gain.linearRampToValueAtTime(0.06 * settings.volume, t0 + i * 0.32 + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.32 + 1.1);
-    o.connect(g).connect(ctx.destination);
-    o.start(t0 + i * 0.32);
-    o.stop(t0 + i * 0.32 + 1.2);
-  });
+  engine.chime(notes.map((f, i) => [f, i * 0.32]), 0.06, 1.1);
 }
 ui.on('lift', rideLift);
 window.addEventListener('keydown', (e) => {
@@ -1939,6 +2082,21 @@ function frame() {
   }
   requestAnimationFrame(frame);
 }
+
+// A background tab gets no frames, but the evening goes on (the music keeps
+// its own clock): the musicians keep walking on and off on a slow timer
+// meanwhile, so the next piece is not kept waiting for a procession nobody
+// can see - and coming back, the stage is where the evening is
+let hiddenAt = 0;
+setInterval(() => {
+  if (!document.hidden || asleep || !concertStarted) { hiddenAt = 0; return; }
+  const now = performance.now();
+  if (hiddenAt) {
+    // (in frame-sized steps: a step is made for a frame, not for a second)
+    for (let left = Math.min(120, (now - hiddenAt) / 1000); left > 0; left -= 0.05) stage.update(Math.min(0.05, left));
+  }
+  hiddenAt = now;
+}, 1000);
 
 // Automatic quality. A moment of change (the house lights, people walking
 // on, the doors opening for the interval, new things to draw for the first
