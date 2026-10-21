@@ -108,7 +108,8 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
     const piece = ctx.perf.piece;
     let mode = 'none';
     let key = '';
-    if (ctx.phase === 'intermission' && ctx.nextPiece) { mode = 'next'; key = `next:${ctx.nextPiece.id}`; }
+    // (between pieces, and in the real intermission - its phase is 'interval')
+    if ((ctx.phase === 'intermission' || ctx.phase === 'interval') && ctx.nextPiece) { mode = 'next'; key = `next:${ctx.nextPiece.id}`; }
     else if (piece && ctx.perf.playing && ctx.time < 10) { mode = 'title'; key = `title:${piece.id}`; }
     if (key !== lastCapKey) {
       lastCapKey = key;
@@ -123,7 +124,9 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
     drawnKey = want;
     cap.visible = !blank; // (an empty layer is not drawn at all)
     g.clearRect(0, 0, W, H);
-    if (blank) return;
+    // (sent once, cleared: the Sphere's dome reads this texture directly and
+    // would keep showing the last caption)
+    if (blank) { capTex.needsUpdate = true; return; }
     g.globalAlpha = alpha;
     const vg = g.createLinearGradient(0, H * 0.62, 0, H);
     vg.addColorStop(0, 'rgba(0,0,0,0)');
