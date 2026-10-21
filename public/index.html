@@ -172,6 +172,7 @@
         <label class="check"><input type="checkbox" id="optShuffle"> 무작위 순서</label>
         <label class="check"><input type="checkbox" id="optRepeatOne"> 한 곡 반복</label>
       </div>
+      <button class="btn-plain leaf-open" id="leafBtn" type="button">🍃 오늘 밤의 잎사귀 프로그램</button>
     </div>
 
     <div class="panel-body" data-body="room" hidden>
@@ -247,6 +248,21 @@
       </dl>
       <button class="btn-plain" id="helpClose">닫기</button>
     </div>
+  </div>
+
+  <!-- the leaf programme: tonight, to take home -->
+  <div id="leaf" class="leaf" hidden role="dialog" aria-modal="true" aria-labelledby="leafTitle">
+    <article class="leaf-card">
+      <svg class="leaf-mark" viewBox="0 0 120 160" aria-hidden="true"><path d="M60 6C24 40 14 78 22 112c6 24 22 38 38 42 16-4 32-18 38-42 8-34-2-72-38-106z"/><path class="vein" d="M60 20v134M60 60l-20-14M60 60l20-14M60 88l-26-16M60 88l26-16M60 116l-22-14M60 116l22-14"/></svg>
+      <p class="leaf-date" id="leafDate"></p>
+      <h3 id="leafTitle">오늘 밤의 잎사귀</h3>
+      <p class="leaf-venue" id="leafVenue"></p>
+      <p class="leaf-line" id="leafLine"></p>
+      <ol class="leaf-pieces" id="leafPieces"></ol>
+      <dl class="leaf-facts" id="leafFacts"></dl>
+      <div class="leaf-past" id="leafPast" hidden><p>지난 밤들</p><div id="leafPastList"></div></div>
+      <button class="btn-plain" id="leafClose" type="button">간직하기</button>
+    </article>
   </div>
 
   <div id="toast" class="toast" hidden></div>

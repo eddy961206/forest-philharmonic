@@ -74,12 +74,20 @@ function parts(lite = false) {
   return P;
 }
 
-// GPU animation: breathing, swaying heads, clapping paws
-const U = { uTime: { value: 0 }, uClap: { value: 0 } };
+// GPU animation: breathing, swaying heads, clapping paws. uHush stills the
+// house before the first note; uSleep (the sleep timer) lets everyone nod
+// off - slower breath, heads dropping forward and to one side. Both are in
+// every program from the start: changing them never recompiles anything.
+const U = { uTime: { value: 0 }, uClap: { value: 0 }, uHush: { value: 0 }, uSleep: { value: 0 } };
+const BREATH = 'sin(uTime * 1.3 * (1.0 - 0.45 * uSleep) + aPhase) * (0.004 + 0.004 * uSleep)';
+const NOD = `transformed.y -= uSleep * (0.06 + 0.025 * sin(aPhase * 1.7));
+         transformed.z -= uSleep * 0.035;
+         transformed.x += uSleep * 0.035 * sign(sin(aPhase * 3.1));`;
 const MOTION = {
-  body: 'transformed.y += sin(uTime * 1.3 + aPhase) * 0.004 + uClap * abs(sin(uTime * 12.0 + aPhase)) * 0.008;',
-  head: `transformed.x += sin(uTime * 0.55 + aPhase) * 0.009;
-         transformed.y += sin(uTime * 1.3 + aPhase) * 0.004 + uClap * abs(sin(uTime * 12.0 + aPhase)) * 0.012;`,
+  body: `transformed.y += ${BREATH} + uClap * abs(sin(uTime * 12.0 + aPhase)) * 0.008 - uSleep * 0.02;`,
+  head: `transformed.x += sin(uTime * 0.55 + aPhase) * 0.009 * (1.0 - 0.85 * max(uHush, uSleep));
+         transformed.y += ${BREATH} + uClap * abs(sin(uTime * 12.0 + aPhase)) * 0.012;
+         ${NOD}`,
   pawL: `float o = 0.5 + 0.5 * sin(uTime * 24.0 + aPhase * 7.0);
          transformed += uClap * (vec3(0.055, 0.2, -0.08) + vec3(-o * 0.04, 0.0, 0.0));
          transformed.y += sin(uTime * 1.3 + aPhase) * 0.004;`,
@@ -90,9 +98,8 @@ const MOTION = {
 
 function animated(mat, kind) {
   mat.onBeforeCompile = (shader) => {
-    shader.uniforms.uTime = U.uTime;
-    shader.uniforms.uClap = U.uClap;
-    shader.vertexShader = `attribute float aPhase;\nuniform float uTime;\nuniform float uClap;\n${shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>\n${MOTION[kind]}`)}`;
+    Object.assign(shader.uniforms, U);
+    shader.vertexShader = `attribute float aPhase;\nuniform float uTime;\nuniform float uClap;\nuniform float uHush;\nuniform float uSleep;\n${shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>\n${MOTION[kind]}`)}`;
   };
   mat.customProgramCacheKey = () => `aud-${kind}`;
   return mat;
@@ -293,12 +300,12 @@ function mergeVerticesSimple(g) {
 function blobMaterial() {
   const mat = new THREE.MeshStandardMaterial({ roughness: 0.8 });
   mat.onBeforeCompile = (shader) => {
-    shader.uniforms.uTime = U.uTime;
-    shader.uniforms.uClap = U.uClap;
-    shader.vertexShader = `attribute float aPhase;\nattribute float aTone;\nattribute vec3 aFur;\nuniform float uTime;\nuniform float uClap;\n${shader.vertexShader
+    Object.assign(shader.uniforms, U);
+    shader.vertexShader = `attribute float aPhase;\nattribute float aTone;\nattribute vec3 aFur;\nuniform float uTime;\nuniform float uClap;\nuniform float uHush;\nuniform float uSleep;\n${shader.vertexShader
       .replace('#include <begin_vertex>', `#include <begin_vertex>
-        transformed.y += sin(uTime * 1.3 + aPhase) * 0.004 + uClap * abs(sin(uTime * 12.0 + aPhase)) * (0.008 + 0.004 * aTone);
-        transformed.x += aTone * sin(uTime * 0.55 + aPhase) * 0.009;`)
+        transformed.y += ${BREATH} + uClap * abs(sin(uTime * 12.0 + aPhase)) * (0.008 + 0.004 * aTone) - uSleep * (0.02 + aTone * 0.06);
+        transformed.x += aTone * (sin(uTime * 0.55 + aPhase) * 0.009 * (1.0 - 0.85 * max(uHush, uSleep)) + uSleep * 0.035 * sign(sin(aPhase * 3.1)));
+        transformed.z -= aTone * uSleep * 0.035;`)
       .replace('#include <color_vertex>', '#include <color_vertex>\n  vColor.rgb = mix(vColor.rgb, aFur, aTone);')}`;
   };
   mat.customProgramCacheKey = () => 'aud-blob';
@@ -468,9 +475,12 @@ function lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail, mid }) {
 }
 
 // shared animation state for every crowd
+// (hush, sleep: 0..1 targets, eased here)
 let clap = 0;
-export function animateAudience(t, dt, clapping) {
+export function animateAudience(t, dt, clapping, { hush = 0, sleep = 0 } = {}) {
   U.uTime.value = t;
   clap += ((clapping ? 1 : 0) - clap) * Math.min(1, dt * (clapping ? 5 : 2));
   U.uClap.value = clap;
+  U.uHush.value += (hush - U.uHush.value) * Math.min(1, dt * 1.5);
+  U.uSleep.value += (sleep - U.uSleep.value) * Math.min(1, dt * 0.12);
 }

@@ -454,6 +454,57 @@ export class UI {
     }
   }
 
+  // ------------------------------------------------------ the leaf programme
+  // card: tonight so far (or null); history: kept evenings, newest first
+  showLeaf(card, history = []) {
+    const list = card ? [card, ...history.filter((h) => h.at !== card.at)] : history;
+    if (!list.length) { this.toast('한 곡을 끝까지 들으면 오늘 밤의 잎사귀가 생겨요.', 2600); return; }
+    const show = (c) => {
+      $('leafDate').textContent = `${c.date} ${c.night}`;
+      $('leafVenue').textContent = `${this.venues?.[c.venue]?.ko || '숲속 필하모닉 홀'}에서`;
+      $('leafLine').textContent = c.line || '';
+      $('leafLine').hidden = !c.line;
+      const ol = $('leafPieces');
+      ol.innerHTML = '';
+      for (const p of c.pieces.slice(0, 9)) {
+        const li = document.createElement('li');
+        li.textContent = p.title;
+        const sm = document.createElement('small');
+        sm.textContent = p.composer;
+        li.appendChild(sm);
+        ol.appendChild(li);
+      }
+      if (c.pieces.length > 9) {
+        const li = document.createElement('li');
+        li.textContent = `그리고 ${c.pieces.length - 9}곡 더`;
+        ol.appendChild(li);
+      }
+      const dl = $('leafFacts');
+      dl.innerHTML = '';
+      const fact = (k, v) => { if (!v) return; const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; dl.append(dt, dd); };
+      fact('앉았던 자리', c.seat);
+      fact('함께 들은', c.people?.length ? c.people.join(', ') : '');
+      fact('돔 위의 풍경', c.worlds?.length ? c.worlds.join(' · ') : '');
+      fact('들은 시간', c.minutes ? `${c.minutes}분` : '');
+      document.querySelectorAll('#leafPastList button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.at) === c.at)));
+    };
+    const past = $('leafPastList');
+    past.innerHTML = '';
+    $('leafPast').hidden = list.length < 2;
+    for (const c of list.slice(0, 12)) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.at = String(c.at);
+      b.textContent = c === card ? '오늘 밤' : c.date.replace(/^\d+년 /, '');
+      b.addEventListener('click', () => show(c));
+      past.appendChild(b);
+    }
+    show(list[0]);
+    $('leaf').hidden = false;
+    $('leafClose').focus({ preventScroll: true });
+    this.emit('leafOpen');
+  }
+
   // ---------------------------------------------------------------- binding
   _bind() {
     const click = (id, fn) => $(id).addEventListener('click', (e) => { fn(e); if (e.detail > 0) e.currentTarget.blur(); });
@@ -463,6 +514,9 @@ export class UI {
     click('btnPrev', () => this.emit('prev'));
     click('btnHelp', () => { $('help').hidden = false; $('helpClose').focus(); });
     click('helpClose', () => { $('help').hidden = true; });
+    click('leafBtn', () => this.emit('leaf'));
+    click('leafClose', () => { $('leaf').hidden = true; });
+    $('leaf').addEventListener('click', (e) => { if (e.target.id === 'leaf') $('leaf').hidden = true; });
     $('help').addEventListener('click', (e) => { if (e.target.id === 'help') $('help').hidden = true; });
     click('btnFull', () => this.emit('fullscreen'));
     click('focusClose', () => this.emit('unfocus'));
@@ -551,7 +605,7 @@ export class UI {
       else if (c === 'KeyM') this.emit('mute');
       else if (c === 'Enter') { if (this.room) { e.preventDefault(); this.openChat(); } else this.emit('fullscreen'); }
       else if (e.key === '?') $('help').hidden = !$('help').hidden;
-      else if (c === 'Escape') { $('help').hidden = true; this.showPanel(null); }
+      else if (c === 'Escape') { $('help').hidden = true; $('leaf').hidden = true; this.showPanel(null); }
       else if (c === 'ArrowLeft' || c === 'ArrowRight') this.emit('seekKey', c === 'ArrowLeft' ? -10 : 10, e);
     });
 

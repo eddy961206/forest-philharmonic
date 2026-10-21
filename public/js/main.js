@@ -10,7 +10,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { IS_SPHERE, VENUE, VENUES, goVenue } from './scene/venue.js';
 import { SPHERE_ACOUSTICS, SP } from './scene/sphereplan.js';
 import { buildSphere } from './scene/sphere.js';
-import { SPHERE_SETLIST } from './scene/domeshow.js';
+import { SPHERE_SETLIST, visualsFor } from './scene/domeshow.js';
 
 import { AudioEngine } from './audio/engine.js';
 import { Performance } from './audio/performance.js';
@@ -23,10 +23,11 @@ import { buildFX } from './scene/fx.js';
 import { StageManager } from './scene/stage.js';
 import { Director, ENTRANCE } from './scene/director.js';
 import { setAnisotropy, setLite } from './scene/materials.js';
-import { hallOpenness, HALL, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H } from './scene/hallplan.js';
+import { hallOpenness, levelName, HALL, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H } from './scene/hallplan.js';
 import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
 import { RoomClient, listRooms } from './net/room.js';
+import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf } from './evening.js';
 import { Avatars, AVATARS, randomIdentity } from './scene/avatars.js';
 
 // ------------------------------------------------------------- settings
@@ -115,6 +116,7 @@ const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE, renderer }) : buildH
 scene.add(hall.group);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
+const spot = new Spotlight(hall.lights, scene); // a recital: the key light gathers on the soloist
 let audience = null;
 let director = null;
 let room = null; // RoomClient while watching together
@@ -200,6 +202,9 @@ let nextPiece = null;
 let clapUntil = 0;
 let bowing = false;
 let seq = 0; // generation token for the concert sequence
+let ritualNext = false; // the next piece opens one of the evening's big moments (a held hush)
+let hush = 0; // the house holds its breath (0..1)
+let leaf = new Leaf(VENUE); // tonight, for the leaf programme
 
 async function boot() {
   try {
@@ -291,6 +296,7 @@ function startShow() {
   if (!concertStarted || showStarted || hostOnly()) return;
   showStarted = true;
   ui.showStarted();
+  ritualNext = true;
   runConcert(current);
 }
 ui.on('start', startShow);
@@ -357,7 +363,7 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
   current = (i + program.length) % program.length;
   const meta = program[current];
   nextPiece = meta;
-  if (!remote) sendCmd({ c: 'run', i: current, quick });
+  if (!remote) sendCmd({ c: 'run', i: current, quick, ritual: ritualNext && !quick });
   const piece = perf.piece?.id === meta.id ? perf.piece : await perf.load(meta.id);
   if (tok !== seq || !piece) return;
   perf.seek(0);
@@ -372,6 +378,9 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
   const keep = await rosterFor(seqNext(current));
   if (tok !== seq) return;
   const fresh = !stage.onstage;
+  const kind = ensembleOf(piece, target);
+  const G = GRAMMAR[kind];
+  spot.set(null);
   const { exits, enters } = stage.plan(target, keep);
   if (quick && (exits.length || enters.length)) {
     // skipping ahead: no procession, the stage straight as it should be
@@ -435,7 +444,21 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
     if (!(await wait(quick ? 500 : 2500, tok))) return;
   } else if (!(await wait(quick ? 300 : 1200, tok))) return;
 
-  hall.setHouseLights(0.12);
+  // a recital: the light gathers on the soloist
+  if (kind === 'solo') spot.set(rosterCentre(target));
+  if (ritualNext && !quick) {
+    // one of the evening's big moments: the lights go down, the house holds
+    // its breath, and only then the first note
+    ritualNext = false;
+    setPhase('hush');
+    hall.setHouseLights(0.3);
+    hush = 1;
+    if (!(await wait(1200, tok))) { hush = 0; return; }
+    hall.setHouseLights(G.house);
+    if (!(await wait(G.hush * 1000, tok))) { hush = 0; return; }
+  }
+  ritualNext = false;
+  hall.setHouseLights(G.house);
   setPhase('playing');
   if (remote || guest()) {
     // the host starts the music; we join on its clock (see applyPlayback).
@@ -444,8 +467,9 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
     if (!(await until(() => perf.playing || !guest(), tok, 1e9))) return;
     if (perf.playing) return;
   }
-  if (!(await wait(900, tok))) return;
+  if (!(await wait(900, tok))) { hush = 0; return; }
   ceremony = false;
+  hush = 0;
   perf.play();
   ui.setPlaying(true);
   sendCmd(playMsg());
@@ -457,12 +481,20 @@ perf.onEnd = () => endOfPiece();
 async function endOfPiece() {
   const tok = ++seq;
   const piece = perf.piece;
+  const kind = ensembleOf(piece, rosterOf(piece));
+  const G = GRAMMAR[kind];
   ui.setPlaying(false);
-  setPhase('applause');
+  leaf.ended(piece, IS_SPHERE ? visualsFor(piece) : null);
   fx?.lasers.set(false);
   fx?.wash.set(false);
-  hall.setHouseLights(0.5);
   const big = !!piece?.finale;
+  // after a quiet ending the silence is held a moment before anyone claps
+  if (!big && piece?.mood === 'calm') {
+    setPhase('afterglow');
+    if (!(await wait(G.after * 1000, tok))) return;
+  }
+  setPhase('applause');
+  hall.setHouseLights(kind === 'solo' ? 0.3 : 0.5);
   if (big) hall.show?.('finale');
   if (settings.applause) {
     engine.applause(engine.now + 0.35, big ? 1.3 : 1);
@@ -472,7 +504,7 @@ async function endOfPiece() {
     fx.fanfare(engine.now + 0.3);
     fx.confettiCannons();
     setTimeout(() => fx.fireworksShow(), 1500);
-  } else if (settings.fx && fx && piece?.mood === 'lively') {
+  } else if (settings.fx && fx && piece?.mood === 'lively' && G.confetti) {
     fx.confettiCannons();
   }
   // bows
@@ -530,6 +562,7 @@ async function endOfPiece() {
   setPhase('intermission', Math.max(2, settings.gap));
   if (lastOfProgram) {
     // end of the programme: everyone leaves, the house comes up, then a new evening begins
+    endEvening();
     hall.setHouseLights(1);
     hall.show?.('house');
     sendCmd({ c: 'exit' });
@@ -618,6 +651,34 @@ ui.on('unfocus', () => {
   director.setMode('walk');
 });
 ui.on('solo', (on) => engine.setFocus(on && focused ? focused.sid : null));
+
+// ------------------------------------------------------- the leaf programme
+// Tonight as you lived it: counted once a second, kept on this device,
+// handed to you when the evening ends (and on the programme panel anytime).
+setInterval(() => {
+  if (!concertStarted) return;
+  const d = director;
+  const seat = d.mode === 'seat' ? d.seat : d.mode === 'cinema' ? d.returnTo?.seat : null;
+  const ear = d.mode === 'cinema' && settings.fixedEar && bestSeat ? { x: bestSeat.x, y: bestSeat.y + 1.2, z: bestSeat.z } : camera.position;
+  leaf.tick({
+    playing: perf.playing,
+    piece: perf.piece,
+    seat: seat && seat.index >= 0 ? seat.label : null,
+    level: levelName(d.feet + 0.1),
+    ear,
+    cinema: d.mode === 'cinema',
+    sections: perf.playingSections ? [...perf.playingSections] : [],
+    people: room ? [...room.members.values()].filter((m) => m.id !== room.id).map((m) => m.name) : [],
+  });
+}, 1000);
+function endEvening() {
+  if (!leaf.worthKeeping) return;
+  leaf.save();
+  ui.showLeaf(leaf.card(), Leaf.history());
+  leaf = new Leaf(VENUE);
+}
+ui.on('leaf', () => ui.showLeaf(leaf.worthKeeping ? leaf.card() : null, Leaf.history()));
+window.addEventListener('pagehide', () => leaf.save());
 
 // sleep timer
 let sleepAt = 0;
@@ -821,7 +882,8 @@ const playMsg = () => ({ c: perf.playing ? 'play' : 'pause', i: current, pos: pe
 function fxFor(piece) {
   if (!fx) return;
   const lively = piece?.mood === 'lively' && settings.lasers;
-  fx.lasers.set(lively);
+  // (a recital or a few players: the colour wash, but no laser show)
+  fx.lasers.set(lively && GRAMMAR[ensembleOf(piece, rosterOf(piece))].lasers);
   fx.wash.set(lively);
 }
 
@@ -857,7 +919,9 @@ async function applyPlayback(s) {
     clapUntil = 0;
     setPhase('playing');
   }
-  hall.setHouseLights(s.playing ? 0.12 : 0.4);
+  const kind = ensembleOf(piece, rosterOf(piece));
+  spot.set(kind === 'solo' ? rosterCentre(rosterOf(piece)) : null);
+  hall.setHouseLights(s.playing ? GRAMMAR[kind].house : 0.4);
   if (s.playing) {
     // what the host hears right now; a little ahead, since starting takes a moment
     const want = s.pos + Math.max(0, room.now() - s.at);
@@ -883,7 +947,7 @@ async function followHost(s, { joining = false } = {}) {
   showOn();
   if (s.phase === 'playing') { applyPlayback(s); return; }
   if (!joining) return;
-  if (['changing', 'entering', 'tuning', 'announce'].includes(s.phase)) {
+  if (['changing', 'entering', 'tuning', 'announce', 'hush'].includes(s.phase)) {
     // the orchestra is walking on right now: watch it (a little late)
     runConcert(s.i, { remote: true });
     return;
@@ -903,6 +967,7 @@ function onHostCmd(c) {
   if (!room || room.isHost || !concertStarted || !c) return;
   if (c.c === 'run') {
     showOn();
+    ritualNext = !!c.ritual;
     runConcert(c.i, { quick: !!c.quick, remote: true });
   } else if (c.c === 'play' || c.c === 'pause') {
     showOn();
@@ -1025,6 +1090,7 @@ ui.on('handoff', (id, name) => {
 });
 ui.on('chat', (text) => room?.chat(text));
 ui.on('chatOpen', () => director.releaseLock());
+ui.on('leafOpen', () => director.releaseLock());
 
 // where I am, for everyone else (a seat, or a spot and a heading)
 const EYE_H = 1.62;
@@ -1218,7 +1284,8 @@ function frame() {
   effects.update(wall);
   director.joy.x = ui.joy.x;
   director.joy.y = ui.joy.y;
-  animateAudience(wall, dt, performance.now() < clapUntil);
+  animateAudience(wall, dt, performance.now() < clapUntil, { hush });
+  spot.update(dt);
 
   if (!concertStarted) {
     // slow establishing shot behind the splash
@@ -1351,5 +1418,6 @@ window.__fp = {
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
   // (tests) the automatic quality, fed a frame rate by hand
+  get leaf() { return leaf; }, endEvening, spot,
   get quality() { return quality; }, autoQuality, holdQuality, get qualityState() { return { lowStreak, goodStreak, raiseBlocked, renderScale, hold: Math.max(0, qualityHold - performance.now()) }; },
 };
