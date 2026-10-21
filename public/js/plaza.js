@@ -510,7 +510,7 @@ canvas.style.touchAction = 'none';
 canvas.addEventListener('pointerdown', (e) => {
   if (boothOpen || busy) return;
   drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0 };
-  canvas.setPointerCapture(e.pointerId);
+  try { canvas.setPointerCapture(e.pointerId); } catch { /* a pointer already gone */ }
 });
 canvas.addEventListener('pointermove', (e) => {
   if (!drag || e.pointerId !== drag.id) return;

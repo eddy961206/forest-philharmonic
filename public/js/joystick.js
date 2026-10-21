@@ -23,7 +23,7 @@ export function thumbStick({ base, knob, zone, radius = 46 }) {
     cy = Math.min(window.innerHeight - rest.half - 4, Math.max(rest.half + 4, e.clientY));
     base.classList.add('active');
     base.style.transform = `translate(${cx - rest.x}px, ${cy - rest.y}px)`;
-    e.currentTarget.setPointerCapture(id);
+    try { e.currentTarget.setPointerCapture(id); } catch { /* a pointer already gone */ }
     out.active = true;
     e.preventDefault();
     move(e);
