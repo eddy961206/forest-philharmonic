@@ -1,0 +1,3118 @@
+{
+  "schemaVersion": 1,
+  "reviewedAtUtc": "2026-10-21T13:41:37.031095+00:00",
+  "scope": {
+    "jobs": [
+      12,
+      13,
+      14,
+      15
+    ],
+    "quality": "high",
+    "deviceLabel": "mobile",
+    "completePairs": 2,
+    "pairedScenarioRows": 20,
+    "measuredSamples": 320,
+    "mediumLowReviewed": false,
+    "browserOrGpuRun": false,
+    "imageOpenedDecodedOrSSIM": false,
+    "productToolsOrRawModified": false
+  },
+  "conclusion": "닫힌 두 A/B 쌍의 기록된 조건·소스·요약 산술은 일치해. 시간/CPU 결과는 혼합적이며 mean은 Hall 6/8·Sphere 6/12행에서 증가했어. 실제 스마트폰 FPS·3D cubemap·시각/오디오 동등성을 입증한 결과가 아니야.",
+  "versions": {
+    "baseline": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+    "candidate": "dea7997c6278f10ff467815ab96b370362549b0c",
+    "planSha256": "6259727537dbd446e56ef3e5fa23b41c847fecd3c17a2a0cc28aa79ff40d8dc1",
+    "sourceManifestSha256": "d28ee8fae2fd8ff836d82855e7b84b749c905cdeb5740d8ed72e562c6730c84d",
+    "collectorSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+    "fixtureSha256": "262b5f126c6214d1875010056da4327117af2c764dab8d04854dc4b709871d98",
+    "helperSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9"
+  },
+  "environment": {
+    "browserVersion": "153.0.8010.0",
+    "playwrightVersion": "1.64.1",
+    "platform": "linux",
+    "architecture": "x64",
+    "softwareRequested": true,
+    "chromeArgs": [
+      "--ash-no-nudges",
+      "--disable-domain-reliability",
+      "--disable-print-preview",
+      "--disk-cache-size=33554432",
+      "--no-default-browser-check",
+      "--no-pings",
+      "--font-render-hinting=none",
+      "--disable-features=IsolateOrigins,site-per-process",
+      "--enable-features=SharedArrayBuffer",
+      "--ignore-gpu-blocklist",
+      "--allow-running-insecure-content",
+      "--disable-setuid-sandbox",
+      "--disable-site-isolation-trials",
+      "--disable-web-security",
+      "--headless='shell'",
+      "--no-sandbox",
+      "--no-zygote",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader"
+    ],
+    "fontMode": "local",
+    "headless": true
+  },
+  "sharedRenderMetadata": {
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "gpuTimer": true,
+    "pixelRatio": 1.5,
+    "viewport": [
+      390,
+      844
+    ],
+    "quality": "high",
+    "renderScale": 1,
+    "hardwareConcurrency": 9,
+    "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+  },
+  "devicePixelRatio": 2,
+  "fixturePolicy": {
+    "piece": "beethoven-ode-to-joy",
+    "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+    "crowdFill": 0.8,
+    "crowdSeed": 417,
+    "randomSeed": 417,
+    "uuidSeed": 874,
+    "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+    "stage": "snapOnstage + snapConductor",
+    "mainAnimation": "real frame function with controlled camera/time",
+    "ui": "hidden",
+    "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+    "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+    "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+    "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+  },
+  "method": {
+    "statistic": "controlled whole-frame plus synchronous readPixels completion milliseconds",
+    "samplesPerScenario": 8,
+    "warmupFrames": 4,
+    "independentRunsPerVariant": 1,
+    "pairOrder": "각 venue baseline→candidate",
+    "changePercent": "(candidate / baseline - 1) * 100",
+    "p95": "이 8개 표본에서 보고된 p95는 최대 표본과 같아.",
+    "threadTime": "CDP before/after ThreadTime 초 차이 ×1000. 시나리오의 8표본 수집 구간 renderer main-thread CPU 시간이며 계측 포함. 프레임당 값·전체 client CPU가 아님.",
+    "heap": "sample heap의 산술평균. MB=1,000,000 bytes. 실행별로 일정한 큰 단위 값이라 GC/버킷 영향과 지속 메모리 절감을 분리하지 못함. GPU/RSS 아님.",
+    "nativeFps": null,
+    "onePercentLowFps": null,
+    "gpuFrameTime": null,
+    "gpuMemoryBytes": null,
+    "physicalDeviceMeasurement": false
+  },
+  "runChecks": [
+    {
+      "index": 12,
+      "id": "baseline-a-hall-high-mobile",
+      "venue": "hall",
+      "variant": "baseline",
+      "wrapperStatus": "PASS",
+      "rawStatus": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-10-21T13:19:28.682221+00:00",
+      "finishedAt": "2026-10-21T13:21:26.362779+00:00",
+      "planMatches": true,
+      "logShaMatches": true,
+      "toolHashesMatch": true,
+      "revisionMatchesManifest": true,
+      "sourceBeforeAfterStable": true,
+      "manifestSourceChecks": [
+        {
+          "path": "js/boot.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/main.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/quality.js",
+          "result": "expected-absent-404"
+        },
+        {
+          "path": "js/scene/hall.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/seats.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/audience.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/screen.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/sphere.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/dome3d.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/domeshow.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/audio/engine.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/audio/performance.js",
+          "result": "sha-match"
+        }
+      ],
+      "measuredSampleCount": 64,
+      "invalidSamples": 0,
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [],
+        "failedRequests": []
+      },
+      "sphereWarmupEvidence": []
+    },
+    {
+      "index": 13,
+      "id": "candidate-a-hall-high-mobile",
+      "venue": "hall",
+      "variant": "candidate",
+      "wrapperStatus": "PASS",
+      "rawStatus": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-10-21T13:21:26.363520+00:00",
+      "finishedAt": "2026-10-21T13:23:29.124219+00:00",
+      "planMatches": true,
+      "logShaMatches": true,
+      "toolHashesMatch": true,
+      "revisionMatchesManifest": true,
+      "sourceBeforeAfterStable": true,
+      "manifestSourceChecks": [
+        {
+          "path": "js/boot.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/main.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/quality.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/hall.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/seats.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/audience.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/screen.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/sphere.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/dome3d.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/domeshow.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/audio/engine.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/audio/performance.js",
+          "result": "sha-match"
+        }
+      ],
+      "measuredSampleCount": 64,
+      "invalidSamples": 0,
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [],
+        "failedRequests": []
+      },
+      "sphereWarmupEvidence": []
+    },
+    {
+      "index": 14,
+      "id": "baseline-a-sphere-high-mobile",
+      "venue": "sphere",
+      "variant": "baseline",
+      "wrapperStatus": "PASS",
+      "rawStatus": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-10-21T13:23:29.125059+00:00",
+      "finishedAt": "2026-10-21T13:26:15.618082+00:00",
+      "planMatches": true,
+      "logShaMatches": true,
+      "toolHashesMatch": true,
+      "revisionMatchesManifest": true,
+      "sourceBeforeAfterStable": true,
+      "manifestSourceChecks": [
+        {
+          "path": "js/boot.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/main.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/quality.js",
+          "result": "expected-absent-404"
+        },
+        {
+          "path": "js/scene/hall.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/seats.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/audience.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/screen.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/sphere.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/dome3d.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/domeshow.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/audio/engine.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/audio/performance.js",
+          "result": "sha-match"
+        }
+      ],
+      "measuredSampleCount": 96,
+      "invalidSamples": 0,
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [
+          "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+        ],
+        "failedRequests": []
+      },
+      "sphereWarmupEvidence": [
+        {
+          "scenario": "front",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "wide",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "rotate",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "dome",
+          "world": "AURORA",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "forest",
+          "world": "FOREST",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "peaks",
+          "world": "AURORA",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "ocean",
+          "world": "OCEAN",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "clouds",
+          "world": "SUNSET",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "crossfade",
+          "world": "AURORA",
+          "path": "two-pass",
+          "mix": 0.5022197530864201,
+          "reveal": 0,
+          "requiredRoles": [
+            "base",
+            "overlay"
+          ],
+          "mainCameraDraws": [
+            4,
+            4
+          ]
+        },
+        {
+          "scenario": "reveal",
+          "world": "FOREST",
+          "path": "two-pass",
+          "mix": 0.5022197530864201,
+          "reveal": 1,
+          "requiredRoles": [
+            "base",
+            "overlay"
+          ],
+          "mainCameraDraws": [
+            4,
+            4
+          ]
+        },
+        {
+          "scenario": "broadcast",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "effects-show",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "id": "candidate-a-sphere-high-mobile",
+      "venue": "sphere",
+      "variant": "candidate",
+      "wrapperStatus": "PASS",
+      "rawStatus": "PASS",
+      "exitCode": 0,
+      "startedAt": "2026-10-21T13:26:15.618688+00:00",
+      "finishedAt": "2026-10-21T13:29:07.660862+00:00",
+      "planMatches": true,
+      "logShaMatches": true,
+      "toolHashesMatch": true,
+      "revisionMatchesManifest": true,
+      "sourceBeforeAfterStable": true,
+      "manifestSourceChecks": [
+        {
+          "path": "js/boot.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/main.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/quality.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/hall.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/seats.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/audience.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/screen.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/sphere.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/dome3d.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/scene/domeshow.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/audio/engine.js",
+          "result": "sha-match"
+        },
+        {
+          "path": "js/audio/performance.js",
+          "result": "sha-match"
+        }
+      ],
+      "measuredSampleCount": 96,
+      "invalidSamples": 0,
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [
+          "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+        ],
+        "failedRequests": []
+      },
+      "sphereWarmupEvidence": [
+        {
+          "scenario": "front",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "wide",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "rotate",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "dome",
+          "world": "AURORA",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "forest",
+          "world": "FOREST",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "peaks",
+          "world": "AURORA",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "ocean",
+          "world": "OCEAN",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "clouds",
+          "world": "SUNSET",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "crossfade",
+          "world": "AURORA",
+          "path": "two-pass",
+          "mix": 0.5022197530864201,
+          "reveal": 0,
+          "requiredRoles": [
+            "base",
+            "overlay"
+          ],
+          "mainCameraDraws": [
+            4,
+            4
+          ]
+        },
+        {
+          "scenario": "reveal",
+          "world": "FOREST",
+          "path": "two-pass",
+          "mix": 0.5022197530864201,
+          "reveal": 1,
+          "requiredRoles": [
+            "base",
+            "overlay"
+          ],
+          "mainCameraDraws": [
+            4,
+            4
+          ]
+        },
+        {
+          "scenario": "broadcast",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        },
+        {
+          "scenario": "effects-show",
+          "world": "ARCH",
+          "path": "two-pass",
+          "mix": 0,
+          "reveal": 0,
+          "requiredRoles": [
+            "base"
+          ],
+          "mainCameraDraws": [
+            4
+          ]
+        }
+      ]
+    }
+  ],
+  "pairedConditions": {
+    "hall": {
+      "scenarioCount": 8,
+      "fixtureFieldsEqual": true,
+      "fixturePolicyEqual": true,
+      "metaEqual": true,
+      "environmentEqual": true,
+      "allScenarioSetupEqual": true,
+      "fixture": {
+        "crowd": 200,
+        "seats": 1885,
+        "eligibleAudienceSeats": 1879,
+        "recitalSeats": 6,
+        "lite": true,
+        "piece": "beethoven-ode-to-joy",
+        "sceneState": {
+          "phase": "playing",
+          "asleep": false,
+          "interval": false,
+          "recital": false,
+          "practice": false,
+          "hush": 0,
+          "sleepy": false,
+          "seatGroupVisible": true,
+          "audienceVisible": true
+        }
+      },
+      "changeDirectionCounts": {
+        "meanCompleteMs": {
+          "lower": 2,
+          "higher": 6,
+          "equal": 0
+        },
+        "p95CompleteMs": {
+          "lower": 3,
+          "higher": 5,
+          "equal": 0
+        },
+        "meanCalls": {
+          "lower": 2,
+          "higher": 4,
+          "equal": 2
+        },
+        "meanTriangles": {
+          "lower": 6,
+          "higher": 0,
+          "equal": 2
+        },
+        "meanJsHeapBytes": {
+          "lower": 8,
+          "higher": 0,
+          "equal": 0
+        },
+        "threadTimeWindowDeltaMs": {
+          "lower": 0,
+          "higher": 8,
+          "equal": 0
+        }
+      },
+      "occupiedIndicesHash": null,
+      "occupiedIndicesHashReason": "raw에 점유 좌석 목록/해시가 없어. 같은 수·seed 정책·공통 fixture를 대조했어.",
+      "perSampleActualCameraPosePresent": false,
+      "cameraLimit": "scenario setup은 같지만 각 sample의 실제 pose가 없어. 동일 fixture/순서가 보조 근거야."
+    },
+    "sphere": {
+      "scenarioCount": 12,
+      "fixtureFieldsEqual": true,
+      "fixturePolicyEqual": true,
+      "metaEqual": true,
+      "environmentEqual": true,
+      "allScenarioSetupEqual": true,
+      "fixture": {
+        "crowd": 2500,
+        "seats": 13851,
+        "eligibleAudienceSeats": 13845,
+        "recitalSeats": 6,
+        "lite": true,
+        "piece": "beethoven-ode-to-joy",
+        "sceneState": {
+          "phase": "playing",
+          "asleep": false,
+          "interval": false,
+          "recital": false,
+          "practice": false,
+          "hush": 0,
+          "sleepy": false,
+          "seatGroupVisible": null,
+          "audienceVisible": true
+        }
+      },
+      "changeDirectionCounts": {
+        "meanCompleteMs": {
+          "lower": 6,
+          "higher": 6,
+          "equal": 0
+        },
+        "p95CompleteMs": {
+          "lower": 6,
+          "higher": 6,
+          "equal": 0
+        },
+        "meanCalls": {
+          "lower": 1,
+          "higher": 0,
+          "equal": 11
+        },
+        "meanTriangles": {
+          "lower": 1,
+          "higher": 0,
+          "equal": 11
+        },
+        "meanJsHeapBytes": {
+          "lower": 12,
+          "higher": 0,
+          "equal": 0
+        },
+        "threadTimeWindowDeltaMs": {
+          "lower": 8,
+          "higher": 4,
+          "equal": 0
+        }
+      },
+      "occupiedIndicesHash": null,
+      "occupiedIndicesHashReason": "raw에 점유 좌석 목록/해시가 없어. 같은 수·seed 정책·공통 fixture를 대조했어.",
+      "perSampleActualCameraPosePresent": false,
+      "cameraLimit": "scenario setup은 같지만 각 sample의 실제 pose가 없어. 동일 fixture/순서가 보조 근거야."
+    }
+  },
+  "summaryRows": [
+    {
+      "venue": "hall",
+      "scenario": "front",
+      "actualWorld": null,
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            1.75,
+            5
+          ],
+          "target": [
+            0,
+            2,
+            -7
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 838.4874999998137,
+          "candidate": 809.4500000001863,
+          "changePercent": -3.4630808449301775
+        },
+        "p95CompleteMs": {
+          "baseline": 900.8999999985099,
+          "candidate": 942.5,
+          "changePercent": 4.617604617777649
+        },
+        "meanCalls": {
+          "baseline": 537.875,
+          "candidate": 540.875,
+          "changePercent": 0.5577504066930139
+        },
+        "meanTriangles": {
+          "baseline": 687152.75,
+          "candidate": 591764.75,
+          "changePercent": -13.881629666766237
+        },
+        "meanJsHeapBytes": {
+          "baseline": 157000000,
+          "candidate": 139000000,
+          "changePercent": -11.46496815286624
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 85.45099999999994,
+          "candidate": 88.6309999999999,
+          "changePercent": 3.721430995541275
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 6723.697000000001,
+          "candidate": 6489.464000000002,
+          "changePercent": -3.4836935691777815
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            371,
+            374
+          ],
+          "candidate": [
+            355,
+            358
+          ]
+        },
+        "textures": {
+          "baseline": [
+            92,
+            92
+          ],
+          "candidate": [
+            91,
+            91
+          ]
+        },
+        "heap": {
+          "baseline": [
+            157000000,
+            157000000
+          ],
+          "candidate": [
+            139000000,
+            139000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "p95CompleteMs",
+        "meanCalls",
+        "threadTimeWindowDeltaMs"
+      ]
+    },
+    {
+      "venue": "hall",
+      "scenario": "wide",
+      "actualWorld": null,
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            22,
+            30
+          ],
+          "target": [
+            0,
+            4,
+            -4
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1181.8375000013039,
+          "candidate": 1274.6249999981374,
+          "changePercent": 7.851121664080818
+        },
+        "p95CompleteMs": {
+          "baseline": 1248.2999999970198,
+          "candidate": 1390.5,
+          "changePercent": 11.391492429970329
+        },
+        "meanCalls": {
+          "baseline": 671.625,
+          "candidate": 707.625,
+          "changePercent": 5.360134003350092
+        },
+        "meanTriangles": {
+          "baseline": 874085.25,
+          "candidate": 864917.25,
+          "changePercent": -1.0488679450888827
+        },
+        "meanJsHeapBytes": {
+          "baseline": 157000000,
+          "candidate": 139000000,
+          "changePercent": -11.46496815286624
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 92.17900000000023,
+          "candidate": 111.34200000000006,
+          "changePercent": 20.788899857884967
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 9482.152,
+          "candidate": 10228.741999999997,
+          "changePercent": 7.873634592653622
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            443,
+            446
+          ],
+          "candidate": [
+            427,
+            430
+          ]
+        },
+        "textures": {
+          "baseline": [
+            92,
+            92
+          ],
+          "candidate": [
+            91,
+            91
+          ]
+        },
+        "heap": {
+          "baseline": [
+            157000000,
+            157000000
+          ],
+          "candidate": [
+            139000000,
+            139000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "meanCalls",
+        "threadTimeWindowDeltaMs",
+        "taskDurationWindowDeltaMs"
+      ]
+    },
+    {
+      "venue": "hall",
+      "scenario": "foyer",
+      "actualWorld": null,
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            6,
+            40.4
+          ],
+          "target": [
+            0,
+            6,
+            30
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 987.0500000007451,
+          "candidate": 1222.6749999998137,
+          "changePercent": 23.871637708210415
+        },
+        "p95CompleteMs": {
+          "baseline": 1046,
+          "candidate": 1423.2000000029802,
+          "changePercent": 36.061185468736156
+        },
+        "meanCalls": {
+          "baseline": 650.375,
+          "candidate": 650.375,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 546843.75,
+          "candidate": 546843.75,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 157000000,
+          "candidate": 139000000,
+          "changePercent": -11.46496815286624
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 76.75799999999988,
+          "candidate": 89.45399999999992,
+          "changePercent": 16.540295474087465
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 7917.108999999997,
+          "candidate": 9803.394999999995,
+          "changePercent": 23.825439311243525
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            451,
+            451
+          ],
+          "candidate": [
+            435,
+            435
+          ]
+        },
+        "textures": {
+          "baseline": [
+            92,
+            92
+          ],
+          "candidate": [
+            91,
+            91
+          ]
+        },
+        "heap": {
+          "baseline": [
+            157000000,
+            157000000
+          ],
+          "candidate": [
+            139000000,
+            139000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "threadTimeWindowDeltaMs",
+        "taskDurationWindowDeltaMs"
+      ]
+    },
+    {
+      "venue": "hall",
+      "scenario": "rotate",
+      "actualWorld": null,
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 900.2750000003725,
+          "candidate": 929.5374999996275,
+          "changePercent": 3.2503957123370952
+        },
+        "p95CompleteMs": {
+          "baseline": 1363.8000000044703,
+          "candidate": 1376.7999999970198,
+          "changePercent": 0.9532189465102592
+        },
+        "meanCalls": {
+          "baseline": 299.25,
+          "candidate": 319.625,
+          "changePercent": 6.808688387635753
+        },
+        "meanTriangles": {
+          "baseline": 624897.75,
+          "candidate": 549794.25,
+          "changePercent": -12.018526230891368
+        },
+        "meanJsHeapBytes": {
+          "baseline": 157000000,
+          "candidate": 139000000,
+          "changePercent": -11.46496815286624
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 66.43899999999991,
+          "candidate": 67.82999999999984,
+          "changePercent": 2.093649814115106
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 7229.256000000007,
+          "candidate": 7459.824999999995,
+          "changePercent": 3.1893876769613305
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            451,
+            468
+          ],
+          "candidate": [
+            438,
+            455
+          ]
+        },
+        "textures": {
+          "baseline": [
+            92,
+            92
+          ],
+          "candidate": [
+            91,
+            91
+          ]
+        },
+        "heap": {
+          "baseline": [
+            157000000,
+            157000000
+          ],
+          "candidate": [
+            139000000,
+            139000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "meanCalls",
+        "threadTimeWindowDeltaMs",
+        "taskDurationWindowDeltaMs"
+      ]
+    },
+    {
+      "venue": "hall",
+      "scenario": "broadcast",
+      "actualWorld": null,
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 5,
+        "world": null,
+        "broadcast": true,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1139.9999999990687,
+          "candidate": 1138.7125000003725,
+          "changePercent": -0.11293859637694359
+        },
+        "p95CompleteMs": {
+          "baseline": 1296.3000000044703,
+          "candidate": 1254.9000000059605,
+          "changePercent": -3.1937051607164313
+        },
+        "meanCalls": {
+          "baseline": 815.75,
+          "candidate": 743.875,
+          "changePercent": -8.810910205332512
+        },
+        "meanTriangles": {
+          "baseline": 1074246.25,
+          "candidate": 935453.5,
+          "changePercent": -12.920012520406754
+        },
+        "meanJsHeapBytes": {
+          "baseline": 157000000,
+          "candidate": 139000000,
+          "changePercent": -11.46496815286624
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 92.94599999999997,
+          "candidate": 105.1709999999999,
+          "changePercent": 13.152798399070376
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 9144.497000000001,
+          "candidate": 9130.931000000004,
+          "changePercent": -0.1483515167646443
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            484,
+            485
+          ],
+          "candidate": [
+            471,
+            472
+          ]
+        },
+        "textures": {
+          "baseline": [
+            93,
+            93
+          ],
+          "candidate": [
+            92,
+            92
+          ]
+        },
+        "heap": {
+          "baseline": [
+            157000000,
+            157000000
+          ],
+          "candidate": [
+            139000000,
+            139000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "threadTimeWindowDeltaMs"
+      ]
+    },
+    {
+      "venue": "hall",
+      "scenario": "broadcast-hidden",
+      "actualWorld": null,
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            6,
+            40.4
+          ],
+          "target": [
+            0,
+            6,
+            48
+          ],
+          "fov": 64
+        },
+        "musicTime": 5,
+        "world": null,
+        "broadcast": true,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 462.28749999962747,
+          "candidate": 470.58750000037253,
+          "changePercent": 1.7954195172380283
+        },
+        "p95CompleteMs": {
+          "baseline": 481.29999999701977,
+          "candidate": 500.5,
+          "changePercent": 3.9891959283397282
+        },
+        "meanCalls": {
+          "baseline": 261,
+          "candidate": 261,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 273751,
+          "candidate": 273751,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 157000000,
+          "candidate": 139000000,
+          "changePercent": -11.46496815286624
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 50.41000000000029,
+          "candidate": 56.61299999999958,
+          "changePercent": 12.305098194801145
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 3719.2459999999983,
+          "candidate": 3782.707000000002,
+          "changePercent": 1.7062867043482477
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            485,
+            485
+          ],
+          "candidate": [
+            472,
+            472
+          ]
+        },
+        "textures": {
+          "baseline": [
+            93,
+            93
+          ],
+          "candidate": [
+            92,
+            92
+          ]
+        },
+        "heap": {
+          "baseline": [
+            157000000,
+            157000000
+          ],
+          "candidate": [
+            139000000,
+            139000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "threadTimeWindowDeltaMs",
+        "taskDurationWindowDeltaMs"
+      ]
+    },
+    {
+      "venue": "hall",
+      "scenario": "broadcast-return",
+      "actualWorld": null,
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 5,
+        "world": null,
+        "broadcast": true,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1143.4625000003725,
+          "candidate": 1178.387500002049,
+          "changePercent": 3.0543196651980242
+        },
+        "p95CompleteMs": {
+          "baseline": 1324.5,
+          "candidate": 1319.3000000044703,
+          "changePercent": -0.3926009811649367
+        },
+        "meanCalls": {
+          "baseline": 816,
+          "candidate": 744,
+          "changePercent": -8.823529411764708
+        },
+        "meanTriangles": {
+          "baseline": 1072244.5,
+          "candidate": 933451.5,
+          "changePercent": -12.944155927122969
+        },
+        "meanJsHeapBytes": {
+          "baseline": 157000000,
+          "candidate": 139000000,
+          "changePercent": -11.46496815286624
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 83.23700000000001,
+          "candidate": 104.5259999999999,
+          "changePercent": 25.57636627941886
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 9167.234000000008,
+          "candidate": 9448.006000000007,
+          "changePercent": 3.0627777146301494
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            487,
+            487
+          ],
+          "candidate": [
+            474,
+            474
+          ]
+        },
+        "textures": {
+          "baseline": [
+            93,
+            93
+          ],
+          "candidate": [
+            92,
+            92
+          ]
+        },
+        "heap": {
+          "baseline": [
+            157000000,
+            157000000
+          ],
+          "candidate": [
+            139000000,
+            139000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "threadTimeWindowDeltaMs",
+        "taskDurationWindowDeltaMs"
+      ]
+    },
+    {
+      "venue": "hall",
+      "scenario": "effects-show",
+      "actualWorld": null,
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": true
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1401.6874999981374,
+          "candidate": 1409.0499999998137,
+          "changePercent": 0.525259731693839
+        },
+        "p95CompleteMs": {
+          "baseline": 3268.60000000149,
+          "candidate": 3225.4000000059605,
+          "changePercent": -1.321666768509755
+        },
+        "meanCalls": {
+          "baseline": 644,
+          "candidate": 659,
+          "changePercent": 2.329192546583858
+        },
+        "meanTriangles": {
+          "baseline": 720429,
+          "candidate": 653757,
+          "changePercent": -9.254485868836483
+        },
+        "meanJsHeapBytes": {
+          "baseline": 157000000,
+          "candidate": 139000000,
+          "changePercent": -11.46496815286624
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 112.55300000000013,
+          "candidate": 127.51400000000012,
+          "changePercent": 13.292404467228746
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 11239.177999999996,
+          "candidate": 11298.04399999999,
+          "changePercent": 0.5237571644473915
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            502,
+            503
+          ],
+          "candidate": [
+            489,
+            490
+          ]
+        },
+        "textures": {
+          "baseline": [
+            93,
+            93
+          ],
+          "candidate": [
+            92,
+            92
+          ]
+        },
+        "heap": {
+          "baseline": [
+            157000000,
+            157000000
+          ],
+          "candidate": [
+            139000000,
+            139000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "meanCalls",
+        "threadTimeWindowDeltaMs",
+        "taskDurationWindowDeltaMs"
+      ]
+    },
+    {
+      "venue": "sphere",
+      "scenario": "front",
+      "actualWorld": "ARCH",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            1.75,
+            5
+          ],
+          "target": [
+            0,
+            2,
+            -7
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 754.0874999994412,
+          "candidate": 712.6125000007451,
+          "changePercent": -5.500024864319708
+        },
+        "p95CompleteMs": {
+          "baseline": 794.2999999970198,
+          "candidate": 738,
+          "changePercent": -7.0880020140036475
+        },
+        "meanCalls": {
+          "baseline": 516.5,
+          "candidate": 516.5,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 473895,
+          "candidate": 473895,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 80.66400000000007,
+          "candidate": 74.67299999999977,
+          "changePercent": -7.427105028265757
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 6046.773999999999,
+          "candidate": 5714.222,
+          "changePercent": -5.499659818607405
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            346,
+            347
+          ],
+          "candidate": [
+            333,
+            334
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "ARCH",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "wide",
+      "actualWorld": "ARCH",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            44,
+            62
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1768.0249999985099,
+          "candidate": 1615.6749999998137,
+          "changePercent": -8.616959601749096
+        },
+        "p95CompleteMs": {
+          "baseline": 2147.10000000149,
+          "candidate": 1701.4000000059605,
+          "changePercent": -20.758232033683587
+        },
+        "meanCalls": {
+          "baseline": 635.625,
+          "candidate": 635.625,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 823583.25,
+          "candidate": 823583.25,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 160.25999999999962,
+          "candidate": 122.57499999999987,
+          "changePercent": -23.514913265942738
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 14212.265000000003,
+          "candidate": 12974.105000000001,
+          "changePercent": -8.711911859228639
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            393,
+            396
+          ],
+          "candidate": [
+            380,
+            383
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "ARCH",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "rotate",
+      "actualWorld": "ARCH",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1227.2124999985099,
+          "candidate": 1177.9874999998137,
+          "changePercent": -4.011122767960396
+        },
+        "p95CompleteMs": {
+          "baseline": 1457.3999999985099,
+          "candidate": 1400.7999999970198,
+          "changePercent": -3.88362837941183
+        },
+        "meanCalls": {
+          "baseline": 294.625,
+          "candidate": 294.625,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 735660.25,
+          "candidate": 735660.25,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 66.30599999999998,
+          "candidate": 64.66800000000018,
+          "changePercent": -2.4703646728799877
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 9833.914,
+          "candidate": 9440.322999999999,
+          "changePercent": -4.002383994816327
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            399,
+            406
+          ],
+          "candidate": [
+            386,
+            393
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "ARCH",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "dome",
+      "actualWorld": "AURORA",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            65,
+            -15
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "AURORA",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 692.4624999985099,
+          "candidate": 722.2124999985099,
+          "changePercent": 4.296261530417023
+        },
+        "p95CompleteMs": {
+          "baseline": 751.1999999955297,
+          "candidate": 830.1999999955297,
+          "changePercent": 10.516506922320312
+        },
+        "meanCalls": {
+          "baseline": 276,
+          "candidate": 276,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 506760,
+          "candidate": 506760,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 60.59700000000001,
+          "candidate": 68.03300000000023,
+          "changePercent": 12.271234549565513
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 5566.862,
+          "candidate": 5797.955000000002,
+          "changePercent": 4.151225591724783
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            406,
+            406
+          ],
+          "candidate": [
+            393,
+            393
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "threadTimeWindowDeltaMs",
+        "taskDurationWindowDeltaMs"
+      ],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "AURORA",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "forest",
+      "actualWorld": "FOREST",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "FOREST",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 878.2624999992549,
+          "candidate": 910.3999999985099,
+          "changePercent": 3.659213503853609
+        },
+        "p95CompleteMs": {
+          "baseline": 907,
+          "candidate": 1085.3000000044703,
+          "changePercent": 19.658213892444355
+        },
+        "meanCalls": {
+          "baseline": 628,
+          "candidate": 628,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 762671,
+          "candidate": 762671,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 86.46500000000002,
+          "candidate": 79.18000000000004,
+          "changePercent": -8.425374428959675
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 7046.955999999995,
+          "candidate": 7310.729999999992,
+          "changePercent": 3.7430913432693114
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            409,
+            411
+          ],
+          "candidate": [
+            396,
+            398
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "taskDurationWindowDeltaMs"
+      ],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "FOREST",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "peaks",
+      "actualWorld": "AURORA",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "AURORA",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 900.2124999985099,
+          "candidate": 1108.4375000009313,
+          "changePercent": 23.13064970801517
+        },
+        "p95CompleteMs": {
+          "baseline": 929.5,
+          "candidate": 1643.4000000059605,
+          "changePercent": 76.80473372845191
+        },
+        "meanCalls": {
+          "baseline": 628,
+          "candidate": 628,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 762685,
+          "candidate": 762685,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 76.00499999999988,
+          "candidate": 115.50299999999991,
+          "changePercent": 51.96763370830879
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 7219.883999999994,
+          "candidate": 8891.074000000004,
+          "changePercent": 23.147047791903752
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            413,
+            415
+          ],
+          "candidate": [
+            400,
+            402
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "threadTimeWindowDeltaMs",
+        "taskDurationWindowDeltaMs"
+      ],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "AURORA",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "ocean",
+      "actualWorld": "OCEAN",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "OCEAN",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 913.6375000001863,
+          "candidate": 1163.0250000003725,
+          "changePercent": 27.2961103282358
+        },
+        "p95CompleteMs": {
+          "baseline": 969.6000000014901,
+          "candidate": 1375.3000000044703,
+          "changePercent": 41.84199669991302
+        },
+        "meanCalls": {
+          "baseline": 628,
+          "candidate": 628,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 762580,
+          "candidate": 762580,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 85.79200000000009,
+          "candidate": 83.4830000000002,
+          "changePercent": -2.6913931368890864
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 7325.758999999991,
+          "candidate": 9324.309999999998,
+          "changePercent": 27.281145885361635
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            415,
+            415
+          ],
+          "candidate": [
+            402,
+            402
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "taskDurationWindowDeltaMs"
+      ],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "OCEAN",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "clouds",
+      "actualWorld": "SUNSET",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "SUNSET",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 909.0875000013039,
+          "candidate": 946.2124999994412,
+          "changePercent": 4.083765313909171
+        },
+        "p95CompleteMs": {
+          "baseline": 1041.6999999955297,
+          "candidate": 1110.6000000014901,
+          "changePercent": 6.614188346573502
+        },
+        "meanCalls": {
+          "baseline": 628,
+          "candidate": 628,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 762601,
+          "candidate": 762601,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 94.1209999999999,
+          "candidate": 77.68700000000007,
+          "changePercent": -17.460502969581547
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 7292.438000000004,
+          "candidate": 7586.474999999993,
+          "changePercent": 4.032080903533064
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            416,
+            417
+          ],
+          "candidate": [
+            403,
+            404
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "taskDurationWindowDeltaMs"
+      ],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "SUNSET",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "crossfade",
+      "actualWorld": "AURORA",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "AURORA",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1116.324999999255,
+          "candidate": 1107.0999999996275,
+          "changePercent": -0.8263722481923863
+        },
+        "p95CompleteMs": {
+          "baseline": 1288.8999999985099,
+          "candidate": 1232,
+          "changePercent": -4.4146171152591895
+        },
+        "meanCalls": {
+          "baseline": 629,
+          "candidate": 629,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 774849,
+          "candidate": 774849,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 86.24199999999993,
+          "candidate": 94.53700000000032,
+          "changePercent": 9.61828343498572
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 8953.080999999998,
+          "candidate": 8880.729000000003,
+          "changePercent": -0.8081240413215895
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            419,
+            420
+          ],
+          "candidate": [
+            406,
+            407
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "threadTimeWindowDeltaMs"
+      ],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0.5022197530864201,
+        "reveal": 0,
+        "world": "AURORA",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0.012500000186264515
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "reveal",
+      "actualWorld": "FOREST",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "FOREST",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1105.9749999977648,
+          "candidate": 1042.8125,
+          "changePercent": -5.71102420921743
+        },
+        "p95CompleteMs": {
+          "baseline": 1284.1999999955297,
+          "candidate": 1128.7999999970198,
+          "changePercent": -12.100918859916742
+        },
+        "meanCalls": {
+          "baseline": 629,
+          "candidate": 629,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 774786,
+          "candidate": 774786,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 78.63599999999992,
+          "candidate": 74.50500000000027,
+          "changePercent": -5.2533190904924805
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 8871.638999999988,
+          "candidate": 8361.024999999983,
+          "changePercent": -5.755576844368959
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            421,
+            421
+          ],
+          "candidate": [
+            408,
+            408
+          ]
+        },
+        "textures": {
+          "baseline": [
+            62,
+            62
+          ],
+          "candidate": [
+            61,
+            61
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0.5022197530864201,
+        "reveal": 1,
+        "world": "FOREST",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "broadcast",
+      "actualWorld": "ARCH",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 5,
+        "world": "ARCH",
+        "broadcast": true,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1006.0000000009313,
+          "candidate": 969.1999999992549,
+          "changePercent": -3.658051690024089
+        },
+        "p95CompleteMs": {
+          "baseline": 1172,
+          "candidate": 1090.1999999955297,
+          "changePercent": -6.979522184681775
+        },
+        "meanCalls": {
+          "baseline": 794.5,
+          "candidate": 686.5,
+          "changePercent": -13.593455003146637
+        },
+        "meanTriangles": {
+          "baseline": 1179567,
+          "candidate": 1116314,
+          "changePercent": -5.362391453813132
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 100.18199999999977,
+          "candidate": 91.7110000000001,
+          "changePercent": -8.455610788364876
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 8067.800000000006,
+          "candidate": 7772.492,
+          "changePercent": -3.660328714147665
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            423,
+            425
+          ],
+          "candidate": [
+            410,
+            412
+          ]
+        },
+        "textures": {
+          "baseline": [
+            63,
+            63
+          ],
+          "candidate": [
+            62,
+            62
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "ARCH",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    },
+    {
+      "venue": "sphere",
+      "scenario": "effects-show",
+      "actualWorld": "ARCH",
+      "scenarioSetup": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": true
+      },
+      "samplesPerVariant": 8,
+      "metrics": {
+        "meanCompleteMs": {
+          "baseline": 1338.1000000005588,
+          "candidate": 1467.4000000013039,
+          "changePercent": 9.662954936155078
+        },
+        "p95CompleteMs": {
+          "baseline": 3555.5,
+          "candidate": 3761.5,
+          "changePercent": 5.793840528758265
+        },
+        "meanCalls": {
+          "baseline": 645,
+          "candidate": 645,
+          "changePercent": 0.0
+        },
+        "meanTriangles": {
+          "baseline": 767055,
+          "candidate": 767055,
+          "changePercent": 0.0
+        },
+        "meanJsHeapBytes": {
+          "baseline": 199000000,
+          "candidate": 157000000,
+          "changePercent": -21.105527638190956
+        },
+        "threadTimeWindowDeltaMs": {
+          "baseline": 139.95699999999988,
+          "candidate": 160.03800000000058,
+          "changePercent": 14.347978307623578
+        },
+        "taskDurationWindowDeltaMs": {
+          "baseline": 10749.599000000018,
+          "candidate": 11780.572000000007,
+          "changePercent": 9.590804270931287
+        }
+      },
+      "resourceCountRanges": {
+        "geometries": {
+          "baseline": [
+            442,
+            443
+          ],
+          "candidate": [
+            429,
+            430
+          ]
+        },
+        "textures": {
+          "baseline": [
+            63,
+            63
+          ],
+          "candidate": [
+            62,
+            62
+          ]
+        },
+        "heap": {
+          "baseline": [
+            199000000,
+            199000000
+          ],
+          "candidate": [
+            157000000,
+            157000000
+          ]
+        }
+      },
+      "increasedMetrics": [
+        "meanCompleteMs",
+        "p95CompleteMs",
+        "threadTimeWindowDeltaMs",
+        "taskDurationWindowDeltaMs"
+      ],
+      "domeWarmupShared": {
+        "status": "VERIFIED",
+        "path": "two-pass",
+        "mix": 0,
+        "reveal": 0,
+        "world": "ARCH",
+        "parallelShaderCompile": false
+      },
+      "observedWorldsPhaseMeanMs": {
+        "baseline": 0,
+        "candidate": 0
+      }
+    }
+  ],
+  "arithmeticChecks": {
+    "scenarioRecordsChecked": 40,
+    "rawMeanP95CallsTrianglesRecomputedAndLogMatched": true,
+    "validVisibleAwakeCompleteHighScale1SamplesNoGlErrorOrContextLoss": 320
+  },
+  "limitations": [
+    "SwiftShader Linux headless의 mobile UA/viewport 에뮬레이션이며 실제 Android/iOS 실측이 아니야.",
+    "PR 1.5/DPR 2/high/scale 1/LITE true가 전후 같아. 다른 preset이나 adaptive 품질의 효과를 비교한 자료가 아니야.",
+    "Sphere forest=FOREST, peaks/crossfade=AURORA, clouds=SUNSET이야. 실시간 3D cube 세계 이름으로 보고하지 않아.",
+    "독립 실행 1회·시나리오당 8표본·baseline 우선 순서라 재현성/순서/환경 부하 효과와 제품 원인을 확정하지 못해.",
+    "warmup VERIFIED는 draw 제출 및 program ready/link 증거이고 실제 픽셀/시각 품질 보장은 아니야.",
+    "PNG 열기·이미지 디코딩·SSIM을 수행하지 않았어.",
+    "실제 엔진 생성 후 note scheduler를 끄고 synthetic 공연 시계를 사용한 fixture라 실제 오디오/음질 검증이 아니야.",
+    "점유 좌석 해시와 sample별 실제 camera pose가 raw에 없어. 기록된 수·설정·공통 fixture의 일치를 그 이상으로 확대하지 않아.",
+    "GPU timer 지원 bool이 true여도 이 결과에는 GPU 시간 측정이 없어. GPU 메모리/발열/배터리/장기 native cadence도 미측정이야.",
+    "진행 중이거나 그 밖의 medium/low 결과를 검토에 넣지 않았어."
+  ],
+  "inputFiles": [
+    {
+      "role": "plan",
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/render-plan.json",
+      "bytes": 15227,
+      "sha256": "6259727537dbd446e56ef3e5fa23b41c847fecd3c17a2a0cc28aa79ff40d8dc1"
+    },
+    {
+      "role": "manifest",
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/source-manifest.json",
+      "bytes": 11847,
+      "sha256": "d28ee8fae2fd8ff836d82855e7b84b749c905cdeb5740d8ed72e562c6730c84d"
+    },
+    {
+      "role": "tool-source-sha-only",
+      "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/full-frame.mjs",
+      "bytes": 13760,
+      "sha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9"
+    },
+    {
+      "role": "tool-source-sha-only",
+      "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/full-frame-fixture.js",
+      "bytes": 12135,
+      "sha256": "262b5f126c6214d1875010056da4327117af2c764dab8d04854dc4b709871d98"
+    },
+    {
+      "role": "tool-source-sha-only",
+      "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/browser.mjs",
+      "bytes": 9075,
+      "sha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9"
+    },
+    {
+      "role": "closed-wrapper",
+      "path": "/tmp/forest-qa-1etnu01q/logs/012-baseline-a-hall-high-mobile.json",
+      "bytes": 1217,
+      "sha256": "36a74b3ca5aba3caee8f6eb2d4280372d1ffafbdc3a7d99b97f55b022e31a8c1"
+    },
+    {
+      "role": "closed-log",
+      "path": "/tmp/forest-qa-1etnu01q/logs/012-baseline-a-hall-high-mobile.log",
+      "bytes": 2814,
+      "sha256": "ed6371dd308faed4b1438ff3b517ed86d52d440486904c8cd250101b42bc1592"
+    },
+    {
+      "role": "closed-raw",
+      "path": "/tmp/forest-qa-1etnu01q/render/baseline-a-full-hall-high-mobile-sync.json",
+      "bytes": 127315,
+      "sha256": "5ceb86e197a6bc25c55c4e9423cca2cf207d4da6d06b6dd5053d1e6735ba77c3"
+    },
+    {
+      "role": "closed-wrapper",
+      "path": "/tmp/forest-qa-1etnu01q/logs/013-candidate-a-hall-high-mobile.json",
+      "bytes": 1220,
+      "sha256": "df1c188fbcba5a28d791223e907baa652751888a063ea62d5871b3b17711772d"
+    },
+    {
+      "role": "closed-log",
+      "path": "/tmp/forest-qa-1etnu01q/logs/013-candidate-a-hall-high-mobile.log",
+      "bytes": 2830,
+      "sha256": "8b090f672044b41fe5fbf713477a771e957cad0a6fe9ccefcb64954941e9bc1e"
+    },
+    {
+      "role": "closed-raw",
+      "path": "/tmp/forest-qa-1etnu01q/render/candidate-a-full-hall-high-mobile-sync.json",
+      "bytes": 127335,
+      "sha256": "40e87139ac45553a43e9322381ce52f5b6d62d22f715c845d4644d0d8e5993fa"
+    },
+    {
+      "role": "closed-wrapper",
+      "path": "/tmp/forest-qa-1etnu01q/logs/014-baseline-a-sphere-high-mobile.json",
+      "bytes": 1239,
+      "sha256": "8708a328bac65cd0cdf14b5a53062af3cca3ad49e4544ad19210b78f7b8397bd"
+    },
+    {
+      "role": "closed-log",
+      "path": "/tmp/forest-qa-1etnu01q/logs/014-baseline-a-sphere-high-mobile.log",
+      "bytes": 3738,
+      "sha256": "f19870a6bed9d898891e6cca8a2de462097f5c012c612cdb2f6d3b25da01ee5f"
+    },
+    {
+      "role": "closed-raw",
+      "path": "/tmp/forest-qa-1etnu01q/render/baseline-a-full-sphere-high-mobile-sync.json",
+      "bytes": 208873,
+      "sha256": "d4d19ff54518f8d48b10630a4c042952f4370086e21bb0a18a23e034a05e1393"
+    },
+    {
+      "role": "closed-wrapper",
+      "path": "/tmp/forest-qa-1etnu01q/logs/015-candidate-a-sphere-high-mobile.json",
+      "bytes": 1242,
+      "sha256": "df5afb0f71e7828235999452aef1104516807ce214f4dd8bd4c758b246123231"
+    },
+    {
+      "role": "closed-log",
+      "path": "/tmp/forest-qa-1etnu01q/logs/015-candidate-a-sphere-high-mobile.log",
+      "bytes": 3765,
+      "sha256": "b2f682a6bd5a8f7f19cc67cedebe57afa09436100a625e7f067bc27340ac1b5d"
+    },
+    {
+      "role": "closed-raw",
+      "path": "/tmp/forest-qa-1etnu01q/render/candidate-a-full-sphere-high-mobile-sync.json",
+      "bytes": 207496,
+      "sha256": "28aa7bdc3b11a02e58a9a96c652e735da2dc880a34a7794a784dc62551a98654"
+    }
+  ],
+  "inputFilesUnchangedAtReviewEnd": true
+}
