@@ -600,8 +600,8 @@ async function endOfPiece() {
     // the middle of the evening: the interval
     intervalDone = true;
     const endsAt = clockNow() + settings.interval * 60;
+    beginInterval(endsAt, next); // (first: the snapshot that goes with the command says so)
     sendCmd({ c: 'interval', i: next, until: endsAt });
-    beginInterval(endsAt, next);
     if (!(await until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9))) return;
     ritualNext = true;
     runConcert(next);
@@ -734,6 +734,9 @@ function intervalDue(i) {
 
 function beginInterval(endsAt, next) {
   endInterval();
+  playTok++; // (a playback sync still on its way is out of date now)
+  if (perf.playing) { perf.pause(); ui.setPlaying(false); }
+  closeRecital();
   intervalState = { until: endsAt, next, bear: 'wait', bells: 0 };
   intervalDone = true;
   setPhase('interval');
@@ -990,6 +993,7 @@ async function encoreVote(tok) {
   if (!cands.length) return -1;
   const endsAt = clockNow() + 14;
   encore = { cands, candMeta: cands.map((i) => program[i]), until: endsAt, votes: new Map(), mine: -1 };
+  closeRecital();
   setPhase('encore');
   hall.setHouseLights(0.2);
   spot.set(null);
@@ -1019,6 +1023,8 @@ async function encoreVote(tok) {
 // a guest: the host's vote, as the host counts it (from the snapshots)
 function guestEncore(ev, fresh = false) {
   if (!encore || fresh || encore.cands.join() !== ev.c.join()) {
+    playTok++;
+    closeRecital();
     encore = { cands: ev.c, candMeta: ev.c.map((i) => program[i]), until: ev.u, votes: null, mine: -1, counts: ev.n };
     setPhase('encore');
     hall.setHouseLights(0.2);
@@ -1422,6 +1428,8 @@ function onHostCmd(c) {
     beginInterval(c.until, c.i);
   } else if (c.c === 'exit') {
     seq++;
+    playTok++;
+    closeRecital();
     ceremony = false;
     hall.setHouseLights(1);
     hall.show?.('house');
@@ -1890,8 +1898,8 @@ window.__fp = {
     const tok = ++seq;
     const next = nextIndex();
     const endsAt = clockNow() + sec;
+    beginInterval(endsAt, next); // (first: the snapshot that goes with the command says so)
     sendCmd({ c: 'interval', i: next, until: endsAt });
-    beginInterval(endsAt, next);
     until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9).then((ok) => { if (ok) { ritualNext = true; runConcert(next); } });
   },
   get quality() { return quality; }, autoQuality, holdQuality, get qualityState() { return { lowStreak, goodStreak, raiseBlocked, renderScale, hold: Math.max(0, qualityHold - performance.now()) }; },
