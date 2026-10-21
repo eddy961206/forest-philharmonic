@@ -1,0 +1,374 @@
+{
+  "updatedAt": "2026-10-21T03:45:06.852Z",
+  "config": {
+    "mode": "full",
+    "suite": "all",
+    "forestVariant": "forest_cell_entry",
+    "base": "http://127.0.0.1:8082",
+    "samples": 3,
+    "warmup": 1,
+    "size": 640,
+    "width": 960,
+    "height": 540,
+    "timeout": 240000,
+    "times": [
+      0,
+      23.5,
+      137
+    ],
+    "levels": [
+      0,
+      0.25,
+      1
+    ],
+    "compareOnly": false,
+    "continueOnDiff": true
+  },
+  "metadata": {
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "vendor": "Google Inc. (Google)",
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+    "threeRevision": "186",
+    "floatColorBuffer": true,
+    "timerQuery": true,
+    "pixelRatio": 1,
+    "factoryOrigin": "http://127.0.0.1:8082",
+    "mainAppLoaded": false
+  },
+  "total": 44,
+  "completed": 36,
+  "mismatches": 8,
+  "failed": 0,
+  "cases": [
+    {
+      "id": "forest-cell-entry-t0-l0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 727.4000000003725,
+      "candidateMs": 857,
+      "changePct": -17.81688204558167
+    },
+    {
+      "id": "forest-cell-entry-t0-l0p25",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 765,
+      "candidateMs": 770.8999999994412,
+      "changePct": -0.7712418299923085
+    },
+    {
+      "id": "forest-cell-entry-t0-l1",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 701.7999999998137,
+      "candidateMs": 628.8000000007451,
+      "changePct": 10.401823881317762
+    },
+    {
+      "id": "forest-cell-entry-t23p5-l0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 766.4000000003725,
+      "candidateMs": 677.2000000001863,
+      "changePct": 11.638830897722197
+    },
+    {
+      "id": "forest-cell-entry-t23p5-l0p25",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 890.0999999996275,
+      "candidateMs": 693.6000000005588,
+      "changePct": 22.07617121662183
+    },
+    {
+      "id": "forest-cell-entry-t23p5-l1",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 678.9000000003725,
+      "candidateMs": 812.2000000001863,
+      "changePct": -19.634703196308823
+    },
+    {
+      "id": "forest-cell-entry-t137-l0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 745.8999999994412,
+      "candidateMs": 717.2000000001863,
+      "changePct": 3.847700764080497
+    },
+    {
+      "id": "forest-cell-entry-t137-l0p25",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 722.6000000005588,
+      "candidateMs": 696,
+      "changePct": 3.681151397804905
+    },
+    {
+      "id": "forest-cell-entry-t137-l1",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 761,
+      "candidateMs": 828.9000000003725,
+      "changePct": -8.9224704336889
+    },
+    {
+      "id": "forest-control-ocean3d",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 1045.5999999996275,
+      "candidateMs": 1171.8999999994412,
+      "changePct": -12.079188982388933
+    },
+    {
+      "id": "forest-control-clouds3d",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 967.7999999998137,
+      "candidateMs": 965.6000000005588,
+      "changePct": 0.22731969407474573
+    },
+    {
+      "id": "peaks-t0-l0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 751.3999999994412,
+      "candidateMs": 865.7999999998137,
+      "changePct": -15.224913494870584
+    },
+    {
+      "id": "peaks-t0-l0p25",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 884.6000000005588,
+      "candidateMs": 897.7000000001863,
+      "changePct": -1.4808953198755637
+    },
+    {
+      "id": "peaks-t0-l1",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 960.5999999996275,
+      "candidateMs": 935.7999999998137,
+      "changePct": 2.5817197584658946
+    },
+    {
+      "id": "peaks-t23p5-l0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 786.5,
+      "candidateMs": 758.2000000001863,
+      "changePct": 3.5982199618326383
+    },
+    {
+      "id": "peaks-t23p5-l0p25",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 815.6999999992549,
+      "candidateMs": 835.5,
+      "changePct": -2.4273630011969027
+    },
+    {
+      "id": "peaks-t23p5-l1",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 982.9000000003725,
+      "candidateMs": 974.6000000005588,
+      "changePct": 0.8444399226585242
+    },
+    {
+      "id": "peaks-t137-l0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 879.8000000007451,
+      "candidateMs": 834.5,
+      "changePct": 5.148897476779579
+    },
+    {
+      "id": "peaks-t137-l0p25",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 792.2000000001863,
+      "candidateMs": 795.3999999994412,
+      "changePct": -0.40393839929995234
+    },
+    {
+      "id": "peaks-t137-l1",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 833.9000000003725,
+      "candidateMs": 786.2000000001863,
+      "changePct": 5.720110324998795
+    },
+    {
+      "id": "peaks-control-ocean3d",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 1171.800000000745,
+      "candidateMs": 1111.0999999996275,
+      "changePct": 5.180064857576294
+    },
+    {
+      "id": "peaks-control-clouds3d",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 1044.4000000003725,
+      "candidateMs": 1041.199999999255,
+      "changePct": 0.3063960169586766
+    },
+    {
+      "id": "reveal-high-m0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 476.70000000018626,
+      "candidateMs": 1601.2999999998137,
+      "changePct": -235.91357247727882
+    },
+    {
+      "id": "reveal-high-m0p001",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 142.59999999962747,
+      "candidateMs": 634.5999999996275,
+      "changePct": -345.021037869064
+    },
+    {
+      "id": "reveal-high-m0p01",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 471.79999999981374,
+      "candidateMs": 1567.4000000003725,
+      "changePct": -232.21704111932837
+    },
+    {
+      "id": "reveal-high-m0p25",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 158.70000000018626,
+      "candidateMs": 632.4000000003725,
+      "changePct": -298.48771266517343
+    },
+    {
+      "id": "reveal-high-m0p5",
+      "status": "pixel_mismatch",
+      "exact": false
+    },
+    {
+      "id": "reveal-high-m0p75",
+      "status": "pixel_mismatch",
+      "exact": false
+    },
+    {
+      "id": "reveal-high-m0p99",
+      "status": "pixel_mismatch",
+      "exact": false
+    },
+    {
+      "id": "reveal-high-m1",
+      "status": "pixel_mismatch",
+      "exact": false
+    },
+    {
+      "id": "dissolve-high-m0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 375.29999999981374,
+      "candidateMs": 1509.5,
+      "changePct": -302.2115640822673
+    },
+    {
+      "id": "dissolve-high-m0p5",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 565,
+      "candidateMs": 1926.2000000001863,
+      "changePct": -240.92035398233386
+    },
+    {
+      "id": "dissolve-high-m1",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 530.1000000005588,
+      "candidateMs": 1735.3999999994412,
+      "changePct": -227.37219392522388
+    },
+    {
+      "id": "reveal-lite-m0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 323.59999999962747,
+      "candidateMs": 1144.0999999996275,
+      "changePct": -253.55377008681845
+    },
+    {
+      "id": "reveal-lite-m0p001",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 132.79999999981374,
+      "candidateMs": 438.59999999962747,
+      "changePct": -230.2710843375321
+    },
+    {
+      "id": "reveal-lite-m0p01",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 324.09999999962747,
+      "candidateMs": 1308.9000000003725,
+      "changePct": -303.85683431097715
+    },
+    {
+      "id": "reveal-lite-m0p25",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 144.59999999962747,
+      "candidateMs": 543.0999999996275,
+      "changePct": -275.5878284931028
+    },
+    {
+      "id": "reveal-lite-m0p5",
+      "status": "pixel_mismatch",
+      "exact": false
+    },
+    {
+      "id": "reveal-lite-m0p75",
+      "status": "pixel_mismatch",
+      "exact": false
+    },
+    {
+      "id": "reveal-lite-m0p99",
+      "status": "pixel_mismatch",
+      "exact": false
+    },
+    {
+      "id": "reveal-lite-m1",
+      "status": "pixel_mismatch",
+      "exact": false
+    },
+    {
+      "id": "dissolve-lite-m0",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 305.80000000074506,
+      "candidateMs": 1297.800000000745,
+      "changePct": -324.39502943021023
+    },
+    {
+      "id": "dissolve-lite-m0p5",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 375.79999999981374,
+      "candidateMs": 1284.5,
+      "changePct": -241.8041511443951
+    },
+    {
+      "id": "dissolve-lite-m1",
+      "status": "complete",
+      "exact": true,
+      "baselineMs": 386.3999999994412,
+      "candidateMs": 1387.7999999998137,
+      "changePct": -259.161490683701
+    }
+  ],
+  "errors": []
+}

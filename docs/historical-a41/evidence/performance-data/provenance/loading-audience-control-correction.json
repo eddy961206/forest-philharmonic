@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-21T07:06:09.117879+00:00",
+  "kind": "loading-audience-control-correction",
+  "baselineRevision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+  "statusAtRecord": "Implementation, documentation and static review complete; fixed-audience browser reruns not executed by this agent and no new timing claims.",
+  "reason": "The original loading probe did not seed audience generation. Hall desktop audience counts differed in cold/warm and baseline/candidate runs. Equal capped mobile headcounts did not establish equal occupied seats. A global seed would not isolate audience from different Three UUID/random-consumption paths.",
+  "originalTools": [
+    {
+      "path": "docs/performance-data/provenance/loading-before-fixed-audience.mjs",
+      "bytes": 9207,
+      "sha256": "e4e121715c8d0d84d6dcaf0b8bafdec4cbf44ec233374a6474617a6fc62b313c"
+    },
+    {
+      "path": "docs/performance-data/provenance/loading-proxy-before-fixed-audience.mjs",
+      "bytes": 11735,
+      "sha256": "497515f92335e687088e73ece56060268579080adcf14e3820f956bcace31ae2"
+    }
+  ],
+  "excludedOriginalObservations": [
+    {
+      "path": "qa-a41/runtime-results/loading-baseline-hall-desktop.json",
+      "bytes": 1820943,
+      "sha256": "bc8b4071943f4dec1f92361e3debe0aa7be8ca52d7c79c0b9297cce16b77612c",
+      "recordedPassed": true,
+      "audienceByNavigation": {
+        "cold": 1216,
+        "warm": 1268
+      },
+      "disposition": "Preserved unchanged; excluded from causal before/after startup-time and longtask improvement claims because audience occupancy was uncontrolled. The historical passed flag describes the old checks only."
+    },
+    {
+      "path": "qa-a41/runtime-results/loading-after-hall-desktop.json",
+      "bytes": 1842222,
+      "sha256": "3b218fc0166f627e6281217461dd5cd0a13487a816ddcac7338023ec3020e4e0",
+      "recordedPassed": true,
+      "audienceByNavigation": {
+        "cold": 834,
+        "warm": 795
+      },
+      "disposition": "Preserved unchanged; excluded from causal before/after startup-time and longtask improvement claims because audience occupancy was uncontrolled. The historical passed flag describes the old checks only."
+    },
+    {
+      "path": "qa-a41/runtime-results/loading-baseline-hall-mobile.json",
+      "bytes": 1139121,
+      "sha256": "7fe7d241a2812d869cd82fb6a0f6fa6d71d23ea7a5e254c30c9a7e73284161ad",
+      "recordedPassed": true,
+      "audienceByNavigation": {
+        "cold": 200,
+        "warm": 200
+      },
+      "disposition": "Preserved unchanged; excluded from causal before/after startup-time and longtask improvement claims because audience occupancy was uncontrolled. The historical passed flag describes the old checks only."
+    },
+    {
+      "path": "qa-a41/runtime-results/loading-after-hall-mobile.json",
+      "bytes": 1160198,
+      "sha256": "b61414c829f87c3a78ae68b13669450805d8c1cc865949344b5308275366c5d4",
+      "recordedPassed": true,
+      "audienceByNavigation": {
+        "cold": 200,
+        "warm": 200
+      },
+      "disposition": "Preserved unchanged; excluded from causal before/after startup-time and longtask improvement claims because audience occupancy was uncontrolled. The historical passed flag describes the old checks only."
+    }
+  ],
+  "correction": {
+    "audienceSeed": 417,
+    "scope": "Only loading.mjs opts into localAppProxy(cfg, {audienceSeed:417}). Exactly one solo-audience main.js expression is replaced; room seeding, global Math.random, Three UUID and product files are unchanged.",
+    "anchor": "const rand = room ? seeded(room.seed) : Math.random;",
+    "replacement": "const rand = room ? seeded(room.seed) : seeded(417);",
+    "mismatch": "Zero or multiple anchors fail the response and the run.",
+    "rewrittenResponse": "main.js is fetched and served with identity encoding, a content-derived QA ETag and no-cache revalidation. It is classified as controlledMainFixture, not original application transfer bytes. Browser 304 and upstream identity 200 observations remain separate.",
+    "unchangedResponses": "Other app JavaScript, MP3, vendor and music responses pass through original gzip/ETag/cache headers. Existing font HTML handling is retained. No Playwright routes are installed.",
+    "equality": "Cold/warm and baseline/candidate comparisons require equal audience count, sorted occupied-seat count/SHA-256, seed, score/sample/PCM and recorded rendering/font/browser/tool conditions.",
+    "limitations": [
+      "One cold and one warm observation per run; not a population timing estimate.",
+      "Native impulse-response and other procedural random samples remain unseeded; same lengths/loops do not imply byte-identical IR.",
+      "Main rAF is held: controlled startup, not normal interactive readiness.",
+      "A new browser cache may sit behind warm Node/OS caches."
+    ]
+  },
+  "modifiedTools": [
+    {
+      "path": "tools/bench/loading.mjs",
+      "bytes": 13036,
+      "sha256": "0957435917d7b54f0ca150ddfabb3ea12bc16d7d6bd3f5c7a5eee12cebbae1a2"
+    },
+    {
+      "path": "tools/bench/loading-proxy.mjs",
+      "bytes": 15789,
+      "sha256": "e8f311048df6104ca3fd7104753519c128e000e9dc93fe2a5b7f1a5641ef9f7b"
+    },
+    {
+      "path": "tools/bench/compare-loading.mjs",
+      "bytes": 8540,
+      "sha256": "6c5c667b1fdfaeb4a6236dca4535453a6cac6747f8dcf40b5e502af632e4b255"
+    }
+  ],
+  "browserHelper": {
+    "path": "tools/bench/browser.mjs",
+    "bytes": 8780,
+    "sha256": "68cebfd3719a1ee4c21f4296225a9631600e7d9b4ac2e40bfdd114ec3e00bcb6"
+  },
+  "mainStaticTransformProof": [
+    {
+      "label": "baseline-a41",
+      "original": {
+        "path": "forest-baseline-a41/public/js/main.js",
+        "bytes": 51414,
+        "sha256": "42fa7cfe648fa869169241c04a58c1108f2f4c8a4af81d68abee3996a15b7506"
+      },
+      "servedIdentityBytes": 51414,
+      "servedSha256": "0f67f8b4c83499004e30b5ead2acb499bf756ee41bb7b37b2d21c2070c5b2f72",
+      "exactReplacements": 1,
+      "reverseReplacementByteEqual": true
+    },
+    {
+      "label": "candidate",
+      "original": {
+        "path": "forest-philharmonic/public/js/main.js",
+        "bytes": 53695,
+        "sha256": "fe05790c1f6364a1017fc4477f50ac27bf307e814b65701cb8b6444d5cc30f34"
+      },
+      "servedIdentityBytes": 53695,
+      "servedSha256": "139a45f12fb9d2e209183efe052d220ad31b14a823863a4637a800d5be049e9a",
+      "exactReplacements": 1,
+      "reverseReplacementByteEqual": true
+    }
+  ],
+  "newPlan": {
+    "path": "qa-a41/fixed-loading-plan.json",
+    "bytes": 2539,
+    "sha256": "5f3b979ea9a1d8264f8d5dfeea545fe0e6b3ea8103f9ad61a0382947d2055226"
+  },
+  "originalPlanUnchanged": {
+    "path": "qa-a41/runtime-plan.json",
+    "bytes": 5404,
+    "sha256": "4c1f9b42076bb5b85eccade3e87a8400b56743fb6b6d525ddaaf398222c17c3f"
+  },
+  "validation": {
+    "browserExecuted": false,
+    "httpServerStarted": false,
+    "productFilesEdited": false,
+    "syntaxAndHelp": "node --check for loading/proxy/comparator and --help for both CLIs; no browser/network startup.",
+    "pureFileChecks": "Exact one replacement and reversible byte equality for baseline/current main; missing/duplicate anchor and invalid seed reject; controlled-main classification remains opt-in; MP3 cache summarization remains unchanged.",
+    "independentStaticReview": "Sphere agent confirmed transform/cache/crowd equality contract. Finite nonnegative metric checks and common browser-helper SHA were added in response."
+  },
+  "execution": "From workspace root, clear the existing QA STOP marker when ready, then node qa-a41/run-plan-with-runner.mjs qa-a41/fixed-loading-plan.json 0. Root runs browser jobs serially. The original runtime plan is not modified."
+}

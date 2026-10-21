@@ -1,0 +1,107 @@
+{
+  "case": {
+    "id": "reveal-high-m1",
+    "kind": "dome",
+    "suite": "reveal",
+    "profile": "high",
+    "variant": "reveal_endpoints",
+    "time": 23.5,
+    "level": 0.25,
+    "mix": 1,
+    "reveal": 1,
+    "sceneA": 0,
+    "sceneB": 4,
+    "pose": {
+      "pos": [
+        0,
+        19,
+        34
+      ],
+      "look": [
+        0,
+        3,
+        -6
+      ],
+      "fov": 64
+    }
+  },
+  "startedAt": "2026-10-21T03:43:29.735Z",
+  "status": "pixel_mismatch",
+  "timing": {},
+  "comparison": {
+    "variant": "reveal_endpoints",
+    "lite": false,
+    "width": 960,
+    "height": 540,
+    "id": "reveal-high-m1",
+    "kind": "dome",
+    "suite": "reveal",
+    "profile": "high",
+    "time": 23.5,
+    "level": 0.25,
+    "mix": 1,
+    "reveal": 1,
+    "sceneA": 0,
+    "sceneB": 4,
+    "pose": {
+      "pos": [
+        0,
+        19,
+        34
+      ],
+      "look": [
+        0,
+        3,
+        -6
+      ],
+      "fov": 64
+    },
+    "exact": false,
+    "differingPixels": 6,
+    "totalPixels": 518400,
+    "differingComponents": 6,
+    "alphaDifferences": 0,
+    "maxAbs": 0.0001220703125,
+    "meanAbs": 2.943439248167438e-10,
+    "rmse": 1.798265536464812e-7,
+    "beforeHash": "ba0cedc5",
+    "afterHash": "0d1d6dc5",
+    "examples": [
+      {
+        "x": 608,
+        "y": 318,
+        "channel": 1,
+        "before": 0.218017578125,
+        "after": 0.2181396484375
+      },
+      {
+        "x": 697,
+        "y": 319,
+        "channel": 2,
+        "before": 0.199462890625,
+        "after": 0.1995849609375
+      },
+      {
+        "x": 708,
+        "y": 332,
+        "channel": 2,
+        "before": 0.180419921875,
+        "after": 0.1802978515625
+      },
+      {
+        "x": 241,
+        "y": 364,
+        "channel": 0,
+        "before": 0.1226806640625,
+        "after": 0.12261962890625
+      },
+      {
+        "x": 957,
+        "y": 369,
+        "channel": 2,
+        "before": 0.17919921875,
+        "after": 0.1790771484375
+      }
+    ]
+  }
+}

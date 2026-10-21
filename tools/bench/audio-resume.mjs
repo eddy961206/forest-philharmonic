@@ -8,12 +8,18 @@ import { appURL, choice, config, diagnosticsFailed, openPage, save, sha256, sour
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
   console.log(`node tools/bench/audio-resume.mjs [label] [hall|sphere] [desktop|mobile]
-실제 앱·악기 샘플·오디오 그래프·UI를 사용한 재개 진단이야. FPS 벤치마크가 아니야.
+실제 앱·악기 샘플·오디오 그래프·UI를 사용한 재개 진단이야.
 기본값: resume / hall / desktop, FRAME_MODE=controlled, QUALITY=high(desktop)/low(mobile).
 FRAME_MODE=controlled|native: controlled는 앱의 main rAF만 잡고 명시적 프레임을 그려.
 native는 실제 main rAF를 계속 실행해. 이 경우 대기 구간을 무렌더 대기라고 부르지 않아.
 READBACK=1|0: 기본 1은 각 요청 프레임 뒤 readPixels 전후 시계를 기록해.
 0은 같은 프레임을 실행하지만 readPixels를 생략하는 별도 원인 분리 조건이야.
+LIVE_WINDOW_MS=0..60000: 기본 0(비활성). 예: 30000은 재개 진단 뒤 실제 음악과
+원래 main rAF가 함께 도는 30초 관찰을 추가해. FRAME_MODE=native, READBACK=0이 필수야.
+이 구간에는 추가 렌더·시계 치환·음악 선택·재예약이 없어. 프레임 시작 시각만 매
+프레임 기록하고 pose/품질/음악/오디오/heap은 시작·끝과 1초 간격으로 남겨.
+관측 cadence FPS와 원래 2초 재개 판정은 별개야. 곡·숨김·수면·품질 변화가 생기면
+동일 조건 비교 제외 사유를 남겨. 실제 표시 FPS·GPU 시간·물리 출력 음질은 아니야.
 PRELUDE_FRAMES=4: 입장·좌석 이동·착석 3프레임 외 착석 상태 준비 프레임 수(0..20).
 PRE_PAUSE_MS=400: 공연 프레임 뒤 pause 전 관찰(300..500ms).
 SEEK_SECONDS=22, PIECE_ID=선택적_기대곡_ID. 곡을 임의로 교체하지 않고 실제 기본곡을 기록해.
@@ -35,6 +41,10 @@ choice(device, ['desktop', 'mobile'], 'device');
 const frameMode = choice(process.env.FRAME_MODE || 'controlled', ['controlled', 'native'], 'FRAME_MODE');
 const quality = choice(process.env.QUALITY || (device === 'mobile' ? 'low' : 'high'), ['high', 'medium', 'low'], 'QUALITY');
 const readback = choice(process.env.READBACK || '1', ['1', '0'], 'READBACK') === '1';
+const liveWindowMs = Number(process.env.LIVE_WINDOW_MS ?? 0);
+assert.ok(Number.isInteger(liveWindowMs) && liveWindowMs >= 0 && liveWindowMs <= 60000, 'LIVE_WINDOW_MS must be 0..60000');
+assert.ok(liveWindowMs === 0 || frameMode === 'native', 'LIVE_WINDOW_MS requires FRAME_MODE=native');
+assert.ok(liveWindowMs === 0 || !readback, 'LIVE_WINDOW_MS requires READBACK=0');
 const preludeFrames = Number(process.env.PRELUDE_FRAMES ?? 4);
 assert.ok(Number.isInteger(preludeFrames) && preludeFrames >= 0 && preludeFrames <= 20, 'PRELUDE_FRAMES must be 0..20');
 const prePauseMs = Number(process.env.PRE_PAUSE_MS || 400);
@@ -49,7 +59,7 @@ const report = {
   revision: cfg.revision, measuredAt: new Date().toISOString(), url: appURL(cfg.baseURL, venue),
   fixtureSourceSha256: sha256(await fs.readFile(new URL(import.meta.url))),
   helperSourceSha256: sha256(await fs.readFile(new URL('./browser.mjs', import.meta.url))),
-  options: { frameMode, quality, readback, preludeFrames, prePauseMs, seekSeconds, expectedPiece: process.env.PIECE_ID || null },
+  options: { frameMode, quality, readback, liveWindowMs, preludeFrames, prePauseMs, seekSeconds, expectedPiece: process.env.PIECE_ID || null },
   viewport: [size.width, size.height], devicePixelRatio: size.dpr, timeoutMs: cfg.timeoutMs,
   method: 'Native product AudioContext, default graph and original samples. Real solo/start/pause/seek/resume UI. Passive 100ms samples, native worker onTick observer and transparent playNote observation. Boundaries separate app frame, readPixels, pre-pause wait, transport and the following app frame. No audio/context recovery or clock substitution.',
   fixtures: [
@@ -64,10 +74,34 @@ const report = {
     'Mobile is Chromium viewport/touch emulation, not a physical smartphone or Safari.',
     'readPixels deliberately synchronizes WebGL and can perturb execution; READBACK=0 is a separately labelled diagnostic condition.',
     'Runtime note hashes exclude humanization and absolute timestamps; different observation durations or seek positions may produce different hashes. Per-event score matching is checked separately.',
+    'Optional live-window cadence measures starts of the original main rAF callback while actual music runs. It is not compositor-presented FPS, pure GPU time or physical audio-output validation. The collection wrappers add observation overhead.',
+    'Live-window condition checks run at frame starts, state/visibility events and 1s metadata samples. A transient state change entirely between those observations may be missed. Eligibility within one run does not prove that two runs match.',
   ],
   checks: {}, frames: [], windows: [],
 };
 let browser, page;
+
+// Pure statistics over actual starts of the original main frame callback. Keep
+// the raw timestamps; invalid/coarsened intervals must never be silently dropped.
+function summarizeFrameStarts(frameStartsMs) {
+  const intervals = frameStartsMs.slice(1).map((time, i) => time - frameStartsMs[i]);
+  const valid = frameStartsMs.every(Number.isFinite) && intervals.every(ms => Number.isFinite(ms) && ms > 0);
+  const base = { frameStarts: frameStartsMs.length, intervalCount: intervals.length, valid,
+    metric: 'original-main-rAF-start-interval', quantile: 'nearest-rank',
+    observedRafFps: null, onePercentLowRafFps: null, slowestSampleCount: null,
+    meanMs: null, p50Ms: null, p95Ms: null, p99Ms: null, maxMs: null, measuredSpanMs: null };
+  if (!valid || !intervals.length) return { ...base, unavailableReason: valid ? 'fewer-than-two-frame-starts' : 'nonfinite-or-nonpositive-frame-interval' };
+  const sorted = [...intervals].sort((a, b) => a - b);
+  const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length;
+  const quantile = p => sorted[Math.ceil(p * sorted.length) - 1];
+  const meanMs = mean(intervals);
+  const slowestSampleCount = intervals.length >= 100 ? Math.ceil(intervals.length * 0.01) : null;
+  return { ...base, meanMs, observedRafFps: 1000 / meanMs,
+    p50Ms: quantile(0.5), p95Ms: quantile(0.95), p99Ms: quantile(0.99), maxMs: sorted.at(-1),
+    measuredSpanMs: frameStartsMs.at(-1) - frameStartsMs[0], slowestSampleCount,
+    onePercentLowRafFps: slowestSampleCount === null ? null : 1000 / mean(sorted.slice(-slowestSampleCount)),
+    onePercentLowUnavailableReason: slowestSampleCount === null ? 'fewer-than-100-intervals' : null };
+}
 
 async function bounded(promise, label, timeoutMs = cfg.timeoutMs) {
   let timer;
@@ -86,6 +120,7 @@ function installProbe() {
   const dropped = { samples: 0, events: 0, notes: 0 };
   let phase = 'entry', ticks = 0, lastTickMs = null, maxTickGapMs = 0, lastTick = null, stopped = false;
   let noteCount = 0, lateCount = 0, noteErrors = 0, scoreMismatches = 0, renderCalls = 0, mainSceneRenders = 0;
+  let live = null, liveTimer = null, lastLiveTickMs = null;
   const append = (array, value, kind) => { if (array.length < limits[kind]) array.push(value); else dropped[kind]++; };
   const originalRender = renderer.render;
   renderer.render = function (renderScene, renderCamera) {
@@ -101,6 +136,7 @@ function installProbe() {
     const expected = track ? [track.section, track.inst, perf.ev[offset + 3], perf.ev[offset + 2], track.gain ?? 1, track.layer ?? null] : null;
     const note = {
       phase, performanceNowMs: performance.now(), audioNow: this.ctx.currentTime,
+      pieceId: perf.piece?.id ?? null,
       when: args.when, leadMs: (args.when - this.ctx.currentTime) * 1000,
       scoreIndex: index, startPos: perf.startPos, startCtx: perf.startCtx, playing: perf.playing,
       actual, expected, scoreMatch: expected !== null && actual.every((value, i) => value === expected[i]),
@@ -117,6 +153,11 @@ function installProbe() {
     const now = performance.now();
     if (lastTick !== null) maxTickGapMs = Math.max(maxTickGapMs, now - lastTick);
     lastTick = lastTickMs = now; ticks++;
+    if (live?.active) {
+      live.tickCount++;
+      live.maxTickGapMs = Math.max(live.maxTickGapMs, now - (lastLiveTickMs ?? live.start.performanceNowMs));
+      lastLiveTickMs = now;
+    }
   });
   const snapshot = cause => {
     let outputTimestamp = null;
@@ -136,21 +177,117 @@ function installProbe() {
     };
   };
   const mark = cause => { phase = cause; const value = snapshot(cause); append(samples, value, 'samples'); return value; };
-  const observeEvent = event => append(events, snapshot(event.type), 'events');
+  const liveConditions = () => {
+    const f = window.__fp;
+    return { piece: perf.piece?.id ?? null, visibility: document.visibilityState, asleep: !!f.asleep,
+      qualitySetting: f.settings.quality, appliedQuality: f.stats?.quality ?? f.quality ?? null,
+      renderScale: f.stats?.renderScale ?? f.qualityState?.renderScale ?? null, pixelRatio: renderer.getPixelRatio(),
+      startPos: perf.startPos, startCtx: perf.startCtx,
+      playing: perf.playing, audioState: ctx.state, appPhase: f.phase };
+  };
+  const exclude = (reason, now, details = {}) => {
+    if (!live.exclusions.some(entry => entry.reason === reason)) live.exclusions.push({ reason, performanceNowMs: now, ...details });
+  };
+  const checkChangedCondition = (key, observed, now) => {
+    const initial = live.initialConditions[key];
+    if (observed === initial) return;
+    const reason = `changed-${key}`;
+    if (!live.exclusions.some(entry => entry.reason === reason)) exclude(reason, now, { initial, observed });
+  };
+  const checkLiveConditions = now => {
+    if (!live?.active) return;
+    // Read scalar state without creating a per-frame pose/metadata object.
+    const f = window.__fp, piece = perf.piece?.id ?? null;
+    if (piece !== live.initialConditions.piece) exclude('piece-changed', now, { initial: live.initialConditions.piece, observed: piece });
+    if (document.visibilityState !== 'visible') exclude('document-not-visible', now);
+    if (f.asleep) exclude('app-asleep', now);
+    if (!perf.playing) exclude('music-not-playing', now);
+    if (ctx.state !== 'running') exclude('audio-context-not-running', now);
+    if (f.phase !== 'playing') exclude('app-phase-not-playing', now);
+    checkChangedCondition('qualitySetting', f.settings.quality, now);
+    checkChangedCondition('appliedQuality', f.stats?.quality ?? f.quality ?? null, now);
+    // Old baseline qualityState creates an object. Read it only in metadata
+    // snapshots; actual pixelRatio below still detects its per-frame changes.
+    if (f.stats?.renderScale !== undefined) checkChangedCondition('renderScale', f.stats.renderScale, now);
+    checkChangedCondition('pixelRatio', renderer.getPixelRatio(), now);
+    checkChangedCondition('startPos', perf.startPos, now);
+    checkChangedCondition('startCtx', perf.startCtx, now);
+  };
+  const liveSnapshot = cause => {
+    const value = { ...snapshot(cause), ...liveConditions(),
+      pose: { position: camera.position.toArray(), quaternion: camera.quaternion.toArray(), fov: camera.fov,
+        mode: window.__fp.director.mode, seat: window.__fp.director.seat?.index ?? null },
+    };
+    if (live?.active) checkChangedCondition('renderScale', value.renderScale, value.performanceNowMs);
+    return value;
+  };
+  const finishLiveWindow = (outcome = 'completed') => {
+    if (!live) return null;
+    if (live.active) {
+      checkLiveConditions(performance.now());
+      live.end = liveSnapshot('live-window:end');
+      live.states.push(live.end);
+      live.maxTickGapMs = Math.max(live.maxTickGapMs, live.end.performanceNowMs - (lastLiveTickMs ?? live.start.performanceNowMs));
+      live.active = false;
+      window.__audioResumeFrames.onLiveFrame = null;
+      clearInterval(liveTimer); liveTimer = null;
+      live.outcome = outcome;
+      live.observedDurationMs = live.end.performanceNowMs - live.start.performanceNowMs;
+      if (outcome !== 'completed') exclude('observation-not-completed', live.end.performanceNowMs, { outcome });
+      if (live.droppedFrameStarts || live.droppedStates) exclude('live-recording-truncated', live.end.performanceNowMs);
+      if (live.tickCount === 0) exclude('no-audio-worker-ticks-observed', live.end.performanceNowMs);
+      if (live.end.audioNow <= live.start.audioNow) exclude('native-audio-clock-did-not-advance', live.end.performanceNowMs);
+      if (live.end.mainSceneRenders <= live.start.mainSceneRenders) exclude('main-scene-did-not-render', live.end.performanceNowMs);
+      if (live.end.piece === live.start.piece && live.end.time <= live.start.time) exclude('music-position-did-not-advance', live.end.performanceNowMs);
+      phase = 'after-live-window';
+    }
+    return live;
+  };
+  const observeEvent = event => {
+    append(events, snapshot(event.type), 'events');
+    checkLiveConditions(performance.now());
+  };
   ctx.addEventListener('statechange', observeEvent);
   document.addEventListener('visibilitychange', observeEvent);
   const timer = setInterval(() => append(samples, snapshot('interval'), 'samples'), 100);
   window.__audioResumeProbe = {
     mark, snapshot,
+    startLiveWindow(requestedDurationMs) {
+      if (live) throw new Error('Live window already started');
+      phase = 'live-window';
+      const start = liveSnapshot('live-window:start');
+      live = { active: true, requestedDurationMs, metadataPeriodMs: 1000,
+        start, initialConditions: liveConditions(), states: [start], end: null,
+        frameStartTimesMs: [], frameStartLimit: 120000, stateLimit: 240,
+        droppedFrameStarts: 0, droppedStates: 0, tickCount: 0, maxTickGapMs: 0, exclusions: [],
+        method: 'Actual original main rAF and actual music continue unmodified; no readPixels, extra frames, music selection, scheduling or context recovery in this window. Each frame adds one start timestamp; pose/clock/quality/heap metadata is sampled at start/end and every 1s. Conditions are also checked at frame starts and events.',
+        tickGapDefinition: 'Largest native engine.onTick gap within the live window, including partial start/end gaps; not an output-device underrun counter.',
+      };
+      lastLiveTickMs = null;
+      checkLiveConditions(start.performanceNowMs);
+      window.__audioResumeFrames.onLiveFrame = now => {
+        if (live.frameStartTimesMs.length < live.frameStartLimit) live.frameStartTimesMs.push(now);
+        else live.droppedFrameStarts++;
+        checkLiveConditions(now);
+      };
+      liveTimer = setInterval(() => {
+        checkLiveConditions(performance.now());
+        if (live.states.length < live.stateLimit - 1) live.states.push(liveSnapshot('live-window:interval'));
+        else live.droppedStates++;
+      }, 1000);
+      return start;
+    },
+    finishLiveWindow,
     finish() {
       if (!stopped) {
+        finishLiveWindow('collector-finish-before-live-end');
         mark('final'); stopped = true; clearInterval(timer); offTick();
         ctx.removeEventListener('statechange', observeEvent);
         document.removeEventListener('visibilitychange', observeEvent);
         engine.playNote = originalNote;
         renderer.render = originalRender;
       }
-      return { samples, events, notes, dropped, limits, samplePeriodMs: 100, lateDefinition: 'playNote requested when < native currentTime (leadMs < 0)' };
+      return { samples, events, notes, dropped, limits, liveWindow: live, samplePeriodMs: 100, lateDefinition: 'playNote requested when < native currentTime (leadMs < 0)' };
     },
   };
   mark('observer-installed');
@@ -176,13 +313,16 @@ try {
     Math.random = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296; };
     localStorage.setItem('fp-settings', JSON.stringify({ quality, audience: true }));
     const native = window.requestAnimationFrame.bind(window);
-    const frames = window.__audioResumeFrames = { started: 0, completed: 0, waiters: [] };
+    const frames = window.__audioResumeFrames = { started: 0, completed: 0, waiters: [], onLiveFrame: null };
     const run = (callback, time) => {
+      if (frames.onLiveFrame) frames.onLiveFrame(performance.now());
       frames.started++;
       callback(time);
       frames.completed++;
-      const waiters = frames.waiters.splice(0);
-      for (const resolve of waiters) resolve();
+      if (frames.waiters.length) {
+        const waiters = frames.waiters.splice(0);
+        for (const resolve of waiters) resolve();
+      }
     };
     window.__audioResumeRunFrame = () => run(window.__qaMainFrame, performance.now());
     window.requestAnimationFrame = callback => {
@@ -326,8 +466,21 @@ try {
   if (!report.resume.conditionPassed && report.checks.postFrameAudioClockAdvanced)
     report.classification += '; clock later advanced after another frame, original FAIL retained; correlation does not establish causation';
   report.status = Object.values(report.checks).every(Boolean) ? 'PASS' : 'FAIL';
+  report.transportStatus = report.status;
+  if (liveWindowMs > 0) {
+    console.log(JSON.stringify({ label: cfg.label, venue, frameMode, stage: 'live-window:start', requestedMs: liveWindowMs, transportStatus: report.transportStatus }));
+    await bounded(page.evaluate(ms => window.__audioResumeProbe.startLiveWindow(ms), liveWindowMs), 'start native live window');
+    const liveNodeStart = performance.now();
+    // The browser runs its original rAF and real audio scheduler while Node
+    // waits. There is no explicit frame/readback or transport mutation here.
+    await page.waitForTimeout(liveWindowMs);
+    report.liveWindow = await bounded(page.evaluate(() => window.__audioResumeProbe.finishLiveWindow()), 'finish native live window');
+    report.liveWindow.nodeElapsedMs = performance.now() - liveNodeStart;
+  }
 } catch (error) {
-  report.status = 'ERROR';
+  // A failure in the optional follow-up must not replace the already recorded
+  // original two-second transport FAIL with a different overall outcome.
+  report.status = report.transportStatus === 'FAIL' ? 'FAIL' : 'ERROR';
   report.failure = { message: error.message, stack: error.stack };
 } finally {
   if (page && !page.isClosed()) {
@@ -338,6 +491,8 @@ try {
   }
   if (report.observation) {
     const { notes, samples, dropped } = report.observation;
+    if (report.observation.liveWindow) report.liveWindow ??= report.observation.liveWindow;
+    delete report.observation.liveWindow;
     const scheduled = notes.filter(note => note.playing);
     const segments = {};
     for (const note of scheduled) {
@@ -368,10 +523,54 @@ try {
     report.checks.scheduledRequestsMatchScore = report.noteSummary.scoreMismatches === 0;
     report.checks.scheduledIndicesConsecutiveWithinTransportSegment = report.noteSummary.segments.every(segment => segment.consecutiveScoreIndices);
     report.checks.noObservedNoteErrors = report.noteSummary.thrownErrors === 0;
+    if (report.liveWindow) {
+      const live = report.liveWindow;
+      live.cadence = summarizeFrameStarts(live.frameStartTimesMs);
+      live.cadence.firstFrameOffsetMs = live.frameStartTimesMs.length ? live.frameStartTimesMs[0] - live.start.performanceNowMs : null;
+      live.cadence.trailingWindowMs = live.frameStartTimesMs.length ? live.end.performanceNowMs - live.frameStartTimesMs.at(-1) : null;
+      live.cadence.frameStartRateOverWindow = live.observedDurationMs > 0 ? live.frameStartTimesMs.length * 1000 / live.observedDurationMs : null;
+      live.cadence.boundaryInterpretation = 'Interval statistics exclude partial start/end gaps. Those gaps and frame starts / full observed wall duration are reported separately so a stall at the end is not hidden.';
+      const liveNotes = notes.filter(note => note.phase === 'live-window');
+      const musicNotes = liveNotes.filter(note => note.playing);
+      live.noteSummary = {
+        phase: 'live-window', recordedRequests: liveNotes.length, recordedMusicRequests: musicNotes.length,
+        requestedNotesDelta: live.end.scheduledNotes - live.start.scheduledNotes,
+        lateNotesDelta: live.end.lateNotes - live.start.lateNotes,
+        lateRecordedMusicRequests: musicNotes.filter(note => note.leadMs < 0).length,
+        scoreMismatchesDelta: live.end.scoreMismatches - live.start.scoreMismatches,
+        noteErrorsDelta: live.end.noteErrors - live.start.noteErrors,
+        requestedScoreOrderSha256: sha256(JSON.stringify(musicNotes.map(note => [note.pieceId, note.scoreIndex, ...note.actual]))),
+        lateDefinition: 'Observed playNote request when < native currentTime (leadMs < 0). Not an audible-glitch count.',
+      };
+      live.clock = {
+        audioElapsedSeconds: live.end.audioNow - live.start.audioNow,
+        musicElapsedSeconds: live.end.time - live.start.time,
+        audioToWallRatio: live.observedDurationMs > 0 ? (live.end.audioNow - live.start.audioNow) * 1000 / live.observedDurationMs : null,
+        musicElapsedInterpretation: 'Valid only when the same piece and transport segment span the window; inspect exclusions and states.',
+      };
+      if (!live.cadence.valid || live.cadence.intervalCount === 0)
+        live.exclusions.push({ reason: 'native-frame-cadence-unavailable', detail: live.cadence.unavailableReason });
+      if (notes.length < live.end.scheduledNotes || Object.values(dropped).some(count => count > 0))
+        live.exclusions.push({ reason: 'passive-observation-truncated' });
+      if (report.contextLosses?.some(event => event.at >= live.start.performanceNowMs && event.at <= live.end.performanceNowMs))
+        live.exclusions.push({ reason: 'webgl-context-lost-during-window' });
+      live.sameConditionComparison = {
+        eligibleWithinThisRun: live.exclusions.length === 0,
+        exclusions: live.exclusions,
+        note: 'No detected condition changes within this run only. Pair comparison must additionally match sources, collector, device, pose, preset/DPR, initial music time, piece hash and observation duration. Metadata samples cannot rule out every transient change.',
+      };
+      report.checks.liveWindowCompleted = live.outcome === 'completed';
+      report.checks.liveWindowNativeFramesObserved = live.cadence.valid && live.cadence.intervalCount > 0;
+      report.checks.liveWindowMainSceneRendered = live.end.mainSceneRenders > live.start.mainSceneRenders;
+      report.checks.liveWindowNativeAudioClockAdvanced = live.clock.audioElapsedSeconds > 0;
+      report.checks.liveWindowRecordingNotTruncated = live.droppedFrameStarts === 0 && live.droppedStates === 0;
+    } else if (liveWindowMs > 0) report.checks.liveWindowCompleted = false;
+    if (report.diagnostics) report.checks.noPageOrConsoleErrors = !diagnosticsFailed(report.diagnostics);
+    report.checks.noContextLosses = Array.isArray(report.contextLosses) && report.contextLosses.length === 0;
     if (report.status === 'PASS' && !Object.values(report.checks).every(Boolean)) report.status = 'FAIL';
   }
   if (browser) await browser.close().catch(error => { report.cleanupError = error.message; });
   await save(cfg, filename, report);
 }
-console.log(JSON.stringify({ status: report.status, output: path.join(cfg.outputDir, filename), classification: report.classification, checks: report.checks, noteSummary: report.noteSummary, failure: report.failure?.message }));
+console.log(JSON.stringify({ status: report.status, output: path.join(cfg.outputDir, filename), classification: report.classification, checks: report.checks, noteSummary: report.noteSummary, liveCadence: report.liveWindow?.cadence, liveNotes: report.liveWindow?.noteSummary, liveComparison: report.liveWindow?.sameConditionComparison, failure: report.failure?.message }));
 if (report.status !== 'PASS') process.exitCode = 1;

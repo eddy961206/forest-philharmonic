@@ -1,0 +1,16 @@
+{
+  "schema": 2,
+  "label": "recheck-hall",
+  "revision": "a41-integrated-candidate",
+  "fixtureSourceSha256": "9c4f811f11d17ca0272e189b8dd1d6a870e6a9f53b3a2e5025c554fb6b30abac",
+  "method": "Functional checks only; sequential explicit rendering, not an FPS benchmark.",
+  "results": [
+    {
+      "venue": "hall",
+      "device": "desktop",
+      "status": "FAIL",
+      "failure": "page.waitForFunction: Timeout 2000ms exceeded.",
+      "file": "recheck-hall-hall-desktop.json"
+    }
+  ]
+}

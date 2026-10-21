@@ -1,0 +1,861 @@
+{
+  "startedAt": "2026-10-21T03:39:17.881Z",
+  "config": {
+    "mode": "full",
+    "suite": "all",
+    "forestVariant": "forest_cell_entry",
+    "base": "http://127.0.0.1:8082",
+    "samples": 3,
+    "warmup": 1,
+    "size": 640,
+    "width": 960,
+    "height": 540,
+    "timeout": 240000,
+    "times": [
+      0,
+      23.5,
+      137
+    ],
+    "levels": [
+      0,
+      0.25,
+      1
+    ],
+    "compareOnly": false,
+    "continueOnDiff": true
+  },
+  "sourceDigest": "7996ff437214a5e45f86e0fca046c232cfc3d70a6843248f332a4b80b9bd1562",
+  "baseline": {
+    "sourceRepo": "/workspace/scratch/51e64c30577e/forest-baseline-current",
+    "baselineCommit": "ec5ef65fab027353b51f751ffb59aa65b863af0a",
+    "sourceSha256": {
+      "dome3d.js": "f64524a28990cc695d4c6054378c49777c857bd65e8d8c8698e1874be4802d44",
+      "domeshow.js": "ae0edc60bc229176ae6b181bd0462a20de6bd302d53a0447f9979f79f11a3d33"
+    },
+    "scope": "Each candidate changes one independent calculation; all dimensions, material/target options, world time and viewer cadence remain caller-controlled."
+  },
+  "baselineFactoryURLs": [
+    "http://127.0.0.1:8082/js/scene/dome3d.js",
+    "http://127.0.0.1:8082/js/scene/domeshow.js"
+  ],
+  "requiredProxyTriangles": 2208,
+  "comparisonFaces": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "timingFaces": [
+    0,
+    1,
+    2,
+    4,
+    5
+  ],
+  "cases": [
+    {
+      "id": "forest-cell-entry-t0-l0",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 0,
+      "flight": 0,
+      "level": 0
+    },
+    {
+      "id": "forest-cell-entry-t0-l0p25",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 0,
+      "flight": 0,
+      "level": 0.25
+    },
+    {
+      "id": "forest-cell-entry-t0-l1",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 0,
+      "flight": 0,
+      "level": 1
+    },
+    {
+      "id": "forest-cell-entry-t23p5-l0",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 0
+    },
+    {
+      "id": "forest-cell-entry-t23p5-l0p25",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 0.25
+    },
+    {
+      "id": "forest-cell-entry-t23p5-l1",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 1
+    },
+    {
+      "id": "forest-cell-entry-t137-l0",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 137,
+      "flight": 137,
+      "level": 0
+    },
+    {
+      "id": "forest-cell-entry-t137-l0p25",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 137,
+      "flight": 137,
+      "level": 0.25
+    },
+    {
+      "id": "forest-cell-entry-t137-l1",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 137,
+      "flight": 137,
+      "level": 1
+    },
+    {
+      "id": "forest-control-ocean3d",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "OCEAN3D",
+      "variant": "forest_cell_entry",
+      "time": 23.5,
+      "flight": 11.75,
+      "level": 0.25,
+      "control": true
+    },
+    {
+      "id": "forest-control-clouds3d",
+      "kind": "cube",
+      "suite": "forest",
+      "world": "CLOUDS3D",
+      "variant": "forest_cell_entry",
+      "time": 23.5,
+      "flight": 11.75,
+      "level": 0.25,
+      "control": true
+    },
+    {
+      "id": "peaks-t0-l0",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 0,
+      "flight": 0,
+      "level": 0
+    },
+    {
+      "id": "peaks-t0-l0p25",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 0,
+      "flight": 0,
+      "level": 0.25
+    },
+    {
+      "id": "peaks-t0-l1",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 0,
+      "flight": 0,
+      "level": 1
+    },
+    {
+      "id": "peaks-t23p5-l0",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 0
+    },
+    {
+      "id": "peaks-t23p5-l0p25",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 0.25
+    },
+    {
+      "id": "peaks-t23p5-l1",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 1
+    },
+    {
+      "id": "peaks-t137-l0",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 137,
+      "flight": 137,
+      "level": 0
+    },
+    {
+      "id": "peaks-t137-l0p25",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 137,
+      "flight": 137,
+      "level": 0.25
+    },
+    {
+      "id": "peaks-t137-l1",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 137,
+      "flight": 137,
+      "level": 1
+    },
+    {
+      "id": "peaks-control-ocean3d",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "OCEAN3D",
+      "variant": "peaks_deferred_sky",
+      "time": 23.5,
+      "flight": 11.75,
+      "level": 0.25,
+      "control": true
+    },
+    {
+      "id": "peaks-control-clouds3d",
+      "kind": "cube",
+      "suite": "peaks",
+      "world": "CLOUDS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 23.5,
+      "flight": 11.75,
+      "level": 0.25,
+      "control": true
+    },
+    {
+      "id": "reveal-high-m0",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 0,
+      "level": 0,
+      "mix": 0,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      }
+    },
+    {
+      "id": "reveal-high-m0p001",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 0.001,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          19,
+          34
+        ],
+        "look": [
+          0,
+          3,
+          -6
+        ],
+        "fov": 64
+      }
+    },
+    {
+      "id": "reveal-high-m0p01",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 137,
+      "level": 1,
+      "mix": 0.01,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      }
+    },
+    {
+      "id": "reveal-high-m0p25",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 0,
+      "level": 0,
+      "mix": 0.25,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          19,
+          34
+        ],
+        "look": [
+          0,
+          3,
+          -6
+        ],
+        "fov": 64
+      }
+    },
+    {
+      "id": "reveal-high-m0p5",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 0.5,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      }
+    },
+    {
+      "id": "reveal-high-m0p75",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 137,
+      "level": 1,
+      "mix": 0.75,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          19,
+          34
+        ],
+        "look": [
+          0,
+          3,
+          -6
+        ],
+        "fov": 64
+      }
+    },
+    {
+      "id": "reveal-high-m0p99",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 0,
+      "level": 0,
+      "mix": 0.99,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      }
+    },
+    {
+      "id": "reveal-high-m1",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 1,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          19,
+          34
+        ],
+        "look": [
+          0,
+          3,
+          -6
+        ],
+        "fov": 64
+      }
+    },
+    {
+      "id": "dissolve-high-m0",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 0,
+      "reveal": 0,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      },
+      "control": true
+    },
+    {
+      "id": "dissolve-high-m0p5",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 0.5,
+      "reveal": 0,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      },
+      "control": true
+    },
+    {
+      "id": "dissolve-high-m1",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 1,
+      "reveal": 0,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      },
+      "control": true
+    },
+    {
+      "id": "reveal-lite-m0",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 0,
+      "level": 0,
+      "mix": 0,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      }
+    },
+    {
+      "id": "reveal-lite-m0p001",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 0.001,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          19,
+          34
+        ],
+        "look": [
+          0,
+          3,
+          -6
+        ],
+        "fov": 64
+      }
+    },
+    {
+      "id": "reveal-lite-m0p01",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 137,
+      "level": 1,
+      "mix": 0.01,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      }
+    },
+    {
+      "id": "reveal-lite-m0p25",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 0,
+      "level": 0,
+      "mix": 0.25,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          19,
+          34
+        ],
+        "look": [
+          0,
+          3,
+          -6
+        ],
+        "fov": 64
+      }
+    },
+    {
+      "id": "reveal-lite-m0p5",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 0.5,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      }
+    },
+    {
+      "id": "reveal-lite-m0p75",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 137,
+      "level": 1,
+      "mix": 0.75,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          19,
+          34
+        ],
+        "look": [
+          0,
+          3,
+          -6
+        ],
+        "fov": 64
+      }
+    },
+    {
+      "id": "reveal-lite-m0p99",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 0,
+      "level": 0,
+      "mix": 0.99,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      }
+    },
+    {
+      "id": "reveal-lite-m1",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 1,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          19,
+          34
+        ],
+        "look": [
+          0,
+          3,
+          -6
+        ],
+        "fov": 64
+      }
+    },
+    {
+      "id": "dissolve-lite-m0",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 0,
+      "reveal": 0,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      },
+      "control": true
+    },
+    {
+      "id": "dissolve-lite-m0p5",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 0.5,
+      "reveal": 0,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      },
+      "control": true
+    },
+    {
+      "id": "dissolve-lite-m1",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "lite",
+      "variant": "reveal_endpoints",
+      "time": 23.5,
+      "level": 0.25,
+      "mix": 1,
+      "reveal": 0,
+      "sceneA": 0,
+      "sceneB": 4,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      },
+      "control": true
+    }
+  ]
+}

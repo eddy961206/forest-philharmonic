@@ -1,0 +1,170 @@
+{
+  "case": {
+    "id": "reveal-high-m0p01",
+    "kind": "dome",
+    "suite": "reveal",
+    "profile": "high",
+    "variant": "reveal_endpoints",
+    "time": 137,
+    "level": 1,
+    "mix": 0.01,
+    "reveal": 1,
+    "sceneA": 0,
+    "sceneB": 2,
+    "pose": {
+      "pos": [
+        0,
+        6,
+        12
+      ],
+      "look": [
+        0,
+        40,
+        30
+      ],
+      "fov": 84
+    }
+  },
+  "startedAt": "2026-10-21T03:43:09.086Z",
+  "status": "complete",
+  "timing": {
+    "baseline": {
+      "variant": "baseline",
+      "lite": false,
+      "width": 960,
+      "height": 540,
+      "id": "reveal-high-m0p01",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "time": 137,
+      "level": 1,
+      "mix": 0.01,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      },
+      "method": "performance.now around draw + synchronous RGBA/FLOAT 1x1 readPixels; CPU submission plus GPU completion, not pure GPU timer",
+      "warmup": 1,
+      "samples": 3,
+      "submissionMs": [
+        0.20000000018626451,
+        0.20000000018626451,
+        0.2999999998137355
+      ],
+      "completedMs": [
+        458.20000000018626,
+        471.79999999981374,
+        488.79999999981374
+      ],
+      "medianSubmissionMs": 0.20000000018626451,
+      "medianCompletedMs": 471.79999999981374,
+      "calls": 1,
+      "triangles": 48960
+    },
+    "candidate": {
+      "variant": "reveal_endpoints",
+      "lite": false,
+      "width": 960,
+      "height": 540,
+      "id": "reveal-high-m0p01",
+      "kind": "dome",
+      "suite": "reveal",
+      "profile": "high",
+      "time": 137,
+      "level": 1,
+      "mix": 0.01,
+      "reveal": 1,
+      "sceneA": 0,
+      "sceneB": 2,
+      "pose": {
+        "pos": [
+          0,
+          6,
+          12
+        ],
+        "look": [
+          0,
+          40,
+          30
+        ],
+        "fov": 84
+      },
+      "method": "performance.now around draw + synchronous RGBA/FLOAT 1x1 readPixels; CPU submission plus GPU completion, not pure GPU timer",
+      "warmup": 1,
+      "samples": 3,
+      "submissionMs": [
+        0.20000000018626451,
+        0.2999999998137355,
+        0.19999999925494194
+      ],
+      "completedMs": [
+        1641.5,
+        1567.4000000003725,
+        1336.5999999996275
+      ],
+      "medianSubmissionMs": 0.20000000018626451,
+      "medianCompletedMs": 1567.4000000003725,
+      "calls": 1,
+      "triangles": 48960
+    }
+  },
+  "comparison": {
+    "variant": "reveal_endpoints",
+    "lite": false,
+    "width": 960,
+    "height": 540,
+    "id": "reveal-high-m0p01",
+    "kind": "dome",
+    "suite": "reveal",
+    "profile": "high",
+    "time": 137,
+    "level": 1,
+    "mix": 0.01,
+    "reveal": 1,
+    "sceneA": 0,
+    "sceneB": 2,
+    "pose": {
+      "pos": [
+        0,
+        6,
+        12
+      ],
+      "look": [
+        0,
+        40,
+        30
+      ],
+      "fov": 84
+    },
+    "exact": true,
+    "differingPixels": 0,
+    "totalPixels": 518400,
+    "differingComponents": 0,
+    "alphaDifferences": 0,
+    "maxAbs": 0,
+    "meanAbs": 0,
+    "rmse": 0,
+    "beforeHash": "e636cdc5",
+    "afterHash": "e636cdc5",
+    "examples": []
+  },
+  "timingOrder": [
+    "baseline",
+    "candidate"
+  ],
+  "changePct": -232.21704111932837,
+  "finishedAt": "2026-10-21T03:43:19.436Z"
+}

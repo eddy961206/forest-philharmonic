@@ -1,0 +1,107 @@
+{
+  "case": {
+    "id": "reveal-lite-m0p5",
+    "kind": "dome",
+    "suite": "reveal",
+    "profile": "lite",
+    "variant": "reveal_endpoints",
+    "time": 23.5,
+    "level": 0.25,
+    "mix": 0.5,
+    "reveal": 1,
+    "sceneA": 0,
+    "sceneB": 2,
+    "pose": {
+      "pos": [
+        0,
+        6,
+        12
+      ],
+      "look": [
+        0,
+        40,
+        30
+      ],
+      "fov": 84
+    }
+  },
+  "startedAt": "2026-10-21T03:44:35.267Z",
+  "status": "pixel_mismatch",
+  "timing": {},
+  "comparison": {
+    "variant": "reveal_endpoints",
+    "lite": true,
+    "width": 960,
+    "height": 540,
+    "id": "reveal-lite-m0p5",
+    "kind": "dome",
+    "suite": "reveal",
+    "profile": "lite",
+    "time": 23.5,
+    "level": 0.25,
+    "mix": 0.5,
+    "reveal": 1,
+    "sceneA": 0,
+    "sceneB": 2,
+    "pose": {
+      "pos": [
+        0,
+        6,
+        12
+      ],
+      "look": [
+        0,
+        40,
+        30
+      ],
+      "fov": 84
+    },
+    "exact": false,
+    "differingPixels": 50,
+    "totalPixels": 518400,
+    "differingComponents": 50,
+    "alphaDifferences": 0,
+    "maxAbs": 0.000244140625,
+    "meanAbs": 3.8632640132197626e-10,
+    "rmse": 2.1397082547408922e-7,
+    "beforeHash": "76ee2dc5",
+    "afterHash": "2d57edc5",
+    "examples": [
+      {
+        "x": 775,
+        "y": 179,
+        "channel": 2,
+        "before": 0.2244873046875,
+        "after": 0.224365234375
+      },
+      {
+        "x": 258,
+        "y": 231,
+        "channel": 2,
+        "before": 0.1927490234375,
+        "after": 0.19287109375
+      },
+      {
+        "x": 99,
+        "y": 234,
+        "channel": 1,
+        "before": 0.261962890625,
+        "after": 0.26220703125
+      },
+      {
+        "x": 448,
+        "y": 272,
+        "channel": 1,
+        "before": 0.009246826171875,
+        "after": 0.00925445556640625
+      },
+      {
+        "x": 495,
+        "y": 298,
+        "channel": 0,
+        "before": 0.0079193115234375,
+        "after": 0.00792694091796875
+      }
+    ]
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "measuredAt": "2026-10-21T03:54:15.862Z",
+  "origin": "http://127.0.0.1:8080",
+  "method": "Real Chromium dedicated module Worker and real OfflineAudioContext AudioBuffers. The production engine/loader/worker/synthesizer are imported unchanged from the local server. Each PCM channel is hashed and compared with the original synchronous synthesizer in the same browser. A second page blocks workers through Content-Security-Policy to exercise real fallback. No GPU workload, app boot, actual speaker output or device audio timing is measured. Durations are single-run diagnostic observations, not performance claims.",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+  "referenceProfiles": [
+    {
+      "profile": "welcome",
+      "length": 242550,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 1940400,
+      "expectedHashes": [
+        "8a15ce04c94e00804fc77951ac3154192808908748cc7c5ceba53e3454f17f1d",
+        "2c461da980ce0de0a0d23ab79c68ae0ab1aa7d715e1364e70e594d29abd0c397"
+      ]
+    },
+    {
+      "profile": "normal0",
+      "length": 441000,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 3528000,
+      "expectedHashes": [
+        "5f4df9677442023828c2b6b55298e7529e750d2b3a5a5b1e14b016458ae05fd4",
+        "804ac3e18223117adbe6098675107a21ff897f59331846974cd3390cc64dd63c"
+      ]
+    },
+    {
+      "profile": "normal1",
+      "length": 441000,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 3528000,
+      "expectedHashes": [
+        "ea809a6d87d41e1b01a6b7262668705b32085825bb3437b97b80586a695dd08d",
+        "2f6ec52f582a73df907df86b82a6823897d0ddfba864abc1aecc5e360470a370"
+      ]
+    },
+    {
+      "profile": "finale",
+      "length": 661500,
+      "sampleRate": 44100,
+      "channels": 2,
+      "bytes": 5292000,
+      "expectedHashes": [
+        "81db52601d500e2e68e2bc649324d8feea740f77ec6c72d8fb80590b0df5c303",
+        "1195e14a72d3c029cd844d19d876f822c10853814fdfcb8b517a546e7784ba86"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "blocked": false,
+      "samePromise": true,
+      "immediateBufferCount": 0,
+      "preparedBufferCount": 4,
+      "prepareCallMs": 0.40000000037252903,
+      "readyMs": 298.09999999962747,
+      "heartbeatCount": 79,
+      "originalSyncMs": 311.80000000074506,
+      "workers": [
+        {
+          "url": "http://127.0.0.1:8080/js/audio/crowd-worker.js",
+          "options": {
+            "type": "module"
+          },
+          "messages": 4,
+          "errors": 0,
+          "terminated": true
+        }
+      ],
+      "outputBytes": 14288400,
+      "synchronousPlayback": true,
+      "pageErrors": [],
+      "consoleErrors": [],
+      "pcmComparisons": [
+        {
+          "profile": "welcome",
+          "actualHashes": [
+            "8a15ce04c94e00804fc77951ac3154192808908748cc7c5ceba53e3454f17f1d",
+            "2c461da980ce0de0a0d23ab79c68ae0ab1aa7d715e1364e70e594d29abd0c397"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "normal0",
+          "actualHashes": [
+            "5f4df9677442023828c2b6b55298e7529e750d2b3a5a5b1e14b016458ae05fd4",
+            "804ac3e18223117adbe6098675107a21ff897f59331846974cd3390cc64dd63c"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "normal1",
+          "actualHashes": [
+            "ea809a6d87d41e1b01a6b7262668705b32085825bb3437b97b80586a695dd08d",
+            "2f6ec52f582a73df907df86b82a6823897d0ddfba864abc1aecc5e360470a370"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "finale",
+          "actualHashes": [
+            "81db52601d500e2e68e2bc649324d8feea740f77ec6c72d8fb80590b0df5c303",
+            "1195e14a72d3c029cd844d19d876f822c10853814fdfcb8b517a546e7784ba86"
+          ],
+          "equal": true
+        }
+      ]
+    },
+    {
+      "blocked": true,
+      "samePromise": true,
+      "immediateBufferCount": 0,
+      "preparedBufferCount": 4,
+      "prepareCallMs": 0.5,
+      "readyMs": 236.5,
+      "heartbeatCount": 1,
+      "originalSyncMs": 219.10000000149012,
+      "workers": [
+        {
+          "url": "http://127.0.0.1:8080/js/audio/crowd-worker.js",
+          "options": {
+            "type": "module"
+          },
+          "messages": 0,
+          "errors": 1,
+          "terminated": true
+        }
+      ],
+      "outputBytes": 14288400,
+      "synchronousPlayback": true,
+      "pageErrors": [],
+      "consoleErrors": [
+        "Creating a worker from 'http://127.0.0.1:8080/js/audio/crowd-worker.js' violates the following Content Security Policy directive: \"worker-src 'none'\". The action has been blocked."
+      ],
+      "pcmComparisons": [
+        {
+          "profile": "welcome",
+          "actualHashes": [
+            "8a15ce04c94e00804fc77951ac3154192808908748cc7c5ceba53e3454f17f1d",
+            "2c461da980ce0de0a0d23ab79c68ae0ab1aa7d715e1364e70e594d29abd0c397"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "normal0",
+          "actualHashes": [
+            "5f4df9677442023828c2b6b55298e7529e750d2b3a5a5b1e14b016458ae05fd4",
+            "804ac3e18223117adbe6098675107a21ff897f59331846974cd3390cc64dd63c"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "normal1",
+          "actualHashes": [
+            "ea809a6d87d41e1b01a6b7262668705b32085825bb3437b97b80586a695dd08d",
+            "2f6ec52f582a73df907df86b82a6823897d0ddfba864abc1aecc5e360470a370"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "finale",
+          "actualHashes": [
+            "81db52601d500e2e68e2bc649324d8feea740f77ec6c72d8fb80590b0df5c303",
+            "1195e14a72d3c029cd844d19d876f822c10853814fdfcb8b517a546e7784ba86"
+          ],
+          "equal": true
+        }
+      ]
+    }
+  ],
+  "passed": true,
+  "timingLimit": "prepareCallMs, readyMs and originalSyncMs are single-run diagnostic observations. Worker ready includes thread startup, synthesis, transfer and AudioBuffer copy; originalSyncMs is only the subsequent reference synthesis. Do not divide these values into an app-FPS or startup-speed improvement claim.",
+  "curation": "Reference PCM format and expected channel hashes are identical in both raw cases and stored once. All case-specific observed hashes, worker counters, errors and timing observations remain."
+}

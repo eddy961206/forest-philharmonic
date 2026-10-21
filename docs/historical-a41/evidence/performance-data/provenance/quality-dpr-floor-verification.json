@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "kind": "post-correction-execution-verification",
+  "recordedAt": "2026-10-21T05:52:38.138711+00:00",
+  "baselineRevision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+  "originalCorrectionRecord": {
+    "path": "quality-dpr-floor-correction.json",
+    "sha256": "110b3c459a9ffc405ea4ee6e2705dcc48177a5a91363b93b429f7933255acd87",
+    "bytes": 998,
+    "recordedAt": "2026-10-21T05:19:12.430173+00:00",
+    "validationAtThatTime": "Regression test added; actual execution pending separately.",
+    "preservedByteIdentically": true,
+    "meaning": "수정 당시의 검증 대기 상태는 역사적 기록으로 보존해. 이 파일은 나중에 완료된 실행을 연결하는 별도 검증 기록이야."
+  },
+  "originalProductSource": {
+    "path": "quality-before-dpr-floor.js",
+    "sha256": "1fdee2938ba17e49f9816495d0363c69cf40fee42a6b38fecf3161942f5e9709",
+    "bytes": 3101
+  },
+  "actualVerification": {
+    "status": "PASS",
+    "startedAt": "2026-10-21T05:21:32.740094+00:00",
+    "finishedAt": "2026-10-21T05:21:32.838747+00:00",
+    "command": [
+      "node",
+      "--experimental-loader",
+      "./tests/helpers/three-loader.mjs",
+      "--test-reporter=tap",
+      "tests/quality.test.mjs"
+    ],
+    "exitCode": 0,
+    "tests": 8,
+    "pass": 8,
+    "fail": 0,
+    "result": {
+      "path": "../runtime/a41-quality-dpr-regression/result.json",
+      "sha256": "e5b73699681849d6b3b6c22dd3a3f02ceb1fee014931f5a448efa4b8e73ab7b4",
+      "bytes": 526
+    },
+    "tap": {
+      "path": "../runtime/a41-quality-dpr-regression/quality.tap.log",
+      "sha256": "b0a689647c042e635bea418936c3718794f218ec1b8c432f44d69f20f7878475",
+      "bytes": 2155
+    },
+    "sourceHashes": {
+      "public/js/quality.js": "33fde08de6a47775820e96abdb90dab89bfe7efa67c52c317841ae1f89b39c0d",
+      "tests/quality.test.mjs": "7f2972989be86c0c3c0c0de72ccd1d61ba582af20a421cb1ae19559847699a8c"
+    },
+    "correctionAfterSourceMatchesExecutedSource": true,
+    "sourceHashesMatchWorkingTreeAtRecordTime": true,
+    "meaning": "실제 05:21 quality 회귀 8개 실행의 exit code와 TAP를 연결했어. 이 검증 기록을 만들며 테스트를 새로 실행하지 않았어."
+  },
+  "combinedRegressionScope": {
+    "record": {
+      "path": "../runtime/a41-quality-dpr-regression/combined-scope.json",
+      "sha256": "0ee2cb1af4f816baf8551871394607c9c4ca95553df3978578ddcc7bfe6f5f8e",
+      "bytes": 6317
+    },
+    "retainedPreviouslyExecutedTests": 52,
+    "replacementQualityTests": 8,
+    "replacedPreviousQualityTests": 7,
+    "uniqueTests": 60,
+    "pass": 60,
+    "fail": 0,
+    "singleFull60CaseRun": false,
+    "meaning": "기존 59개 실행의 quality 7개를 후속 8개 실행으로 교체한 범위야. 기존 원본 59개 JSON과 TAP는 그대로 보존했고, 전체 60개를 한 번에 다시 실행했다고 주장하지 않아."
+  },
+  "limits": [
+    "Node 회귀 실행의 증거이며 브라우저 자동 품질 적응·실제 GPU FPS·휴대폰 성능의 실행 결과는 아니야.",
+    "원본 correction의 validation 문구나 실행 JSON·TAP·combined-scope는 수정하지 않았어.",
+    "이 파일 작성 시에는 기존 파일 읽기·hash 대조·문서 작성만 수행했어."
+  ]
+}

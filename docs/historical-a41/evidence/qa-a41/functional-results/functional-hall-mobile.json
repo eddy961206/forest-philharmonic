@@ -1,0 +1,2689 @@
+{
+  "schema": 2,
+  "suite": "functional-controlled",
+  "venue": "hall",
+  "device": "mobile",
+  "status": "PASS",
+  "url": "http://127.0.0.1:8080/?venue=hall",
+  "label": "functional",
+  "revision": "a41-integrated-candidate",
+  "fixtureSourceSha256": "eb78a5b80b0bda944ba2f386973678a1d0e97fc07fa3d6022308cdec2ee973f3",
+  "viewport": [
+    390,
+    844
+  ],
+  "devicePixelRatio": 2,
+  "timeoutMs": 180000,
+  "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+  "fixtures": [
+    "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+    "Google Fonts requests use explicit local font files from FONT_ROOT; external font connectivity is outside this check.",
+    "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+    "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+    "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+    "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active."
+  ],
+  "checks": {
+    "device": {
+      "maxTouchPoints": 5,
+      "finePointer": false,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+    },
+    "entry": {
+      "mode": "walk",
+      "active": true,
+      "seat": null,
+      "nearSeat": null,
+      "position": [
+        0,
+        5.955,
+        40.4
+      ],
+      "camera": [
+        0,
+        5.955,
+        40.4
+      ],
+      "forward": [
+        0,
+        0.007692080119339222,
+        -0.9999704155140979
+      ],
+      "up": [
+        0,
+        0.9999704155140979,
+        0.007692080119339222
+      ],
+      "yaw": 0,
+      "pitch": 0.00769215597564884,
+      "joy": {
+        "x": 0,
+        "y": 0
+      },
+      "keys": [],
+      "listener": {
+        "position": [
+          0,
+          5.955,
+          40.4
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ]
+      },
+      "audio": "running",
+      "playing": false,
+      "time": 0,
+      "duration": 73.94,
+      "piece": "beethoven-ode-to-joy",
+      "phase": "lobby",
+      "audience": 200,
+      "occupied": 200,
+      "settings": {
+        "quality": "low",
+        "audience": true,
+        "screen": true,
+        "fixedEar": true
+      },
+      "render": {
+        "quality": "low",
+        "scale": 1,
+        "pixelRatio": 1.25,
+        "shadows": false
+      },
+      "dome": null
+    },
+    "movement": {
+      "input": "CDP joystick drag",
+      "before": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.4
+        ],
+        "camera": [
+          0,
+          5.955,
+          40.4
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.955,
+            40.4
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "after": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.319736442677886
+        ],
+        "camera": [
+          0,
+          5.959108768820187,
+          40.319736442677886
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": -0.782608695652174
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.959108768820187,
+            40.319736442677886
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      }
+    },
+    "look": {
+      "input": "CDP canvas drag",
+      "before": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.319736442677886
+        ],
+        "camera": [
+          0,
+          5.959108768820187,
+          40.319736442677886
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": -0.782608695652174
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.959108768820187,
+            40.319736442677886
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "after": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.28973118619025
+        ],
+        "camera": [
+          0,
+          5.958271834863442,
+          40.28973118619025
+        ],
+        "forward": [
+          0.2888333455777356,
+          -0.10968670137718675,
+          -0.9510752472982168
+        ],
+        "up": [
+          0.03187349488411727,
+          0.993966210462404,
+          -0.10495357441688344
+        ],
+        "yaw": -0.29483992309570317,
+        "pitch": -0.10990784402435115,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.958271834863442,
+            40.28973118619025
+          ],
+          "forward": [
+            0.2888333455777356,
+            -0.10968670137718675,
+            -0.9510752472982168
+          ],
+          "up": [
+            0.03187349488411727,
+            0.993966210462404,
+            -0.10495357441688344
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      }
+    },
+    "listenerAudioParams": {
+      "position": [
+        0,
+        5.9582719802856445,
+        40.289730072021484
+      ],
+      "forward": [
+        0.288833349943161,
+        -0.1096867024898529,
+        -0.9510752558708191
+      ]
+    },
+    "seatFixture": {
+      "candidate": 21,
+      "label": "1층 A열 22번"
+    },
+    "sitStand": {
+      "input": "touch sit -> walk buttons",
+      "seated": {
+        "mode": "seat",
+        "active": true,
+        "seat": 63,
+        "nearSeat": 63,
+        "position": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "camera": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "forward": [
+          0,
+          -0.3819889769350002,
+          -0.9241668796814523
+        ],
+        "up": [
+          0,
+          0.9241668796814523,
+          -0.3819889769350002
+        ],
+        "yaw": 0,
+        "pitch": -0.3919475254685127,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            1.7100000000000002,
+            3.7
+          ],
+          "forward": [
+            0,
+            -0.3819889769350002,
+            -0.9241668796814523
+          ],
+          "up": [
+            0,
+            0.9241668796814523,
+            -0.3819889769350002
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "standing": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      }
+    },
+    "roster": {
+      "initial": {
+        "piece": "beethoven-ode-to-joy",
+        "supported": true,
+        "required": [
+          "bn:0",
+          "cb:0",
+          "choir:0",
+          "choir:1",
+          "choir:10",
+          "choir:11",
+          "choir:2",
+          "choir:3",
+          "choir:4",
+          "choir:5",
+          "choir:6",
+          "choir:7",
+          "choir:8",
+          "choir:9",
+          "cl:0",
+          "fl:0",
+          "hn:0",
+          "hn:1",
+          "ob:0",
+          "timp:0",
+          "tp:0",
+          "va:0",
+          "va:1",
+          "vc:0",
+          "vc:1",
+          "vn1:0",
+          "vn1:1",
+          "vn1:2",
+          "vn2:0",
+          "vn2:1",
+          "vn2:2"
+        ],
+        "active": [
+          "bn:0",
+          "cb:0",
+          "choir:0",
+          "choir:1",
+          "choir:10",
+          "choir:11",
+          "choir:2",
+          "choir:3",
+          "choir:4",
+          "choir:5",
+          "choir:6",
+          "choir:7",
+          "choir:8",
+          "choir:9",
+          "cl:0",
+          "fl:0",
+          "hn:0",
+          "hn:1",
+          "ob:0",
+          "timp:0",
+          "tp:0",
+          "va:0",
+          "va:1",
+          "vc:0",
+          "vc:1",
+          "vn1:0",
+          "vn1:1",
+          "vn1:2",
+          "vn2:0",
+          "vn2:1",
+          "vn2:2"
+        ],
+        "settled": true,
+        "conductorOn": true
+      }
+    },
+    "seek": {
+      "input": "CDP touch",
+      "target": 22,
+      "actual": 21.99999851785055
+    },
+    "resumeClock": {
+      "startPos": 21.99999851785055,
+      "startCtx": 13.282666666666666,
+      "audioNow": 13.162666666666667,
+      "outputLatency": 0.08533333333333333,
+      "time": 21.794665184517218
+    },
+    "playback": {
+      "start": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": true,
+        "time": 0.6053333333333354,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "playing",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "paused": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0.6693333333333354,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "playing",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "resumed": true,
+      "pausedAgain": true
+    },
+    "quality": [
+      {
+        "requested": "medium",
+        "actual": {
+          "quality": "medium",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": true
+        },
+        "dome": null
+      },
+      {
+        "requested": "low",
+        "actual": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      {
+        "requested": "high",
+        "actual": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 2,
+          "shadows": true
+        },
+        "dome": null
+      }
+    ],
+    "audience": {
+      "off": null,
+      "on": 200,
+      "occupied": 200
+    },
+    "broadcastToggle": {
+      "off": [
+        {
+          "kind": "main",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "on": [
+        {
+          "kind": "broadcast",
+          "target": [
+            384,
+            216
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ]
+    },
+    "automatic": {
+      "requested": "auto",
+      "initialPreset": "low",
+      "note": "Only the setting/reset path is checked here. Adaptation policy has separate Node regression tests; synthetic functional cadence is not evidence of automatic performance."
+    },
+    "layout": {
+      "width": 390,
+      "scrollWidth": 390,
+      "joystick": true,
+      "jump": true
+    }
+  },
+  "frames": [
+    {
+      "passes": [
+        {
+          "kind": "broadcast",
+          "target": [
+            384,
+            216
+          ]
+        },
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.4
+        ],
+        "camera": [
+          0,
+          5.955,
+          40.4
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.955,
+            40.4
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "entered"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.36920674728186
+        ],
+        "camera": [
+          0,
+          5.956024145602625,
+          40.36920674728186
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": -0.782608695652174
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.956024145602625,
+            40.36920674728186
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "movement-1"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.319736442677886
+        ],
+        "camera": [
+          0,
+          5.959108768820187,
+          40.319736442677886
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": -0.782608695652174
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.959108768820187,
+            40.319736442677886
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "movement-2"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.28973118619025
+        ],
+        "camera": [
+          0,
+          5.958271834863442,
+          40.28973118619025
+        ],
+        "forward": [
+          0.2888333455777356,
+          -0.10968670137718675,
+          -0.9510752472982168
+        ],
+        "up": [
+          0.03187349488411727,
+          0.993966210462404,
+          -0.10495357441688344
+        ],
+        "yaw": -0.29483992309570317,
+        "pitch": -0.10990784402435115,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.958271834863442,
+            40.28973118619025
+          ],
+          "forward": [
+            0.2888333455777356,
+            -0.10968670137718675,
+            -0.9510752472982168
+          ],
+          "up": [
+            0.03187349488411727,
+            0.993966210462404,
+            -0.10495357441688344
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "look-drag"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "camera": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "forward": [
+          0,
+          -0.3819889769350002,
+          -0.9241668796814523
+        ],
+        "up": [
+          0,
+          0.9241668796814523,
+          -0.3819889769350002
+        ],
+        "yaw": 0,
+        "pitch": -0.3919475254685127,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            1.7100000000000002,
+            3.7
+          ],
+          "forward": [
+            0,
+            -0.3819889769350002,
+            -0.9241668796814523
+          ],
+          "up": [
+            0,
+            0.9241668796814523,
+            -0.3819889769350002
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "near-seat"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "seat",
+        "active": true,
+        "seat": 63,
+        "nearSeat": null,
+        "position": [
+          -0.14018832647224994,
+          1.4325,
+          4.170097113308842
+        ],
+        "camera": [
+          -0.14018832647224994,
+          1.4325,
+          4.170097113308842
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14018832647224994,
+            1.4325,
+            4.170097113308842
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "seated"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "stood-up"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": true,
+        "time": 0.6053333333333354,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "playing",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "show-started"
+    },
+    {
+      "passes": [
+        {
+          "kind": "broadcast",
+          "target": [
+            384,
+            216
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            487.5,
+            1055
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            244,
+            528
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            244,
+            528
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            244,
+            528
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            122,
+            264
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            122,
+            264
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            61,
+            132
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            61,
+            132
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            31,
+            66
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            31,
+            66
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            16,
+            33
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            16,
+            33
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            244,
+            528
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            487.5,
+            1055
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 22.130665184517216,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "playing",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "medium",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "medium",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": true
+        },
+        "dome": null
+      },
+      "label": "quality-medium"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 22.130665184517216,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "playing",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "quality-low"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 22.130665184517216,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "playing",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 2,
+          "shadows": true
+        },
+        "dome": null
+      },
+      "label": "quality-high"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 22.130665184517216,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "playing",
+        "audience": null,
+        "occupied": 0,
+        "settings": {
+          "quality": "high",
+          "audience": false,
+          "screen": false,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 2,
+          "shadows": true
+        },
+        "dome": null
+      },
+      "label": "audience-and-screen-off"
+    },
+    {
+      "passes": [
+        {
+          "kind": "broadcast",
+          "target": [
+            384,
+            216
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            195,
+            422
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            98,
+            211
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            49,
+            106
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            25,
+            53
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            390,
+            844
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            780,
+            1688
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 22.130665184517216,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "playing",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 2,
+          "shadows": true
+        },
+        "dome": null
+      },
+      "label": "audience-and-screen-restored"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "audio": "running",
+        "playing": false,
+        "time": 22.130665184517216,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "phase": "playing",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "auto",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1.25,
+          "shadows": false
+        },
+        "dome": null
+      },
+      "label": "automatic-setting"
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "failedRequests": [],
+  "environment": {
+    "browserVersion": "153.0.8010.0",
+    "playwrightVersion": "1.64.1",
+    "platform": "linux",
+    "architecture": "x64",
+    "softwareRequested": true,
+    "chromeArgs": [
+      "--ash-no-nudges",
+      "--disable-domain-reliability",
+      "--disable-print-preview",
+      "--disk-cache-size=33554432",
+      "--no-default-browser-check",
+      "--no-pings",
+      "--single-process",
+      "--font-render-hinting=none",
+      "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+      "--enable-features=SharedArrayBuffer",
+      "--ignore-gpu-blocklist",
+      "--in-process-gpu",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader",
+      "--allow-running-insecure-content",
+      "--disable-setuid-sandbox",
+      "--disable-site-isolation-trials",
+      "--disable-web-security",
+      "--headless='shell'",
+      "--no-sandbox",
+      "--no-zygote",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader"
+    ],
+    "fontMode": "local",
+    "headless": true
+  },
+  "diagnostics": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "warnings": [],
+    "failedRequests": []
+  },
+  "sourceHashes": {
+    "js/main.js": {
+      "sha256": "fe05790c1f6364a1017fc4477f50ac27bf307e814b65701cb8b6444d5cc30f34"
+    },
+    "js/scene/hall.js": {
+      "sha256": "74a86ef2b6639d97e118fdfeaf0a08fc1e4c13c9ddfc388d93a8cd18fc8a3c50"
+    },
+    "js/scene/seats.js": {
+      "sha256": "c5dc9616f0e127c2ff98e6707496c92cb2798af6c2364cae2df1bd5c00ecab27"
+    },
+    "js/scene/audience.js": {
+      "sha256": "c399b149d494bc64ca032eea5b3f3fd6f5019df63a3f0d1b03085ac7a69b7c2a"
+    },
+    "js/scene/sphere.js": {
+      "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc"
+    },
+    "js/scene/dome3d.js": {
+      "sha256": "832f368158c44589a857183879771e55f90d234a600c9fafcd6b935e327c91c0"
+    },
+    "js/scene/domeshow.js": {
+      "sha256": "61ee251e1d80290de6ea62883105be427a229db21f25d1aa256c04556de77dac"
+    }
+  },
+  "contextLosses": []
+}

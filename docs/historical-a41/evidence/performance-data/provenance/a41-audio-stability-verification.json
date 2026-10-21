@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-21T07:22:51.274747+00:00",
+  "kind": "a41-audio-stability-verification",
+  "scope": "File-only aggregation after six actual root-run browser jobs completed; no additional browser, GPU or audio execution.",
+  "baselineRevision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+  "inputs": [
+    {
+      "file": "audio-stability-baseline-hall-desktop.json",
+      "sha256": "2bbfb27fa6e0b9eb9baa149f658f393b2ebbdd35610793739c401a6c96c8cb0e"
+    },
+    {
+      "file": "audio-stability-after-hall-desktop.json",
+      "sha256": "a4bc9247019c931371111a449084c1eb0b419ccdbae2fe52f3c27f728c86bbbd"
+    },
+    {
+      "file": "audio-stability-baseline-sphere-mobile.json",
+      "sha256": "2aed9c258c65c479e43cb783b834948ad853dafff7295757412e4d3893d4b148"
+    },
+    {
+      "file": "audio-stability-after-sphere-mobile.json",
+      "sha256": "4228b385520c3cf6ef6239bae1fb1aa15bf96a70d49af91475b96e125d947c86"
+    },
+    {
+      "file": "audio-stability-after-hall-mobile.json",
+      "sha256": "3609288f1a64f2a290a102c0f538a8583543f230ebd94c5011dd0036980edaf0"
+    },
+    {
+      "file": "audio-stability-after-sphere-desktop.json",
+      "sha256": "b2269616e19ec2cffe918c17cc73953e33b7f365ce30df4254278a79c337bf6a"
+    }
+  ],
+  "summary": {
+    "path": "qa-a41/runtime-results/audio-stability-summary.json",
+    "bytes": 31820,
+    "sha256": "68de1193532d2089f1ef071369338c75bb7c2ce4e9ab07a5068e43ed2c618ae4"
+  },
+  "originalAggregator": {
+    "path": "qa-a41/aggregate-runtime-audio.mjs",
+    "bytes": 9002,
+    "sha256": "70fbe78c480ccd3b7479a24e0738d917c55f331cb7e31ddf06fc80ab7a0a43ff"
+  },
+  "preservedAggregator": {
+    "path": "docs/performance-data/provenance/aggregate-a41-runtime-audio.mjs",
+    "bytes": 9002,
+    "sha256": "70fbe78c480ccd3b7479a24e0738d917c55f331cb7e31ddf06fc80ab7a0a43ff"
+  },
+  "checks": 153,
+  "passed": true,
+  "collectorAtAggregation": [
+    {
+      "path": "tools/bench/audio-stability.mjs",
+      "bytes": 17018,
+      "sha256": "1d841801123d48df9d1bb4521ae912849bf934dcb61cc3eb33b9feeb2a482a52"
+    },
+    {
+      "path": "tools/bench/loading-proxy.mjs",
+      "bytes": 15789,
+      "sha256": "e8f311048df6104ca3fd7104753519c128e000e9dc93fe2a5b7f1a5641ef9f7b"
+    },
+    {
+      "path": "tools/bench/browser.mjs",
+      "bytes": 8780,
+      "sha256": "68cebfd3719a1ee4c21f4296225a9631600e7d9b4ac2e40bfdd114ec3e00bcb6"
+    }
+  ],
+  "collectorHashMeaning": "These are the frozen tool files read at aggregation. The original audio recordings did not embed a collector SHA; their original bytes are not modified to add one.",
+  "notClaims": [
+    "No matched CPU/heap/startup improvement from the random-audience audio runs.",
+    "No bit-identical velocity/when/output waveform requirement from the score-prefix hash.",
+    "No resolution of the separate Hall pause/seek/resume failure.",
+    "No physical-device or later 3f integration guarantee."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-21T05:19:12.430173+00:00",
+  "change": "Only automatic preset downgrade rounding uses floor; recovery rounding is unchanged.",
+  "counterexample": {
+    "devicePixelRatio": 1.35,
+    "fromQuality": "high",
+    "fromScale": 0.6,
+    "fromEffectiveDPR": 0.81,
+    "previousRoundedMediumScale": 0.65,
+    "previousNextEffectiveDPR": 0.8125,
+    "correctedMediumScale": 0.64,
+    "correctedNextEffectiveDPR": 0.8
+  },
+  "beforeSourceSha256": "1fdee2938ba17e49f9816495d0363c69cf40fee42a6b38fecf3161942f5e9709",
+  "afterSourceSha256": "33fde08de6a47775820e96abdb90dab89bfe7efa67c52c317841ae1f89b39c0d",
+  "scope": "a41 render jobs 0..5 were manual presets; main calls AdaptiveQuality.sample only for auto, so their rendered policy path is unchanged. No a41 automatic-quality measurements were collected before this correction. The original source is preserved beside this record.",
+  "validation": "Regression test added; actual execution pending separately."
+}

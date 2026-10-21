@@ -1,0 +1,823 @@
+{
+  "schema": 1,
+  "suite": "loading-fixed-audience-comparison",
+  "recordedAt": "2026-10-21T07:11:31.849Z",
+  "passed": true,
+  "inputs": {
+    "before": {
+      "file": "/workspace/scratch/51e64c30577e/qa-a41/runtime-results/loading-baseline-fixed-sphere-desktop.json",
+      "sha256": "e69b766966b22672e3bf3b4a27bd5aff39af4f1d02c76216c7ac84486ede3592",
+      "revision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6"
+    },
+    "after": {
+      "file": "/workspace/scratch/51e64c30577e/qa-a41/runtime-results/loading-after-fixed-sphere-desktop.json",
+      "sha256": "ded2d2aa35e35632ee8fa7e1897b3a71ae6f74e0faabdfe7d2e63186aea53264",
+      "revision": "a41-integrated-candidate"
+    }
+  },
+  "method": "File-only equality checks on two completed fixed-audience loading observations. Cold/warm and baseline/candidate must share audience seed/count/sorted occupied-seat fingerprint. The same sample, viewport, preset, font and browser conditions are required. Main fixture identity bytes and hashes remain separate from original asset transfers.",
+  "limitations": [
+    "One cold and one warm observation per revision. Timing deltas are observations, not a statistically established causal improvement or a physical-device FPS claim.",
+    "Only solo-audience RNG is isolated. Global procedural randomness and generated impulse-response samples are not made byte-identical.",
+    "controlledMainFixture reports a rewritten, identity-encoded QA response; it is not the original main.js response transfer size.",
+    "Cold means a fresh browser HTTP cache. Upstream Node/OS caches may be warm. Main rAF is held, so this is controlled startup rather than normal interactive readiness."
+  ],
+  "checks": [
+    {
+      "name": "before:completed",
+      "passed": true
+    },
+    {
+      "name": "before:audience-seed",
+      "passed": true
+    },
+    {
+      "name": "before:collector-provenance",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:sampleCountsEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:samplePcmBytesEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:scoreEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:audienceCountEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:occupiedCountEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:occupiedSortedFingerprintEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:mainFixtureStable",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:audience",
+      "passed": true,
+      "before": {
+        "count": 12909,
+        "occupiedCount": 12909,
+        "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "after": {
+        "count": 12909,
+        "occupiedCount": 12909,
+        "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      }
+    },
+    {
+      "name": "before:warm-mp3-cache",
+      "passed": true
+    },
+    {
+      "name": "before:cold:fixed-main",
+      "passed": true
+    },
+    {
+      "name": "before:cold:main-hashes",
+      "passed": true
+    },
+    {
+      "name": "before:cold:audience-enabled",
+      "passed": true
+    },
+    {
+      "name": "before:cold:fixture-transfer-separated",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:readyMs",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:bootLongTaskCount",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:bootLongTaskTotalMs",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:bootLongTaskMaxMs",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:sampleResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:controlledMainFixtureResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "before:warm:fixed-main",
+      "passed": true
+    },
+    {
+      "name": "before:warm:main-hashes",
+      "passed": true
+    },
+    {
+      "name": "before:warm:audience-enabled",
+      "passed": true
+    },
+    {
+      "name": "before:warm:fixture-transfer-separated",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:readyMs",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:bootLongTaskCount",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:bootLongTaskTotalMs",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:bootLongTaskMaxMs",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:sampleResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:controlledMainFixtureResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "after:completed",
+      "passed": true
+    },
+    {
+      "name": "after:audience-seed",
+      "passed": true
+    },
+    {
+      "name": "after:collector-provenance",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:sampleCountsEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:samplePcmBytesEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:scoreEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:audienceCountEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:occupiedCountEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:occupiedSortedFingerprintEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:mainFixtureStable",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:audience",
+      "passed": true,
+      "before": {
+        "count": 12909,
+        "occupiedCount": 12909,
+        "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "after": {
+        "count": 12909,
+        "occupiedCount": 12909,
+        "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      }
+    },
+    {
+      "name": "after:warm-mp3-cache",
+      "passed": true
+    },
+    {
+      "name": "after:cold:fixed-main",
+      "passed": true
+    },
+    {
+      "name": "after:cold:main-hashes",
+      "passed": true
+    },
+    {
+      "name": "after:cold:audience-enabled",
+      "passed": true
+    },
+    {
+      "name": "after:cold:fixture-transfer-separated",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:readyMs",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:bootLongTaskCount",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:bootLongTaskTotalMs",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:bootLongTaskMaxMs",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:sampleResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:controlledMainFixtureResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "after:warm:fixed-main",
+      "passed": true
+    },
+    {
+      "name": "after:warm:main-hashes",
+      "passed": true
+    },
+    {
+      "name": "after:warm:audience-enabled",
+      "passed": true
+    },
+    {
+      "name": "after:warm:fixture-transfer-separated",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:readyMs",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:bootLongTaskCount",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:bootLongTaskTotalMs",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:bootLongTaskMaxMs",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:sampleResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:controlledMainFixtureResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "pair:venue",
+      "passed": true,
+      "before": "sphere",
+      "after": "sphere"
+    },
+    {
+      "name": "pair:device",
+      "passed": true,
+      "before": "desktop",
+      "after": "desktop"
+    },
+    {
+      "name": "pair:quality",
+      "passed": true,
+      "before": "high",
+      "after": "high"
+    },
+    {
+      "name": "pair:fontMode",
+      "passed": true,
+      "before": "local",
+      "after": "local"
+    },
+    {
+      "name": "pair:audience-seed",
+      "passed": true,
+      "before": 417,
+      "after": 417
+    },
+    {
+      "name": "pair:collector-sha",
+      "passed": true,
+      "before": "0957435917d7b54f0ca150ddfabb3ea12bc16d7d6bd3f5c7a5eee12cebbae1a2",
+      "after": "0957435917d7b54f0ca150ddfabb3ea12bc16d7d6bd3f5c7a5eee12cebbae1a2"
+    },
+    {
+      "name": "pair:proxy-sha",
+      "passed": true,
+      "before": "e8f311048df6104ca3fd7104753519c128e000e9dc93fe2a5b7f1a5641ef9f7b",
+      "after": "e8f311048df6104ca3fd7104753519c128e000e9dc93fe2a5b7f1a5641ef9f7b"
+    },
+    {
+      "name": "pair:browser-helper-sha",
+      "passed": true,
+      "before": "68cebfd3719a1ee4c21f4296225a9631600e7d9b4ac2e40bfdd114ec3e00bcb6",
+      "after": "68cebfd3719a1ee4c21f4296225a9631600e7d9b4ac2e40bfdd114ec3e00bcb6"
+    },
+    {
+      "name": "pair:font-css-sha",
+      "passed": true,
+      "before": "6d58cb1045610166977b3a3f03532ce3e9de3b36b84fdb14e4ecfe197a9e8eee",
+      "after": "6d58cb1045610166977b3a3f03532ce3e9de3b36b84fdb14e4ecfe197a9e8eee"
+    },
+    {
+      "name": "pair:environment:browserVersion",
+      "passed": true,
+      "before": "153.0.8010.0",
+      "after": "153.0.8010.0"
+    },
+    {
+      "name": "pair:environment:platform",
+      "passed": true,
+      "before": "linux",
+      "after": "linux"
+    },
+    {
+      "name": "pair:environment:architecture",
+      "passed": true,
+      "before": "x64",
+      "after": "x64"
+    },
+    {
+      "name": "pair:environment:chromeArgs",
+      "passed": true,
+      "before": [
+        "--ash-no-nudges",
+        "--disable-domain-reliability",
+        "--disable-print-preview",
+        "--disk-cache-size=33554432",
+        "--no-default-browser-check",
+        "--no-pings",
+        "--single-process",
+        "--font-render-hinting=none",
+        "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+        "--enable-features=SharedArrayBuffer",
+        "--ignore-gpu-blocklist",
+        "--in-process-gpu",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader",
+        "--allow-running-insecure-content",
+        "--disable-setuid-sandbox",
+        "--disable-site-isolation-trials",
+        "--disable-web-security",
+        "--headless='shell'",
+        "--no-sandbox",
+        "--no-zygote",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader"
+      ],
+      "after": [
+        "--ash-no-nudges",
+        "--disable-domain-reliability",
+        "--disable-print-preview",
+        "--disk-cache-size=33554432",
+        "--no-default-browser-check",
+        "--no-pings",
+        "--single-process",
+        "--font-render-hinting=none",
+        "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+        "--enable-features=SharedArrayBuffer",
+        "--ignore-gpu-blocklist",
+        "--in-process-gpu",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader",
+        "--allow-running-insecure-content",
+        "--disable-setuid-sandbox",
+        "--disable-site-isolation-trials",
+        "--disable-web-security",
+        "--headless='shell'",
+        "--no-sandbox",
+        "--no-zygote",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader"
+      ]
+    },
+    {
+      "name": "pair:environment:softwareRequested",
+      "passed": true,
+      "before": true,
+      "after": true
+    },
+    {
+      "name": "pair:environment:headless",
+      "passed": true,
+      "before": true,
+      "after": true
+    },
+    {
+      "name": "pair:cold:viewport",
+      "passed": true,
+      "before": [
+        960,
+        540
+      ],
+      "after": [
+        960,
+        540
+      ]
+    },
+    {
+      "name": "pair:cold:devicePixelRatio",
+      "passed": true,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "name": "pair:cold:rendererPixelRatio",
+      "passed": true,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "name": "pair:cold:renderer",
+      "passed": true,
+      "before": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "after": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "name": "pair:cold:quality",
+      "passed": true,
+      "before": "high",
+      "after": "high"
+    },
+    {
+      "name": "pair:cold:lite",
+      "passed": true,
+      "before": false,
+      "after": false
+    },
+    {
+      "name": "pair:cold:sampleRate",
+      "passed": true,
+      "before": 48000,
+      "after": 48000
+    },
+    {
+      "name": "pair:cold:sampleCount",
+      "passed": true,
+      "before": 389,
+      "after": 389
+    },
+    {
+      "name": "pair:cold:samplePcmBytes",
+      "passed": true,
+      "before": 296771776,
+      "after": 296771776
+    },
+    {
+      "name": "pair:cold:applausePcmBytes",
+      "passed": true,
+      "before": 14288400,
+      "after": 14288400
+    },
+    {
+      "name": "pair:cold:piece",
+      "passed": true,
+      "before": "beethoven-ode-to-joy",
+      "after": "beethoven-ode-to-joy"
+    },
+    {
+      "name": "pair:cold:pieceDuration",
+      "passed": true,
+      "before": 73.94,
+      "after": 73.94
+    },
+    {
+      "name": "pair:cold:notes",
+      "passed": true,
+      "before": 1776,
+      "after": 1776
+    },
+    {
+      "name": "pair:cold:audience",
+      "passed": true,
+      "before": 12909,
+      "after": 12909
+    },
+    {
+      "name": "pair:cold:audienceFingerprint",
+      "passed": true,
+      "before": {
+        "count": 12909,
+        "occupiedCount": 12909,
+        "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "after": {
+        "count": 12909,
+        "occupiedCount": 12909,
+        "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      }
+    },
+    {
+      "name": "pair:warm:viewport",
+      "passed": true,
+      "before": [
+        960,
+        540
+      ],
+      "after": [
+        960,
+        540
+      ]
+    },
+    {
+      "name": "pair:warm:devicePixelRatio",
+      "passed": true,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "name": "pair:warm:rendererPixelRatio",
+      "passed": true,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "name": "pair:warm:renderer",
+      "passed": true,
+      "before": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "after": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "name": "pair:warm:quality",
+      "passed": true,
+      "before": "high",
+      "after": "high"
+    },
+    {
+      "name": "pair:warm:lite",
+      "passed": true,
+      "before": false,
+      "after": false
+    },
+    {
+      "name": "pair:warm:sampleRate",
+      "passed": true,
+      "before": 48000,
+      "after": 48000
+    },
+    {
+      "name": "pair:warm:sampleCount",
+      "passed": true,
+      "before": 389,
+      "after": 389
+    },
+    {
+      "name": "pair:warm:samplePcmBytes",
+      "passed": true,
+      "before": 296771776,
+      "after": 296771776
+    },
+    {
+      "name": "pair:warm:applausePcmBytes",
+      "passed": true,
+      "before": 14288400,
+      "after": 14288400
+    },
+    {
+      "name": "pair:warm:piece",
+      "passed": true,
+      "before": "beethoven-ode-to-joy",
+      "after": "beethoven-ode-to-joy"
+    },
+    {
+      "name": "pair:warm:pieceDuration",
+      "passed": true,
+      "before": 73.94,
+      "after": 73.94
+    },
+    {
+      "name": "pair:warm:notes",
+      "passed": true,
+      "before": 1776,
+      "after": 1776
+    },
+    {
+      "name": "pair:warm:audience",
+      "passed": true,
+      "before": 12909,
+      "after": 12909
+    },
+    {
+      "name": "pair:warm:audienceFingerprint",
+      "passed": true,
+      "before": {
+        "count": 12909,
+        "occupiedCount": 12909,
+        "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "after": {
+        "count": 12909,
+        "occupiedCount": 12909,
+        "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      }
+    }
+  ],
+  "observations": {
+    "cold": {
+      "readyMs": {
+        "before": 10136.300000000745,
+        "after": 10118,
+        "delta": -18.300000000745058,
+        "percent": -0.18053925002953458
+      },
+      "bootLongTaskCount": {
+        "before": 5,
+        "after": 7,
+        "delta": 2,
+        "percent": 40
+      },
+      "bootLongTaskTotalMs": {
+        "before": 2545,
+        "after": 2188,
+        "delta": -357,
+        "percent": -14.027504911591357
+      },
+      "bootLongTaskMaxMs": {
+        "before": 1564,
+        "after": 1427,
+        "delta": -137,
+        "percent": -8.759590792838875
+      },
+      "sampleResponseEncodedBytes": {
+        "before": 10666245,
+        "after": 10666245,
+        "delta": 0,
+        "percent": 0
+      },
+      "controlledMainFixtureResponseEncodedBytes": {
+        "before": 51688,
+        "after": 53969,
+        "delta": 2281,
+        "percent": 4.413016560903885
+      },
+      "audience": {
+        "before": {
+          "count": 12909,
+          "occupiedCount": 12909,
+          "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+          "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+        },
+        "after": {
+          "count": 12909,
+          "occupiedCount": 12909,
+          "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+          "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+        }
+      },
+      "mainFixture": {
+        "before": {
+          "path": "/js/main.js",
+          "audienceSeed": 417,
+          "replacements": 1,
+          "originalSha256": "42fa7cfe648fa869169241c04a58c1108f2f4c8a4af81d68abee3996a15b7506",
+          "servedSha256": "0f67f8b4c83499004e30b5ead2acb499bf756ee41bb7b37b2d21c2070c5b2f72",
+          "originalIdentityBytes": 51414,
+          "servedIdentityBytes": 51414,
+          "contentEncoding": "identity",
+          "cacheControl": "no-cache",
+          "etag": "\"qa-0f67f8b4c83499004e30b5ead2acb499bf756ee41bb7b37b2d21c2070c5b2f72\"",
+          "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+        },
+        "after": {
+          "path": "/js/main.js",
+          "audienceSeed": 417,
+          "replacements": 1,
+          "originalSha256": "fe05790c1f6364a1017fc4477f50ac27bf307e814b65701cb8b6444d5cc30f34",
+          "servedSha256": "139a45f12fb9d2e209183efe052d220ad31b14a823863a4637a800d5be049e9a",
+          "originalIdentityBytes": 53695,
+          "servedIdentityBytes": 53695,
+          "contentEncoding": "identity",
+          "cacheControl": "no-cache",
+          "etag": "\"qa-139a45f12fb9d2e209183efe052d220ad31b14a823863a4637a800d5be049e9a\"",
+          "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+        }
+      }
+    },
+    "warm": {
+      "readyMs": {
+        "before": 12585.5,
+        "after": 12818,
+        "delta": 232.5,
+        "percent": 1.8473640300345637
+      },
+      "bootLongTaskCount": {
+        "before": 3,
+        "after": 4,
+        "delta": 1,
+        "percent": 33.33333333333333
+      },
+      "bootLongTaskTotalMs": {
+        "before": 2117,
+        "after": 1731,
+        "delta": -386,
+        "percent": -18.233349078885215
+      },
+      "bootLongTaskMaxMs": {
+        "before": 1312,
+        "after": 1221,
+        "delta": -91,
+        "percent": -6.935975609756098
+      },
+      "sampleResponseEncodedBytes": {
+        "before": 0,
+        "after": 0,
+        "delta": 0,
+        "percent": null
+      },
+      "controlledMainFixtureResponseEncodedBytes": {
+        "before": 261,
+        "after": 261,
+        "delta": 0,
+        "percent": 0
+      },
+      "audience": {
+        "before": {
+          "count": 12909,
+          "occupiedCount": 12909,
+          "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+          "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+        },
+        "after": {
+          "count": 12909,
+          "occupiedCount": 12909,
+          "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+          "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+        }
+      },
+      "mainFixture": {
+        "before": {
+          "path": "/js/main.js",
+          "audienceSeed": 417,
+          "replacements": 1,
+          "originalSha256": "42fa7cfe648fa869169241c04a58c1108f2f4c8a4af81d68abee3996a15b7506",
+          "servedSha256": "0f67f8b4c83499004e30b5ead2acb499bf756ee41bb7b37b2d21c2070c5b2f72",
+          "originalIdentityBytes": 51414,
+          "servedIdentityBytes": 51414,
+          "contentEncoding": "identity",
+          "cacheControl": "no-cache",
+          "etag": "\"qa-0f67f8b4c83499004e30b5ead2acb499bf756ee41bb7b37b2d21c2070c5b2f72\"",
+          "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+        },
+        "after": {
+          "path": "/js/main.js",
+          "audienceSeed": 417,
+          "replacements": 1,
+          "originalSha256": "fe05790c1f6364a1017fc4477f50ac27bf307e814b65701cb8b6444d5cc30f34",
+          "servedSha256": "139a45f12fb9d2e209183efe052d220ad31b14a823863a4637a800d5be049e9a",
+          "originalIdentityBytes": 53695,
+          "servedIdentityBytes": 53695,
+          "contentEncoding": "identity",
+          "cacheControl": "no-cache",
+          "etag": "\"qa-139a45f12fb9d2e209183efe052d220ad31b14a823863a4637a800d5be049e9a\"",
+          "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+        }
+      }
+    }
+  }
+}

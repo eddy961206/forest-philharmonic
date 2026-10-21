@@ -1,0 +1,17 @@
+{
+  "command": [
+    "node",
+    "--experimental-loader",
+    "./tests/helpers/three-loader.mjs",
+    "--test-reporter=tap",
+    "tests/quality.test.mjs"
+  ],
+  "startedAt": "2026-10-21T05:21:32.740094+00:00",
+  "finishedAt": "2026-10-21T05:21:32.838747+00:00",
+  "exitCode": 0,
+  "sourceHashes": {
+    "public/js/quality.js": "33fde08de6a47775820e96abdb90dab89bfe7efa67c52c317841ae1f89b39c0d",
+    "tests/quality.test.mjs": "7f2972989be86c0c3c0c0de72ccd1d61ba582af20a421cb1ae19559847699a8c"
+  },
+  "log": "quality.tap.log"
+}

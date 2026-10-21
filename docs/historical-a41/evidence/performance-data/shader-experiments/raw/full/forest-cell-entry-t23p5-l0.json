@@ -1,0 +1,240 @@
+{
+  "case": {
+    "id": "forest-cell-entry-t23p5-l0",
+    "kind": "cube",
+    "suite": "forest",
+    "world": "FOREST3D",
+    "variant": "forest_cell_entry",
+    "time": 23.5,
+    "flight": 23.5,
+    "level": 0
+  },
+  "startedAt": "2026-10-21T03:39:44.978Z",
+  "status": "complete",
+  "timing": {
+    "candidate": {
+      "world": "FOREST3D",
+      "variant": "forest_cell_entry",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 0,
+      "faces": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "metadata": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      },
+      "method": "performance.now around draw + synchronous RGBA/FLOAT 1x1 readPixels; CPU submission plus GPU completion, not pure GPU timer",
+      "warmup": 1,
+      "samples": 3,
+      "submissionMs": [
+        0.5,
+        0.2999999998137355,
+        0.19999999925494194
+      ],
+      "completedMs": [
+        780.5,
+        677.2000000001863,
+        665.1999999992549
+      ],
+      "medianSubmissionMs": 0.2999999998137355,
+      "medianCompletedMs": 677.2000000001863,
+      "calls": 5,
+      "triangles": 11040
+    },
+    "baseline": {
+      "world": "FOREST3D",
+      "variant": "baseline",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 0,
+      "faces": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "metadata": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      },
+      "method": "performance.now around draw + synchronous RGBA/FLOAT 1x1 readPixels; CPU submission plus GPU completion, not pure GPU timer",
+      "warmup": 1,
+      "samples": 3,
+      "submissionMs": [
+        0.2999999998137355,
+        0.2999999998137355,
+        0.5
+      ],
+      "completedMs": [
+        751.2000000001863,
+        777.6999999992549,
+        766.4000000003725
+      ],
+      "medianSubmissionMs": 0.2999999998137355,
+      "medianCompletedMs": 766.4000000003725,
+      "calls": 5,
+      "triangles": 11040
+    }
+  },
+  "comparison": {
+    "world": "FOREST3D",
+    "variant": "forest_cell_entry",
+    "time": 23.5,
+    "flight": 23.5,
+    "level": 0,
+    "faces": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "exact": true,
+    "metadata": {
+      "baseline": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      },
+      "candidate": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      }
+    },
+    "differences": [
+      {
+        "face": 0,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "d3bcbdc5",
+        "afterHash": "d3bcbdc5",
+        "examples": []
+      },
+      {
+        "face": 1,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "7c61bdc5",
+        "afterHash": "7c61bdc5",
+        "examples": []
+      },
+      {
+        "face": 2,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "3edf3dc5",
+        "afterHash": "3edf3dc5",
+        "examples": []
+      },
+      {
+        "face": 3,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "62815dc5",
+        "afterHash": "62815dc5",
+        "examples": []
+      },
+      {
+        "face": 4,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "d252fdc5",
+        "afterHash": "d252fdc5",
+        "examples": []
+      },
+      {
+        "face": 5,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "f3adbdc5",
+        "afterHash": "f3adbdc5",
+        "examples": []
+      }
+    ]
+  },
+  "timingOrder": [
+    "candidate",
+    "baseline"
+  ],
+  "changePct": 11.638830897722197,
+  "finishedAt": "2026-10-21T03:39:52.908Z"
+}

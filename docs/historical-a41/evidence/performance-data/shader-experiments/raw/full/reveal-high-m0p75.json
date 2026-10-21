@@ -1,0 +1,93 @@
+{
+  "case": {
+    "id": "reveal-high-m0p75",
+    "kind": "dome",
+    "suite": "reveal",
+    "profile": "high",
+    "variant": "reveal_endpoints",
+    "time": 137,
+    "level": 1,
+    "mix": 0.75,
+    "reveal": 1,
+    "sceneA": 0,
+    "sceneB": 4,
+    "pose": {
+      "pos": [
+        0,
+        19,
+        34
+      ],
+      "look": [
+        0,
+        3,
+        -6
+      ],
+      "fov": 64
+    }
+  },
+  "startedAt": "2026-10-21T03:43:25.940Z",
+  "status": "pixel_mismatch",
+  "timing": {},
+  "comparison": {
+    "variant": "reveal_endpoints",
+    "lite": false,
+    "width": 960,
+    "height": 540,
+    "id": "reveal-high-m0p75",
+    "kind": "dome",
+    "suite": "reveal",
+    "profile": "high",
+    "time": 137,
+    "level": 1,
+    "mix": 0.75,
+    "reveal": 1,
+    "sceneA": 0,
+    "sceneB": 4,
+    "pose": {
+      "pos": [
+        0,
+        19,
+        34
+      ],
+      "look": [
+        0,
+        3,
+        -6
+      ],
+      "fov": 64
+    },
+    "exact": false,
+    "differingPixels": 3,
+    "totalPixels": 518400,
+    "differingComponents": 3,
+    "alphaDifferences": 0,
+    "maxAbs": 0.000244140625,
+    "meanAbs": 2.3547513985339507e-10,
+    "rmse": 2.076458183104772e-7,
+    "beforeHash": "5ef22dc5",
+    "afterHash": "744ccdc5",
+    "examples": [
+      {
+        "x": 855,
+        "y": 482,
+        "channel": 2,
+        "before": 0.2208251953125,
+        "after": 0.220703125
+      },
+      {
+        "x": 775,
+        "y": 515,
+        "channel": 0,
+        "before": 0.2249755859375,
+        "after": 0.224853515625
+      },
+      {
+        "x": 783,
+        "y": 531,
+        "channel": 1,
+        "before": 0.31884765625,
+        "after": 0.318603515625
+      }
+    ]
+  }
+}

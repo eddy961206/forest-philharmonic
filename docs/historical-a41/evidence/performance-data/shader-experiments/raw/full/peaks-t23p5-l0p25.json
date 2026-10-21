@@ -1,0 +1,240 @@
+{
+  "case": {
+    "id": "peaks-t23p5-l0p25",
+    "kind": "cube",
+    "suite": "peaks",
+    "world": "PEAKS3D",
+    "variant": "peaks_deferred_sky",
+    "time": 23.5,
+    "flight": 23.5,
+    "level": 0.25
+  },
+  "startedAt": "2026-10-21T03:41:35.319Z",
+  "status": "complete",
+  "timing": {
+    "candidate": {
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 0.25,
+      "faces": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "metadata": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      },
+      "method": "performance.now around draw + synchronous RGBA/FLOAT 1x1 readPixels; CPU submission plus GPU completion, not pure GPU timer",
+      "warmup": 1,
+      "samples": 3,
+      "submissionMs": [
+        0.20000000018626451,
+        0.2999999998137355,
+        0.10000000055879354
+      ],
+      "completedMs": [
+        835.5,
+        820.3999999994412,
+        850.9000000003725
+      ],
+      "medianSubmissionMs": 0.20000000018626451,
+      "medianCompletedMs": 835.5,
+      "calls": 5,
+      "triangles": 11040
+    },
+    "baseline": {
+      "world": "PEAKS3D",
+      "variant": "baseline",
+      "time": 23.5,
+      "flight": 23.5,
+      "level": 0.25,
+      "faces": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "metadata": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      },
+      "method": "performance.now around draw + synchronous RGBA/FLOAT 1x1 readPixels; CPU submission plus GPU completion, not pure GPU timer",
+      "warmup": 1,
+      "samples": 3,
+      "submissionMs": [
+        0.20000000018626451,
+        0.19999999925494194,
+        0.30000000074505806
+      ],
+      "completedMs": [
+        823.2000000001863,
+        815.6999999992549,
+        775.6000000005588
+      ],
+      "medianSubmissionMs": 0.20000000018626451,
+      "medianCompletedMs": 815.6999999992549,
+      "calls": 5,
+      "triangles": 11040
+    }
+  },
+  "comparison": {
+    "world": "PEAKS3D",
+    "variant": "peaks_deferred_sky",
+    "time": 23.5,
+    "flight": 23.5,
+    "level": 0.25,
+    "faces": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "exact": true,
+    "metadata": {
+      "baseline": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      },
+      "candidate": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      }
+    },
+    "differences": [
+      {
+        "face": 0,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "91163dc5",
+        "afterHash": "91163dc5",
+        "examples": []
+      },
+      {
+        "face": 1,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "282bbdc5",
+        "afterHash": "282bbdc5",
+        "examples": []
+      },
+      {
+        "face": 2,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "40ab1dc5",
+        "afterHash": "40ab1dc5",
+        "examples": []
+      },
+      {
+        "face": 3,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "e0f3bdc5",
+        "afterHash": "e0f3bdc5",
+        "examples": []
+      },
+      {
+        "face": 4,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "79e71dc5",
+        "afterHash": "79e71dc5",
+        "examples": []
+      },
+      {
+        "face": 5,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "f3af9dc5",
+        "afterHash": "f3af9dc5",
+        "examples": []
+      }
+    ]
+  },
+  "timingOrder": [
+    "candidate",
+    "baseline"
+  ],
+  "changePct": -2.4273630011969027,
+  "finishedAt": "2026-10-21T03:41:44.574Z"
+}

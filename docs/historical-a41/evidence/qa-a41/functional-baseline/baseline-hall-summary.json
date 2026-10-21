@@ -1,0 +1,16 @@
+{
+  "schema": 2,
+  "label": "baseline-hall",
+  "revision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+  "fixtureSourceSha256": "d1cda5e4196364604cc3779c79b72f8ff357eead05aea00b136c4216c30a0d68",
+  "method": "Functional checks only; sequential explicit rendering, not an FPS benchmark.",
+  "results": [
+    {
+      "venue": "hall",
+      "device": "desktop",
+      "status": "FAIL",
+      "failure": "page.evaluate: TypeError: Cannot read properties of undefined (reading 'quality')\n    at readState (eval at evaluate (:370:30), <anonymous>:27:42)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "file": "baseline-hall-hall-desktop.json"
+    }
+  ]
+}

@@ -1,0 +1,1162 @@
+{
+  "schema": 1,
+  "suite": "a41-audio-stability-file-verification",
+  "recordedAt": "2026-10-21T07:20:32.227Z",
+  "nodeVersion": "v24.19.0",
+  "aggregatorSha256": "70fbe78c480ccd3b7479a24e0738d917c55f331cb7e31ddf06fc80ab7a0a43ff",
+  "baselineRevision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+  "candidateScope": "The a41-integrated candidate served at 8080, before the later 3f integration.",
+  "method": "Read the six completed recordings and recompute score identity, voice creation, schedule lead, source-start counts, clock progress and recorded visibility from raw arrays. No browser or runtime execution.",
+  "limitations": [
+    "Main scene rAF is held; visual state updates use real Performance.time at approximately 5 Hz. There is no sustained rendering or CPU-overload simulation.",
+    "Audience and available seats use native randomness. These recordings establish functional playback within each run, not matched startup, CPU, heap or spatial-output performance comparisons.",
+    "The score sequence covers the prefix through the recorded schedIdx. Its hash includes section, instrument, MIDI, duration, gain and layer; native velocity/start-time humanization is not required to be identical between runs.",
+    "AudioContext progress, actual source starts and nonzero analyser signal do not prove physical speaker output, absence of device underruns, background playback or long thermal stability.",
+    "The successful continuous playback fixture does not resolve the separate Hall pause/seek/resume two-second failure."
+  ],
+  "inputs": [
+    {
+      "file": "audio-stability-baseline-hall-desktop.json",
+      "sha256": "2bbfb27fa6e0b9eb9baa149f658f393b2ebbdd35610793739c401a6c96c8cb0e",
+      "measuredAt": "2026-10-21T07:10:38.395Z",
+      "label": "baseline",
+      "venue": "hall",
+      "device": "desktop",
+      "quality": "high",
+      "revision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+      "audioSeconds": 65.24533333333333,
+      "wallSeconds": 65.25129999999702,
+      "finalPieceTime": 65.05333333333333,
+      "notes": 1671,
+      "sourceStarts": 2160,
+      "sequenceHash": "14351705137ec5b799f77cee36acc1178da6c2cfc9890d4a8512be3107c97985",
+      "visualUpdates": 327,
+      "visualHz": 5.01139440900051,
+      "lateRequestedNotes": 0,
+      "requestedWithinEngineClamp5ms": 0,
+      "noteLeadMs": {
+        "minimum": 118.23401631022045,
+        "p50": 389.89488986130283,
+        "p95": 404.89252737210535
+      },
+      "audioTickGapMs": {
+        "p50": 25,
+        "p95": 26.100000001490116,
+        "maximum": 48.899999998509884
+      },
+      "nonzeroSignalSamples": 65,
+      "signalSamples": 65,
+      "longTasks": {
+        "count": 0,
+        "totalMs": 0,
+        "maximumMs": 0
+      },
+      "audience": 1101,
+      "seat": 19,
+      "sampleRate": 48000,
+      "sampleCount": 389,
+      "samplePcmBytes": 296771776,
+      "applausePcmBytes": 14288400,
+      "paused": {
+        "playing": false,
+        "voices": 0,
+        "time": 65.71466666666666,
+        "context": "running"
+      },
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--single-process",
+          "--font-render-hinting=none",
+          "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--in-process-gpu",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "softwareRequested": true,
+        "headless": true
+      }
+    },
+    {
+      "file": "audio-stability-after-hall-desktop.json",
+      "sha256": "a4bc9247019c931371111a449084c1eb0b419ccdbae2fe52f3c27f728c86bbbd",
+      "measuredAt": "2026-10-21T07:12:03.881Z",
+      "label": "after",
+      "venue": "hall",
+      "device": "desktop",
+      "quality": "high",
+      "revision": "a41-integrated-candidate",
+      "audioSeconds": 65.23733333333334,
+      "wallSeconds": 65.23469999999925,
+      "finalPieceTime": 65.11733333333333,
+      "notes": 1671,
+      "sourceStarts": 2160,
+      "sequenceHash": "14351705137ec5b799f77cee36acc1178da6c2cfc9890d4a8512be3107c97985",
+      "visualUpdates": 327,
+      "visualHz": 5.012669637478271,
+      "lateRequestedNotes": 0,
+      "requestedWithinEngineClamp5ms": 0,
+      "noteLeadMs": {
+        "minimum": 117.24251840797083,
+        "p50": 389.5690637563796,
+        "p95": 404.9023119880246
+      },
+      "audioTickGapMs": {
+        "p50": 25,
+        "p95": 26,
+        "maximum": 42.80000000074506
+      },
+      "nonzeroSignalSamples": 65,
+      "signalSamples": 65,
+      "longTasks": {
+        "count": 0,
+        "totalMs": 0,
+        "maximumMs": 0
+      },
+      "audience": 827,
+      "seat": 60,
+      "sampleRate": 48000,
+      "sampleCount": 389,
+      "samplePcmBytes": 296771776,
+      "applausePcmBytes": 14288400,
+      "paused": {
+        "playing": false,
+        "voices": 0,
+        "time": 65.816,
+        "context": "running"
+      },
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--single-process",
+          "--font-render-hinting=none",
+          "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--in-process-gpu",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "softwareRequested": true,
+        "headless": true
+      }
+    },
+    {
+      "file": "audio-stability-baseline-sphere-mobile.json",
+      "sha256": "2aed9c258c65c479e43cb783b834948ad853dafff7295757412e4d3893d4b148",
+      "measuredAt": "2026-10-21T07:13:28.132Z",
+      "label": "baseline",
+      "venue": "sphere",
+      "device": "mobile",
+      "quality": "low",
+      "revision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+      "audioSeconds": 65.23733333333334,
+      "wallSeconds": 65.2321000000015,
+      "finalPieceTime": 65.13866666666667,
+      "notes": 1671,
+      "sourceStarts": 2160,
+      "sequenceHash": "14351705137ec5b799f77cee36acc1178da6c2cfc9890d4a8512be3107c97985",
+      "visualUpdates": 327,
+      "visualHz": 5.012869430847581,
+      "lateRequestedNotes": 0,
+      "requestedWithinEngineClamp5ms": 0,
+      "noteLeadMs": {
+        "minimum": 114.30539055572453,
+        "p50": 389.5473064851842,
+        "p95": 405.4033248626254
+      },
+      "audioTickGapMs": {
+        "p50": 25,
+        "p95": 25.800000000745058,
+        "maximum": 88.90000000223517
+      },
+      "nonzeroSignalSamples": 65,
+      "signalSamples": 65,
+      "longTasks": {
+        "count": 0,
+        "totalMs": 0,
+        "maximumMs": 0
+      },
+      "audience": 2500,
+      "seat": 26,
+      "sampleRate": 24000,
+      "sampleCount": 207,
+      "samplePcmBytes": 64184568,
+      "applausePcmBytes": 14288400,
+      "paused": {
+        "playing": false,
+        "voices": 0,
+        "time": 65.672,
+        "context": "running"
+      },
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--single-process",
+          "--font-render-hinting=none",
+          "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--in-process-gpu",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "softwareRequested": true,
+        "headless": true
+      }
+    },
+    {
+      "file": "audio-stability-after-sphere-mobile.json",
+      "sha256": "4228b385520c3cf6ef6239bae1fb1aa15bf96a70d49af91475b96e125d947c86",
+      "measuredAt": "2026-10-21T07:14:45.003Z",
+      "label": "after",
+      "venue": "sphere",
+      "device": "mobile",
+      "quality": "low",
+      "revision": "a41-integrated-candidate",
+      "audioSeconds": 65.21600000000001,
+      "wallSeconds": 65.21640000000224,
+      "finalPieceTime": 65.096,
+      "notes": 1671,
+      "sourceStarts": 2160,
+      "sequenceHash": "14351705137ec5b799f77cee36acc1178da6c2cfc9890d4a8512be3107c97985",
+      "visualUpdates": 327,
+      "visualHz": 5.01407621395828,
+      "lateRequestedNotes": 0,
+      "requestedWithinEngineClamp5ms": 0,
+      "noteLeadMs": {
+        "minimum": 120.03654492714544,
+        "p50": 389.4843457870323,
+        "p95": 404.73198425845425
+      },
+      "audioTickGapMs": {
+        "p50": 25,
+        "p95": 25.799999997019768,
+        "maximum": 74.80000000074506
+      },
+      "nonzeroSignalSamples": 65,
+      "signalSamples": 65,
+      "longTasks": {
+        "count": 0,
+        "totalMs": 0,
+        "maximumMs": 0
+      },
+      "audience": 2500,
+      "seat": 26,
+      "sampleRate": 24000,
+      "sampleCount": 207,
+      "samplePcmBytes": 64184568,
+      "applausePcmBytes": 14288400,
+      "paused": {
+        "playing": false,
+        "voices": 0,
+        "time": 65.69333333333333,
+        "context": "running"
+      },
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--single-process",
+          "--font-render-hinting=none",
+          "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--in-process-gpu",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "softwareRequested": true,
+        "headless": true
+      }
+    },
+    {
+      "file": "audio-stability-after-hall-mobile.json",
+      "sha256": "3609288f1a64f2a290a102c0f538a8583543f230ebd94c5011dd0036980edaf0",
+      "measuredAt": "2026-10-21T07:16:02.256Z",
+      "label": "after",
+      "venue": "hall",
+      "device": "mobile",
+      "quality": "low",
+      "revision": "a41-integrated-candidate",
+      "audioSeconds": 65.21600000000001,
+      "wallSeconds": 65.23169999999925,
+      "finalPieceTime": 65.11733333333333,
+      "notes": 1671,
+      "sourceStarts": 2160,
+      "sequenceHash": "14351705137ec5b799f77cee36acc1178da6c2cfc9890d4a8512be3107c97985",
+      "visualUpdates": 327,
+      "visualHz": 5.012900169702825,
+      "lateRequestedNotes": 0,
+      "requestedWithinEngineClamp5ms": 0,
+      "noteLeadMs": {
+        "minimum": 115.32362793681416,
+        "p50": 388.78413007228295,
+        "p95": 405.0982117729163
+      },
+      "audioTickGapMs": {
+        "p50": 25,
+        "p95": 25.800000000745058,
+        "maximum": 40.399999998509884
+      },
+      "nonzeroSignalSamples": 65,
+      "signalSamples": 65,
+      "longTasks": {
+        "count": 0,
+        "totalMs": 0,
+        "maximumMs": 0
+      },
+      "audience": 200,
+      "seat": 63,
+      "sampleRate": 24000,
+      "sampleCount": 207,
+      "samplePcmBytes": 64184568,
+      "applausePcmBytes": 14288400,
+      "paused": {
+        "playing": false,
+        "voices": 0,
+        "time": 65.69866666666667,
+        "context": "running"
+      },
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--single-process",
+          "--font-render-hinting=none",
+          "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--in-process-gpu",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "softwareRequested": true,
+        "headless": true
+      }
+    },
+    {
+      "file": "audio-stability-after-sphere-desktop.json",
+      "sha256": "b2269616e19ec2cffe918c17cc73953e33b7f365ce30df4254278a79c337bf6a",
+      "measuredAt": "2026-10-21T07:17:24.612Z",
+      "label": "after",
+      "venue": "sphere",
+      "device": "desktop",
+      "quality": "high",
+      "revision": "a41-integrated-candidate",
+      "audioSeconds": 65.23733333333332,
+      "wallSeconds": 65.22919999999925,
+      "finalPieceTime": 65.032,
+      "notes": 1671,
+      "sourceStarts": 2160,
+      "sequenceHash": "14351705137ec5b799f77cee36acc1178da6c2cfc9890d4a8512be3107c97985",
+      "visualUpdates": 326,
+      "visualHz": 4.99776173860792,
+      "lateRequestedNotes": 0,
+      "requestedWithinEngineClamp5ms": 0,
+      "noteLeadMs": {
+        "minimum": 114.85483362096893,
+        "p50": 390.14609131878154,
+        "p95": 404.7335913780188
+      },
+      "audioTickGapMs": {
+        "p50": 25,
+        "p95": 26.299999997019768,
+        "maximum": 74.80000000074506
+      },
+      "nonzeroSignalSamples": 65,
+      "signalSamples": 65,
+      "longTasks": {
+        "count": 0,
+        "totalMs": 0,
+        "maximumMs": 0
+      },
+      "audience": 12912,
+      "seat": 243,
+      "sampleRate": 48000,
+      "sampleCount": 389,
+      "samplePcmBytes": 296771776,
+      "applausePcmBytes": 14288400,
+      "paused": {
+        "playing": false,
+        "voices": 0,
+        "time": 65.704,
+        "context": "running"
+      },
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--single-process",
+          "--font-render-hinting=none",
+          "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--in-process-gpu",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "softwareRequested": true,
+        "headless": true
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline-hall-desktop:completed",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:configuration",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:revision",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:score-prefix-exact",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:raw-note-identity",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:score-hash",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:voice-created-for-every-note",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:counts",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:source-starts-have-buffers",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:leads-valid",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:lead-summary",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:real-audio-progress",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:wall-progress",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:visual-update-rate",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:held-main-frame",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:running-visible-snapshots",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:monotonic-clock",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:recorded-states",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:nonzero-signal",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:real-pause-clears-tracked-voices",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:roster-exact",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:real-seat-input",
+      "passed": true
+    },
+    {
+      "name": "baseline-hall-desktop:no-skipped-note-or-sample-warning",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:completed",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:configuration",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:revision",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:score-prefix-exact",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:raw-note-identity",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:score-hash",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:voice-created-for-every-note",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:counts",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:source-starts-have-buffers",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:leads-valid",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:lead-summary",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:real-audio-progress",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:wall-progress",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:visual-update-rate",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:held-main-frame",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:running-visible-snapshots",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:monotonic-clock",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:recorded-states",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:nonzero-signal",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:real-pause-clears-tracked-voices",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:roster-exact",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:real-seat-input",
+      "passed": true
+    },
+    {
+      "name": "after-hall-desktop:no-skipped-note-or-sample-warning",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:completed",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:configuration",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:revision",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:score-prefix-exact",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:raw-note-identity",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:score-hash",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:voice-created-for-every-note",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:counts",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:source-starts-have-buffers",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:leads-valid",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:lead-summary",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:real-audio-progress",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:wall-progress",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:visual-update-rate",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:held-main-frame",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:running-visible-snapshots",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:monotonic-clock",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:recorded-states",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:nonzero-signal",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:real-pause-clears-tracked-voices",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:roster-exact",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:real-seat-input",
+      "passed": true
+    },
+    {
+      "name": "baseline-sphere-mobile:no-skipped-note-or-sample-warning",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:completed",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:configuration",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:revision",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:score-prefix-exact",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:raw-note-identity",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:score-hash",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:voice-created-for-every-note",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:counts",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:source-starts-have-buffers",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:leads-valid",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:lead-summary",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:real-audio-progress",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:wall-progress",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:visual-update-rate",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:held-main-frame",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:running-visible-snapshots",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:monotonic-clock",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:recorded-states",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:nonzero-signal",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:real-pause-clears-tracked-voices",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:roster-exact",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:real-seat-input",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-mobile:no-skipped-note-or-sample-warning",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:completed",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:configuration",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:revision",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:score-prefix-exact",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:raw-note-identity",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:score-hash",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:voice-created-for-every-note",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:counts",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:source-starts-have-buffers",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:leads-valid",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:lead-summary",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:real-audio-progress",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:wall-progress",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:visual-update-rate",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:held-main-frame",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:running-visible-snapshots",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:monotonic-clock",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:recorded-states",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:nonzero-signal",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:real-pause-clears-tracked-voices",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:roster-exact",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:real-seat-input",
+      "passed": true
+    },
+    {
+      "name": "after-hall-mobile:no-skipped-note-or-sample-warning",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:completed",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:configuration",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:revision",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:score-prefix-exact",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:raw-note-identity",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:score-hash",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:voice-created-for-every-note",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:counts",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:source-starts-have-buffers",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:leads-valid",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:lead-summary",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:real-audio-progress",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:wall-progress",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:visual-update-rate",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:held-main-frame",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:running-visible-snapshots",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:monotonic-clock",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:recorded-states",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:nonzero-signal",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:real-pause-clears-tracked-voices",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:roster-exact",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:real-seat-input",
+      "passed": true
+    },
+    {
+      "name": "after-sphere-desktop:no-skipped-note-or-sample-warning",
+      "passed": true
+    },
+    {
+      "name": "pair:hall-desktop:sequenceHash",
+      "passed": true
+    },
+    {
+      "name": "pair:hall-desktop:notes",
+      "passed": true
+    },
+    {
+      "name": "pair:hall-desktop:sourceStarts",
+      "passed": true
+    },
+    {
+      "name": "pair:hall-desktop:sampleRate",
+      "passed": true
+    },
+    {
+      "name": "pair:hall-desktop:sampleCount",
+      "passed": true
+    },
+    {
+      "name": "pair:hall-desktop:samplePcmBytes",
+      "passed": true
+    },
+    {
+      "name": "pair:hall-desktop:applausePcmBytes",
+      "passed": true
+    },
+    {
+      "name": "pair:sphere-mobile:sequenceHash",
+      "passed": true
+    },
+    {
+      "name": "pair:sphere-mobile:notes",
+      "passed": true
+    },
+    {
+      "name": "pair:sphere-mobile:sourceStarts",
+      "passed": true
+    },
+    {
+      "name": "pair:sphere-mobile:sampleRate",
+      "passed": true
+    },
+    {
+      "name": "pair:sphere-mobile:sampleCount",
+      "passed": true
+    },
+    {
+      "name": "pair:sphere-mobile:samplePcmBytes",
+      "passed": true
+    },
+    {
+      "name": "pair:sphere-mobile:applausePcmBytes",
+      "passed": true
+    },
+    {
+      "name": "all-six:score-prefix-hash",
+      "passed": true
+    }
+  ],
+  "pairs": [
+    {
+      "venue": "hall",
+      "device": "desktop",
+      "equal": {
+        "sequenceHash": true,
+        "notes": true,
+        "sourceStarts": true,
+        "sampleRate": true,
+        "sampleCount": true,
+        "samplePcmBytes": true,
+        "applausePcmBytes": true
+      },
+      "purpose": "Score-prefix/source-count and sample-format identity, not CPU/heap/latency performance attribution."
+    },
+    {
+      "venue": "sphere",
+      "device": "mobile",
+      "equal": {
+        "sequenceHash": true,
+        "notes": true,
+        "sourceStarts": true,
+        "sampleRate": true,
+        "sampleCount": true,
+        "samplePcmBytes": true,
+        "applausePcmBytes": true
+      },
+      "purpose": "Score-prefix/source-count and sample-format identity, not CPU/heap/latency performance attribution."
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,3178 @@
+{
+  "schema": 2,
+  "suite": "functional-controlled",
+  "scope": "transport",
+  "venue": "hall",
+  "device": "desktop",
+  "status": "FAIL",
+  "url": "http://127.0.0.1:8083/?venue=hall",
+  "label": "baseline-transport",
+  "revision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+  "fixtureSourceSha256": "222caefe9a1b010501e012034a8951a760d3c5f099d91c0a185b37dbc5be92b0",
+  "viewport": [
+    960,
+    540
+  ],
+  "devicePixelRatio": 1,
+  "timeoutMs": 180000,
+  "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+  "fixtures": [
+    "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+    "Google Fonts requests use explicit local font files from FONT_ROOT; external font connectivity is outside this check.",
+    "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+    "Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.",
+    "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+    "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+    "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active."
+  ],
+  "unchecked": [
+    "programme-switch",
+    "quality-presets-and-world-target-resize",
+    "audience-toggle",
+    "broadcast-toggle",
+    "automatic-preset-reset",
+    "final-mobile-layout"
+  ],
+  "checks": {
+    "device": {
+      "maxTouchPoints": 0,
+      "finePointer": true,
+      "viewport": [
+        960,
+        540
+      ],
+      "dpr": 1,
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+    },
+    "entry": {
+      "mode": "walk",
+      "active": true,
+      "seat": null,
+      "nearSeat": null,
+      "position": [
+        0,
+        5.955,
+        40.4
+      ],
+      "camera": [
+        0,
+        5.955,
+        40.4
+      ],
+      "forward": [
+        0,
+        0.007692080119339222,
+        -0.9999704155140979
+      ],
+      "up": [
+        0,
+        0.9999704155140979,
+        0.007692080119339222
+      ],
+      "yaw": 0,
+      "pitch": 0.00769215597564884,
+      "joy": {
+        "x": 0,
+        "y": 0
+      },
+      "keys": [],
+      "listener": {
+        "position": [
+          0,
+          5.955,
+          40.4
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ]
+      },
+      "listenerObservation": "original-setListener-input",
+      "audio": "running",
+      "playing": false,
+      "time": 0,
+      "duration": 73.94,
+      "piece": "beethoven-ode-to-joy",
+      "audioClock": {
+        "wallTimeMs": 1792559743983,
+        "performanceNowMs": 36905,
+        "audioNow": 21.397333333333332,
+        "pausedPosition": 0,
+        "outputLatency": 0.08533333333333333,
+        "sampleRate": 48000,
+        "voices": 0,
+        "eventCount": 1776,
+        "visibility": "visible"
+      },
+      "phase": "lobby",
+      "audience": 741,
+      "occupied": 741,
+      "settings": {
+        "quality": "high",
+        "audience": true,
+        "screen": true,
+        "fixedEar": true
+      },
+      "render": {
+        "quality": null,
+        "scale": null,
+        "pixelRatio": 1,
+        "shadows": true,
+        "statisticsAvailable": false
+      },
+      "dome": null
+    },
+    "movement": {
+      "input": "W key",
+      "before": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.4
+        ],
+        "camera": [
+          0,
+          5.955,
+          40.4
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.955,
+            40.4
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559743988,
+          "performanceNowMs": 36909.70000000112,
+          "audioNow": 21.397333333333332,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "after": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.297441010088406
+        ],
+        "camera": [
+          0,
+          5.961495446227811,
+          40.297441010088406
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [
+          "KeyW"
+        ],
+        "listener": {
+          "position": [
+            0,
+            5.961495446227811,
+            40.297441010088406
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559768494,
+          "performanceNowMs": 61415,
+          "audioNow": 45.909333333333336,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      }
+    },
+    "look": {
+      "input": "mouse drag",
+      "before": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.297441010088406
+        ],
+        "camera": [
+          0,
+          5.961495446227811,
+          40.297441010088406
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.961495446227811,
+            40.297441010088406
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559768503,
+          "performanceNowMs": 61424.90000000037,
+          "audioNow": 45.93066666666667,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "after": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.25910096013199
+        ],
+        "camera": [
+          0,
+          5.96001860916942,
+          40.25910096013199
+        ],
+        "forward": [
+          0.30794710384493484,
+          -0.10968670137718677,
+          -0.9450594736705774
+        ],
+        "up": [
+          0.03398274676127584,
+          0.993966210462404,
+          -0.10428971848445627
+        ],
+        "yaw": -0.315,
+        "pitch": -0.10990784402435115,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.96001860916942,
+            40.25910096013199
+          ],
+          "forward": [
+            0.30794710384493484,
+            -0.10968670137718677,
+            -0.9450594736705774
+          ],
+          "up": [
+            0.03398274676127584,
+            0.993966210462404,
+            -0.10428971848445627
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559778917,
+          "performanceNowMs": 71838.60000000149,
+          "audioNow": 56.34133333333333,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      }
+    },
+    "listenerAudioParams": {
+      "position": [
+        0,
+        5.960018634796143,
+        40.25910186767578
+      ],
+      "forward": [
+        0.3079470992088318,
+        -0.1096867024898529,
+        -0.9450594782829285
+      ]
+    },
+    "seatFixture": {
+      "candidate": 21,
+      "label": "1층 A열 22번"
+    },
+    "sitStand": {
+      "input": "E -> E",
+      "seated": {
+        "mode": "seat",
+        "active": true,
+        "seat": 63,
+        "nearSeat": 63,
+        "position": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "camera": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "forward": [
+          0,
+          -0.3819889769350002,
+          -0.9241668796814523
+        ],
+        "up": [
+          0,
+          0.9241668796814523,
+          -0.3819889769350002
+        ],
+        "yaw": 0,
+        "pitch": -0.3919475254685127,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            1.7100000000000002,
+            3.7
+          ],
+          "forward": [
+            0,
+            -0.3819889769350002,
+            -0.9241668796814523
+          ],
+          "up": [
+            0,
+            0.9241668796814523,
+            -0.3819889769350002
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559780853,
+          "performanceNowMs": 73774.20000000112,
+          "audioNow": 58.282666666666664,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "standing": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559786840,
+          "performanceNowMs": 79761.60000000149,
+          "audioNow": 64.256,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      }
+    },
+    "roster": {
+      "initial": {
+        "piece": "beethoven-ode-to-joy",
+        "supported": true,
+        "required": [
+          "bn:0",
+          "cb:0",
+          "choir:0",
+          "choir:1",
+          "choir:10",
+          "choir:11",
+          "choir:2",
+          "choir:3",
+          "choir:4",
+          "choir:5",
+          "choir:6",
+          "choir:7",
+          "choir:8",
+          "choir:9",
+          "cl:0",
+          "fl:0",
+          "hn:0",
+          "hn:1",
+          "ob:0",
+          "timp:0",
+          "tp:0",
+          "va:0",
+          "va:1",
+          "vc:0",
+          "vc:1",
+          "vn1:0",
+          "vn1:1",
+          "vn1:2",
+          "vn2:0",
+          "vn2:1",
+          "vn2:2"
+        ],
+        "active": [
+          "bn:0",
+          "cb:0",
+          "choir:0",
+          "choir:1",
+          "choir:10",
+          "choir:11",
+          "choir:2",
+          "choir:3",
+          "choir:4",
+          "choir:5",
+          "choir:6",
+          "choir:7",
+          "choir:8",
+          "choir:9",
+          "cl:0",
+          "fl:0",
+          "hn:0",
+          "hn:1",
+          "ob:0",
+          "timp:0",
+          "tp:0",
+          "va:0",
+          "va:1",
+          "vc:0",
+          "vc:1",
+          "vn1:0",
+          "vn1:1",
+          "vn1:2",
+          "vn2:0",
+          "vn2:1",
+          "vn2:2"
+        ],
+        "settled": true,
+        "conductorOn": true
+      }
+    },
+    "seek": {
+      "input": "mouse pointer",
+      "target": 22,
+      "actual": 21.999998398899155
+    },
+    "resumeClock": {
+      "startPos": 21.999998398899155,
+      "startCtx": 71.58666666666667,
+      "audioNow": 71.46666666666667,
+      "outputLatency": 0.08533333333333333,
+      "time": 21.794665065565816
+    },
+    "resumeTrace": {
+      "method": "Passive 100ms wall-clock samples; audio state/visibility listeners; one read-only engine.onTick observer. No manual frames or clock/audio mutations during the resume wait.",
+      "samplePeriodMs": 100,
+      "maxSamples": 64,
+      "thresholdTime": 22.049998398899156,
+      "outcome": "failed",
+      "samples": [
+        {
+          "cause": "before-resume-click",
+          "wallTimeMs": 1792559794264,
+          "elapsedMs": 0,
+          "performanceNowMs": 87185.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": false,
+          "time": 21.999998398899155,
+          "startPos": 0,
+          "startCtx": 66.53066666666668,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 0,
+          "scheduledEventIndex": 120,
+          "eventCount": 1776,
+          "ticks": 0,
+          "lastTickMs": null,
+          "msSinceLastTick": null,
+          "visibility": "visible"
+        },
+        {
+          "cause": "after-resume-click",
+          "wallTimeMs": 1792559794305,
+          "elapsedMs": 41.40000000037253,
+          "performanceNowMs": 87226.70000000112,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 2,
+          "lastTickMs": 87209.90000000037,
+          "msSinceLastTick": 16.800000000745058,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559794372,
+          "elapsedMs": 107.90000000037253,
+          "performanceNowMs": 87293.20000000112,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 5,
+          "lastTickMs": 87284.90000000037,
+          "msSinceLastTick": 8.300000000745058,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559794464,
+          "elapsedMs": 200,
+          "performanceNowMs": 87385.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 9,
+          "lastTickMs": 87384.90000000037,
+          "msSinceLastTick": 0.40000000037252903,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559794564,
+          "elapsedMs": 300.09999999962747,
+          "performanceNowMs": 87485.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 13,
+          "lastTickMs": 87484.90000000037,
+          "msSinceLastTick": 0.5,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559794664,
+          "elapsedMs": 400,
+          "performanceNowMs": 87585.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 17,
+          "lastTickMs": 87584.90000000037,
+          "msSinceLastTick": 0.40000000037252903,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559794764,
+          "elapsedMs": 500,
+          "performanceNowMs": 87685.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 21,
+          "lastTickMs": 87684.90000000037,
+          "msSinceLastTick": 0.40000000037252903,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559794864,
+          "elapsedMs": 600.0999999996275,
+          "performanceNowMs": 87785.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 25,
+          "lastTickMs": 87784.90000000037,
+          "msSinceLastTick": 0.5,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559794964,
+          "elapsedMs": 700.0999999996275,
+          "performanceNowMs": 87885.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 29,
+          "lastTickMs": 87884.80000000075,
+          "msSinceLastTick": 0.599999999627471,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795064,
+          "elapsedMs": 800.0999999996275,
+          "performanceNowMs": 87985.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 33,
+          "lastTickMs": 87984.90000000037,
+          "msSinceLastTick": 0.5,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795164,
+          "elapsedMs": 900.0999999996275,
+          "performanceNowMs": 88085.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 37,
+          "lastTickMs": 88084.90000000037,
+          "msSinceLastTick": 0.5,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795264,
+          "elapsedMs": 1000,
+          "performanceNowMs": 88185.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 41,
+          "lastTickMs": 88184.90000000037,
+          "msSinceLastTick": 0.40000000037252903,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795364,
+          "elapsedMs": 1100,
+          "performanceNowMs": 88285.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 45,
+          "lastTickMs": 88285,
+          "msSinceLastTick": 0.30000000074505806,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795464,
+          "elapsedMs": 1200.0999999996275,
+          "performanceNowMs": 88385.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 49,
+          "lastTickMs": 88384.90000000037,
+          "msSinceLastTick": 0.5,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795564,
+          "elapsedMs": 1300,
+          "performanceNowMs": 88485.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 53,
+          "lastTickMs": 88484.90000000037,
+          "msSinceLastTick": 0.40000000037252903,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795664,
+          "elapsedMs": 1400.0999999996275,
+          "performanceNowMs": 88585.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 57,
+          "lastTickMs": 88584.90000000037,
+          "msSinceLastTick": 0.5,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795764,
+          "elapsedMs": 1500.0999999996275,
+          "performanceNowMs": 88685.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 61,
+          "lastTickMs": 88684.90000000037,
+          "msSinceLastTick": 0.5,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795864,
+          "elapsedMs": 1600,
+          "performanceNowMs": 88785.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 65,
+          "lastTickMs": 88784.90000000037,
+          "msSinceLastTick": 0.40000000037252903,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559795964,
+          "elapsedMs": 1700.0999999996275,
+          "performanceNowMs": 88885.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 69,
+          "lastTickMs": 88885,
+          "msSinceLastTick": 0.40000000037252903,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559796064,
+          "elapsedMs": 1800,
+          "performanceNowMs": 88985.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 73,
+          "lastTickMs": 88984.90000000037,
+          "msSinceLastTick": 0.40000000037252903,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559796164,
+          "elapsedMs": 1900,
+          "performanceNowMs": 89085.30000000075,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 77,
+          "lastTickMs": 89084.90000000037,
+          "msSinceLastTick": 0.40000000037252903,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792559796264,
+          "elapsedMs": 2000.0999999996275,
+          "performanceNowMs": 89185.40000000037,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 81,
+          "lastTickMs": 89184.90000000037,
+          "msSinceLastTick": 0.5,
+          "visibility": "visible"
+        },
+        {
+          "cause": "final",
+          "wallTimeMs": 1792559796314,
+          "elapsedMs": 2049.9000000003725,
+          "performanceNowMs": 89235.20000000112,
+          "audioState": "running",
+          "audioNow": 71.46666666666667,
+          "outputTimestamp": {
+            "contextTime": 71.42598933333335,
+            "performanceTime": 86998.30000000075
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.794665065565816,
+          "startPos": 21.999998398899155,
+          "startCtx": 71.58666666666667,
+          "pausedPosition": 21.999998398899155,
+          "phase": "playing",
+          "voices": 3,
+          "scheduledEventIndex": 504,
+          "eventCount": 1776,
+          "ticks": 83,
+          "lastTickMs": 89234.90000000037,
+          "msSinceLastTick": 0.30000000074505806,
+          "visibility": "visible"
+        }
+      ],
+      "events": [],
+      "nodeElapsedMs": 2048.6582049999997,
+      "conditionTimeoutMs": 2000
+    }
+  },
+  "frames": [
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.4
+        ],
+        "camera": [
+          0,
+          5.955,
+          40.4
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.955,
+            40.4
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559743983,
+          "performanceNowMs": 36905,
+          "audioNow": 21.397333333333332,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "entered"
+    },
+    {
+      "passes": [
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.36065306597126
+        ],
+        "camera": [
+          0,
+          5.956664395616331,
+          40.36065306597126
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [
+          "KeyW"
+        ],
+        "listener": {
+          "position": [
+            0,
+            5.956664395616331,
+            40.36065306597126
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559758748,
+          "performanceNowMs": 51669.60000000149,
+          "audioNow": 36.181333333333335,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "movement-1"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.297441010088406
+        ],
+        "camera": [
+          0,
+          5.961495446227811,
+          40.297441010088406
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [
+          "KeyW"
+        ],
+        "listener": {
+          "position": [
+            0,
+            5.961495446227811,
+            40.297441010088406
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559768494,
+          "performanceNowMs": 61415,
+          "audioNow": 45.909333333333336,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "movement-2"
+    },
+    {
+      "passes": [
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.25910096013199
+        ],
+        "camera": [
+          0,
+          5.96001860916942,
+          40.25910096013199
+        ],
+        "forward": [
+          0.30794710384493484,
+          -0.10968670137718677,
+          -0.9450594736705774
+        ],
+        "up": [
+          0.03398274676127584,
+          0.993966210462404,
+          -0.10428971848445627
+        ],
+        "yaw": -0.315,
+        "pitch": -0.10990784402435115,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.96001860916942,
+            40.25910096013199
+          ],
+          "forward": [
+            0.30794710384493484,
+            -0.10968670137718677,
+            -0.9450594736705774
+          ],
+          "up": [
+            0.03398274676127584,
+            0.993966210462404,
+            -0.10428971848445627
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559778917,
+          "performanceNowMs": 71838.60000000149,
+          "audioNow": 56.34133333333333,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "look-drag"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "camera": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "forward": [
+          0,
+          -0.3819889769350002,
+          -0.9241668796814523
+        ],
+        "up": [
+          0,
+          0.9241668796814523,
+          -0.3819889769350002
+        ],
+        "yaw": 0,
+        "pitch": -0.3919475254685127,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            1.7100000000000002,
+            3.7
+          ],
+          "forward": [
+            0,
+            -0.3819889769350002,
+            -0.9241668796814523
+          ],
+          "up": [
+            0,
+            0.9241668796814523,
+            -0.3819889769350002
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559780849,
+          "performanceNowMs": 73770.80000000075,
+          "audioNow": 58.282666666666664,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "near-seat"
+    },
+    {
+      "passes": [
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "seat",
+        "active": true,
+        "seat": 63,
+        "nearSeat": null,
+        "position": [
+          -0.14018832647224994,
+          1.4325,
+          4.170097113308842
+        ],
+        "camera": [
+          -0.14018832647224994,
+          1.4325,
+          4.170097113308842
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14018832647224994,
+            1.4325,
+            4.170097113308842
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559785109,
+          "performanceNowMs": 78030.90000000037,
+          "audioNow": 62.528,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "seated"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559786840,
+          "performanceNowMs": 79761.60000000149,
+          "audioNow": 64.256,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "stood-up"
+    },
+    {
+      "passes": [
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": true,
+        "time": 4.850666666666659,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792559794047,
+          "performanceNowMs": 86968.5,
+          "audioNow": 71.46666666666667,
+          "startCtx": 66.53066666666668,
+          "startPos": 0,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 108,
+          "scheduledEventIndex": 120,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 741,
+        "occupied": 741,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "show-started"
+    }
+  ],
+  "errors": [],
+  "warnings": [
+    "[.WebGL-0xd3402f27000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xd3402f27000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xd3402f27000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xd3402f27000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "failedRequests": [],
+  "environment": {
+    "browserVersion": "153.0.8010.0",
+    "playwrightVersion": "1.64.1",
+    "platform": "linux",
+    "architecture": "x64",
+    "softwareRequested": true,
+    "chromeArgs": [
+      "--ash-no-nudges",
+      "--disable-domain-reliability",
+      "--disable-print-preview",
+      "--disk-cache-size=33554432",
+      "--no-default-browser-check",
+      "--no-pings",
+      "--single-process",
+      "--font-render-hinting=none",
+      "--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process",
+      "--enable-features=SharedArrayBuffer",
+      "--ignore-gpu-blocklist",
+      "--in-process-gpu",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader",
+      "--allow-running-insecure-content",
+      "--disable-setuid-sandbox",
+      "--disable-site-isolation-trials",
+      "--disable-web-security",
+      "--headless='shell'",
+      "--no-sandbox",
+      "--no-zygote",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader"
+    ],
+    "fontMode": "local",
+    "headless": true
+  },
+  "diagnostics": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "warnings": [
+      "[.WebGL-0xd3402f27000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0xd3402f27000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0xd3402f27000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0xd3402f27000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    ],
+    "failedRequests": []
+  },
+  "sourceHashes": {
+    "js/main.js": {
+      "sha256": "42fa7cfe648fa869169241c04a58c1108f2f4c8a4af81d68abee3996a15b7506"
+    },
+    "js/scene/hall.js": {
+      "sha256": "1189fd38702f75430ac093c5269f8cb4eeee6f1d53be3c0f6ee2016d0e5ac8eb"
+    },
+    "js/scene/seats.js": {
+      "sha256": "e355a11113f489808f594a5d1d84fd8dfba7a64d9f03c8a445e050bec16624e2"
+    },
+    "js/scene/audience.js": {
+      "sha256": "ddfba659d66ead123ecae28f513027d6175d4968f7526ea23dc1e2e466120d03"
+    },
+    "js/scene/sphere.js": {
+      "sha256": "4f22fa4b3204afa5b44ca424fdd8d95e851cea22bd20cdd9b295e99263173e29"
+    },
+    "js/scene/dome3d.js": {
+      "sha256": "fc47f58a98830be4483d3d44c8bc451aba9b52d0713cbda3be51bc4ed872a366"
+    },
+    "js/scene/domeshow.js": {
+      "sha256": "ae0edc60bc229176ae6b181bd0462a20de6bd302d53a0447f9979f79f11a3d33"
+    }
+  },
+  "failure": {
+    "message": "page.waitForFunction: Timeout 2000ms exceeded.",
+    "stack": "page.waitForFunction: Timeout 2000ms exceeded.\n    at runCase (/workspace/scratch/51e64c30577e/forest-philharmonic/tools/bench/functional.mjs:448:18)\n    at async file:///workspace/scratch/51e64c30577e/forest-philharmonic/tools/bench/functional.mjs:623:41"
+  },
+  "failureState": {
+    "mode": "walk",
+    "active": true,
+    "seat": null,
+    "nearSeat": 63,
+    "position": [
+      -0.14058799942376052,
+      1.8525,
+      3.730098411599396
+    ],
+    "camera": [
+      -0.14058799942376052,
+      1.8525,
+      3.730098411599396
+    ],
+    "forward": [
+      0.00940939783062099,
+      0.0383467748782806,
+      -0.9992201899926261
+    ],
+    "up": [
+      -0.00036108564175008046,
+      0.9992644919421657,
+      0.03834507479096702
+    ],
+    "yaw": -0.009416462771162657,
+    "pitch": 0.03835617909906247,
+    "joy": {
+      "x": 0,
+      "y": 0
+    },
+    "keys": [],
+    "listener": {
+      "position": [
+        -0.14058799942376052,
+        1.8525,
+        3.730098411599396
+      ],
+      "forward": [
+        0.00940939783062099,
+        0.0383467748782806,
+        -0.9992201899926261
+      ],
+      "up": [
+        -0.00036108564175008046,
+        0.9992644919421657,
+        0.03834507479096702
+      ]
+    },
+    "listenerObservation": "original-setListener-input",
+    "audio": "running",
+    "playing": true,
+    "time": 21.794665065565816,
+    "duration": 73.94,
+    "piece": "beethoven-ode-to-joy",
+    "audioClock": {
+      "wallTimeMs": 1792559796321,
+      "performanceNowMs": 89242.30000000075,
+      "audioNow": 71.46666666666667,
+      "startCtx": 71.58666666666667,
+      "startPos": 21.999998398899155,
+      "pausedPosition": 21.999998398899155,
+      "outputLatency": 0.08533333333333333,
+      "sampleRate": 48000,
+      "voices": 3,
+      "scheduledEventIndex": 504,
+      "eventCount": 1776,
+      "visibility": "visible"
+    },
+    "phase": "playing",
+    "audience": 741,
+    "occupied": 741,
+    "settings": {
+      "quality": "high",
+      "audience": true,
+      "screen": true,
+      "fixedEar": true
+    },
+    "render": {
+      "quality": null,
+      "scale": null,
+      "pixelRatio": 1,
+      "shadows": true,
+      "statisticsAvailable": false
+    },
+    "dome": null
+  }
+}

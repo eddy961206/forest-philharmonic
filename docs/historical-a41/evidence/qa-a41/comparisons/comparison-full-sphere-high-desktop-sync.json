@@ -1,0 +1,328 @@
+{
+  "files": [
+    "/workspace/scratch/51e64c30577e/qa-a41/render/baseline-full-sphere-high-desktop-sync.json",
+    "/workspace/scratch/51e64c30577e/qa-a41/render/after-full-sphere-high-desktop-sync.json"
+  ],
+  "revisions": [
+    "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+    "a41-integrated-candidate"
+  ],
+  "suite": "whole-frame-controlled",
+  "mode": "synchronous-completion",
+  "venue": "sphere",
+  "quality": "high",
+  "device": "desktop",
+  "scenarioOrder": [
+    "front",
+    "wide",
+    "dome",
+    "forest",
+    "peaks",
+    "crossfade",
+    "reveal",
+    "broadcast",
+    "effects-show"
+  ],
+  "samplesPerScenario": 6,
+  "warnings": [],
+  "scenarios": {
+    "front": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 963.6000000002483,
+        "after": 949.2499999996895,
+        "difference": -14.350000000558794,
+        "percent": -1.489207139949678
+      },
+      "p50Ms": {
+        "before": 930.9000000003725,
+        "after": 947.1999999992549,
+        "difference": 16.299999998882413,
+        "percent": 1.7509936619267257
+      },
+      "p95Ms": {
+        "before": 1017.4000000003725,
+        "after": 1015.8000000007451,
+        "difference": -1.599999999627471,
+        "percent": -0.15726361309483833
+      },
+      "calls": {
+        "before": 1712,
+        "after": 1712,
+        "difference": 0,
+        "percent": 0
+      },
+      "triangles": {
+        "before": 2267848,
+        "after": 2267848,
+        "difference": 0,
+        "percent": 0
+      }
+    },
+    "wide": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 2938.466666666791,
+        "after": 2877.8166666664183,
+        "difference": -60.65000000037253,
+        "percent": -2.064001633517593
+      },
+      "p50Ms": {
+        "before": 2906.5,
+        "after": 2885.5,
+        "difference": -21,
+        "percent": -0.7225184930328574
+      },
+      "p95Ms": {
+        "before": 3070.7000000011176,
+        "after": 2982.800000000745,
+        "difference": -87.90000000037253,
+        "percent": -2.862539486121749
+      },
+      "calls": {
+        "before": 1780.3333333333333,
+        "after": 1780.3333333333333,
+        "difference": 0,
+        "percent": 0
+      },
+      "triangles": {
+        "before": 3699488,
+        "after": 3699488,
+        "difference": 0,
+        "percent": 0
+      }
+    },
+    "dome": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 817.2999999998137,
+        "after": 860.6999999998758,
+        "difference": 43.40000000006205,
+        "percent": 5.310167625115862
+      },
+      "p50Ms": {
+        "before": 780,
+        "after": 821.0999999996275,
+        "difference": 41.09999999962747,
+        "percent": 5.269230769183009
+      },
+      "p95Ms": {
+        "before": 972.6999999992549,
+        "after": 987.9000000003725,
+        "difference": 15.200000001117587,
+        "percent": 1.5626606354610086
+      },
+      "calls": {
+        "before": 654,
+        "after": 654,
+        "difference": 0,
+        "percent": 0
+      },
+      "triangles": {
+        "before": 2557834,
+        "after": 2557834,
+        "difference": 0,
+        "percent": 0
+      }
+    },
+    "forest": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 1958.0833333333333,
+        "after": 2055.6666666666665,
+        "difference": 97.58333333333326,
+        "percent": 4.983614929565473
+      },
+      "p50Ms": {
+        "before": 1932.300000000745,
+        "after": 2000.199999999255,
+        "difference": 67.89999999850988,
+        "percent": 3.5139471095835892
+      },
+      "p95Ms": {
+        "before": 2073.89999999851,
+        "after": 2266.5,
+        "difference": 192.60000000149012,
+        "percent": 9.286850860775761
+      },
+      "calls": {
+        "before": 1748,
+        "after": 1748,
+        "difference": 0,
+        "percent": 0
+      },
+      "triangles": {
+        "before": 3275340,
+        "after": 3268752,
+        "difference": -6588,
+        "percent": -0.20113942369341808
+      }
+    },
+    "peaks": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 2085.6166666665426,
+        "after": 1950.1333333334576,
+        "difference": -135.48333333308506,
+        "percent": -6.49608029598407
+      },
+      "p50Ms": {
+        "before": 2037.199999999255,
+        "after": 1949.199999999255,
+        "difference": -88,
+        "percent": -4.319654427647368
+      },
+      "p95Ms": {
+        "before": 2259.9000000003725,
+        "after": 2073.5999999996275,
+        "difference": -186.30000000074506,
+        "percent": -8.243727598597918
+      },
+      "calls": {
+        "before": 1747,
+        "after": 1747,
+        "difference": 0,
+        "percent": 0
+      },
+      "triangles": {
+        "before": 3275052,
+        "after": 3268464,
+        "difference": -6588,
+        "percent": -0.20115711139853656
+      }
+    },
+    "crossfade": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 1960.3333333336438,
+        "after": 2013.616666666853,
+        "difference": 53.28333333320916,
+        "percent": 2.7180751572794106
+      },
+      "p50Ms": {
+        "before": 1970.800000000745,
+        "after": 1990.800000000745,
+        "difference": 20,
+        "percent": 1.0148163182460137
+      },
+      "p95Ms": {
+        "before": 2027.300000000745,
+        "after": 2177,
+        "difference": 149.69999999925494,
+        "percent": 7.384205593607257
+      },
+      "calls": {
+        "before": 1745.6666666666667,
+        "after": 1745.6666666666667,
+        "difference": 0,
+        "percent": 0
+      },
+      "triangles": {
+        "before": 3274668,
+        "after": 3268080,
+        "difference": -6588,
+        "percent": -0.20118069984499193
+      }
+    },
+    "reveal": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 1988.7166666664805,
+        "after": 1915.4666666671012,
+        "difference": -73.24999999937927,
+        "percent": -3.683279837049997
+      },
+      "p50Ms": {
+        "before": 1998.199999999255,
+        "after": 1871.1000000014901,
+        "difference": -127.09999999776483,
+        "percent": -6.36072465207748
+      },
+      "p95Ms": {
+        "before": 2098,
+        "after": 2048.5999999996275,
+        "difference": -49.40000000037253,
+        "percent": -2.3546234509233805
+      },
+      "calls": {
+        "before": 1745,
+        "after": 1745,
+        "difference": 0,
+        "percent": 0
+      },
+      "triangles": {
+        "before": 3274476,
+        "after": 3267888,
+        "difference": -6588,
+        "percent": -0.2011924961428943
+      }
+    },
+    "broadcast": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 1764.9333333335817,
+        "after": 1747.2999999995034,
+        "difference": -17.633333334078316,
+        "percent": -0.9990934502196023
+      },
+      "p50Ms": {
+        "before": 1469.6000000014901,
+        "after": 1452,
+        "difference": -17.600000001490116,
+        "percent": -1.1976047905193434
+      },
+      "p95Ms": {
+        "before": 2132.5999999996275,
+        "after": 2084.4000000003725,
+        "difference": -48.19999999925494,
+        "percent": -2.260151927190442
+      },
+      "calls": {
+        "before": 2597.1666666666665,
+        "after": 2318.6666666666665,
+        "difference": -278.5,
+        "percent": -10.723224026182379
+      },
+      "triangles": {
+        "before": 4520785,
+        "after": 4393449,
+        "difference": -127336,
+        "percent": -2.816678961728992
+      }
+    },
+    "effects-show": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 1989.050000000124,
+        "after": 2076.9166666666665,
+        "difference": 87.86666666654241,
+        "percent": 4.417519251227317
+      },
+      "p50Ms": {
+        "before": 1503.8999999985099,
+        "after": 1625.4000000003725,
+        "difference": 121.50000000186265,
+        "percent": 8.07899461413545
+      },
+      "p95Ms": {
+        "before": 4425.9000000003725,
+        "after": 4448.0999999996275,
+        "difference": 22.199999999254942,
+        "percent": 0.501592896343186
+      },
+      "calls": {
+        "before": 1762.3333333333333,
+        "after": 1762.3333333333333,
+        "difference": 0,
+        "percent": 0
+      },
+      "triangles": {
+        "before": 3273280,
+        "after": 3273280,
+        "difference": 0,
+        "percent": 0
+      }
+    }
+  },
+  "interpretation": "시간의 음수 변화는 이번 표본에서 짧아졌다는 뜻이야. 인과관계·실기기 FPS·최악 조건의 성능 보장은 아니야. 작은 차이는 반복 측정과 시각 확인을 함께 봐."
+}

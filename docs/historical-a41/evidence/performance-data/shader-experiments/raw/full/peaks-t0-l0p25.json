@@ -1,0 +1,240 @@
+{
+  "case": {
+    "id": "peaks-t0-l0p25",
+    "kind": "cube",
+    "suite": "peaks",
+    "world": "PEAKS3D",
+    "variant": "peaks_deferred_sky",
+    "time": 0,
+    "flight": 0,
+    "level": 0.25
+  },
+  "startedAt": "2026-10-21T03:41:07.215Z",
+  "status": "complete",
+  "timing": {
+    "baseline": {
+      "world": "PEAKS3D",
+      "variant": "baseline",
+      "time": 0,
+      "flight": 0,
+      "level": 0.25,
+      "faces": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "metadata": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      },
+      "method": "performance.now around draw + synchronous RGBA/FLOAT 1x1 readPixels; CPU submission plus GPU completion, not pure GPU timer",
+      "warmup": 1,
+      "samples": 3,
+      "submissionMs": [
+        0.20000000018626451,
+        0.2999999998137355,
+        0.20000000018626451
+      ],
+      "completedMs": [
+        785.8000000007451,
+        917.3999999994412,
+        884.6000000005588
+      ],
+      "medianSubmissionMs": 0.20000000018626451,
+      "medianCompletedMs": 884.6000000005588,
+      "calls": 5,
+      "triangles": 11040
+    },
+    "candidate": {
+      "world": "PEAKS3D",
+      "variant": "peaks_deferred_sky",
+      "time": 0,
+      "flight": 0,
+      "level": 0.25,
+      "faces": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
+      "metadata": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      },
+      "method": "performance.now around draw + synchronous RGBA/FLOAT 1x1 readPixels; CPU submission plus GPU completion, not pure GPU timer",
+      "warmup": 1,
+      "samples": 3,
+      "submissionMs": [
+        0.20000000018626451,
+        0.2999999998137355,
+        0.20000000018626451
+      ],
+      "completedMs": [
+        915.5,
+        826.7999999998137,
+        897.7000000001863
+      ],
+      "medianSubmissionMs": 0.20000000018626451,
+      "medianCompletedMs": 897.7000000001863,
+      "calls": 5,
+      "triangles": 11040
+    }
+  },
+  "comparison": {
+    "world": "PEAKS3D",
+    "variant": "peaks_deferred_sky",
+    "time": 0,
+    "flight": 0,
+    "level": 0.25,
+    "faces": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "exact": true,
+    "metadata": {
+      "baseline": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      },
+      "candidate": {
+        "size": 640,
+        "type": 1016,
+        "format": 1023,
+        "generateMipmaps": false,
+        "minFilter": 1006,
+        "magFilter": 1006,
+        "depthBuffer": false,
+        "proxyTriangles": 2208,
+        "near": 0.01,
+        "far": 10,
+        "materialSide": 1
+      }
+    },
+    "differences": [
+      {
+        "face": 0,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "76fa7dc5",
+        "afterHash": "76fa7dc5",
+        "examples": []
+      },
+      {
+        "face": 1,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "7af43dc5",
+        "afterHash": "7af43dc5",
+        "examples": []
+      },
+      {
+        "face": 2,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "dcc5fdc5",
+        "afterHash": "dcc5fdc5",
+        "examples": []
+      },
+      {
+        "face": 3,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "7e627dc5",
+        "afterHash": "7e627dc5",
+        "examples": []
+      },
+      {
+        "face": 4,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "c4177dc5",
+        "afterHash": "c4177dc5",
+        "examples": []
+      },
+      {
+        "face": 5,
+        "exact": true,
+        "differingPixels": 0,
+        "totalPixels": 409600,
+        "differingComponents": 0,
+        "alphaDifferences": 0,
+        "maxAbs": 0,
+        "meanAbs": 0,
+        "rmse": 0,
+        "beforeHash": "17439dc5",
+        "afterHash": "17439dc5",
+        "examples": []
+      }
+    ]
+  },
+  "timingOrder": [
+    "baseline",
+    "candidate"
+  ],
+  "changePct": -1.4808953198755637,
+  "finishedAt": "2026-10-21T03:41:16.385Z"
+}

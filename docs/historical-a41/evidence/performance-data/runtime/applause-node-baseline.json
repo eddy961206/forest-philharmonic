@@ -1,0 +1,87 @@
+{
+  "measuredAt": "2026-10-21T03:23:32.480Z",
+  "node": "v24.19.0",
+  "collectionRevision": "6a640672f2211d7a7687078631d0d6a49a36026d",
+  "baselineRevision": "ec5ef65fab027353b51f751ffb59aa65b863af0a",
+  "sourceSha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f",
+  "method": "Actual renderApplause with unchanged arithmetic/seed/sr. Mock AudioBuffer has Float32Array channels. Each profile rendered once synchronously on Node main thread, wall duration excludes hash. Hash concatenates channel 0 then channel 1 raw native Float32 bytes. Output buffers retained as in engine. No browser, no hardware/device/audio playback claims.",
+  "timingLimit": "One synchronous Node observation per profile, collected at the collection revision. The original synthesizer bytes are identical at the latest-main baseline. Time was not remeasured there and is not a browser startup, app FPS, total CPU improvement or physical-device prediction.",
+  "profiles": [
+    {
+      "profile": "welcome",
+      "options": {
+        "seconds": 5.5,
+        "people": 120,
+        "seed": 11
+      },
+      "sampleRate": 44100,
+      "length": 242550,
+      "channels": 2,
+      "bytes": 1940400,
+      "elapsedMs": 57.32154299999999,
+      "channelHashes": [
+        "8a15ce04c94e00804fc77951ac3154192808908748cc7c5ceba53e3454f17f1d",
+        "2c461da980ce0de0a0d23ab79c68ae0ab1aa7d715e1364e70e594d29abd0c397"
+      ],
+      "combinedHash": "0e36960b5f4d8016fc155dea4b00ced57925a0091fd100c3a3627746de2962ff"
+    },
+    {
+      "profile": "normal0",
+      "options": {
+        "seconds": 10,
+        "people": 170,
+        "seed": 21
+      },
+      "sampleRate": 44100,
+      "length": 441000,
+      "channels": 2,
+      "bytes": 3528000,
+      "elapsedMs": 61.61390499999999,
+      "channelHashes": [
+        "5f4df9677442023828c2b6b55298e7529e750d2b3a5a5b1e14b016458ae05fd4",
+        "804ac3e18223117adbe6098675107a21ff897f59331846974cd3390cc64dd63c"
+      ],
+      "combinedHash": "ce7bcd933f35c157961145934bf47d92215421fd2c8ca908f78c3290f8d1f6e6"
+    },
+    {
+      "profile": "normal1",
+      "options": {
+        "seconds": 10,
+        "people": 170,
+        "seed": 22
+      },
+      "sampleRate": 44100,
+      "length": 441000,
+      "channels": 2,
+      "bytes": 3528000,
+      "elapsedMs": 35.13158899999999,
+      "channelHashes": [
+        "ea809a6d87d41e1b01a6b7262668705b32085825bb3437b97b80586a695dd08d",
+        "2f6ec52f582a73df907df86b82a6823897d0ddfba864abc1aecc5e360470a370"
+      ],
+      "combinedHash": "0002d543203882bc94b3b7de3e195f035114da36ebb0fe06af3f2ee17e9c9ecd"
+    },
+    {
+      "profile": "finale",
+      "options": {
+        "seconds": 15,
+        "people": 240,
+        "seed": 31,
+        "rhythmic": true
+      },
+      "sampleRate": 44100,
+      "length": 661500,
+      "channels": 2,
+      "bytes": 5292000,
+      "elapsedMs": 139.94599,
+      "channelHashes": [
+        "81db52601d500e2e68e2bc649324d8feea740f77ec6c72d8fb80590b0df5c303",
+        "1195e14a72d3c029cd844d19d876f822c10853814fdfcb8b517a546e7784ba86"
+      ],
+      "combinedHash": "eaf3814e925f2fbbb37a96577e9a197348602a3b8fb600c90e3155a59612f9e7"
+    }
+  ],
+  "outputBytes": 14288400,
+  "synchronousTotalMs": 294.01302699999997,
+  "omitted": "Process memory before/after snapshots are intentionally excluded: they are not peak memory and do not isolate these buffers."
+}

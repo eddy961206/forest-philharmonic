@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "label": "candidate-multiprocess",
+  "revision": "a41-integrated-candidate",
+  "scope": "full",
+  "fixtureSourceSha256": "222caefe9a1b010501e012034a8951a760d3c5f099d91c0a185b37dbc5be92b0",
+  "method": "Functional checks only; sequential explicit rendering, not an FPS benchmark.",
+  "results": [
+    {
+      "venue": "hall",
+      "device": "desktop",
+      "scope": "full",
+      "status": "FAIL",
+      "failure": "page.waitForFunction: Timeout 2000ms exceeded.",
+      "file": "candidate-multiprocess-hall-desktop.json"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "recordedAtUTC": "2026-10-21T05:10:40.684310+00:00",
+  "baselineRevision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+  "archive": {
+    "path": "functional-resume-trace-original.mjs",
+    "bytes": 38056,
+    "sha256": "9c4f811f11d17ca0272e189b8dd1d6a870e6a9f53b3a2e5025c554fb6b30abac",
+    "matchesExecutionFixtureSha256": true,
+    "preservationMethod": "직전 listener 관측 fallback 변경만 역적용해 복원한 바이트야. 실행 JSON이 기록한 원본 SHA-256 9c4f811f와 완전히 같은지 확인한 뒤 저장했어. 현재 portable 파일이나 결과 JSON은 되돌리지 않았어."
+  },
+  "execution": {
+    "workspaceRelative": "qa-a41/functional-recheck/recheck-hall-hall-desktop.json",
+    "sha256": "eb0f5dcf6513161bb84bd78cb67506ca10fec1638dd77a4e8ad1f2b7d2821ba1",
+    "status": "FAIL",
+    "fixtureSourceSha256": "9c4f811f11d17ca0272e189b8dd1d6a870e6a9f53b3a2e5025c554fb6b30abac"
+  },
+  "subsequentPortableSnapshot": {
+    "path": "tools/bench/functional.mjs",
+    "sha256": "d1cda5e4196364604cc3779c79b72f8ff357eead05aea00b136c4216c30a0d68",
+    "change": "캐시가 없는 baseline에서 원래 setListener 입력을 관측해 같은 target assertion을 적용해. 2초 timeout과 seek+50ms 성공 조건은 그대로야."
+  },
+  "initialA41Fixture": {
+    "workspaceRelative": "qa-a41/functional-results/original-failures/functional-hall-desktop.json",
+    "recordedFixtureSha256": "eb78a5b80b0bda944ba2f386973678a1d0e97fc07fa3d6022308cdec2ee973f3",
+    "exactSourceArchiveAvailable": false,
+    "note": "trace를 추가하기 전 a41 최초 실행의 정확한 소스 복사본은 현재 보존 경로에서 찾지 못했어. 원본 결과와 그 SHA는 남아 있지만, 이후 소스로 이전 실행을 재라벨하지 않아."
+  },
+  "relatedEarlierCollector": {
+    "workspaceRelative": "qa-v2/functional.mjs",
+    "sha256": "3718cba5352b966522ecab6af3543767832b33918662545c4b10ccb519c3958d",
+    "matchesInitialA41Fixture": false,
+    "note": "ec5 단계의 별도 수집기야. 최초 a41 fixture와 SHA가 다르므로 같은 실행 소스로 취급하지 않아."
+  },
+  "limitations": [
+    "이 실행은 headless SwiftShader 기능 검사야. PC FPS나 실제 음향 장치의 결과가 아니야.",
+    "resume trace 수집은 실패 원인을 구분하기 위한 관측이며 제품 오디오 시계나 scheduler를 교체하지 않아."
+  ],
+  "listenerObservationArchive": {
+    "path": "functional-listener-observation-original.mjs",
+    "bytes": 38924,
+    "sha256": "d1cda5e4196364604cc3779c79b72f8ff357eead05aea00b136c4216c30a0d68",
+    "preservationMethod": "stats 관측 fallback과 transport scope를 추가하기 전에 파일을 그대로 복사했어."
+  },
+  "transportDiagnosticSnapshot": {
+    "path": "tools/bench/functional.mjs",
+    "sha256": "222caefe9a1b010501e012034a8951a760d3c5f099d91c0a185b37dbc5be92b0",
+    "scope": "SCOPE=transport는 같은 입장·이동·좌석·공연 시작·pause/seek/resume까지만 검사하고 이후 항목을 unchecked로 남겨. full 기본값은 유지해. baseline에 없는 stats는 null로 기록해.",
+    "timeoutChanged": false,
+    "audioClockOrSchedulerChanged": false,
+    "archive": "functional-transport-original.mjs",
+    "bytes": 39828,
+    "preservationMethod": "CONTINUE_ON_TRANSPORT_FAIL 진단 옵션을 추가하기 전에 전체 파일을 바이트 그대로 복사했어.",
+    "knownExecutions": [
+      {
+        "workspaceRelative": "qa-a41/transport-control/baseline-transport-hall-desktop.json",
+        "status": "FAIL",
+        "scope": "transport",
+        "fixtureSourceSha256": "222caefe9a1b010501e012034a8951a760d3c5f099d91c0a185b37dbc5be92b0",
+        "sha256": "2649ff9b06e670296c34d76eebdb8172633c5499c80abe0b284d090190b507d9"
+      },
+      {
+        "workspaceRelative": "qa-a41/multiprocess-functional/candidate-multiprocess-hall-desktop.json",
+        "status": "FAIL",
+        "scope": "full",
+        "fixtureSourceSha256": "222caefe9a1b010501e012034a8951a760d3c5f099d91c0a185b37dbc5be92b0",
+        "sha256": "16d173cb49de94f9f2215edcd443cbff08deb89a747ee2187e1975a55d3299f9"
+      }
+    ]
+  },
+  "continuationDiagnosticSnapshot": {
+    "path": "tools/bench/functional.mjs",
+    "sha256": "9ef80276ad8fe0cf01fece041376420fb6375c2c0c663bf02583f32734864cff",
+    "scope": "CONTINUE_ON_TRANSPORT_FAIL=1은 full 검사에서 실제 재개 버튼/상태 검사를 통과한 뒤 원래 2초 시각 진행 조건만 실패한 경우 실제 pause UI를 거쳐 후속 조작 검사를 계속해. 실패는 누적하고 최종 FAIL/exit 1을 유지해. 기본 중단 방식은 유지해.",
+    "timeoutChanged": false,
+    "audioClockOrSchedulerChanged": false,
+    "preservesFirstFailureAndTrace": true,
+    "validationAtCreation": [
+      "node --check",
+      "--help"
+    ],
+    "browserExecutedAtCreation": false
+  }
+}

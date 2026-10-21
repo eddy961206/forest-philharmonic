@@ -1,0 +1,812 @@
+{
+  "schema": 1,
+  "source": {
+    "file": "summary.json",
+    "sha256": "7dc37b4467c8ccdda33a004afb616bfc435f22b86fef237a1259c5cfdf3a992a",
+    "bytes": 121766,
+    "baseline": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+    "status": "PASS",
+    "completedPairs": 21
+  },
+  "selection": {
+    "initialDesktopRows": 9,
+    "steadyLowRows": 4,
+    "adaptiveMobileRows": 2,
+    "interpretationSupportRows": 3,
+    "note": "프리셋 high/medium 대표행은 요청한 desktop 최초 baseline 조건이야. low 중계는 양쪽 준비 94회, auto는 mobile 별도 관찰이야."
+  },
+  "definitions": {
+    "changePercent": "(after / before - 1) * 100. 원시 집계의 값을 반올림하지 않고 보존했어. mean/p95/calls/triangles는 음수가 감소, FPS는 양수가 증가야. 0분모는 null이야.",
+    "meanMs": "synchronous-completion이면 frame()+readPixels 완료 ms, raf-cadence이면 native rAF callback 시작 사이의 평균 간격 ms야. 두 모드를 서로 같은 지표로 합치지 않아.",
+    "p95Ms": "원시 간격 또는 완료 시간 정렬 후 ceil(n*0.95)번째 값이야. sync n=6에서는 최댓값이며 장기 p95의 안정적인 추정치가 아니야.",
+    "observedRafFps": "1000 / 평균 rAF 간격(ms). 프레임별 FPS 평균이 아니며 rAF 모드에만 있어. sync에는 FPS 필드를 만들지 않아.",
+    "onePercentLowRafFps": "n>=100일 때 1000 / 느린 상위 ceil(n*0.01)개 간격의 평균. n=100이면 가장 긴 한 간격, n=120이면 가장 긴 두 간격에 좌우돼.",
+    "drawCallsAndTriangles": "renderer.info를 각 프레임 시작에 초기화한 뒤 그 프레임의 여러 렌더 패스가 제출한 draw calls·triangles를 합산하고, 표본들의 평균을 낸 값이야. 제출량 감소를 동일 비율의 전체 FPS 증가로 해석하지 않아.",
+    "environment": "Chromium/SwiftShader의 제어한 시각·음악 시각 fixture야. 실제 음표 스케줄러와 사용자 입력 부하는 포함하지 않아. 물리 GPU/실제 기기 전달 FPS 증거가 아니야."
+  },
+  "initialDesktop": [
+    {
+      "id": "baseline/hall/high/desktop/front",
+      "label": "baseline",
+      "venue": "hall",
+      "quality": "high",
+      "device": "desktop",
+      "scenario": "front",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-hall-high-desktop-sync.json",
+        "after": "render/after-full-hall-high-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 2597.066666666729,
+        "after": 1823.5999999999378,
+        "changePercent": -29.782318513198447
+      },
+      "p95Ms": {
+        "before": 2735.300000000745,
+        "after": 1886.300000000745,
+        "changePercent": -31.038642927641156
+      },
+      "meanDrawCalls": {
+        "before": 1713.3333333333333,
+        "after": 1710.3333333333333,
+        "changePercent": -0.17509727626459082
+      },
+      "meanTriangles": {
+        "before": 11699198,
+        "after": 7413190,
+        "changePercent": -36.63505823219677
+      }
+    },
+    {
+      "id": "baseline/hall/high/desktop/wide",
+      "label": "baseline",
+      "venue": "hall",
+      "quality": "high",
+      "device": "desktop",
+      "scenario": "wide",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-hall-high-desktop-sync.json",
+        "after": "render/after-full-hall-high-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 6872.649999999751,
+        "after": 6547.9333333329605,
+        "changePercent": -4.724766526257018
+      },
+      "p95Ms": {
+        "before": 7034.4000000003725,
+        "after": 6817,
+        "changePercent": -3.0905265552195083
+      },
+      "meanDrawCalls": {
+        "before": 1814.6666666666667,
+        "after": 1814.6666666666667,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 11858529,
+        "after": 11858529,
+        "changePercent": 0
+      }
+    },
+    {
+      "id": "baseline/hall/high/desktop/broadcast",
+      "label": "baseline",
+      "venue": "hall",
+      "quality": "high",
+      "device": "desktop",
+      "scenario": "broadcast",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-hall-high-desktop-sync.json",
+        "after": "render/after-full-hall-high-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 5407.28333333383,
+        "after": 4794.333333333023,
+        "changePercent": -11.335636810858517
+      },
+      "p95Ms": {
+        "before": 6593.700000001118,
+        "after": 5783,
+        "changePercent": -12.295069536087178
+      },
+      "meanDrawCalls": {
+        "before": 2580.3333333333335,
+        "after": 2342.6666666666665,
+        "changePercent": -9.21069629246869
+      },
+      "meanTriangles": {
+        "before": 17588419,
+        "after": 14144315,
+        "changePercent": -19.581657680545362
+      }
+    },
+    {
+      "id": "baseline/hall/medium/desktop/front",
+      "label": "baseline",
+      "venue": "hall",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": "front",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-hall-medium-desktop-sync.json",
+        "after": "render/after-full-hall-medium-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 2624.1166666665426,
+        "after": 1807,
+        "changePercent": -31.13873239883572
+      },
+      "p95Ms": {
+        "before": 2748.800000000745,
+        "after": 1972.5,
+        "changePercent": -28.24141443540944
+      },
+      "meanDrawCalls": {
+        "before": 1713.3333333333333,
+        "after": 1710.3333333333333,
+        "changePercent": -0.17509727626459082
+      },
+      "meanTriangles": {
+        "before": 11699198,
+        "after": 7413190,
+        "changePercent": -36.63505823219677
+      }
+    },
+    {
+      "id": "baseline/sphere/high/desktop/wide",
+      "label": "baseline",
+      "venue": "sphere",
+      "quality": "high",
+      "device": "desktop",
+      "scenario": "wide",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-sphere-high-desktop-sync.json",
+        "after": "render/after-full-sphere-high-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 2938.466666666791,
+        "after": 2877.8166666664183,
+        "changePercent": -2.064001633517598
+      },
+      "p95Ms": {
+        "before": 3070.7000000011176,
+        "after": 2982.800000000745,
+        "changePercent": -2.8625394861217512
+      },
+      "meanDrawCalls": {
+        "before": 1780.3333333333333,
+        "after": 1780.3333333333333,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 3699488,
+        "after": 3699488,
+        "changePercent": 0
+      }
+    },
+    {
+      "id": "baseline/sphere/high/desktop/forest",
+      "label": "baseline",
+      "venue": "sphere",
+      "quality": "high",
+      "device": "desktop",
+      "scenario": "forest",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-sphere-high-desktop-sync.json",
+        "after": "render/after-full-sphere-high-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 1958.0833333333333,
+        "after": 2055.6666666666665,
+        "changePercent": 4.983614929565472
+      },
+      "p95Ms": {
+        "before": 2073.89999999851,
+        "after": 2266.5,
+        "changePercent": 9.286850860775765
+      },
+      "meanDrawCalls": {
+        "before": 1748,
+        "after": 1748,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 3275340,
+        "after": 3268752,
+        "changePercent": -0.20113942369341942
+      }
+    },
+    {
+      "id": "baseline/sphere/high/desktop/crossfade",
+      "label": "baseline",
+      "venue": "sphere",
+      "quality": "high",
+      "device": "desktop",
+      "scenario": "crossfade",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-sphere-high-desktop-sync.json",
+        "after": "render/after-full-sphere-high-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 1960.3333333336438,
+        "after": 2013.616666666853,
+        "changePercent": 2.7180751572794204
+      },
+      "p95Ms": {
+        "before": 2027.300000000745,
+        "after": 2177,
+        "changePercent": 7.384205593607263
+      },
+      "meanDrawCalls": {
+        "before": 1745.6666666666667,
+        "after": 1745.6666666666667,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 3274668,
+        "after": 3268080,
+        "changePercent": -0.20118069984499387
+      }
+    },
+    {
+      "id": "baseline/sphere/high/desktop/broadcast",
+      "label": "baseline",
+      "venue": "sphere",
+      "quality": "high",
+      "device": "desktop",
+      "scenario": "broadcast",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-sphere-high-desktop-sync.json",
+        "after": "render/after-full-sphere-high-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 1764.9333333335817,
+        "after": 1747.2999999995034,
+        "changePercent": -0.9990934502196014
+      },
+      "p95Ms": {
+        "before": 2132.5999999996275,
+        "after": 2084.4000000003725,
+        "changePercent": -2.2601519271904458
+      },
+      "meanDrawCalls": {
+        "before": 2597.1666666666665,
+        "after": 2318.6666666666665,
+        "changePercent": -10.723224026182375
+      },
+      "meanTriangles": {
+        "before": 4520785,
+        "after": 4393449,
+        "changePercent": -2.816678961728991
+      }
+    },
+    {
+      "id": "baseline/sphere/medium/desktop/wide",
+      "label": "baseline",
+      "venue": "sphere",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": "wide",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-sphere-medium-desktop-sync.json",
+        "after": "render/after-full-sphere-medium-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 3062.6999999998757,
+        "after": 2821.9999999993793,
+        "changePercent": -7.859078590802437
+      },
+      "p95Ms": {
+        "before": 3196.39999999851,
+        "after": 2968.89999999851,
+        "changePercent": -7.11738205481498
+      },
+      "meanDrawCalls": {
+        "before": 1780.3333333333333,
+        "after": 1780.3333333333333,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 3699488,
+        "after": 3699488,
+        "changePercent": 0
+      }
+    }
+  ],
+  "lowSteadyBroadcast": [
+    {
+      "id": "baseline-steady/hall/low/desktop/broadcast",
+      "label": "baseline-steady",
+      "venue": "hall",
+      "quality": "low",
+      "device": "desktop",
+      "scenario": "broadcast",
+      "mode": "raf-cadence",
+      "sameQualityComparison": true,
+      "samplesPerRun": 100,
+      "warmupFrames": 94,
+      "source": {
+        "before": "render/baseline-steady-full-hall-low-desktop-cadence.json",
+        "after": "render/after-steady-full-hall-low-desktop-cadence.json"
+      },
+      "meanMs": {
+        "before": 217.26200000001117,
+        "after": 171.9610000000149,
+        "changePercent": -20.850862092769994
+      },
+      "p95Ms": {
+        "before": 484.3999999985099,
+        "after": 261.59999999962747,
+        "changePercent": -45.995045416921506
+      },
+      "meanDrawCalls": {
+        "before": 462.52,
+        "after": 472.91,
+        "changePercent": 2.2463893453256167
+      },
+      "meanTriangles": {
+        "before": 596034.13,
+        "after": 526172.05,
+        "changePercent": -11.721154290275281
+      },
+      "observedRafFps": {
+        "before": 4.602737708388713,
+        "after": 5.815272067503174,
+        "changePercent": 26.343763992993942
+      },
+      "onePercentLowRafFps": {
+        "before": 1.3719303059432628,
+        "after": 2.0929259104195075,
+        "changePercent": 52.55336961016604
+      }
+    },
+    {
+      "id": "baseline-steady/hall/low/mobile/broadcast",
+      "label": "baseline-steady",
+      "venue": "hall",
+      "quality": "low",
+      "device": "mobile",
+      "scenario": "broadcast",
+      "mode": "raf-cadence",
+      "sameQualityComparison": true,
+      "samplesPerRun": 100,
+      "warmupFrames": 94,
+      "source": {
+        "before": "render/baseline-steady-full-hall-low-mobile-cadence.json",
+        "after": "render/after-steady-full-hall-low-mobile-cadence.json"
+      },
+      "meanMs": {
+        "before": 285.1140000000037,
+        "after": 255.48199999999255,
+        "changePercent": -10.39303576815267
+      },
+      "p95Ms": {
+        "before": 659.9000000003725,
+        "after": 389.90000000037253,
+        "changePercent": -40.91529019546106
+      },
+      "meanDrawCalls": {
+        "before": 451.52,
+        "after": 466.91,
+        "changePercent": 3.40848688873141
+      },
+      "meanTriangles": {
+        "before": 595078.13,
+        "after": 528240.05,
+        "changePercent": -11.231815896174835
+      },
+      "observedRafFps": {
+        "before": 3.5073689822316227,
+        "after": 3.914170078518366,
+        "changePercent": 11.598468776670012
+      },
+      "onePercentLowRafFps": {
+        "before": 1.3760836658882967,
+        "after": 1.4150275930395562,
+        "changePercent": 2.830055186079128
+      }
+    },
+    {
+      "id": "baseline-steady/sphere/low/desktop/broadcast",
+      "label": "baseline-steady",
+      "venue": "sphere",
+      "quality": "low",
+      "device": "desktop",
+      "scenario": "broadcast",
+      "mode": "raf-cadence",
+      "sameQualityComparison": true,
+      "samplesPerRun": 100,
+      "warmupFrames": 94,
+      "source": {
+        "before": "render/baseline-steady-full-sphere-low-desktop-cadence.json",
+        "after": "render/after-steady-full-sphere-low-desktop-cadence.json"
+      },
+      "meanMs": {
+        "before": 206.57200000001117,
+        "after": 184.11199999999255,
+        "changePercent": -10.872722343791708
+      },
+      "p95Ms": {
+        "before": 460.69999999925494,
+        "after": 269.09999999962747,
+        "changePercent": -41.58888647708646
+      },
+      "meanDrawCalls": {
+        "before": 455.17,
+        "after": 455.17,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 829184.54,
+        "after": 829184.54,
+        "changePercent": 0
+      },
+      "observedRafFps": {
+        "before": 4.840927134364512,
+        "after": 5.43147649256996,
+        "changePercent": 12.199096202322224
+      },
+      "onePercentLowRafFps": {
+        "before": 1.6015374759759824,
+        "after": 1.976284584980237,
+        "changePercent": 23.399209486239613
+      }
+    },
+    {
+      "id": "baseline-steady/sphere/low/mobile/broadcast",
+      "label": "baseline-steady",
+      "venue": "sphere",
+      "quality": "low",
+      "device": "mobile",
+      "scenario": "broadcast",
+      "mode": "raf-cadence",
+      "sameQualityComparison": true,
+      "samplesPerRun": 100,
+      "warmupFrames": 94,
+      "source": {
+        "before": "render/baseline-steady-full-sphere-low-mobile-cadence.json",
+        "after": "render/after-steady-full-sphere-low-mobile-cadence.json"
+      },
+      "meanMs": {
+        "before": 247.19,
+        "after": 245.22699999999256,
+        "changePercent": -0.7941259759729147
+      },
+      "p95Ms": {
+        "before": 578.2999999988824,
+        "after": 477.2999999988824,
+        "changePercent": -17.464983572573956
+      },
+      "meanDrawCalls": {
+        "before": 441.17,
+        "after": 441.17,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 643676.54,
+        "after": 643676.54,
+        "changePercent": 0
+      },
+      "observedRafFps": {
+        "before": 4.045471095109026,
+        "after": 4.077854396131055,
+        "changePercent": 0.8004828179635437
+      },
+      "onePercentLowRafFps": {
+        "before": 1.5274171376176768,
+        "after": 1.4861049190064592,
+        "changePercent": -2.7047109524810375
+      }
+    }
+  ],
+  "adaptiveMobile": [
+    {
+      "id": "baseline-auto/hall/auto/mobile/front",
+      "label": "baseline-auto",
+      "venue": "hall",
+      "quality": "auto",
+      "device": "mobile",
+      "scenario": "front",
+      "mode": "raf-cadence",
+      "sameQualityComparison": false,
+      "samplesPerRun": 120,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-auto-full-hall-auto-mobile-cadence.json",
+        "after": "render/after-auto-full-hall-auto-mobile-cadence.json"
+      },
+      "meanMs": {
+        "before": 192.23166666665736,
+        "after": 152.0658333333209,
+        "changePercent": -20.894493623148314
+      },
+      "p95Ms": {
+        "before": 458.30000000074506,
+        "after": 323.40000000037253,
+        "changePercent": -29.434867990432735
+      },
+      "meanDrawCalls": {
+        "before": 342.7916666666667,
+        "after": 345.225,
+        "changePercent": 0.7098577853409616
+      },
+      "meanTriangles": {
+        "before": 565048.55,
+        "after": 469615.5333333333,
+        "changePercent": -16.8893481217971
+      },
+      "observedRafFps": {
+        "before": 5.20205654635491,
+        "after": 6.576099167575984,
+        "changePercent": 26.413450314834975
+      },
+      "onePercentLowRafFps": {
+        "before": 1.6844942306088457,
+        "after": 2.0731833730669464,
+        "changePercent": 23.074530942003424
+      },
+      "actualState": {
+        "before": {
+          "firstQuality": "low",
+          "finalQuality": "low",
+          "firstScale": 1,
+          "finalScale": 0.85
+        },
+        "after": {
+          "firstQuality": "low",
+          "finalQuality": "low",
+          "firstScale": 1,
+          "finalScale": 0.6
+        }
+      }
+    },
+    {
+      "id": "baseline-auto/sphere/auto/mobile/front",
+      "label": "baseline-auto",
+      "venue": "sphere",
+      "quality": "auto",
+      "device": "mobile",
+      "scenario": "front",
+      "mode": "raf-cadence",
+      "sameQualityComparison": false,
+      "samplesPerRun": 120,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-auto-full-sphere-auto-mobile-cadence.json",
+        "after": "render/after-auto-full-sphere-auto-mobile-cadence.json"
+      },
+      "meanMs": {
+        "before": 199.38916666666046,
+        "after": 169.02083333333334,
+        "changePercent": -15.230683713171345
+      },
+      "p95Ms": {
+        "before": 469.2000000011176,
+        "after": 338.30000000074506,
+        "changePercent": -27.89855072465063
+      },
+      "meanDrawCalls": {
+        "before": 320.6666666666667,
+        "after": 321.1166666666667,
+        "changePercent": 0.14033264033264103
+      },
+      "meanTriangles": {
+        "before": 352776.93333333335,
+        "after": 352736.0833333333,
+        "changePercent": -0.011579555277052567
+      },
+      "observedRafFps": {
+        "before": 5.015317615885339,
+        "after": 5.916430420313078,
+        "changePercent": 17.967213114750425
+      },
+      "onePercentLowRafFps": {
+        "before": 1.918649270909163,
+        "after": 1.4869888475857025,
+        "changePercent": -22.498141263667005
+      },
+      "actualState": {
+        "before": {
+          "firstQuality": "low",
+          "finalQuality": "low",
+          "firstScale": 1,
+          "finalScale": 0.85
+        },
+        "after": {
+          "firstQuality": "low",
+          "finalQuality": "low",
+          "firstScale": 1,
+          "finalScale": 0.6
+        }
+      }
+    }
+  ],
+  "interpretationSupport": [
+    {
+      "id": "baseline-repeat/sphere/high/desktop/forest",
+      "label": "baseline-repeat",
+      "venue": "sphere",
+      "quality": "high",
+      "device": "desktop",
+      "scenario": "forest",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-repeat-full-sphere-high-desktop-sync.json",
+        "after": "render/after-repeat-full-sphere-high-desktop-sync.json"
+      },
+      "meanMs": {
+        "before": 2091.8166666664183,
+        "after": 1911.0666666670393,
+        "changePercent": -8.640814602908186
+      },
+      "p95Ms": {
+        "before": 2213.199999999255,
+        "after": 2052.5999999996275,
+        "changePercent": -7.2564612325899835
+      },
+      "meanDrawCalls": {
+        "before": 1748,
+        "after": 1748,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 3275340,
+        "after": 3268752,
+        "changePercent": -0.20113942369341942
+      }
+    },
+    {
+      "id": "baseline/sphere/low/mobile/dome",
+      "label": "baseline",
+      "venue": "sphere",
+      "quality": "low",
+      "device": "mobile",
+      "scenario": "dome",
+      "mode": "raf-cadence",
+      "sameQualityComparison": true,
+      "samplesPerRun": 100,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-sphere-low-mobile-cadence.json",
+        "after": "render/after-full-sphere-low-mobile-cadence.json"
+      },
+      "meanMs": {
+        "before": 244.05099999999626,
+        "after": 271.72300000000746,
+        "changePercent": 11.338613650430297
+      },
+      "p95Ms": {
+        "before": 410.2999999988824,
+        "after": 414.30000000074506,
+        "changePercent": 0.9748964177122899
+      },
+      "meanDrawCalls": {
+        "before": 47,
+        "after": 47,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 380240,
+        "after": 380240,
+        "changePercent": 0
+      },
+      "observedRafFps": {
+        "before": 4.0975042101856385,
+        "after": 3.680218457767552,
+        "changePercent": -10.183900516338495
+      },
+      "onePercentLowRafFps": {
+        "before": 1.472970982470837,
+        "after": 1.3083867591247222,
+        "changePercent": -11.17362292297387
+      }
+    },
+    {
+      "id": "baseline/sphere/medium/mobile/dome",
+      "label": "baseline",
+      "venue": "sphere",
+      "quality": "medium",
+      "device": "mobile",
+      "scenario": "dome",
+      "mode": "synchronous-completion",
+      "sameQualityComparison": true,
+      "samplesPerRun": 6,
+      "warmupFrames": 4,
+      "source": {
+        "before": "render/baseline-full-sphere-medium-mobile-sync.json",
+        "after": "render/after-full-sphere-medium-mobile-sync.json"
+      },
+      "meanMs": {
+        "before": 577.8833333334575,
+        "after": 645.5833333330229,
+        "changePercent": 11.715167421258776
+      },
+      "p95Ms": {
+        "before": 632.7000000011176,
+        "after": 680,
+        "changePercent": 7.475896949391325
+      },
+      "meanDrawCalls": {
+        "before": 277,
+        "after": 277,
+        "changePercent": 0
+      },
+      "meanTriangles": {
+        "before": 506760,
+        "after": 506760,
+        "changePercent": 0
+      }
+    }
+  ],
+  "interpretation": {
+    "sphereForestConsistency": {
+      "initialId": "baseline/sphere/high/desktop/forest",
+      "repeatId": "baseline-repeat/sphere/high/desktop/forest",
+      "initialMeanChangePercent": 4.983614929565472,
+      "repeatMeanChangePercent": -8.640814602908186,
+      "conclusion": "최초 forest는 느려졌고 별도 repeat는 빨라졌어. 반복의 실행 순서·앞선 장면 수·누적 상태도 달라서 두 실행을 합치거나 빠른 결과로 대체하지 않아. 일관된 Sphere 숲 개선의 증거로 부족해."
+    },
+    "sphereMobileRegression": {
+      "lowDomeId": "baseline/sphere/low/mobile/dome",
+      "lowDomeMeanIntervalChangePercent": 11.338613650430297,
+      "mediumDomeId": "baseline/sphere/medium/mobile/dome",
+      "mediumDomeMeanCompletionChangePercent": 11.715167421258776,
+      "conclusion": "Sphere low mobile 일반 돔의 평균 rAF 간격이 약 11% 늘었고 medium mobile 돔 완료 시간도 늘었어. 모든 Sphere 모바일 장면이 개선됐다고 쓰면 안 돼."
+    },
+    "adaptiveSphereTail": {
+      "id": "baseline-auto/sphere/auto/mobile/front",
+      "meanObservedRafFpsChangePercent": 17.967213114750425,
+      "onePercentLowRafFpsChangePercent": -22.498141263667005,
+      "p95IntervalChangePercent": -27.89855072465063,
+      "conclusion": "auto Sphere는 평균 callback FPS와 p95 간격이 좋아져도 1% Low는 악화됐어. 두 결과를 함께 표시해야 해. 최종 scale이 기준 0.85와 후보 0.6으로 달라 동일 화질 최적화 성과로 세지 않아."
+    },
+    "rowIndependence": "수동 61행에는 smoke 1행·별도 repeat 5행·서로 다른 준비 횟수·하나의 실행 안에서 연속한 장면이 들어 있어. 개선 행의 개수나 비율을 61개의 독립 실험 성공률, 전체 성능 향상 확률, 가중 평균 성과로 해석하지 않아. 이 파일은 그런 집계를 만들지 않아.",
+    "smallSampleAndTiming": "sync 대표행은 준비 4회·측정 6회야. 소프트웨어 렌더 환경의 작거나 부호가 뒤집힌 차이는 원인을 확정하지 않고 하드웨어 반복 관찰이 필요한 결과로 남겨.",
+    "steadySphereMobile": {
+      "id": "baseline-steady/sphere/low/mobile/broadcast",
+      "observedRafFpsChangePercent": 0.8004828179635437,
+      "onePercentLowRafFpsChangePercent": -2.7047109524810375,
+      "conclusion": "준비 후 Sphere mobile 중계의 평균 callback FPS 차이는 약 +0.8%이고 1% Low는 나빠졌어. 이 조건의 뚜렷하거나 일관된 개선이라고 쓰지 않아."
+    }
+  }
+}

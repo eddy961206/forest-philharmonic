@@ -1,0 +1,226 @@
+{
+  "files": [
+    "/workspace/scratch/51e64c30577e/qa-a41/render/baseline-full-hall-high-desktop-sync.json",
+    "/workspace/scratch/51e64c30577e/qa-a41/render/after-full-hall-high-desktop-sync.json"
+  ],
+  "revisions": [
+    "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+    "a41-integrated-candidate"
+  ],
+  "suite": "whole-frame-controlled",
+  "mode": "synchronous-completion",
+  "venue": "hall",
+  "quality": "high",
+  "device": "desktop",
+  "scenarioOrder": [
+    "front",
+    "wide",
+    "mid",
+    "rotate",
+    "broadcast",
+    "effects-show"
+  ],
+  "samplesPerScenario": 6,
+  "warnings": [],
+  "scenarios": {
+    "front": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 2597.066666666729,
+        "after": 1823.5999999999378,
+        "difference": -773.4666666667911,
+        "percent": -29.782318513198447
+      },
+      "p50Ms": {
+        "before": 2590.7999999988824,
+        "after": 1811.800000000745,
+        "difference": -778.9999999981374,
+        "percent": -30.067932684826054
+      },
+      "p95Ms": {
+        "before": 2735.300000000745,
+        "after": 1886.300000000745,
+        "difference": -849,
+        "percent": -31.038642927641163
+      },
+      "calls": {
+        "before": 1713.3333333333333,
+        "after": 1710.3333333333333,
+        "difference": -3,
+        "percent": -0.17509727626459146
+      },
+      "triangles": {
+        "before": 11699198,
+        "after": 7413190,
+        "difference": -4286008,
+        "percent": -36.63505823219677
+      }
+    },
+    "wide": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 6872.649999999751,
+        "after": 6547.9333333329605,
+        "difference": -324.71666666679084,
+        "percent": -4.724766526257013
+      },
+      "p50Ms": {
+        "before": 6806.799999998882,
+        "after": 6522.199999999255,
+        "difference": -284.59999999962747,
+        "percent": -4.18111300463763
+      },
+      "p95Ms": {
+        "before": 7034.4000000003725,
+        "after": 6817,
+        "difference": -217.40000000037253,
+        "percent": -3.0905265552195074
+      },
+      "calls": {
+        "before": 1814.6666666666667,
+        "after": 1814.6666666666667,
+        "difference": 0,
+        "percent": 0
+      },
+      "triangles": {
+        "before": 11858529,
+        "after": 11858529,
+        "difference": 0,
+        "percent": 0
+      }
+    },
+    "mid": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 4615.733333333395,
+        "after": 3937.283333333209,
+        "difference": -678.4500000001863,
+        "percent": -14.69863943613533
+      },
+      "p50Ms": {
+        "before": 4544.300000000745,
+        "after": 3823.7000000011176,
+        "difference": -720.5999999996275,
+        "percent": -15.857227735834106
+      },
+      "p95Ms": {
+        "before": 4845.699999999255,
+        "after": 4109.300000000745,
+        "difference": -736.3999999985099,
+        "percent": -15.196978764649547
+      },
+      "calls": {
+        "before": 1722.6666666666667,
+        "after": 1739.6666666666667,
+        "difference": 17,
+        "percent": 0.9868421052631579
+      },
+      "triangles": {
+        "before": 11701036,
+        "after": 9256972,
+        "difference": -2444064,
+        "percent": -20.887586364147584
+      }
+    },
+    "rotate": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 3841.383333333768,
+        "after": 3358.466666666791,
+        "difference": -482.9166666669771,
+        "percent": -12.571426092169638
+      },
+      "p50Ms": {
+        "before": 3681.5,
+        "after": 3103.5999999996275,
+        "difference": -577.9000000003725,
+        "percent": -15.69740594867235
+      },
+      "p95Ms": {
+        "before": 4511.5999999996275,
+        "after": 3859.800000000745,
+        "difference": -651.7999999988824,
+        "percent": -14.447202766179098
+      },
+      "calls": {
+        "before": 699.6666666666666,
+        "after": 741.5,
+        "difference": 41.83333333333337,
+        "percent": 5.979037636969991
+      },
+      "triangles": {
+        "before": 11460050.5,
+        "after": 9376969.166666666,
+        "difference": -2083081.333333334,
+        "percent": -18.176894886574313
+      }
+    },
+    "broadcast": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 5407.28333333383,
+        "after": 4794.333333333023,
+        "difference": -612.9500000008074,
+        "percent": -11.335636810858524
+      },
+      "p50Ms": {
+        "before": 4701.5999999996275,
+        "after": 4022.5999999996275,
+        "difference": -679,
+        "percent": -14.441892121832012
+      },
+      "p95Ms": {
+        "before": 6593.700000001118,
+        "after": 5783,
+        "difference": -810.7000000011176,
+        "percent": -12.295069536087176
+      },
+      "calls": {
+        "before": 2580.3333333333335,
+        "after": 2342.6666666666665,
+        "difference": -237.66666666666697,
+        "percent": -9.210696292468684
+      },
+      "triangles": {
+        "before": 17588419,
+        "after": 14144315,
+        "difference": -3444104,
+        "percent": -19.581657680545366
+      }
+    },
+    "effects-show": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 5268.383333333458,
+        "after": 4678.033333332899,
+        "difference": -590.3500000005588,
+        "percent": -11.205524781489796
+      },
+      "p50Ms": {
+        "before": 4730.4000000003725,
+        "after": 4161.4000000003725,
+        "difference": -569,
+        "percent": -12.028581092507086
+      },
+      "p95Ms": {
+        "before": 7999.300000000745,
+        "after": 7549.199999999255,
+        "difference": -450.1000000014901,
+        "percent": -5.62674233997285
+      },
+      "calls": {
+        "before": 1736,
+        "after": 1753,
+        "difference": 17,
+        "percent": 0.9792626728110598
+      },
+      "triangles": {
+        "before": 11704448,
+        "after": 9260384,
+        "difference": -2444064,
+        "percent": -20.881497358952767
+      }
+    }
+  },
+  "interpretation": "시간의 음수 변화는 이번 표본에서 짧아졌다는 뜻이야. 인과관계·실기기 FPS·최악 조건의 성능 보장은 아니야. 작은 차이는 반복 측정과 시각 확인을 함께 봐."
+}

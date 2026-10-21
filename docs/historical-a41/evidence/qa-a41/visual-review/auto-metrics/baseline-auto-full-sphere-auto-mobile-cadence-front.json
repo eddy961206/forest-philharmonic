@@ -1,0 +1,44 @@
+{
+  "before": "/workspace/scratch/51e64c30577e/qa-a41/render/baseline-auto-full-sphere-auto-mobile-cadence-front.png",
+  "after": "/workspace/scratch/51e64c30577e/qa-a41/render/after-auto-full-sphere-auto-mobile-cadence-front.png",
+  "sha256": [
+    "feb30f810fc69253aed79cbf70a16b997c225834ac8f90a0e40e6ef18fa647ac",
+    "c41dd5d3234446f6860d7b5b617fd1b6617e8e3e94a84323d472b16af372e52e"
+  ],
+  "sourceSize": [
+    780,
+    1688
+  ],
+  "comparedSize": [
+    780,
+    1688
+  ],
+  "crop": null,
+  "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+  "mae": 2.207712814436748,
+  "rmse": 10.045075187107528,
+  "maxChannelDifference": 220.0,
+  "changedPixelPercent": 38.94337100498238,
+  "changedPixelCount": 512744,
+  "changedThreshold": 0,
+  "ssimUniform7": 0.9528829236067886,
+  "ssimChannels": [
+    0.9503732630456555,
+    0.953647295930008,
+    0.9546282118446472
+  ],
+  "ssimDefinition": {
+    "window": [
+      7,
+      7
+    ],
+    "weights": "uniform",
+    "dataRange": 255,
+    "K1": 0.01,
+    "K2": 0.03,
+    "covariance": "sample 49/48",
+    "border": "valid windows; exclude outer 3 pixels",
+    "channels": "mean of RGB channel SSIM"
+  },
+  "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아."
+}

@@ -1,0 +1,23 @@
+{
+  "schema": 2,
+  "label": "candidate-fake-output",
+  "revision": "a41-integrated-candidate",
+  "scope": "full",
+  "fixtureSourceSha256": "9ef80276ad8fe0cf01fece041376420fb6375c2c0c663bf02583f32734864cff",
+  "diagnosticOptions": {
+    "continueOnTransportFail": true
+  },
+  "method": "Functional checks only; sequential explicit rendering, not an FPS benchmark.",
+  "results": [
+    {
+      "venue": "hall",
+      "device": "desktop",
+      "scope": "full",
+      "status": "FAIL",
+      "failure": "page.waitForFunction: Timeout 2000ms exceeded.",
+      "failureCount": 1,
+      "continuedAfterTransportFailure": true,
+      "file": "candidate-fake-output-hall-desktop.json"
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "kind": "composition-of-recorded-regression-runs",
+  "curatedAt": "2026-10-21T05:29:02.678971+00:00",
+  "baselineRevision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+  "candidate": "a41-integrated-candidate after fractional-DPR downward rounding fix",
+  "summary": {
+    "uniqueFiles": 9,
+    "uniqueTests": 60,
+    "pass": 60,
+    "fail": 0,
+    "calculation": "59 - previous quality 7 + replacement quality 8 = 60",
+    "singleFull60CaseRun": false
+  },
+  "retainedExecution": {
+    "result": "../a41-node-tests/results.json",
+    "sha256": "6acef3e8fbb1bab480053ecadf0f0f3581640e94c024d4d8f8bd4f6a9789a6bc",
+    "startedAt": "2026-10-21T04:59:22.046340+00:00",
+    "finishedAt": "2026-10-21T04:59:24.459103+00:00",
+    "node": "v24.19.0",
+    "files": 8,
+    "tests": 52,
+    "records": [
+      {
+        "file": "tests/audio-listener.test.mjs",
+        "sourceSha256": "d5afd514d7bb08e5ce8bd4bccdbda96a77dbe75e9a83bf3007db614f1d1e7189",
+        "originalResult": "../a41-node-tests/results.json",
+        "log": "../a41-node-tests/audio-listener.test.log",
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "matchesCurrentSourceAtCuration": true
+      },
+      {
+        "file": "tests/crowd-preparation.test.mjs",
+        "sourceSha256": "65f2ced136a91b84f256ba6c9e226e43a710aec6eba453995dd631313dee0b26",
+        "originalResult": "../a41-node-tests/results.json",
+        "log": "../a41-node-tests/crowd-preparation.test.log",
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "matchesCurrentSourceAtCuration": true
+      },
+      {
+        "file": "tests/dome.test.mjs",
+        "sourceSha256": "60add19bb24664c9128358dfad44333483268b61b66eee0ee2ad253c901801fb",
+        "originalResult": "../a41-node-tests/results.json",
+        "log": "../a41-node-tests/dome.test.log",
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "matchesCurrentSourceAtCuration": true
+      },
+      {
+        "file": "tests/geometry.test.mjs",
+        "sourceSha256": "8c6a7932068a9b639323a0cb436f760cda5909de15536fc35fa264731cb4b79e",
+        "originalResult": "../a41-node-tests/results.json",
+        "log": "../a41-node-tests/geometry.test.log",
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "matchesCurrentSourceAtCuration": true
+      },
+      {
+        "file": "tests/instance-batches.test.mjs",
+        "sourceSha256": "10cc4b70d753c73e583e7bc1cf4008b10223b7576a28c24738c94cdebc1c7654",
+        "originalResult": "../a41-node-tests/results.json",
+        "log": "../a41-node-tests/instance-batches.test.log",
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "matchesCurrentSourceAtCuration": true
+      },
+      {
+        "file": "tests/performance.test.mjs",
+        "sourceSha256": "8030f499130beb0f518e250d6aa7cb12abf5ca036c52baf76c94d85305535bdf",
+        "originalResult": "../a41-node-tests/results.json",
+        "log": "../a41-node-tests/performance.test.log",
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "matchesCurrentSourceAtCuration": true
+      },
+      {
+        "file": "tests/screen.test.mjs",
+        "sourceSha256": "31456b1fed9a32455cea73dc3538f56a8bcdb351a6402cc1fd6be52117fde481",
+        "originalResult": "../a41-node-tests/results.json",
+        "log": "../a41-node-tests/screen.test.log",
+        "tests": 11,
+        "pass": 11,
+        "fail": 0,
+        "matchesCurrentSourceAtCuration": true
+      },
+      {
+        "file": "tests/seats.test.mjs",
+        "sourceSha256": "df88b694c0dc75a338b86a19e6a21d3ddf4d8ac551568763e738272529b36182",
+        "originalResult": "../a41-node-tests/results.json",
+        "log": "../a41-node-tests/seats.test.log",
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "matchesCurrentSourceAtCuration": true
+      }
+    ]
+  },
+  "replacementExecution": {
+    "result": "result.json",
+    "resultSha256": "e5b73699681849d6b3b6c22dd3a3f02ceb1fee014931f5a448efa4b8e73ab7b4",
+    "log": "quality.tap.log",
+    "logSha256": "b0a689647c042e635bea418936c3718794f218ec1b8c432f44d69f20f7878475",
+    "startedAt": "2026-10-21T05:21:32.740094+00:00",
+    "finishedAt": "2026-10-21T05:21:32.838747+00:00",
+    "exitCode": 0,
+    "tests": 8,
+    "pass": 8,
+    "fail": 0,
+    "sourceHashes": {
+      "public/js/quality.js": "33fde08de6a47775820e96abdb90dab89bfe7efa67c52c317841ae1f89b39c0d",
+      "tests/quality.test.mjs": "7f2972989be86c0c3c0c0de72ccd1d61ba582af20a421cb1ae19559847699a8c"
+    },
+    "currentSourcesMatchAtCuration": true,
+    "replaces": {
+      "file": "tests/quality.test.mjs",
+      "tests": 7,
+      "sourceSha256": "483401dac1cd19e72e678035ae1ef092f95c075279a2585ef36dde5cb4ebf8a4",
+      "originalLog": "../a41-node-tests/quality.test.log"
+    },
+    "addedCase": "소수 DPR에서 프리셋을 내려도 반올림으로 해상도가 늘지 않아"
+  },
+  "productSourceSnapshotComparison": {
+    "originalWorkspaceRelative": "qa-a41/source-manifest.json",
+    "originalManifestSha256": "53bcd032d3b3e9d88fe1ed3465bc576484ba22acb1216d15804ae674a16fbb6f",
+    "originalSnapshotTime": "2026-10-21T04:38:43.127248+00:00",
+    "candidateFilesChecked": 36,
+    "unchangedFiles": 35,
+    "changedFiles": [
+      {
+        "file": "public/js/quality.js",
+        "recordedCandidateSha256": "1fdee2938ba17e49f9816495d0363c69cf40fee42a6b38fecf3161942f5e9709",
+        "currentSha256AtCuration": "33fde08de6a47775820e96abdb90dab89bfe7efa67c52c317841ae1f89b39c0d"
+      }
+    ],
+    "meaning": "기존 snapshot을 현재 값으로 덮어쓰지 않고 36개 중 quality.js만 달라졌음을 따로 확인했어. 테스트 소스 8개도 이전 실행 hash와 같아."
+  },
+  "limitations": [
+    "전체 60개를 한 번의 새 실행에서 돌렸다는 뜻이 아니야. 실제 59개 실행 중 quality 7개를 이후 실제 8개 재실행으로 교체한 검증 범위야.",
+    "원본 59개 JSON과 TAP 9개는 그대로 보존했어. 두 실행의 시각과 소스 hash를 합치거나 다시 표시하지 않아.",
+    "Node 회귀 결과이며 브라우저 audio 출력·실기기 FPS·실제 휴대폰 검증을 대신하지 않아.",
+    "기존 baseline-a41-proof.json과 manifest.sourceSnapshotAtCuration은 당시 snapshot이야. 이후 quality.js 변경은 이 별도 연결 자료로 구분해."
+  ]
+}

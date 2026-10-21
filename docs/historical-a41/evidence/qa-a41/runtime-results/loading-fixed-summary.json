@@ -1,0 +1,472 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-21T07:13:17.518226+00:00",
+  "suite": "a41-fixed-audience-loading-summary",
+  "baselineRevision": "a41b7e40f2cc3c9e00c40bb77bf9a28bb5b201a6",
+  "candidateScope": "a41-integrated candidate served at 8080; not the later 3f integration",
+  "observationsPerNavigationPerRevision": 1,
+  "passed": true,
+  "comparisonToolSha256": "6c5c667b1fdfaeb4a6236dca4535453a6cac6747f8dcf40b5e502af632e4b255",
+  "conditions": [
+    {
+      "venue": "hall",
+      "device": "desktop",
+      "inputFiles": [
+        {
+          "path": "qa-a41/runtime-results/loading-baseline-fixed-hall-desktop.json",
+          "sha256": "9a1e71dba0ab406e5c7533be95c77770ed6ae5fcd7ce44dfb4dd32bd5212039a"
+        },
+        {
+          "path": "qa-a41/runtime-results/loading-after-fixed-hall-desktop.json",
+          "sha256": "1b55e5bae33061e3e01a70b596c4ae046e59ca96a115753c6c7803a1d85266b3"
+        },
+        {
+          "path": "qa-a41/runtime-results/loading-comparison-hall-desktop.json",
+          "sha256": "3d341fc6acca89241e88bece624ffd32ec7d6af68f2d3c6309c5fc5cbf4d66ed"
+        }
+      ],
+      "checks": 109,
+      "audience": {
+        "count": 979,
+        "occupiedCount": 979,
+        "occupiedSortedSha256": "9856cd13a964b00df8fe81d76dbb6a51768006dd6d7c9cff8b2b1f92016228df",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "runs": {
+        "cold": {
+          "readyMs": {
+            "before": 15033.39999999851,
+            "after": 13444.39999999851,
+            "delta": -1589,
+            "percent": -10.569797916639999
+          },
+          "longtasks": {
+            "before": {
+              "count": 8,
+              "totalMs": 2958,
+              "maxMs": 1700
+            },
+            "after": {
+              "count": 6,
+              "totalMs": 2022,
+              "maxMs": 1388
+            }
+          },
+          "jsHeapBytes": {
+            "before": 410000000,
+            "after": 386000000
+          },
+          "sampleCount": 389,
+          "samplePcmBytes": 296771776,
+          "applausePcmBytes": 14288400,
+          "sampleNetwork": {
+            "before": {
+              "requests": 389,
+              "responseEncodedBytes": 10666245,
+              "cacheHits": 0,
+              "wire304": 0,
+              "failed": 0
+            },
+            "after": {
+              "requests": 389,
+              "responseEncodedBytes": 10666245,
+              "cacheHits": 0,
+              "wire304": 0,
+              "failed": 0
+            }
+          }
+        },
+        "warm": {
+          "readyMs": {
+            "before": 17918.300000000745,
+            "after": 17643.300000000745,
+            "delta": -275,
+            "percent": -1.5347438094014978
+          },
+          "longtasks": {
+            "before": {
+              "count": 4,
+              "totalMs": 2403,
+              "maxMs": 1242
+            },
+            "after": {
+              "count": 9,
+              "totalMs": 1965,
+              "maxMs": 1143
+            }
+          },
+          "jsHeapBytes": {
+            "before": 410000000,
+            "after": 386000000
+          },
+          "sampleCount": 389,
+          "samplePcmBytes": 296771776,
+          "applausePcmBytes": 14288400,
+          "sampleNetwork": {
+            "before": {
+              "requests": 389,
+              "responseEncodedBytes": 0,
+              "cacheHits": 389,
+              "wire304": 0,
+              "failed": 0
+            },
+            "after": {
+              "requests": 389,
+              "responseEncodedBytes": 0,
+              "cacheHits": 389,
+              "wire304": 0,
+              "failed": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "venue": "hall",
+      "device": "mobile",
+      "inputFiles": [
+        {
+          "path": "qa-a41/runtime-results/loading-baseline-fixed-hall-mobile.json",
+          "sha256": "edbd5da06fdf0ea91256b075f0abe639b56947ed13793e1f432757c97cbb47af"
+        },
+        {
+          "path": "qa-a41/runtime-results/loading-after-fixed-hall-mobile.json",
+          "sha256": "9a491c9645a08b855988b5b6c9fa7902896893f52e7a29812df67021944c834c"
+        },
+        {
+          "path": "qa-a41/runtime-results/loading-comparison-hall-mobile.json",
+          "sha256": "ea2cd814d6583137d00adac755d2b7ed6e5dddd59aaa0da17fb6379652dd6596"
+        }
+      ],
+      "checks": 109,
+      "audience": {
+        "count": 200,
+        "occupiedCount": 200,
+        "occupiedSortedSha256": "f9c58818953ae5590d062e64b6954721f2fce8d243eca00cb115db6eaeef05cf",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "runs": {
+        "cold": {
+          "readyMs": {
+            "before": 11760.400000002235,
+            "after": 10854.5,
+            "delta": -905.9000000022352,
+            "percent": -7.702969286776495
+          },
+          "longtasks": {
+            "before": {
+              "count": 3,
+              "totalMs": 3858,
+              "maxMs": 3008
+            },
+            "after": {
+              "count": 3,
+              "totalMs": 3663,
+              "maxMs": 3297
+            }
+          },
+          "jsHeapBytes": {
+            "before": 157000000,
+            "after": 212000000
+          },
+          "sampleCount": 207,
+          "samplePcmBytes": 64184568,
+          "applausePcmBytes": 14288400,
+          "sampleNetwork": {
+            "before": {
+              "requests": 207,
+              "responseEncodedBytes": 5666528,
+              "cacheHits": 0,
+              "wire304": 0,
+              "failed": 0
+            },
+            "after": {
+              "requests": 207,
+              "responseEncodedBytes": 5666528,
+              "cacheHits": 0,
+              "wire304": 0,
+              "failed": 0
+            }
+          }
+        },
+        "warm": {
+          "readyMs": {
+            "before": 10726.900000002235,
+            "after": 10801.699999999255,
+            "delta": 74.79999999701977,
+            "percent": 0.6973123642152362
+          },
+          "longtasks": {
+            "before": {
+              "count": 4,
+              "totalMs": 3600,
+              "maxMs": 2712
+            },
+            "after": {
+              "count": 2,
+              "totalMs": 4374,
+              "maxMs": 4012
+            }
+          },
+          "jsHeapBytes": {
+            "before": 157000000,
+            "after": 212000000
+          },
+          "sampleCount": 207,
+          "samplePcmBytes": 64184568,
+          "applausePcmBytes": 14288400,
+          "sampleNetwork": {
+            "before": {
+              "requests": 207,
+              "responseEncodedBytes": 0,
+              "cacheHits": 207,
+              "wire304": 0,
+              "failed": 0
+            },
+            "after": {
+              "requests": 207,
+              "responseEncodedBytes": 0,
+              "cacheHits": 207,
+              "wire304": 0,
+              "failed": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "venue": "sphere",
+      "device": "desktop",
+      "inputFiles": [
+        {
+          "path": "qa-a41/runtime-results/loading-baseline-fixed-sphere-desktop.json",
+          "sha256": "e69b766966b22672e3bf3b4a27bd5aff39af4f1d02c76216c7ac84486ede3592"
+        },
+        {
+          "path": "qa-a41/runtime-results/loading-after-fixed-sphere-desktop.json",
+          "sha256": "ded2d2aa35e35632ee8fa7e1897b3a71ae6f74e0faabdfe7d2e63186aea53264"
+        },
+        {
+          "path": "qa-a41/runtime-results/loading-comparison-sphere-desktop.json",
+          "sha256": "5a858fe4294737e58a7d08e1e3a0756a7cb6311939c61ba834a9aa81b59b3ed2"
+        }
+      ],
+      "checks": 109,
+      "audience": {
+        "count": 12909,
+        "occupiedCount": 12909,
+        "occupiedSortedSha256": "532b62f2f794783e760e2bc6cc80cb1a4910556749d10e933cc25872a62bf128",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "runs": {
+        "cold": {
+          "readyMs": {
+            "before": 10136.300000000745,
+            "after": 10118,
+            "delta": -18.300000000745058,
+            "percent": -0.18053925002953458
+          },
+          "longtasks": {
+            "before": {
+              "count": 5,
+              "totalMs": 2545,
+              "maxMs": 1564
+            },
+            "after": {
+              "count": 7,
+              "totalMs": 2188,
+              "maxMs": 1427
+            }
+          },
+          "jsHeapBytes": {
+            "before": 747000000,
+            "after": 435000000
+          },
+          "sampleCount": 389,
+          "samplePcmBytes": 296771776,
+          "applausePcmBytes": 14288400,
+          "sampleNetwork": {
+            "before": {
+              "requests": 389,
+              "responseEncodedBytes": 10666245,
+              "cacheHits": 0,
+              "wire304": 0,
+              "failed": 0
+            },
+            "after": {
+              "requests": 389,
+              "responseEncodedBytes": 10666245,
+              "cacheHits": 0,
+              "wire304": 0,
+              "failed": 0
+            }
+          }
+        },
+        "warm": {
+          "readyMs": {
+            "before": 12585.5,
+            "after": 12818,
+            "delta": 232.5,
+            "percent": 1.8473640300345637
+          },
+          "longtasks": {
+            "before": {
+              "count": 3,
+              "totalMs": 2117,
+              "maxMs": 1312
+            },
+            "after": {
+              "count": 4,
+              "totalMs": 1731,
+              "maxMs": 1221
+            }
+          },
+          "jsHeapBytes": {
+            "before": 747000000,
+            "after": 435000000
+          },
+          "sampleCount": 389,
+          "samplePcmBytes": 296771776,
+          "applausePcmBytes": 14288400,
+          "sampleNetwork": {
+            "before": {
+              "requests": 389,
+              "responseEncodedBytes": 0,
+              "cacheHits": 389,
+              "wire304": 0,
+              "failed": 0
+            },
+            "after": {
+              "requests": 389,
+              "responseEncodedBytes": 0,
+              "cacheHits": 389,
+              "wire304": 0,
+              "failed": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "venue": "sphere",
+      "device": "mobile",
+      "inputFiles": [
+        {
+          "path": "qa-a41/runtime-results/loading-baseline-fixed-sphere-mobile.json",
+          "sha256": "112e23ce27b199584e6b069d0e8ba93e2bdf0af50991230f52ecb43735e643c6"
+        },
+        {
+          "path": "qa-a41/runtime-results/loading-after-fixed-sphere-mobile.json",
+          "sha256": "cd49954c9cc1ae76ede563670e8b597ca379f62c949dece951fe366a225babfc"
+        },
+        {
+          "path": "qa-a41/runtime-results/loading-comparison-sphere-mobile.json",
+          "sha256": "993877a0da4545418ac021778dceba15b73077cf475a55be0db2f044ee129bb4"
+        }
+      ],
+      "checks": 109,
+      "audience": {
+        "count": 2500,
+        "occupiedCount": 2500,
+        "occupiedSortedSha256": "de5dbb4c84397ebad7b11f5012369774904ec012dac30f45a901a0e79ff62d87",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "runs": {
+        "cold": {
+          "readyMs": {
+            "before": 6140.400000002235,
+            "after": 5966.5,
+            "delta": -173.90000000223517,
+            "percent": -2.8320630578166224
+          },
+          "longtasks": {
+            "before": {
+              "count": 4,
+              "totalMs": 3680,
+              "maxMs": 2872
+            },
+            "after": {
+              "count": 2,
+              "totalMs": 3337,
+              "maxMs": 3036
+            }
+          },
+          "jsHeapBytes": {
+            "before": 286000000,
+            "after": 157000000
+          },
+          "sampleCount": 207,
+          "samplePcmBytes": 64184568,
+          "applausePcmBytes": 14288400,
+          "sampleNetwork": {
+            "before": {
+              "requests": 207,
+              "responseEncodedBytes": 5666528,
+              "cacheHits": 0,
+              "wire304": 0,
+              "failed": 0
+            },
+            "after": {
+              "requests": 207,
+              "responseEncodedBytes": 5666528,
+              "cacheHits": 0,
+              "wire304": 0,
+              "failed": 0
+            }
+          }
+        },
+        "warm": {
+          "readyMs": {
+            "before": 5949.5,
+            "after": 6105.400000002235,
+            "delta": 155.90000000223517,
+            "percent": 2.6203882679592434
+          },
+          "longtasks": {
+            "before": {
+              "count": 3,
+              "totalMs": 3595,
+              "maxMs": 2763
+            },
+            "after": {
+              "count": 2,
+              "totalMs": 3849,
+              "maxMs": 3420
+            }
+          },
+          "jsHeapBytes": {
+            "before": 286000000,
+            "after": 157000000
+          },
+          "sampleCount": 207,
+          "samplePcmBytes": 64184568,
+          "applausePcmBytes": 14288400,
+          "sampleNetwork": {
+            "before": {
+              "requests": 207,
+              "responseEncodedBytes": 0,
+              "cacheHits": 207,
+              "wire304": 0,
+              "failed": 0
+            },
+            "after": {
+              "requests": 207,
+              "responseEncodedBytes": 0,
+              "cacheHits": 207,
+              "wire304": 0,
+              "failed": 0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Controlled startup with main rAF held; not normal interactive readiness, app FPS or a physical mobile benchmark.",
+    "Only solo-audience RNG uses seed 417. Native IR and other procedural samples are not made byte-identical.",
+    "One observation per cold/warm revision; values are descriptive and do not establish a repeatable causal speed-up.",
+    "JavaScript heap is a coarse quantized snapshot, not peak, total-process, native AudioBuffer or GPU memory.",
+    "The rewritten main response is identity with a QA ETag; controlledMainFixture bytes are not original gzip main transfer bytes.",
+    "The four earlier random-audience runs are preserved but excluded from causal timing/longtask comparisons."
+  ]
+}
