@@ -187,3 +187,141 @@ export function renderApplause(ctx, { seconds = 8, people = 320, seed = 1, rhyth
   const wash = toBuffer(ctx, wL, wR, fs, 0.1 / (steadyRms(wL, wR) || 1), 0.1);
   return { close, wash };
 }
+
+// ------------------------------------------------------------------ the house
+// The audience before the music: many conversations at once, far and near
+// (noise shaped by two moving formants into syllables, phrases and pauses -
+// no words, just the sound of a full room talking). Rendered as a seamless
+// loop. Plus a few one-shots: a cough, a seat creaking, a programme rustling.
+
+// time-varying two-formant voice: coefficients change once per syllable
+function talker(L, R, fs, len, r, { gl, gr, itd }) {
+  let t = r() * 1.5;
+  const iL = itd > 0 ? itd : 0;
+  const iR = itd < 0 ? -itd : 0;
+  const base = 0.85 + r() * 0.5; // voice size (formants lower for a larger voice)
+  let lp = 0;
+  while (t < len / fs) {
+    // a phrase of syllables, then a pause (listening to the other one)
+    const phraseEnd = t + 1.2 + r() * 3;
+    while (t < phraseEnd && t < len / fs) {
+      const syl = 0.13 + r() * 0.15;
+      const amp = 0.35 + r() * 0.65;
+      const f1 = (320 + r() * 480) / base;
+      const f2 = (950 + r() * 1300) / base;
+      const n = Math.floor(syl * fs);
+      const i0 = Math.floor(t * fs);
+      // two resonators (RBJ band-pass) for this syllable
+      const co = (f, q) => {
+        const w = (2 * Math.PI * Math.min(f, fs * 0.45)) / fs;
+        const al = Math.sin(w) / (2 * q);
+        const a0 = 1 + al;
+        return [al / a0, -al / a0, (-2 * Math.cos(w)) / a0, (1 - al) / a0];
+      };
+      const A = co(f1, 4);
+      const B = co(f2, 6);
+      let ax1 = 0, ax2 = 0, ay1 = 0, ay2 = 0, by1 = 0, by2 = 0;
+      for (let i = 0; i < n; i++) {
+        const k = i0 + i;
+        if (k + iL >= len || k + iR >= len) break;
+        // pink-ish source
+        lp += 0.25 * ((r() * 2 - 1) - lp);
+        const x = lp;
+        const ya = A[0] * x + A[1] * ax2 - A[2] * ay1 - A[3] * ay2;
+        const yb = B[0] * x + B[1] * ax2 - B[2] * by1 - B[3] * by2;
+        ax2 = ax1; ax1 = x; ay2 = ay1; ay1 = ya; by2 = by1; by1 = yb;
+        const env = Math.sin((Math.PI * i) / n);
+        const v = (ya * 1.0 + yb * 0.55) * env * env * amp;
+        L[k + iL] += v * gl;
+        R[k + iR] += v * gr;
+      }
+      t += syl * (0.9 + r() * 0.35);
+    }
+    t += 0.25 + r() * 1.6;
+  }
+}
+
+export function renderMurmur(ctx, { seconds = 9, talkers = 30, seed = 5, sr = 16000 } = {}) {
+  const r = rng(seed);
+  const fs = sr;
+  const X = Math.floor(0.6 * fs); // crossfade for a seamless loop
+  const len = Math.floor(seconds * fs) + X;
+  const L = new Float32Array(len);
+  const R = new Float32Array(len);
+  for (let p = 0; p < talkers; p++) {
+    const d = 2 + Math.pow(r(), 0.7) * 25;
+    const g = (0.6 + r() * 0.4) / (1 + d / 4);
+    const pan = r() * 2 - 1;
+    const a = ((pan * 0.95 + 1) * Math.PI) / 4;
+    talker(L, R, fs, len, r, { gl: g * Math.cos(a), gr: g * Math.sin(a), itd: Math.round(pan * 0.0006 * fs) });
+  }
+  const n = len - X;
+  const buf = ctx.createBuffer(2, n, fs);
+  const rms = steadyRms(L, R) || 1;
+  for (const [src, ch] of [[L, 0], [R, 1]]) {
+    const o = buf.getChannelData(ch);
+    for (let i = 0; i < n; i++) o[i] = src[i] * (0.1 / rms);
+    // the tail fades into the head (equal power)
+    for (let i = 0; i < X; i++) {
+      const u = i / X;
+      o[i] = o[i] * Math.sin((u * Math.PI) / 2) + src[n + i] * (0.1 / rms) * Math.cos((u * Math.PI) / 2);
+    }
+  }
+  return buf;
+}
+
+// one-shots: kind 'cough' | 'creak' | 'rustle' (mono, peak ~0.8)
+export function renderNoise(ctx, kind, { seed = 1, sr = 16000 } = {}) {
+  const r = rng(seed);
+  const fs = sr;
+  let out;
+  if (kind === 'cough') {
+    out = new Float32Array(Math.floor(0.6 * fs));
+    const bursts = 1 + Math.floor(r() * 2.2);
+    for (let b = 0; b < bursts; b++) {
+      const t0 = Math.floor((b * (0.2 + r() * 0.08)) * fs);
+      const n = Math.floor((0.14 + r() * 0.08) * fs);
+      const ex = new Float32Array(n);
+      for (let i = 0; i < n; i++) { const t = i / fs; ex[i] = (r() * 2 - 1) * Math.min(1, t / 0.006) * Math.exp(-t / (0.045 + r() * 0.03)); }
+      const a = bandpass(ex, fs, 450 + r() * 400, 1.4);
+      const c = bandpass(ex, fs, 1500 + r() * 900, 2);
+      const g = b ? 0.55 + r() * 0.3 : 1;
+      for (let i = 0; i < n && t0 + i < out.length; i++) out[t0 + i] += (a[i] * 1.6 + c[i] * 0.9) * g;
+    }
+  } else if (kind === 'creak') {
+    out = new Float32Array(Math.floor((0.3 + r() * 0.35) * fs));
+    let f = 45 + r() * 50;
+    let ph = 0;
+    const imp = new Float32Array(out.length);
+    for (let i = 0; i < out.length; i++) {
+      ph += f / fs;
+      f *= 1 + (r() - 0.45) * 0.004;
+      if (ph >= 1) { ph -= 1; imp[i] = 0.6 + r() * 0.4; }
+    }
+    const res = bandpass(imp, fs, 700 + r() * 900, 9);
+    const res2 = bandpass(imp, fs, 2200 + r() * 800, 6);
+    for (let i = 0; i < out.length; i++) {
+      const u = i / out.length;
+      out[i] = (res[i] + res2[i] * 0.5) * Math.sin(Math.PI * u);
+    }
+  } else {
+    // a programme leafed through: crackling grains in a couple of swells
+    out = new Float32Array(Math.floor((0.35 + r() * 0.5) * fs));
+    const raw = new Float32Array(out.length);
+    const sw = 1 + Math.floor(r() * 2.5);
+    for (let i = 0; i < out.length; i++) {
+      const u = i / out.length;
+      const env = Math.pow(Math.abs(Math.sin(Math.PI * u * sw)), 1.5);
+      if (r() < 0.06 * env) raw[i] = (r() * 2 - 1);
+      raw[i] += (r() * 2 - 1) * 0.05 * env;
+    }
+    const hp = bandpass(raw, fs, 3200 + r() * 1500, 0.8);
+    for (let i = 0; i < out.length; i++) out[i] = hp[i];
+  }
+  let pk = 0;
+  for (let i = 0; i < out.length; i++) pk = Math.max(pk, Math.abs(out[i]));
+  const buf = ctx.createBuffer(1, out.length, fs);
+  const o = buf.getChannelData(0);
+  for (let i = 0; i < out.length; i++) o[i] = (out[i] / (pk || 1)) * 0.8;
+  return buf;
+}
