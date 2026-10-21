@@ -610,7 +610,7 @@ body.touch .act-btn kbd { display: none; }
 /* the stub in your paw (bottom left): just the face of it */
 .pz-stub .ticket { width: 250px; }
 .pz-stub .ticket .t-grid, .pz-stub .ticket .t-fine, .pz-stub .ticket .t-mode, .pz-stub .ticket .t-sub, .pz-stub .ticket .t-seal, .pz-stub .ticket .t-foil { display: none; }
-.pz-stub .ticket .t-title { font-size: 16px; }
+.pz-stub .ticket .t-title { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pz-stub .ticket .t-head { border-bottom: 0; padding-bottom: 4px; }
 .pz-stub .ticket .t-main { padding-bottom: 4px; }
 .pz-stub .ticket { --stub: 70px; }
@@ -705,8 +705,8 @@ body.touch .act-btn kbd { display: none; }
   .pz-me { padding: 4px 10px 4px 6px; }
   .pz-who small { display: none; }
   .pz-quick { top: 58px; }
-  .pz-stub { bottom: 300px; }
-  .pz-stub .ticket { width: 210px; }
+  .pz-stub { top: 52px; bottom: auto; left: 12px; transform: rotate(-3deg) scale(0.82); transform-origin: left top; }
+  .pz-stub .ticket { width: 200px; }
 }
 .is-plaza #splash { display: none; }
 .is-plaza .plaza[hidden] { display: block; }

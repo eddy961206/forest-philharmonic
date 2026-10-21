@@ -117,10 +117,13 @@ for (const m of liteArmMeshes()) scene.add(m);
 
 // ------------------------------------------------------------ the ticket
 let ticket = heldTicket();
+let quickOk = false; // a last ticket to repeat (see below)
 function showStub() {
   const stub = $('pzStub');
   stub.innerHTML = '';
   stub.hidden = !ticket;
+  // (the shortcut is for coming without one)
+  $('pzQuick').hidden = !!ticket || !quickOk;
   if (!ticket) { world.callGate(null); return; }
   stub.appendChild(ticketElement(ticket));
   world.callGate(ticket.venue);
@@ -133,7 +136,8 @@ $('pzStub').addEventListener('click', () => { if (ticket) toast(`${VENUE_NAMES[t
 // "the same as last time": straight through
 const last = lastTicket();
 if (last && VENUE_NAMES[last.venue]) {
-  $('pzQuick').hidden = false;
+  quickOk = true;
+  $('pzQuick').hidden = !!ticket;
   $('pzQuickWhat').textContent = `${VENUE_NAMES[last.venue]} · ${modeLine({ ...last, code: '' })}`;
   $('pzQuick').addEventListener('click', () => {
     if (busy) return;
@@ -495,7 +499,10 @@ window.addEventListener('keyup', (e) => keys.delete(e.code));
 window.addEventListener('blur', () => keys.clear());
 
 // the camera: behind you, turned by dragging, nearer or farther with the wheel
-const cam = { yaw: 0, pitch: 0.32, dist: LITE ? 4.6 : 4.2 };
+const cam = { yaw: 0, pitch: 0.32, dist: 4.2 };
+// (a tall, narrow screen sees less to the sides: stand the camera farther back)
+const fitCam = () => { cam.dist = Math.max(cam.dist, window.innerWidth / window.innerHeight < 0.8 ? 6.4 : 4.2); };
+fitCam();
 let drag = null;
 const canvas = renderer.domElement;
 canvas.style.touchAction = 'none';
@@ -520,7 +527,7 @@ canvas.addEventListener('pointerup', (e) => {
   drag = null;
   if (tap) onTap(e.clientX, e.clientY);
 });
-canvas.addEventListener('wheel', (e) => { cam.dist = Math.min(7, Math.max(2.4, cam.dist * Math.exp(e.deltaY * 0.001))); e.preventDefault(); }, { passive: false });
+canvas.addEventListener('wheel', (e) => { cam.dist = Math.min(8, Math.max(2.4, cam.dist * Math.exp(e.deltaY * 0.001))); e.preventDefault(); }, { passive: false });
 
 // a tap on the booth or a gate walks you there
 const ray = new THREE.Raycaster();
@@ -646,13 +653,16 @@ function animateWalker(ch, pos, yaw, sp, phaseObj, dt) {
 // strollers: from the edge of the square to the window, a moment there,
 // then off through one of the gates
 function strollerPath() {
-  const a = Math.PI * (0.6 + Math.random() * 0.8) * (Math.random() < 0.5 ? 1 : -1);
+  // (they come from the open side of the square, never from behind the booth)
+  const a = (Math.random() * 1.1 - 0.55) * Math.PI;
   const start = { x: Math.sin(a) * (PLAZA.R - 0.6), z: Math.cos(a) * (PLAZA.R - 0.6) };
-  const gate = Math.random() < 0.5 ? PLAZA.gates.hall : PLAZA.gates.sphere;
-  const side = Math.random() < 0.5 ? -1 : 1;
+  const id = Math.random() < 0.5 ? 'hall' : 'sphere';
+  const gate = PLAZA.gates[id];
+  const side = id === 'hall' ? -1 : 1;
   return [
     start,
-    { x: PLAZA.window.x + side * 0.9, z: PLAZA.window.z + 0.6, pause: 2.5 + Math.random() * 2 },
+    { x: PLAZA.window.x + side * 0.8, z: PLAZA.window.z + 0.55, pause: 2.5 + Math.random() * 2 },
+    { x: side * 2.8, z: 0.4 }, // round the corner of the booth
     { x: gate.x * 0.85, z: gate.z * 0.85 },
     { x: gate.x * 1.08, z: gate.z * 1.08, out: true },
   ];
@@ -719,6 +729,9 @@ function placeCamera(dt, first = false) {
   // (not inside the booth)
   const B = PLAZA.booth;
   if (Math.abs(_want.x - B.x) < B.w / 2 + 0.25 && Math.abs(_want.z - B.z) < B.d / 2 + 0.25 && _want.y < 3.2) _want.y = 3.4;
+  // (and not out among the trees round the square)
+  const rr = Math.hypot(_want.x, _want.z);
+  if (rr > 14.5) { _want.x *= 14.5 / rr; _want.z *= 14.5 / rr; }
   if (first) camera.position.copy(_want); else camera.position.lerp(_want, 1 - Math.exp(-dt * 8));
   _look.set(p.x, 1.05, p.z);
   camera.lookAt(_look);
@@ -732,6 +745,14 @@ function frame() {
   const now = performance.now();
   const dt = Math.min(0.05, (now - lastT) / 1000);
   lastT = now;
+  step(dt, now);
+  syncLiteArms();
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+// one moment of the square (without drawing it)
+function step(dt, now = performance.now()) {
   elapsed += dt;
   const sp = movePlayer(dt);
   animateWalker(player.char, player.pos, player.yaw, sp, player, dt);
@@ -756,12 +777,10 @@ function frame() {
     } else if (dWin < 2.1) setAct(ticket ? '매표소에서 표 다시 사기' : '매표소 다람쥐에게 말 걸기', openBooth);
     else setAct(null, null);
   }
-  syncLiteArms();
-  renderer.render(scene, camera);
-  requestAnimationFrame(frame);
 }
 
 window.addEventListener('resize', () => {
+  fitCam();
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -775,4 +794,4 @@ requestAnimationFrame(() => {
   if (!ticket) setTimeout(() => toast(`어서 와요, ${me.name}! 오늘 밤은 ${kind.ko}의 모습으로 왔어요. 가운데 매표소에서 표를 사 봐요.`, 4600), 900);
 });
 
-window.__plaza = { scene, camera, renderer, world, player, cam, keys, get ticket() { return ticket; }, openBooth, enterGate, PLAZA, gateYaw };
+window.__plaza = { scene, camera, renderer, world, player, cam, keys, step, walkable, joy, get autoTo() { return autoTo; }, get ticket() { return ticket; }, openBooth, enterGate, PLAZA, gateYaw };

@@ -298,13 +298,28 @@ export function buildPlaza(scene, { lite = false } = {}) {
     board.material.emissiveMap = board.material.map;
     board.position.set(0, 4.15, 0.02);
     // the glow that calls you when your ticket is for this door
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.06, 6, 28, Math.PI).translate(0, 3.4, 0.17), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.15 }));
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.09, 6, 28, Math.PI).translate(0, 3.4, 0.2), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, depthWrite: false }));
+    // the doorway itself fills with a soft light when it is yours to go through
+    const veil = new THREE.Mesh(new THREE.PlaneGeometry(2.7, 3.3).translate(0, 1.65, 0), new THREE.MeshBasicMaterial({
+      map: canvasTex(64, 128, (cg, w, h) => {
+        const grad = cg.createLinearGradient(0, h, 0, 0);
+        grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+        grad.addColorStop(0.6, 'rgba(255,255,255,0.35)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        cg.fillStyle = grad;
+        cg.fillRect(0, 0, w, h);
+      }),
+      color: col, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
+    }));
+    const crown = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color: col, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+    crown.position.set(0, 3.6, 0.3);
+    crown.scale.setScalar(3.4);
     const gg = new THREE.Group();
-    gg.add(arch, board, ring);
+    gg.add(arch, board, ring, veil, crown);
     gg.position.set(g.x, 0, g.z);
     gg.rotation.y = yaw;
     group.add(gg);
-    gates[id] = { group: gg, ring, call: 0, want: 0 };
+    gates[id] = { group: gg, ring, veil, crown, call: 0, want: 0 };
     pickables[`gate:${id}`] = [arch, board];
     for (const s of [-1, 1]) halos.push(new THREE.Vector3(s * 1.55, 3.0, 0.3).applyAxisAngle(V(0, 1, 0), yaw).add(V(g.x, 0, g.z)));
   }
@@ -432,7 +447,11 @@ export function buildPlaza(scene, { lite = false } = {}) {
     exo.uniforms.uTime.value = t;
     for (const g of Object.values(gates)) {
       g.call += (g.want - g.call) * Math.min(1, dt * 2);
-      g.ring.material.opacity = 0.15 + g.call * (0.55 + 0.3 * Math.sin(t * 3));
+      const pulse = 0.75 + 0.25 * Math.sin(t * 2.6);
+      g.ring.material.opacity = 0.15 + g.call * 0.85 * pulse;
+      g.veil.material.opacity = g.call * 0.62 * pulse;
+      g.crown.material.opacity = g.call * 0.8 * pulse;
+      g.veil.visible = g.crown.visible = g.call > 0.01;
     }
   });
 

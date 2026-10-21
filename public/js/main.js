@@ -1658,7 +1658,9 @@ const me = identity();
 const invite = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || null;
 ui.initLobby({ avatars: AVATARS, identity: { ...me, emoji: EMOJI[me.avatar] }, invite, venue: VENUE, venues: VENUES });
 // came from the square with a ticket for this building: the usher checks it
-const ticket = invite ? null : heldTicket(VENUE);
+// (a room's address after a reload: your ticket for that very room still counts)
+const held = heldTicket(VENUE);
+const ticket = held && (!invite || held.code === invite) ? held : null;
 if (ticket) ui.ticketMode(ticket, ticketElement(ticket));
 ui.on('venue', (id) => goVenue(id, { room: invite }));
 async function refreshRooms() {
