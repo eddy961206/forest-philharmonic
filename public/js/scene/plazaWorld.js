@@ -362,16 +362,28 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
     body.push(new THREE.ConeGeometry(5.6, 6, 4).rotateY(Math.PI / 4).translate(9, 23, -2));
     hg.add(new THREE.Mesh(mergeGeometries(body.map((b) => b.index ? b.toNonIndexed() : b)), std({ color: '#3a3330', roughness: 0.95 })));
     const win = [];
+    const wr = rand(23);
+    // each window its own light: most warm, some dimmer, a few dark (an
+    // evenly lit grid read as a pattern, not a building)
+    const lit = (g, k) => {
+      const n = g.attributes.position.count;
+      const c = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) c.set([k, k * 0.93, k * 0.86], i * 3);
+      g.setAttribute('color', new THREE.BufferAttribute(c, 3));
+      return g;
+    };
     for (let row = 0; row < 3; row++) {
       for (let k = -5; k <= 5; k++) {
         if (row === 0 && Math.abs(k) < 1) continue;
-        win.push(new THREE.PlaneGeometry(1.1, 2.2).translate(k * 2.2, 2.6 + row * 3.6, 7.02));
+        const r = wr();
+        const k0 = r < 0.14 ? 0.12 : r < 0.4 ? 0.55 + wr() * 0.2 : 0.85 + wr() * 0.15;
+        win.push(lit(new THREE.PlaneGeometry(1.1, 2.2).translate(k * 2.2, 2.6 + row * 3.6, 7.02), k0));
       }
     }
-    win.push(new THREE.PlaneGeometry(3.2, 4.6).translate(0, 2.3, 7.03)); // the doors, open and lit
+    win.push(lit(new THREE.PlaneGeometry(3.2, 4.6).translate(0, 2.3, 7.03), 1.25)); // the doors, open and lit
     // (lit windows, bright enough to glow through the night mist - softly,
     // as lights far off in the trees, not as paper cut-outs on the sky)
-    hg.add(new THREE.Mesh(mergeGeometries(win), new THREE.MeshBasicMaterial({ color: '#a8692c', fog: false, toneMapped: false })));
+    hg.add(new THREE.Mesh(mergeGeometries(win), new THREE.MeshBasicMaterial({ color: '#a8692c', vertexColors: true, fog: false, toneMapped: false })));
     hg.position.set(f.x, 0, f.z);
     hg.rotation.y = Math.atan2(-f.x, -f.z);
     group.add(hg);

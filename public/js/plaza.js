@@ -781,7 +781,10 @@ function placeCamera(dt, first = false) {
   const rr = Math.hypot(_want.x, _want.z);
   if (rr > 14.5) { _want.x *= 14.5 / rr; _want.z *= 14.5 / rr; }
   if (first) camera.position.copy(_want); else camera.position.lerp(_want, 1 - Math.exp(-dt * 8));
-  _look.set(p.x, 1.05, p.z);
+  // (looking a little ahead of you and above your shoulders: you stand in
+  // the lower part of the picture and what you walk toward is not hidden
+  // behind your own head)
+  _look.set(p.x - Math.sin(cam.yaw) * 1.3, 1.4, p.z - Math.cos(cam.yaw) * 1.3);
   camera.lookAt(_look);
 }
 
