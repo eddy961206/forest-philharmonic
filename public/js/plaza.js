@@ -362,6 +362,8 @@ function buildVenueCards() {
 function goStep(n) {
   booth.step = n;
   document.querySelectorAll('.booth-step').forEach((s) => { s.hidden = Number(s.dataset.step) !== n; });
+  // (a new step starts at the top of the card, not where the last one was scrolled)
+  const card = document.querySelector('.booth-card'); if (card) card.scrollTop = 0;
   document.querySelectorAll('#boothSteps li').forEach((li) => {
     const s = Number(li.dataset.s);
     li.toggleAttribute('data-done', s < n);
@@ -528,7 +530,7 @@ $('payBtn').addEventListener('click', () => {
     $('payBtn').disabled = false;
     paying = false;
     goStep(4);
-    $('boothDone').focus();
+    $('boothDone').focus({ preventScroll: true }); // (the ticket stays in view from its top)
   }, 650);
 });
 

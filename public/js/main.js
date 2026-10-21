@@ -12,7 +12,7 @@ import { SPHERE_ACOUSTICS, SP } from './scene/sphereplan.js';
 import { buildSphere } from './scene/sphere.js';
 import { visualsFor } from './scene/domeshow.js';
 import { SETLISTS } from './programs.js';
-import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement, EMOJI } from './tickets.js';
+import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement, ticketQuery, EMOJI } from './tickets.js';
 
 import { AudioEngine } from './audio/engine.js';
 import { Performance } from './audio/performance.js';
@@ -355,7 +355,8 @@ ui.on('enter', async (opt) => {
         try { localStorage.setItem('fp-venue', e.venue); } catch { /* private mode */ }
         if (ticket) {
           updateTicket({ venue: e.venue });
-          setTimeout(() => { location.href = `${location.pathname}?venue=${e.venue}`; }, 900);
+          // (with storage blocked the ticket lives in the address: it comes along)
+          setTimeout(() => { location.href = `${location.pathname}?venue=${e.venue}${ticketQuery({ ...ticket, venue: e.venue })}`; }, 900);
         } else setTimeout(() => goVenue(e.venue, { room: opt.code }), 700);
         return;
       }
@@ -418,8 +419,13 @@ function startShow() {
   // still out in the foyer: the music comes through the wall (as it would) -
   // say how to hear it properly, never move them
   if (!IS_SPHERE && engine.ctx) {
-    const L = director.listener(settings.fixedEar ? bestSeat : null);
-    if (hallOpenness(L.pos.x, L.pos.y, L.pos.z) < 0.6) setTimeout(() => ui.toast('로비에서는 벽 너머로 들려요 · 홀 안으로 들어가 자리에 앉거나(좌석 클릭) 편하게 보기로 들으면 또렷해요', 6500), 1500);
+    // (after the walk-on, which has its own toast - and only if they are still out there)
+    const hint = (ms, tries = 0) => setTimeout(() => {
+      if ((phase === 'changing' || phase === 'entering') && tries < 40) return hint(1000, tries + 1);
+      const L = director.listener(settings.fixedEar ? bestSeat : null);
+      if (hallOpenness(L.pos.x, L.pos.y, L.pos.z) < 0.6) ui.toast('로비에서는 벽 너머로 들려요 · 홀 안으로 들어가 자리에 앉거나(좌석 클릭) 편하게 보기로 들으면 또렷해요', 6500);
+    }, ms);
+    hint(1500);
   }
   ritualNext = true;
   runConcert(current);
@@ -1690,11 +1696,15 @@ function carryOn() {
 let awayTold = false;
 let stuckFor = 0;
 let awayCheck = 0;
+// (a reload or a closed tab: its pagehide comes before the visibilitychange, and it is not "away")
+let unloading = false;
+addEventListener('pagehide', () => { unloading = true; });
+addEventListener('pageshow', () => { unloading = false; }); // (back from the bfcache: alive again)
 const AWAY_HANDOFF = 30; // seconds of a stuck show in a hidden host's page
 document.addEventListener('visibilitychange', () => {
   clearInterval(awayCheck);
   stuckFor = 0;
-  if (!room?.isHost || !concertStarted) return;
+  if (unloading || !room?.isHost || !concertStarted) return;
   room.cmd({ c: 'away', on: document.hidden });
   if (!document.hidden) return;
   awayCheck = setInterval(() => {
@@ -1770,6 +1780,7 @@ function wireRoom(c) {
     ui.chatLine({ sys: true, text: `${m.name}님이 들어왔어요.` });
   });
   c.on('left', (id, who) => {
+    if (id === c.host) awayTold = false; // (the host left: no "back again" for a hidden screen)
     avatars.remove(id);
     if (encore?.votes?.delete(id)) encoreShow(); // (a lantern leaves with its holder)
     membersChanged();
