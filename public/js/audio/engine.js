@@ -3,7 +3,7 @@
 // Signal flow per stage section:
 //
 //   voices ─► section in ─┬─► air absorption ─┬─► HRTF panner (the section) ──────┐
-//                         │                   └─► desks: drifting delays ─► panners ┤ music trim ─► dry bus ─┐
+//                         │                   └─► desks: drifting delays ─► pans ───┤ music trim ─► dry bus ─┐
 //                         └─► reverb send (pre-panner, diffuse field) ─► music trim ─► room convolver ────────┤
 //                                                                                                             ▼
 //                       warmth / de-harsh EQ ─► glue compressor ─► volume ─► brick-wall limiter ─► out
@@ -270,12 +270,37 @@ export class AudioEngine {
       s.distance = d;
       const cutoff = Math.max(this.ac.airMin, 21000 / (1 + d * this.ac.airK));
       s.air.frequency.setTargetAtTime(this._hz(cutoff), t, 0.08);
+      if (s.desks?.length) {
+        // the listener's right: forward x up
+        const rx = fwd.y * up.z - fwd.z * up.y;
+        const ry = fwd.z * up.x - fwd.x * up.z;
+        const rz = fwd.x * up.y - fwd.y * up.x;
+        const rl = Math.hypot(rx, ry, rz) || 1;
+        for (const dk of s.desks) {
+          const vx = dk.pos.x - pos.x;
+          const vy = dk.pos.y - pos.y;
+          const vz = dk.pos.z - pos.z;
+          const dd = Math.hypot(vx, vy, vz) || 1;
+          const side = (vx * rx + vy * ry + vz * rz) / (rl * dd);
+          dk.pan.pan.setTargetAtTime(clamp(side * 1.1, -1, 1), t, 0.06);
+          dk.g.gain.setTargetAtTime(dk.level * this._distGain(dd), t, 0.06);
+        }
+      }
     }
   }
 
-  _panner(pos, face, cheap = false) {
+  // the panners' distance law, for the desks (see _panner)
+  _distGain(d) {
+    const a = this.ac;
+    const ref = a.refDistance;
+    if (a.model === 'linear') return 1 - a.rolloff * (clamp(d, ref, 120) - ref) / (120 - ref);
+    if (a.model === 'exponential') return Math.pow(Math.max(d, ref) / ref, -a.rolloff);
+    return ref / (ref + a.rolloff * (Math.max(d, ref) - ref));
+  }
+
+  _panner(pos, face) {
     return new PannerNode(this.ctx, {
-      panningModel: this.lite || cheap ? 'equalpower' : 'HRTF',
+      panningModel: this.lite ? 'equalpower' : 'HRTF',
       distanceModel: this.ac.model,
       refDistance: this.ac.refDistance,
       maxDistance: 120,
@@ -333,12 +358,15 @@ export class AudioEngine {
           try { delay.delayTime.automationRate = 'k-rate'; } catch { /* a-rate then */ }
           lfo.connect(depth).connect(delay.delayTime);
           lfo.start();
-          const g = new GainNode(ctx, { gain: id === 'choir' ? 0.7 : DESK_GAIN });
-          // (level panning for the desks: wide, and a fraction of an HRTF's cost)
-          const pn = this._panner(p, face, true);
+          const level = id === 'choir' ? 0.7 : DESK_GAIN;
+          const g = new GainNode(ctx, { gain: level * this._distGain(10) });
+          // (a plain stereo pan and a distance gain, set from the listener each
+          // frame: a 3D panner whose listener moves computes its angles for
+          // every sample - a desk does not need that)
+          const pn = new StereoPannerNode(ctx, { pan: 0 });
           air.connect(delay).connect(g).connect(pn).connect(this.musicDry);
-          g.connect(send);
-          desks.push({ delay, lfo, g, panner: pn });
+          delay.connect(send);
+          desks.push({ delay, lfo, g, pan: pn, pos: p, level });
         }
       }
       this.sections[id] = { id, input, focus, air, panner, send, pos, distance: 10, desks };

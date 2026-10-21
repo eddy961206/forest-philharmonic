@@ -92,7 +92,7 @@ export function setName(name) {
   const cur = identity();
   // (no invisible letters or text turned backwards; and sixteen letters,
   // not sixteen halves of an emoji)
-  const clean = Array.from(String(name || '').replace(/[\u0000-\u001f​‌‎‏‪-‮⁦-⁩﻿]/g, '').trim()).slice(0, 16).join('').trim();
+  const clean = Array.from(String(name || '').replace(/[\u0000-\u001f\u200b\u200c\u200e\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, '').trim()).slice(0, 16).join('').trim();
   if (!clean) return cur;
   me = { ...cur, name: clean };
   keep(LOCAL, ID_KEY, me);

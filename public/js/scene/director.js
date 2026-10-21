@@ -144,6 +144,7 @@ export class Director {
     // would pass through the walls and floors in between)
     const far = this.pos.distanceTo(eye) > 12;
     this.flyTo(eye, look, near ? dur : far ? 0.001 : 2.4, 50);
+    this.anim.home = true; // (the way into the seat is not cut short by a look)
     if (near) this.anim.lift = false;
     this._emit('mode', 'seat');
     this._emit('seat', seat);
@@ -227,10 +228,14 @@ export class Director {
     const fwd = V(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
     const right = V(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
     const head = c.clone().add(V(0, 1.15 * player.char.scale, 0));
-    const pos = head.clone().addScaledVector(fwd, 1.55).addScaledVector(right, -0.55).add(V(0, 0.12, 0));
+    // a little above and to the side of the music stand, looking down
+    // between the face and the instrument (not straight into the stand)
+    const pos = head.clone().addScaledVector(fwd, 1.8).addScaledVector(right, -0.7).add(V(0, 0.5, 0));
+    const look = c.clone().add(V(0, 0.8 * player.char.scale, 0));
     this.seat = { label: `${SECTIONS[player.sid].ko} · ${player.char.spec.name} 곁`, index: -1 };
     this.mode = 'seat';
-    this.flyTo(pos, head.clone().add(V(0, -0.15, 0)), 2.0, 45);
+    this.flyTo(pos, look, 2.0, 45);
+    this.anim.home = true; // (a nudge of the mouse on the way does not leave you mid-air)
     this._emit('mode', 'seat');
     this._emit('seat', this.seat);
   }
@@ -795,6 +800,12 @@ export class Director {
   _cinema(dt, ctx) {
     const c = this.cine;
     c.clock = (c.clock || 0) + dt;
+    // the curtain call: when the applause begins, a new shot at once - one
+    // where the bows can be seen - not a close-up held through them
+    if (ctx.phase !== c.phase) {
+      if (ctx.phase === 'applause' && c.phase !== undefined) c.until = 0;
+      c.phase = ctx.phase;
+    }
     if (!c.shot || c.clock > c.until) {
       const shot = this._pickShot(ctx);
       c.shot = shot;
@@ -837,11 +848,18 @@ export class Director {
         { kind: 'wide4', pos: V(0, 16.5, 6), look: V(0, STAGE_Y, -5), fov: 50, drift: V(0, 0, -2.5) },
         { kind: 'hall', pos: V(0, 3.2, -1.5), look: V(0, 8, 24), fov: 62, drift: V(1.5, 0.6, 0) },
       ];
-      const list = ENTRY.wide ? ENTRY.wide.map((o) => ({ ...o, pos: V(o.pos[0], o.pos[1], o.pos[2]), look: V(o.look[0], o.look[1], o.look[2]), drift: V(o.drift[0], o.drift[1], o.drift[2]) })) : options;
+      let list = ENTRY.wide ? ENTRY.wide.map((o) => ({ ...o, pos: V(o.pos[0], o.pos[1], o.pos[2]), look: V(o.look[0], o.look[1], o.look[2]), drift: V(o.drift[0], o.drift[1], o.drift[2]) })) : options;
+      // (for the bows: the stage from the house, not the house from the stage)
+      if (bows && list.some((o) => o.kind !== 'hall')) list = list.filter((o) => o.kind !== 'hall');
       return list[Math.floor(Math.random() * list.length)];
     };
+    const bows = ctx.phase === 'applause';
     let shot;
-    if (!piece || !perf.playing || r < 0.28 || (last === 'section' && r < 0.4)) shot = wide();
+    // the bows: the conductor from the front, turned to the house - or, with
+    // no conductor, the whole stage
+    if (bows && piece?.conducted) shot = { kind: 'bows', pos: V(0.6, STAGE_Y + 1.9, 2.8), look: V(0, STAGE_Y + 1.3, -5.5), fov: 52, drift: V(-0.8, 0, 0.5) };
+    else if (bows) shot = wide();
+    else if (!piece || !perf.playing || r < 0.28 || (last === 'section' && r < 0.4)) shot = wide();
     else if (piece.conducted && r < 0.4 && last !== 'conductor') {
       shot = Math.random() < 0.5
         ? { kind: 'conductor', pos: V(1.4, STAGE_Y + 2.0, -6.0), look: V(PODIUM.x, STAGE_Y + 1.6, PODIUM.z), fov: 34, drift: V(-1.2, 0, 0) }
@@ -850,7 +868,9 @@ export class Director {
       const sc = sectionCenter(dom);
       const look = V(sc.x, sc.y + 0.25, sc.z);
       const toAud = V(-sc.x * 0.25, 0, 1).normalize();
-      const side = Math.random() < 0.5 ? -1 : 1;
+      // (on the section's outer side: from the middle the conductor's head
+      // would fill the picture)
+      const side = Math.abs(sc.x) > 1 ? Math.sign(sc.x) : Math.random() < 0.5 ? -1 : 1;
       const lateral = V(toAud.z, 0, -toAud.x).multiplyScalar(side);
       let dist = 2.6 + Math.random() * 1.4;
       if (dom === 'piano') {
@@ -867,15 +887,28 @@ export class Director {
       }
     } else shot = wide();
     if (ctx.obstacles) {
+      // a head too near the camera, or between it and what it films (not
+      // the heads it is filming): step back and up until the view is clear
+      const ab = V();
+      const ap = V();
+      const inTheWay = (o) => {
+        if (o.distanceTo(shot.pos) < 0.95) return true;
+        // (only a section's close shot: a wide one looks over them all, and
+        // in the conductor's shots the conductor is the point)
+        if (shot.kind !== 'section' || o.distanceTo(shot.look) < 1.6) return false;
+        ab.subVectors(shot.look, shot.pos);
+        const u = clamp(ap.subVectors(o, shot.pos).dot(ab) / ab.lengthSq(), 0, 1);
+        return ap.copy(shot.pos).addScaledVector(ab, u).distanceTo(o) < 0.45;
+      };
       for (let k = 0; k < 8; k++) {
-        const hit = ctx.obstacles.find((o) => o.distanceTo(shot.pos) < 0.95);
+        const hit = ctx.obstacles.find(inTheWay);
         if (!hit) break;
         const away = new THREE.Vector3().subVectors(shot.pos, shot.look).setY(0).normalize();
         shot.pos.addScaledVector(away, 0.45).add(V(0, 0.3, 0));
       }
     }
     shot.hold = 14 + Math.random() * 6;
-    shot.cut = Math.random() < 0.2;
+    shot.cut = bows || Math.random() < 0.2;
     return shot;
   }
 

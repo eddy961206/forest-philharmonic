@@ -125,16 +125,19 @@ function steadyRms(L, R) {
   return Math.sqrt(e / (2 * Math.max(1, b - a)));
 }
 
-function toBuffer(ctx, L, R, fs, scale) {
+// scale to the wanted level; the odd clap right at your ear is rounded off
+// (soft, ~12 dB over the crowd's RMS: big, never spiky)
+function toBuffer(ctx, L, R, fs, scale, rms) {
   const buf = ctx.createBuffer(2, L.length, fs);
   const bl = buf.getChannelData(0);
   const br = buf.getChannelData(1);
   const len = L.length;
+  const T = 4 * rms;
   for (let i = 0; i < len; i++) {
     const x = i / len;
     const f = Math.min(1, x * 60) * Math.min(1, (1 - x) * 14);
-    bl[i] = L[i] * scale * f;
-    br[i] = R[i] * scale * f;
+    bl[i] = T * Math.tanh((L[i] * scale * f) / T);
+    br[i] = T * Math.tanh((R[i] * scale * f) / T);
   }
   return buf;
 }
@@ -167,7 +170,7 @@ export function renderApplause(ctx, { seconds = 8, people = 320, seed = 1, rhyth
     const itd = Math.round(pan * 0.0005 * fs);
     clapper(cL, cR, fs, seconds, r, { tA: pick(near), tB: pick(near), gl: g * sl, gr: g * sr2, itd, rhythmic });
   }
-  const close = toBuffer(ctx, cL, cR, fs, 0.06 / (steadyRms(cL, cR) || 1));
+  const close = toBuffer(ctx, cL, cR, fs, 0.06 / (steadyRms(cL, cR) || 1), 0.06);
 
   // wash: the house
   const wL = new Float32Array(len);
@@ -180,6 +183,6 @@ export function renderApplause(ctx, { seconds = 8, people = 320, seed = 1, rhyth
     const itd = Math.round(pan * 0.0006 * fs) + Math.round(gauss(r) * 0.0002 * fs);
     clapper(wL, wR, fs, seconds, r, { tA: pick(far), tB: pick(far), gl: g * sl, gr: g * sr2, itd, rhythmic });
   }
-  const wash = toBuffer(ctx, wL, wR, fs, 0.1 / (steadyRms(wL, wR) || 1));
+  const wash = toBuffer(ctx, wL, wR, fs, 0.1 / (steadyRms(wL, wR) || 1), 0.1);
   return { close, wash };
 }

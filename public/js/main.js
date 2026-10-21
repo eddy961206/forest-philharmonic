@@ -484,7 +484,14 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
   if (quick && phase === 'tuning') engine.stopAll(); // (skipped: the tuning-up stops too)
   ui.setPlaying(false);
   bowing = false;
-  current = (i + program.length) % program.length;
+  // (a piece picked during the bows: nobody plays it bent over, still on
+  // their feet or turned to the house)
+  stage.conductorBow(false);
+  stage.greet(stage.walkers.filter((w) => w.bowTarget || w.faceYaw !== null || (w.atHome && !w.standingRole && !w.sitTarget)), false);
+  const idx = (i + program.length) % program.length;
+  // (skipping away from the encore: the evening goes on from the piece picked)
+  if (quick && idx !== current) encoreActive = false;
+  current = idx;
   const meta = program[current];
   nextPiece = meta;
   if (!remote) sendCmd({ c: 'run', i: current, quick, ritual: ritualNext && !quick });
@@ -637,7 +644,7 @@ async function endOfPiece() {
     if (!(await wait(G.after * 1000, tok))) return;
   }
   setPhase('applause');
-  hall.setHouseLights(kind === 'solo' ? 0.3 : 0.5);
+  hall.setHouseLights(sleepy ? 0.04 : kind === 'solo' ? 0.3 : 0.5); // (nodding off: they stay down)
   if (big) hall.show?.('finale');
   if (settings.applause) {
     engine.applause(engine.now + 0.35, big ? 1.3 : 1, audience ? audience.count : 0);
@@ -1227,9 +1234,9 @@ setInterval(() => {
   if (left <= 75000 && !sleepy) {
     // the last minute: the lights go down, the house nods off
     sleepy = true;
+    // (a soloist's spotlight stays: letting it go would bring the fills back up)
     hall.setHouseLights(0.04);
     effects.dim(0.3);
-    spot.set(null);
   }
   if (left <= 30000 && !sleepFading && perf.playing) {
     sleepFading = true;
@@ -1277,7 +1284,12 @@ setInterval(() => {
     setTimeout(() => engine.setVolume(muted ? 0 : settings.volume), 800);
     ui.setSleepLeft(0);
     ui.toast('편안한 밤 되세요. 공연을 멈췄어요.', 4000);
-    // the musicians tiptoe off; then everything rests
+    // the musicians tiptoe off; then everything rests. (Not 'playing' any
+    // more: ▶ after waking calls them back on for the piece from its start -
+    // between pieces, for the next one.)
+    const between = ['applause', 'afterglow', 'intermission', 'interval', 'encore'].includes(phase);
+    endInterval();
+    setPhase(between ? 'intermission' : 'changing');
     closeRecital();
     encoreUi(null);
     if (stage.conductorOn) stage.conductorExit();
@@ -2039,7 +2051,7 @@ function frame() {
     camera.position.copy(director.pos);
     camera.quaternion.setFromEuler(new THREE.Euler(director.pitch, director.yaw, 0, 'YXZ'));
   } else {
-    director.update(dt, { time: t, perf, obstacles: headPositions });
+    director.update(dt, { time: t, perf, obstacles: headPositions, phase }); // (phase: the auto-director cuts to the bows)
   }
 
   if (engine.ctx) {
