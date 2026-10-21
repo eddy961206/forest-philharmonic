@@ -1,0 +1,36 @@
+[
+  {
+    "id": "baseline-transport-hall-desktop",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "hall",
+      "desktop"
+    ],
+    "directory": "functional",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18083/",
+      "REVISION": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+      "TIMEOUT_MS": "240000",
+      "LABEL": "main1f-baseline-transport-hall-desktop",
+      "SCOPE": "transport",
+      "SCREENSHOTS": "1"
+    }
+  },
+  {
+    "id": "baseline-transport-sphere-desktop",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "sphere",
+      "desktop"
+    ],
+    "directory": "functional",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18083/",
+      "REVISION": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+      "TIMEOUT_MS": "240000",
+      "LABEL": "main1f-baseline-transport-sphere-desktop",
+      "SCOPE": "transport",
+      "SCREENSHOTS": "1"
+    }
+  }
+]

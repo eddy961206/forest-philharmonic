@@ -1,0 +1,7 @@
+{
+  "createdAt": "2026-10-21T12:53:58.893331+00:00",
+  "state": "PLANNED_NOT_RUN",
+  "reason": "Candidate desktop controlled functional audio clock stalled; compare exact latest baseline desktop high transport path before attributing regression. Old6a failures and mobile/native-low passes do not settle latest high condition. This is functional diagnosis, not timing/quality equivalence or output capture.",
+  "plan": "baseline-desktop-transport-plan.json",
+  "runAfter": "existing serialized remaining queue completes"
+}
