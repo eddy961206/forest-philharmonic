@@ -144,10 +144,32 @@ export class SeatThief {
     if (this.w && this.leaving > 0) {
       // up, a little bow, and away to the wings
       this.leaving += dt;
+      const w = this.w;
       const k = Math.min(1, this.leaving / 0.7);
-      this.w.char.setStanding(k);
-      this.w.char.body.rotation.x = -0.5 * Math.sin(Math.min(1, Math.max(0, (this.leaving - 0.7) / 0.9)) * Math.PI);
-      if (this.leaving > 1.9) this.clear();
+      w.char.setStanding(k);
+      w.char.body.rotation.x = -0.5 * Math.sin(Math.min(1, Math.max(0, (this.leaving - 0.7) / 0.9)) * Math.PI);
+      if (this.leaving > 1.6) {
+        // then off along the row, away from you, on his way back stage -
+        // gone only once he is a few seats down
+        if (!this.dir) {
+          // (along the row: the seat's sideways, to the side away from you)
+          const sx = Math.cos(w.yaw);
+          const sz = -Math.sin(w.yaw);
+          const s = sx * (w.pos.x - you.x) + sz * (w.pos.z - you.z) < 0 ? -1 : 1;
+          this.dir = { x: sx * s, z: sz * s };
+          this.phase = 0;
+        }
+        const want = Math.atan2(-this.dir.x, -this.dir.z);
+        w.yaw += Math.atan2(Math.sin(want - w.yaw), Math.cos(want - w.yaw)) * Math.min(1, dt * 8);
+        const go = this.leaving > 1.9 ? 1.1 * dt : 0;
+        w.pos.x += this.dir.x * go;
+        w.pos.z += this.dir.z * go;
+        this.phase += go ? dt * 7.2 : 0;
+        w.char.walk(this.phase, go ? 0.5 : 0);
+        w.char.root.position.set(w.pos.x, w.pos.y + Math.abs(Math.sin(this.phase)) * 0.025, w.pos.z);
+        w.char.root.rotation.y = w.yaw;
+      }
+      if (this.leaving > 6.4) this.clear();
     }
     return !!this.w && !this.leaving && Math.hypot(you.x - this.seat.x, you.z - this.seat.z) < 1.8;
   }
@@ -155,10 +177,11 @@ export class SeatThief {
   shoo() { if (this.w && !this.leaving) this.leaving = 0.001; }
 
   clear() {
-    if (this.w) { this.w.char.body.rotation.x = 0; this.stage.giveBack(this.w); }
+    if (this.w) { this.w.char.body.rotation.x = 0; this.w.char.walk(0, 0); this.stage.giveBack(this.w); }
     this.w = null;
     this.seat = null;
     this.leaving = 0;
+    this.dir = null;
   }
 }
 

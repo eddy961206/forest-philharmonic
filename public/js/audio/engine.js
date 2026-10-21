@@ -17,7 +17,7 @@
 // choir has a width and the shimmer of many players.
 
 import { SECTIONS, sectionCenter, sectionFacing, PODIUM } from '../layout.js';
-import { renderApplause } from './crowd.js';
+import { renderApplause, renderMurmur, renderNoise } from './crowd.js';
 
 const FAMILY = {
   violin: 'strings', viola: 'strings', cello: 'strings', contrabass: 'strings', strings: 'strings',
@@ -735,6 +735,7 @@ export class AudioEngine {
   // Pre-render the crowd once (a few hundred milliseconds at load)
   prepareApplause() {
     this._prepareCrowd();
+    this._prepareMurmur();
   }
 
   // intensity < 0.8: a short welcome; >= 1.2: the finale with rhythmic
@@ -778,6 +779,84 @@ export class AudioEngine {
     const src = { stop: (t) => { for (const s of srcs) try { s.stop(t); } catch { /* not started */ } } };
     this._lastApplause = { src, g };
     return srcs[0];
+  }
+
+  // ------------------------------------------------------------ the house
+  // The audience talking before the show, in the walk-on and tuning gaps and
+  // in the interval: a looping murmur and the odd cough, creak or rustle.
+  // level 0..1 (main.js sets it from the phase: hushed when the conductor
+  // comes on, silent while the music plays); people: how many are in.
+  // Through the master (volume, mute) and the room's reverb; it bypasses the
+  // hall's walls (the foyer talks too).
+  _prepareMurmur() {
+    if (this._house) return;
+    const ctx = this.ctx;
+    const sr = 16000;
+    const bed = renderMurmur(ctx, { seconds: 9, talkers: this.lite ? 18 : 30, seed: 5, sr });
+    const shots = [];
+    ['cough', 'cough', 'cough', 'creak', 'creak', 'rustle', 'rustle', 'rustle'].forEach((k, i) => shots.push({ kind: k, buf: renderNoise(ctx, k, { seed: 40 + i, sr }) }));
+    const out = ctx.createGain();
+    out.gain.value = 0;
+    const dry = new GainNode(ctx, { gain: 0.55 });
+    const wet = new GainNode(ctx, { gain: 0.9 / Math.max(0.5, this.ac.reverb) });
+    const hp = new BiquadFilterNode(ctx, { type: 'highpass', frequency: 140 });
+    out.connect(hp);
+    hp.connect(dry).connect(this.makeup);
+    hp.connect(wet).connect(this.reverbIn);
+    const src = ctx.createBufferSource();
+    src.buffer = bed;
+    src.loop = true;
+    const bedG = new GainNode(ctx, { gain: 1 });
+    src.connect(bedG).connect(out);
+    src.start(ctx.currentTime + 0.05, Math.random() * 8);
+    this._house = { out, shots, level: 0, people: 0, target: -1 };
+    this.onTick(() => this._houseTick());
+    // a background tab draws no frames (nobody calls setMurmur): fade it here
+    document.addEventListener('visibilitychange', () => {
+      const H = this._house;
+      if (document.hidden) H.out.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3);
+      H.target = -1; // re-applied on the next frame
+    });
+  }
+
+  setMurmur(level, people = 0) {
+    if (!this.ctx) return;
+    if (typeof document !== 'undefined' && document.hidden) level = 0;
+    const n = Math.max(0, people || 0);
+    const k = n > 0 ? clamp(Math.pow(n / 900, 0.4), 0.12, 1) : 0;
+    const target = clamp(level, 0, 1) * k;
+    if (!this._house) {
+      if (target <= 0) return;
+      this._prepareMurmur();
+    }
+    const H = this._house;
+    H.level = clamp(level, 0, 1);
+    H.people = n;
+    if (Math.abs(target - H.target) < 0.01) return;
+    const t = this.ctx.currentTime;
+    const g = target * 0.005 / this.ac.level;
+    // hushes quickly (the lights go down), comes back slowly
+    H.out.gain.setTargetAtTime(g, t, target < H.target ? 0.45 : 1.6);
+    H.target = target;
+  }
+
+  _houseTick() {
+    const H = this._house;
+    if (!H || H.target <= 0.02 || (typeof document !== 'undefined' && document.hidden)) return;
+    // about one small noise a second in a full house, fewer in a small one
+    const rate = 1.1 * H.level * Math.min(1, H.people / 700);
+    if (Math.random() > rate * 0.025) return;
+    const ctx = this.ctx;
+    const sh = H.shots[Math.floor(Math.random() * H.shots.length)];
+    const src = ctx.createBufferSource();
+    src.buffer = sh.buf;
+    src.playbackRate.value = 0.9 + Math.random() * 0.2;
+    const near = Math.random() < 0.25;
+    const g = new GainNode(ctx, { gain: (sh.kind === 'cough' ? 1.6 : sh.kind === 'creak' ? 0.7 : 0.9) * (near ? 1 : 0.25 + Math.random() * 0.35) });
+    const pan = new StereoPannerNode(ctx, { pan: Math.random() * 2 - 1 });
+    src.connect(g).connect(pan).connect(H.out);
+    src.onended = () => { try { pan.disconnect(); } catch { /* gone */ } };
+    src.start(ctx.currentTime + 0.02 + Math.random() * 0.02);
   }
 
   stopApplause(fade = 0.6) {

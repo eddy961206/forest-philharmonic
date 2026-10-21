@@ -526,7 +526,8 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
 
   // -------------------------------------------------------------- the show
   // what the main loop tells us each frame
-  const live = { time: 0, level: 0, playing: false, beat: 0, down: 0, lively: false, phase: 'lobby' };
+  // (beams: the '조명 연출' setting - off, the moving heads stay dark)
+  const live = { time: 0, level: 0, playing: false, beat: 0, down: 0, lively: false, phase: 'lobby', beams: true };
   let houseLevel = 1;
   let houseTarget = 1;
   let prevLevel = 0;
@@ -563,7 +564,7 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
     mat.step.emissiveIntensity = 0.5 + 0.9 * aisle;
     mat.down.emissiveIntensity = 0.15 + 1.6 * aisle;
     mat.tunnelLight.emissiveIntensity = 0.9 + 0.6 * houseLevel;
-    fix.update(dt, t, { level: lv, down: live.down, on: live.playing && live.lively, color: glowCol, house: houseLevel });
+    fix.update(dt, t, { level: lv, down: live.down, on: live.playing && live.lively && live.beams, color: glowCol, house: houseLevel });
     lifts.update(dt);
     for (const d of doorLeaves) {
       d.open += ((d.door.want ? 1 : 0) - d.open) * Math.min(1, dt * 3.2);
@@ -582,6 +583,7 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
     lifts,
     venue: 'sphere',
     setHouseLights(v) { houseTarget = v; },
+    setBeams(on) { live.beams = !!on; },
     // the concert's moments, for the screen
     show(phase, { piece = null, time = 0 } = {}) {
       live.phase = phase;

@@ -12,7 +12,7 @@ import { SPHERE_ACOUSTICS, SP } from './scene/sphereplan.js';
 import { buildSphere } from './scene/sphere.js';
 import { visualsFor } from './scene/domeshow.js';
 import { SETLISTS } from './programs.js';
-import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement, EMOJI } from './tickets.js';
+import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement, ticketQuery, EMOJI } from './tickets.js';
 
 import { AudioEngine } from './audio/engine.js';
 import { Performance } from './audio/performance.js';
@@ -149,6 +149,7 @@ scene.add(hall.group);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
 const spot = new Spotlight(hall.lights, scene); // a recital: the key light gathers on the soloist
+hall.setBeams?.(settings.lasers !== false); // (the Sphere's moving heads follow '조명 연출')
 const thief = new SeatThief(stage, 'va:0'); // the interval: someone may take the seat you leave
 // a recital: chairs on the stage and a page turner's seat (added to the seat list, put away)
 const recital = buildRecital(scene, orchestra, hall.seats);
@@ -267,6 +268,9 @@ let bowing = false;
 let seq = 0; // generation token for the concert sequence
 let ritualNext = false; // the next piece opens one of the evening's big moments (a held hush)
 let hush = 0; // the house holds its breath (0..1)
+// how much the audience talks in each phase (0 while the music plays; the
+// conductor's walk-on hushes it; it comes back between pieces and in the interval)
+const MURMUR = { lobby: 1, changing: 0.75, entering: 0.6, tuning: 0.3, announce: 0.12, hush: 0, playing: 0, afterglow: 0, applause: 0.45, intermission: 0.9, interval: 1, encore: 0.35, leaving: 0.8 };
 let leaf = new Leaf(VENUE); // tonight, for the leaf programme
 
 async function boot() {
@@ -327,8 +331,10 @@ let joining = false;
 ui.on('enter', async (opt) => {
   if (concertStarted || joining) return; // (one entrance, however many presses)
   setName(opt.name); // (the animal stays the one you were given)
-  // fullscreen and sound must be started inside the click itself
-  goFullscreen();
+  // fullscreen and sound must be started inside the click itself. (Only on
+  // a phone or tablet, where the browser's bars take a good part of the
+  // screen; at a computer it is a choice: ⛶ or Enter.)
+  if (isTouch) goFullscreen();
   // never wait on the audio context: some browsers settle it late
   try { engine.ctx.resume().catch(() => {}); } catch { /* ignored */ }
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
@@ -349,7 +355,8 @@ ui.on('enter', async (opt) => {
         try { localStorage.setItem('fp-venue', e.venue); } catch { /* private mode */ }
         if (ticket) {
           updateTicket({ venue: e.venue });
-          setTimeout(() => { location.href = `${location.pathname}?venue=${e.venue}`; }, 900);
+          // (with storage blocked the ticket lives in the address: it comes along)
+          setTimeout(() => { location.href = `${location.pathname}?venue=${e.venue}${ticketQuery({ ...ticket, venue: e.venue })}`; }, 900);
         } else setTimeout(() => goVenue(e.venue, { room: opt.code }), 700);
         return;
       }
@@ -401,17 +408,25 @@ function soloTicket() {
 function goFullscreen() {
   const el = document.documentElement;
   if (document.fullscreenElement || !el.requestFullscreen) return;
-  el.requestFullscreen({ navigationUI: 'hide' })
-    .then(() => {
-      try { navigator.keyboard?.lock?.(['Escape']); } catch { /* unsupported */ }
-    })
-    .catch(() => {});
+  // (no keyboard lock: Esc keeps its usual meaning, out of fullscreen)
+  el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
 }
 
 function startShow() {
   if (!concertStarted || showStarted || hostOnly()) return;
   showStarted = true;
   ui.showStarted();
+  // still out in the foyer: the music comes through the wall (as it would) -
+  // say how to hear it properly, never move them
+  if (!IS_SPHERE && engine.ctx) {
+    // (after the walk-on, which has its own toast - and only if they are still out there)
+    const hint = (ms, tries = 0) => setTimeout(() => {
+      if ((phase === 'changing' || phase === 'entering') && tries < 40) return hint(1000, tries + 1);
+      const L = director.listener(settings.fixedEar ? bestSeat : null);
+      if (hallOpenness(L.pos.x, L.pos.y, L.pos.z) < 0.6) ui.toast('로비에서는 벽 너머로 들려요 · 홀 안으로 들어가 자리에 앉거나(좌석 클릭) 편하게 보기로 들으면 또렷해요', 6500);
+    }, ms);
+    hint(1500);
+  }
   ritualNext = true;
   runConcert(current);
 }
@@ -541,7 +556,7 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
       // (a whole orchestra comes on closer together: it is a long walk-on)
       stage.callOn(enters, enters.length >= 16 ? 0.7 : undefined, { stand: soloists });
       // the stage fills in silence: say so (and that it can be skipped)
-      if (enters.length >= 6 && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 6000);
+      if (enters.length >= 6 && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 9000);
       if (!(await until(() => stage.arrived(enters), tok, 90000))) return;
       if (!(await wait(800, tok))) return;
       if (enters.length >= 6 && enters.some((w) => STRINGS.test(StageManager.key(w)))) {
@@ -1367,6 +1382,7 @@ function onSetting(key, value) {
   if (key === 'fireflies') effects.setCounts(value);
   if (key === 'screen') screen.setEnabled(value);
   if (key === 'lasers' && !value && fx) { fx.lasers.set(false); fx.wash.set(false); }
+  if (key === 'lasers') hall.setBeams?.(value); // (the Sphere's moving heads)
   // the audience slider: the crowd is rebuilt once the slider rests for a
   // moment, not on every step of a drag
   if (key === CROWD) {
@@ -1680,11 +1696,15 @@ function carryOn() {
 let awayTold = false;
 let stuckFor = 0;
 let awayCheck = 0;
+// (a reload or a closed tab: its pagehide comes before the visibilitychange, and it is not "away")
+let unloading = false;
+addEventListener('pagehide', () => { unloading = true; });
+addEventListener('pageshow', () => { unloading = false; }); // (back from the bfcache: alive again)
 const AWAY_HANDOFF = 30; // seconds of a stuck show in a hidden host's page
 document.addEventListener('visibilitychange', () => {
   clearInterval(awayCheck);
   stuckFor = 0;
-  if (!room?.isHost || !concertStarted) return;
+  if (unloading || !room?.isHost || !concertStarted) return;
   room.cmd({ c: 'away', on: document.hidden });
   if (!document.hidden) return;
   awayCheck = setInterval(() => {
@@ -1729,7 +1749,8 @@ function wireRoom(c) {
     membersChanged();
     if (first) {
       seatAudience(); // the same house for everyone in the room
-      try { history.replaceState(null, '', roomAddress(c.room.code)); } catch { /* file: */ }
+      // (a ticket carried in the address - storage blocked - stays there; never in the invite)
+      try { const t = new URLSearchParams(location.search).get('t'); history.replaceState(null, '', roomAddress(c.room.code) + (t ? `&t=${encodeURIComponent(t)}` : '')); } catch { /* file: */ }
       ui.chatLine({ sys: true, text: c.isHost ? `방을 만들었어요. 방 코드는 ${c.room.code} — 오른쪽 위 방 이름을 눌러 초대 링크를 복사할 수 있어요.` : `「${c.room.title}」에 들어왔어요.` });
     }
     refreshOccupied();
@@ -1759,6 +1780,7 @@ function wireRoom(c) {
     ui.chatLine({ sys: true, text: `${m.name}님이 들어왔어요.` });
   });
   c.on('left', (id, who) => {
+    if (id === c.host) awayTold = false; // (the host left: no "back again" for a hidden screen)
     avatars.remove(id);
     if (encore?.votes?.delete(id)) encoreShow(); // (a lantern leaves with its holder)
     membersChanged();
@@ -1898,6 +1920,8 @@ ui.initLobby({ avatars: AVATARS, identity: { ...me, emoji: EMOJI[me.avatar] }, i
 const held = heldTicket(VENUE);
 const ticket = held && (!invite || held.code === invite) ? held : null;
 if (ticket) ui.ticketMode(ticket, ticketElement(ticket));
+// (an invite whose code is not a code: said at once, not after the building has loaded)
+else if (!invite && new URLSearchParams(location.search).get('room')) ui.lobbyError('초대 링크의 방 코드가 올바르지 않아요. 아래에서 방 코드를 직접 적어 들어가 보세요.');
 ui.on('venue', (id) => goVenue(id, { room: invite }));
 ui.on('dropTicket', () => dropTicket()); // (back to the square from a room that is gone: buy afresh)
 async function refreshRooms() {
@@ -2037,7 +2061,8 @@ function frame() {
   effects.update(wall, dt);
   director.joy.x = ui.joy.x;
   director.joy.y = ui.joy.y;
-  animateAudience(wall, dt, performance.now() < clapUntil, { hush, sleep: sleepy ? 1 : 0 });
+  director.stick = ui.stickTouch; // (a pinch begun in the stick's corner, see director)
+  animateAudience(wall, dt, performance.now() < clapUntil, { hush, sleep: sleepy ? 1 : 0, talk: phase === 'interval' ? 1 : 0 });
   spot.update(dt);
   const nod = recital.update(dt, t, perf.playing);
   if (nod && director.seat?.turner) PIANIST.char.body.rotation.x += 0.1 * nod; // a thank-you nod to the page turner
@@ -2067,6 +2092,7 @@ function frame() {
     const L = director.listener(settings.fixedEar ? bestSeat : null);
     engine.setListener(L.pos, L.fwd, L.up);
     engine.setRoom(concertStarted ? hallOpenness(L.pos.x, L.pos.y, L.pos.z) : 1);
+    engine.setMurmur(!concertStarted || perf.playing ? 0 : (MURMUR[phase] ?? 0.5) * (1 - hush) * (sleepy ? 0.3 : 1), audience ? audience.count : 0);
     engine.analyser.getByteTimeDomainData(levelBuf);
     let sum = 0;
     for (let i = 0; i < levelBuf.length; i += 4) { const v = (levelBuf[i] - 128) / 128; sum += v * v; }

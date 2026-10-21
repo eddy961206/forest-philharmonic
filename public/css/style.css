@@ -274,6 +274,7 @@ input[type='range']::-moz-range-thumb { width: 12px; height: 12px; border: 0; bo
 .panel-head h3 { font-family: var(--serif); font-weight: 700; font-size: 20px; margin: 0; }
 .panel-body { overflow-y: auto; padding: 4px 20px 20px; flex: 1; scrollbar-width: thin; scrollbar-color: var(--brass-dim) transparent; }
 .hint { font-size: 13px; color: var(--paper-dim); margin: 6px 0 12px; }
+#fpsText { min-height: 1.5em; } /* (its line is kept before the first reading, so nothing below it jumps) */
 .sub { font-family: var(--serif); font-weight: 400; font-size: 16px; color: var(--brass); margin: 20px 0 8px; }
 
 .program { list-style: none; margin: 0; padding: 0; counter-reset: piece; }
@@ -840,6 +841,12 @@ body:has(#focusChip:not([hidden])) { --r-focus: 58px; }
 #joystick { left: max(18px, 6vw, env(safe-area-inset-left)); }
 .sit-btn, .chat-btn { right: max(22px, env(safe-area-inset-right)); }
 .jump-btn { right: calc(max(22px, env(safe-area-inset-right)) + 96px); }
+/* (in a Sphere lift the level buttons own the right edge: the chat button steps aside) */
+body:has(#liftPanel:not([hidden])):has(#chatForm[hidden]) .chat-btn { display: none; }
+/* (the open side panel covers the touch action buttons: no sliver past its edge) */
+body:has(#panel:not([hidden])) :is(.sit-btn, .jump-btn, .chat-btn) { visibility: hidden; }
+/* (in a lift the start hint would run across its buttons) */
+body:has(#liftPanel:not([hidden])) .start-hint { visibility: hidden; }
 .chat { left: max(var(--gutter), env(safe-area-inset-left)); }
 /* help: fits any screen (scrolls), and speaks of keys or fingers, stairs or lifts */
 .help { padding: 16px; overflow-y: auto; }
@@ -881,8 +888,11 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
   .jump-btn { bottom: calc(var(--dock, 156px) + 36px); }
   .chat-btn { bottom: calc(var(--dock, 156px) + 130px); }
   .start-wrap { bottom: calc(var(--dock, 156px) + 160px); width: max-content; max-width: calc(100vw - 2 * var(--gutter)); }
-  .panel { bottom: calc(var(--dock, 156px) + 8px); max-height: calc(100dvh - var(--dock, 156px) - 110px); }
+  /* (the chips push the now-playing card down: the panel stops below it) */
+  .panel { bottom: calc(var(--dock, 156px) + 8px); max-height: calc(100dvh - var(--dock, 156px) - 110px - var(--r-room) - var(--r-chip) - var(--r-focus)); }
   .look-hint { bottom: calc(var(--dock, 156px) + 10px); }
+  /* (the act button rides above the stick, clear of the seek string and play) */
+  #actBtn { bottom: calc(var(--dock, 156px) + 150px); }
   .toast { top: calc(var(--gutter) + var(--r-room) + var(--r-chip) + var(--r-focus) + 96px); bottom: auto; }
   .encore { bottom: calc(var(--dock, 156px) + 10px); max-height: calc(100dvh - var(--dock, 156px) - 40px); overflow-y: auto; }
   .encore-cands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -932,6 +942,16 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
   .help-card h3 { font-size: 19px; margin-bottom: 8px; }
   .keys { gap: 4px 14px; font-size: 13px; margin-bottom: 12px; }
 }
+/* (a narrow landscape phone, 667 wide: tighter spacing keeps the dock in one row) */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 700px) {
+  .transport { padding: 0 6px 4px; }
+  .transport-row { gap: 2px; }
+  .t-mid { margin: 0 0 0 2px; padding: 0 0 0 6px; }
+  .t-right { margin-left: 2px; padding-left: 6px; }
+  .time { margin: 0 2px 0 4px; }
+  .vol input[type='range'] { width: 40px; }
+  html.touch .mode, html.touch .tab-btn { padding: 4px 6px; }
+}
 /* very big screens: the HUD grows with the screen instead of staying phone-sized */
 @media (min-width: 2200px) and (min-height: 1200px) {
   .now, .transport, .panel, .start-wrap, .focus-chip, .interval-chip, .room-chip, .encore, .lift-panel, .prompt, #actBtn, .look-hint, .target { zoom: 1.25; }
@@ -962,6 +982,42 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
   #joyKnob { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
   .jump-btn { width: 58px; height: 58px; right: calc(max(22px, env(safe-area-inset-right)) + 92px); }
 }
+/* (a landscape phone: the lift buttons two by two, under the title, clear of
+   the start button and of the sit / jump buttons) */
+@media (orientation: landscape) and (max-height: 500px) {
+  .lift-panel { top: calc(var(--gutter) + 72px); transform: none; padding: 6px 8px 8px; }
+  .lift-panel p { margin-bottom: 4px; }
+  .lift-btns { grid-template-columns: repeat(2, auto); gap: 4px; }
+  .lift-btns button { width: 56px; }
+}
+/* (the square, top right: the quick-entry card under the name chip, both
+   bounded; on a phone the act button sits above the thumb stick) */
+.pz-quick { top: 81px; max-width: min(320px, calc(100vw - 2 * var(--gutter))); }
+.pz-quick small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pz-who { min-width: 0; }
+.pz-who b { max-width: min(40vw, 260px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 640px) { .pz-quick { top: 58px; } }
+@media (max-width: 560px) {
+  /* (to the right of the stick, under the toast's place above it) */
+  #pzAct { left: auto; right: max(var(--gutter), env(safe-area-inset-right)); transform: none; bottom: calc(max(64px, 12vh) + 40px); max-width: calc(100vw - 168px); }
+}
+@media (max-width: 400px) { #pzAct { font-size: 14px; padding: 8px 12px; } .pz-who b { max-width: 32vw; } }
 /* (a tablet: the encore above the thumb stick and the jump button) */
 @media (min-width: 761px) and (min-height: 700px) { html.touch .encore { bottom: 290px; } }
 /* ---- end of the venue HUD layout pass ---- */
+/* ---- watching together: the chat next to the start button, the stick and the encore.
+   The log lets clicks through; only the open form takes them - above the stick zone. */
+.chat { z-index: 13; }
+/* a tablet held upright: the chat goes up under the title, clear of the stick and the start button */
+@media (min-width: 761px) and (min-height: 700px) { body.touch .chat { top: calc(var(--gutter) + var(--r-room) + var(--r-chip) + var(--r-focus) + 88px); bottom: auto; } }
+/* (a portrait phone: the log starts under the title however far the chips push it) */
+@media (max-width: 760px) and (min-height: 501px) { .chat { top: calc(var(--gutter) + var(--r-room) + var(--r-chip) + var(--r-focus) + 88px); } }
+/* (a landscape phone: the closed log lets the stick paint over it, as before) */
+@media (orientation: landscape) and (max-height: 500px) { .chat:not(.open) { z-index: 11; } }
+/* the encore on a phone fills the middle: the title steps aside, and the chat keeps
+   to its last lines above the vote */
+@media (max-width: 760px) and (min-height: 501px) {
+  body:has(#encorePanel:not([hidden])) .now { visibility: hidden; }
+  body:has(#encorePanel:not([hidden])) .chat { top: 52px; }
+  body:has(#encorePanel:not([hidden])) .chat-log li:not(:nth-last-child(-n+2)) { display: none; }
+}
