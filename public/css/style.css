@@ -985,3 +985,15 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
 /* (a tablet: the encore above the thumb stick and the jump button) */
 @media (min-width: 761px) and (min-height: 700px) { html.touch .encore { bottom: 290px; } }
 /* ---- end of the venue HUD layout pass ---- */
+/* ---- watching together: the chat next to the start button, the stick and the encore.
+   The log lets clicks through; only the open form takes them - above the stick zone. */
+.chat { z-index: 13; }
+/* a tablet held upright: the chat goes up under the title, clear of the stick and the start button */
+@media (min-width: 761px) and (min-height: 700px) { body.touch .chat { top: 150px; bottom: auto; } }
+/* the encore on a phone fills the middle: the title steps aside, and the chat keeps
+   to its last lines above the vote */
+@media (max-width: 760px) and (min-height: 501px) {
+  body:has(#encorePanel:not([hidden])) .now { visibility: hidden; }
+  body:has(#encorePanel:not([hidden])) .chat { top: 52px; }
+  body:has(#encorePanel:not([hidden])) .chat-log li:not(:nth-last-child(-n+2)) { display: none; }
+}

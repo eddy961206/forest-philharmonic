@@ -735,6 +735,7 @@ export class AudioEngine {
   // Pre-render the crowd once (a few hundred milliseconds at load)
   prepareApplause() {
     this._prepareCrowd();
+    this._prepareMurmur();
   }
 
   // intensity < 0.8: a short welcome; >= 1.2: the finale with rhythmic
@@ -810,6 +811,12 @@ export class AudioEngine {
     src.start(ctx.currentTime + 0.05, Math.random() * 8);
     this._house = { out, shots, level: 0, people: 0, target: -1 };
     this.onTick(() => this._houseTick());
+    // a background tab draws no frames (nobody calls setMurmur): fade it here
+    document.addEventListener('visibilitychange', () => {
+      const H = this._house;
+      if (document.hidden) H.out.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3);
+      H.target = -1; // re-applied on the next frame
+    });
   }
 
   setMurmur(level, people = 0) {
@@ -827,7 +834,7 @@ export class AudioEngine {
     H.people = n;
     if (Math.abs(target - H.target) < 0.01) return;
     const t = this.ctx.currentTime;
-    const g = target * 0.0035 / this.ac.level;
+    const g = target * 0.005 / this.ac.level;
     // hushes quickly (the lights go down), comes back slowly
     H.out.gain.setTargetAtTime(g, t, target < H.target ? 0.45 : 1.6);
     H.target = target;

@@ -79,7 +79,10 @@ function parts(lite = false) {
 // house before the first note; uSleep (the sleep timer) lets everyone nod
 // off - slower breath, heads dropping forward and to one side. Both are in
 // every program from the start: changing them never recompiles anything.
-const U = { uTime: { value: 0 }, uClap: { value: 0 }, uHush: { value: 0 }, uSleep: { value: 0 } };
+// uTalk (the interval): heads turn to the neighbours, some chatter, and here
+// and there a pair of paws goes up in a long stretch.
+const U = { uTime: { value: 0 }, uClap: { value: 0 }, uHush: { value: 0 }, uSleep: { value: 0 }, uTalk: { value: 0 } };
+const STRETCH = 'uTalk * step(0.86, fract(aPhase * 5.7)) * smoothstep(-0.2, 0.7, sin(uTime * 0.35 + aPhase * 4.0))';
 const BREATH = 'sin(uTime * 1.3 * (1.0 - 0.45 * uSleep) + aPhase) * (0.004 + 0.004 * uSleep)';
 const NOD = `transformed.y -= uSleep * (0.06 + 0.025 * sin(aPhase * 1.7));
          transformed.z -= uSleep * 0.035;
@@ -88,19 +91,23 @@ const MOTION = {
   body: `transformed.y += ${BREATH} + uClap * abs(sin(uTime * 12.0 + aPhase)) * 0.008 - uSleep * 0.02;`,
   head: `transformed.x += sin(uTime * 0.55 + aPhase) * 0.009 * (1.0 - 0.85 * max(uHush, uSleep));
          transformed.y += ${BREATH} + uClap * abs(sin(uTime * 12.0 + aPhase)) * 0.012;
+         transformed.x += uTalk * 0.04 * sin(uTime * 0.6 + aPhase * 2.3);
+         transformed.y += uTalk * 0.012 * abs(sin(uTime * 6.0 + aPhase * 3.0)) * step(0.5, fract(aPhase * 2.9));
          ${NOD}`,
   pawL: `float o = 0.5 + 0.5 * sin(uTime * 24.0 + aPhase * 7.0);
          transformed += uClap * (vec3(0.055, 0.2, -0.08) + vec3(-o * 0.04, 0.0, 0.0));
+         transformed += ${STRETCH} * vec3(-0.05, 0.5, 0.06);
          transformed.y += sin(uTime * 1.3 + aPhase) * 0.004;`,
   pawR: `float o = 0.5 + 0.5 * sin(uTime * 24.0 + aPhase * 7.0);
          transformed += uClap * (vec3(-0.055, 0.2, -0.08) + vec3(o * 0.04, 0.0, 0.0));
+         transformed += ${STRETCH} * vec3(0.05, 0.5, 0.06);
          transformed.y += sin(uTime * 1.3 + aPhase) * 0.004;`,
 };
 
 function animated(mat, kind) {
   mat.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, U);
-    shader.vertexShader = `attribute float aPhase;\nuniform float uTime;\nuniform float uClap;\nuniform float uHush;\nuniform float uSleep;\n${shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>\n${MOTION[kind]}`)}`;
+    shader.vertexShader = `attribute float aPhase;\nuniform float uTime;\nuniform float uClap;\nuniform float uHush;\nuniform float uSleep;\nuniform float uTalk;\n${shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>\n${MOTION[kind]}`)}`;
   };
   mat.customProgramCacheKey = () => `aud-${kind}`;
   return mat;
@@ -532,10 +539,11 @@ function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid }) {
 // shared animation state for every crowd
 // (hush, sleep: 0..1 targets, eased here)
 let clap = 0;
-export function animateAudience(t, dt, clapping, { hush = 0, sleep = 0 } = {}) {
+export function animateAudience(t, dt, clapping, { hush = 0, sleep = 0, talk = 0 } = {}) {
   U.uTime.value = t;
   clap += ((clapping ? 1 : 0) - clap) * Math.min(1, dt * (clapping ? 5 : 2));
   U.uClap.value = clap;
   U.uHush.value += (hush - U.uHush.value) * Math.min(1, dt * 1.5);
+  U.uTalk.value += (talk - U.uTalk.value) * Math.min(1, dt * 0.6);
   U.uSleep.value += (sleep - U.uSleep.value) * Math.min(1, dt * 0.12);
 }

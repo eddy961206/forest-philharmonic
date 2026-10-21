@@ -12,7 +12,7 @@ import { avatarInfo } from './scene/avatars.js';
 import { identity, setName, issueTicket, heldTicket, lastTicket, ticketElement, modeLine, ticketQuery, canKeep, PAY, EMOJI, VENUE_NAMES } from './tickets.js';
 import { SETLISTS } from './programs.js';
 import { listRooms } from './net/room.js';
-import { thumbStick } from './joystick.js';
+import { thumbStick, tapButton } from './joystick.js';
 
 const $ = (id) => document.getElementById(id);
 const GATE_IDS = Object.keys(PLAZA.gates);
@@ -124,7 +124,8 @@ function showStub() {
   $('pzHint').textContent = `표를 들고 ${side} 숲길의 ${VENUE_NAMES[ticket.venue]} 입구로 걸어가요.`;
 }
 showStub();
-$('pzStub').addEventListener('click', () => { if (ticket) toast(`${VENUE_NAMES[ticket.venue]} · ${modeLine(ticket)} · ${ticket.no}`, 2600); });
+// (tapButton: a tap counts while the other thumb is on the stick, see joystick.js)
+tapButton($('pzStub'), () => { if (ticket) toast(`${VENUE_NAMES[ticket.venue]} · ${modeLine(ticket)} · ${ticket.no}`, 2600); });
 
 // "the same as last time": straight through
 const last = lastTicket();
@@ -132,7 +133,7 @@ if (last && VENUE_NAMES[last.venue]) {
   quickOk = true;
   $('pzQuick').hidden = !!ticket;
   $('pzQuickWhat').textContent = `${VENUE_NAMES[last.venue]} · ${modeLine({ ...last, code: '' })}`;
-  $('pzQuick').addEventListener('click', () => {
+  tapButton($('pzQuick'), () => {
     if (busy) return;
     sfx.init();
     ticket = issueTicket({ venue: last.venue, mode: last.mode === 'create' ? 'create' : 'solo', title: last.title, cap: last.cap, pub: last.pub });
@@ -701,7 +702,7 @@ if (isTouch) { $('pzJoy').hidden = false; $('pzJoyZone').hidden = false; }
 // what F (or the button) does here
 let act = null;
 let actText = '';
-$('pzAct').addEventListener('click', () => { if (act) act(); });
+tapButton($('pzAct'), () => { if (act) act(); });
 function setAct(text, fn) {
   act = fn;
   if (text === actText) return;

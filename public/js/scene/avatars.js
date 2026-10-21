@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { buildCharacter, setArm, releaseCharacter } from './characters.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const ZERO = new THREE.Vector3();
 
 // what you can be (species from characters.js)
 export const AVATARS = [
@@ -182,7 +183,14 @@ class Avatar {
     if (walking) this.phase += dt * 7.2 * Math.min(1.6, speed / 1.25);
     const amp = walking ? 0.5 : 0;
     ch.walk(this.phase, amp);
-    ch.root.position.copy(this.pos);
+    // (two people on one spot - everyone arrives at the same door - stand a
+    // step apart: a small sideways nudge, see Avatars.update)
+    this.shown ||= new THREE.Vector3();
+    this.shown.lerp(this.nudge || ZERO, 1 - Math.exp(-dt * 4));
+    ch.root.position.copy(this.pos).add(this.shown);
+    // (standing right where our camera is: not drawn - no fur and faces inside the lens)
+    const near = this.seat < 0 && Math.hypot(cam.x - ch.root.position.x, cam.z - ch.root.position.z) < 0.55 && Math.abs(cam.y - ch.root.position.y - 1.5) < 1.2;
+    ch.root.visible = !near;
     if (walking) ch.root.position.y += Math.abs(Math.sin(this.phase)) * 0.025;
     ch.root.rotation.y = this.yaw;
 
@@ -256,6 +264,24 @@ export class Avatars {
 
   update(dt, cam) {
     const now = performance.now();
+    // people standing on (almost) the same spot are drawn a little apart
+    const standing = [...this.list.values()].filter((a) => a.placed && a.seat < 0);
+    for (const a of this.list.values()) (a.nudge ||= new THREE.Vector3()).set(0, 0, 0);
+    for (let i = 0; i < standing.length; i++) {
+      for (let j = i + 1; j < standing.length; j++) {
+        const a = standing[i];
+        const b = standing[j];
+        const dx = b.target.x - a.target.x;
+        const dz = b.target.z - a.target.z;
+        const d = Math.hypot(dx, dz);
+        if (d >= 0.6 || Math.abs(b.target.y - a.target.y) > 1) continue;
+        // (exactly on top of each other: side by side, in a row across the doorway)
+        const ang = d > 0.01 ? Math.atan2(dz, dx) : 0;
+        const push = Math.min(0.3, (0.6 - d) / 2);
+        a.nudge.x -= Math.cos(ang) * push; a.nudge.z -= Math.sin(ang) * push;
+        b.nudge.x += Math.cos(ang) * push; b.nudge.z += Math.sin(ang) * push;
+      }
+    }
     for (const a of this.list.values()) a.update(dt, cam, now);
   }
 }

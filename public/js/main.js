@@ -331,8 +331,10 @@ let joining = false;
 ui.on('enter', async (opt) => {
   if (concertStarted || joining) return; // (one entrance, however many presses)
   setName(opt.name); // (the animal stays the one you were given)
-  // fullscreen and sound must be started inside the click itself
-  goFullscreen();
+  // fullscreen and sound must be started inside the click itself. (Only on
+  // a phone or tablet, where the browser's bars take a good part of the
+  // screen; at a computer it is a choice: ⛶ or Enter.)
+  if (isTouch) goFullscreen();
   // never wait on the audio context: some browsers settle it late
   try { engine.ctx.resume().catch(() => {}); } catch { /* ignored */ }
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
@@ -405,11 +407,8 @@ function soloTicket() {
 function goFullscreen() {
   const el = document.documentElement;
   if (document.fullscreenElement || !el.requestFullscreen) return;
-  el.requestFullscreen({ navigationUI: 'hide' })
-    .then(() => {
-      try { navigator.keyboard?.lock?.(['Escape']); } catch { /* unsupported */ }
-    })
-    .catch(() => {});
+  // (no keyboard lock: Esc keeps its usual meaning, out of fullscreen)
+  el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
 }
 
 function startShow() {
@@ -2052,7 +2051,7 @@ function frame() {
   director.joy.x = ui.joy.x;
   director.joy.y = ui.joy.y;
   director.stick = ui.stickTouch; // (a pinch begun in the stick's corner, see director)
-  animateAudience(wall, dt, performance.now() < clapUntil, { hush, sleep: sleepy ? 1 : 0 });
+  animateAudience(wall, dt, performance.now() < clapUntil, { hush, sleep: sleepy ? 1 : 0, talk: phase === 'interval' ? 1 : 0 });
   spot.update(dt);
   const nod = recital.update(dt, t, perf.playing);
   if (nod && director.seat?.turner) PIANIST.char.body.rotation.x += 0.1 * nod; // a thank-you nod to the page turner
