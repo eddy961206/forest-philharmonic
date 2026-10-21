@@ -198,7 +198,8 @@ export class UI {
       if ('disabled' in el) el.disabled = !isHost;
       if (!isHost) el.title = '방장만 할 수 있어요'; else el.removeAttribute('title');
     };
-    for (const id of ['btnPlay', 'btnPrev', 'btnNext', 'startBtn', 'optShuffle', 'optRepeatOne', 'gap']) lock($(id));
+    for (const id of ['btnPlay', 'btnPrev', 'btnNext', 'startBtn', 'optShuffle', 'optRepeatOne', 'gap', 'intervalGo']) lock($(id));
+    document.querySelectorAll('#intervalSeg button').forEach(lock);
     lock($('seek'));
     $('seek').setAttribute('aria-disabled', String(!isHost));
     document.querySelectorAll('#programList button').forEach(lock);
@@ -255,6 +256,7 @@ export class UI {
   }
 
   enter(touch) {
+    document.body.classList.toggle('touch', !!touch);
     $('splash').classList.add('leaving');
     setTimeout(() => $('splash').remove(), 1300);
     $('nowPlaying').hidden = false;
@@ -505,6 +507,47 @@ export class UI {
     this.emit('leafOpen');
   }
 
+  // ------------------------------------------------------------ the interval
+  // on: shown or not; host: the "second half now" button is theirs
+  interval(on, host = true) {
+    $('intervalChip').hidden = !on;
+    $('intervalGo').hidden = !host;
+    if (!on) { $('intervalTea').setAttribute('aria-pressed', 'false'); $('intervalTea').textContent = '🍵 도토리차'; }
+  }
+
+  setIntervalLeft(sec) {
+    const s = Math.max(0, Math.ceil(sec));
+    $('intervalLeft').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  }
+
+  tea() {
+    $('intervalTea').setAttribute('aria-pressed', 'true');
+    $('intervalTea').textContent = '🍵 마시는 중';
+  }
+
+  // the thing to do nearby (a label), or null
+  act(text) {
+    if (this._act === text) return;
+    this._act = text;
+    $('actBtn').hidden = !text;
+    if (text) $('actText').textContent = text;
+  }
+
+  showNews(lines) {
+    const ul = $('newsList');
+    ul.innerHTML = '';
+    for (const l of lines) {
+      const li = document.createElement('li');
+      const b = document.createElement('b');
+      b.textContent = l.title;
+      li.append(b, document.createTextNode(l.text));
+      ul.appendChild(li);
+    }
+    $('news').hidden = false;
+    $('newsClose').focus({ preventScroll: true });
+    this.emit('leafOpen');
+  }
+
   // ---------------------------------------------------------------- binding
   _bind() {
     const click = (id, fn) => $(id).addEventListener('click', (e) => { fn(e); if (e.detail > 0) e.currentTarget.blur(); });
@@ -515,6 +558,19 @@ export class UI {
     click('btnHelp', () => { $('help').hidden = false; $('helpClose').focus(); });
     click('helpClose', () => { $('help').hidden = true; });
     click('leafBtn', () => this.emit('leaf'));
+    click('intervalTea', () => this.emit('tea'));
+    click('intervalNews', () => this.emit('news'));
+    click('intervalGo', () => this.emit('secondHalf'));
+    click('actBtn', () => this.emit('act'));
+    click('newsClose', () => { $('news').hidden = true; });
+    $('news').addEventListener('click', (e) => { if (e.target.id === 'news') $('news').hidden = true; });
+    document.querySelectorAll('#intervalSeg button').forEach((b) => {
+      b.setAttribute('aria-pressed', String(Number(b.dataset.min) === this.settings.interval));
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#intervalSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        this.onSetting('interval', Number(b.dataset.min));
+      });
+    });
     click('leafClose', () => { $('leaf').hidden = true; });
     $('leaf').addEventListener('click', (e) => { if (e.target.id === 'leaf') $('leaf').hidden = true; });
     $('help').addEventListener('click', (e) => { if (e.target.id === 'help') $('help').hidden = true; });
@@ -605,7 +661,8 @@ export class UI {
       else if (c === 'KeyM') this.emit('mute');
       else if (c === 'Enter') { if (this.room) { e.preventDefault(); this.openChat(); } else this.emit('fullscreen'); }
       else if (e.key === '?') $('help').hidden = !$('help').hidden;
-      else if (c === 'Escape') { $('help').hidden = true; $('leaf').hidden = true; this.showPanel(null); }
+      else if (c === 'Escape') { $('help').hidden = true; $('leaf').hidden = true; $('news').hidden = true; this.showPanel(null); }
+      else if (c === 'KeyF') { if (!$('actBtn').hidden) this.emit('act'); }
       else if (c === 'ArrowLeft' || c === 'ArrowRight') this.emit('seekKey', c === 'ArrowLeft' ? -10 : 10, e);
     });
 

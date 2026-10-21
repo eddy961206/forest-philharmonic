@@ -264,6 +264,52 @@ export class AudioEngine {
     }
   }
 
+  // A player out in the foyer (practising in the interval): a source of its
+  // own outside the hall's walls - muffled while you are in the hall, clear
+  // when you are out there with them (the opposite of the stage, see setRoom).
+  addSpot(id, pos) {
+    if (this.sections[id]) { this.moveSpot(id, pos); return; }
+    const ctx = this.ctx;
+    const input = ctx.createGain();
+    const focus = new GainNode(ctx, { channelCount: 1, channelCountMode: 'explicit', channelInterpretation: 'speakers' });
+    const air = ctx.createBiquadFilter();
+    air.type = 'lowpass';
+    air.frequency.value = this._hz(16000);
+    const panner = new PannerNode(ctx, {
+      panningModel: this.lite ? 'equalpower' : 'HRTF', distanceModel: 'inverse', refDistance: 1.6, maxDistance: 60, rolloffFactor: 1.3,
+      positionX: pos.x, positionY: pos.y, positionZ: pos.z,
+    });
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = this._hz(20000);
+    const g = ctx.createGain();
+    const send = ctx.createGain();
+    send.gain.value = 0.12; // a smaller, drier room than the hall
+    input.connect(focus);
+    focus.connect(air).connect(panner).connect(lp).connect(g).connect(this.makeup);
+    focus.connect(send).connect(this.reverbIn);
+    this.sections[id] = { id, input, focus, air, panner, send, pos: { ...pos }, distance: 10, spot: { lp, g } };
+    this._spotRoom(this.sections[id], this._open, 0);
+  }
+
+  moveSpot(id, pos) {
+    const s = this.sections[id];
+    if (!s) return;
+    s.pos = { ...pos };
+    const t = this.ctx.currentTime;
+    s.panner.positionX.setValueAtTime(pos.x, t);
+    s.panner.positionY.setValueAtTime(pos.y, t);
+    s.panner.positionZ.setValueAtTime(pos.z, t);
+  }
+
+  _spotRoom(s, open, k = 0.3) {
+    const t = this.ctx.currentTime;
+    const out = 1 - open; // 1 out in the foyer with them
+    const cutoff = 650 * Math.pow(20000 / 650, Math.pow(out, 0.8));
+    s.spot.lp.frequency.setTargetAtTime(this._hz(cutoff), t, k || 0.001);
+    s.spot.g.gain.setTargetAtTime(0.2 + 0.8 * out, t, k || 0.001);
+  }
+
   // Bring one section forward (others ducked) - for "listen to this part"
   setFocus(id) {
     const t = this.ctx.currentTime;
@@ -287,6 +333,7 @@ export class AudioEngine {
     this.occWet.lp.frequency.setTargetAtTime(this._hz(cutoff * 1.6), t, 0.3);
     this.occDry.g.gain.setTargetAtTime(0.17 + 0.83 * Math.pow(open, 1.3), t, 0.3);
     this.occWet.g.gain.setTargetAtTime(0.48 + 0.52 * open, t, 0.3);
+    for (const sec of Object.values(this.sections)) if (sec.spot) this._spotRoom(sec, open);
   }
 
   setVolume(v) {

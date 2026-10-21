@@ -27,14 +27,15 @@ import { hallOpenness, levelName, HALL, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DO
 import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
 import { RoomClient, listRooms } from './net/room.js';
-import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf } from './evening.js';
+import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf, josa } from './evening.js';
+import { Practice, SeatThief, noticeLines, buildNoticeBoard } from './scene/lobby.js';
 import { Avatars, AVATARS, randomIdentity } from './scene/avatars.js';
 
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
   fixedEar: true, applause: true, gap: 7, notes: true, glow: true, fireflies: true,
-  fx: true, lasers: true, screen: true, audience: true,
+  fx: true, lasers: true, screen: true, audience: true, interval: 3,
 };
 const settings = { ...DEFAULTS };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || '{}')); } catch { /* private mode */ }
@@ -117,6 +118,7 @@ scene.add(hall.group);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
 const spot = new Spotlight(hall.lights, scene); // a recital: the key light gathers on the soloist
+const thief = new SeatThief(stage, 'va:0'); // the interval: someone may take the seat you leave
 let audience = null;
 let director = null;
 let room = null; // RoomClient while watching together
@@ -327,6 +329,14 @@ function setPhase(p, seconds = 0) {
 // its chairs). Between pieces those not wanted - and not wanted by the
 // piece after either - leave, and those missing come on.
 const rosterCache = new Map();
+const scoreCache = new Map();
+async function scoreFor(i) {
+  const meta = program[i];
+  if (!meta) return null;
+  if (perf.piece?.id === meta.id) return perf.piece;
+  if (!scoreCache.has(meta.id)) scoreCache.set(meta.id, fetch(`music/${meta.id}.json`).then((r) => r.json()).catch(() => null));
+  return scoreCache.get(meta.id);
+}
 function rosterOf(piece) {
   const set = new Set();
   for (const tr of piece?.tracks || []) {
@@ -340,10 +350,8 @@ async function rosterFor(i) {
   if (!meta) return new Set();
   if (rosterCache.has(meta.id)) return rosterCache.get(meta.id);
   let r = new Set();
-  try {
-    const piece = perf.piece?.id === meta.id ? perf.piece : await (await fetch(`music/${meta.id}.json`)).json();
-    r = rosterOf(piece);
-  } catch { /* offline: keep everyone */ }
+  const piece = await scoreFor(i);
+  if (piece) r = rosterOf(piece); // (offline: keep everyone)
   rosterCache.set(meta.id, r);
   return r;
 }
@@ -355,6 +363,7 @@ const STRINGS = /^(vn1|vn2|va|vc|cb):/;
 // remote: a guest following the host's 'run' (the host starts the music)
 async function runConcert(i, { quick = false, remote = false } = {}) {
   const tok = ++seq;
+  endInterval();
   ceremony = true;
   if (perf.playing) perf.pause();
   if (quick) { engine.stopApplause(); clapUntil = 0; }
@@ -559,6 +568,17 @@ async function endOfPiece() {
   const lastOfProgram = !settings.repeatOne && !settings.shuffle && (current === program.length - 1 || current === eveningLen - 1);
   const next = nextIndex();
   nextPiece = program[next];
+  if (!lastOfProgram && intervalDue(current)) {
+    // the middle of the evening: the interval
+    intervalDone = true;
+    const endsAt = clockNow() + settings.interval * 60;
+    sendCmd({ c: 'interval', i: next, until: endsAt });
+    beginInterval(endsAt, next);
+    if (!(await until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9))) return;
+    ritualNext = true;
+    runConcert(next);
+    return;
+  }
   setPhase('intermission', Math.max(2, settings.gap));
   if (lastOfProgram) {
     // end of the programme: everyone leaves, the house comes up, then a new evening begins
@@ -588,6 +608,7 @@ function nextIndex() {
 function togglePlay() {
   if (!concertStarted || hostOnly()) return;
   if (!showStarted) { startShow(); return; }
+  if (phase === 'interval' && intervalState) { secondHalf(); return; }
   if (phase !== 'playing') {
     // during a break: skip the ceremony and start the coming piece
     runConcert(phase === 'intermission' ? nextIndex() : current, { quick: true });
@@ -652,6 +673,193 @@ ui.on('unfocus', () => {
 });
 ui.on('solo', (on) => engine.setFocus(on && focused ? focused.sid : null));
 
+// ------------------------------------------------------------- the interval
+// Once an evening, at the programme's middle (by music, see intervalDue):
+// the house lights come up, everyone leaves the stage, the doors stand open.
+// The first cellist practises the coming half in the foyer (on stage at the
+// Sphere, which has no foyer), the violist may take the seat you left, the
+// notice board has the musicians' news. Bells call everyone back.
+const BEAR = 'vc:0';
+const practice = new Practice(engine);
+let intervalState = null; // { until (clock s), next, bear, bells }
+let intervalDone = false;
+let lastSeat = null;
+let tea = false;
+const clockNow = () => (room ? room.now() : performance.now() / 1000);
+// the foyer: where the cellist sits (an ottoman, facing the middle), the notice board
+const FOYER_BEAR = !IS_SPHERE ? { x: 4.4 - 0.78, y: LEVELS[0] - 0.05, z: 37.6, yaw: Math.PI / 2 } : null;
+const BOARD = !IS_SPHERE ? { x: 10, y: LEVELS[0] + 1.65, z: HALL.back + HALL.wallT + 0.02 } : null;
+if (BOARD) buildNoticeBoard(hall.group, new THREE.Vector3(BOARD.x, BOARD.y, BOARD.z), 0);
+
+function intervalDue(i) {
+  if (!settings.interval || settings.shuffle || settings.repeatOne || intervalDone) return false;
+  if (i >= eveningLen - 1) return false;
+  let total = 0;
+  let upto = 0;
+  for (let k = 0; k < eveningLen; k++) { total += program[k].duration; if (k <= i) upto += program[k].duration; }
+  return upto >= total / 2;
+}
+
+function beginInterval(endsAt, next) {
+  endInterval();
+  intervalState = { until: endsAt, next, bear: 'wait', bells: 0 };
+  intervalDone = true;
+  setPhase('interval');
+  hall.setHouseLights(1);
+  hall.show?.('house');
+  spot.set(null);
+  fx?.lasers.set(false);
+  fx?.wash.set(false);
+  if (stage.conductorOn) stage.conductorExit();
+  // everyone leaves (at the Sphere the cellist stays on to practise)
+  const off = stage.walkers.filter((w) => w.state !== 'off' && !w.leaving && (!IS_SPHERE || StageManager.key(w) !== BEAR));
+  if (off.length) stage.sendOff(off);
+  ui.interval(true, !guest());
+  ui.setIntervalLeft(endsAt - clockNow());
+  // the seat you leave behind (seven times in ten, someone wants it)
+  const r = room ? seeded(room.seed ^ 0x5ea7)() : Math.random();
+  thief.arm(director.mode === 'seat' ? director.seat : lastSeat, r < 0.7);
+  ui.toast(`인터미션이에요. ${Math.max(1, Math.round((endsAt - clockNow()) / 60))}분 뒤에 2부가 시작돼요.${IS_SPHERE ? '' : ' 로비로 나가 봐요.'}`, 3600);
+}
+
+function endInterval() {
+  if (!intervalState) return;
+  intervalState = null;
+  practice.stop();
+  const bear = stage.walkers.find((w) => StageManager.key(w) === BEAR);
+  if (bear?.state === 'away') stage.giveBack(bear); // (at the Sphere he is already in his chair)
+  thief.clear();
+  refreshOccupied();
+  ui.interval(false);
+  ui.act(null);
+  tea = false;
+}
+
+// the host (or alone): start the second half now
+function secondHalf() {
+  if (!intervalState || hostOnly()) return;
+  const next = intervalState.next;
+  ritualNext = true;
+  runConcert(next);
+}
+
+async function startPractice() {
+  // a phrase from the coming half (the next piece with a cello part)
+  let score = null;
+  for (let k = 0; k < 8 && !score && intervalState; k++) {
+    const sc = await scoreFor((intervalState.next + k) % program.length);
+    if (sc?.tracks.some((tr) => tr.section === 'vc')) score = sc;
+  }
+  if (!score || !intervalState) return;
+  if (!IS_SPHERE) engine.addSpot('lobby', { x: FOYER_BEAR.x, y: FOYER_BEAR.y + 0.9, z: FOYER_BEAR.z });
+  practice.start(score, { section: IS_SPHERE ? 'vc' : 'lobby', seed: room ? room.seed : (Math.random() * 1e9) | 0 });
+}
+
+let thiefWas = null;
+function intervalTick(dt) {
+  const S = intervalState;
+  const bear = stage.walkers.find((w) => StageManager.key(w) === BEAR);
+  if (S.bear === 'wait' && bear) {
+    if (!IS_SPHERE && bear.state === 'off') {
+      stage.borrow(BEAR, FOYER_BEAR, FOYER_BEAR.yaw);
+      S.bear = 'on';
+      startPractice();
+    } else if (IS_SPHERE && bear.state === 'off') {
+      // (at the Sphere he practises in his own chair: walk on if he is not there)
+      stage.callOn([bear]);
+      S.bear = 'walking';
+    } else if (IS_SPHERE && bear.state === 'seated') {
+      S.bear = 'on';
+      startPractice();
+    }
+  } else if (S.bear === 'walking' && bear?.state === 'seated') {
+    S.bear = 'on';
+    startPractice();
+  }
+  // the seat thief (away: out in the foyer, or anywhere far from the seat)
+  const d = director;
+  const inFoyer = !IS_SPHERE && d.pos.z > HALL.back + 0.5;
+  const nearThief = thief.update(dt, d.pos, d.mode === 'walk' && (inFoyer || IS_SPHERE));
+  if (thief.taken !== thiefWas) { thiefWas = thief.taken; refreshOccupied(); }
+  ui.act(nearThief ? `${thief.name}에게 도토리 쿠키 건네기` : nearBoard() ? '숲속 소식 읽기' : null);
+}
+function nearBoard() {
+  const d = director;
+  return !!BOARD && d.mode === 'walk' && Math.abs(d.feet - LEVELS[0]) < 0.6 && Math.hypot(d.pos.x - BOARD.x, d.pos.z - BOARD.z) < 2.6;
+}
+// (outside the interval the board can still be read)
+setInterval(() => {
+  if (!concertStarted || intervalState || !BOARD) return;
+  ui.act(nearBoard() ? '숲속 소식 읽기' : null);
+}, 300);
+
+// the countdown, and the bells that call everyone back
+setInterval(() => {
+  const S = intervalState;
+  if (!S) return;
+  const left = S.until - clockNow();
+  ui.setIntervalLeft(left);
+  if (left < 60 && S.bells < 1) { S.bells = 1; bells(2); ui.toast('곧 2부가 시작돼요. 자리로 돌아와 주세요.', 3200); }
+  if (left < 15 && S.bells < 2) { S.bells = 2; bells(3); }
+}, 500);
+
+// the foyer bell: a soft three-note chime, rung `times` times
+function bells(times) {
+  const ctx = engine.ctx;
+  if (!ctx || muted) return;
+  const t0 = ctx.currentTime + 0.05;
+  const notes = [1046.5, 880, 698.5];
+  for (let k = 0; k < times; k++) {
+    notes.forEach((f, i) => {
+      const at = t0 + k * 1.6 + i * 0.36;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0, at);
+      g.gain.linearRampToValueAtTime(0.05 * settings.volume, at + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + 1.4);
+      o.connect(g).connect(ctx.destination);
+      o.start(at);
+      o.stop(at + 1.5);
+    });
+  }
+}
+
+async function showNews() {
+  // the coming pieces (the next half first), with who plays them
+  const coming = [];
+  const from = intervalState ? intervalState.next : nextIndex();
+  for (let k = 0; k < 6; k++) {
+    const i = (from + k) % program.length;
+    if (k > 0 && i === 0) break;
+    const sc = await scoreFor(i);
+    if (!sc) continue;
+    const roster = rosterOf(sc);
+    coming.push({ meta: program[i], roster, kind: ensembleOf(sc, roster) });
+  }
+  ui.showNews(noticeLines({ coming, practiser: intervalState && practice.on ? BEAR : null, week: Math.floor((Date.now() / 86400000 + 3) / 7) }));
+}
+
+ui.on('tea', () => {
+  if (tea) return;
+  tea = true;
+  ui.tea();
+  ui.toast('따뜻한 도토리차를 받았어요. 고소한 냄새가 나요.', 2600);
+});
+ui.on('news', showNews);
+ui.on('secondHalf', secondHalf);
+ui.on('act', () => {
+  const s = thief.taken;
+  if (s && Math.hypot(director.pos.x - s.x, director.pos.z - s.z) < 1.8) {
+    thief.shoo();
+    ui.act(null);
+    ui.toast(`${josa(thief.name, '이', '가')} 쿠키를 받아 들고 무대 뒤로 쪼르르 돌아갔어요. 자리가 다시 비었어요.`, 3200);
+    return;
+  }
+  showNews();
+});
+
 // ------------------------------------------------------- the leaf programme
 // Tonight as you lived it: counted once a second, kept on this device,
 // handed to you when the evening ends (and on the programme panel anytime).
@@ -672,6 +880,7 @@ setInterval(() => {
   });
 }, 1000);
 function endEvening() {
+  intervalDone = false; // a new evening has its own interval
   if (!leaf.worthKeeping) return;
   leaf.save();
   ui.showLeaf(leaf.card(), Leaf.history());
@@ -724,6 +933,7 @@ setInterval(() => {
 
 director.on((type, data) => {
   if (type === 'mode') ui.setMode(data);
+  if (type === 'seat' && data?.index >= 0) lastSeat = data;
   // no seat labels on screen; E (or a double-click) still sits you down.
   // Touch screens keep the plain "앉기" button - it is their only way to sit.
   if (type === 'nearSeat' && isTouch) ui.prompt(data ? '앉기' : null, '앉기');
@@ -873,6 +1083,7 @@ function snapshot() {
     started: showStarted, i: current, title: program[current]?.titleKo || '', phase,
     playing: perf.playing, pos: perf.time, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
     on: [...stage.onstageKeys()],
+    iu: intervalState?.until, inext: intervalState?.next,
   };
 }
 function publish() { if (room?.isHost && room.connected) room.state(snapshot()); }
@@ -959,6 +1170,7 @@ async function followHost(s, { joining = false } = {}) {
   if (s.on) stage.snapRoster(new Set(s.on));
   else if (s.onstage) stage.snapOnstage();
   stage.snapConductor(!!s.cond && s.onstage);
+  if (s.phase === 'interval' && s.iu) { beginInterval(s.iu, s.inext ?? s.i); return; }
   hall.setHouseLights(s.onstage ? 0.5 : 1);
   setPhase('intermission');
 }
@@ -972,6 +1184,10 @@ function onHostCmd(c) {
   } else if (c.c === 'play' || c.c === 'pause') {
     showOn();
     applyPlayback({ i: c.i, playing: c.c === 'play', pos: c.pos, at: c.at });
+  } else if (c.c === 'interval') {
+    seq++;
+    ceremony = false;
+    beginInterval(c.until, c.i);
   } else if (c.c === 'exit') {
     seq++;
     ceremony = false;
@@ -999,6 +1215,7 @@ function refreshOccupied() {
   if (!director) return;
   const s = new Set(audience ? audience.occupied : []);
   for (const i of avatars.occupied()) s.add(i);
+  if (thief?.taken) s.add(thief.taken.index);
   director.occupied = s;
 }
 
@@ -1276,8 +1493,9 @@ function frame() {
   let events = null;
   if (perf.piece) events = perf.updateVisual(t);
   const running = perf.playing;
-  orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing });
+  orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing, practice: practice.on ? practice.frame(BEAR) : null });
   stage.update(dt);
+  if (intervalState) intervalTick(dt);
   roomTick(dt);
   if (IS_SPHERE) sphereTick(dt, t);
   hall.update(dt, wall);
@@ -1418,6 +1636,16 @@ window.__fp = {
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
   // (tests) the automatic quality, fed a frame rate by hand
-  get leaf() { return leaf; }, endEvening, spot,
+  get leaf() { return leaf; }, endEvening, spot, thief, practice, get interval() { return intervalState; },
+  // (tests) the interval right now, `sec` long, as the host would run it
+  intervalNow(sec = 90) {
+    if (perf.playing) perf.pause();
+    const tok = ++seq;
+    const next = nextIndex();
+    const endsAt = clockNow() + sec;
+    sendCmd({ c: 'interval', i: next, until: endsAt });
+    beginInterval(endsAt, next);
+    until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9).then((ok) => { if (ok) { ritualNext = true; runConcert(next); } });
+  },
   get quality() { return quality; }, autoQuality, holdQuality, get qualityState() { return { lowStreak, goodStreak, raiseBlocked, renderScale, hold: Math.max(0, qualityHold - performance.now()) }; },
 };

@@ -93,6 +93,12 @@ export const SPECIES_KO = {
   rabbit: '토끼', cat: '고양이', squirrel: '다람쥐', fox: '여우', sheep: '양', mouse: '생쥐', raccoon: '너구리', deer: '사슴',
   bear: '곰', panda: '판다', hedgehog: '고슴도치', koala: '코알라', lion: '사자', dog: '강아지', owl: '부엉이',
 };
+// Korean particles after a name: 곰돌이 / 라쿤이, 시바가 (by the last syllable)
+export function josa(word, withFinal, without) {
+  const c = word.charCodeAt(word.length - 1) - 0xac00;
+  const final = c >= 0 && c < 11172 ? c % 28 !== 0 : false;
+  return `${word}${final ? withFinal : without}`;
+}
 const LEAF_KEY = 'fp-leaves';
 const LEAF_MAX = 20;
 

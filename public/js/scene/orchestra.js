@@ -171,21 +171,26 @@ export function buildOrchestra(scene) {
 }
 
 // --------------------------------------------------------------- per frame
-function updateAll(players, conductor, particles, t, dt, perf, opts) {
+function updateAll(players, conductor, particles, t0, dt, perf, opts) {
+  const t = t0;
   const piece = perf.piece;
   const chairs = perf.chairs || {};
   const energyAll = { v: 0 };
   for (const p of players) {
-    const st = chairs[p.sid]?.[p.ci];
-    const inPiece = !!(piece && perf.playingSections?.has(p.sid) && st && (perf.piece.tracks.some((tr) => tr.section === p.sid && (!tr.chairs || tr.chairs.includes(p.ci)))));
-    const playing = !!st?.playing && opts.running;
+    // (someone practising on their own in the interval: their own notes and clock)
+    const pr = opts.practice && opts.practice.key === `${p.sid}:${p.ci}` ? opts.practice : null;
+    const t = pr ? pr.t : t0;
+    const st = pr ? pr.st : chairs[p.sid]?.[p.ci];
+    const inPiece = pr ? true : !!(piece && perf.playingSections?.has(p.sid) && st && (perf.piece.tracks.some((tr) => tr.section === p.sid && (!tr.chairs || tr.chairs.includes(p.ci)))));
+    const running = pr ? true : opts.running;
+    const playing = !!st?.playing && running;
     const soon = st ? st.nextOn - t : 99;
     const recent = st ? t - st.lastOn : 99;
-    const want = inPiece && opts.running && (playing || (soon < 1.6 && soon > -0.2) || recent < 1.2) ? 1 : 0;
+    const want = inPiece && running && (playing || (soon < 1.6 && soon > -0.2) || recent < 1.2) ? 1 : 0;
     p.ready = smooth(p.ready, want, want ? 3.2 : 1.1, dt);
     p.energy = st ? st.energy : 0;
     energyAll.v += p.energy;
-    const ctx = { t, dt, st, playing, soon, recent, inPiece, running: opts.running, piece, perf };
+    const ctx = { t, dt, st, playing, soon, recent, inPiece, running, piece, perf };
     RIGS[p.rigKind].update(p, ctx);
     // body sway with the music, breathing
     p.sway += dt * (0.6 + p.energy * 0.9);
