@@ -380,7 +380,7 @@ vec3 ocean(vec3 rd) {
           vec3 back = vec3(0.025, 0.045, 0.06);
           vec3 belly = vec3(0.16, 0.22, 0.24);
           vec3 wc = mix(belly, back, smoothstep(-0.35, 0.25, n.y));
-          col = wc * (0.45 + 0.75 * max(n.y, 0.0)) + vec3(0.05, 0.12, 0.15) * pow(1.0 - abs(dot(n, rd)), 3.0);
+          col = wc * (0.45 + 0.75 * max(n.y, 0.0)) + vec3(0.05, 0.12, 0.15) * pow(max(1.0 - abs(dot(n, rd)), 0.0), 3.0);
           t = tw;
         }
       }
@@ -446,14 +446,14 @@ vec3 clouds(vec3 rd) {
       vec3 n = normalize(vec3(cloudTop(p.xz - e.xy) - cloudTop(p.xz + e.xy), 2.0 * e.x, cloudTop(p.xz - e.yx) - cloudTop(p.xz + e.yx)));
       // soft, scattering light: wrap the sun round the puffs, glow at the edges
       float lit = clamp(dot(n, sun) * 0.5 + 0.55, 0.0, 1.0);
-      float rim = pow(1.0 - max(dot(n, -rd), 0.0), 3.0) * pow(max(dot(rd, sun), 0.0), 2.0);
+      float rim = pow(max(1.0 - max(dot(n, -rd), 0.0), 0.0), 3.0) * pow(max(dot(rd, sun), 0.0), 2.0);
       float ao = smoothstep(-40.0, 160.0, p.y);
       vec3 cc = mix(vec3(0.28, 0.24, 0.4), vec3(1.0, 0.74, 0.52), lit) * (0.55 + 0.45 * ao);
       cc = mix(cc, vec3(0.55, 0.5, 0.62), smoothstep(0.7, 1.0, n.y) * 0.4);
       // billows: the sunlit faces are lumpy, the creases darker
       cc *= 0.78 + 0.4 * fbm(p.xz * 0.022 + vec2(p.y * 0.018, -p.y * 0.012), 3);
       cc += vec3(1.0, 0.7, 0.45) * rim * 1.6;
-      cc = mix(cc, duskSky(rd, sun) * 0.9, pow(1.0 - max(dot(n, -rd), 0.0), 4.0) * 0.5); // soft edges
+      cc = mix(cc, duskSky(rd, sun) * 0.9, pow(max(1.0 - max(dot(n, -rd), 0.0), 0.0), 4.0) * 0.5); // soft edges
       col = mix(cc, duskSky(normalize(vec3(rd.x, 0.02, rd.z)), sun), 1.0 - exp(-t * 0.00032));
     }
   } else {
