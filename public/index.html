@@ -107,6 +107,30 @@
     </div>
   </div>
 
+  <!-- the interval: time left, tea, the news, and (host) the second half -->
+  <div id="intervalChip" class="interval-chip" hidden>
+    <span class="ic-title">인터미션</span><span class="ic-left" id="intervalLeft">3:00</span>
+    <button type="button" class="chip-btn" id="intervalTea">🍵 도토리차</button>
+    <button type="button" class="chip-btn" id="intervalNews">📜 숲속 소식</button>
+    <button type="button" class="chip-btn ic-go" id="intervalGo">2부 시작</button>
+  </div>
+  <!-- a recital: listen from the stage, or turn the pages -->
+  <div id="recitalChip" class="interval-chip recital-chip" hidden>
+    <span class="ic-title">독주회</span>
+    <button type="button" class="chip-btn" id="recitalStage">🎹 무대 위에서 듣기</button>
+    <button type="button" class="chip-btn" id="recitalTurner">📖 악보 넘김이 자리</button>
+  </div>
+  <!-- the encore: one firefly lantern each -->
+  <div id="encorePanel" class="encore" hidden>
+    <p class="encore-title">앙코르! <span id="encoreLeft"></span></p>
+    <p class="encore-sub">더 듣고 싶은 곡에 반딧불 랜턴을 들어 주세요</p>
+    <div class="encore-cands" id="encoreCands"></div>
+  </div>
+  <!-- the house asleep -->
+  <div id="sleepVeil" class="sleep-veil" hidden><p>편안한 밤 되세요</p><small>화면을 누르거나 아무 키나 누르면 깨어나요</small></div>
+  <!-- things to do near you: a cookie for the one in your seat, the notice board -->
+  <button id="actBtn" class="act-btn" type="button" hidden><kbd>F</kbd><span id="actText"></span></button>
+
   <!-- musician tooltip -->
   <div id="tooltip" class="tooltip" hidden></div>
 
@@ -172,6 +196,7 @@
         <label class="check"><input type="checkbox" id="optShuffle"> 무작위 순서</label>
         <label class="check"><input type="checkbox" id="optRepeatOne"> 한 곡 반복</label>
       </div>
+      <button class="btn-plain leaf-open" id="leafBtn" type="button">🍃 오늘 밤의 잎사귀 프로그램</button>
     </div>
 
     <div class="panel-body" data-body="room" hidden>
@@ -201,6 +226,13 @@
         <label class="slider">곡 사이 쉬는 시간 <input type="range" id="gap" min="2" max="20" step="1" value="7"><output id="gapOut">7초</output></label>
       </fieldset>
       <fieldset class="field">
+        <legend>인터미션</legend>
+        <div class="seg" id="intervalSeg">
+          <button data-min="0">없음</button><button data-min="2">2분</button><button data-min="3">3분</button><button data-min="5">5분</button>
+        </div>
+        <p class="hint">프로그램 한가운데에서 한 번 쉬어 가요. 로비로 나가 차를 마시고, 연습하는 단원도 만나 봐요.</p>
+      </fieldset>
+      <fieldset class="field">
         <legend>관객</legend>
         <label class="check"><input type="checkbox" id="optAudience" checked> 관객석에 관객 앉히기</label>
         <p class="hint">켤 때마다 관객 수와 얼굴, 앉는 자리가 새로 바뀌어요.</p>
@@ -211,6 +243,7 @@
           <button data-min="0" aria-pressed="true">끄지 않음</button><button data-min="15">15분</button><button data-min="30">30분</button><button data-min="60">1시간</button>
         </div>
         <p class="hint" id="sleepText">정한 시간이 지나면 30초에 걸쳐 소리를 줄이고 멈춰요.</p>
+        <p class="hint">혼자 볼 때는 마지막 몇 분을 잔잔한 피아노 곡으로 바꾸고, 관객도 하나둘 잠들어요. 다 잠들면 화면도 쉬어요.</p>
       </fieldset>
       <fieldset class="field">
         <legend>무대 효과</legend>
@@ -247,6 +280,31 @@
       </dl>
       <button class="btn-plain" id="helpClose">닫기</button>
     </div>
+  </div>
+
+  <!-- the leaf programme: tonight, to take home -->
+  <div id="leaf" class="leaf" hidden role="dialog" aria-modal="true" aria-labelledby="leafTitle">
+    <article class="leaf-card">
+      <svg class="leaf-mark" viewBox="0 0 120 160" aria-hidden="true"><path d="M60 6C24 40 14 78 22 112c6 24 22 38 38 42 16-4 32-18 38-42 8-34-2-72-38-106z"/><path class="vein" d="M60 20v134M60 60l-20-14M60 60l20-14M60 88l-26-16M60 88l26-16M60 116l-22-14M60 116l22-14"/></svg>
+      <p class="leaf-date" id="leafDate"></p>
+      <h3 id="leafTitle">오늘 밤의 잎사귀</h3>
+      <p class="leaf-venue" id="leafVenue"></p>
+      <p class="leaf-line" id="leafLine"></p>
+      <ol class="leaf-pieces" id="leafPieces"></ol>
+      <dl class="leaf-facts" id="leafFacts"></dl>
+      <div class="leaf-past" id="leafPast" hidden><p>지난 밤들</p><div id="leafPastList"></div></div>
+      <button class="btn-plain" id="leafClose" type="button">간직하기</button>
+    </article>
+  </div>
+
+  <!-- the musicians' news (the foyer's notice board) -->
+  <div id="news" class="leaf" hidden role="dialog" aria-modal="true" aria-labelledby="newsTitle">
+    <article class="leaf-card news-card">
+      <p class="leaf-date">로비 게시판</p>
+      <h3 id="newsTitle">숲속 소식</h3>
+      <ul class="news-list" id="newsList"></ul>
+      <button class="btn-plain" id="newsClose" type="button">닫기</button>
+    </article>
   </div>
 
   <div id="toast" class="toast" hidden></div>
