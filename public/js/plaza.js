@@ -12,6 +12,7 @@ import { avatarInfo } from './scene/avatars.js';
 import { identity, setName, issueTicket, heldTicket, lastTicket, ticketElement, modeLine, PAY, EMOJI, VENUE_NAMES } from './tickets.js';
 import { SETLISTS } from './programs.js';
 import { listRooms } from './net/room.js';
+import { thumbStick } from './joystick.js';
 
 const $ = (id) => document.getElementById(id);
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -548,38 +549,10 @@ function onTap(x, y) {
   }
 }
 
-// the joystick (touch screens)
-const joy = { x: 0, y: 0 };
-if (isTouch) {
-  const base = $('pzJoy');
-  base.hidden = false;
-  const knob = $('pzKnob');
-  let id = null;
-  let cx = 0;
-  let cy = 0;
-  base.addEventListener('pointerdown', (e) => {
-    id = e.pointerId;
-    const r = base.getBoundingClientRect();
-    cx = r.left + r.width / 2;
-    cy = r.top + r.height / 2;
-    base.setPointerCapture(id);
-    autoTo = null;
-    e.preventDefault();
-  });
-  base.addEventListener('pointermove', (e) => {
-    if (e.pointerId !== id) return;
-    let dx = e.clientX - cx;
-    let dy = e.clientY - cy;
-    const d = Math.hypot(dx, dy);
-    if (d > 46) { dx *= 46 / d; dy *= 46 / d; }
-    knob.style.transform = `translate(${dx}px, ${dy}px)`;
-    joy.x = dx / 46;
-    joy.y = dy / 46;
-  });
-  const end = (e) => { if (e.pointerId !== id) return; id = null; knob.style.transform = ''; joy.x = 0; joy.y = 0; };
-  base.addEventListener('pointerup', end);
-  base.addEventListener('pointercancel', end);
-}
+// the thumb stick (touch screens): it comes to your left thumb
+const joy = isTouch ? thumbStick({ base: $('pzJoy'), knob: $('pzKnob'), zone: $('pzJoyZone') }) : { x: 0, y: 0 };
+if (isTouch) { $('pzJoy').hidden = false; $('pzJoyZone').hidden = false; }
+setInterval(() => { if (joy.active) autoTo = null; }, 100);
 
 // what F (or the button) does here
 let act = null;
@@ -786,7 +759,8 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// first frame drawn: lift the curtain
+// first frame drawn: lift the curtain (and in any case after a moment)
+setTimeout(() => $('pzLoading').classList.add('done'), 2500);
 renderer.compile(scene, camera);
 requestAnimationFrame(() => {
   frame();

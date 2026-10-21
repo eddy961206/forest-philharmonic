@@ -1,5 +1,7 @@
 // DOM interface: now-playing card, the vibrating "string" seek bar,
 // transport, side panel (programme, settings), touch controls, prompts.
+import { thumbStick } from './joystick.js';
+
 const $ = (id) => document.getElementById(id);
 const fmt = (s) => {
   s = Math.max(0, Math.floor(s || 0));
@@ -290,6 +292,7 @@ export class UI {
     $('startWrap').hidden = false;
     if (touch) {
       $('joystick').hidden = false;
+      $('joyZone').hidden = false;
       $('jumpBtn').hidden = false;
       $('startHint').textContent = '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요';
     }
@@ -780,39 +783,8 @@ export class UI {
 
   // ------------------------------------------------------------ joystick
   _initJoystick() {
-    const base = $('joystick');
-    const knob = $('joyKnob');
-    let id = null;
-    let cx = 0;
-    let cy = 0;
-    const R = 46;
-    base.addEventListener('pointerdown', (e) => {
-      id = e.pointerId;
-      const r = base.getBoundingClientRect();
-      cx = r.left + r.width / 2;
-      cy = r.top + r.height / 2;
-      base.setPointerCapture(id);
-      e.preventDefault();
-    });
-    base.addEventListener('pointermove', (e) => {
-      if (e.pointerId !== id) return;
-      let dx = e.clientX - cx;
-      let dy = e.clientY - cy;
-      const d = Math.hypot(dx, dy);
-      if (d > R) { dx *= R / d; dy *= R / d; }
-      knob.style.transform = `translate(${dx}px, ${dy}px)`;
-      this.joy.x = dx / R;
-      this.joy.y = dy / R;
-    });
-    const end = (e) => {
-      if (e.pointerId !== id) return;
-      id = null;
-      knob.style.transform = '';
-      this.joy.x = 0;
-      this.joy.y = 0;
-    };
-    base.addEventListener('pointerup', end);
-    base.addEventListener('pointercancel', end);
+    // (a thumb stick that comes to your left thumb: see joystick.js)
+    this.joy = thumbStick({ base: $('joystick'), knob: $('joyKnob'), zone: $('joyZone') });
   }
 
   // --------------------------------------------- the string progress bar
