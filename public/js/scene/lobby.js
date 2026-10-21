@@ -138,8 +138,8 @@ export class SeatThief {
   update(dt, you, away) {
     if (this.seat && !this.w && away && Math.hypot(you.x - this.seat.x, you.z - this.seat.z) > 7) {
       const s = this.seat;
+      // (null while he is still walking off the stage: he comes a little later)
       this.w = this.stage.borrow(this.key, { x: s.x, y: s.y, z: s.z }, s.yaw);
-      if (!this.w) this.seat = null;
     }
     if (this.w && this.leaving > 0) {
       // up, a little bow, and away to the wings
