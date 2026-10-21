@@ -12,6 +12,7 @@ import { SPHERE_ACOUSTICS, SP } from './scene/sphereplan.js';
 import { buildSphere } from './scene/sphere.js';
 import { visualsFor } from './scene/domeshow.js';
 import { SETLISTS } from './programs.js';
+import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement, EMOJI } from './tickets.js';
 
 import { AudioEngine } from './audio/engine.js';
 import { Performance } from './audio/performance.js';
@@ -31,7 +32,7 @@ import { RoomClient, listRooms } from './net/room.js';
 import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf, josa } from './evening.js';
 import { Practice, SeatThief, noticeLines, buildNoticeBoard } from './scene/lobby.js';
 import { buildRecital } from './scene/recital.js';
-import { Avatars, AVATARS, randomIdentity } from './scene/avatars.js';
+import { Avatars, AVATARS } from './scene/avatars.js';
 
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
@@ -249,7 +250,7 @@ async function boot() {
 }
 
 ui.on('enter', async (opt) => {
-  try { localStorage.setItem('fp-identity', JSON.stringify({ name: opt.name, avatar: opt.avatar })); } catch { /* private mode */ }
+  setName(opt.name); // (the animal stays the one you were given)
   // fullscreen and sound must be started inside the click itself
   goFullscreen();
   // never wait on the audio context: some browsers settle it late
@@ -263,10 +264,14 @@ ui.on('enter', async (opt) => {
       await room.enter({ name: opt.name, avatar: opt.avatar, venue: VENUE, code: opt.code, create: opt.mode === 'create' ? { title: opt.title, cap: opt.cap, pub: opt.pub } : null });
     } catch (e) {
       if (e.code === 'venue' && VENUES[e.venue]) {
-        // the room is in the other building: go there (the invite comes along)
+        // the room is in the other building: go there (the invite - or the
+        // ticket, now for that building - comes along)
         room.leave();
         ui.lobbyError(e.message);
-        setTimeout(() => goVenue(e.venue, { room: opt.code }), 700);
+        if (ticket) {
+          updateTicket({ venue: e.venue });
+          setTimeout(() => { location.href = `${location.pathname}?venue=${e.venue}`; }, 900);
+        } else setTimeout(() => goVenue(e.venue, { room: opt.code }), 700);
         return;
       }
       room.leave();
@@ -278,6 +283,8 @@ ui.on('enter', async (opt) => {
       return;
     }
     ui.lobbyBusy(false);
+    // a reload keeps you in the room you made (not a second one)
+    if (ticket && room?.room) updateTicket({ mode: 'join', code: room.room.code });
   }
   director.active = true;
   ui.enter(isTouch);
@@ -1584,7 +1591,14 @@ function goSolo() {
 
 ui.on('leaveRoom', () => {
   room?.leave();
-  location.href = location.pathname + (VENUE !== 'hall' ? `?venue=${VENUE}` : ''); // back to the lobby
+  dropTicket();
+  location.href = location.pathname; // back out to the square
+});
+ui.on('toPlaza', () => {
+  room?.leave();
+  leaf.save();
+  dropTicket();
+  location.href = location.pathname;
 });
 ui.on('copyInvite', async () => {
   if (!room?.room) return;
@@ -1639,16 +1653,15 @@ function roomTick(dt) {
 }
 
 // --------------------------------------------------------------- lobby
-const IDENTITY_KEY = 'fp-identity';
-function loadIdentity() {
-  try {
-    const v = JSON.parse(localStorage.getItem(IDENTITY_KEY) || 'null');
-    if (v?.name && AVATARS.some((a) => a.id === v.avatar)) return v;
-  } catch { /* private mode */ }
-  return randomIdentity();
-}
+// you: the animal drawn on your first visit (kept; see tickets.js)
+const me = identity();
 const invite = (new URLSearchParams(location.search).get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || null;
-ui.initLobby({ avatars: AVATARS, identity: loadIdentity(), invite, venue: VENUE, venues: VENUES });
+ui.initLobby({ avatars: AVATARS, identity: { ...me, emoji: EMOJI[me.avatar] }, invite, venue: VENUE, venues: VENUES });
+// came from the square with a ticket for this building: the usher checks it
+// (a room's address after a reload: your ticket for that very room still counts)
+const held = heldTicket(VENUE);
+const ticket = held && (!invite || held.code === invite) ? held : null;
+if (ticket) ui.ticketMode(ticket, ticketElement(ticket));
 ui.on('venue', (id) => goVenue(id, { room: invite }));
 async function refreshRooms() {
   try {
