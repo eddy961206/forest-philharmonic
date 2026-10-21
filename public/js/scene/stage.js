@@ -115,8 +115,11 @@ class Walker {
       this.phase += dt * 7.2 * (0.4 + 0.6 * facing);
       ch.walk(this.phase, 0.5 * (0.4 + 0.6 * facing));
       ch.setStanding(1);
-      // feet follow the floor; steps are short and quick
-      this.pos.y = smooth(this.pos.y, floorAt(this.pos.x, this.pos.z), 14, dt);
+      // feet follow the floor; steps are short and quick (and never more
+      // than a few centimetres off it, even crossing two treads at once)
+      const under = floorAt(this.pos.x, this.pos.z);
+      this.pos.y = smooth(this.pos.y, under, 22, dt);
+      this.pos.y = Math.min(under + 0.06, Math.max(under - 0.04, this.pos.y));
       ch.root.position.copy(this.pos).add(V(0, Math.abs(Math.sin(this.phase)) * 0.025, 0));
       ch.root.rotation.y = this.yaw;
       this._swingArms(true);
