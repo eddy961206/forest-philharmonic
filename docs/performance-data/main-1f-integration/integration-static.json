@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-10-21T10:35:28.988208+00:00",
+  "upstream": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+  "parent": "71f4841d026496608749451580789ca62f0f7042",
+  "checks": [
+    {
+      "file": "public/js/main.js",
+      "exitCode": 0,
+      "output": "",
+      "sha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea"
+    },
+    {
+      "file": "public/js/quality.js",
+      "exitCode": 0,
+      "output": "",
+      "sha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559"
+    },
+    {
+      "file": "public/js/scene/audience.js",
+      "exitCode": 0,
+      "output": "",
+      "sha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85"
+    },
+    {
+      "file": "public/js/scene/dome3d.js",
+      "exitCode": 0,
+      "output": "",
+      "sha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f"
+    },
+    {
+      "file": "public/js/scene/domeshow.js",
+      "exitCode": 0,
+      "output": "",
+      "sha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5"
+    },
+    {
+      "file": "public/js/scene/hall.js",
+      "exitCode": 0,
+      "output": "",
+      "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+    },
+    {
+      "file": "public/js/scene/screen.js",
+      "exitCode": 0,
+      "output": "",
+      "sha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade"
+    },
+    {
+      "file": "public/js/scene/seats.js",
+      "exitCode": 0,
+      "output": "",
+      "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+    }
+  ],
+  "browserExtension": {
+    "firstCall": "INVALID_ARGUMENT: unsupported title parameter; corrected",
+    "correctedInvocation": "Browser access requires the originating browser context. Open ChatGPT in the browser with the connected extension and try again.",
+    "fallback": "User explicitly authorized Playwright/Chrome DevTools Protocol validation; use installed local Chromium against loopback servers."
+  },
+  "browserOnIntegratedMain": "NOT_RUN_YET",
+  "old6aBench": "Runs use frozen 6a/06 servers; latest 1f numbers will be recorded separately."
+}

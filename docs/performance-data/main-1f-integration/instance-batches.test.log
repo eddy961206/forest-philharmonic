@@ -1,0 +1,37 @@
+TAP version 13
+# Subtest: batched picking returns the original global IDs and all raw raycast intersections
+ok 1 - batched picking returns the original global IDs and all raw raycast intersections
+  ---
+  duration_ms: 6.905241
+  type: 'test'
+  ...
+# Subtest: parent movement, rotation and nonuniform scale preserve picking and edge hits
+ok 2 - parent movement, rotation and nonuniform scale preserve picking and edge hits
+  ---
+  duration_ms: 2.730936
+  type: 'test'
+  ...
+# Subtest: misses and near/far limits behave like the original mesh without changing existing hits
+ok 3 - misses and near/far limits behave like the original mesh without changing existing hits
+  ---
+  duration_ms: 0.583888
+  type: 'test'
+  ...
+# Subtest: a ray only inspects instances in intersected spatial bounds
+ok 4 - a ray only inspects instances in intersected spatial bounds
+  ---
+  duration_ms: 0.705631
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 18.260772
+(node:44) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)

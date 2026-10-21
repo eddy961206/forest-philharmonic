@@ -4,7 +4,8 @@ const LEVELS = ['low', 'medium', 'high'];
 const round = (v) => Math.round(v * 100) / 100;
 
 export class AdaptiveQuality {
-  constructor({ quality = 'high', scale = 1, maxQuality = 'high', pixelRatios = {}, nowMs = 0 } = {}) {
+  constructor({ quality = 'high', scale = 1, minQuality = 'low', maxQuality = 'high', pixelRatios = {}, nowMs = 0 } = {}) {
+    this.minLevel = LEVELS.indexOf(minQuality);
     this.maxLevel = LEVELS.indexOf(maxQuality);
     this.pixelRatios = pixelRatios;
     this.reset(quality, scale, nowMs);
@@ -68,7 +69,7 @@ export class AdaptiveQuality {
       // In a piece prefer changing pixel work; a material/preset rebuild is
       // allowed only between pieces, or below the upstream emergency 26 FPS.
       const canDropPreset = allowPresetChange || cost > 1000 / 26;
-      if (level > 0 && (cost > 80 || scale <= 0.6) && canDropPreset) level--;
+      if (level > this.minLevel && (cost > 80 || scale <= 0.6) && canDropPreset) level--;
       else if (scale > 0.6) scale = Math.max(0.6, round(scale - (cost > 50 ? 0.2 : 0.1)));
     } else if (this.fast >= 5 && allowRecovery && !this.raiseBlocked) {
       reason = 'recovery';

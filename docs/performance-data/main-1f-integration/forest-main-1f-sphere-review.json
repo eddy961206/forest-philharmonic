@@ -1,0 +1,414 @@
+{
+  "schema": 1,
+  "createdUtc": "2026-10-21T10:35:07.633671+00:00",
+  "author": "/root/sphere_review",
+  "scope": "6a/06/71/1f 고정 revision의 Sphere 코드 대조, 자동 병합 두 파일 의미 검토, 허가된 최소 제품 보완 및 CPU 통합 검사",
+  "revisions": {
+    "baseline_6a": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+    "optimized_06": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+    "checkpoint_71": "71f4841d026496608749451580789ca62f0f7042",
+    "upstream_1f": "1f8e5f16f1eee03140e13ba1ee66832841559604"
+  },
+  "sourceHashes": [
+    {
+      "revisionLabel": "baseline_6a",
+      "revision": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "path": "public/js/scene/dome3d.js",
+      "bytes": 26856,
+      "sha256": "fc47f58a98830be4483d3d44c8bc451aba9b52d0713cbda3be51bc4ed872a366",
+      "gitBlob": "71aa0d7524124129116888af34cb3ee753484888"
+    },
+    {
+      "revisionLabel": "baseline_6a",
+      "revision": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "path": "public/js/scene/domeshow.js",
+      "bytes": 39863,
+      "sha256": "c715eaf247da0afed5c4e6e63ab009a9917f1c23dc9507ef6b1a3be1929bcbb9",
+      "gitBlob": "ebe435d87149301b6f9ebfd56291fa49e7185ce6"
+    },
+    {
+      "revisionLabel": "baseline_6a",
+      "revision": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "path": "public/js/main.js",
+      "bytes": 81097,
+      "sha256": "9627b954dfb30a226df87e4eda83d96577e686995622c35f275dd1d2c4ed5283",
+      "gitBlob": "6f9226d8596efc897deda990305fa9e91e12cc0d"
+    },
+    {
+      "revisionLabel": "baseline_6a",
+      "revision": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "path": "public/js/scene/sphere.js",
+      "bytes": 39913,
+      "sha256": "4f22fa4b3204afa5b44ca424fdd8d95e851cea22bd20cdd9b295e99263173e29",
+      "gitBlob": "709e41fa8934b7661f4709a088ec1c8312c95391"
+    },
+    {
+      "revisionLabel": "optimized_06",
+      "revision": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "path": "public/js/scene/dome3d.js",
+      "bytes": 27416,
+      "sha256": "832f368158c44589a857183879771e55f90d234a600c9fafcd6b935e327c91c0",
+      "gitBlob": "7214d2a03d4c18a91ac5a02449781bd809debc7c"
+    },
+    {
+      "revisionLabel": "optimized_06",
+      "revision": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "path": "public/js/scene/domeshow.js",
+      "bytes": 40271,
+      "sha256": "54ed6d88ff4c91bf802ba5affccdde96a09b6e512f20087131224108af8dbcbd",
+      "gitBlob": "2544e8f41e9c697489c15b31665b4fa8b9bf2c0f"
+    },
+    {
+      "revisionLabel": "optimized_06",
+      "revision": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "path": "public/js/main.js",
+      "bytes": 85254,
+      "sha256": "a0d096e176f391537439c30aa4edd89fcace95fc542803a7dc1ea8a7790efaed",
+      "gitBlob": "f2bfac6da02a92737a6040ac84fad9015ae1e821"
+    },
+    {
+      "revisionLabel": "optimized_06",
+      "revision": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "path": "public/js/scene/sphere.js",
+      "bytes": 40012,
+      "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+      "gitBlob": "49ef97306a0e68a71199a386f1a5b6aad555e67a"
+    },
+    {
+      "revisionLabel": "checkpoint_71",
+      "revision": "71f4841d026496608749451580789ca62f0f7042",
+      "path": "public/js/scene/dome3d.js",
+      "bytes": 27416,
+      "sha256": "832f368158c44589a857183879771e55f90d234a600c9fafcd6b935e327c91c0",
+      "gitBlob": "7214d2a03d4c18a91ac5a02449781bd809debc7c"
+    },
+    {
+      "revisionLabel": "checkpoint_71",
+      "revision": "71f4841d026496608749451580789ca62f0f7042",
+      "path": "public/js/scene/domeshow.js",
+      "bytes": 40271,
+      "sha256": "54ed6d88ff4c91bf802ba5affccdde96a09b6e512f20087131224108af8dbcbd",
+      "gitBlob": "2544e8f41e9c697489c15b31665b4fa8b9bf2c0f"
+    },
+    {
+      "revisionLabel": "checkpoint_71",
+      "revision": "71f4841d026496608749451580789ca62f0f7042",
+      "path": "public/js/main.js",
+      "bytes": 85254,
+      "sha256": "a0d096e176f391537439c30aa4edd89fcace95fc542803a7dc1ea8a7790efaed",
+      "gitBlob": "f2bfac6da02a92737a6040ac84fad9015ae1e821"
+    },
+    {
+      "revisionLabel": "checkpoint_71",
+      "revision": "71f4841d026496608749451580789ca62f0f7042",
+      "path": "public/js/scene/sphere.js",
+      "bytes": 40012,
+      "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+      "gitBlob": "49ef97306a0e68a71199a386f1a5b6aad555e67a"
+    },
+    {
+      "revisionLabel": "upstream_1f",
+      "revision": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+      "path": "public/js/scene/dome3d.js",
+      "bytes": 27523,
+      "sha256": "ca067024187a3022c43ffbe5f90a9ba2be3e0de4af03974117e5d4ed49886448",
+      "gitBlob": "5e6ebc8084bdc09c029bfc88659241295f3e3218"
+    },
+    {
+      "revisionLabel": "upstream_1f",
+      "revision": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+      "path": "public/js/scene/domeshow.js",
+      "bytes": 41727,
+      "sha256": "2fe23d6961655da2a3b80192efa5ade1f09c24ab74ed2cff8cfc6e4490779b24",
+      "gitBlob": "6ccff81432ae5079dbfdcdb9e178a33bcadcd46f"
+    },
+    {
+      "revisionLabel": "upstream_1f",
+      "revision": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+      "path": "public/js/main.js",
+      "bytes": 84350,
+      "sha256": "3c18255aa87d89343e85b220df44a21d6281e161ab234db36e5e119a2d30607b",
+      "gitBlob": "11e69e4dce66dfd9e1c4544807a3af98e78a62f6"
+    },
+    {
+      "revisionLabel": "upstream_1f",
+      "revision": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+      "path": "public/js/scene/sphere.js",
+      "bytes": 39913,
+      "sha256": "4f22fa4b3204afa5b44ca424fdd8d95e851cea22bd20cdd9b295e99263173e29",
+      "gitBlob": "709e41fa8934b7661f4709a088ec1c8312c95391"
+    }
+  ],
+  "preEditAutomaticMergeSnapshots": [
+    {
+      "path": "/tmp/forest-main-1f-sphere-sources/dome3d.js.auto-merge",
+      "bytes": 28083,
+      "sha256": "f10950a8d1274507d90f632279cb6e7730eb5f2374579ee3df784d69173c75f6"
+    },
+    {
+      "path": "/tmp/forest-main-1f-sphere-sources/domeshow.js.auto-merge",
+      "bytes": 42135,
+      "sha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5"
+    }
+  ],
+  "workingFilesAtReview": [
+    {
+      "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/public/js/scene/dome3d.js",
+      "bytes": 28281,
+      "sha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/public/js/scene/domeshow.js",
+      "bytes": 42135,
+      "sha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/tests/dome-integration.test.mjs",
+      "bytes": 6523,
+      "sha256": "51e6cfec646d24b1aded61fa41caa83ff2b55eb80b1e8ea376cd0aacea45dadd"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/tests/dome.test.mjs",
+      "bytes": 8519,
+      "sha256": "60add19bb24664c9128358dfad44333483268b61b66eee0ee2ad253c901801fb"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/tests/helpers/three-loader.mjs",
+      "bytes": 591,
+      "sha256": "82f9a5b511abf7ca9021a6c8bfeac35b1ddef0b40f9e5cc0cca12eaa77250dd2"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/tmp/forest-main-1f-sphere-before.log",
+      "bytes": 1974,
+      "sha256": "9902d63582c67c1309353b4ece3e9e88b1db4ba61f158ed228e58db0ef7fc0a9"
+    },
+    {
+      "path": "/tmp/forest-main-1f-sphere-integration-tests.log",
+      "bytes": 887,
+      "sha256": "dda5fbb2d75dc1f1ee22adac37a0ec901f549a3224bb7a362bdb4d56b48cc013"
+    },
+    {
+      "path": "/tmp/forest-main-1f-sphere-existing-tests.log",
+      "bytes": 1190,
+      "sha256": "9e8c3555438de6d923dd99d5966bdde7a8aa344887cf172d83a12499de8e9c3b"
+    }
+  ],
+  "checks": [
+    {
+      "command": "node --experimental-loader ./tests/helpers/three-loader.mjs --test tests/dome-integration.test.mjs",
+      "exitCode": 1,
+      "status": "FILE_RUNNER_FAIL",
+      "detail": "Node child test runner reported only one generic file-level failure. It did not expose individual test cases. Do not count this attempt as a passing suite."
+    },
+    {
+      "command": "node --experimental-loader ./tests/helpers/three-loader.mjs tests/dome-integration.test.mjs",
+      "phase": "before warm cleanup",
+      "exitCode": 1,
+      "pass": 3,
+      "fail": 1,
+      "log": "/tmp/forest-main-1f-sphere-before.log",
+      "detail": "실패한 warm 뒤 slot.world가 남는 assertion을 재현했어. 이후 Lite 테스트 제목과 복구 세계를 FOREST3D로 더 직접적으로 변경했으므로 현재 테스트 파일과 사전 로그의 소스가 완전히 같다는 주장은 하지 않아."
+    },
+    {
+      "command": "node --experimental-loader ./tests/helpers/three-loader.mjs tests/dome-integration.test.mjs",
+      "phase": "after warm cleanup, final test source",
+      "exitCode": 0,
+      "pass": 4,
+      "fail": 0,
+      "log": "/tmp/forest-main-1f-sphere-integration-tests.log"
+    },
+    {
+      "command": "node --experimental-loader ./tests/helpers/three-loader.mjs tests/dome.test.mjs",
+      "phase": "after merge + warm cleanup",
+      "exitCode": 0,
+      "pass": 7,
+      "fail": 0,
+      "log": "/tmp/forest-main-1f-sphere-existing-tests.log"
+    },
+    {
+      "command": "node --check public/js/scene/dome3d.js",
+      "exitCode": 0
+    },
+    {
+      "command": "node --check public/js/scene/domeshow.js",
+      "exitCode": 0
+    },
+    {
+      "command": "node --check tests/dome-integration.test.mjs",
+      "exitCode": 0
+    }
+  ],
+  "limits": {
+    "browserExecuted": false,
+    "gpuExecuted": false,
+    "screenshotsComparedFor1f": false,
+    "shaderActuallyCompiledFor1f": false,
+    "physicalDeviceMeasured": false,
+    "performanceImprovementMeasuredInThisReview": false,
+    "gitCommitOrStagePerformed": false,
+    "onlyProductsEdited": [
+      "public/js/scene/dome3d.js"
+    ],
+    "newTestOnly": "tests/dome-integration.test.mjs",
+    "domeshowExtraEditAfterAutoMerge": false
+  },
+  "upstreamFacts": [
+    {
+      "topic": "세계 생성과 수명",
+      "evidence": [
+        "1f:public/js/scene/domeshow.js:684",
+        "1f:public/js/scene/dome3d.js:534-545",
+        "1f:public/js/main.js:1641-1658"
+      ],
+      "finding": "buildDome은 full/non-Lite에서 makeWorldRenderer를 즉시 호출하고 target 객체 2개를 만들어. 명시적 lazy world 생성 또는 dispose API는 1f/06 양쪽에 없어. GPU 저장소/프로그램 실제 준비는 Three 첫 사용 시점이며 새 warm이 slot0 한 면을 실제 렌더해. 공연장/광장 이동은 location navigation이라 전체 문서 수명이 끝나."
+    },
+    {
+      "topic": "새 컴파일 완화",
+      "evidence": [
+        "1f:public/js/scene/dome3d.js:30-33",
+        "1f:public/js/scene/domeshow.js:638-676",
+        "1f:public/js/main.js:187-203",
+        "1f:public/js/main.js:270-291"
+      ],
+      "finding": "uOne=1 동적 루프 경계, scene() 한 번 호출하는 base/overlay 2-pass, compileAsync 숨김/복원, world warm, texture warm이 upstream 변경이야. Windows 드라이버 개선 주석은 작성자의 의도이며 이 리뷰의 실측은 아니야."
+    },
+    {
+      "topic": "기존 큐브 갱신 정책",
+      "evidence": [
+        "1f:public/js/scene/dome3d.js:550-607"
+      ],
+      "finding": "보이는 면 mask, -Y 생략, 새/낡은 면 즉시 갱신, 2세계 교대 갱신은 이전에도 있던 정책이야. 새 최적화 성과로 중복 계산하면 안 돼."
+    }
+  ],
+  "integrationDecisions": [
+    {
+      "area": "world shader + proxy",
+      "keepUpstream": "모든 uOne 루프 경계와 uniform=1",
+      "keepOptimized": "BoxGeometry(2,2,2), 면당 12 triangles; 기존 sphere는 2208",
+      "resolution": "자동 병합이 모두 유지. shader ray-marching 세부/step 수/세계 내용은 추가 수정하지 않았어. 기존 CPU ray direction 검사 통과."
+    },
+    {
+      "area": "큐브 renderer 상태",
+      "keepUpstream": "warm과 기존 mask/crossfade 스케줄",
+      "keepOptimized": "draw의 try/finally로 target, active face, mip, XR 복원",
+      "resolution": "warm도 같은 draw 경로를 써. warm 임시 world/faceWorld 정리를 finally로 보완했어."
+    },
+    {
+      "area": "cube quality resize",
+      "keepUpstream": "2개 target 재사용과 start time 의미",
+      "keepOptimized": "high640/1, medium512/2, low384/2 및 setSize 재할당 시 모든 faceWorld 무효화/fresh",
+      "resolution": "동일 품질 중복 setSize는 no-op, 품질 변경은 같은 target/texture 객체를 유지하며 다음 필요한 면부터 다시 채워. 기존 7개와 새 crossfade 검사에서 확인."
+    },
+    {
+      "area": "돔 2-pass",
+      "keepUpstream": "base NoBlending/depthWrite, premultiplied overlay CustomBlending/One/OneMinusSrcAlpha/depthWrite=false, shared uniforms, overlay visibility",
+      "keepOptimized": "base renderOrder=10, liveActive >.001",
+      "resolution": "overlay renderOrder=-1은 유지해. 불투명 건축물 후 base, 투명 레일/빔 전에 overlay 합성이 목적이야. overlay를 base와 같은10으로 바꾸지 않았어."
+    },
+    {
+      "area": "수명",
+      "resolution": "새 dispose 또는 lazy target 개편을 추가하지 않았어. API 수명은 기존 페이지와 함께 유지하고 resize는 기존 target.setSize 내부 dispose를 사용해. context loss/복구 또는 장기 메모리 안정성은 이 CPU 검사로 증명하지 않아."
+    }
+  ],
+  "fixedBug": {
+    "file": "public/js/scene/dome3d.js",
+    "location": "warm() around lines 580-592",
+    "before": "draw가 throw하면 뒤의 s.world=null/faceWorld=[]가 실행되지 않았어. boot는 오류를 catch하여 계속하므로 첫 실제 FOREST3D가 기존 slot.world로 인식되면 start=0을 이어받을 수 있어.",
+    "after": "try/finally로 임시 slot 상태를 비워서 실패한 예열은 첫 실제 세계의 start time에 영향을 주지 않게 했어.",
+    "reproduced": "mock renderer가 예열 첫 면에서 throw할 때 수정 전 slot 정리 검사 FAIL, 수정 후 renderer 상태/빈 slot 및 첫 FOREST3D flight=0 검사 PASS.",
+    "contract": "warm은 기존처럼 boot 시점의 API로 유지해. 연주 중 반복 warm 호출을 새 지원 기능으로 만들지 않았어."
+  },
+  "sameQualityDefinition": {
+    "separateComparisons": [
+      "기존 6a 대 06(완료 중인 historical 수집)",
+      "새 1f 대 최종 통합본(새 비교군)"
+    ],
+    "upstreamPixelProfiles": {
+      "highBefore": "min(DPR,2)",
+      "high1f": "min(DPR,1.5)",
+      "mediumBefore": "min(DPR,1.25)",
+      "medium1f": "min(DPR,1.25)*0.85",
+      "source": "1f:public/js/main.js:51-56"
+    },
+    "analyticalExamplesNotMeasurements": [
+      {
+        "DPR": 1,
+        "mediumPixelCountRatio1fOver6a": 0.7225
+      },
+      {
+        "DPR": 2,
+        "highPixelCountRatio1fOver6a": 0.5625
+      }
+    ],
+    "fixedMatchRequirements": [
+      "같은 upstream revision, viewport/DPR와 실제 drawingBuffer 크기",
+      "수동 preset 및 renderScale",
+      "부팅 Lite/full 경로와 실제 cube 크기/cadence",
+      "같은 카메라/FOV/관객 hash/곡/세계 시간",
+      "동일 shadow/MSAA/post/IMAG 상태와 전환 mix"
+    ],
+    "transitionDifference": "1f 자체가 한 shader 안의 선형 world mix를 별도 overlay blending으로 바꿨어. direct/no-composer에서는 tone mapping/색변환 뒤 blend여서 6a와 일반적으로 픽셀 동등하지 않아. composer의 offscreen Linear/NoToneMapping 경로는 일반 crossfade가 더 가까울 수 있지만 reveal seam은 밝기/IMAG 적용 순서도 바뀌므로 실제 캡처 확인이 필요해.",
+    "lowRuntimeCaveat": "boot low/Lite는 painted 세계야. full build에서 나중에 low로 바꾼384 cube 경로는 별도 적응형/수동전환 동작이지 boot-low 동일화질 성과가 아니야."
+  },
+  "mainRecommendations": [
+    "신규 compileAsync, boot warm/warmTextures를 유지하고 IMAG viewer에는 settings.screen && concertStarted && liveActive 가드를 유지해.",
+    "1f는 Auto의 full build medium→low preset 강등을 피하도록 변경했어. 06 AdaptiveQuality의 real frame interval/hysteresis/recovery를 유지하면서 full build 최소 preset medium 정책을 통합해. 이 파일은 root 소유라 이 agent가 수정하지 않았어.",
+    "수동 preset에는 자동 scale 정책을 적용하지 말고 1f pixel profile은 양쪽 비교군에서 일치시켜.",
+    "drawWorlds는 카메라 이동 완료 후, IMAG/main 렌더 전에 실행하고 renderer.info.autoReset=false 전체 프레임 집계를 유지해."
+  ],
+  "benchmarkReadiness": {
+    "confirmedGap": "1f main의 compileAsync promise는 boot/ui.ready에서 await되지 않아. ui.ready는 enterBtn을 켜므로 full-frame.mjs의 __bench && !enterBtn.disabled만으로는 아직 숨겨진 dome을 측정할 수 있어.",
+    "sourceEvidence": [
+      "1f:public/js/main.js:193-198",
+      "1f:public/js/main.js:270-276",
+      "public/js/ui.js:273-278",
+      "tools/bench/full-frame.mjs:93-102",
+      "public/vendor/three/three.module.js:17552-17611"
+    ],
+    "requiredGuard": "waitForFunction에서 UI/fixture 준비에 더해 (!window.__fp.hall.dome || window.__fp.hall.dome.mesh.visible === true). timeout은 FAIL로 보존하고 mesh.visible을 강제로 바꾸지 않아.",
+    "requiredDuringRun": "동일 시나리오/동일 WARMUP 후 다시 visible 검사. 측정 step에서 hidden이면 FAIL. 준비 프레임을 측정 수치에 넣지 않아.",
+    "optionalStrongEvidence": "onAfterRender 원본을 보존하는 fixture wrapper로 base draw 횟수, crossfade/reveal에서는 visible overlay draw 횟수 기록. 최종 warmup 후 currentProgram id/isReady/diagnostics와 GL LINK_STATUS를 기록. 프로그램 전체 개수만으로 실제 dome draw/링크 성공을 대신하지 않아.",
+    "programVariantCaveat": "Three compileAsync는 compile()를 먼저 호출하고 KHR_parallel_shader_compile readiness를 기다려. default framebuffer 톤매핑/sRGB 프로그램과 composer offscreen Linear/NoToneMapping 프로그램은 다를 수 있으므로 boot promise 완료가 모든 실제 패스 예열을 뜻하지 않아.",
+    "reviewOnly": true,
+    "collectorModifiedByThisAgent": false
+  },
+  "newTestsRequiredInBrowser": [
+    {
+      "priority": "필수",
+      "scenario": "1f baseline와 통합본 동일 조건 고정품질 비교",
+      "purpose": "high/medium 최소 front, dome, forest/ocean, crossfade/reveal, broadcast; shader/cube 시각 상태와 실측 drawingBuffer를 함께 저장"
+    },
+    {
+      "priority": "필수",
+      "scenario": "첫 진입 shader 준비",
+      "purpose": "cold/warm 부팅, KHR_parallel_shader_compile 유무, UI ready와 dome visible 시간, 첫 world/첫 overlay 프로그램과 실제 draw 확인"
+    },
+    {
+      "priority": "필수",
+      "scenario": "세계 전환 + resize",
+      "purpose": "FOREST→OCEAN/PEAKS 교차 전환 중 high→medium→high, 새로 보인 면, 빠른 카메라 회전/IMAG, cube seam/검은 면/flight reset 여부"
+    },
+    {
+      "priority": "필수",
+      "scenario": "합성/가림",
+      "purpose": "opaque 좌석·발코니 뒤 돔, 투명 rails/beams/effects 앞뒤 관계, roof-lift seam, live captions, no-post low/Lite와 high/medium composer 각각"
+    },
+    {
+      "priority": "필수",
+      "scenario": "도구 준비 gate",
+      "purpose": "compileAsync가 늦거나 실패한 경우 hidden dome 표본 배제; visible true지만 GL link failure면 FAIL"
+    },
+    {
+      "priority": "후속 실기기",
+      "scenario": "Windows Chrome/Edge, Android Chrome, iOS Safari",
+      "purpose": "uniform loop 경계의 드라이버 compile/runtime 비용과 새 overlay shader 링크·HalfFloat 타깃 지원. 이 리뷰에서 미실행."
+    },
+    {
+      "priority": "후속 장시간",
+      "scenario": "world 교대, quality 반복전환, 광장 왕복",
+      "purpose": "target/프로그램 수와 메모리 추세 확인. 단위 검사상 target 재사용만으로 GPU 누수 없음/발열/30-60FPS를 주장하지 않아."
+    }
+  ]
+}

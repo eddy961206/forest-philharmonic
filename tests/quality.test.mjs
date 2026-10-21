@@ -160,3 +160,23 @@ test('실패한 복구는 전환·숨김 유예 뒤에도 재시도하지 않고
   assert.equal(c.raiseBlocked, false);
   assert.ok(feed(c, 1000 / 60, 30).some(change => change.reason === 'recovery'));
 });
+
+test('일반 모드의 자동 품질은 심한 부하에도 보통 재질을 유지해', () => {
+  const c = new AdaptiveQuality({ quality: 'high', minQuality: 'medium' });
+  const changes = feed(c, 100, 300, { allowPresetChange: false, allowRecovery: false });
+  assert.ok(changes.some(change => change.quality === 'medium'));
+  assert.ok(changes.every(change => change.quality !== 'low'));
+  assert.equal(c.quality, 'medium');
+  assert.equal(c.scale, 0.6);
+  assert.equal(feed(c, 200, 30).length, 0);
+});
+
+test('일반 모드도 안정적인 곡 사이에는 해상도와 높음 프리셋을 복구해', () => {
+  const c = new AdaptiveQuality({ quality: 'medium', scale: 0.6, minQuality: 'medium' });
+  assert.equal(feed(c, 1000 / 60, 60, { allowRecovery: false }).length, 0);
+  const changes = feed(c, 1000 / 60, 150, { allowRecovery: true });
+  assert.ok(changes.length >= 5);
+  assert.ok(changes.every(change => change.reason === 'recovery'));
+  assert.equal(c.quality, 'high');
+  assert.equal(c.scale, 1);
+});

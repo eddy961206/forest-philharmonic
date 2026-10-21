@@ -1231,7 +1231,11 @@ export function buildChandelier(scale = 1) {
 }
 
 // --------------------------------------------------------------- backdrop
+// (one picture, painted once: the hall's window, the foyer's window and the
+// painting in the foyer all show it)
+let NIGHT = null;
 export function nightForestTexture() {
+  if (NIGHT) return NIGHT;
   const c = document.createElement('canvas');
   c.width = 2048;
   c.height = 1160;
@@ -1317,7 +1321,7 @@ export function nightForestTexture() {
   mist.addColorStop(1, 'rgba(150,160,210,0)');
   g.fillStyle = mist;
   g.fillRect(0, 760, c.width, 240);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
+  NIGHT = new THREE.CanvasTexture(c);
+  NIGHT.colorSpace = THREE.SRGBColorSpace;
+  return NIGHT;
 }

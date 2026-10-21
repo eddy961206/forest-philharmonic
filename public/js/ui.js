@@ -131,6 +131,8 @@ export class UI {
     $('tcTicket').appendChild(card);
     $('splashSub').textContent = '입구에서 표를 확인하고 있어요. 공연장 불이 켜지면 들어가요.';
     $('tcEnter').addEventListener('click', () => {
+      if ($('tcEnter').disabled) return;
+      $('tcEnter').disabled = true; // (a second press - or Enter held down - is not a second entrance)
       $('tcError').hidden = true;
       $('tcFallback').hidden = true;
       this.emit('enter', { mode: ticket.mode, code: ticket.code, title: ticket.title, cap: ticket.cap, pub: ticket.pub, name: ticket.name, avatar: ticket.avatar });
@@ -284,9 +286,11 @@ export class UI {
   }
 
   enter(touch) {
+    if (this.entered) return;
+    this.entered = true;
     document.body.classList.toggle('touch', !!touch);
     $('splash').classList.add('leaving');
-    setTimeout(() => $('splash').remove(), 1300);
+    setTimeout(() => $('splash')?.remove(), 1300);
     $('nowPlaying').hidden = false;
     $('transport').hidden = false;
     $('startWrap').hidden = false;

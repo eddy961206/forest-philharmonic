@@ -15,7 +15,11 @@
     // (before anything is drawn: is this the square, or a building? - see js/boot.js)
     (function () {
       var q = new URLSearchParams(location.search);
-      if (!q.get('venue') && !q.get('room')) document.documentElement.classList.add('is-plaza');
+      var v = q.get('venue');
+      var t = null;
+      try { t = JSON.parse(sessionStorage.getItem('fp-ticket') || 'null'); } catch (e) { /* private mode */ }
+      // (a building without a ticket for it is turned back to the square: no glimpse of it first)
+      if (!q.get('room') && (!v || (!(t && t.venue === v) && !q.has('lobby')))) document.documentElement.classList.add('is-plaza');
     })();
   </script>
   <script type="importmap">

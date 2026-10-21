@@ -1,0 +1,535 @@
+{
+  "schema": 1,
+  "createdAt": "2026-10-21T10:31:19.144480+00:00",
+  "scope": "Read-only static review of 6a..1f plaza/tickets/index/CSS/joystick/README and current collectors. No browser, GPU, product edit or measurement-result access.",
+  "baseline": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+  "incomingMain": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+  "publicCheckpoint": "71f4841d026496608749451580789ca62f0f7042",
+  "files": [
+    {
+      "path": "public/js/plaza.js",
+      "baselineSha256": "ce5b125c896fa55b101758d2721145308b598834f32b83563773903ac57cff1a",
+      "incomingSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+      "checkpointSha256": "ce5b125c896fa55b101758d2721145308b598834f32b83563773903ac57cff1a"
+    },
+    {
+      "path": "public/js/scene/plazaWorld.js",
+      "baselineSha256": "4370b2531192c6d4645c52517cb2af2f2fa0bb72edc81176461940ab758944eb",
+      "incomingSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+      "checkpointSha256": "4370b2531192c6d4645c52517cb2af2f2fa0bb72edc81176461940ab758944eb"
+    },
+    {
+      "path": "public/js/tickets.js",
+      "baselineSha256": "10249e5ec484c330b820b9922a140df9e1d5d6d71725bea218e24dec1bb7f961",
+      "incomingSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+      "checkpointSha256": "10249e5ec484c330b820b9922a140df9e1d5d6d71725bea218e24dec1bb7f961"
+    },
+    {
+      "path": "public/index.html",
+      "baselineSha256": "e5d2ebf8cd05013482c705b89610bd288b96e10c2582312bf1b3395e2aa0b0d8",
+      "incomingSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+      "checkpointSha256": "e5d2ebf8cd05013482c705b89610bd288b96e10c2582312bf1b3395e2aa0b0d8"
+    },
+    {
+      "path": "public/css/style.css",
+      "baselineSha256": "35a24671363fb5e00591cc7f017799ccb949d3f3468df0712a5a63d4df91df7e",
+      "incomingSha256": "bca2058850e686f69e672077b1d1da484d6163e82716dd2edfb6e33f00b6b83c",
+      "checkpointSha256": "0d17dbabfb5ce3a39bfecc7e8cb492f7109248a958106890b704a69d6009f155"
+    },
+    {
+      "path": "public/js/joystick.js",
+      "baselineSha256": "3e4eadc3780e63b6b73f42b6cb90b45f33d1062f2ee0d1f89cda77514f88c0f8",
+      "incomingSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+      "checkpointSha256": "3e4eadc3780e63b6b73f42b6cb90b45f33d1062f2ee0d1f89cda77514f88c0f8"
+    },
+    {
+      "path": "README.md",
+      "baselineSha256": "2362124177c017781f582ef8800fd080bae534f4ccae2696cad45d52e6038566",
+      "incomingSha256": "c680c53abb57bf9c6bedaacbd873285ca56a904e6e7e28605a5c77d4f864cd1e",
+      "checkpointSha256": "7db159c9dc263bddfb52f08c5ea8e70cc2c120f981842bfaf70280436e685589"
+    }
+  ],
+  "mergedCssObservedSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+  "mergeRecommendation": "Preserve automatically merged upstream plaza-related files and the venue-only #joyZone z9 rule. No direct selector conflict found. Runtime revalidation is still required.",
+  "findings": [
+    {
+      "id": "venue-touch-stack",
+      "priority": "keep",
+      "confidence": "source-confirmed; browser geometry unmeasured",
+      "finding": "우리 #joyZone z9는 venue 전용이므로 유지해. upstream 광장의 #pzJoyZone z11 / #pzJoy z12 / .pz-stub z13, booth z30과 선택자 충돌이 없어. joystick의 6px deadzone/lostpointercapture는 이벤트 상태 보정이라 venue seek의 stacking 문제를 대신 해결하지 않아.",
+      "evidence": [
+        {
+          "ref": "71f4841d026496608749451580789ca62f0f7042",
+          "path": "public/css/style.css",
+          "lines": [
+            379
+          ],
+          "anchor": "#joyZone",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/71f4841d026496608749451580789ca62f0f7042/public/css/style.css#L379"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/css/style.css",
+          "lines": [
+            217,
+            351,
+            406,
+            410
+          ],
+          "anchor": ".transport {",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/css/style.css#L217"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/css/style.css",
+          "lines": [
+            375,
+            405,
+            430
+          ],
+          "anchor": ".joy-zone {",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/css/style.css#L375"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/css/style.css",
+          "lines": [
+            731
+          ],
+          "anchor": ".pz-stub { z-index: 13",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/css/style.css#L731"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/index.html",
+          "lines": [
+            347
+          ],
+          "anchor": "id=\"pzJoyZone\"",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/index.html#L347"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/joystick.js",
+          "lines": [
+            39
+          ],
+          "anchor": "const k = d < 6",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/joystick.js#L39"
+        }
+      ],
+      "integration": "자동 병합된 upstream CSS와 ID 한정 z9를 함께 유지해. 390×844 및 가로 화면에서 seek 중앙/양끝 elementFromPoint, thumb stick 이동/해제, 표 stub/booth 버튼 터치를 새 통합본에서 재확인해."
+    },
+    {
+      "id": "booth-robustness-accessibility",
+      "priority": "accept-and-test",
+      "confidence": "source-confirmed; behavior unexecuted",
+      "finding": "곡 목록 실패에도 공연장 카드가 생기고, 서버 응답 대기/5초 실패는 solo로 제한돼. 공연장 변경 시 이전 mode/room/code를 초기화해. paying guard가 중복 결제와 결제 중 닫기를 막고, booth 뒤 네 요소 inert·첫 카드 focus·완료 focus·입력 중 Escape를 처리해.",
+      "evidence": [
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            308
+          ],
+          "anchor": "if (!list.length)",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L308"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            355
+          ],
+          "anchor": "Promise.race([listRooms()",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L355"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            322
+          ],
+          "anchor": "if (booth.venue !== v)",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L322"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            419
+          ],
+          "anchor": "let paying = false",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L419"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            462
+          ],
+          "anchor": "const BEHIND =",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L462"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            530
+          ],
+          "anchor": "if (e.code === 'Escape'",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L530"
+        }
+      ],
+      "integration": "기본 solo collector selector 변경은 필요 없어. 실패한 music/index, 느린 room 목록, 빠른 공연장 변경, double pay/Escape, 키보드 Tab/Shift+Tab을 별도 범위로 검증해."
+    },
+    {
+      "id": "focus-live-region-limits",
+      "priority": "follow-up",
+      "confidence": "static risk, not reproduced regression",
+      "finding": "닫을 때 canvas.focus()를 호출하지만 plaza canvas에 tabindex를 주는 코드는 보이지 않아 포커스 복귀가 확실하지 않아. pzToast에는 role/aria-live가 없고, 느린 music/index 응답의 buildVenueCards가 focus된 카드 DOM을 교체할 수 있어. 기존/추가 접근성 한계이지 실측한 회귀로 단정하지 않아.",
+      "evidence": [
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            482
+          ],
+          "anchor": "renderer.domElement.focus?",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L482"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            286
+          ],
+          "anchor": "fetch('music/index.json')",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L286"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/index.html",
+          "lines": [
+            349
+          ],
+          "anchor": "id=\"pzToast\"",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/index.html#L349"
+        }
+      ],
+      "integration": "실제 키보드·접근성 트리 검사 후 필요하면 열었던 버튼으로 focus 복귀와 live region을 별도 작은 수정으로 검토해. 이번 통합에서 추정만으로 제품을 바꾸지는 않아."
+    },
+    {
+      "id": "navigation-and-gesture",
+      "priority": "accept-and-test",
+      "confidence": "source-confirmed",
+      "finding": "index의 초기 is-plaza 판정이 표 없는 직접 venue URL의 깜박임을 줄여. ?lobby와 room 경로는 예외로 남아 있어 현재 functional/loading appURL과 맞아. BFCache pageshow.persisted에서 gate 어둠/busy/소리를 복구하고, canvas 주 포인터·pointercancel, orientation camera fit, joystick lostpointercapture를 보완해.",
+      "evidence": [
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/index.html",
+          "lines": [
+            22
+          ],
+          "anchor": "!q.has('lobby')",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/index.html#L22"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            510
+          ],
+          "anchor": "window.addEventListener('pageshow'",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L510"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            558
+          ],
+          "anchor": "if (boothOpen || busy || drag || e.button !== 0)",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L558"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            578
+          ],
+          "anchor": "canvas.addEventListener('pointercancel'",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L578"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/joystick.js",
+          "lines": [
+            59
+          ],
+          "anchor": "lostpointercapture",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/joystick.js#L59"
+        }
+      ],
+      "integration": "기존 plaza 버튼 복귀/무표 redirect와 BFCache back은 다른 테스트야. 실제 pageshow.persisted를 기록하고, BFCache가 사용되지 않으면 복귀 기능 PASS로 대신하지 않아."
+    },
+    {
+      "id": "storage-guard",
+      "priority": "scope-correction",
+      "confidence": "source-confirmed limitation",
+      "finding": "tickets.js가 storage getter까지 try/catch하고 identity를 페이지 메모리에 캐시해 저장소 차단 중 같은 페이지 identity는 안정돼. ticket은 sessionStorage만 사용하므로 storage 차단 상태의 페이지 간 발권/입장까지 보장하지 않아. 기존 plaza collector의 직접 storage 읽기·쓰기 자체도 차단 시 실패할 수 있어.",
+      "evidence": [
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/tickets.js",
+          "lines": [
+            40
+          ],
+          "anchor": "function store(kind)",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/tickets.js#L40"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/tickets.js",
+          "lines": [
+            52
+          ],
+          "anchor": "let me = null",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/tickets.js#L52"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/tickets.js",
+          "lines": [
+            82
+          ],
+          "anchor": "keep(SESSION, TICKET_KEY, t)",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/tickets.js#L82"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/tickets.js",
+          "lines": [
+            91,
+            97
+          ],
+          "anchor": "const t = load(SESSION, TICKET_KEY)",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/tickets.js#L91"
+        }
+      ],
+      "integration": "기본 정상 storage 경로는 유지해. storage-denied 전용 검사는 observer도 guarded access로 만들고, page-local identity와 navigation persistence를 구분해서 보고해."
+    },
+    {
+      "id": "plaza-render-cost",
+      "priority": "accept-with-new-baseline",
+      "confidence": "code-based inference; no measured performance claim",
+      "finding": "매 프레임 팔 목표 Vector3를 재사용하고 100ms joystick interval을 없앤 것은 할당/타이머 절약이야. 자기 이름 sprite 제거는 화면과 리소스도 바꿔. 반딧불 DPR 보정/40px clamp, halo 240px clamp는 가까운 입자 과대 크기를 제한하지만 같은 픽셀 출력은 아니야. 먼 홀 위치·창 재질·warm sprite·gate veil 텍스처도 변경됐어.",
+      "evidence": [
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            660
+          ],
+          "anchor": "const _aL = V()",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L660"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            634
+          ],
+          "anchor": "if (joy.active && (mx || mz))",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L634"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            67
+          ],
+          "anchor": "no name over your own head",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L67"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/scene/plazaWorld.js",
+          "lines": [
+            349
+          ],
+          "anchor": "240.0",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/scene/plazaWorld.js#L349"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/scene/plazaWorld.js",
+          "lines": [
+            349,
+            444,
+            445
+          ],
+          "anchor": "40.0",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/scene/plazaWorld.js#L349"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/scene/plazaWorld.js",
+          "lines": [
+            468
+          ],
+          "anchor": "* pixelRatio()",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/scene/plazaWorld.js#L468"
+        }
+      ],
+      "integration": "upstream 변경을 새 baseline의 일부로 받아들이고 이전 6a 이미지/FPS 개선율과 혼합하지 않아. 실제 GPU 수치가 없으므로 성능 상승을 수치로 주장하지 않아."
+    },
+    {
+      "id": "fonts-and-audio",
+      "priority": "accept-and-test",
+      "confidence": "source-confirmed; sound quality unmeasured",
+      "finding": "광장 간판 텍스처는 폰트 로드 뒤 한 번 다시 그려 needsUpdate를 설정해. 바람 버퍼 3→4초/LFO, 네 귀뚜라미·clink 음색·fade가 추가돼 음향 CPU/메모리는 일부 증가할 수 있어. hidden에서 AudioContext를 suspend하고 귀뚜라미 생성을 건너뛰어 배경 비용을 줄여.",
+      "evidence": [
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/scene/plazaWorld.js",
+          "lines": [
+            33
+          ],
+          "anchor": "const FONTS =",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/scene/plazaWorld.js#L33"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/scene/plazaWorld.js",
+          "lines": [
+            45
+          ],
+          "anchor": "if (text) FONTS.then",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/scene/plazaWorld.js#L45"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            142
+          ],
+          "anchor": "const len = ctx.sampleRate * 4",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L142"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            166
+          ],
+          "anchor": "const crickets =",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L166"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/plaza.js",
+          "lines": [
+            192
+          ],
+          "anchor": "document.addEventListener('visibilitychange'",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/plaza.js#L192"
+        }
+      ],
+      "integration": "plaza screenshot 앞에 fonts.ready와 실제 native frame을 기다리는 방안을 권장해. 초기 로딩 시간을 숨기는 방식으로 ready 기준을 바꾸지는 않아. 숨김/복귀·터치 오디오 활성화·BFCache를 실제로 확인해."
+    },
+    {
+      "id": "readme-and-loading-meaning",
+      "priority": "preserve-provenance",
+      "confidence": "source-confirmed; upstream numerical claim unverified here",
+      "finding": "README의 Windows 셰이더 30초→3초와 텍스처 사전 업로드 주장은 새 main의 설명이야. 이번 세션의 검증 수치로 재사용할 근거는 없어. main 초기화가 warmTextures/dome warm 뒤 ui.ready로 진행하므로 loading의 readyMs가 포함하는 작업도 새 버전에서 달라져.",
+      "evidence": [
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "README.md",
+          "lines": [
+            274
+          ],
+          "anchor": "Windows(Direct3D)",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/README.md#L274"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/main.js",
+          "lines": [
+            273
+          ],
+          "anchor": "warmTextures();",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/main.js#L273"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/main.js",
+          "lines": [
+            276
+          ],
+          "anchor": "ui.ready();",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/main.js#L276"
+        },
+        {
+          "ref": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+          "path": "public/js/main.js",
+          "lines": [
+            291
+          ],
+          "anchor": "renderer.initTexture(t)",
+          "github": "https://github.com/eddy961206/forest-philharmonic/blob/1f8e5f16f1eee03140e13ba1ee66832841559604/public/js/main.js#L291"
+        }
+      ],
+      "integration": "1f 기준선·통합 후보를 새 SHA/결과 폴더로 비교해. 고정 06 서버와 기존 6a 원본은 그대로 보존하고, readiness와 최초 실제 프레임/전환 시 지연을 구분해."
+    }
+  ],
+  "collectorChangesProposedOnly": [
+    {
+      "tool": "tools/bench/plaza.mjs",
+      "requiredForExistingHappyPath": "selector/36px gesture 변경은 정적으로 필요하지 않아. world.pickables/PLAZA gates와 __plaza contract도 유지돼.",
+      "proposals": [
+        "sourceHashes에 css/style.css를 추가하고 종료 시 동일 소스 검증을 검토해. 현재 CSS 근거는 raw에 빠져 있어.",
+        "캡처 전에 fonts.ready + native frame을 관찰해서 텍스처 repaint 전/후 이미지를 섞지 않아.",
+        "새 별도 case: booth keyboard/inert/Escape/double-pay, 실패/느린 목록, BFCache persisted 복귀, orientation·multi-pointer/cancel, storage-denied.",
+        "readPlaza의 unguarded storage는 storage-denied 검사에서 제품 회귀와 분리해."
+      ],
+      "unexecuted": true
+    },
+    {
+      "tool": "tools/bench/functional.mjs",
+      "requiredForExistingHappyPath": "?venue=...&lobby와 기존 36px joystick 이동은 계속 유효해. 새 deadzone 임계값보다 큼.",
+      "proposals": [
+        "CSS·joystick·index 출처 hash를 별도 manifest로 보강하고 현재 seek hit-test/입력 원본 진단을 유지해.",
+        "390×844 및 가로 화면에서 seek 입력이 joyZone/joystick에 가로채이지 않는지 재확인해.",
+        "기존 오디오 2초 FAIL 기준을 그대로 남기고 새 main의 준비 시간이 달라진 점을 별도 관찰해."
+      ],
+      "unexecuted": true
+    },
+    {
+      "tool": "tools/bench/loading.mjs / loading-proxy.mjs",
+      "requiredForExistingHappyPath": "appURL의 lobby 예외와 fixedAudienceMain의 solo rand anchor 한 곳이 유지돼. 현재 waitReady 계약을 바꿀 필요는 정적으로 없어.",
+      "proposals": [
+        "1f 코드로 새 baseline/candidate cold/warm pair를 수집하고 6a 결과와 합치지 않아.",
+        "새 warmTextures/compile 비용을 실제 준비 시간에 포함해. 추가 HTTP 해시 요청으로 cold/warm 캐시를 미리 데우지 않아.",
+        "CSS/index provenance가 필요하면 측정 후나 이미 수집 중인 응답/별도 고정 checkout manifest로 남겨.",
+        "현재 loading은 venue 준비 시간이며 광장 첫 입장·발권 로딩 검사가 아님을 유지해."
+      ],
+      "unexecuted": true
+    }
+  ],
+  "staticChecks": {
+    "incomingSoloAudienceAnchorCount": 1,
+    "mergedVenueZoneZ9Present": true,
+    "mergedPlazaStubZ13Present": true,
+    "browserExecuted": false,
+    "productFilesModified": false,
+    "rawBenchmarkFilesAccessed": false
+  },
+  "integrationPlan": [
+    "main/screen/seats conflicts are handled by their owners; do not replace the whole merged CSS or plaza files with older versions.",
+    "Record final merged source hashes, especially CSS/index/joystick, and retain the venue-only z9 override.",
+    "Keep 06 measurement servers frozen; use a new 1f baseline and merged candidate for new evidence.",
+    "First rerun existing solo plaza UI and venue mobile seek; then add narrowly scoped new-feature cases with original failures preserved."
+  ]
+}

@@ -221,6 +221,7 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random, 
     });
     im.frustumCulled = false;
     im.receiveShadow = true;
+    im.renderOrder = 1; // after the walls (see seats)
     group.add(im);
     meshes.push(im);
   }

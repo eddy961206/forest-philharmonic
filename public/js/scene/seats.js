@@ -17,6 +17,7 @@ const strip = (g) => {
   for (const k of Object.keys(n.attributes)) if (!['position', 'normal', 'uv'].includes(k)) n.deleteAttribute(k);
   return n;
 };
+// Reuse identical vertices without quantizing normals, UVs or positions.
 const merge = (list) => indexGeometry(mergeGeometries(list.map(strip)));
 
 // ------------------------------------------------------------- furniture
@@ -236,6 +237,7 @@ export function buildSeats(list, { lite = false } = {}) {
       im.name = `${key}|${part}`;
       im.receiveShadow = true;
       im.castShadow = false;
+      im.renderOrder = 1; // draw opaque walls first, for fine and coarse batches
       im.computeBoundingSphere();
     }
     group.add(fabric, frame, accent);
@@ -284,6 +286,7 @@ export function buildSeats(list, { lite = false } = {}) {
     endF.setMatrixAt(i, m);
     endA.setMatrixAt(i, m);
   });
+  endF.renderOrder = endA.renderOrder = 1;
   group.add(endF, endA);
 
   // one invisible box per seat for picking

@@ -721,3 +721,36 @@ body.touch .act-btn kbd { display: none; }
 .is-plaza #splash { display: none; }
 .is-plaza .plaza[hidden] { display: block; }
 .booth-step[data-step="4"] .booth-nav { justify-content: center; }
+
+/* ---- QA pass ---- */
+/* Korean breaks between words, never inside one ("(편/곡)", "드릴까/요?") */
+body { word-break: keep-all; overflow-wrap: break-word; }
+/* the square has no transport bar: messages sit low, clear of the booth */
+.plaza .toast { top: auto; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); width: max-content; max-width: min(680px, calc(100vw - 32px)); box-sizing: border-box; border-radius: 16px; text-align: center; }
+.booth-nav > * { flex-shrink: 0; white-space: nowrap; }
+.booth-nav > .booth-next { flex-shrink: 1; white-space: normal; }
+.booth-card { max-height: calc(100dvh - 32px); }
+.pz-stub { z-index: 13; } /* (above the thumb stick's corner) */
+/* phones: the blur behind the booth is redrawn every frame - a plain veil instead */
+body.touch .booth { backdrop-filter: none; background: rgba(4, 7, 10, 0.72); }
+/* a ticket on a narrow screen: room for what is written on it */
+@media (max-width: 480px) {
+  .ticket { --stub: 74px; }
+  .ticket .t-band { padding: 6px 10px; letter-spacing: 0.18em; }
+  .ticket .t-band-r { display: none; }
+  .ticket .t-head { padding: 8px 10px 5px 12px; }
+  .ticket .t-title { font-size: 20px; }
+  .ticket .t-grid { margin: 7px 8px 0 12px; }
+  .ticket .t-cell { padding: 3px 5px 4px; }
+  .ticket .t-cell b { font-size: 11px; white-space: normal; line-height: 1.3; }
+  .ticket .t-mode, .ticket .t-fine { margin-left: 12px; }
+  .ticket .t-bar { width: 50px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticket .t-foil { animation: none; }
+  .ticket.torn, .ticket.torn .t-stub, .coins span { animation-duration: 0.01s; }
+}
+/* the title over a bright dome (clouds, sunrise): a soft shade behind it */
+.now { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55), 0 1px 14px rgba(0, 0, 0, 0.75); }
+.now::before { content: ""; position: absolute; inset: -40px -90px -34px -60px; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(4, 6, 10, 0.5), rgba(4, 6, 10, 0.22) 60%, transparent); }
