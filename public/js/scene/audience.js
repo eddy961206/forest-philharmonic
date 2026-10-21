@@ -3,7 +3,7 @@
 // where they sit is random, with friends sitting together. All instanced and
 // animated on the GPU: breathing, a little swaying, and clapping paws.
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const clean = (g) => {
@@ -11,7 +11,7 @@ const clean = (g) => {
   for (const k of Object.keys(n.attributes)) if (!['position', 'normal'].includes(k)) n.deleteAttribute(k);
   return n;
 };
-const merge = (list) => mergeGeometries(list.map(clean));
+const merge = (list) => mergeVertices(mergeGeometries(list.map(clean)), 1e-4); // (indexed again: thousands of guests)
 const pick = (arr, r) => arr[Math.floor(r * arr.length) % arr.length];
 
 // --------------------------------------------------------------- species
@@ -219,6 +219,7 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random, 
     });
     im.frustumCulled = false;
     im.receiveShadow = true;
+    im.renderOrder = 1; // after the walls (see seats)
     group.add(im);
     meshes.push(im);
   }

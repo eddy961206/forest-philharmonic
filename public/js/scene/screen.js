@@ -43,9 +43,12 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
   const cv = document.createElement('canvas');
   cv.width = W;
   cv.height = H;
-  const g = cv.getContext('2d');
+  // (a CPU canvas: handing a GPU canvas to WebGL can stall the whole frame)
+  const g = cv.getContext('2d', { willReadFrequently: true });
   const capTex = new THREE.CanvasTexture(cv);
   capTex.colorSpace = THREE.SRGBColorSpace;
+  capTex.generateMipmaps = false; // (seen big and straight on: no mipmaps to rebuild)
+  capTex.minFilter = THREE.LinearFilter;
   const cap = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: capTex, transparent: true, toneMapped: false, depthWrite: false }));
   cap.position.set(cx, cy, cz + 0.02);
   if (!headless) group.add(cap);
@@ -56,6 +59,7 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
   let frame = 0;
   let captionState = { text: null, since: -99, mode: 'none' };
   let lastCapKey = '';
+  let drawnKey = ''; // what the caption layer holds now (redrawn and re-sent only when that changes)
 
   function pickShot(ctx) {
     const { perf, time } = ctx;
@@ -112,8 +116,14 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
     }
     const age = now - captionState.since;
     const alpha = Math.min(1, age * 1.5) * (mode === 'title' ? Math.min(1, Math.max(0, (10 - ctx.time) / 1.2)) : 1);
+    const slide = (1 - ease(Math.min(1, age * 1.4))) * 40;
+    const blank = mode === 'none' || alpha <= 0;
+    const want = blank ? 'blank' : `${key}|${Math.round(alpha * 48)}|${Math.round(slide)}`;
+    if (want === drawnKey) return; // nothing new to show: no redraw, no upload
+    drawnKey = want;
+    cap.visible = !blank; // (an empty layer is not drawn at all)
     g.clearRect(0, 0, W, H);
-    if (mode === 'none' || alpha <= 0) { capTex.needsUpdate = true; return; }
+    if (blank) return;
     g.globalAlpha = alpha;
     const vg = g.createLinearGradient(0, H * 0.62, 0, H);
     vg.addColorStop(0, 'rgba(0,0,0,0)');
@@ -122,7 +132,6 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
     g.fillRect(0, H * 0.62, W, H * 0.38);
     const x = 64;
     const y = H - 112;
-    const slide = (1 - ease(Math.min(1, age * 1.4))) * 40;
     g.textAlign = 'left';
     g.textBaseline = 'middle';
     if (mode === 'title' && piece) {

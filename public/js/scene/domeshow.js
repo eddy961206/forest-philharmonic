@@ -93,6 +93,8 @@ precision highp float;
 varying vec3 vWorld;
 uniform float uTime, uLevel, uBeat, uDown, uMix, uReveal, uLive, uHouse, uBright;
 uniform int uA, uB;
+uniform float uOverlay;        // 0: the world on screen; 1: the next one, laid over it
+uniform int uOne;              // always 1: loops run to n * uOne (kept loops, not unrolled - see dome3d.js)
 uniform vec3 uView;
 uniform vec2 uEdge;          // screen where y - k z > d
 uniform sampler2D uLiveTex, uCapTex;
@@ -111,13 +113,13 @@ float noise(vec3 x) {
   return mix(mix(mix(hash1(i), hash1(i + vec3(1,0,0)), f.x), mix(hash1(i + vec3(0,1,0)), hash1(i + vec3(1,1,0)), f.x), f.y),
              mix(mix(hash1(i + vec3(0,0,1)), hash1(i + vec3(1,0,1)), f.x), mix(hash1(i + vec3(0,1,1)), hash1(i + vec3(1,1,1)), f.x), f.y), f.z);
 }
-float fbm(vec3 p) { float a = 0.5, s = 0.0; for (int i = 0; i < OCT; i++) { s += a * noise(p); p = p * 2.03 + 17.1; a *= 0.5; } return s; }
+float fbm(vec3 p) { float a = 0.5, s = 0.0; for (int i = 0; i < OCT * uOne; i++) { s += a * noise(p); p = p * 2.03 + 17.1; a *= 0.5; } return s; }
 float noise2(vec2 p) { return noise(vec3(p, 0.0)); }
 
 // stars: a few layers of hashed cells on the direction sphere
 vec3 starfield(vec3 d, float dens, float tw) {
   vec3 c = vec3(0.0);
-  for (int l = 0; l < 3; l++) {
+  for (int l = 0; l < 3 * uOne; l++) {
     float k = 90.0 + float(l) * 140.0;
     vec3 p = d * k;
     vec3 id = floor(p);
@@ -206,7 +208,7 @@ vec3 sNEBULA(vec3 d, float az, float el) {
 vec3 sAURORA(vec3 d, float az, float el) {
   vec3 c = sSTARS(d, az, el) * 0.6;
   float t = uTime * 0.05;
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3 * uOne; i++) {
     float fi = float(i);
     float base = 0.18 + fi * 0.12 + 0.12 * sin(az * (1.3 + fi * 0.4) + t * (1.0 + fi * 0.3) + fi * 2.0) + 0.06 * (fbm(vec3(az * 2.0, t, fi)) - 0.5);
     float h = el - base;
@@ -251,7 +253,7 @@ vec3 sFOREST(vec3 d, float az, float el) {
   vec3 sky = mix(vec3(0.62, 0.8, 0.95), vec3(0.95, 0.96, 0.9), smoothstep(0.75, 1.0, up));
   vec3 c = sky;
   // distant tree lines, three layers of bumpy crowns fading into the haze
-  for (int l = 0; l < 3; l++) {
+  for (int l = 0; l < 3 * uOne; l++) {
     float fl = float(l);
     float h = 0.035 + fl * 0.04 + 0.035 * fbm(vec3(az * (3.0 + fl * 2.0), fl * 4.0, 1.0)) + 0.02 * abs(sin(az * (90.0 - fl * 25.0) + fl)) ;
     float m = smoothstep(h + 0.003, h - 0.003, el);
@@ -302,7 +304,7 @@ vec3 sOCEAN(vec3 d, float az, float el) {
   vec2 p = d.xz / max(d.y + 0.2, 0.05) * 1.3;
   float t = uTime * 0.35;
   float ca = 0.0;
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3 * uOne; i++) {
     float fi = float(i);
     vec2 q = p * (1.5 + fi * 0.7) + vec2(t * (0.6 + fi * 0.2), -t * 0.4);
     ca += pow(abs(sin(q.x + sin(q.y * 1.3 + t)) * sin(q.y + sin(q.x * 1.1 - t))), 6.0);
@@ -458,7 +460,7 @@ vec3 burst(vec2 p, float seed, float tt, vec3 col) {
 vec3 sFIREWORKS(vec3 d, float az, float el) {
   vec3 c = sSTARS(d, az, el) * 0.4 + vec3(0.02, 0.01, 0.04);
   vec2 p = vec2(az, el);
-  for (int i = 0; i < 7; i++) {
+  for (int i = 0; i < 7 * uOne; i++) {
     float fi = float(i);
     float period = 2.6 + fi * 0.37;
     float t = uTime + fi * 1.13;
@@ -488,7 +490,7 @@ vec3 sRAIN(vec3 d, float az, float el) {
   vec3 cl = clouds(d, el, vec3(0.2, 0.22, 0.27) + bolt * vec3(0.6, 0.65, 0.8), vec3(0.035, 0.04, 0.055), 0.8, 0.025);
   c += cl * 0.9;
   // rain: fine streaks falling past the lower dome
-  for (int l = 0; l < 2; l++) {
+  for (int l = 0; l < 2 * uOne; l++) {
     float fl = float(l);
     vec2 g = vec2(az * (90.0 + fl * 70.0), el * (6.0 + fl * 3.0) + uTime * (3.0 + fl * 1.3));
     vec2 gi = floor(g);
@@ -513,7 +515,7 @@ vec3 sRAIN(vec3 d, float az, float el) {
 vec3 sSNOW(vec3 d, float az, float el) {
   vec3 c = mix(vec3(0.12, 0.16, 0.24), vec3(0.02, 0.03, 0.07), smoothstep(-0.25, 1.1, el));
   c += vec3(0.25, 0.3, 0.38) * exp(-max(el + 0.2, 0.0) * 5.0);
-  for (int l = 0; l < 3; l++) {
+  for (int l = 0; l < 3 * uOne; l++) {
     float fl = float(l);
     float k = 16.0 + fl * 16.0;
     vec2 g = vec2(az * k + sin(uTime * 0.4 + el * 6.0 + fl) * 0.4, el * k + uTime * (0.35 + fl * 0.25));
@@ -544,7 +546,7 @@ vec3 sSPRING(vec3 d, float az, float el) {
   bloom = mix(bloom, bloom * vec3(0.72, 0.55, 0.62), depth * 0.6);
   c = mix(c, bloom, bough);
   // petals drifting across
-  for (int l = 0; l < 2; l++) {
+  for (int l = 0; l < 2 * uOne; l++) {
     float fl = float(l);
     float k = 10.0 + fl * 9.0;
     vec2 g = vec2(az * k - uTime * (0.22 + fl * 0.1), el * k + uTime * 0.1 + sin(az * 4.0 + uTime) * 0.3);
@@ -569,7 +571,7 @@ vec3 sVOYAGE(vec3 d, float az, float el) {
   c += milkyway(d) * 0.7 + starfield(d, 0.6, 1.0) * 0.6;
   vec3 ro = vec3(0.0, 0.0, -uTime * 5.0);
   const float CELL = 7.0;
-  for (int i = 0; i < 12; i++) {
+  for (int i = 0; i < 12 * uOne; i++) {
     float dist = 3.0 + float(i) * CELL * 0.75;
     vec3 p = ro + d * dist;
     vec3 cell = floor(p / CELL);
@@ -622,6 +624,7 @@ void main() {
   vec3 w = vWorld;
   float edgeV = w.y - uEdge.x * w.z - uEdge.y;
   if (edgeV < 0.0) {
+    if (uOverlay > 0.5) discard; // (the wall is the same under both worlds)
     // below the screen: the black acoustic wall of the bowl
     float seam = smoothstep(0.0, 0.03, abs(fract(w.y * 0.5) - 0.5) - 0.47);
     vec3 col = vec3(0.012, 0.012, 0.016) + vec3(0.01) * seam;
@@ -634,18 +637,23 @@ void main() {
   vec3 d = normalize(w - uView);
   float az = atan(d.x, -d.z);
   float el = asin(clamp(d.y, -1.0, 1.0));
-  vec3 a = scene(uA, d, az, el);
-  vec3 col = a;
-  if (uMix > 0.001) {
-    vec3 b = scene(uB, d, az, el);
+  // One world per pass, through ONE call of scene(). (Two calls - this
+  // world and the next, mixed - had every world compiled twice over: on
+  // Windows that kept the page frozen for half a minute on a first visit.)
+  // A crossfade draws the dome a second time, the next world laid over the
+  // first with the mix as its alpha (see buildDome).
+  vec3 col = scene(uOverlay > 0.5 ? uB : uA, d, az, el);
+  float alpha = 1.0;
+  vec3 seam = vec3(0.0);
+  if (uOverlay > 0.5) {
     if (uReveal > 0.5) {
       // the roof lifts off: the new world opens from the crown outward,
       // with a bright seam running ahead of it
       float zen = acos(clamp(dot(d, normalize(vec3(0.0, 1.0, 0.35))), -1.0, 1.0));
       float front = uMix * 2.9 - 0.2;
-      float m = smoothstep(front + 0.06, front - 0.06, zen);
-      col = mix(a, b, m) + vec3(1.0, 0.9, 0.75) * exp(-abs(zen - front) * 40.0) * 1.2 * (1.0 - uMix);
-    } else col = mix(a, b, uMix);
+      alpha = smoothstep(front + 0.06, front - 0.06, zen);
+      seam = vec3(1.0, 0.9, 0.75) * exp(-abs(zen - front) * 40.0) * 1.2 * (1.0 - uMix);
+    } else alpha = uMix;
   }
   col *= uBright;
   // IMAG: the live picture above the stage, with the captions over it
@@ -667,6 +675,8 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
+  // (premultiplied: over the first world it makes mix(first, next, alpha))
+  gl_FragColor = vec4(gl_FragColor.rgb * alpha + seam * smoothstep(0.0, 1.4, edgeV), alpha);
 }`;
 
 // renderer + quality: the ray-traced worlds need the renderer (they are
@@ -677,19 +687,34 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
   const uniforms = {
     uTime: { value: 0 }, uLevel: { value: 0 }, uBeat: { value: 0 }, uDown: { value: 0 },
     uMix: { value: 0 }, uReveal: { value: 0 }, uLive: { value: 0 }, uHouse: { value: 1 }, uBright: { value: 1 },
-    uA: { value: S.ARCH }, uB: { value: S.ARCH },
+    uA: { value: S.ARCH }, uB: { value: S.ARCH }, uOverlay: { value: 0 }, uOne: { value: 1 },
     uView: { value: new THREE.Vector3(SP.VIEW.x, SP.VIEW.y, SP.VIEW.z) },
     uEdge: { value: new THREE.Vector2(SP.EDGE.k, SP.EDGE.d) },
     uLiveTex: { value: null }, uCapTex: { value: null },
     uLiveRect: { value: new THREE.Vector4(-0.34, 0.34, -0.12, 0.26) }, // 16:9, over the shell
     uCubeA: { value: null }, uCubeB: { value: null }, uCubeAId: { value: -1 }, uCubeBId: { value: -1 },
   };
-  const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG(lite), side: THREE.BackSide, fog: false, depthWrite: true });
+  // (NoBlending: the first world covers the dome; it also keeps this material's
+  // program the same as the overlay's - an opaque NormalBlending material is
+  // compiled with one extra line, and so twice)
+  const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG(lite), side: THREE.BackSide, fog: false, depthWrite: true, blending: THREE.NoBlending });
   const geo = new THREE.SphereGeometry(SP.R, lite ? 96 : 192, lite ? 64 : 128, 0, Math.PI * 2, 0, Math.PI * 0.62);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.set(SP.C.x, SP.C.y, SP.C.z);
   mesh.renderOrder = -1;
   mesh.frustumCulled = false;
+  // the next world, during a crossfade: the same program (same shader, the
+  // same uniforms but one), drawn over the first and blended by its alpha
+  const overMat = new THREE.ShaderMaterial({
+    uniforms: { ...uniforms, uOverlay: { value: 1 } }, vertexShader: VERT, fragmentShader: FRAG(lite),
+    side: THREE.BackSide, fog: false, depthWrite: false, transparent: true,
+    blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+  });
+  const over = new THREE.Mesh(geo, overMat);
+  over.renderOrder = -1;
+  over.frustumCulled = false;
+  over.visible = false;
+  mesh.add(over);
 
   // ---------------------------------------------- which cube faces are seen
   // The 3D worlds live in a cube map round the sweet spot; only the faces
@@ -764,6 +789,7 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
     mesh, uniforms,
     get current() { return st.next || st.cur; },
     setLive(tex, cap) { uniforms.uLiveTex.value = tex; uniforms.uCapTex.value = cap; },
+    warm() { worlds?.warm(); },
     // the cameras that look at the dome (the 3D worlds draw what they see)
     setViewers(list) { viewers = list; },
     // the ray-traced worlds on screen now (one, or two in a crossfade): call
@@ -813,12 +839,14 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
         st.mix = Math.min(1, st.mix + dt / st.dur);
         const e = st.mix < 0.5 ? 2 * st.mix * st.mix : 1 - Math.pow(-2 * st.mix + 2, 2) / 2;
         uniforms.uMix.value = e;
+        over.visible = e > 0.001;
         if (st.mix >= 1) {
           st.cur = st.next;
           st.next = null;
           uniforms.uA.value = S[st.cur];
           uniforms.uMix.value = 0;
           uniforms.uReveal.value = 0;
+          over.visible = false;
         }
       }
       st.live += (st.liveTarget - st.live) * Math.min(1, dt * 1.2);

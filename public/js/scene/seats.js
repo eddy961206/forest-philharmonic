@@ -3,7 +3,7 @@
 // "premium" seats in the centre stalls, gilt armchairs in the 2층 boxes,
 // and each balcony tier upholstered in its own colour.
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { HALL, rakeY, BALCONIES, BALCONY_AISLES, AISLE_HALF, balconyZ, BOX_DAIS_X, BOX_DAIS_H } from './hallplan.js';
 import { M } from './materials.js';
@@ -15,7 +15,9 @@ const strip = (g) => {
   for (const k of Object.keys(n.attributes)) if (!['position', 'normal', 'uv'].includes(k)) n.deleteAttribute(k);
   return n;
 };
-const merge = (list) => mergeGeometries(list.map(strip));
+// (welded back into an indexed mesh: drawn a couple of thousand times over,
+// shared corners matter - a third of the vertex work)
+const merge = (list) => mergeVertices(mergeGeometries(list.map(strip)), 1e-4);
 
 // ------------------------------------------------------------- furniture
 // Local frame: origin on the floor under the seat, sitter faces -z.
@@ -211,7 +213,11 @@ export function buildSeats(list, { lite = false } = {}) {
       accent.setMatrixAt(i, m);
       fabric.setColorAt(i, c.set(s.color));
     });
-    for (const im of [fabric, frame, accent]) { im.receiveShadow = true; im.castShadow = false; }
+    for (const im of [fabric, frame, accent]) {
+      im.receiveShadow = true;
+      im.castShadow = false;
+      im.renderOrder = 1; // after the walls: what they hide is never shaded
+    }
     group.add(fabric, frame, accent);
   }
   // aisle end standards in the stalls
@@ -226,6 +232,7 @@ export function buildSeats(list, { lite = false } = {}) {
     endF.setMatrixAt(i, m);
     endA.setMatrixAt(i, m);
   });
+  endF.renderOrder = endA.renderOrder = 1;
   group.add(endF, endA);
 
   // one invisible box per seat for picking

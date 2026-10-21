@@ -21,21 +21,28 @@ export const PLAZA = {
     sphere: { x: 9.3, z: -5.2 },
   },
   far: {
-    hall: { x: -50, z: -46 },
+    hall: { x: -58, z: -56 },
     sphere: { x: 58, z: -56 },
   },
 };
 // a gate's facing: toward the middle of the square
 export const gateYaw = (g) => Math.atan2(-g.x, -g.z);
 
-function canvasTex(w, h, draw, { repeat = null } = {}) {
+// (the lettering is in the page's own typefaces, which arrive a moment
+// after the square is built: anything with writing is painted again then)
+const FONTS = typeof document !== 'undefined' && document.fonts
+  ? Promise.all(['700 48px "Gowun Batang"', '500 20px "IBM Plex Sans KR"'].map((f) => document.fonts.load(f))).catch(() => {})
+  : Promise.resolve();
+function canvasTex(w, h, draw, { repeat = null, text = false } = {}) {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
-  draw(c.getContext('2d'), w, h);
+  const g = c.getContext('2d');
+  draw(g, w, h);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat[0], repeat[1]); }
+  if (text) FONTS.then(() => { g.clearRect(0, 0, w, h); draw(g, w, h); t.needsUpdate = true; });
   return t;
 }
 
@@ -81,7 +88,7 @@ function signTexture(lines, { w = 512, h = 160, bg = '#2e1d12', fg = '#f2dfb4', 
       g.font = i === 0 ? `700 ${Math.round(h * 0.34)}px "Gowun Batang", serif` : `500 ${Math.round(h * 0.17)}px "IBM Plex Sans KR", sans-serif`;
       g.fillText(l, w / 2, lines.length === 1 ? h / 2 : h * (i === 0 ? 0.42 : 0.76));
     });
-  });
+  }, { text: true });
 }
 
 function glowTexture() {
@@ -97,7 +104,7 @@ function glowTexture() {
 
 const std = (o) => new THREE.MeshStandardMaterial({ roughness: 0.85, ...o });
 
-export function buildPlaza(scene, { lite = false } = {}) {
+export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
   const group = new THREE.Group();
   group.name = 'plaza';
   scene.add(group);
@@ -301,13 +308,19 @@ export function buildPlaza(scene, { lite = false } = {}) {
     const ring = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.09, 6, 28, Math.PI).translate(0, 3.4, 0.2), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending, depthWrite: false }));
     // the doorway itself fills with a soft light when it is yours to go through
     const veil = new THREE.Mesh(new THREE.PlaneGeometry(2.7, 3.3).translate(0, 1.65, 0), new THREE.MeshBasicMaterial({
-      map: canvasTex(64, 128, (cg, w, h) => {
-        const grad = cg.createLinearGradient(0, h, 0, 0);
-        grad.addColorStop(0, 'rgba(255,255,255,0.9)');
-        grad.addColorStop(0.6, 'rgba(255,255,255,0.35)');
+      // (a mist of light rising from the threshold, soft at every edge - not
+      // a lit sheet hung in the arch)
+      map: canvasTex(128, 160, (cg, w, h) => {
+        cg.save();
+        cg.translate(w / 2, h);
+        cg.scale(1, (h * 1.15) / (w * 0.5));
+        const grad = cg.createRadialGradient(0, 0, 0, 0, 0, w * 0.5);
+        grad.addColorStop(0, 'rgba(255,255,255,0.85)');
+        grad.addColorStop(0.45, 'rgba(255,255,255,0.32)');
         grad.addColorStop(1, 'rgba(255,255,255,0)');
         cg.fillStyle = grad;
-        cg.fillRect(0, 0, w, h);
+        cg.fillRect(-w / 2, -w * 0.5, w, w * 0.5);
+        cg.restore();
       }),
       color: col, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
     }));
@@ -331,7 +344,10 @@ export function buildPlaza(scene, { lite = false } = {}) {
     halos.forEach((p, i) => pos.set([p.x, p.y, p.z], i * 3));
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const pts = new THREE.Points(geo, new THREE.PointsMaterial({ map: glow, size: 2.6, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: '#ffd9a0', opacity: 0.55 }));
+    const haloMat = new THREE.PointsMaterial({ map: glow, size: 2.6, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: '#ffd9a0', opacity: 0.55 });
+    // (walk right up to a lamp and its halo stays a halo, not a white screen)
+    haloMat.onBeforeCompile = (sh) => { sh.vertexShader = sh.vertexShader.replace('#include <fog_vertex>', 'gl_PointSize = min(gl_PointSize, 240.0);\n#include <fog_vertex>'); };
+    const pts = new THREE.Points(geo, haloMat);
     group.add(pts);
   }
 
@@ -353,10 +369,16 @@ export function buildPlaza(scene, { lite = false } = {}) {
       }
     }
     win.push(new THREE.PlaneGeometry(3.2, 4.6).translate(0, 2.3, 7.03)); // the doors, open and lit
-    hg.add(new THREE.Mesh(mergeGeometries(win), new THREE.MeshBasicMaterial({ color: '#ffca7a' })));
+    // (lit windows, bright enough to glow through the night mist - softly,
+    // as lights far off in the trees, not as paper cut-outs on the sky)
+    hg.add(new THREE.Mesh(mergeGeometries(win), new THREE.MeshBasicMaterial({ color: '#a8692c', fog: false, toneMapped: false })));
     hg.position.set(f.x, 0, f.z);
     hg.rotation.y = Math.atan2(-f.x, -f.z);
     group.add(hg);
+    const warm = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color: '#ffb35c', transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.2, fog: false }));
+    warm.position.set(f.x, 7, f.z);
+    warm.scale.setScalar(46);
+    group.add(warm);
   }
   let exo;
   {
@@ -419,7 +441,7 @@ export function buildPlaza(scene, { lite = false } = {}) {
           p += vec3(sin(t + seed * 30.0) * 1.2, sin(t * 1.3 + seed * 11.0) * 0.5, cos(t * 0.8 + seed * 17.0) * 1.2);
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           gl_Position = projectionMatrix * mv;
-          gl_PointSize = 0.13 * uScale / -mv.z;
+          gl_PointSize = min(0.13 * uScale / -mv.z, 40.0);
           vA = pow(0.5 + 0.5 * sin(uTime * (1.4 + seed * 2.0) + seed * 40.0), 3.0);
         }`,
       fragmentShader: 'varying float vA; void main(){ float d = length(gl_PointCoord - 0.5); gl_FragColor = vec4(1.0, 0.9, 0.5, smoothstep(0.5, 0.0, d) * vA); }',
@@ -443,13 +465,13 @@ export function buildPlaza(scene, { lite = false } = {}) {
 
   update.push((dt, t) => {
     flies.material.uniforms.uTime.value = t;
-    flies.material.uniforms.uScale.value = window.innerHeight / 2;
+    flies.material.uniforms.uScale.value = (window.innerHeight / 2) * pixelRatio(); // (in drawn pixels)
     exo.uniforms.uTime.value = t;
     for (const g of Object.values(gates)) {
       g.call += (g.want - g.call) * Math.min(1, dt * 2);
       const pulse = 0.75 + 0.25 * Math.sin(t * 2.6);
       g.ring.material.opacity = 0.15 + g.call * 0.85 * pulse;
-      g.veil.material.opacity = g.call * 0.62 * pulse;
+      g.veil.material.opacity = g.call * 0.5 * pulse;
       g.crown.material.opacity = g.call * 0.8 * pulse;
       g.veil.visible = g.crown.visible = g.call > 0.01;
     }

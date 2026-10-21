@@ -46,14 +46,28 @@ const save = () => { try { localStorage.setItem('fp-settings', JSON.stringify(se
 
 const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (isTouch && window.innerWidth < 900);
+// (the hall is paid for per pixel - a dozen lights on every one: beyond 1.5
+// pixels per point a sharper picture is hard to see and costs half again)
 const QUALITY = {
-  high: { pr: Math.min(window.devicePixelRatio || 1, 2), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenEvery: 2, post: true },
-  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenEvery: 3, post: true },
+  high: { pr: Math.min(window.devicePixelRatio || 1, 1.5), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenEvery: 2, post: true },
+  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25) * 0.85, shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenEvery: 3, post: true },
   // phones: no post-processing pass, no shadows, the big screen redrawn
   // only every ~1.5 s at a small size
   low: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenEvery: 90, post: false },
 };
-let quality = settings.quality === 'auto' ? (isMobile ? 'low' : 'high') : settings.quality;
+// A computer's built-in graphics (most laptops, and desktops without a card
+// in use): automatic quality starts one step down and climbs if it can
+const weakGPU = (() => {
+  try {
+    const gl = document.createElement('canvas').getContext('webgl2');
+    const ext = gl?.getExtension('WEBGL_debug_renderer_info');
+    const name = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
+    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    return /Intel|Radeon\(TM\) Graphics|Radeon Graphics|Vega \d+ Graphics|SwiftShader|llvmpipe/i.test(name) && !/Arc\(TM\) A|Arc A\d/i.test(name);
+  } catch { return false; }
+})();
+const autoStart = () => (isMobile ? 'low' : weakGPU ? 'medium' : 'high');
+let quality = settings.quality === 'auto' ? autoStart() : settings.quality;
 // Lite build (phones, or 'low' chosen): simpler seats, a smaller crowd, far
 // fewer lights, plain materials, lighter audio. Decided once at load.
 const LITE = isMobile || quality === 'low';
@@ -172,6 +186,17 @@ const screen = buildScreen(scene, renderer, IS_SPHERE ? {
 } : { lite: LITE });
 if (IS_SPHERE) {
   hall.dome.setLive(screen.texture, screen.capTex);
+  // The dome's shader is big: compiled in the background (where the browser
+  // can) while the rest loads, and the dome is drawn once it is ready -
+  // never a frozen page waiting for it.
+  {
+    const dm = hall.dome.mesh;
+    try {
+      const ready = renderer.compileAsync(dm, camera, scene);
+      dm.visible = false;
+      ready.catch(() => {}).finally(() => { dm.visible = true; });
+    } catch { /* compiled on first use instead */ }
+  }
   // the 3D worlds are drawn only where these cameras can see the dome
   // (the broadcast cuts between shots of the stage: its faces are fixed -
   // everything but behind the house and under the floor)
@@ -243,13 +268,32 @@ async function boot() {
   // every material the evening will need, compiled now (the players, the
   // recital's chairs, ...) rather than with a hitch the first time they appear
   recital.show(true);
+  try { hall.dome?.warm(); } catch { /* fine: compiled on first use */ }
   try { renderer.compile(scene, camera); } catch { /* fine: compiled on first use */ }
+  warmTextures();
   recital.show(false);
   stage.clearStage();
   ui.ready();
 }
 
+// Every picture in the building sent to the GPU now, behind the loading
+// screen - not the first time it comes into view (a turn of the head that
+// stalls for a second on a laptop's graphics)
+function warmTextures() {
+  const seen = new Set();
+  scene.traverse((o) => {
+    const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+    for (const m of ms) {
+      for (const k in m) { const v = m[k]; if (v && v.isTexture && !v.isRenderTargetTexture) seen.add(v); }
+      if (m.uniforms) for (const u of Object.values(m.uniforms)) if (u?.value?.isTexture && !u.value.isRenderTargetTexture) seen.add(u.value);
+    }
+  });
+  for (const t of seen) { try { renderer.initTexture(t); } catch { /* uploaded on first use instead */ } }
+}
+
+let joining = false;
 ui.on('enter', async (opt) => {
+  if (concertStarted || joining) return; // (one entrance, however many presses)
   setName(opt.name); // (the animal stays the one you were given)
   // fullscreen and sound must be started inside the click itself
   goFullscreen();
@@ -257,6 +301,7 @@ ui.on('enter', async (opt) => {
   try { engine.ctx.resume().catch(() => {}); } catch { /* ignored */ }
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
   if (opt.mode !== 'solo') {
+    joining = true;
     ui.lobbyBusy(true);
     room = new RoomClient();
     wireRoom(room);
@@ -268,6 +313,7 @@ ui.on('enter', async (opt) => {
         // ticket, now for that building - comes along)
         room.leave();
         ui.lobbyError(e.message);
+        ui.lobbyBusy(true); // (on the way: nothing to press meanwhile)
         if (ticket) {
           updateTicket({ venue: e.venue });
           setTimeout(() => { location.href = `${location.pathname}?venue=${e.venue}`; }, 900);
@@ -276,12 +322,14 @@ ui.on('enter', async (opt) => {
       }
       room.leave();
       room = null;
+      joining = false;
       ui.lobbyBusy(false);
       ui.lobbyError(e.message || '방에 들어가지 못했어요.');
       refreshRooms();
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
       return;
     }
+    joining = false;
     ui.lobbyBusy(false);
     // a reload keeps you in the room you made (not a second one)
     if (ticket && room?.room) updateTicket({ mode: 'join', code: room.room.code });
@@ -1226,7 +1274,8 @@ function onSetting(key, value) {
   if (key === 'volume') { muted = false; ui.setMuted(false); engine.setVolume(value); }
   if (key === 'reverb') engine.setReverb(value);
   if (key === 'quality') {
-    quality = value === 'auto' ? (isMobile ? 'low' : 'high') : value;
+    quality = value === 'auto' ? autoStart() : value;
+    renderScale = 1;
     applyQuality();
   }
   if (key === 'fireflies') effects.setCounts(value);
@@ -1241,7 +1290,7 @@ function onSetting(key, value) {
 function applyQuality() {
   holdQuality(4500); // every material is rebuilt: a hitch, not a slow machine
   const q = QUALITY[quality];
-  renderer.setPixelRatio(q.pr * (quality === 'low' ? renderScale : 1));
+  renderer.setPixelRatio(q.pr * renderScale);
   renderer.shadowMap.enabled = q.shadows;
   hall.lights.key.castShadow = q.shadows;
   if (hall.lights.key.shadow.map && hall.lights.key.shadow.mapSize.x !== q.shadowSize) {
@@ -1589,16 +1638,21 @@ function goSolo() {
   try { history.replaceState(null, '', location.pathname + (VENUE !== 'hall' ? `?venue=${VENUE}` : '')); } catch { /* file: */ }
 }
 
+// out to the square: the music fades for a moment instead of stopping dead
+function outToSquare() {
+  try { if (engine.master) engine.master.gain.setTargetAtTime(0, engine.ctx.currentTime, 0.08); } catch { /* no sound yet */ }
+  setTimeout(() => { location.href = location.pathname; }, 320);
+}
 ui.on('leaveRoom', () => {
   room?.leave();
   dropTicket();
-  location.href = location.pathname; // back out to the square
+  outToSquare();
 });
 ui.on('toPlaza', () => {
   room?.leave();
   leaf.save();
   dropTicket();
-  location.href = location.pathname;
+  outToSquare();
 });
 ui.on('copyInvite', async () => {
   if (!room?.room) return;
@@ -1857,7 +1911,10 @@ function frame() {
   hall.updateLOD?.(camera.position);
   if (settings.screen && concertStarted) {
     // (in the Sphere the picture is only filmed while it is on the dome)
-    screen.update(dt, { perf, time: t, phase, nextPiece }, IS_SPHERE && !hall.dome.liveActive ? 0 : QUALITY[quality].screenEvery);
+    // (the picture is filmed only while someone can see it: from the foyer
+    // it shows, at most, through a door)
+    const seen = IS_SPHERE ? hall.dome.liveActive : screenInView();
+    screen.update(dt, { perf, time: t, phase, nextPiece }, seen ? QUALITY[quality].screenEvery : 0);
   }
 
   orchestra.syncLite();
@@ -1887,26 +1944,28 @@ function autoQuality(fps) {
   if (now < qualityHold) { lowStreak = 0; goodStreak = 0; return; }
   if (fps < 36) lowStreak++; else lowStreak = 0;
   if (fps > 56) goodStreak++; else goodStreak = 0;
-  if (quality === 'low' && fps < 30 && renderScale > 0.6) {
-    // already at the lightest settings: render fewer pixels
+  // Below 'high', fewer pixels rather than a lower setting: 'low' trades every
+  // material for a plainer one, and rebuilding them all freezes the picture
+  // for seconds on the very machine that is struggling. (Phones start low.)
+  if (quality !== 'high' && fps < 30 && renderScale > 0.6) {
     renderScale *= 0.85;
-    renderer.setPixelRatio(QUALITY.low.pr * renderScale);
+    renderer.setPixelRatio(QUALITY[quality].pr * renderScale);
     onResize();
     return;
   }
   // (in the middle of a piece only when it is really poor; otherwise between pieces)
-  if (lowStreak >= 2 && quality !== 'low' && (phase !== 'playing' || fps < 26)) {
+  if (lowStreak >= 2 && quality === 'high' && (phase !== 'playing' || fps < 26)) {
     if (now - raisedAt < 60000) raiseBlocked = true; // it could not hold the higher setting
-    quality = quality === 'high' ? 'medium' : 'low';
+    quality = 'medium';
     applyQuality();
-    ui.toast(`부드럽게 보이도록 화질을 '${quality === 'medium' ? '보통' : '낮음'}'으로 낮췄어요.`, 2600);
+    ui.toast("부드럽게 보이도록 화질을 '보통'으로 낮췄어요.", 2600);
     return;
   }
   // (steps up only between pieces: rebuilding the materials can hitch)
   if (goodStreak < 5 || phase === 'playing' || raiseBlocked) return;
-  if (quality === 'low' && renderScale < 1) {
+  if (renderScale < 1) {
     renderScale = Math.min(1, renderScale / 0.85);
-    renderer.setPixelRatio(QUALITY.low.pr * renderScale);
+    renderer.setPixelRatio(QUALITY[quality].pr * renderScale);
     onResize();
     goodStreak = 0;
   } else if (quality !== AUTO_TOP) {
@@ -1914,6 +1973,15 @@ function autoQuality(fps) {
     raisedAt = now;
     applyQuality();
   }
+}
+
+// Is the big screen (the hall's) anywhere in the camera's view?
+const _screenBox = IS_SPHERE ? null : new THREE.Box3().setFromObject(screen.group);
+function screenInView() {
+  if (!interiorShown) return false;
+  camera.updateMatrixWorld();
+  _frustum.setFromProjectionMatrix(_pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  return _frustum.intersectsBox(_screenBox);
 }
 
 // The hall from the foyer: the house (thousands of seats and guests, drawn

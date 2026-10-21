@@ -27,6 +27,10 @@ uniform float uT;      // seconds since this world began (the flight)
 uniform float uTime;   // global clock (water, wind)
 uniform float uLevel;
 uniform int uWorld;
+// always 1: every loop below runs to (n * uOne), a count the shader compiler
+// cannot know in advance - so it keeps each loop a loop instead of copying
+// its body out n times (Direct3D's compiler did, for many seconds)
+uniform int uOne;
 #define PI 3.14159265
 // 1 where open sky shows (the dome adds stars there at full resolution:
 // points drawn into the cube map would turn into blocks when magnified)
@@ -42,12 +46,12 @@ float vn(vec2 p) {
 const mat2 ROT = mat2(1.6, 1.2, -1.2, 1.6);
 float fbm(vec2 p, int oct) {
   float a = 0.5; float s = 0.0;
-  for (int i = 0; i < 7; i++) { if (i >= oct) break; s += a * vn(p); p = ROT * p; a *= 0.5; }
+  for (int i = 0; i < 7 * uOne; i++) { if (i >= oct) break; s += a * vn(p); p = ROT * p; a *= 0.5; }
   return s;
 }
 float ridged(vec2 p, int oct) {
   float a = 0.5; float s = 0.0;
-  for (int i = 0; i < 7; i++) { if (i >= oct) break; float n = 1.0 - abs(vn(p) * 2.0 - 1.0); s += a * n * n; p = ROT * p; a *= 0.5; }
+  for (int i = 0; i < 7 * uOne; i++) { if (i >= oct) break; float n = 1.0 - abs(vn(p) * 2.0 - 1.0); s += a * n * n; p = ROT * p; a *= 0.5; }
   return s;
 }
 
@@ -77,7 +81,7 @@ float gridCyl(vec3 ro, vec3 rd, float tmax, float cell, float keep, float clear,
   vec2 tD = abs(cell / dn);
   vec2 nx = ((c + max(st, 0.0)) * cell - o) / dn;
   float smax = tmax * len;
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < 32 * uOne; i++) {
     vec3 tr = trunkIn(c, cell, keep, clear, rmin, rmax);
     if (tr.z > 0.0) {
       vec2 oc = o - tr.xy;
@@ -102,8 +106,8 @@ float crownAt(vec2 p) {
   vec2 c0 = floor(p / 5.0);
   float best = 0.0;
   float wob = (vn(p * 0.8) - 0.5) * 1.4;
-  for (int j = -1; j <= 1; j++) {
-    for (int i = -1; i <= 1; i++) {
+  for (int j = -1; j <= 1 * uOne; j++) {
+    for (int i = -1; i <= 1 * uOne; i++) {
       vec3 tr = trunkIn(c0 + vec2(float(i), float(j)), 5.0, 0.28, 2.6, 0.22, 0.75);
       if (tr.z <= 0.0) continue;
       float r = 2.6 + tr.z * 3.0;
@@ -219,7 +223,7 @@ float kelpGrid(vec3 ro, vec3 rd, float tmax, out vec3 info) {
   vec2 tD = abs(cell / dn);
   vec2 nx = ((c + max(st, 0.0)) * cell - o) / dn;
   float smax = tmax * len;
-  for (int i = 0; i < 24; i++) {
+  for (int i = 0; i < 24 * uOne; i++) {
     vec3 tr = trunkIn(c, cell, 0.45, 3.0, 0.1, 0.2);
     if (tr.z > 0.0) {
       vec2 oc = o - tr.xy;
@@ -231,7 +235,7 @@ float kelpGrid(vec3 ro, vec3 rd, float tmax, out vec3 info) {
         float s1 = min(-b + sq, smax);
         float top = 6.0 + 9.0 * h2(tr.xy * 0.37);
         float ph = h2(tr.xy + 5.3) * 6.28;
-        for (int k = 0; k < 10; k++) {
+        for (int k = 0; k < 10 * uOne; k++) {
           float s = mix(s0, s1, (float(k) + 0.5) / 10.0);
           if (s > s1) break;
           vec3 p = ro + rd * (s / len);
@@ -298,7 +302,7 @@ vec3 ocean(vec3 rd) {
   // the sea floor
   if (rd.y < 0.0) {
     float tt = 0.0;
-    for (int i = 0; i < 56; i++) {
+    for (int i = 0; i < 56 * uOne; i++) {
       vec3 p = ro + rd * tt;
       float h = p.y - seabed(p.xz);
       if (h < 0.02) { t = tt; break; }
@@ -329,7 +333,7 @@ vec3 ocean(vec3 rd) {
     // caustics dancing on the floor
     vec2 q = p.xz * 0.45;
     float ca = 0.0;
-    for (int k = 0; k < 2; k++) {
+    for (int k = 0; k < 2 * uOne; k++) {
       float fk = float(k);
       vec2 w = q * (1.0 + fk * 0.6) + vec2(uTime * (0.35 + fk * 0.2), -uTime * 0.25);
       ca += pow(abs(sin(w.x + sin(w.y * 1.3 + uTime * 0.7)) * sin(w.y + sin(w.x * 1.1 - uTime * 0.6))), 5.0);
@@ -364,7 +368,7 @@ vec3 ocean(vec3 rd) {
       float t1 = (-b + sq) / a;
       if (t1 > 0.0 && tw < t) {
         bool hit = false;
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < 32 * uOne; i++) {
           float ds = whale(ro + rd * tw - c);
           if (ds < 0.03) { hit = true; break; }
           tw += ds * 0.9;
@@ -427,7 +431,7 @@ vec3 clouds(vec3 rd) {
   if (rd.y < 0.12) {
     float tt = 1.0;
     float t = 1e9;
-    for (int i = 0; i < 90; i++) {
+    for (int i = 0; i < 90 * uOne; i++) {
       vec3 p = ro + rd * tt;
       float h = p.y - cloudTopLo(p.xz);
       if (h < 1.0) { t = tt; break; }
@@ -436,7 +440,7 @@ vec3 clouds(vec3 rd) {
     }
     if (t < 1e8) {
       // refine on the full-detail surface
-      for (int i = 0; i < 5; i++) { vec3 p = ro + rd * t; t += (p.y - cloudTop(p.xz)) * 0.5; }
+      for (int i = 0; i < 5 * uOne; i++) { vec3 p = ro + rd * t; t += (p.y - cloudTop(p.xz)) * 0.5; }
       vec3 p = ro + rd * t;
       vec2 e = vec2(4.0, 0.0);
       vec3 n = normalize(vec3(cloudTop(p.xz - e.xy) - cloudTop(p.xz + e.xy), 2.0 * e.x, cloudTop(p.xz - e.yx) - cloudTop(p.xz + e.yx)));
@@ -469,7 +473,7 @@ vec3 auroraSky(vec3 rd) {
   vec3 c = mix(vec3(0.03, 0.05, 0.1), vec3(0.0, 0.01, 0.03), smoothstep(-0.1, 0.8, rd.y));
   // curtains: ray to a high sheet, folded by noise
   if (rd.y > 0.02) {
-    for (int k = 0; k < 3; k++) {
+    for (int k = 0; k < 3 * uOne; k++) {
       float fk = float(k);
       float H = 900.0 + fk * 260.0;
       vec2 p = rd.xz / rd.y * H * 0.001;
@@ -490,7 +494,7 @@ vec3 peaks(vec3 rd) {
   if (rd.y < 0.18) {
     float tt = 2.0;
     float t = 1e9;
-    for (int i = 0; i < 72; i++) {
+    for (int i = 0; i < 72 * uOne; i++) {
       vec3 p = ro + rd * tt;
       float h = p.y - terrain(p.xz, 4);
       if (h < 0.5) { t = tt; break; }
@@ -499,7 +503,7 @@ vec3 peaks(vec3 rd) {
     }
     if (t < 1e8) {
       gSky = 0.0;
-      for (int i = 0; i < 4; i++) { vec3 p = ro + rd * t; t += (p.y - terrain(p.xz, 6)) * 0.5; }
+      for (int i = 0; i < 4 * uOne; i++) { vec3 p = ro + rd * t; t += (p.y - terrain(p.xz, 6)) * 0.5; }
       vec3 p = ro + rd * t;
       vec2 e = vec2(3.0, 0.0);
       vec3 n = normalize(vec3(terrain(p.xz - e.xy, 6) - terrain(p.xz + e.xy, 6), 2.0 * e.x, terrain(p.xz - e.yx, 6) - terrain(p.xz + e.yx, 6)));
@@ -529,7 +533,7 @@ void main() {
 // crossfade, the next one); the -y face is never on the screen and skipped.
 export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
   const scene = new THREE.Scene();
-  const uniforms = { uT: { value: 0 }, uTime: { value: 0 }, uLevel: { value: 0 }, uWorld: { value: 0 } };
+  const uniforms = { uT: { value: 0 }, uTime: { value: 0 }, uLevel: { value: 0 }, uWorld: { value: 0 }, uOne: { value: 1 } };
   const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG, side: THREE.BackSide, depthTest: false, depthWrite: false });
   const ball = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), mat);
   ball.frustumCulled = false;
@@ -566,6 +570,15 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
   }
   const api = {
     slots,
+    // the worlds' shader compiled and drawn once now, behind the loading
+    // screen - not the first time a world comes up in the middle of a piece
+    warm() {
+      const s = slots[0];
+      s.world = WORLDS3D[0];
+      draw(s, 0, 0, 1, true);
+      s.world = null;
+      s.faceWorld = [];
+    },
     get every() { return every; },
     set every(v) { every = v; },
     // keep `want` (world names, up to two) rendered; returns the slot of each.

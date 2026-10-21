@@ -33,29 +33,38 @@ export const PAY = {
   mouse: { icon: '🧀', what: '치즈 한 조각' },
 };
 
-function load(store, key) {
-  try { return JSON.parse(store.getItem(key) || 'null'); } catch { return null; }
+// (the stores themselves can be off limits - all cookies blocked: then
+// nothing is kept, and nothing breaks)
+const LOCAL = 'local';
+const SESSION = 'session';
+function store(kind) {
+  try { return kind === LOCAL ? window.localStorage : window.sessionStorage; } catch { return null; }
 }
-function keep(store, key, v) {
-  try { if (v === null) store.removeItem(key); else store.setItem(key, JSON.stringify(v)); } catch { /* private mode */ }
+function load(kind, key) {
+  try { return JSON.parse(store(kind)?.getItem(key) || 'null'); } catch { return null; }
+}
+function keep(kind, key, v) {
+  try { const st = store(kind); if (!st) return; if (v === null) st.removeItem(key); else st.setItem(key, JSON.stringify(v)); } catch { /* private mode */ }
 }
 
-// you: { name, avatar }. The animal is drawn once and kept.
+// you: { name, avatar }. The animal is drawn once and kept (and, where
+// nothing can be kept, at least stays the same for the life of this page).
+let me = null;
 export function identity() {
-  const v = load(localStorage, ID_KEY);
-  if (v?.avatar && AVATARS.some((a) => a.id === v.avatar)) return { name: v.name || randomIdentity().name, avatar: v.avatar };
-  const fresh = randomIdentity();
-  keep(localStorage, ID_KEY, fresh);
-  return fresh;
+  if (me) return { ...me };
+  const v = load(LOCAL, ID_KEY);
+  if (v?.avatar && AVATARS.some((a) => a.id === v.avatar)) me = { name: v.name || randomIdentity().name, avatar: v.avatar };
+  else { me = randomIdentity(); keep(LOCAL, ID_KEY, me); }
+  return { ...me };
 }
 
 export function setName(name) {
-  const me = identity();
+  const cur = identity();
   const clean = String(name || '').trim().slice(0, 16);
-  if (!clean) return me;
-  const next = { ...me, name: clean };
-  keep(localStorage, ID_KEY, next);
-  return next;
+  if (!clean) return cur;
+  me = { ...cur, name: clean };
+  keep(LOCAL, ID_KEY, me);
+  return { ...me };
 }
 
 // opt: { venue, mode: 'solo' | 'create' | 'join', code?, title?, cap?, pub? }
@@ -70,28 +79,28 @@ export function issueTicket(opt) {
     date: `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`,
     issued: Date.now(),
   };
-  keep(sessionStorage, TICKET_KEY, t);
+  keep(SESSION, TICKET_KEY, t);
   // for "the same as last time" (a room you made is made afresh; one you
   // joined may be gone - that becomes watching alone)
-  keep(localStorage, LAST_KEY, { venue: t.venue, mode: t.mode === 'join' ? 'solo' : t.mode, title: t.title, cap: t.cap, pub: t.pub });
+  keep(LOCAL, LAST_KEY, { venue: t.venue, mode: t.mode === 'join' ? 'solo' : t.mode, title: t.title, cap: t.cap, pub: t.pub });
   return t;
 }
 
 // the ticket in your paw (for this building), or null
 export function heldTicket(venue = null) {
-  const t = load(sessionStorage, TICKET_KEY);
+  const t = load(SESSION, TICKET_KEY);
   if (!t || (venue && t.venue !== venue)) return null;
   return t;
 }
 
 export function updateTicket(patch) {
-  const t = load(sessionStorage, TICKET_KEY);
-  if (t) keep(sessionStorage, TICKET_KEY, { ...t, ...patch });
+  const t = load(SESSION, TICKET_KEY);
+  if (t) keep(SESSION, TICKET_KEY, { ...t, ...patch });
 }
 
-export function dropTicket() { keep(sessionStorage, TICKET_KEY, null); }
+export function dropTicket() { keep(SESSION, TICKET_KEY, null); }
 
-export function lastTicket() { return load(localStorage, LAST_KEY); }
+export function lastTicket() { return load(LOCAL, LAST_KEY); }
 
 // ------------------------------------------------------------ the card
 export const VENUE_NAMES = { hall: '숲속 필하모닉 홀', sphere: '스피어' };
