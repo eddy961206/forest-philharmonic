@@ -1,0 +1,42 @@
+[
+  {
+    "id": "baseline-gpu-recheck-sphere-high-desktop-forest",
+    "script": "tools/bench/gpu-timer.mjs",
+    "args": [
+      "baseline-gpu-recheck",
+      "sphere",
+      "high",
+      "desktop",
+      "forest"
+    ],
+    "directory": "gpu",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18080/",
+      "REVISION": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "SAMPLES": "4",
+      "WARMUP": "4",
+      "SCREENSHOTS": "1",
+      "TIMEOUT_MS": "180000"
+    }
+  },
+  {
+    "id": "candidate-gpu-recheck-sphere-high-desktop-forest",
+    "script": "tools/bench/gpu-timer.mjs",
+    "args": [
+      "candidate-gpu-recheck",
+      "sphere",
+      "high",
+      "desktop",
+      "forest"
+    ],
+    "directory": "gpu",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "SAMPLES": "4",
+      "WARMUP": "4",
+      "SCREENSHOTS": "1",
+      "TIMEOUT_MS": "180000"
+    }
+  }
+]

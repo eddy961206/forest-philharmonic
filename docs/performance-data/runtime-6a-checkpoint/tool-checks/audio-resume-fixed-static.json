@@ -1,0 +1,304 @@
+{
+  "schema": 1,
+  "suite": "audio-resume-fixed-audience-static",
+  "checkedAt": "2026-10-21T09:48:24.723Z",
+  "repository": "/workspace/scratch/296fafc0af7f/forest-philharmonic",
+  "baseToolCommit": "7fd9e5340c1668dfa8b272ef30aaf715561581c9",
+  "originalToolSha256": "6bbf491704265dbe5c8e133974c7cd947a242ca1ff40ac4dc517a0c36d010d11",
+  "modifiedToolSha256": "089678a0b0afcc9be77ae11d7bc160fffce2239e29afc64b78f7fdf6e8a154d7",
+  "checks": {
+    "sourceTransform": {
+      "suite": "fixedAudienceMain-source-only",
+      "sourceCases": [
+        {
+          "file": "/workspace/scratch/296fafc0af7f/forest-baseline-6a/public/js/main.js",
+          "seed": 417,
+          "pass": true,
+          "exactSingleReplacement": true,
+          "reversible": true,
+          "metadata": {
+            "path": "/js/main.js",
+            "audienceSeed": 417,
+            "replacements": 1,
+            "originalSha256": "9627b954dfb30a226df87e4eda83d96577e686995622c35f275dd1d2c4ed5283",
+            "servedSha256": "0a2847ed35f080745d0f7191b5ba5ba9b57e601a8e4faf07169502776b2bfae6",
+            "originalIdentityBytes": 81097,
+            "servedIdentityBytes": 81097,
+            "contentEncoding": "identity",
+            "cacheControl": "no-cache",
+            "etag": "\"qa-0a2847ed35f080745d0f7191b5ba5ba9b57e601a8e4faf07169502776b2bfae6\"",
+            "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+          }
+        },
+        {
+          "file": "/workspace/scratch/296fafc0af7f/forest-philharmonic/public/js/main.js",
+          "seed": 417,
+          "pass": true,
+          "exactSingleReplacement": true,
+          "reversible": true,
+          "metadata": {
+            "path": "/js/main.js",
+            "audienceSeed": 417,
+            "replacements": 1,
+            "originalSha256": "a0d096e176f391537439c30aa4edd89fcace95fc542803a7dc1ea8a7790efaed",
+            "servedSha256": "4b7eae979c9793c9cf3729d7e89fe4b1b793bfb88773596366b568b6b5077ef4",
+            "originalIdentityBytes": 85254,
+            "servedIdentityBytes": 85254,
+            "contentEncoding": "identity",
+            "cacheControl": "no-cache",
+            "etag": "\"qa-4b7eae979c9793c9cf3729d7e89fe4b1b793bfb88773596366b568b6b5077ef4\"",
+            "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+          }
+        }
+      ],
+      "validSeeds": [
+        {
+          "seed": 0,
+          "pass": true
+        },
+        {
+          "seed": 417,
+          "pass": true
+        },
+        {
+          "seed": 4294967295,
+          "pass": true
+        }
+      ],
+      "rejectedSeeds": [
+        {
+          "seed": -1,
+          "pass": true
+        },
+        {
+          "seed": 4294967296,
+          "pass": true
+        },
+        {
+          "seed": 0.5,
+          "pass": true
+        },
+        {
+          "seed": "NaN",
+          "pass": true
+        },
+        {
+          "seed": "null",
+          "pass": true
+        },
+        {
+          "seed": "undefined",
+          "pass": true
+        }
+      ],
+      "rejectedAnchors": [
+        {
+          "matches": 0,
+          "pass": true
+        },
+        {
+          "matches": 2,
+          "pass": true
+        }
+      ],
+      "transformerSourceSha256": "e8f311048df6104ca3fd7104753519c128e000e9dc93fe2a5b7f1a5641ef9f7b",
+      "toolSha256": "089678a0b0afcc9be77ae11d7bc160fffce2239e29afc64b78f7fdf6e8a154d7",
+      "passed": true,
+      "browserStarted": false
+    },
+    "unchangedPolicies": {
+      "suite": "unchanged-audio-and-frame-source-contract",
+      "oldRef": "7fd9e5340c1668dfa8b272ef30aaf715561581c9",
+      "oldToolSha256": "6bbf491704265dbe5c8e133974c7cd947a242ca1ff40ac4dc517a0c36d010d11",
+      "checks": [
+        {
+          "name": "passive-audio-live-probe",
+          "unchanged": true,
+          "oldSha256": "1ad5bbdc87a76268c9f561f744190b9c6e5003aac32e513cff17fb9e9ccd1450",
+          "newSha256": "1ad5bbdc87a76268c9f561f744190b9c6e5003aac32e513cff17fb9e9ccd1450"
+        },
+        {
+          "name": "raf-wrapper",
+          "unchanged": true,
+          "oldSha256": "af4b2457b8a0a6323bc391dbffa47fac2f2eee57c70bf527e128490c09f0351f",
+          "newSha256": "af4b2457b8a0a6323bc391dbffa47fac2f2eee57c70bf527e128490c09f0351f"
+        },
+        {
+          "name": "frame-readback-policy",
+          "unchanged": true,
+          "oldSha256": "781286f1d1f2877425faf8e6530cbb866f9945768bb79ab06c99d45e31649168",
+          "newSha256": "781286f1d1f2877425faf8e6530cbb866f9945768bb79ab06c99d45e31649168"
+        },
+        {
+          "name": "observation-wait-policy",
+          "unchanged": true,
+          "oldSha256": "d9c6767d07ca0811218837c480f1bb14507ef255e3331a493487e8e4279c945c",
+          "newSha256": "d9c6767d07ca0811218837c480f1bb14507ef255e3331a493487e8e4279c945c"
+        },
+        {
+          "name": "original-resume-timing",
+          "unchanged": true,
+          "oldSha256": "7392ddb81b2d0304265c800253c90c4f2373de0f7616e2f47aed99dc1e6fd2bd",
+          "newSha256": "7392ddb81b2d0304265c800253c90c4f2373de0f7616e2f47aed99dc1e6fd2bd"
+        },
+        {
+          "name": "live-window-run",
+          "unchanged": true,
+          "oldSha256": "5532db35ac9d8116d94ae6a04092ce318ff7ad016ff518ca058743eab9e82431",
+          "newSha256": "5532db35ac9d8116d94ae6a04092ce318ff7ad016ff518ca058743eab9e82431"
+        }
+      ],
+      "passed": true,
+      "browserStarted": false,
+      "scope": "Exact text equality of existing scheduling/clock observer, rAF wrapper, frame/readPixels helper, wait helper, original resume timing and live-window run. No runtime behavior executed."
+    },
+    "directCommands": [
+      {
+        "id": "syntax",
+        "cmd": "node --check tools/bench/audio-resume.mjs",
+        "expectedExit": 0,
+        "chunk_id": "4941ad",
+        "wall_time_seconds": 0.000031247,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": "",
+        "pass": true
+      },
+      {
+        "id": "help",
+        "cmd": "node tools/bench/audio-resume.mjs --help",
+        "expectedExit": 0,
+        "expectedOutput": "FIXED_AUDIENCE_SEED=417",
+        "chunk_id": "0ace4e",
+        "wall_time_seconds": 0.045763311,
+        "exit_code": 0,
+        "original_token_count": 746,
+        "output": "node tools/bench/audio-resume.mjs [label] [hall|sphere] [desktop|mobile]\n실제 앱·악기 샘플·오디오 그래프·UI를 사용한 재개 진단이야.\n기본값: resume / hall / desktop, FRAME_MODE=controlled, QUALITY=high(desktop)/low(mobile).\nFRAME_MODE=controlled|native: controlled는 앱의 main rAF만 잡고 명시적 프레임을 그려.\nnative는 실제 main rAF를 계속 실행해. 이 경우 대기 구간을 무렌더 대기라고 부르지 않아.\nREADBACK=1|0: 기본 1은 각 요청 프레임 뒤 readPixels 전후 시계를 기록해.\n0은 같은 프레임을 실행하지만 readPixels를 생략하는 별도 원인 분리 조건이야.\nLIVE_WINDOW_MS=0..60000: 기본 0(비활성). 예: 30000은 재개 진단 뒤 실제 음악과\n원래 main rAF가 함께 도는 30초 관찰을 추가해. FRAME_MODE=native, READBACK=0이 필수야.\n이 구간에는 추가 렌더·시계 치환·음악 선택·재예약이 없어. 프레임 시작 시각만 매\n프레임 기록하고 pose/품질/음악/오디오/heap은 시작·끝과 1초 간격으로 남겨.\n관측 cadence FPS와 원래 2초 재개 판정은 별개야. 곡·숨김·수면·품질 변화가 생기면\n동일 조건 비교 제외 사유를 남겨. 실제 표시 FPS·GPU 시간·물리 출력 음질은 아니야.\nPRELUDE_FRAMES=4: 입장·좌석 이동·착석 3프레임 외 착석 상태 준비 프레임 수(0..20).\nPRE_PAUSE_MS=400: 공연 프레임 뒤 pause 전 관찰(300..500ms).\nSEEK_SECONDS=22, PIECE_ID=선택적_기대곡_ID. 곡을 임의로 교체하지 않고 실제 기본곡을 기록해.\nFIXED_AUDIENCE_SEED=417: 선택 옵션. solo 관객 rand 한 곳만 별도 seeded(417)로 고정해.\n미지정하면 기존 전역 Math.random=417과 z+0.5 좌석 접근을 그대로 사용해.\n지정하면 원본/변환 main 해시와 관객 수·점유 좌석 hash를 남기고 z+0.2에서 E/touch로\n앉은 실제 seat.index가 선택한 좌석과 같은지 검사해. 다르면 FAIL로 보존해.\n값은 0..4294967295 정수야. 이 QA main 응답과 라우팅 조건은 실제 로딩 성능 측정이 아니야.\n재개 판정은 기존과 동일한 2초: running && playing && time > seekTime + 0.05.\n실패해도 다음 실제 WebGL 프레임과 400ms 관찰까지 진단하고 원래 FAIL을 유지해.\n자동 resume/오디오 재시작/시계 치환/수동 스케줄링은 하지 않아.\n공통 환경: BASE_URL, REVISION, OUTPUT_DIR, PLAYWRIGHT_MODULE, CHROME_EXECUTABLE,\nCHROME_ARGS, SOFTWARE_RENDERER=1, HEADLESS, FONT_MODE, FONT_ROOT, WIDTH, HEIGHT, DPR, TIMEOUT_MS.\n동일 환경에서 기준선과 후보를 각각 실행하고 fixture/source/곡 해시를 함께 비교해.\n음표 hash는 관측된 순서 식별용이며 wall time 길이가 다르면 서로 달라도 돼.\n이 검사는 실제 스피커 음질·오디오 글리치·물리 스마트폰을 검증하지 않아.\n--help는 브라우저를 실행하지 않아. 브라우저 작업은 하나씩 직렬 실행해.\n",
+        "pass": true
+      },
+      {
+        "id": "invalid-audience-seed--1",
+        "cmd": "FIXED_AUDIENCE_SEED=-1 node tools/bench/audio-resume.mjs",
+        "expectedExit": 1,
+        "expectedOutput": "FIXED_AUDIENCE_SEED must be a uint32 integer",
+        "chunk_id": "85fe58",
+        "wall_time_seconds": 0.03857304,
+        "exit_code": 1,
+        "original_token_count": 150,
+        "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: FIXED_AUDIENCE_SEED must be a uint32 integer\n    at file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs:50:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+        "pass": true
+      },
+      {
+        "id": "invalid-audience-seed-4294967296",
+        "cmd": "FIXED_AUDIENCE_SEED=4294967296 node tools/bench/audio-resume.mjs",
+        "expectedExit": 1,
+        "expectedOutput": "FIXED_AUDIENCE_SEED must be a uint32 integer",
+        "chunk_id": "930576",
+        "wall_time_seconds": 0.055858214,
+        "exit_code": 1,
+        "original_token_count": 150,
+        "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: FIXED_AUDIENCE_SEED must be a uint32 integer\n    at file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs:50:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+        "pass": true
+      },
+      {
+        "id": "invalid-audience-seed-0.5",
+        "cmd": "FIXED_AUDIENCE_SEED=0.5 node tools/bench/audio-resume.mjs",
+        "expectedExit": 1,
+        "expectedOutput": "FIXED_AUDIENCE_SEED must be a uint32 integer",
+        "chunk_id": "1c3356",
+        "wall_time_seconds": 0.000058218,
+        "exit_code": 1,
+        "original_token_count": 150,
+        "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: FIXED_AUDIENCE_SEED must be a uint32 integer\n    at file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs:50:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+        "pass": true
+      },
+      {
+        "id": "invalid-audience-seed-NaN",
+        "cmd": "FIXED_AUDIENCE_SEED=NaN node tools/bench/audio-resume.mjs",
+        "expectedExit": 1,
+        "expectedOutput": "FIXED_AUDIENCE_SEED must be a uint32 integer",
+        "chunk_id": "829ad1",
+        "wall_time_seconds": 0.03899308,
+        "exit_code": 1,
+        "original_token_count": 150,
+        "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: FIXED_AUDIENCE_SEED must be a uint32 integer\n    at file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs:50:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+        "pass": true
+      },
+      {
+        "id": "invalid-audience-seed-''",
+        "cmd": "FIXED_AUDIENCE_SEED='' node tools/bench/audio-resume.mjs",
+        "expectedExit": 1,
+        "expectedOutput": "FIXED_AUDIENCE_SEED must be a uint32 integer",
+        "chunk_id": "76ccbf",
+        "wall_time_seconds": 0.069857916,
+        "exit_code": 1,
+        "original_token_count": 150,
+        "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: FIXED_AUDIENCE_SEED must be a uint32 integer\n    at file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs:50:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+        "pass": true
+      },
+      {
+        "id": "valid-audience-seed-0-before-rejected-live-window",
+        "cmd": "FIXED_AUDIENCE_SEED=0 LIVE_WINDOW_MS=-1 node tools/bench/audio-resume.mjs",
+        "expectedExit": 1,
+        "expectedOutput": "LIVE_WINDOW_MS must be 0..60000",
+        "chunk_id": "ca38f8",
+        "wall_time_seconds": 0.058824351,
+        "exit_code": 1,
+        "original_token_count": 146,
+        "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: LIVE_WINDOW_MS must be 0..60000\n    at file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs:53:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+        "pass": true
+      },
+      {
+        "id": "valid-audience-seed-417-before-rejected-live-window",
+        "cmd": "FIXED_AUDIENCE_SEED=417 LIVE_WINDOW_MS=-1 node tools/bench/audio-resume.mjs",
+        "expectedExit": 1,
+        "expectedOutput": "LIVE_WINDOW_MS must be 0..60000",
+        "chunk_id": "e5c55d",
+        "wall_time_seconds": 0.012374368,
+        "exit_code": 1,
+        "original_token_count": 146,
+        "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: LIVE_WINDOW_MS must be 0..60000\n    at file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs:53:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+        "pass": true
+      },
+      {
+        "id": "valid-audience-seed-4294967295-before-rejected-live-window",
+        "cmd": "FIXED_AUDIENCE_SEED=4294967295 LIVE_WINDOW_MS=-1 node tools/bench/audio-resume.mjs",
+        "expectedExit": 1,
+        "expectedOutput": "LIVE_WINDOW_MS must be 0..60000",
+        "chunk_id": "3c0af8",
+        "wall_time_seconds": 0.029897259,
+        "exit_code": 1,
+        "original_token_count": 146,
+        "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: LIVE_WINDOW_MS must be 0..60000\n    at file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs:53:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+        "pass": true
+      },
+      {
+        "id": "legacy-no-audience-option-before-rejected-live-window",
+        "cmd": "env -u FIXED_AUDIENCE_SEED LIVE_WINDOW_MS=-1 node tools/bench/audio-resume.mjs",
+        "expectedExit": 1,
+        "expectedOutput": "LIVE_WINDOW_MS must be 0..60000",
+        "chunk_id": "95bfb4",
+        "wall_time_seconds": 0.033948695,
+        "exit_code": 1,
+        "original_token_count": 146,
+        "output": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: LIVE_WINDOW_MS must be 0..60000\n    at file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs:53:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+        "pass": true
+      }
+    ]
+  },
+  "summary": {
+    "sourceCases": 13,
+    "cliConditions": 9,
+    "unchangedPolicySpans": 6,
+    "syntaxPassed": true,
+    "helpPassed": true,
+    "browserStarted": false
+  },
+  "passed": true,
+  "limitations": [
+    "No browser, WebGL, actual seat selection, crowd population equality, native live cadence, audio clock or physical output was executed.",
+    "Source checks prove the exact single source transformation and preserved existing policy text, not browser behavior.",
+    "Expected option rejection uses exit 1 before openPage. Valid seed conditions deliberately combine LIVE_WINDOW_MS=-1 to avoid launching a browser.",
+    "The product repository and runtime evidence output were not written after the parent's temporary write pause. This check evidence was saved only under /tmp."
+  ]
+}

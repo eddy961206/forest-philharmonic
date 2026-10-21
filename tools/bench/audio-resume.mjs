@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { appURL, choice, config, diagnosticsFailed, openPage, save, sha256, sourceHashes, viewport } from './browser.mjs';
+import { fixedAudienceMain } from './loading-proxy.mjs';
 
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
@@ -23,6 +24,11 @@ LIVE_WINDOW_MS=0..60000: 기본 0(비활성). 예: 30000은 재개 진단 뒤 �
 PRELUDE_FRAMES=4: 입장·좌석 이동·착석 3프레임 외 착석 상태 준비 프레임 수(0..20).
 PRE_PAUSE_MS=400: 공연 프레임 뒤 pause 전 관찰(300..500ms).
 SEEK_SECONDS=22, PIECE_ID=선택적_기대곡_ID. 곡을 임의로 교체하지 않고 실제 기본곡을 기록해.
+FIXED_AUDIENCE_SEED=417: 선택 옵션. solo 관객 rand 한 곳만 별도 seeded(417)로 고정해.
+미지정하면 기존 전역 Math.random=417과 z+0.5 좌석 접근을 그대로 사용해.
+지정하면 원본/변환 main 해시와 관객 수·점유 좌석 hash를 남기고 z+0.2에서 E/touch로
+앉은 실제 seat.index가 선택한 좌석과 같은지 검사해. 다르면 FAIL로 보존해.
+값은 0..4294967295 정수야. 이 QA main 응답과 라우팅 조건은 실제 로딩 성능 측정이 아니야.
 재개 판정은 기존과 동일한 2초: running && playing && time > seekTime + 0.05.
 실패해도 다음 실제 WebGL 프레임과 400ms 관찰까지 진단하고 원래 FAIL을 유지해.
 자동 resume/오디오 재시작/시계 치환/수동 스케줄링은 하지 않아.
@@ -40,6 +46,8 @@ choice(venue, ['hall', 'sphere'], 'venue');
 choice(device, ['desktop', 'mobile'], 'device');
 const frameMode = choice(process.env.FRAME_MODE || 'controlled', ['controlled', 'native'], 'FRAME_MODE');
 const quality = choice(process.env.QUALITY || (device === 'mobile' ? 'low' : 'high'), ['high', 'medium', 'low'], 'QUALITY');
+const fixedAudienceSeed = process.env.FIXED_AUDIENCE_SEED === undefined ? null : Number(process.env.FIXED_AUDIENCE_SEED);
+assert.ok(fixedAudienceSeed === null || (process.env.FIXED_AUDIENCE_SEED.trim() !== '' && Number.isInteger(fixedAudienceSeed) && fixedAudienceSeed >= 0 && fixedAudienceSeed <= 0xffffffff), 'FIXED_AUDIENCE_SEED must be a uint32 integer');
 const readback = choice(process.env.READBACK || '1', ['1', '0'], 'READBACK') === '1';
 const liveWindowMs = Number(process.env.LIVE_WINDOW_MS ?? 0);
 assert.ok(Number.isInteger(liveWindowMs) && liveWindowMs >= 0 && liveWindowMs <= 60000, 'LIVE_WINDOW_MS must be 0..60000');
@@ -59,12 +67,19 @@ const report = {
   revision: cfg.revision, measuredAt: new Date().toISOString(), url: appURL(cfg.baseURL, venue),
   fixtureSourceSha256: sha256(await fs.readFile(new URL(import.meta.url))),
   helperSourceSha256: sha256(await fs.readFile(new URL('./browser.mjs', import.meta.url))),
-  options: { frameMode, quality, readback, liveWindowMs, preludeFrames, prePauseMs, seekSeconds, expectedPiece: process.env.PIECE_ID || null },
+  options: { frameMode, quality, readback, liveWindowMs, preludeFrames, prePauseMs, seekSeconds, fixedAudienceSeed, expectedPiece: process.env.PIECE_ID || null },
+  audienceFixture: {
+    enabled: fixedAudienceSeed !== null, seed: fixedAudienceSeed, servedRequests: 0,
+    policy: fixedAudienceSeed === null
+      ? 'Legacy global Math.random=417; original solo-audience source and z+0.5 seat approach remain unchanged.'
+      : 'Reuse fixedAudienceMain: replace exactly one solo-audience rand expression with an independent seeded generator. Global Math.random=417 and room seeding remain unchanged. Approach the chosen free seat at z+0.2 and require the real E/touch sit result to match its index.',
+  },
   viewport: [size.width, size.height], devicePixelRatio: size.dpr, timeoutMs: cfg.timeoutMs,
   method: 'Native product AudioContext, default graph and original samples. Real solo/start/pause/seek/resume UI. Passive 100ms samples, native worker onTick observer and transparent playNote observation. Boundaries separate app frame, readPixels, pre-pause wait, transport and the following app frame. No audio/context recovery or clock substitution.',
   fixtures: [
     'Seeded Math.random=417, fresh context, manual quality and audience enabled; all other audio/visual settings retain product defaults.',
     'Place beside a real free non-stage seat, sit using E/touch, then finish only the existing camera tween. Snap the score roster and conductor before the real start-show click.',
+    ...(fixedAudienceSeed === null ? [] : [`Solo-audience seed ${fixedAudienceSeed} is isolated from global RNG/UUID calls by one exact main.js anchor. The QA response and occupied-seat fingerprint are recorded separately from original product source hashes.`]),
     'Prelude frames reproduce a heavy rendering prelude but are not the previous full movement/drag/sit/stand scenario. Their count, camera pose and native clock age are recorded.',
     frameMode === 'controlled' ? 'Only the app callback named frame is captured. Explicit frames execute its original function. Other rAF, timers and audio remain native. Observation waits contain no main frames.' : 'Original main rAF cadence remains native. Requested boundaries wait for the next completed app frame; other frames continue throughout observation windows.',
   ],
@@ -76,6 +91,7 @@ const report = {
     'Runtime note hashes exclude humanization and absolute timestamps; different observation durations or seek positions may produce different hashes. Per-event score matching is checked separately.',
     'Optional live-window cadence measures starts of the original main rAF callback while actual music runs. It is not compositor-presented FPS, pure GPU time or physical audio-output validation. The collection wrappers add observation overhead.',
     'Live-window condition checks run at frame starts, state/visibility events and 1s metadata samples. A transient state change entirely between those observations may be missed. Eligibility within one run does not prove that two runs match.',
+    'The optional fixed-audience route controls a main.js response and may affect HTTP cache behavior; it is not a loading benchmark. Matching crowd/seat fingerprints does not prove identical audio impulse-response samples, every procedural random value or physical output quality.',
   ],
   checks: {}, frames: [], windows: [],
 };
@@ -299,6 +315,21 @@ try {
   report.environment = session.environment;
   report.diagnostics = session.diagnostics;
   report.sourceHashes = await sourceHashes(page, cfg.baseURL);
+  if (fixedAudienceSeed !== null) {
+    const mainURL = new URL('js/main.js', cfg.baseURL).href;
+    const response = await page.request.get(mainURL);
+    assert.ok(response.ok(), 'Original main.js available for isolated audience fixture');
+    const transformed = fixedAudienceMain(await response.text(), fixedAudienceSeed);
+    assert.equal(transformed.metadata.originalSha256, report.sourceHashes['js/main.js']?.sha256, 'Original main.js stayed unchanged before the audience fixture');
+    report.audienceFixture.transformerSourceSha256 = sha256(await fs.readFile(new URL('./loading-proxy.mjs', import.meta.url)));
+    report.audienceFixture.main = transformed.metadata;
+    report.audienceFixture.responseMethod = 'Playwright route.fulfill of the one main.js URL; status 200, identity UTF-8, QA ETag and no-cache. This is not the loading proxy and does not measure original transfer/cache performance.';
+    await page.route(mainURL, async route => {
+      report.audienceFixture.servedRequests++;
+      await route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8',
+        headers: { 'Cache-Control': 'no-cache', ETag: transformed.metadata.etag }, body: transformed.served });
+    });
+  }
   report.audioSourceHashes = Object.fromEntries(await Promise.all(['js/audio/engine.js', 'js/audio/performance.js', 'js/audio/crowd.js', 'js/audio/crowd-loader.js', 'js/audio/crowd-worker.js'].map(async name => {
     const response = await page.request.get(new URL(name, cfg.baseURL).href);
     return [name, response.ok() ? { sha256: sha256(await response.body()) } : { httpStatus: response.status() }];
@@ -368,6 +399,7 @@ try {
 
   await page.goto(report.url, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => !!window.__fp && !document.getElementById('enterBtn')?.disabled && !!window.__qaMainFrame, null, { polling: 100 });
+  if (fixedAudienceSeed !== null) assert.ok(report.audienceFixture.servedRequests > 0, 'Isolated solo-audience main.js fixture served');
   await activate(page.getByRole('button', { name: '혼자 보기', exact: true }));
   await page.waitForFunction(() => !document.getElementById('splash') && window.__fp.director.active && window.__fp.engine.ctx?.state === 'running', null, { polling: 100 });
   await page.evaluate(installProbe);
@@ -376,14 +408,29 @@ try {
   delete report.piece.serialized;
   if (process.env.PIECE_ID) assert.equal(report.piece.id, process.env.PIECE_ID, 'Expected default piece');
   await render('entered');
-  report.seat = await page.evaluate(() => {
-    const { hall, director, camera } = window.__fp;
+  report.seat = await page.evaluate(fixedAudience => {
+    const { hall, director, camera, audience } = window.__fp;
     const candidates = hall.seats.filter(s => !s.stage && !director.occupied.has(s.index));
     const seat = candidates.filter(s => Math.abs(s.x) < 3).sort((a, b) => a.y - b.y || a.z - b.z)[0] || candidates[0];
     if (!seat) throw new Error('No real free non-stage seat');
-    director.placeAt(camera.position.clone().set(seat.x, seat.y, seat.z + 0.5), camera.position.clone().set(seat.x, seat.y + 1, seat.z - 1));
-    return { index: seat.index, label: seat.label, position: [seat.x, seat.y, seat.z] };
-  });
+    const placementOffsetZ = fixedAudience ? 0.2 : 0.5;
+    const crowd = fixedAudience ? { count: audience?.count ?? null,
+      occupiedIndices: [...director.occupied].sort((a, b) => a - b),
+      audienceOccupiedIndices: [...(audience?.occupied || [])].sort((a, b) => a - b) } : null;
+    director.placeAt(camera.position.clone().set(seat.x, seat.y, seat.z + placementOffsetZ), camera.position.clone().set(seat.x, seat.y + 1, seat.z - 1));
+    return { index: seat.index, label: seat.label, position: [seat.x, seat.y, seat.z], placementOffsetZ, ...(crowd ? { crowd } : {}) };
+  }, fixedAudienceSeed !== null);
+  if (fixedAudienceSeed !== null) {
+    const { crowd } = report.seat;
+    const validIndices = indices => indices.every(index => Number.isInteger(index) && index >= 0);
+    assert.ok(validIndices(crowd.occupiedIndices) && validIndices(crowd.audienceOccupiedIndices), 'Occupied seat indices are nonnegative integers');
+    report.audienceFingerprint = { count: crowd.count,
+      occupiedCount: crowd.occupiedIndices.length, occupiedSortedSha256: sha256(JSON.stringify(crowd.occupiedIndices)),
+      audienceOccupiedCount: crowd.audienceOccupiedIndices.length, audienceOccupiedSortedSha256: sha256(JSON.stringify(crowd.audienceOccupiedIndices)),
+      method: 'SHA-256 of UTF-8 JSON.stringify of numerically ascending occupied indices, once after entered frame and before local viewer seating. director.occupied and audience.occupied are recorded separately.',
+    };
+    delete report.seat.crowd;
+  }
   await render('near-seat');
   if (device === 'mobile') await activate(page.getByRole('button', { name: '앉기', exact: true }));
   else await page.keyboard.press('e');
@@ -391,8 +438,18 @@ try {
   await render('seated');
   report.camera = await page.evaluate(() => {
     const { camera, director, settings, renderer } = window.__fp;
-    return { mode: director.mode, seat: director.seat?.index, position: camera.position.toArray(), quaternion: camera.quaternion.toArray(), fov: camera.fov, settings: { ...settings }, pixelRatio: renderer.getPixelRatio() };
+    const actualSeat = director.seat;
+    return { mode: director.mode, seat: actualSeat?.index,
+      actualSeat: actualSeat ? { index: actualSeat.index, label: actualSeat.label, position: [actualSeat.x, actualSeat.y, actualSeat.z], stage: !!actualSeat.stage } : null,
+      position: camera.position.toArray(), quaternion: camera.quaternion.toArray(), fov: camera.fov, settings: { ...settings }, pixelRatio: renderer.getPixelRatio() };
   });
+  if (fixedAudienceSeed !== null) {
+    report.audienceFixture.selectedSeatIndex = report.seat.index;
+    report.audienceFixture.actualSeatIndex = report.camera.seat ?? null;
+    report.audienceFixture.seatMatched = report.camera.seat === report.seat.index;
+    report.fixtureStatus = report.audienceFixture.seatMatched && report.camera.mode === 'seat' ? 'PASS' : 'FAIL';
+    assert.equal(report.camera.seat, report.seat.index, 'Fixed-audience real sit must reach the selected seat index');
+  }
   assert.equal(report.camera.mode, 'seat', 'Real sit input');
   for (let i = 0; i < preludeFrames; i++) await render(`prelude-${i + 1}`);
   report.roster = await page.evaluate(async () => {
@@ -452,6 +509,7 @@ try {
   await render('post-resume');
   const postFrame = await observeWindow('post-frame', 400);
   report.checks = {
+    ...(fixedAudienceSeed === null ? {} : { fixedAudienceMainServed: report.audienceFixture.servedRequests > 0, actualSeatMatchesSelected: report.audienceFixture.seatMatched }),
     resumeWithinOriginalTwoSeconds: report.resume.conditionPassed,
     prePauseAudioClockAdvanced: prePause.after.audioNow > prePause.before.audioNow + 0.05,
     postFrameAudioClockAdvanced: postFrame.after.audioNow > postFrame.before.audioNow + 0.05,
@@ -480,7 +538,7 @@ try {
 } catch (error) {
   // A failure in the optional follow-up must not replace the already recorded
   // original two-second transport FAIL with a different overall outcome.
-  report.status = report.transportStatus === 'FAIL' ? 'FAIL' : 'ERROR';
+  report.status = report.transportStatus === 'FAIL' || report.fixtureStatus === 'FAIL' ? 'FAIL' : 'ERROR';
   report.failure = { message: error.message, stack: error.stack };
 } finally {
   if (page && !page.isClosed()) {

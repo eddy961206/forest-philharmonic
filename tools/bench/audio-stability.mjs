@@ -8,19 +8,49 @@ import { createHash } from 'node:crypto';
 import { appURL, config, launchBrowser } from './browser.mjs';
 import { browserOptions, localAppProxy, installRuntimeProbe, waitReady, networkCollector, networkSummary, browserState } from './loading-proxy.mjs';
 
-const [label = 'current', venue = 'hall', device = 'desktop', seconds = '65'] = process.argv.slice(2);
+const args = process.argv.slice(2);
+if (args.includes('--help')) {
+  console.log(`node tools/bench/audio-stability.mjs [label] [hall|sphere] [desktop|mobile] [seconds=65]
+실제 AudioContext·원래 샘플·25ms 오디오 스케줄러의 지속 재생 검사야.
+main WebGL rAF를 멈추고 Performance.updateVisual(perf.time)만 약 5Hz로 호출해.
+화면 FPS나 지속 GPU 부하 중 음질을 검증하는 검사는 아니야.
+seconds는 61..68이며 실제 곡 길이보다 최소 5초 짧아야 해.
+벽시계 65초 고정이 아니라 음악 위치가 seconds에 도달한 뒤 끝내고 실제 경과를 기록해.
+6a 기본 기대 곡: hall=beethoven-ode-to-joy, sphere=bach-wachet-auf.
+EXPECTED_PIECE=곡_ID로 기대값만 선택할 수 있어. 실제 곡을 바꾸거나 seek하지 않아.
+desktop/high는 389개, mobile/low는 기존 Lite 정책의 207개 샘플을 확인해.
+관객 seed와 실제 착석 위치는 고정하지 않아. 선택/실제 좌석 및 리스너 위치를 기록하지만
+동일 조건 성능 비교가 아니야. 모바일은 viewport/touch/UA 에뮬레이션이야.
+음표 순서·voice 생성·source.start·비제로 analyser 신호·late=0·마지막 pause를 검사해.
+실제 스피커 청취, A/V 동기, 탐색 후 재개, 숨긴 탭, 장시간 발열 검증은 포함하지 않아.
+공통 환경: BASE_URL, REVISION, OUTPUT_DIR, PLAYWRIGHT_MODULE, CHROME_EXECUTABLE,
+CHROME_ARGS, SOFTWARE_RENDERER, HEADLESS, FONT_MODE, FONT_ROOT, WIDTH, HEIGHT, DPR, TIMEOUT_MS.
+--help는 출력 폴더·서버·브라우저를 만들지 않아. 실제 브라우저 실행은 직렬로 진행해.`);
+  process.exit(0);
+}
+assert.ok(args.length <= 4, 'Expected [label] [hall|sphere] [desktop|mobile] [seconds]');
+const [label = 'current', venue = 'hall', device = 'desktop', seconds = '65'] = args;
 assert.ok(/^[a-zA-Z0-9_-]+$/.test(label));
 assert.ok(['hall', 'sphere'].includes(venue));
 assert.ok(['desktop', 'mobile'].includes(device));
 const duration = Number(seconds);
-assert.ok(Number.isFinite(duration) && duration >= 61 && duration <= 68, 'First score is 73.94s; use 61-68 seconds to remain before its finale');
+assert.ok(Number.isFinite(duration) && duration >= 61 && duration <= 68, 'Use 61-68 seconds; the actual score duration is checked after boot');
+const defaultPieces = { hall: 'beethoven-ode-to-joy', sphere: 'bach-wachet-auf' };
+const expectedPiece = process.env.EXPECTED_PIECE ?? defaultPieces[venue];
+assert.ok(/^[a-zA-Z0-9_-]+$/.test(expectedPiece), 'EXPECTED_PIECE must be a nonempty score ID');
+const minimumFinaleMarginSeconds = 5;
 const quality = device === 'mobile' ? 'low' : 'high';
+const expectedLite = device === 'mobile';
+const expectedSampleCount = expectedLite ? 207 : 389;
 const cfg = config(label);
 await fs.mkdir(cfg.outputDir, { recursive: true });
 const output = path.join(cfg.outputDir, 'audio-stability-' + label + '-' + venue + '-' + device + '.json');
 const errors = [], warnings = [];
 const result = {
   measuredAt: new Date().toISOString(), label, baseURL: cfg.baseURL, revision: cfg.revision, venue, device, quality, duration, fontMode: cfg.fontMode,
+  collectorSourceSha256: createHash('sha256').update(await fs.readFile(new URL(import.meta.url))).digest('hex'),
+  expectedPiece, expectedPieceSource: process.env.EXPECTED_PIECE === undefined ? '6a-venue-default' : 'EXPECTED_PIECE',
+  minimumFinaleMarginSeconds,
   method: 'Actual local app, original assets and default audio settings. Click the real solo-entry control, place the visitor beside a real available seat, update the existing Director once, use the real sit key/button, then click the real start-show control. The current score roster is snapped onstage to skip the entrance/change animation; older builds without snapRoster retain their original all-player snap. The chosen fixture and exact player keys are recorded. The native main scene rAF is captured; there are no repeated WebGL renders during the measured interval. Performance.updateVisual runs at 5 Hz with the actual Performance.time, while the original 25ms audio worker timer, scheduler, lookahead, playback speed, notes, Web Audio graph and output remain unchanged. engine.playNote and AudioBufferSourceNode.start are transparent observation wrappers. Recording lasts until at least the requested real audio performance time, over 60 seconds. Pause uses the real transport button. This isolates low visual-update frequency from GPU/main-thread overload; it does not validate playback under sustained rendering stalls.',
   limitations: [
     'Browser/renderer identity is recorded. Mobile uses viewport/touch/UA emulation, not a real phone. Software-rendered results do not predict a physical GPU.',
@@ -28,6 +58,8 @@ const result = {
     'No forced hidden-tab or frozen-page simulation. Actual document visibility is recorded; foreground-only results must not be claimed as background-tab coverage.',
     'The existing desktop/high and mobile/low sample policies are retained. Comparing those presets against each other is not an optimization claim.',
     'Longtask and request-byte observations are from this controlled fixture. No repeated scene rendering, allocation stress or CPU throttling is imposed.',
+    'Solo audience randomness is not fixed. The legacy z+0.5 approach can select a different actual seat; selected/actual indices and listener position are recorded without changing that behavior. This is not a strict same-seat/audience performance comparison.',
+    'The held-main-frame fixture explicitly sets director.listener(null) once in seat mode. Director only applies fixedEar/bestSeat in cinema mode, so the seated listener policy is preserved. Moving-listener audio and fixed-ear cinema positioning are not validated.',
   ],
   checks: {}, errors, warnings, passed: false,
 };
@@ -49,9 +81,18 @@ try {
   await page.goto(appURL(proxy.origin, venue), { waitUntil: 'domcontentloaded' });
   await waitReady(page, cfg.timeoutMs);
   result.boot = await browserState(page);
-  assert.equal(result.boot.sampleCount, device === 'mobile' ? 207 : 389);
+  result.samplePolicy = { expectedLite, observedLite: result.boot.lite, expectedSampleCount,
+    observedSampleCount: result.boot.sampleCount, observedSampleRate: result.boot.sampleRate };
+  result.pieceFixture = { expected: expectedPiece, actual: result.boot.piece,
+    actualDuration: result.boot.pieceDuration, requestedStopTime: duration,
+    remainingSecondsAtRequestedStop: result.boot.pieceDuration - duration, minimumFinaleMarginSeconds };
+  assert.equal(result.boot.quality, quality, 'Requested quality preset must be active');
+  assert.equal(result.boot.lite, expectedLite, 'Actual audio sample policy must match the requested device/preset');
+  assert.equal(result.boot.sampleCount, expectedSampleCount);
   assert.equal(result.boot.applausePcmBytes, 14288400);
-  assert.equal(result.boot.piece, 'beethoven-ode-to-joy');
+  assert.equal(result.boot.piece, expectedPiece, 'Default program piece differs from the expectation; the collector does not switch tracks');
+  assert.ok(Number.isFinite(result.boot.pieceDuration) && duration <= result.boot.pieceDuration - minimumFinaleMarginSeconds,
+    'Requested stop time must be at least 5 seconds before the actual score ends');
   console.log(JSON.stringify({ label, venue, device, stage: 'ready', state: result.boot }));
 
   await page.getByRole('button', { name: '혼자 보기', exact: true }).click();
@@ -82,6 +123,7 @@ try {
     if (plan && (plan.exits.length || plan.enters.length)) throw new Error('Score roster fixture still requires a walking transition');
     return {
       candidate: seat.index, near: director.nearSeat?.index, phase: window.__fp.phase,
+      candidateLabel: seat.label, candidatePosition: [seat.x, seat.y, seat.z], placementOffsetZ: 0.5,
       stageFixture: { mode: rosterAware ? 'current-piece-roster' : 'legacy-all-players', piece: perf.piece.id, expected, actual },
     };
   });
@@ -89,17 +131,25 @@ try {
   if (device === 'mobile') await page.getByRole('button', { name: '앉기', exact: true }).click();
   else await page.keyboard.press('e');
   result.checks.seat = await page.evaluate(async () => {
-    const { director, perf, engine } = window.__fp;
+    const { director, perf, engine, settings, camera } = window.__fp;
     if (director.mode !== 'seat') throw new Error('The actual sit input did not select a seat');
     director.update(2.5, { time: 0, perf, obstacles: [] });
     const pose = director.listener(null);
     engine.setListener(pose.pos, pose.fwd, pose.up);
     const { hallOpenness } = await import('/js/scene/hallplan.js');
     engine.setRoom(hallOpenness(pose.pos.x, pose.pos.y, pose.pos.z));
-    return { mode: director.mode, seat: director.seat?.index, position: pose.pos.toArray(), contextState: engine.ctx.state };
+    return { mode: director.mode, seat: director.seat?.index, position: pose.pos.toArray(), contextState: engine.ctx.state,
+      actualSeat: director.seat ? { index: director.seat.index, label: director.seat.label,
+        position: [director.seat.x, director.seat.y, director.seat.z] } : null,
+      camera: { position: camera.position.toArray(), quaternion: camera.quaternion.toArray(), fov: camera.fov },
+      listenerForward: pose.fwd.toArray(), listenerUp: pose.up.toArray(), fixedEarSetting: settings.fixedEar,
+      listenerFixture: 'director.listener(null), explicitly applied once while the main frame is held' };
   });
   assert.equal(result.checks.seat.mode, 'seat');
   assert.ok(Number.isInteger(result.checks.seat.seat));
+  result.seatFixture = { selectedIndex: result.checks.placement.candidate, actualIndex: result.checks.seat.seat,
+    actualMatchesSelected: result.checks.placement.candidate === result.checks.seat.seat,
+    strictComparison: false, placementOffsetZ: 0.5 };
 
   await page.evaluate(() => {
     const { engine, perf } = window.__fp;

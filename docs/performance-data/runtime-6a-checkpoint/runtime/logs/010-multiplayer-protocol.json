@@ -1,0 +1,28 @@
+{
+  "index": 10,
+  "job": {
+    "id": "multiplayer-protocol",
+    "script": "tools/bench/multiplayer.mjs",
+    "args": [
+      "candidate"
+    ],
+    "directory": "protocol",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "TIMEOUT_MS": "180000"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/multiplayer.mjs",
+    "candidate"
+  ],
+  "startedAt": "2026-10-21T09:51:47.543353+00:00",
+  "planSha256": "998210cd65c4edf8f4e5c8aabf98fafa7a3132e63833bf34a197f839f30b6ddd",
+  "collectorSha256": "8ca860fbdebf008dbaf44560930b83bbb7d65534aca405e484b817b831c2fdd1",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T09:51:49.407727+00:00",
+  "logSha256": "d37561d357546d375b1ca31d4879f1316b01c88a9dfc423377970623e2a2b9dc"
+}

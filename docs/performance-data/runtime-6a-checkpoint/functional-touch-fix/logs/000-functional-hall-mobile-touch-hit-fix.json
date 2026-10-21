@@ -1,0 +1,32 @@
+{
+  "index": 0,
+  "job": {
+    "id": "functional-hall-mobile-touch-hit-fix",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "hall",
+      "mobile"
+    ],
+    "directory": "functional-v2",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18082/",
+      "REVISION": "0949203-plus-mobile-joy-zone-layer",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "candidate-touch-hit-fix",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs",
+    "hall",
+    "mobile"
+  ],
+  "startedAt": "2026-10-21T10:10:42.851251+00:00",
+  "planSha256": "1042e47945629dc02f027e6542760e03b02df0784559ee9e864777f3957879a4",
+  "collectorSha256": "a7eaf530e1764f27e78150bdd513b0ca664c2f96274f7d70baffbaf0284538b4",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T10:11:21.785906+00:00",
+  "logSha256": "16a79238f3dc2bc05ef3135499741896fafaac2a80bdb0819fad55519c038b26"
+}

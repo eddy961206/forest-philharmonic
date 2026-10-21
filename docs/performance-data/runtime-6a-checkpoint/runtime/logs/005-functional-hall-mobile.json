@@ -1,0 +1,32 @@
+{
+  "index": 5,
+  "job": {
+    "id": "functional-hall-mobile",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "hall",
+      "mobile"
+    ],
+    "directory": "functional",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "candidate-functional",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs",
+    "hall",
+    "mobile"
+  ],
+  "startedAt": "2026-10-21T09:47:55.670291+00:00",
+  "planSha256": "998210cd65c4edf8f4e5c8aabf98fafa7a3132e63833bf34a197f839f30b6ddd",
+  "collectorSha256": "259430f4d81aa8999931d1b082c73076c84703e0e6d75adfe1fc76a73b7cf844",
+  "status": "FAIL",
+  "exitCode": 1,
+  "finishedAt": "2026-10-21T09:48:23.534057+00:00",
+  "logSha256": "78c87e8ab354a248a433dbd3b8ed333b11f326d7273de998cab6945f85860b93"
+}

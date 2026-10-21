@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "reviewedAt": "2026-10-21T10:15:53.877505+00:00",
+  "original": {
+    "path": "/workspace/scratch/296fafc0af7f/verification/tool-snapshots/audio-stability-before-6a.mjs",
+    "bytes": 17020,
+    "sha256": "f2ab7aaf03d31aa6b0b6619bb74688050bb60efc8aeacda0a8c3fc050aabb6f3"
+  },
+  "modified": {
+    "path": "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-stability.mjs",
+    "bytes": 21738,
+    "sha256": "97e8704e2fc089d50f0976c2dc7ace75d3b5d7a02431f28090c5e81500e9c0cc"
+  },
+  "checks": {
+    "nodeSyntaxCheck": {
+      "command": "node --check tools/bench/audio-stability.mjs",
+      "exitCode": 0
+    },
+    "help": {
+      "command": "node tools/bench/audio-stability.mjs --help",
+      "exitCode": 0,
+      "outputMentionsNativeClockAndHeldWebgl": true,
+      "staticOrderBeforeConfigMkdirProxyBrowser": true
+    },
+    "recordingAndPlaybackSuffixByteIdentical": true,
+    "recordingAndPlaybackSuffixSha256": "fd61fa120a6c5fc153d255bb72a70990eb0919314eacb073937e26bcd70c2fa5",
+    "sampleManifestPolicyCounts": {
+      "full": 389,
+      "lite": 207,
+      "expectedFull": 389,
+      "expectedLite": 207
+    }
+  },
+  "staticSelectionReview": {
+    "defaultHall": "beethoven-ode-to-joy",
+    "defaultSphere": "bach-wachet-auf",
+    "override": "process.env.EXPECTED_PIECE ?? defaultPieces[venue]",
+    "emptyOrInvalidOverride": "명시한 빈 문자열이나 ID 문자집합 밖의 값은 cfg/출력폴더/브라우저 준비 전에 assert로 거절돼.",
+    "noTrackMutation": "EXPECTED_PIECE는 boot.piece 기대값만 바꿔. 곡 선택·load·seek·play 로직을 변경하지 않아.",
+    "lengthGuard": "원래 61..68초 범위를 유지하고 boot.pieceDuration - requestedStop >=5초를 추가로 확인해.",
+    "marginAt65Seconds": {
+      "hall": 8.94,
+      "sphere": 27.66
+    },
+    "samplePolicy": "6a 및 06c의 동일 samples/manifest.json(66bd0110a11b533b5956aa880662e2a0d5c6edef3b833ae5108e8d9f1462a777)과 실제 engine.loadSamples 필터로 389/207을 확인했어. 실행 결과에 boot.lite/quality/sampleCount/sampleRate를 기록/검사해.",
+    "listenerSemantics": "Director.listener는 cinema에서만 fixedSeat를 적용하므로 seat 모드 listener(null)은 원래 seated 정책과 같아. 이동/cinema 고정 청취 위치는 이 fixture로 검증하지 않아."
+  },
+  "unchangedBehaviors": [
+    "원래 AudioContext/currentTime과 오디오 그래프/샘플/25ms scheduler",
+    "약 5Hz perf.updateVisual 타이머와 반복 WebGL 정지",
+    "악보 prefix 순서 일치/voice 생성/source start/RMS/late===0/마지막 pause 판정",
+    "좌석 z+0.5 접근 및 실제 sit 입력, director.listener(null) 한 번 적용"
+  ],
+  "additionalEvidenceFields": [
+    "collectorSourceSha256",
+    "expectedPiece/expectedPieceSource",
+    "samplePolicy",
+    "pieceFixture 및 실제 곡 길이/종료 여유",
+    "선택 좌석 label/position와 actualSeat index/label/position",
+    "카메라 pose·listener forward/up·fixedEarSetting 및 actualMatchesSelected(strictComparison=false)"
+  ],
+  "notExecuted": [
+    "브라우저 실행",
+    "65초 실제 오디오 재생",
+    "GPU/실물 기기/청각 검증"
+  ],
+  "onlyEditedRepositoryFile": "tools/bench/audio-stability.mjs"
+}

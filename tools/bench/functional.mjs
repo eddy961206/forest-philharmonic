@@ -4,6 +4,7 @@
 // This deliberately captures the app's main rAF and renders explicit frames.
 // Its frame cadence, render counts and elapsed time are NOT performance results.
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import assert from 'node:assert/strict';
 import { appURL, config, diagnosticsFailed, openPage, save, sha256, sourceHashes, viewport } from './browser.mjs';
 
@@ -269,8 +270,129 @@ async function runCase({ venue, device }) {
       assert.ok(box && box.width > 12, 'Visible seek slider');
       const x = box.x + 6 + (box.width - 12) * target / duration;
       const y = box.y + box.height / 2;
-      if (mobile) { await touch('touchStart', [{ x, y }]); await touch('touchEnd', []); }
-      else { await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.up(); }
+      if (mobile) {
+        // Observe the original touch sequence; never invoke seek or alter its clock.
+        // Preserve the old immediate assertion separately from the bounded result.
+        const tolerance = Math.max(0.8, duration * 2 / (box.width - 12));
+        const diagnostic = {
+          input: 'CDP touch', target, duration, tolerance, point: { x, y }, box,
+          conditionTimeoutMs: 2000, firstReadPassed: null, waitPassed: false,
+          method: 'Capture-only input listeners and a transparent perf.seek wrapper. Original touchStart/touchEnd, then the original immediate time read and a separate paused-position wait. No seek/clock substitution.',
+        };
+        const diagnostics = report.mobileSeekDiagnostics ||= [];
+        const diagnosticIndex = diagnostics.push(diagnostic) - 1;
+        diagnostic.beforeInput = await page.evaluate(({ x, y }) => {
+          const { perf, engine } = window.__fp;
+          const seek = document.getElementById('seek');
+          const events = [], calls = [], dropped = { events: 0, calls: 0 };
+          const limits = { events: 128, calls: 16 };
+          const describe = node => node instanceof Element
+            ? { tag: node.tagName.toLowerCase(), id: node.id || null, class: node.getAttribute('class'), role: node.getAttribute('role') }
+            : node === document ? { node: 'document' } : node === window ? { node: 'window' } : { node: node?.nodeName || null };
+          const snapshot = () => ({
+            performanceNowMs: performance.now(), wallTimeMs: Date.now(),
+            time: perf.time, pausedPosition: perf.pos, playing: perf.playing,
+            duration: perf.duration, phase: window.__fp.phase, mode: window.__fp.director.mode,
+            audioState: engine.ctx?.state, audioNow: engine.ctx?.currentTime,
+            visibility: document.visibilityState,
+          });
+          const append = (list, row, kind) => {
+            if (list.length < limits[kind]) list.push(row); else dropped[kind]++;
+          };
+          const point = t => ({ identifier: t.identifier, clientX: t.clientX, clientY: t.clientY, pageX: t.pageX, pageY: t.pageY, radiusX: t.radiusX, radiusY: t.radiusY, force: t.force });
+          const observe = event => append(events, {
+            type: event.type, eventTimeStamp: event.timeStamp, performanceNowMs: performance.now(), wallTimeMs: Date.now(),
+            isTrusted: event.isTrusted, eventPhase: event.eventPhase, defaultPreventedAtCapture: event.defaultPrevented,
+            target: describe(event.target), path: event.composedPath().slice(0, 16).map(describe),
+            pointerId: event.pointerId ?? null, pointerType: event.pointerType ?? null,
+            clientX: event.clientX ?? null, clientY: event.clientY ?? null,
+            button: event.button ?? null, buttons: event.buttons ?? null,
+            seekHasPointerCapture: event.pointerId === undefined ? null : seek.hasPointerCapture(event.pointerId),
+            touches: event.touches ? [...event.touches].map(point) : null,
+            changedTouches: event.changedTouches ? [...event.changedTouches].map(point) : null,
+          }, 'events');
+          const eventTypes = ['pointerdown', 'pointerup', 'pointercancel', 'touchstart', 'touchend', 'touchcancel', 'gotpointercapture', 'lostpointercapture'];
+          for (const type of eventTypes) document.addEventListener(type, observe, { capture: true, passive: true });
+          const originalSeek = perf.seek;
+          const ownSeekDescriptor = Object.getOwnPropertyDescriptor(perf, 'seek');
+          const observedSeek = function (t) {
+            const call = { requestedTime: t, before: snapshot() };
+            try { return originalSeek.apply(this, arguments); }
+            catch (error) { call.error = error.message; throw error; }
+            finally { call.after = snapshot(); append(calls, call, 'calls'); }
+          };
+          perf.seek = observedSeek;
+          const bounds = id => {
+            const el = document.getElementById(id);
+            if (!el) return null;
+            const r = el.getBoundingClientRect(), css = getComputedStyle(el);
+            return { element: describe(el), rect: { x: r.x, y: r.y, left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height },
+              hidden: el.hidden, ariaDisabled: el.getAttribute('aria-disabled'),
+              style: { display: css.display, visibility: css.visibility, opacity: css.opacity, pointerEvents: css.pointerEvents, touchAction: css.touchAction, zIndex: css.zIndex } };
+          };
+          const hit = document.elementFromPoint(x, y);
+          const hitPath = [];
+          for (let node = hit; node && hitPath.length < 16; node = node.parentElement) hitPath.push(describe(node));
+          window.__qaMobileSeekProbe = {
+            snapshot,
+            finish() {
+              const finalState = snapshot();
+              for (const type of eventTypes) document.removeEventListener(type, observe, true);
+              const wrapperStillInstalled = perf.seek === observedSeek;
+              if (wrapperStillInstalled) {
+                if (ownSeekDescriptor) Object.defineProperty(perf, 'seek', ownSeekDescriptor);
+                else delete perf.seek;
+              }
+              delete window.__qaMobileSeekProbe;
+              return { events, calls, dropped, limits, finalState, wrapperRestored: wrapperStillInstalled,
+                note: 'Capture-phase defaultPrevented is read before target handlers. Observation adds overhead; event/seek evidence does not prove physical-device behaviour.' };
+            },
+          };
+          return {
+            state: snapshot(), hitTarget: describe(hit), hitPath,
+            hitIsSeekOrDescendant: !!hit && (hit === seek || seek.contains(hit)),
+            elementsFromPoint: document.elementsFromPoint(x, y).slice(0, 16).map(describe),
+            elements: Object.fromEntries(['seek', 'transport', 'joyZone', 'joystick', 'stage'].map(id => [id, bounds(id)])),
+            viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio, scrollX, scrollY,
+              visual: visualViewport ? { width: visualViewport.width, height: visualViewport.height, offsetLeft: visualViewport.offsetLeft, offsetTop: visualViewport.offsetTop, scale: visualViewport.scale } : null },
+            timeLabel: document.getElementById('time')?.textContent,
+          };
+        }, { x, y });
+        try {
+          await touch('touchStart', [{ x, y }]);
+          await touch('touchEnd', []);
+          const actual = await page.evaluate(() => window.__fp.perf.time);
+          diagnostic.firstReadActual = actual;
+          diagnostic.firstReadPassed = Math.abs(actual - target) < tolerance;
+          diagnostic.firstReadFailure = diagnostic.firstReadPassed ? null : `Native seek ${actual} != ${target}`;
+          const waitStartedAt = performance.now();
+          try {
+            const handle = await page.waitForFunction(({ target, tolerance }) => {
+              const perf = window.__fp.perf;
+              return !perf.playing && Math.abs(perf.time - target) < tolerance;
+            }, { target, tolerance }, { polling: 20, timeout: 2000 });
+            diagnostic.waitPassed = true;
+            await handle.dispose();
+          } catch (error) { diagnostic.waitError = error.message; }
+          diagnostic.waitNodeElapsedMs = performance.now() - waitStartedAt;
+          diagnostic.afterWait = await page.evaluate(() => window.__qaMobileSeekProbe.snapshot());
+        } catch (error) {
+          diagnostic.inputOrObservationError = error.message;
+          throw error;
+        } finally {
+          try {
+            diagnostic.observation = await withTimeout(page.evaluate(() => window.__qaMobileSeekProbe?.finish() || null), 'mobile seek observation', 5000, 'QA_DIAGNOSTIC_TIMEOUT');
+          } catch (error) { diagnostic.observationError = { message: error.message, code: error.code }; }
+        }
+        diagnostic.classification = diagnostic.waitPassed
+          ? diagnostic.firstReadPassed ? 'immediate-and-wait-passed' : 'immediate-failed; paused-position-observed-within-two-seconds'
+          : 'paused-position-not-observed-within-two-seconds';
+        assert.ok(diagnostic.waitPassed, `Native mobile seek ${diagnostic.afterWait?.time} != ${target} within 2000ms (first read ${diagnostic.firstReadActual})`);
+        assert.ok(diagnostic.observation && !diagnostic.observationError, 'Mobile seek input observations collected');
+        return { input: 'CDP touch', target, actual: diagnostic.afterWait.time, firstReadActual: diagnostic.firstReadActual,
+          firstReadPassed: diagnostic.firstReadPassed, waitPassed: diagnostic.waitPassed, conditionTimeoutMs: 2000, diagnosticIndex };
+      }
+      await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.up();
       const actual = await page.evaluate(() => window.__fp.perf.time);
       assert.ok(Math.abs(actual - target) < Math.max(0.8, duration * 2 / (box.width - 12)), `Native seek ${actual} != ${target}`);
       return { input: mobile ? 'CDP touch' : 'mouse pointer', target, actual };
@@ -432,7 +554,17 @@ async function runCase({ venue, device }) {
       assert.equal(startedRoster.settled, true, 'Initial score musicians are in place');
     }
     report.checks.roster = { initial: startedRoster };
-    if (venue === 'sphere') {
+    if (scope === 'transport') {
+      // The reference intentionally refreshes low-quality IMAG only every 90
+      // frames. Observe that cadence without making the transport-only control
+      // depend on the candidate's new immediate-refresh behaviour.
+      report.checks.broadcastStartObservation = {
+        startedFrame: started.passes.some(p => p.kind === 'broadcast'),
+        anyFrameSinceEntry: report.frames.some(f => f.passes.some(p => p.kind === 'broadcast')),
+        assertion: 'NOT_RUN: outside transport scope',
+      };
+      report.unchecked.push('Immediate live broadcast refresh: outside transport scope');
+    } else if (venue === 'sphere') {
       assert.ok(started.passes.some(p => p.kind === 'broadcast'), 'Newly visible live broadcast renders immediately');
       assert.equal(started.state.dome.live, true);
     } else {
@@ -646,6 +778,18 @@ async function runCase({ venue, device }) {
     }
     log(`FAIL:${error.message}`);
   } finally {
+    // Earlier collector runs did not capture a failure PNG. This image records
+    // the state at collection time; a continued transport failure may be older.
+    if (report.status === 'FAIL' && page && !page.isClosed()
+      && !report.failures.some(failure => failure.code === 'QA_FRAME_TIMEOUT')) {
+      const screenshotPath = path.join(out, `${cfg.label}-${venue}-${device}-failure.png`);
+      try {
+        await fs.mkdir(out, { recursive: true });
+        await withTimeout(page.screenshot({ path: screenshotPath, fullPage: false, timeout: 5000 }), 'failure screenshot', 5000, 'QA_DIAGNOSTIC_TIMEOUT');
+        report.failureScreenshot = { path: screenshotPath, capturedAt: new Date().toISOString(),
+          stage: report.transportContinuation?.subsequentChecksCompleted ? 'after-continuation-checks' : 'after-terminal-failure-state' };
+      } catch (error) { report.failureScreenshotError = { message: error.message, code: error.code }; }
+    }
     // A timed-out GPU frame may still hold the page thread. Closing the fresh
     // browser releases its input state without queuing more work on that page.
     if (!report.failures.some(failure => failure.code === 'QA_FRAME_TIMEOUT') && page && !page.isClosed()) {

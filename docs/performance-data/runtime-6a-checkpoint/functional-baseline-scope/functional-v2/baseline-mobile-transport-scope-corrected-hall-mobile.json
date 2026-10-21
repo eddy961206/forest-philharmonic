@@ -1,0 +1,2351 @@
+{
+  "schema": 2,
+  "suite": "functional-controlled",
+  "scope": "transport",
+  "venue": "hall",
+  "device": "mobile",
+  "status": "FAIL",
+  "url": "http://127.0.0.1:18080/?venue=hall&lobby=",
+  "label": "baseline-mobile-transport-scope-corrected",
+  "revision": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+  "fixtureSourceSha256": "a7eaf530e1764f27e78150bdd513b0ca664c2f96274f7d70baffbaf0284538b4",
+  "diagnosticOptions": {
+    "continueOnTransportFail": false
+  },
+  "viewport": [
+    390,
+    844
+  ],
+  "devicePixelRatio": 2,
+  "timeoutMs": 180000,
+  "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+  "fixtures": [
+    "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+    "Google Fonts requests use explicit local font files from FONT_ROOT; external font connectivity is outside this check.",
+    "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+    "Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.",
+    "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+    "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+    "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active."
+  ],
+  "unchecked": [
+    "programme-switch",
+    "quality-presets-and-world-target-resize",
+    "audience-toggle",
+    "broadcast-toggle",
+    "automatic-preset-reset",
+    "final-mobile-layout",
+    "Immediate live broadcast refresh: outside transport scope"
+  ],
+  "checks": {
+    "device": {
+      "maxTouchPoints": 5,
+      "finePointer": false,
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+    },
+    "identity": {
+      "stored": {
+        "avatar": "koala",
+        "name": "느긋한 코알라"
+      },
+      "animalLabel": "🐨 코알라",
+      "avatarSelectors": 0
+    },
+    "entry": {
+      "mode": "walk",
+      "active": true,
+      "seat": null,
+      "nearSeat": null,
+      "position": [
+        0,
+        5.955,
+        40.4
+      ],
+      "camera": [
+        0,
+        5.955,
+        40.4
+      ],
+      "forward": [
+        0,
+        0.007692080119339222,
+        -0.9999704155140979
+      ],
+      "up": [
+        0,
+        0.9999704155140979,
+        0.007692080119339222
+      ],
+      "yaw": 0,
+      "pitch": 0.00769215597564884,
+      "joy": {
+        "x": 0,
+        "y": 0
+      },
+      "keys": [],
+      "listener": {
+        "position": [
+          0,
+          5.955,
+          40.4
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ]
+      },
+      "listenerObservation": "original-setListener-input",
+      "audio": "running",
+      "playing": false,
+      "time": 0,
+      "duration": 73.94,
+      "piece": "beethoven-ode-to-joy",
+      "audioClock": {
+        "wallTimeMs": 1792577372540,
+        "performanceNowMs": 15814.199999999255,
+        "audioNow": 12.16,
+        "pausedPosition": 0,
+        "outputLatency": 0.08533333333333333,
+        "sampleRate": 24000,
+        "voices": 0,
+        "eventCount": 1776,
+        "visibility": "visible"
+      },
+      "phase": "lobby",
+      "audience": 200,
+      "occupied": 200,
+      "settings": {
+        "quality": "low",
+        "audience": true,
+        "screen": true,
+        "fixedEar": true
+      },
+      "render": {
+        "quality": null,
+        "scale": null,
+        "pixelRatio": 1.25,
+        "shadows": false,
+        "statisticsAvailable": false
+      },
+      "dome": null
+    },
+    "movement": {
+      "input": "CDP joystick drag",
+      "before": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.4
+        ],
+        "camera": [
+          0,
+          5.955,
+          40.4
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.955,
+            40.4
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577372544,
+          "performanceNowMs": 15818,
+          "audioNow": 12.16,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "after": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.319736442677886
+        ],
+        "camera": [
+          0,
+          5.959108768820187,
+          40.319736442677886
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": -0.782608695652174
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.959108768820187,
+            40.319736442677886
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577373523,
+          "performanceNowMs": 16796.699999999255,
+          "audioNow": 13.141333333333334,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      }
+    },
+    "look": {
+      "input": "CDP canvas drag",
+      "before": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.319736442677886
+        ],
+        "camera": [
+          0,
+          5.959108768820187,
+          40.319736442677886
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": -0.782608695652174
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.959108768820187,
+            40.319736442677886
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577373560,
+          "performanceNowMs": 16833.60000000149,
+          "audioNow": 13.184,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "after": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.28973118619025
+        ],
+        "camera": [
+          0,
+          5.958271834863442,
+          40.28973118619025
+        ],
+        "forward": [
+          0.2888333455777356,
+          -0.10968670137718675,
+          -0.9510752472982168
+        ],
+        "up": [
+          0.03187349488411727,
+          0.993966210462404,
+          -0.10495357441688344
+        ],
+        "yaw": -0.29483992309570317,
+        "pitch": -0.10990784402435115,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.958271834863442,
+            40.28973118619025
+          ],
+          "forward": [
+            0.2888333455777356,
+            -0.10968670137718675,
+            -0.9510752472982168
+          ],
+          "up": [
+            0.03187349488411727,
+            0.993966210462404,
+            -0.10495357441688344
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577374958,
+          "performanceNowMs": 18231.800000000745,
+          "audioNow": 14.570666666666666,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      }
+    },
+    "listenerAudioParams": {
+      "position": [
+        0,
+        5.9582719802856445,
+        40.289730072021484
+      ],
+      "forward": [
+        0.288833349943161,
+        -0.1096867024898529,
+        -0.9510752558708191
+      ]
+    },
+    "seatFixture": {
+      "candidate": 21,
+      "label": "1층 A열 22번"
+    },
+    "sitStand": {
+      "input": "touch sit -> walk buttons",
+      "seated": {
+        "mode": "seat",
+        "active": true,
+        "seat": 63,
+        "nearSeat": 63,
+        "position": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "camera": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "forward": [
+          0,
+          -0.3819889769350002,
+          -0.9241668796814523
+        ],
+        "up": [
+          0,
+          0.9241668796814523,
+          -0.3819889769350002
+        ],
+        "yaw": 0,
+        "pitch": -0.3919475254685127,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            1.7100000000000002,
+            3.7
+          ],
+          "forward": [
+            0,
+            -0.3819889769350002,
+            -0.9241668796814523
+          ],
+          "up": [
+            0,
+            0.9241668796814523,
+            -0.3819889769350002
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577375576,
+          "performanceNowMs": 18850.400000002235,
+          "audioNow": 15.189333333333334,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "standing": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577376204,
+          "performanceNowMs": 19478.199999999255,
+          "audioNow": 15.829333333333333,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      }
+    },
+    "roster": {
+      "initial": {
+        "piece": "beethoven-ode-to-joy",
+        "supported": true,
+        "required": [
+          "bn:0",
+          "cb:0",
+          "choir:0",
+          "choir:1",
+          "choir:10",
+          "choir:11",
+          "choir:2",
+          "choir:3",
+          "choir:4",
+          "choir:5",
+          "choir:6",
+          "choir:7",
+          "choir:8",
+          "choir:9",
+          "cl:0",
+          "fl:0",
+          "hn:0",
+          "hn:1",
+          "ob:0",
+          "timp:0",
+          "tp:0",
+          "va:0",
+          "va:1",
+          "vc:0",
+          "vc:1",
+          "vn1:0",
+          "vn1:1",
+          "vn1:2",
+          "vn2:0",
+          "vn2:1",
+          "vn2:2"
+        ],
+        "active": [
+          "bn:0",
+          "cb:0",
+          "choir:0",
+          "choir:1",
+          "choir:10",
+          "choir:11",
+          "choir:2",
+          "choir:3",
+          "choir:4",
+          "choir:5",
+          "choir:6",
+          "choir:7",
+          "choir:8",
+          "choir:9",
+          "cl:0",
+          "fl:0",
+          "hn:0",
+          "hn:1",
+          "ob:0",
+          "timp:0",
+          "tp:0",
+          "va:0",
+          "va:1",
+          "vc:0",
+          "vc:1",
+          "vn1:0",
+          "vn1:1",
+          "vn1:2",
+          "vn2:0",
+          "vn2:1",
+          "vn2:2"
+        ],
+        "settled": true,
+        "conductorOn": true
+      }
+    },
+    "broadcastStartObservation": {
+      "startedFrame": false,
+      "anyFrameSinceEntry": false,
+      "assertion": "NOT_RUN: outside transport scope"
+    }
+  },
+  "frames": [
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.4
+        ],
+        "camera": [
+          0,
+          5.955,
+          40.4
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.955,
+            40.4
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577372540,
+          "performanceNowMs": 15814.199999999255,
+          "audioNow": 12.16,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "entered"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.36920674728186
+        ],
+        "camera": [
+          0,
+          5.956024145602625,
+          40.36920674728186
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": -0.782608695652174
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.956024145602625,
+            40.36920674728186
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577373138,
+          "performanceNowMs": 16412.10000000149,
+          "audioNow": 12.757333333333333,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "movement-1"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.319736442677886
+        ],
+        "camera": [
+          0,
+          5.959108768820187,
+          40.319736442677886
+        ],
+        "forward": [
+          0,
+          0.007692080119339222,
+          -0.9999704155140979
+        ],
+        "up": [
+          0,
+          0.9999704155140979,
+          0.007692080119339222
+        ],
+        "yaw": 0,
+        "pitch": 0.00769215597564884,
+        "joy": {
+          "x": 0,
+          "y": -0.782608695652174
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.959108768820187,
+            40.319736442677886
+          ],
+          "forward": [
+            0,
+            0.007692080119339222,
+            -0.9999704155140979
+          ],
+          "up": [
+            0,
+            0.9999704155140979,
+            0.007692080119339222
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577373523,
+          "performanceNowMs": 16796.699999999255,
+          "audioNow": 13.141333333333334,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "movement-2"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          0,
+          5.955,
+          40.28973118619025
+        ],
+        "camera": [
+          0,
+          5.958271834863442,
+          40.28973118619025
+        ],
+        "forward": [
+          0.2888333455777356,
+          -0.10968670137718675,
+          -0.9510752472982168
+        ],
+        "up": [
+          0.03187349488411727,
+          0.993966210462404,
+          -0.10495357441688344
+        ],
+        "yaw": -0.29483992309570317,
+        "pitch": -0.10990784402435115,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            5.958271834863442,
+            40.28973118619025
+          ],
+          "forward": [
+            0.2888333455777356,
+            -0.10968670137718675,
+            -0.9510752472982168
+          ],
+          "up": [
+            0.03187349488411727,
+            0.993966210462404,
+            -0.10495357441688344
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577374958,
+          "performanceNowMs": 18231.800000000745,
+          "audioNow": 14.570666666666666,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "look-drag"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "camera": [
+          0,
+          1.7100000000000002,
+          3.7
+        ],
+        "forward": [
+          0,
+          -0.3819889769350002,
+          -0.9241668796814523
+        ],
+        "up": [
+          0,
+          0.9241668796814523,
+          -0.3819889769350002
+        ],
+        "yaw": 0,
+        "pitch": -0.3919475254685127,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            0,
+            1.7100000000000002,
+            3.7
+          ],
+          "forward": [
+            0,
+            -0.3819889769350002,
+            -0.9241668796814523
+          ],
+          "up": [
+            0,
+            0.9241668796814523,
+            -0.3819889769350002
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577375502,
+          "performanceNowMs": 18776.5,
+          "audioNow": 15.125333333333334,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "near-seat"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "seat",
+        "active": true,
+        "seat": 63,
+        "nearSeat": null,
+        "position": [
+          -0.14018832647224994,
+          1.4325,
+          4.170097113308842
+        ],
+        "camera": [
+          -0.14018832647224994,
+          1.4325,
+          4.170097113308842
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14018832647224994,
+            1.4325,
+            4.170097113308842
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577375898,
+          "performanceNowMs": 19172.10000000149,
+          "audioNow": 15.530666666666667,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "seated"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577376204,
+          "performanceNowMs": 19478.199999999255,
+          "audioNow": 15.829333333333333,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 0,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "stood-up"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 63,
+        "position": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "camera": [
+          -0.14058799942376052,
+          1.8525,
+          3.730098411599396
+        ],
+        "forward": [
+          0.00940939783062099,
+          0.0383467748782806,
+          -0.9992201899926261
+        ],
+        "up": [
+          -0.00036108564175008046,
+          0.9992644919421657,
+          0.03834507479096702
+        ],
+        "yaw": -0.009416462771162657,
+        "pitch": 0.03835617909906247,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -0.14058799942376052,
+            1.8525,
+            3.730098411599396
+          ],
+          "forward": [
+            0.00940939783062099,
+            0.0383467748782806,
+            -0.9992201899926261
+          ],
+          "up": [
+            -0.00036108564175008046,
+            0.9992644919421657,
+            0.03834507479096702
+          ]
+        },
+        "listenerObservation": "original-setListener-input",
+        "audio": "running",
+        "playing": true,
+        "time": 0.3919999999999972,
+        "duration": 73.94,
+        "piece": "beethoven-ode-to-joy",
+        "audioClock": {
+          "wallTimeMs": 1792577382808,
+          "performanceNowMs": 26081.699999999255,
+          "audioNow": 22.421333333333333,
+          "startCtx": 21.944000000000003,
+          "startPos": 0,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 24000,
+          "voices": 24,
+          "scheduledEventIndex": 24,
+          "eventCount": 1776,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 200,
+        "occupied": 200,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": null,
+          "scale": null,
+          "pixelRatio": 1.25,
+          "shadows": false,
+          "statisticsAvailable": false
+        },
+        "dome": null
+      },
+      "label": "show-started"
+    }
+  ],
+  "failures": [
+    {
+      "stage": "functional",
+      "message": "Native mobile seek 0.45599999999999724 != 22 within 2000ms (first read 0.45599999999999724)",
+      "stack": "AssertionError [ERR_ASSERTION]: Native mobile seek 0.45599999999999724 != 22 within 2000ms (first read 0.45599999999999724)\n    at seekTo (file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs:390:16)\n    at async runCase (file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs:582:26)\n    at async file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs:816:41",
+      "code": "ERR_ASSERTION"
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "failedRequests": [],
+  "environment": {
+    "browserVersion": "153.0.8010.0",
+    "playwrightVersion": "1.64.1",
+    "platform": "linux",
+    "architecture": "x64",
+    "softwareRequested": true,
+    "chromeArgs": [
+      "--ash-no-nudges",
+      "--disable-domain-reliability",
+      "--disable-print-preview",
+      "--disk-cache-size=33554432",
+      "--no-default-browser-check",
+      "--no-pings",
+      "--font-render-hinting=none",
+      "--disable-features=IsolateOrigins,site-per-process",
+      "--enable-features=SharedArrayBuffer",
+      "--ignore-gpu-blocklist",
+      "--allow-running-insecure-content",
+      "--disable-setuid-sandbox",
+      "--disable-site-isolation-trials",
+      "--disable-web-security",
+      "--headless='shell'",
+      "--no-sandbox",
+      "--no-zygote",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader"
+    ],
+    "fontMode": "local",
+    "headless": true
+  },
+  "diagnostics": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "warnings": [],
+    "failedRequests": []
+  },
+  "sourceHashes": {
+    "js/boot.js": {
+      "sha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4"
+    },
+    "js/main.js": {
+      "sha256": "9627b954dfb30a226df87e4eda83d96577e686995622c35f275dd1d2c4ed5283"
+    },
+    "js/quality.js": {
+      "httpStatus": 404
+    },
+    "js/scene/hall.js": {
+      "sha256": "df6eb3bf58c0c75a355fb4f1b0f0589be6a46ca30ca856ed7a94e4f9960eac5a"
+    },
+    "js/scene/seats.js": {
+      "sha256": "e355a11113f489808f594a5d1d84fd8dfba7a64d9f03c8a445e050bec16624e2"
+    },
+    "js/scene/audience.js": {
+      "sha256": "8f2677507615e9f7a04cf919df391cc2ea034862ba40fb438ae8eaf3381e23d4"
+    },
+    "js/scene/screen.js": {
+      "sha256": "ec641d3ee0bb768e7b41b809fba27241fecd3a9b25b8fa8d7edb0e33c008c8a6"
+    },
+    "js/scene/sphere.js": {
+      "sha256": "4f22fa4b3204afa5b44ca424fdd8d95e851cea22bd20cdd9b295e99263173e29"
+    },
+    "js/scene/dome3d.js": {
+      "sha256": "fc47f58a98830be4483d3d44c8bc451aba9b52d0713cbda3be51bc4ed872a366"
+    },
+    "js/scene/domeshow.js": {
+      "sha256": "c715eaf247da0afed5c4e6e63ab009a9917f1c23dc9507ef6b1a3be1929bcbb9"
+    },
+    "js/audio/engine.js": {
+      "sha256": "bcbff75934740669c934cc76b319ea5b28169bbd065d6a72dcb16d578e4a17a6"
+    },
+    "js/audio/performance.js": {
+      "sha256": "a8294cddf767fcf3dd1adfaecddfecced5adeb5019fb89c1bd50a526a55b78a3"
+    }
+  },
+  "mobileSeekDiagnostics": [
+    {
+      "input": "CDP touch",
+      "target": 22,
+      "duration": 73.94,
+      "tolerance": 0.8,
+      "point": {
+        "x": 128.5926426832567,
+        "y": 700.5
+      },
+      "box": {
+        "x": 25,
+        "y": 691.5,
+        "width": 340,
+        "height": 18
+      },
+      "conditionTimeoutMs": 2000,
+      "firstReadPassed": false,
+      "waitPassed": false,
+      "method": "Capture-only input listeners and a transparent perf.seek wrapper. Original touchStart/touchEnd, then the original immediate time read and a separate paused-position wait. No seek/clock substitution.",
+      "beforeInput": {
+        "state": {
+          "performanceNowMs": 26333,
+          "wallTimeMs": 1792577383059,
+          "time": 0.45599999999999724,
+          "pausedPosition": 0.45599999999999724,
+          "playing": false,
+          "duration": 73.94,
+          "phase": "playing",
+          "mode": "walk",
+          "audioState": "running",
+          "audioNow": 22.677333333333333,
+          "visibility": "visible"
+        },
+        "hitTarget": {
+          "tag": "div",
+          "id": "joyZone",
+          "class": "joy-zone",
+          "role": null
+        },
+        "hitPath": [
+          {
+            "tag": "div",
+            "id": "joyZone",
+            "class": "joy-zone",
+            "role": null
+          },
+          {
+            "tag": "body",
+            "id": null,
+            "class": "touch",
+            "role": null
+          },
+          {
+            "tag": "html",
+            "id": null,
+            "class": null,
+            "role": null
+          }
+        ],
+        "hitIsSeekOrDescendant": false,
+        "elementsFromPoint": [
+          {
+            "tag": "div",
+            "id": "joyZone",
+            "class": "joy-zone",
+            "role": null
+          },
+          {
+            "tag": "canvas",
+            "id": "stringCanvas",
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": "seek",
+            "class": "string-wrap",
+            "role": "slider"
+          },
+          {
+            "tag": "footer",
+            "id": "transport",
+            "class": "transport",
+            "role": null
+          },
+          {
+            "tag": "canvas",
+            "id": null,
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "div",
+            "id": "stage",
+            "class": null,
+            "role": null
+          },
+          {
+            "tag": "body",
+            "id": null,
+            "class": "touch",
+            "role": null
+          },
+          {
+            "tag": "html",
+            "id": null,
+            "class": null,
+            "role": null
+          }
+        ],
+        "elements": {
+          "seek": {
+            "element": {
+              "tag": "div",
+              "id": "seek",
+              "class": "string-wrap",
+              "role": "slider"
+            },
+            "rect": {
+              "x": 25,
+              "y": 691.5,
+              "left": 25,
+              "top": 691.5,
+              "right": 365,
+              "bottom": 709.5,
+              "width": 340,
+              "height": 18
+            },
+            "hidden": false,
+            "ariaDisabled": null,
+            "style": {
+              "display": "block",
+              "visibility": "visible",
+              "opacity": "1",
+              "pointerEvents": "auto",
+              "touchAction": "none",
+              "zIndex": "auto"
+            }
+          },
+          "transport": {
+            "element": {
+              "tag": "footer",
+              "id": "transport",
+              "class": "transport",
+              "role": null
+            },
+            "rect": {
+              "x": 16,
+              "y": 688.5,
+              "left": 16,
+              "top": 688.5,
+              "right": 374,
+              "bottom": 830,
+              "width": 358,
+              "height": 141.5
+            },
+            "hidden": false,
+            "ariaDisabled": null,
+            "style": {
+              "display": "block",
+              "visibility": "visible",
+              "opacity": "1",
+              "pointerEvents": "auto",
+              "touchAction": "auto",
+              "zIndex": "10"
+            }
+          },
+          "joyZone": {
+            "element": {
+              "tag": "div",
+              "id": "joyZone",
+              "class": "joy-zone",
+              "role": null
+            },
+            "rect": {
+              "x": 0,
+              "y": 315.765625,
+              "left": 0,
+              "top": 315.765625,
+              "right": 187.1875,
+              "bottom": 704,
+              "width": 187.1875,
+              "height": 388.234375
+            },
+            "hidden": false,
+            "ariaDisabled": null,
+            "style": {
+              "display": "block",
+              "visibility": "visible",
+              "opacity": "1",
+              "pointerEvents": "auto",
+              "touchAction": "none",
+              "zIndex": "11"
+            }
+          },
+          "joystick": {
+            "element": {
+              "tag": "div",
+              "id": "joystick",
+              "class": "joystick",
+              "role": null
+            },
+            "rect": {
+              "x": 23.390625,
+              "y": 548,
+              "left": 23.390625,
+              "top": 548,
+              "right": 147.390625,
+              "bottom": 672,
+              "width": 124,
+              "height": 124
+            },
+            "hidden": false,
+            "ariaDisabled": null,
+            "style": {
+              "display": "block",
+              "visibility": "visible",
+              "opacity": "0.5",
+              "pointerEvents": "auto",
+              "touchAction": "none",
+              "zIndex": "12"
+            }
+          },
+          "stage": {
+            "element": {
+              "tag": "div",
+              "id": "stage",
+              "class": null,
+              "role": null
+            },
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "left": 0,
+              "top": 0,
+              "right": 390,
+              "bottom": 844,
+              "width": 390,
+              "height": 844
+            },
+            "hidden": false,
+            "ariaDisabled": null,
+            "style": {
+              "display": "block",
+              "visibility": "visible",
+              "opacity": "1",
+              "pointerEvents": "auto",
+              "touchAction": "none",
+              "zIndex": "auto"
+            }
+          }
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "dpr": 2,
+          "scrollX": 0,
+          "scrollY": 0,
+          "visual": {
+            "width": 390,
+            "height": 844,
+            "offsetLeft": 0,
+            "offsetTop": 0,
+            "scale": 1
+          }
+        },
+        "timeLabel": "0:00 / 1:13"
+      },
+      "firstReadActual": 0.45599999999999724,
+      "firstReadFailure": "Native seek 0.45599999999999724 != 22",
+      "waitError": "page.waitForFunction: Timeout 2000ms exceeded.",
+      "waitNodeElapsedMs": 2004.1855030000006,
+      "afterWait": {
+        "performanceNowMs": 28404.60000000149,
+        "wallTimeMs": 1792577385131,
+        "time": 0.45599999999999724,
+        "pausedPosition": 0.45599999999999724,
+        "playing": false,
+        "duration": 73.94,
+        "phase": "playing",
+        "mode": "walk",
+        "audioState": "running",
+        "audioNow": 24.746666666666666,
+        "visibility": "visible"
+      },
+      "observation": {
+        "events": [
+          {
+            "type": "pointerdown",
+            "eventTimeStamp": 26336.900000002235,
+            "performanceNowMs": 26362.900000002235,
+            "wallTimeMs": 1792577383089,
+            "isTrusted": true,
+            "eventPhase": 1,
+            "defaultPreventedAtCapture": false,
+            "target": {
+              "tag": "div",
+              "id": "joyZone",
+              "class": "joy-zone",
+              "role": null
+            },
+            "path": [
+              {
+                "tag": "div",
+                "id": "joyZone",
+                "class": "joy-zone",
+                "role": null
+              },
+              {
+                "tag": "body",
+                "id": null,
+                "class": "touch",
+                "role": null
+              },
+              {
+                "tag": "html",
+                "id": null,
+                "class": null,
+                "role": null
+              },
+              {
+                "node": "document"
+              },
+              {
+                "node": "window"
+              }
+            ],
+            "pointerId": 9,
+            "pointerType": "touch",
+            "clientX": 128.59263610839844,
+            "clientY": 700.5,
+            "button": 0,
+            "buttons": 1,
+            "seekHasPointerCapture": false,
+            "touches": null,
+            "changedTouches": null
+          },
+          {
+            "type": "touchstart",
+            "eventTimeStamp": 26336.900000002235,
+            "performanceNowMs": 26363.10000000149,
+            "wallTimeMs": 1792577383089,
+            "isTrusted": true,
+            "eventPhase": 1,
+            "defaultPreventedAtCapture": false,
+            "target": {
+              "tag": "div",
+              "id": "joyZone",
+              "class": "joy-zone",
+              "role": null
+            },
+            "path": [
+              {
+                "tag": "div",
+                "id": "joyZone",
+                "class": "joy-zone",
+                "role": null
+              },
+              {
+                "tag": "body",
+                "id": null,
+                "class": "touch",
+                "role": null
+              },
+              {
+                "tag": "html",
+                "id": null,
+                "class": null,
+                "role": null
+              },
+              {
+                "node": "document"
+              },
+              {
+                "node": "window"
+              }
+            ],
+            "pointerId": null,
+            "pointerType": null,
+            "clientX": null,
+            "clientY": null,
+            "button": null,
+            "buttons": null,
+            "seekHasPointerCapture": null,
+            "touches": [
+              {
+                "identifier": 1,
+                "clientX": 128.59263610839844,
+                "clientY": 700.5,
+                "pageX": 128.59263610839844,
+                "pageY": 700.5,
+                "radiusX": 1,
+                "radiusY": 1,
+                "force": 1
+              }
+            ],
+            "changedTouches": [
+              {
+                "identifier": 1,
+                "clientX": 128.59263610839844,
+                "clientY": 700.5,
+                "pageX": 128.59263610839844,
+                "pageY": 700.5,
+                "radiusX": 1,
+                "radiusY": 1,
+                "force": 1
+              }
+            ]
+          },
+          {
+            "type": "gotpointercapture",
+            "eventTimeStamp": 26364.10000000149,
+            "performanceNowMs": 26396.10000000149,
+            "wallTimeMs": 1792577383122,
+            "isTrusted": true,
+            "eventPhase": 1,
+            "defaultPreventedAtCapture": false,
+            "target": {
+              "tag": "div",
+              "id": "joyZone",
+              "class": "joy-zone",
+              "role": null
+            },
+            "path": [
+              {
+                "tag": "div",
+                "id": "joyZone",
+                "class": "joy-zone",
+                "role": null
+              },
+              {
+                "tag": "body",
+                "id": null,
+                "class": "touch",
+                "role": null
+              },
+              {
+                "tag": "html",
+                "id": null,
+                "class": null,
+                "role": null
+              },
+              {
+                "node": "document"
+              },
+              {
+                "node": "window"
+              }
+            ],
+            "pointerId": 9,
+            "pointerType": "touch",
+            "clientX": 128.59263610839844,
+            "clientY": 700.5,
+            "button": 0,
+            "buttons": 0,
+            "seekHasPointerCapture": false,
+            "touches": null,
+            "changedTouches": null
+          },
+          {
+            "type": "pointerup",
+            "eventTimeStamp": 26364.10000000149,
+            "performanceNowMs": 26396.199999999255,
+            "wallTimeMs": 1792577383122,
+            "isTrusted": true,
+            "eventPhase": 1,
+            "defaultPreventedAtCapture": false,
+            "target": {
+              "tag": "div",
+              "id": "joyZone",
+              "class": "joy-zone",
+              "role": null
+            },
+            "path": [
+              {
+                "tag": "div",
+                "id": "joyZone",
+                "class": "joy-zone",
+                "role": null
+              },
+              {
+                "tag": "body",
+                "id": null,
+                "class": "touch",
+                "role": null
+              },
+              {
+                "tag": "html",
+                "id": null,
+                "class": null,
+                "role": null
+              },
+              {
+                "node": "document"
+              },
+              {
+                "node": "window"
+              }
+            ],
+            "pointerId": 9,
+            "pointerType": "touch",
+            "clientX": 128.59263610839844,
+            "clientY": 700.5,
+            "button": 0,
+            "buttons": 0,
+            "seekHasPointerCapture": false,
+            "touches": null,
+            "changedTouches": null
+          },
+          {
+            "type": "lostpointercapture",
+            "eventTimeStamp": 26364.10000000149,
+            "performanceNowMs": 26396.199999999255,
+            "wallTimeMs": 1792577383122,
+            "isTrusted": true,
+            "eventPhase": 1,
+            "defaultPreventedAtCapture": false,
+            "target": {
+              "tag": "div",
+              "id": "joyZone",
+              "class": "joy-zone",
+              "role": null
+            },
+            "path": [
+              {
+                "tag": "div",
+                "id": "joyZone",
+                "class": "joy-zone",
+                "role": null
+              },
+              {
+                "tag": "body",
+                "id": null,
+                "class": "touch",
+                "role": null
+              },
+              {
+                "tag": "html",
+                "id": null,
+                "class": null,
+                "role": null
+              },
+              {
+                "node": "document"
+              },
+              {
+                "node": "window"
+              }
+            ],
+            "pointerId": 9,
+            "pointerType": "touch",
+            "clientX": 128.59263610839844,
+            "clientY": 700.5,
+            "button": 0,
+            "buttons": 0,
+            "seekHasPointerCapture": false,
+            "touches": null,
+            "changedTouches": null
+          },
+          {
+            "type": "touchend",
+            "eventTimeStamp": 26364.10000000149,
+            "performanceNowMs": 26396.199999999255,
+            "wallTimeMs": 1792577383122,
+            "isTrusted": true,
+            "eventPhase": 1,
+            "defaultPreventedAtCapture": false,
+            "target": {
+              "tag": "div",
+              "id": "joyZone",
+              "class": "joy-zone",
+              "role": null
+            },
+            "path": [
+              {
+                "tag": "div",
+                "id": "joyZone",
+                "class": "joy-zone",
+                "role": null
+              },
+              {
+                "tag": "body",
+                "id": null,
+                "class": "touch",
+                "role": null
+              },
+              {
+                "tag": "html",
+                "id": null,
+                "class": null,
+                "role": null
+              },
+              {
+                "node": "document"
+              },
+              {
+                "node": "window"
+              }
+            ],
+            "pointerId": null,
+            "pointerType": null,
+            "clientX": null,
+            "clientY": null,
+            "button": null,
+            "buttons": null,
+            "seekHasPointerCapture": null,
+            "touches": [],
+            "changedTouches": [
+              {
+                "identifier": 1,
+                "clientX": 128.59263610839844,
+                "clientY": 700.5,
+                "pageX": 128.59263610839844,
+                "pageY": 700.5,
+                "radiusX": 1,
+                "radiusY": 1,
+                "force": 1
+              }
+            ]
+          }
+        ],
+        "calls": [],
+        "dropped": {
+          "events": 0,
+          "calls": 0
+        },
+        "limits": {
+          "events": 128,
+          "calls": 16
+        },
+        "finalState": {
+          "performanceNowMs": 28405.900000002235,
+          "wallTimeMs": 1792577385132,
+          "time": 0.45599999999999724,
+          "pausedPosition": 0.45599999999999724,
+          "playing": false,
+          "duration": 73.94,
+          "phase": "playing",
+          "mode": "walk",
+          "audioState": "running",
+          "audioNow": 24.746666666666666,
+          "visibility": "visible"
+        },
+        "wrapperRestored": true,
+        "note": "Capture-phase defaultPrevented is read before target handlers. Observation adds overhead; event/seek evidence does not prove physical-device behaviour."
+      },
+      "classification": "paused-position-not-observed-within-two-seconds"
+    }
+  ],
+  "failure": {
+    "stage": "functional",
+    "message": "Native mobile seek 0.45599999999999724 != 22 within 2000ms (first read 0.45599999999999724)",
+    "stack": "AssertionError [ERR_ASSERTION]: Native mobile seek 0.45599999999999724 != 22 within 2000ms (first read 0.45599999999999724)\n    at seekTo (file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs:390:16)\n    at async runCase (file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs:582:26)\n    at async file:///workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs:816:41",
+    "code": "ERR_ASSERTION"
+  },
+  "failureState": {
+    "mode": "walk",
+    "active": true,
+    "seat": null,
+    "nearSeat": 63,
+    "position": [
+      -0.14058799942376052,
+      1.8525,
+      3.730098411599396
+    ],
+    "camera": [
+      -0.14058799942376052,
+      1.8525,
+      3.730098411599396
+    ],
+    "forward": [
+      0.00940939783062099,
+      0.0383467748782806,
+      -0.9992201899926261
+    ],
+    "up": [
+      -0.00036108564175008046,
+      0.9992644919421657,
+      0.03834507479096702
+    ],
+    "yaw": -0.009416462771162657,
+    "pitch": 0.03835617909906247,
+    "joy": {
+      "x": 0,
+      "y": 0
+    },
+    "keys": [],
+    "listener": {
+      "position": [
+        -0.14058799942376052,
+        1.8525,
+        3.730098411599396
+      ],
+      "forward": [
+        0.00940939783062099,
+        0.0383467748782806,
+        -0.9992201899926261
+      ],
+      "up": [
+        -0.00036108564175008046,
+        0.9992644919421657,
+        0.03834507479096702
+      ]
+    },
+    "listenerObservation": "original-setListener-input",
+    "audio": "running",
+    "playing": false,
+    "time": 0.45599999999999724,
+    "duration": 73.94,
+    "piece": "beethoven-ode-to-joy",
+    "audioClock": {
+      "wallTimeMs": 1792577385137,
+      "performanceNowMs": 28410.60000000149,
+      "audioNow": 24.768,
+      "startCtx": 21.944000000000003,
+      "startPos": 0,
+      "pausedPosition": 0.45599999999999724,
+      "outputLatency": 0.08533333333333333,
+      "sampleRate": 24000,
+      "voices": 0,
+      "scheduledEventIndex": 24,
+      "eventCount": 1776,
+      "visibility": "visible"
+    },
+    "phase": "playing",
+    "audience": 200,
+    "occupied": 200,
+    "settings": {
+      "quality": "low",
+      "audience": true,
+      "screen": true,
+      "fixedEar": true
+    },
+    "render": {
+      "quality": null,
+      "scale": null,
+      "pixelRatio": 1.25,
+      "shadows": false,
+      "statisticsAvailable": false
+    },
+    "dome": null
+  },
+  "failureScreenshot": {
+    "path": "/tmp/forest-qa-nhsvcv6r/functional-v2/baseline-mobile-transport-scope-corrected-hall-mobile-failure.png",
+    "capturedAt": "2026-10-21T10:09:45.719Z",
+    "stage": "after-terminal-failure-state"
+  }
+}

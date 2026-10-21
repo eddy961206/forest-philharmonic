@@ -1,0 +1,33 @@
+{
+  "index": 3,
+  "job": {
+    "id": "candidate-resume-hall-desktop",
+    "script": "tools/bench/audio-resume.mjs",
+    "args": [
+      "candidate-resume",
+      "hall",
+      "desktop"
+    ],
+    "directory": "audio-resume",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "TIMEOUT_MS": "180000",
+      "FRAME_MODE": "controlled"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/audio-resume.mjs",
+    "candidate-resume",
+    "hall",
+    "desktop"
+  ],
+  "startedAt": "2026-10-21T09:39:00.613128+00:00",
+  "planSha256": "998210cd65c4edf8f4e5c8aabf98fafa7a3132e63833bf34a197f839f30b6ddd",
+  "collectorSha256": "6bbf491704265dbe5c8e133974c7cd947a242ca1ff40ac4dc517a0c36d010d11",
+  "status": "FAIL",
+  "exitCode": 1,
+  "finishedAt": "2026-10-21T09:39:57.762897+00:00",
+  "logSha256": "f484748bc3378c1cb22af08c300bd525150a654bdcb1bfef10ad553e70d47b1f"
+}

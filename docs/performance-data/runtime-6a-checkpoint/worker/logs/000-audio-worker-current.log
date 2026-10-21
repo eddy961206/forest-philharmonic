@@ -1,0 +1,46 @@
+{
+  "output": "/tmp/forest-qa-hcx27a8s/worker/audio-worker-candidate-6a.json",
+  "passed": true,
+  "cases": [
+    {
+      "blocked": false,
+      "samePromise": true,
+      "pcmEqual": true,
+      "workers": [
+        {
+          "url": "http://127.0.0.1:18081/js/audio/crowd-worker.js",
+          "options": {
+            "type": "module"
+          },
+          "messages": 4,
+          "errors": 0,
+          "terminated": true
+        }
+      ],
+      "outputBytes": 14288400,
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "blocked": true,
+      "samePromise": true,
+      "pcmEqual": true,
+      "workers": [
+        {
+          "url": "http://127.0.0.1:18081/js/audio/crowd-worker.js",
+          "options": {
+            "type": "module"
+          },
+          "messages": 0,
+          "errors": 1,
+          "terminated": true
+        }
+      ],
+      "outputBytes": 14288400,
+      "pageErrors": [],
+      "consoleErrors": [
+        "Creating a worker from 'http://127.0.0.1:18081/js/audio/crowd-worker.js' violates the following Content Security Policy directive: \"worker-src 'none'\". The action has been blocked."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "index": 0,
+  "job": {
+    "id": "baseline-a-hall-high-desktop",
+    "script": "tools/bench/full-frame.mjs",
+    "args": [
+      "baseline-a",
+      "hall",
+      "high",
+      "desktop",
+      "front,wide,foyer,rotate,broadcast,broadcast-hidden,broadcast-return,effects-show"
+    ],
+    "directory": "render",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18080/",
+      "REVISION": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "SAMPLES": 8,
+      "WARMUP": 4,
+      "SCREENSHOTS": 1,
+      "MODE": "sync"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/full-frame.mjs",
+    "baseline-a",
+    "hall",
+    "high",
+    "desktop",
+    "front,wide,foyer,rotate,broadcast,broadcast-hidden,broadcast-return,effects-show"
+  ],
+  "startedAt": "2026-10-21T09:05:24.255852+00:00",
+  "planSha256": "56fee7b728d4b73402e48836df466dda8fb84aa8c0a163d695ac438ee55f0157",
+  "collectorSha256": "f0b8973f462846a33413a4e55657d737554899e78b17988e28219545b37a5411",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T09:14:46.804417+00:00",
+  "logSha256": "d7f6b0490d60f5552e60fc8aa49c7463b43f596d5dd2248bffb747935dfbc0bd"
+}

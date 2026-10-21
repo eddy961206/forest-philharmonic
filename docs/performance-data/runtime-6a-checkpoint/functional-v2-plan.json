@@ -1,0 +1,68 @@
+[
+  {
+    "id": "functional-hall-mobile-seekwait-v2",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "hall",
+      "mobile"
+    ],
+    "directory": "functional-v2",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "candidate-functional-v2",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    }
+  },
+  {
+    "id": "functional-sphere-mobile-seekwait-v2",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "sphere",
+      "mobile"
+    ],
+    "directory": "functional-v2",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "candidate-functional-v2",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    }
+  },
+  {
+    "id": "baseline-transport-hall-mobile-seekwait-v2",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "hall",
+      "mobile"
+    ],
+    "directory": "functional-v2",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18080/",
+      "REVISION": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "baseline-mobile-transport-v2",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1",
+      "SCOPE": "transport"
+    }
+  },
+  {
+    "id": "baseline-transport-sphere-mobile-seekwait-v2",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "sphere",
+      "mobile"
+    ],
+    "directory": "functional-v2",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18080/",
+      "REVISION": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "baseline-mobile-transport-v2",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1",
+      "SCOPE": "transport"
+    }
+  }
+]

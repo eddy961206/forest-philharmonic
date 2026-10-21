@@ -1,0 +1,32 @@
+{
+  "index": 0,
+  "job": {
+    "id": "plaza-v2-hall-desktop",
+    "script": "tools/bench/plaza.mjs",
+    "args": [
+      "hall",
+      "desktop"
+    ],
+    "directory": "plaza",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "candidate-plaza-v2",
+      "SCREENSHOTS": "1"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/plaza.mjs",
+    "hall",
+    "desktop"
+  ],
+  "startedAt": "2026-10-21T09:34:52.258319+00:00",
+  "planSha256": "998210cd65c4edf8f4e5c8aabf98fafa7a3132e63833bf34a197f839f30b6ddd",
+  "collectorSha256": "a7d841739d4c5bb43aa687771a938edbb781e59a40468d8ca333e52a3cf8039a",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T09:36:21.646410+00:00",
+  "logSha256": "c93a3e7327a9b246d35a9a75bfb73bfde946f89e057c52673a571bbfea2f4d23"
+}

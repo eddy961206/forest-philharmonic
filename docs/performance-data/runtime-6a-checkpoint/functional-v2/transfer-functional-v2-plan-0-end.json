@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "startedAt": "2026-10-21T10:05:05.797486+00:00",
+  "staging": "/tmp/forest-qa-tqphszpj",
+  "destination": "/workspace/scratch/296fafc0af7f/verification/functional-v2",
+  "plan": "/workspace/scratch/296fafc0af7f/verification/functional-v2-plan.json",
+  "command": [
+    "python3",
+    "tools/bench/run-plan.py",
+    "/workspace/scratch/296fafc0af7f/verification/functional-v2-plan.json",
+    "--output",
+    "/tmp/forest-qa-tqphszpj",
+    "--start",
+    "0",
+    "--continue-on-failure"
+  ],
+  "planSha256": "b41aec7e9a92b0852b62eb177f389603d77d76ae08241d69b677068cc965a50e",
+  "runnerSha256": "a66055a67ef35d37a705c783852df9c7827d3869b92de206652e3409d5c64bed",
+  "wrapperSha256": "6a16eb897c76c073fc18d7fd8b0d098a13013e5afaa9b5b93790c31a71fcd15d",
+  "statusPolicy": "Copy original results without changing PASS/FAIL/RUNNING; report evidence inconsistencies separately.",
+  "files": [
+    {
+      "path": "functional-v2/candidate-functional-v2-hall-mobile-failure.png",
+      "bytes": 686112,
+      "sha256": "990a3e5e5f7a6b45af790b6f8cfa3cc99efc9cb5c03f83c54767df407a284267"
+    },
+    {
+      "path": "functional-v2/candidate-functional-v2-hall-mobile.json",
+      "bytes": 60598,
+      "sha256": "84a8b19036be7c14bb94bede94d9b2ef67848c8aec7dfc6cca6785e4c837ce6d"
+    },
+    {
+      "path": "functional-v2/candidate-functional-v2-sphere-mobile-failure.png",
+      "bytes": 335460,
+      "sha256": "1d70754b78879fed70b4974af0f3232f32be512c13f697e05cebadd0a54c6ff7"
+    },
+    {
+      "path": "functional-v2/candidate-functional-v2-sphere-mobile.json",
+      "bytes": 66373,
+      "sha256": "da696ec32414099d2f226adab4d233ebd3ead7df6efce602519b7f4ef117b24f"
+    },
+    {
+      "path": "functional-v2/candidate-functional-v2-summary.json",
+      "bytes": 753,
+      "sha256": "023e03bd6c7b6a86b39f0f8a99a1a03bf06c7db9cd2b3cadf5528d3bafc35460"
+    },
+    {
+      "path": "logs/000-functional-hall-mobile-seekwait-v2.json",
+      "bytes": 986,
+      "sha256": "14e04b6e82412cb9f2a1f9bc314a6d2bdd05d3ed29a46a8a8a9ec69f3d32b075"
+    },
+    {
+      "path": "logs/000-functional-hall-mobile-seekwait-v2.log",
+      "bytes": 1031,
+      "sha256": "80fa0b97993158ee08a518a4f8b1b608dd11a3e8f258e5a56b9783e510135ec6"
+    },
+    {
+      "path": "logs/001-functional-sphere-mobile-seekwait-v2.json",
+      "bytes": 992,
+      "sha256": "fb2269117b441edde1318be4d9ca3e54a10d6e01748242addfa96f3dd975881f"
+    },
+    {
+      "path": "logs/001-functional-sphere-mobile-seekwait-v2.log",
+      "bytes": 1051,
+      "sha256": "6ed90bd4329d1f7f0cfd3a2ca12f9f60fd33f0947ece8ee094556cc9ca4e7776"
+    },
+    {
+      "path": "logs/002-baseline-transport-hall-mobile-seekwait-v2.json",
+      "bytes": 1027,
+      "sha256": "0192ef727f7463d52ce1459360c58553dc763b67386fcdd961023cf8e6b1845e"
+    },
+    {
+      "path": "logs/002-baseline-transport-hall-mobile-seekwait-v2.log",
+      "bytes": 597,
+      "sha256": "046ad2829624297c9a13c3e1a4ca5a53a7bffe77a32a59b5a738f59aec149eb1"
+    },
+    {
+      "path": "logs/003-baseline-transport-sphere-mobile-seekwait-v2.json",
+      "bytes": 1033,
+      "sha256": "b407102c50cea7dd6e693569de4832479801fa0389ba0a4127a481dca8a76289"
+    },
+    {
+      "path": "logs/003-baseline-transport-sphere-mobile-seekwait-v2.log",
+      "bytes": 597,
+      "sha256": "046ad2829624297c9a13c3e1a4ca5a53a7bffe77a32a59b5a738f59aec149eb1"
+    }
+  ],
+  "evidenceIssues": [],
+  "processExitCode": 1,
+  "finishedAt": "2026-10-21T10:06:05.186592+00:00",
+  "copyStatus": "PASS",
+  "evidenceStatus": "COMPLETE",
+  "stagingRetained": true
+}

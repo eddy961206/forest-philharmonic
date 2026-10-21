@@ -1,0 +1,32 @@
+{
+  "index": 1,
+  "job": {
+    "id": "baseline-transport-sphere-mobile-seekwait-v2-corrected",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "sphere",
+      "mobile"
+    ],
+    "directory": "functional-v2",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18080/",
+      "REVISION": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "baseline-mobile-transport-corrected",
+      "SCOPE": "transport"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs",
+    "sphere",
+    "mobile"
+  ],
+  "startedAt": "2026-10-21T10:07:30.066091+00:00",
+  "planSha256": "2bb9f95061dede0161b2a570e7e3d0e997769000e0f303a208a0ac78e04c0ea5",
+  "collectorSha256": "68752baa3f44b3638916215b108b190815af47c2c66aeb63a9be0468a47b45aa",
+  "status": "FAIL",
+  "exitCode": 1,
+  "finishedAt": "2026-10-21T10:07:52.252845+00:00",
+  "logSha256": "1850f6bddc8a053ea07254198ff5e4be6d28f3b9ac145562f45ce9c418042b2c"
+}

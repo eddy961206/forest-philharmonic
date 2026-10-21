@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "startedAt": "2026-10-21T10:08:04.348432+00:00",
+  "staging": "/tmp/forest-qa-hcx27a8s",
+  "destination": "/workspace/scratch/296fafc0af7f/verification/worker",
+  "plan": "/workspace/scratch/296fafc0af7f/verification/worker-plan.json",
+  "command": [
+    "python3",
+    "tools/bench/run-plan.py",
+    "/workspace/scratch/296fafc0af7f/verification/worker-plan.json",
+    "--output",
+    "/tmp/forest-qa-hcx27a8s",
+    "--start",
+    "0",
+    "--continue-on-failure"
+  ],
+  "planSha256": "ee010e538f6e1993548cae28cd3d30fa914be6daad0a3317be2257c2b36572f9",
+  "runnerSha256": "a66055a67ef35d37a705c783852df9c7827d3869b92de206652e3409d5c64bed",
+  "wrapperSha256": "6a16eb897c76c073fc18d7fd8b0d098a13013e5afaa9b5b93790c31a71fcd15d",
+  "statusPolicy": "Copy original results without changing PASS/FAIL/RUNNING; report evidence inconsistencies separately.",
+  "files": [
+    {
+      "path": "logs/000-audio-worker-current.json",
+      "bytes": 872,
+      "sha256": "d734cf9d64ec9240a71330b8ab7b78c705a8c7c6a6c21b382ddb5a1094f7506b"
+    },
+    {
+      "path": "logs/000-audio-worker-current.log",
+      "bytes": 1168,
+      "sha256": "b82fb14d6e836e4e8b51267e974f80916bd44050112fdb2e9891570f4da97695"
+    },
+    {
+      "path": "worker/audio-worker-candidate-6a.json",
+      "bytes": 7331,
+      "sha256": "5eb72e8f3844e34468208674fc4e140a1e1a8ca99240a5be1a280aec95054a43"
+    }
+  ],
+  "evidenceIssues": [],
+  "processExitCode": 0,
+  "finishedAt": "2026-10-21T10:08:06.156298+00:00",
+  "copyStatus": "PASS",
+  "evidenceStatus": "COMPLETE",
+  "stagingRetained": true
+}

@@ -1,0 +1,39 @@
+{
+  "index": 1,
+  "job": {
+    "id": "candidate-gpu-hall-high-desktop-front",
+    "script": "tools/bench/gpu-timer.mjs",
+    "args": [
+      "candidate-gpu",
+      "hall",
+      "high",
+      "desktop",
+      "front"
+    ],
+    "directory": "gpu",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "SAMPLES": "4",
+      "WARMUP": "4",
+      "SCREENSHOTS": "1",
+      "TIMEOUT_MS": "180000"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/gpu-timer.mjs",
+    "candidate-gpu",
+    "hall",
+    "high",
+    "desktop",
+    "front"
+  ],
+  "startedAt": "2026-10-21T09:42:28.118233+00:00",
+  "planSha256": "116f2ab752404c1464515f096e95e4fca554e5d3d169a7f091f9ee36af4b383e",
+  "collectorSha256": "cb9228baee7ccc4d08140fb6b743dbb61ee7249209c912bb3bac45e4238aaf53",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T09:43:03.093043+00:00",
+  "logSha256": "7d913098cb6846f9e36618e1360befa22159658a1417ff86a5b07cd215148094"
+}

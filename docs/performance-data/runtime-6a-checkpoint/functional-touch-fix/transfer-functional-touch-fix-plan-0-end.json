@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "startedAt": "2026-10-21T10:10:42.821952+00:00",
+  "staging": "/tmp/forest-qa-ekbm_f5k",
+  "destination": "/workspace/scratch/296fafc0af7f/verification/functional-touch-fix",
+  "plan": "/workspace/scratch/296fafc0af7f/verification/functional-touch-fix-plan.json",
+  "command": [
+    "python3",
+    "tools/bench/run-plan.py",
+    "/workspace/scratch/296fafc0af7f/verification/functional-touch-fix-plan.json",
+    "--output",
+    "/tmp/forest-qa-ekbm_f5k",
+    "--start",
+    "0",
+    "--continue-on-failure"
+  ],
+  "planSha256": "1042e47945629dc02f027e6542760e03b02df0784559ee9e864777f3957879a4",
+  "runnerSha256": "a66055a67ef35d37a705c783852df9c7827d3869b92de206652e3409d5c64bed",
+  "wrapperSha256": "6a16eb897c76c073fc18d7fd8b0d098a13013e5afaa9b5b93790c31a71fcd15d",
+  "statusPolicy": "Copy original results without changing PASS/FAIL/RUNNING; report evidence inconsistencies separately.",
+  "files": [
+    {
+      "path": "functional-v2/candidate-touch-hit-fix-hall-mobile.json",
+      "bytes": 97795,
+      "sha256": "a114c4e9f97187d3067fa6414d359e906253d126305f36a10fe0c0c17bdd5782"
+    },
+    {
+      "path": "functional-v2/candidate-touch-hit-fix-sphere-mobile.json",
+      "bytes": 137233,
+      "sha256": "3dce54d1e351d1ed8bc6b0b4020a88b6498cc548ce2ea5672f812a2b0eec0572"
+    },
+    {
+      "path": "functional-v2/candidate-touch-hit-fix-summary.json",
+      "bytes": 639,
+      "sha256": "6cdc690f76604edffe67a9f2ba7a65bbb6e8c941dc6f02437f0917944d39f852"
+    },
+    {
+      "path": "logs/000-functional-hall-mobile-touch-hit-fix.json",
+      "bytes": 982,
+      "sha256": "8b79ee495aebd23074181d0858d9bfe04e89f1f5b2cf0b2194922a7f2f60aa8b"
+    },
+    {
+      "path": "logs/000-functional-hall-mobile-touch-hit-fix.log",
+      "bytes": 1261,
+      "sha256": "16a79238f3dc2bc05ef3135499741896fafaac2a80bdb0819fad55519c038b26"
+    },
+    {
+      "path": "logs/001-functional-sphere-mobile-touch-hit-fix.json",
+      "bytes": 988,
+      "sha256": "35a8e7078c899271bf456c9c537fab76618e0c736e1e2d6d1b2d020d8f85cc03"
+    },
+    {
+      "path": "logs/001-functional-sphere-mobile-touch-hit-fix.log",
+      "bytes": 1508,
+      "sha256": "d1f5cb064e73f6f52e8b2801e5645a88f33f39f66cf4287a5d59400ca8068ddb"
+    }
+  ],
+  "evidenceIssues": [],
+  "processExitCode": 0,
+  "finishedAt": "2026-10-21T10:12:05.604251+00:00",
+  "copyStatus": "PASS",
+  "evidenceStatus": "COMPLETE",
+  "stagingRetained": true
+}

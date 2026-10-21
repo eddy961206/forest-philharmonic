@@ -1,0 +1,22 @@
+{
+  "schema": 2,
+  "label": "candidate-touch-hit-fix",
+  "revision": "0949203-plus-mobile-joy-zone-layer",
+  "scope": "full",
+  "fixtureSourceSha256": "a7eaf530e1764f27e78150bdd513b0ca664c2f96274f7d70baffbaf0284538b4",
+  "diagnosticOptions": {
+    "continueOnTransportFail": true
+  },
+  "method": "Functional checks only; sequential explicit rendering, not an FPS benchmark.",
+  "results": [
+    {
+      "venue": "sphere",
+      "device": "mobile",
+      "scope": "full",
+      "status": "PASS",
+      "failureCount": 0,
+      "continuedAfterTransportFailure": false,
+      "file": "candidate-touch-hit-fix-sphere-mobile.json"
+    }
+  ]
+}

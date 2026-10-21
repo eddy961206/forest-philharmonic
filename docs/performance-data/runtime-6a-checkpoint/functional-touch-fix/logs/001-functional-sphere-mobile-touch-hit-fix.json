@@ -1,0 +1,32 @@
+{
+  "index": 1,
+  "job": {
+    "id": "functional-sphere-mobile-touch-hit-fix",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "sphere",
+      "mobile"
+    ],
+    "directory": "functional-v2",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18082/",
+      "REVISION": "0949203-plus-mobile-joy-zone-layer",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "candidate-touch-hit-fix",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs",
+    "sphere",
+    "mobile"
+  ],
+  "startedAt": "2026-10-21T10:11:21.786744+00:00",
+  "planSha256": "1042e47945629dc02f027e6542760e03b02df0784559ee9e864777f3957879a4",
+  "collectorSha256": "a7eaf530e1764f27e78150bdd513b0ca664c2f96274f7d70baffbaf0284538b4",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T10:12:05.596443+00:00",
+  "logSha256": "d1f5cb064e73f6f52e8b2801e5645a88f33f39f66cf4287a5d59400ca8068ddb"
+}

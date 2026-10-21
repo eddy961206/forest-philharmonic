@@ -1,0 +1,4297 @@
+{
+  "schema": 1,
+  "review": "유효 Hall front 쌍과 Sphere FOREST3D 재실행 쌍의 독립 읽기 검토",
+  "reviewedAt": "2026-10-21T10:09:16.815701+00:00",
+  "root": "/workspace/scratch/296fafc0af7f/verification",
+  "status": "COMPLETE",
+  "collectorReferenceCommit": "09492033251fd1986f7ce8c755b39923e539407a",
+  "collectorExpectedHashes": {
+    "collectorSourceSha256": "cb9228baee7ccc4d08140fb6b743dbb61ee7249209c912bb3bac45e4238aaf53",
+    "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+    "fixtureSourceSha256": "ba197fc2117d8af462146b3c833c9e0b8c0a4fa8c19fa3cdf3037bb32c2d325d",
+    "referenceCollectorSha256": "f0b8973f462846a33413a4e55657d737554899e78b17988e28219545b37a5411",
+    "instrumentationSourceSha256": "42a595a5cded9f8ea8ab5c9195bf243ec6c87a83051d648a4ce63bba089ab785",
+    "memoryEstimatorSourceSha256": "e1a552c3f96e4bf3280dd814a3c86c7c6edf22f0efc783db6fcbe9b57cb02961"
+  },
+  "method": "원시 JSON·run record·원본 log·PNG를 읽어 SHA-256과 종료 기록을 확인하고, 실제 표본으로 요약을 재계산했다. git show로 제품/도구 바이트를 대조했다. 브라우저/GPU를 실행하지 않았고 원시 결과를 수정하지 않았다.",
+  "statisticalConventions": {
+    "difference": "candidate - baseline",
+    "percent": "100 * (candidate - baseline) / baseline; baseline 0이면 null",
+    "timeUnit": "ms",
+    "driverOriginalUnit": "정수 ns를 1e6으로 나눈 값",
+    "percentile": "collector와 같은 nearest rank: sorted[ceil(p*n)-1]. n=4에서 p95/p99는 최대값이며 p50은 두 번째 값이다.",
+    "standardDeviation": "표본 표준편차 (n-1). 통계적 유의성이나 반복 세션 변동의 추정으로 쓰지 않음.",
+    "fps": "완료 시간의 역수를 FPS로 제시하지 않음."
+  },
+  "runtimeReviewCopy": {
+    "source": "/tmp/forest-runtime-first-review.json",
+    "destination": "runtime/review-first.json",
+    "byteIdentical": true,
+    "sha256": "18e4fa48aa9d65bae5a86a2f2c9810a943d2ab8f09263783f9cf5be41bbc5c8a"
+  },
+  "cases": [
+    {
+      "venue": "hall",
+      "side": "baseline",
+      "label": "baseline-gpu",
+      "revision": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "raw": {
+        "path": "gpu-timer/gpu/baseline-gpu-gpu-hall-high-desktop-front.json",
+        "bytes": 34736,
+        "sha256": "7ccd313b6087793ca8b71f273601ee6077a1f583f713ec5741abed752042eb29"
+      },
+      "runner": {
+        "path": "gpu-timer/logs/000-baseline-gpu-hall-high-desktop-front.json",
+        "bytes": 1060,
+        "sha256": "e4c7baf800bed67e67f483ee3cbe201a9ddc20a4dddeba18947dfe354853860c"
+      },
+      "log": {
+        "path": "gpu-timer/logs/000-baseline-gpu-hall-high-desktop-front.log",
+        "bytes": 1178,
+        "sha256": "560147e02184a768500b02c287759f9a5bd52be093c3dfb63656c0f301ae155b"
+      },
+      "screenshot": {
+        "path": "gpu-timer/gpu/baseline-gpu-gpu-hall-high-desktop-front.png",
+        "bytes": 159716,
+        "sha256": "075fb46da44734374aa00b14ed7fe3321f2edb6d1d49f73bc2eb21ea35e2f990"
+      },
+      "runnerRecordedLogSha256": "560147e02184a768500b02c287759f9a5bd52be093c3dfb63656c0f301ae155b",
+      "conditionsFingerprintSha256": "1f49238651b67703c848c536461d4f34e5b4053b5a1cca72d3aedc279788c400",
+      "sourceFingerprintSha256": "248a0410121085d07497f3ce6d65ad5fd6f7f4b0369ac8e928480e72c21fb356",
+      "recordedSourceCount": 52,
+      "checks": {
+        "rawPass": true,
+        "runnerPass": true,
+        "runnerLogShaMatches": true,
+        "runnerCollectorMatches": true,
+        "terminalLogMatchesRaw": true,
+        "allSampleLogsMatchRaw": true,
+        "sourceBeforeAfterEqual": true,
+        "sourceFingerprintRecomputed": true,
+        "conditionsFingerprintRecomputed": true,
+        "allRecordedSourcesMatchRevision": true,
+        "allToolHashesMatchReferenceCommit": true,
+        "summaryIndependentlyRecomputed": true,
+        "sampleCountExact": true,
+        "extensionSupported": true,
+        "allQueriesValid": true,
+        "allFramesValid": true,
+        "noRejectedSamples": true,
+        "allQueriesDeleted": true,
+        "noPageConsoleOrRequestErrors": true
+      },
+      "queryRows": [
+        {
+          "index": 0,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2633787794,
+          "driverElapsedMs": 2633.787794,
+          "polls": 1,
+          "pollWallMs": 28.74605199999496,
+          "frameSubmitMs": 18,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 1,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2474737654,
+          "driverElapsedMs": 2474.737654,
+          "polls": 1,
+          "pollWallMs": 28.653550000002724,
+          "frameSubmitMs": 14.300000000745058,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 2,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2708903065,
+          "driverElapsedMs": 2708.903065,
+          "polls": 1,
+          "pollWallMs": 28.746476000000257,
+          "frameSubmitMs": 15.699999999254942,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 3,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2367699308,
+          "driverElapsedMs": 2367.699308,
+          "polls": 1,
+          "pollWallMs": 28.08652599999914,
+          "frameSubmitMs": 17.100000001490116,
+          "valid": true,
+          "frameValid": true
+        }
+      ],
+      "support": {
+        "extension": true,
+        "webgl2": true,
+        "counterBits": 64,
+        "probeError": 0,
+        "contextLost": false,
+        "supported": true,
+        "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "contextAttributes": {
+          "alpha": true,
+          "antialias": false,
+          "depth": true,
+          "desynchronized": false,
+          "failIfMajorPerformanceCaveat": false,
+          "powerPreference": "high-performance",
+          "premultipliedAlpha": true,
+          "preserveDrawingBuffer": false,
+          "stencil": false,
+          "xrCompatible": false
+        }
+      },
+      "cleanup": {
+        "created": 4,
+        "deleted": 4,
+        "outstanding": false,
+        "active": false,
+        "contextLost": false,
+        "glError": 0
+      },
+      "summaryAudit": [
+        {
+          "metric": "completeMs",
+          "statistic": "mean",
+          "computed": 2567.2000000001863,
+          "recorded": 2567.2000000001863,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p50",
+          "computed": 2493.699999999255,
+          "recorded": 2493.699999999255,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p95",
+          "computed": 2729,
+          "recorded": 2729,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p99",
+          "computed": 2729,
+          "recorded": 2729,
+          "matches": true
+        },
+        {
+          "metric": "calls",
+          "statistic": "mean",
+          "computed": 1713.5,
+          "recorded": 1713.5,
+          "matches": true
+        },
+        {
+          "metric": "triangles",
+          "statistic": "mean",
+          "computed": 11699246.0,
+          "recorded": 11699246,
+          "matches": true
+        },
+        {
+          "metric": "phaseMeanMs",
+          "statistic": "all phases",
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "mean",
+          "computed": 2546.28195525,
+          "recorded": 2546.2819552500005,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p50",
+          "computed": 2474.737654,
+          "recorded": 2474.737654,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p95",
+          "computed": 2708.903065,
+          "recorded": 2708.903065,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p99",
+          "computed": 2708.903065,
+          "recorded": 2708.903065,
+          "matches": true
+        },
+        {
+          "metric": "calls",
+          "statistic": "mean",
+          "computed": 1713.5,
+          "recorded": 1713.5,
+          "matches": true
+        },
+        {
+          "metric": "triangles",
+          "statistic": "mean",
+          "computed": 11699246.0,
+          "recorded": 11699246,
+          "matches": true
+        },
+        {
+          "metric": "phaseMeanMs",
+          "statistic": "all phases",
+          "matches": true
+        }
+      ],
+      "warnings": [
+        "[.WebGL-0x3564001a8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x3564001a8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x3564001a8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x3564001a8a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+      ],
+      "clocks": {
+        "startedAt": "2026-10-21T09:41:45.300Z",
+        "nodeTimeOrigin": 1792575705256.245,
+        "nodeStart": 44.281329,
+        "browserReady": {
+          "timeOrigin": 1792575705719.6,
+          "now": 14860.599999997765,
+          "dateNow": 1792575720580,
+          "visibility": "visible"
+        },
+        "browserBefore": {
+          "timeOrigin": 1792575705719.6,
+          "now": 31564.89999999851,
+          "dateNow": 1792575737284,
+          "visibility": "visible"
+        },
+        "nodeMeasurementStart": 32028.976132,
+        "browserAfter": {
+          "timeOrigin": 1792575705719.6,
+          "now": 41978.699999999255,
+          "dateNow": 1792575747698,
+          "visibility": "visible"
+        },
+        "nodeMeasurementEnd": 42442.296441,
+        "finishedAt": "2026-10-21T09:42:28.095Z",
+        "nodeEnd": 42839.069491
+      },
+      "memory": {
+        "mainSceneGeometryArrayBufferBytes": 47355908,
+        "uniqueGeometries": 1427,
+        "uniqueArrayBuffers": 4761,
+        "attributesWithoutArray": 0,
+        "performanceMemory": {
+          "usedJSHeapSize": 410000000,
+          "totalJSHeapSize": 462000000,
+          "jsHeapSizeLimit": 3760000000
+        },
+        "browserNow": 42273,
+        "interpretation": "Reachable main-scene geometry attribute/index/morph backing ArrayBuffers, including hidden objects; shared buffers counted once and full buffer.byteLength counted even for a view. JS storage structure estimate, not committed RAM, GPU memory, VRAM, or whole JS heap.",
+        "excluded": [
+          "separate cubemap/world scenes",
+          "geometry caches not attached to the main scene",
+          "object-owned instanceMatrix/instanceColor",
+          "textures and render targets",
+          "audio buffers",
+          "other JS objects and driver copies"
+        ],
+        "cdpJSHeapUsedSize": 23907348,
+        "cdpJSHeapTotalSize": 26091520,
+        "heapInterpretation": "performance.memory and CDP JSHeapUsedSize are separate API observations with different accounting behavior; do not add them together or infer the cause of their difference from these numbers alone. Geometry ArrayBuffer bytes are a partial structural estimate, not a replacement for either heap reading."
+      }
+    },
+    {
+      "venue": "hall",
+      "side": "candidate",
+      "label": "candidate-gpu",
+      "revision": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "raw": {
+        "path": "gpu-timer/gpu/candidate-gpu-gpu-hall-high-desktop-front.json",
+        "bytes": 35790,
+        "sha256": "f38dd931294acb02a93934bb357fd261bab96a3feb389aaf36db8be3d3253baa"
+      },
+      "runner": {
+        "path": "gpu-timer/logs/001-candidate-gpu-hall-high-desktop-front.json",
+        "bytes": 1063,
+        "sha256": "5d363c5b6b56db318e8820f727b176f60a142af8a962702bfacfa2f51470cff0"
+      },
+      "log": {
+        "path": "gpu-timer/logs/001-candidate-gpu-hall-high-desktop-front.log",
+        "bytes": 1196,
+        "sha256": "7d913098cb6846f9e36618e1360befa22159658a1417ff86a5b07cd215148094"
+      },
+      "screenshot": {
+        "path": "gpu-timer/gpu/candidate-gpu-gpu-hall-high-desktop-front.png",
+        "bytes": 159716,
+        "sha256": "075fb46da44734374aa00b14ed7fe3321f2edb6d1d49f73bc2eb21ea35e2f990"
+      },
+      "runnerRecordedLogSha256": "7d913098cb6846f9e36618e1360befa22159658a1417ff86a5b07cd215148094",
+      "conditionsFingerprintSha256": "1f49238651b67703c848c536461d4f34e5b4053b5a1cca72d3aedc279788c400",
+      "sourceFingerprintSha256": "85d99c26d2d7cb39408c2b2c7cab75acd60d0266215630acaac856f33022988c",
+      "recordedSourceCount": 56,
+      "checks": {
+        "rawPass": true,
+        "runnerPass": true,
+        "runnerLogShaMatches": true,
+        "runnerCollectorMatches": true,
+        "terminalLogMatchesRaw": true,
+        "allSampleLogsMatchRaw": true,
+        "sourceBeforeAfterEqual": true,
+        "sourceFingerprintRecomputed": true,
+        "conditionsFingerprintRecomputed": true,
+        "allRecordedSourcesMatchRevision": true,
+        "allToolHashesMatchReferenceCommit": true,
+        "summaryIndependentlyRecomputed": true,
+        "sampleCountExact": true,
+        "extensionSupported": true,
+        "allQueriesValid": true,
+        "allFramesValid": true,
+        "noRejectedSamples": true,
+        "allQueriesDeleted": true,
+        "noPageConsoleOrRequestErrors": true
+      },
+      "queryRows": [
+        {
+          "index": 0,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 1738280343,
+          "driverElapsedMs": 1738.280343,
+          "polls": 1,
+          "pollWallMs": 29.41313999999693,
+          "frameSubmitMs": 16.900000002235174,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 1,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 1707959975,
+          "driverElapsedMs": 1707.959975,
+          "polls": 1,
+          "pollWallMs": 31.288822999998956,
+          "frameSubmitMs": 15.600000001490116,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 2,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 1904730722,
+          "driverElapsedMs": 1904.730722,
+          "polls": 1,
+          "pollWallMs": 57.4377029999996,
+          "frameSubmitMs": 19.399999998509884,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 3,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 1968186585,
+          "driverElapsedMs": 1968.186585,
+          "polls": 1,
+          "pollWallMs": 29.547923999998602,
+          "frameSubmitMs": 22.200000002980232,
+          "valid": true,
+          "frameValid": true
+        }
+      ],
+      "support": {
+        "extension": true,
+        "webgl2": true,
+        "counterBits": 64,
+        "probeError": 0,
+        "contextLost": false,
+        "supported": true,
+        "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "contextAttributes": {
+          "alpha": true,
+          "antialias": false,
+          "depth": true,
+          "desynchronized": false,
+          "failIfMajorPerformanceCaveat": false,
+          "powerPreference": "high-performance",
+          "premultipliedAlpha": true,
+          "preserveDrawingBuffer": false,
+          "stencil": false,
+          "xrCompatible": false
+        }
+      },
+      "cleanup": {
+        "created": 4,
+        "deleted": 4,
+        "outstanding": false,
+        "active": false,
+        "contextLost": false,
+        "glError": 0
+      },
+      "summaryAudit": [
+        {
+          "metric": "completeMs",
+          "statistic": "mean",
+          "computed": 1856.3999999994412,
+          "recorded": 1856.3999999994412,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p50",
+          "computed": 1760.9000000022352,
+          "recorded": 1760.9000000022352,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p95",
+          "computed": 2005.800000000745,
+          "recorded": 2005.800000000745,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p99",
+          "computed": 2005.800000000745,
+          "recorded": 2005.800000000745,
+          "matches": true
+        },
+        {
+          "metric": "calls",
+          "statistic": "mean",
+          "computed": 1710.5,
+          "recorded": 1710.5,
+          "matches": true
+        },
+        {
+          "metric": "triangles",
+          "statistic": "mean",
+          "computed": 7413238.0,
+          "recorded": 7413238,
+          "matches": true
+        },
+        {
+          "metric": "phaseMeanMs",
+          "statistic": "all phases",
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "mean",
+          "computed": 1829.78940625,
+          "recorded": 1829.78940625,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p50",
+          "computed": 1738.280343,
+          "recorded": 1738.280343,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p95",
+          "computed": 1968.186585,
+          "recorded": 1968.186585,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p99",
+          "computed": 1968.186585,
+          "recorded": 1968.186585,
+          "matches": true
+        },
+        {
+          "metric": "calls",
+          "statistic": "mean",
+          "computed": 1710.5,
+          "recorded": 1710.5,
+          "matches": true
+        },
+        {
+          "metric": "triangles",
+          "statistic": "mean",
+          "computed": 7413238.0,
+          "recorded": 7413238,
+          "matches": true
+        },
+        {
+          "metric": "phaseMeanMs",
+          "statistic": "all phases",
+          "matches": true
+        }
+      ],
+      "warnings": [
+        "[.WebGL-0x217c001a1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x217c001a1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x217c001a1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x217c001a1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+      ],
+      "clocks": {
+        "startedAt": "2026-10-21T09:42:28.165Z",
+        "nodeTimeOrigin": 1792575748121.843,
+        "nodeStart": 44.282803,
+        "browserReady": {
+          "timeOrigin": 1792575748559.8,
+          "now": 13772.300000000745,
+          "dateNow": 1792575762332,
+          "visibility": "visible"
+        },
+        "browserBefore": {
+          "timeOrigin": 1792575748559.8,
+          "now": 26556.10000000149,
+          "dateNow": 1792575775115,
+          "visibility": "visible"
+        },
+        "nodeMeasurementStart": 27002.606595,
+        "browserAfter": {
+          "timeOrigin": 1792575748559.8,
+          "now": 34172.60000000149,
+          "dateNow": 1792575782732,
+          "visibility": "visible"
+        },
+        "nodeMeasurementEnd": 34610.828525,
+        "finishedAt": "2026-10-21T09:43:03.075Z",
+        "nodeEnd": 34953.616304
+      },
+      "memory": {
+        "mainSceneGeometryArrayBufferBytes": 21962730,
+        "uniqueGeometries": 1427,
+        "uniqueArrayBuffers": 5692,
+        "attributesWithoutArray": 0,
+        "performanceMemory": {
+          "usedJSHeapSize": 386000000,
+          "totalJSHeapSize": 435000000,
+          "jsHeapSizeLimit": 3760000000
+        },
+        "browserNow": 34447.300000000745,
+        "interpretation": "Reachable main-scene geometry attribute/index/morph backing ArrayBuffers, including hidden objects; shared buffers counted once and full buffer.byteLength counted even for a view. JS storage structure estimate, not committed RAM, GPU memory, VRAM, or whole JS heap.",
+        "excluded": [
+          "separate cubemap/world scenes",
+          "geometry caches not attached to the main scene",
+          "object-owned instanceMatrix/instanceColor",
+          "textures and render targets",
+          "audio buffers",
+          "other JS objects and driver copies"
+        ],
+        "cdpJSHeapUsedSize": 23886596,
+        "cdpJSHeapTotalSize": 28712960,
+        "heapInterpretation": "performance.memory and CDP JSHeapUsedSize are separate API observations with different accounting behavior; do not add them together or infer the cause of their difference from these numbers alone. Geometry ArrayBuffer bytes are a partial structural estimate, not a replacement for either heap reading."
+      }
+    },
+    {
+      "venue": "sphere",
+      "side": "baseline",
+      "label": "baseline-gpu-recheck",
+      "revision": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "raw": {
+        "path": "gpu-timer-recheck/gpu/baseline-gpu-recheck-gpu-sphere-high-desktop-forest.json",
+        "bytes": 35271,
+        "sha256": "6eb0b8962b1c2b68af2be4db3aaf5f52bdd1fff7f7dc2888401d17b8b87393fa"
+      },
+      "runner": {
+        "path": "gpu-timer-recheck/logs/000-baseline-gpu-recheck-sphere-high-desktop-forest.json",
+        "bytes": 1093,
+        "sha256": "289ea5b6db8d223f3ab9fa79b6b7ac71dded0cd4dcf278b577ebfcaedfdae7cf"
+      },
+      "log": {
+        "path": "gpu-timer-recheck/logs/000-baseline-gpu-recheck-sphere-high-desktop-forest.log",
+        "bytes": 1158,
+        "sha256": "fe0b277297fdb1f4023af44b8c289d488bd4bacb4e8f866b28b71935726c346c"
+      },
+      "screenshot": {
+        "path": "gpu-timer-recheck/gpu/baseline-gpu-recheck-gpu-sphere-high-desktop-forest.png",
+        "bytes": 241682,
+        "sha256": "65b6602fa49644291daebe0d2b463a4dc67f63dc74dbb96cfa2d3268ace25834"
+      },
+      "runnerRecordedLogSha256": "fe0b277297fdb1f4023af44b8c289d488bd4bacb4e8f866b28b71935726c346c",
+      "conditionsFingerprintSha256": "47d50a720562299c59df0ed85d13e2f798057271631bfb98e098b73621ff4425",
+      "sourceFingerprintSha256": "248a0410121085d07497f3ce6d65ad5fd6f7f4b0369ac8e928480e72c21fb356",
+      "recordedSourceCount": 52,
+      "checks": {
+        "rawPass": true,
+        "runnerPass": true,
+        "runnerLogShaMatches": true,
+        "runnerCollectorMatches": true,
+        "terminalLogMatchesRaw": true,
+        "allSampleLogsMatchRaw": true,
+        "sourceBeforeAfterEqual": true,
+        "sourceFingerprintRecomputed": true,
+        "conditionsFingerprintRecomputed": true,
+        "allRecordedSourcesMatchRevision": true,
+        "allToolHashesMatchReferenceCommit": true,
+        "summaryIndependentlyRecomputed": true,
+        "sampleCountExact": true,
+        "extensionSupported": true,
+        "allQueriesValid": true,
+        "allFramesValid": true,
+        "noRejectedSamples": true,
+        "allQueriesDeleted": true,
+        "noPageConsoleOrRequestErrors": true
+      },
+      "queryRows": [
+        {
+          "index": 0,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2204147467,
+          "driverElapsedMs": 2204.147467,
+          "polls": 1,
+          "pollWallMs": 28.348653000000922,
+          "frameSubmitMs": 14.300000000745058,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 1,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2011654622,
+          "driverElapsedMs": 2011.654622,
+          "polls": 1,
+          "pollWallMs": 29.09748000000036,
+          "frameSubmitMs": 24.400000002235174,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 2,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2014908986,
+          "driverElapsedMs": 2014.908986,
+          "polls": 1,
+          "pollWallMs": 28.368576999997458,
+          "frameSubmitMs": 15.400000002235174,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 3,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2027067324,
+          "driverElapsedMs": 2027.067324,
+          "polls": 1,
+          "pollWallMs": 42.285650000001624,
+          "frameSubmitMs": 15.099999997764826,
+          "valid": true,
+          "frameValid": true
+        }
+      ],
+      "support": {
+        "extension": true,
+        "webgl2": true,
+        "counterBits": 64,
+        "probeError": 0,
+        "contextLost": false,
+        "supported": true,
+        "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "contextAttributes": {
+          "alpha": true,
+          "antialias": false,
+          "depth": true,
+          "desynchronized": false,
+          "failIfMajorPerformanceCaveat": false,
+          "powerPreference": "high-performance",
+          "premultipliedAlpha": true,
+          "preserveDrawingBuffer": false,
+          "stencil": false,
+          "xrCompatible": false
+        }
+      },
+      "cleanup": {
+        "created": 4,
+        "deleted": 4,
+        "outstanding": false,
+        "active": false,
+        "contextLost": false,
+        "glError": 0
+      },
+      "summaryAudit": [
+        {
+          "metric": "completeMs",
+          "statistic": "mean",
+          "computed": 2087.2249999996275,
+          "recorded": 2087.2249999996275,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p50",
+          "computed": 2041.5,
+          "recorded": 2041.5,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p95",
+          "computed": 2225,
+          "recorded": 2225,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p99",
+          "computed": 2225,
+          "recorded": 2225,
+          "matches": true
+        },
+        {
+          "metric": "calls",
+          "statistic": "mean",
+          "computed": 1748.5,
+          "recorded": 1748.5,
+          "matches": true
+        },
+        {
+          "metric": "triangles",
+          "statistic": "mean",
+          "computed": 3275772.0,
+          "recorded": 3275772,
+          "matches": true
+        },
+        {
+          "metric": "phaseMeanMs",
+          "statistic": "all phases",
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "mean",
+          "computed": 2064.4445997499997,
+          "recorded": 2064.4445997499997,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p50",
+          "computed": 2014.908986,
+          "recorded": 2014.908986,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p95",
+          "computed": 2204.147467,
+          "recorded": 2204.147467,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p99",
+          "computed": 2204.147467,
+          "recorded": 2204.147467,
+          "matches": true
+        },
+        {
+          "metric": "calls",
+          "statistic": "mean",
+          "computed": 1748.5,
+          "recorded": 1748.5,
+          "matches": true
+        },
+        {
+          "metric": "triangles",
+          "statistic": "mean",
+          "computed": 3275772.0,
+          "recorded": 3275772,
+          "matches": true
+        },
+        {
+          "metric": "phaseMeanMs",
+          "statistic": "all phases",
+          "matches": true
+        }
+      ],
+      "warnings": [
+        "[.WebGL-0x21ec001aae00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x21ec001aae00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x21ec001aae00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x21ec001aae00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+      ],
+      "clocks": {
+        "startedAt": "2026-10-21T09:54:23.948Z",
+        "nodeTimeOrigin": 1792576463908.36,
+        "nodeStart": 40.50954,
+        "browserReady": {
+          "timeOrigin": 1792576464372.6,
+          "now": 8663.70000000298,
+          "dateNow": 1792576473036,
+          "visibility": "visible"
+        },
+        "browserBefore": {
+          "timeOrigin": 1792576464372.6,
+          "now": 23561.5,
+          "dateNow": 1792576487934,
+          "visibility": "visible"
+        },
+        "nodeMeasurementStart": 24026.361275,
+        "browserAfter": {
+          "timeOrigin": 1792576464372.6,
+          "now": 32060.900000002235,
+          "dateNow": 1792576496433,
+          "visibility": "visible"
+        },
+        "nodeMeasurementEnd": 32525.547332,
+        "finishedAt": "2026-10-21T09:54:56.748Z",
+        "nodeEnd": 32839.748371
+      },
+      "memory": {
+        "mainSceneGeometryArrayBufferBytes": 39407436,
+        "uniqueGeometries": 1365,
+        "uniqueArrayBuffers": 4593,
+        "attributesWithoutArray": 0,
+        "performanceMemory": {
+          "usedJSHeapSize": 435000000,
+          "totalJSHeapSize": 521000000,
+          "jsHeapSizeLimit": 3760000000
+        },
+        "browserNow": 32316.5,
+        "interpretation": "Reachable main-scene geometry attribute/index/morph backing ArrayBuffers, including hidden objects; shared buffers counted once and full buffer.byteLength counted even for a view. JS storage structure estimate, not committed RAM, GPU memory, VRAM, or whole JS heap.",
+        "excluded": [
+          "separate cubemap/world scenes",
+          "geometry caches not attached to the main scene",
+          "object-owned instanceMatrix/instanceColor",
+          "textures and render targets",
+          "audio buffers",
+          "other JS objects and driver copies"
+        ],
+        "cdpJSHeapUsedSize": 60153464,
+        "cdpJSHeapTotalSize": 63160320,
+        "heapInterpretation": "performance.memory and CDP JSHeapUsedSize are separate API observations with different accounting behavior; do not add them together or infer the cause of their difference from these numbers alone. Geometry ArrayBuffer bytes are a partial structural estimate, not a replacement for either heap reading."
+      }
+    },
+    {
+      "venue": "sphere",
+      "side": "candidate",
+      "label": "candidate-gpu-recheck",
+      "revision": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "raw": {
+        "path": "gpu-timer-recheck/gpu/candidate-gpu-recheck-gpu-sphere-high-desktop-forest.json",
+        "bytes": 36412,
+        "sha256": "78ae8bac99de250beab8c6144e86ae784759a8b33a196f1c9e56d094132786fd"
+      },
+      "runner": {
+        "path": "gpu-timer-recheck/logs/001-candidate-gpu-recheck-sphere-high-desktop-forest.json",
+        "bytes": 1096,
+        "sha256": "b7bf38cf5ece8e61165f295d52cbc3930ef5926316d6534966139a0f42d02a81"
+      },
+      "log": {
+        "path": "gpu-timer-recheck/logs/001-candidate-gpu-recheck-sphere-high-desktop-forest.log",
+        "bytes": 1171,
+        "sha256": "a3ec5771a31fda7a9f7ed976a5afb9a0b13e3e3d15ac7e8241d0af28cb243a5a"
+      },
+      "screenshot": {
+        "path": "gpu-timer-recheck/gpu/candidate-gpu-recheck-gpu-sphere-high-desktop-forest.png",
+        "bytes": 241520,
+        "sha256": "d167bb099c7735a927bcdc704cbb5ce5bc0d322e038098547eae66191f9c8297"
+      },
+      "runnerRecordedLogSha256": "a3ec5771a31fda7a9f7ed976a5afb9a0b13e3e3d15ac7e8241d0af28cb243a5a",
+      "conditionsFingerprintSha256": "47d50a720562299c59df0ed85d13e2f798057271631bfb98e098b73621ff4425",
+      "sourceFingerprintSha256": "85d99c26d2d7cb39408c2b2c7cab75acd60d0266215630acaac856f33022988c",
+      "recordedSourceCount": 56,
+      "checks": {
+        "rawPass": true,
+        "runnerPass": true,
+        "runnerLogShaMatches": true,
+        "runnerCollectorMatches": true,
+        "terminalLogMatchesRaw": true,
+        "allSampleLogsMatchRaw": true,
+        "sourceBeforeAfterEqual": true,
+        "sourceFingerprintRecomputed": true,
+        "conditionsFingerprintRecomputed": true,
+        "allRecordedSourcesMatchRevision": true,
+        "allToolHashesMatchReferenceCommit": true,
+        "summaryIndependentlyRecomputed": true,
+        "sampleCountExact": true,
+        "extensionSupported": true,
+        "allQueriesValid": true,
+        "allFramesValid": true,
+        "noRejectedSamples": true,
+        "allQueriesDeleted": true,
+        "noPageConsoleOrRequestErrors": true
+      },
+      "queryRows": [
+        {
+          "index": 0,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2010482596,
+          "driverElapsedMs": 2010.482596,
+          "polls": 1,
+          "pollWallMs": 28.558429999997315,
+          "frameSubmitMs": 18.100000001490116,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 1,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2118014372,
+          "driverElapsedMs": 2118.014372,
+          "polls": 1,
+          "pollWallMs": 28.478049000001192,
+          "frameSubmitMs": 14.699999999254942,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 2,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2015445626,
+          "driverElapsedMs": 2015.445626,
+          "polls": 1,
+          "pollWallMs": 28.583290999999008,
+          "frameSubmitMs": 17.5,
+          "valid": true,
+          "frameValid": true
+        },
+        {
+          "index": 3,
+          "status": "VALID",
+          "available": true,
+          "disjoint": false,
+          "elapsedNs": 2105299638,
+          "driverElapsedMs": 2105.299638,
+          "polls": 1,
+          "pollWallMs": 40.57493600000089,
+          "frameSubmitMs": 16.300000000745058,
+          "valid": true,
+          "frameValid": true
+        }
+      ],
+      "support": {
+        "extension": true,
+        "webgl2": true,
+        "counterBits": 64,
+        "probeError": 0,
+        "contextLost": false,
+        "supported": true,
+        "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "contextAttributes": {
+          "alpha": true,
+          "antialias": false,
+          "depth": true,
+          "desynchronized": false,
+          "failIfMajorPerformanceCaveat": false,
+          "powerPreference": "high-performance",
+          "premultipliedAlpha": true,
+          "preserveDrawingBuffer": false,
+          "stencil": false,
+          "xrCompatible": false
+        }
+      },
+      "cleanup": {
+        "created": 4,
+        "deleted": 4,
+        "outstanding": false,
+        "active": false,
+        "contextLost": false,
+        "glError": 0
+      },
+      "summaryAudit": [
+        {
+          "metric": "completeMs",
+          "statistic": "mean",
+          "computed": 2084.4500000011176,
+          "recorded": 2084.4500000011176,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p50",
+          "computed": 2038.9000000022352,
+          "recorded": 2038.9000000022352,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p95",
+          "computed": 2139.10000000149,
+          "recorded": 2139.10000000149,
+          "matches": true
+        },
+        {
+          "metric": "completeMs",
+          "statistic": "p99",
+          "computed": 2139.10000000149,
+          "recorded": 2139.10000000149,
+          "matches": true
+        },
+        {
+          "metric": "calls",
+          "statistic": "mean",
+          "computed": 1748.5,
+          "recorded": 1748.5,
+          "matches": true
+        },
+        {
+          "metric": "triangles",
+          "statistic": "mean",
+          "computed": 3269184.0,
+          "recorded": 3269184,
+          "matches": true
+        },
+        {
+          "metric": "phaseMeanMs",
+          "statistic": "all phases",
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "mean",
+          "computed": 2062.310558,
+          "recorded": 2062.310558,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p50",
+          "computed": 2015.445626,
+          "recorded": 2015.445626,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p95",
+          "computed": 2118.014372,
+          "recorded": 2118.014372,
+          "matches": true
+        },
+        {
+          "metric": "driverElapsedMs",
+          "statistic": "p99",
+          "computed": 2118.014372,
+          "recorded": 2118.014372,
+          "matches": true
+        },
+        {
+          "metric": "calls",
+          "statistic": "mean",
+          "computed": 1748.5,
+          "recorded": 1748.5,
+          "matches": true
+        },
+        {
+          "metric": "triangles",
+          "statistic": "mean",
+          "computed": 3269184.0,
+          "recorded": 3269184,
+          "matches": true
+        },
+        {
+          "metric": "phaseMeanMs",
+          "statistic": "all phases",
+          "matches": true
+        }
+      ],
+      "warnings": [
+        "[.WebGL-0x3204013aac00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x3204013aac00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x3204013aac00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x3204013aac00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+      ],
+      "clocks": {
+        "startedAt": "2026-10-21T09:54:56.804Z",
+        "nodeTimeOrigin": 1792576496767.399,
+        "nodeStart": 37.853032,
+        "browserReady": {
+          "timeOrigin": 1792576497160.4,
+          "now": 7772.300000000745,
+          "dateNow": 1792576504932,
+          "visibility": "visible"
+        },
+        "browserBefore": {
+          "timeOrigin": 1792576497160.4,
+          "now": 23016.39999999851,
+          "dateNow": 1792576520176,
+          "visibility": "visible"
+        },
+        "nodeMeasurementStart": 23409.801635,
+        "browserAfter": {
+          "timeOrigin": 1792576497160.4,
+          "now": 31503.39999999851,
+          "dateNow": 1792576528663,
+          "visibility": "visible"
+        },
+        "nodeMeasurementEnd": 31896.488664,
+        "finishedAt": "2026-10-21T09:55:28.982Z",
+        "nodeEnd": 32215.096803
+      },
+      "memory": {
+        "mainSceneGeometryArrayBufferBytes": 21996244,
+        "uniqueGeometries": 1365,
+        "uniqueArrayBuffers": 5497,
+        "attributesWithoutArray": 0,
+        "performanceMemory": {
+          "usedJSHeapSize": 462000000,
+          "totalJSHeapSize": 521000000,
+          "jsHeapSizeLimit": 3760000000
+        },
+        "browserNow": 31775.89999999851,
+        "interpretation": "Reachable main-scene geometry attribute/index/morph backing ArrayBuffers, including hidden objects; shared buffers counted once and full buffer.byteLength counted even for a view. JS storage structure estimate, not committed RAM, GPU memory, VRAM, or whole JS heap.",
+        "excluded": [
+          "separate cubemap/world scenes",
+          "geometry caches not attached to the main scene",
+          "object-owned instanceMatrix/instanceColor",
+          "textures and render targets",
+          "audio buffers",
+          "other JS objects and driver copies"
+        ],
+        "cdpJSHeapUsedSize": 60316068,
+        "cdpJSHeapTotalSize": 63422464,
+        "heapInterpretation": "performance.memory and CDP JSHeapUsedSize are separate API observations with different accounting behavior; do not add them together or infer the cause of their difference from these numbers alone. Geometry ArrayBuffer bytes are a partial structural estimate, not a replacement for either heap reading."
+      }
+    }
+  ],
+  "sourcesAuditedByRevision": {
+    "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f": {
+      "records": {
+        "js/boot.js": {
+          "recorded": {
+            "sha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4"
+          },
+          "gitPath": "public/js/boot.js",
+          "gitSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "matches": true
+        },
+        "js/main.js": {
+          "recorded": {
+            "sha256": "9627b954dfb30a226df87e4eda83d96577e686995622c35f275dd1d2c4ed5283"
+          },
+          "gitPath": "public/js/main.js",
+          "gitSha256": "9627b954dfb30a226df87e4eda83d96577e686995622c35f275dd1d2c4ed5283",
+          "matches": true
+        },
+        "js/quality.js": {
+          "recorded": {
+            "httpStatus": 404
+          },
+          "gitPath": "public/js/quality.js",
+          "gitSha256": null,
+          "matches": true
+        },
+        "js/scene/hall.js": {
+          "recorded": {
+            "sha256": "df6eb3bf58c0c75a355fb4f1b0f0589be6a46ca30ca856ed7a94e4f9960eac5a"
+          },
+          "gitPath": "public/js/scene/hall.js",
+          "gitSha256": "df6eb3bf58c0c75a355fb4f1b0f0589be6a46ca30ca856ed7a94e4f9960eac5a",
+          "matches": true
+        },
+        "js/scene/seats.js": {
+          "recorded": {
+            "sha256": "e355a11113f489808f594a5d1d84fd8dfba7a64d9f03c8a445e050bec16624e2"
+          },
+          "gitPath": "public/js/scene/seats.js",
+          "gitSha256": "e355a11113f489808f594a5d1d84fd8dfba7a64d9f03c8a445e050bec16624e2",
+          "matches": true
+        },
+        "js/scene/audience.js": {
+          "recorded": {
+            "sha256": "8f2677507615e9f7a04cf919df391cc2ea034862ba40fb438ae8eaf3381e23d4"
+          },
+          "gitPath": "public/js/scene/audience.js",
+          "gitSha256": "8f2677507615e9f7a04cf919df391cc2ea034862ba40fb438ae8eaf3381e23d4",
+          "matches": true
+        },
+        "js/scene/screen.js": {
+          "recorded": {
+            "sha256": "ec641d3ee0bb768e7b41b809fba27241fecd3a9b25b8fa8d7edb0e33c008c8a6"
+          },
+          "gitPath": "public/js/scene/screen.js",
+          "gitSha256": "ec641d3ee0bb768e7b41b809fba27241fecd3a9b25b8fa8d7edb0e33c008c8a6",
+          "matches": true
+        },
+        "js/scene/sphere.js": {
+          "recorded": {
+            "sha256": "4f22fa4b3204afa5b44ca424fdd8d95e851cea22bd20cdd9b295e99263173e29"
+          },
+          "gitPath": "public/js/scene/sphere.js",
+          "gitSha256": "4f22fa4b3204afa5b44ca424fdd8d95e851cea22bd20cdd9b295e99263173e29",
+          "matches": true
+        },
+        "js/scene/dome3d.js": {
+          "recorded": {
+            "sha256": "fc47f58a98830be4483d3d44c8bc451aba9b52d0713cbda3be51bc4ed872a366"
+          },
+          "gitPath": "public/js/scene/dome3d.js",
+          "gitSha256": "fc47f58a98830be4483d3d44c8bc451aba9b52d0713cbda3be51bc4ed872a366",
+          "matches": true
+        },
+        "js/scene/domeshow.js": {
+          "recorded": {
+            "sha256": "c715eaf247da0afed5c4e6e63ab009a9917f1c23dc9507ef6b1a3be1929bcbb9"
+          },
+          "gitPath": "public/js/scene/domeshow.js",
+          "gitSha256": "c715eaf247da0afed5c4e6e63ab009a9917f1c23dc9507ef6b1a3be1929bcbb9",
+          "matches": true
+        },
+        "js/audio/engine.js": {
+          "recorded": {
+            "sha256": "bcbff75934740669c934cc76b319ea5b28169bbd065d6a72dcb16d578e4a17a6"
+          },
+          "gitPath": "public/js/audio/engine.js",
+          "gitSha256": "bcbff75934740669c934cc76b319ea5b28169bbd065d6a72dcb16d578e4a17a6",
+          "matches": true
+        },
+        "js/audio/performance.js": {
+          "recorded": {
+            "sha256": "a8294cddf767fcf3dd1adfaecddfecced5adeb5019fb89c1bd50a526a55b78a3"
+          },
+          "gitPath": "public/js/audio/performance.js",
+          "gitSha256": "a8294cddf767fcf3dd1adfaecddfecced5adeb5019fb89c1bd50a526a55b78a3",
+          "matches": true
+        },
+        "js/audio/crowd.js": {
+          "recorded": {
+            "sha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f"
+          },
+          "gitPath": "public/js/audio/crowd.js",
+          "gitSha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f",
+          "matches": true
+        },
+        "js/evening.js": {
+          "recorded": {
+            "sha256": "0d54c854723679cb3dc9d97e116c7158328ff0553a5ead8609d211f4811e831b"
+          },
+          "gitPath": "public/js/evening.js",
+          "gitSha256": "0d54c854723679cb3dc9d97e116c7158328ff0553a5ead8609d211f4811e831b",
+          "matches": true
+        },
+        "js/joystick.js": {
+          "recorded": {
+            "sha256": "3e4eadc3780e63b6b73f42b6cb90b45f33d1062f2ee0d1f89cda77514f88c0f8"
+          },
+          "gitPath": "public/js/joystick.js",
+          "gitSha256": "3e4eadc3780e63b6b73f42b6cb90b45f33d1062f2ee0d1f89cda77514f88c0f8",
+          "matches": true
+        },
+        "js/layout.js": {
+          "recorded": {
+            "sha256": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6"
+          },
+          "gitPath": "public/js/layout.js",
+          "gitSha256": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6",
+          "matches": true
+        },
+        "js/net/room.js": {
+          "recorded": {
+            "sha256": "e915652566cf2c11b824ac156e4ac1f2ff0dfe4f1389c68654d1c117a3063ef5"
+          },
+          "gitPath": "public/js/net/room.js",
+          "gitSha256": "e915652566cf2c11b824ac156e4ac1f2ff0dfe4f1389c68654d1c117a3063ef5",
+          "matches": true
+        },
+        "js/programs.js": {
+          "recorded": {
+            "sha256": "41841384eb68664a57a1af72d60dd7453099c19b5da7ed8a8d59721f37804db2"
+          },
+          "gitPath": "public/js/programs.js",
+          "gitSha256": "41841384eb68664a57a1af72d60dd7453099c19b5da7ed8a8d59721f37804db2",
+          "matches": true
+        },
+        "js/scene/avatars.js": {
+          "recorded": {
+            "sha256": "3a2f3975402964ed151b6a81be3dc4f9b13f7673d5f39d581c2b7f444954da1d"
+          },
+          "gitPath": "public/js/scene/avatars.js",
+          "gitSha256": "3a2f3975402964ed151b6a81be3dc4f9b13f7673d5f39d581c2b7f444954da1d",
+          "matches": true
+        },
+        "js/scene/characters.js": {
+          "recorded": {
+            "sha256": "331ade6a43aee760b6f18ed8478bc698e35386d9180fcff140d54567e4f1b0ce"
+          },
+          "gitPath": "public/js/scene/characters.js",
+          "gitSha256": "331ade6a43aee760b6f18ed8478bc698e35386d9180fcff140d54567e4f1b0ce",
+          "matches": true
+        },
+        "js/scene/director.js": {
+          "recorded": {
+            "sha256": "20ced19ffca9bac94e11b533ff18ea93b8417ab61cb0964e863da91a69bb3a8d"
+          },
+          "gitPath": "public/js/scene/director.js",
+          "gitSha256": "20ced19ffca9bac94e11b533ff18ea93b8417ab61cb0964e863da91a69bb3a8d",
+          "matches": true
+        },
+        "js/scene/effects.js": {
+          "recorded": {
+            "sha256": "6aab7f577a826fce3f0a589851ab2a62edb00def08d2fd5485d92f91905244bf"
+          },
+          "gitPath": "public/js/scene/effects.js",
+          "gitSha256": "6aab7f577a826fce3f0a589851ab2a62edb00def08d2fd5485d92f91905244bf",
+          "matches": true
+        },
+        "js/scene/foyer.js": {
+          "recorded": {
+            "sha256": "2b28cfc6f46fa05a9168d587c85e8691c2c7b16ea735185b08f5cd46d6aea56e"
+          },
+          "gitPath": "public/js/scene/foyer.js",
+          "gitSha256": "2b28cfc6f46fa05a9168d587c85e8691c2c7b16ea735185b08f5cd46d6aea56e",
+          "matches": true
+        },
+        "js/scene/fx.js": {
+          "recorded": {
+            "sha256": "563990312786780a15d9b1f050465daa5533ac85133569c458d8c24afe0f6ee2"
+          },
+          "gitPath": "public/js/scene/fx.js",
+          "gitSha256": "563990312786780a15d9b1f050465daa5533ac85133569c458d8c24afe0f6ee2",
+          "matches": true
+        },
+        "js/scene/hallplan.js": {
+          "recorded": {
+            "sha256": "a9f13dcfe5bc1bd90ff4fad97246f0a5a2c5a0aaec8d66eaff8924fc1ad618ae"
+          },
+          "gitPath": "public/js/scene/hallplan.js",
+          "gitSha256": "a9f13dcfe5bc1bd90ff4fad97246f0a5a2c5a0aaec8d66eaff8924fc1ad618ae",
+          "matches": true
+        },
+        "js/scene/instruments.js": {
+          "recorded": {
+            "sha256": "e7aee816a225f6b0b7143c7cc30f870dc764ebbac63b15873d80592a77cbc2bc"
+          },
+          "gitPath": "public/js/scene/instruments.js",
+          "gitSha256": "e7aee816a225f6b0b7143c7cc30f870dc764ebbac63b15873d80592a77cbc2bc",
+          "matches": true
+        },
+        "js/scene/lobby.js": {
+          "recorded": {
+            "sha256": "207b3409cf76cd43e82c6b04b205ee364a3185b114dfc67f03a42b867bdcfa70"
+          },
+          "gitPath": "public/js/scene/lobby.js",
+          "gitSha256": "207b3409cf76cd43e82c6b04b205ee364a3185b114dfc67f03a42b867bdcfa70",
+          "matches": true
+        },
+        "js/scene/materials.js": {
+          "recorded": {
+            "sha256": "410e95a192304247ff34e52ec9874242bed577f0f37b1508423372fee17882c6"
+          },
+          "gitPath": "public/js/scene/materials.js",
+          "gitSha256": "410e95a192304247ff34e52ec9874242bed577f0f37b1508423372fee17882c6",
+          "matches": true
+        },
+        "js/scene/merge.js": {
+          "recorded": {
+            "sha256": "bef873d393e1993d67506a6cd9022a105094326c43983341800bfb7f17f51c77"
+          },
+          "gitPath": "public/js/scene/merge.js",
+          "gitSha256": "bef873d393e1993d67506a6cd9022a105094326c43983341800bfb7f17f51c77",
+          "matches": true
+        },
+        "js/scene/navgrid.js": {
+          "recorded": {
+            "sha256": "05bf18d4781d691d192400c847ee4dc190bada7b7ae8113555312b95e38a344f"
+          },
+          "gitPath": "public/js/scene/navgrid.js",
+          "gitSha256": "05bf18d4781d691d192400c847ee4dc190bada7b7ae8113555312b95e38a344f",
+          "matches": true
+        },
+        "js/scene/orchestra.js": {
+          "recorded": {
+            "sha256": "4465471bbcea945acf47516fae8d208374ef2ca5eb858eda3e67b1ce61a8c63f"
+          },
+          "gitPath": "public/js/scene/orchestra.js",
+          "gitSha256": "4465471bbcea945acf47516fae8d208374ef2ca5eb858eda3e67b1ce61a8c63f",
+          "matches": true
+        },
+        "js/scene/recital.js": {
+          "recorded": {
+            "sha256": "2fae6c7c3dfed6000a54ed867b6bcf397cc27be40a88ebbf13f9b6f0baa654dc"
+          },
+          "gitPath": "public/js/scene/recital.js",
+          "gitSha256": "2fae6c7c3dfed6000a54ed867b6bcf397cc27be40a88ebbf13f9b6f0baa654dc",
+          "matches": true
+        },
+        "js/scene/sphereplan.js": {
+          "recorded": {
+            "sha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585"
+          },
+          "gitPath": "public/js/scene/sphereplan.js",
+          "gitSha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585",
+          "matches": true
+        },
+        "js/scene/stage.js": {
+          "recorded": {
+            "sha256": "4bd644f2872339ef39e5f557e3b1d845e5fb0c0089770dcf66add0c5f320175a"
+          },
+          "gitPath": "public/js/scene/stage.js",
+          "gitSha256": "4bd644f2872339ef39e5f557e3b1d845e5fb0c0089770dcf66add0c5f320175a",
+          "matches": true
+        },
+        "js/scene/venue.js": {
+          "recorded": {
+            "sha256": "6a983fe2fda125922cf3cf00c1bb7943f6efabc2c49c5eedfad70bd43802b150"
+          },
+          "gitPath": "public/js/scene/venue.js",
+          "gitSha256": "6a983fe2fda125922cf3cf00c1bb7943f6efabc2c49c5eedfad70bd43802b150",
+          "matches": true
+        },
+        "js/tickets.js": {
+          "recorded": {
+            "sha256": "10249e5ec484c330b820b9922a140df9e1d5d6d71725bea218e24dec1bb7f961"
+          },
+          "gitPath": "public/js/tickets.js",
+          "gitSha256": "10249e5ec484c330b820b9922a140df9e1d5d6d71725bea218e24dec1bb7f961",
+          "matches": true
+        },
+        "js/ui.js": {
+          "recorded": {
+            "sha256": "25893fb283b166cfd0cd2dc86f72c1ca488758d0b317af6118808c1aa7eb907b"
+          },
+          "gitPath": "public/js/ui.js",
+          "gitSha256": "25893fb283b166cfd0cd2dc86f72c1ca488758d0b317af6118808c1aa7eb907b",
+          "matches": true
+        },
+        "vendor/three/addons/environments/RoomEnvironment.js": {
+          "recorded": {
+            "sha256": "55f466192cc84298755a424c5e040345006b2ee1455589b3b54126c2ea4123f4"
+          },
+          "gitPath": "public/vendor/three/addons/environments/RoomEnvironment.js",
+          "gitSha256": "55f466192cc84298755a424c5e040345006b2ee1455589b3b54126c2ea4123f4",
+          "matches": true
+        },
+        "vendor/three/addons/geometries/RoundedBoxGeometry.js": {
+          "recorded": {
+            "sha256": "c5feab96123858ed8823c889b238dc8734adab7e760e3cfd21e7f3f2f3e348e3"
+          },
+          "gitPath": "public/vendor/three/addons/geometries/RoundedBoxGeometry.js",
+          "gitSha256": "c5feab96123858ed8823c889b238dc8734adab7e760e3cfd21e7f3f2f3e348e3",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/EffectComposer.js": {
+          "recorded": {
+            "sha256": "4e079a5886152d7e529a59aef644e968ab4d32c6a33ce016b36bf29b2eac26f7"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/EffectComposer.js",
+          "gitSha256": "4e079a5886152d7e529a59aef644e968ab4d32c6a33ce016b36bf29b2eac26f7",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/MaskPass.js": {
+          "recorded": {
+            "sha256": "7cd08eee9d5d6f5578beaddbdcbe9c384f6873810af27f22ab7db3ceeb127aa3"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/MaskPass.js",
+          "gitSha256": "7cd08eee9d5d6f5578beaddbdcbe9c384f6873810af27f22ab7db3ceeb127aa3",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/OutputPass.js": {
+          "recorded": {
+            "sha256": "02e4a261af34de71338185e9e87f0cbe5cba9115608d984363e1269dec1d2272"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/OutputPass.js",
+          "gitSha256": "02e4a261af34de71338185e9e87f0cbe5cba9115608d984363e1269dec1d2272",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/Pass.js": {
+          "recorded": {
+            "sha256": "444b409c235ead986893c472e720da1b779a56985c7d10b279c7944b52bd61c5"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/Pass.js",
+          "gitSha256": "444b409c235ead986893c472e720da1b779a56985c7d10b279c7944b52bd61c5",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/RenderPass.js": {
+          "recorded": {
+            "sha256": "817f6c3cdcd0fd41515d112359ea0532568eefb5aabd3b33903957ebca1b8a6a"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/RenderPass.js",
+          "gitSha256": "817f6c3cdcd0fd41515d112359ea0532568eefb5aabd3b33903957ebca1b8a6a",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/ShaderPass.js": {
+          "recorded": {
+            "sha256": "e2500a5913b26bbf5148ceaae644c6edcff06a18b01494ee37bf856353d2ab9d"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/ShaderPass.js",
+          "gitSha256": "e2500a5913b26bbf5148ceaae644c6edcff06a18b01494ee37bf856353d2ab9d",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/UnrealBloomPass.js": {
+          "recorded": {
+            "sha256": "ba8f2fcadfa6588384c9473498f974d81d120f02f0e63a0e59c265202a006b5a"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/UnrealBloomPass.js",
+          "gitSha256": "ba8f2fcadfa6588384c9473498f974d81d120f02f0e63a0e59c265202a006b5a",
+          "matches": true
+        },
+        "vendor/three/addons/shaders/CopyShader.js": {
+          "recorded": {
+            "sha256": "a33057d5ac91c43304c186ac0e8816e62bb2ed471d3a00ff3018dfd5c0389718"
+          },
+          "gitPath": "public/vendor/three/addons/shaders/CopyShader.js",
+          "gitSha256": "a33057d5ac91c43304c186ac0e8816e62bb2ed471d3a00ff3018dfd5c0389718",
+          "matches": true
+        },
+        "vendor/three/addons/shaders/LuminosityHighPassShader.js": {
+          "recorded": {
+            "sha256": "5044f780b6e6cf863947f64c36fe1587132f7fbe395ada863cd1e5f0388dcf1e"
+          },
+          "gitPath": "public/vendor/three/addons/shaders/LuminosityHighPassShader.js",
+          "gitSha256": "5044f780b6e6cf863947f64c36fe1587132f7fbe395ada863cd1e5f0388dcf1e",
+          "matches": true
+        },
+        "vendor/three/addons/shaders/OutputShader.js": {
+          "recorded": {
+            "sha256": "353479f77a8d7e2629d49ccac9fc2f5dbfdda5442e0adf867b00377a2fcb0cb2"
+          },
+          "gitPath": "public/vendor/three/addons/shaders/OutputShader.js",
+          "gitSha256": "353479f77a8d7e2629d49ccac9fc2f5dbfdda5442e0adf867b00377a2fcb0cb2",
+          "matches": true
+        },
+        "vendor/three/addons/utils/BufferGeometryUtils.js": {
+          "recorded": {
+            "sha256": "9fb63427ce6641fa14fd0baff9cc4d1b5f9c3d85fd084bf2e90e803c44ec1797"
+          },
+          "gitPath": "public/vendor/three/addons/utils/BufferGeometryUtils.js",
+          "gitSha256": "9fb63427ce6641fa14fd0baff9cc4d1b5f9c3d85fd084bf2e90e803c44ec1797",
+          "matches": true
+        },
+        "vendor/three/three.core.js": {
+          "recorded": {
+            "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+          },
+          "gitPath": "public/vendor/three/three.core.js",
+          "gitSha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6",
+          "matches": true
+        },
+        "vendor/three/three.module.js": {
+          "recorded": {
+            "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+          },
+          "gitPath": "public/vendor/three/three.module.js",
+          "gitSha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea",
+          "matches": true
+        }
+      },
+      "allRecordedHashesMatchRevision": true
+    },
+    "06c8ac5e6956b3b337102b342fbd4e422b43baf9": {
+      "records": {
+        "js/boot.js": {
+          "recorded": {
+            "sha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4"
+          },
+          "gitPath": "public/js/boot.js",
+          "gitSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "matches": true
+        },
+        "js/main.js": {
+          "recorded": {
+            "sha256": "a0d096e176f391537439c30aa4edd89fcace95fc542803a7dc1ea8a7790efaed"
+          },
+          "gitPath": "public/js/main.js",
+          "gitSha256": "a0d096e176f391537439c30aa4edd89fcace95fc542803a7dc1ea8a7790efaed",
+          "matches": true
+        },
+        "js/quality.js": {
+          "recorded": {
+            "sha256": "c3f9ec2793c5799a02662099039b9c171df20a0943bd1bde3ecbcdd1b812f959"
+          },
+          "gitPath": "public/js/quality.js",
+          "gitSha256": "c3f9ec2793c5799a02662099039b9c171df20a0943bd1bde3ecbcdd1b812f959",
+          "matches": true
+        },
+        "js/scene/hall.js": {
+          "recorded": {
+            "sha256": "8e2831fcca6a7edba9250b4e42d2fa88a63fe0d92d2dde2e4ce1c92b0ddf2150"
+          },
+          "gitPath": "public/js/scene/hall.js",
+          "gitSha256": "8e2831fcca6a7edba9250b4e42d2fa88a63fe0d92d2dde2e4ce1c92b0ddf2150",
+          "matches": true
+        },
+        "js/scene/seats.js": {
+          "recorded": {
+            "sha256": "c5dc9616f0e127c2ff98e6707496c92cb2798af6c2364cae2df1bd5c00ecab27"
+          },
+          "gitPath": "public/js/scene/seats.js",
+          "gitSha256": "c5dc9616f0e127c2ff98e6707496c92cb2798af6c2364cae2df1bd5c00ecab27",
+          "matches": true
+        },
+        "js/scene/audience.js": {
+          "recorded": {
+            "sha256": "d54764015ae562570f5ab0ed82a1830eb8efcbb98a0d06ed3dc5127241e9f505"
+          },
+          "gitPath": "public/js/scene/audience.js",
+          "gitSha256": "d54764015ae562570f5ab0ed82a1830eb8efcbb98a0d06ed3dc5127241e9f505",
+          "matches": true
+        },
+        "js/scene/screen.js": {
+          "recorded": {
+            "sha256": "013fad18f30aba991063976b5c33d402182ac25cf61ad5d92112205029bf41df"
+          },
+          "gitPath": "public/js/scene/screen.js",
+          "gitSha256": "013fad18f30aba991063976b5c33d402182ac25cf61ad5d92112205029bf41df",
+          "matches": true
+        },
+        "js/scene/sphere.js": {
+          "recorded": {
+            "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc"
+          },
+          "gitPath": "public/js/scene/sphere.js",
+          "gitSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "matches": true
+        },
+        "js/scene/dome3d.js": {
+          "recorded": {
+            "sha256": "832f368158c44589a857183879771e55f90d234a600c9fafcd6b935e327c91c0"
+          },
+          "gitPath": "public/js/scene/dome3d.js",
+          "gitSha256": "832f368158c44589a857183879771e55f90d234a600c9fafcd6b935e327c91c0",
+          "matches": true
+        },
+        "js/scene/domeshow.js": {
+          "recorded": {
+            "sha256": "54ed6d88ff4c91bf802ba5affccdde96a09b6e512f20087131224108af8dbcbd"
+          },
+          "gitPath": "public/js/scene/domeshow.js",
+          "gitSha256": "54ed6d88ff4c91bf802ba5affccdde96a09b6e512f20087131224108af8dbcbd",
+          "matches": true
+        },
+        "js/audio/engine.js": {
+          "recorded": {
+            "sha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a"
+          },
+          "gitPath": "public/js/audio/engine.js",
+          "gitSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "matches": true
+        },
+        "js/audio/performance.js": {
+          "recorded": {
+            "sha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13"
+          },
+          "gitPath": "public/js/audio/performance.js",
+          "gitSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "matches": true
+        },
+        "js/audio/crowd-loader.js": {
+          "recorded": {
+            "sha256": "d7bfde3a5c3d63c752ae3b3625ee7f596732a757da1bb75f06069bb8ef8eb4c0"
+          },
+          "gitPath": "public/js/audio/crowd-loader.js",
+          "gitSha256": "d7bfde3a5c3d63c752ae3b3625ee7f596732a757da1bb75f06069bb8ef8eb4c0",
+          "matches": true
+        },
+        "js/audio/crowd-worker.js": {
+          "recorded": {
+            "sha256": "3da0d399f5ece9c835ba457d14c26483f2ad85e055bad51b419635e89888a02b"
+          },
+          "gitPath": "public/js/audio/crowd-worker.js",
+          "gitSha256": "3da0d399f5ece9c835ba457d14c26483f2ad85e055bad51b419635e89888a02b",
+          "matches": true
+        },
+        "js/audio/crowd.js": {
+          "recorded": {
+            "sha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f"
+          },
+          "gitPath": "public/js/audio/crowd.js",
+          "gitSha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f",
+          "matches": true
+        },
+        "js/evening.js": {
+          "recorded": {
+            "sha256": "0d54c854723679cb3dc9d97e116c7158328ff0553a5ead8609d211f4811e831b"
+          },
+          "gitPath": "public/js/evening.js",
+          "gitSha256": "0d54c854723679cb3dc9d97e116c7158328ff0553a5ead8609d211f4811e831b",
+          "matches": true
+        },
+        "js/joystick.js": {
+          "recorded": {
+            "sha256": "3e4eadc3780e63b6b73f42b6cb90b45f33d1062f2ee0d1f89cda77514f88c0f8"
+          },
+          "gitPath": "public/js/joystick.js",
+          "gitSha256": "3e4eadc3780e63b6b73f42b6cb90b45f33d1062f2ee0d1f89cda77514f88c0f8",
+          "matches": true
+        },
+        "js/layout.js": {
+          "recorded": {
+            "sha256": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6"
+          },
+          "gitPath": "public/js/layout.js",
+          "gitSha256": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6",
+          "matches": true
+        },
+        "js/net/room.js": {
+          "recorded": {
+            "sha256": "e915652566cf2c11b824ac156e4ac1f2ff0dfe4f1389c68654d1c117a3063ef5"
+          },
+          "gitPath": "public/js/net/room.js",
+          "gitSha256": "e915652566cf2c11b824ac156e4ac1f2ff0dfe4f1389c68654d1c117a3063ef5",
+          "matches": true
+        },
+        "js/programs.js": {
+          "recorded": {
+            "sha256": "41841384eb68664a57a1af72d60dd7453099c19b5da7ed8a8d59721f37804db2"
+          },
+          "gitPath": "public/js/programs.js",
+          "gitSha256": "41841384eb68664a57a1af72d60dd7453099c19b5da7ed8a8d59721f37804db2",
+          "matches": true
+        },
+        "js/scene/avatars.js": {
+          "recorded": {
+            "sha256": "3a2f3975402964ed151b6a81be3dc4f9b13f7673d5f39d581c2b7f444954da1d"
+          },
+          "gitPath": "public/js/scene/avatars.js",
+          "gitSha256": "3a2f3975402964ed151b6a81be3dc4f9b13f7673d5f39d581c2b7f444954da1d",
+          "matches": true
+        },
+        "js/scene/characters.js": {
+          "recorded": {
+            "sha256": "331ade6a43aee760b6f18ed8478bc698e35386d9180fcff140d54567e4f1b0ce"
+          },
+          "gitPath": "public/js/scene/characters.js",
+          "gitSha256": "331ade6a43aee760b6f18ed8478bc698e35386d9180fcff140d54567e4f1b0ce",
+          "matches": true
+        },
+        "js/scene/director.js": {
+          "recorded": {
+            "sha256": "20ced19ffca9bac94e11b533ff18ea93b8417ab61cb0964e863da91a69bb3a8d"
+          },
+          "gitPath": "public/js/scene/director.js",
+          "gitSha256": "20ced19ffca9bac94e11b533ff18ea93b8417ab61cb0964e863da91a69bb3a8d",
+          "matches": true
+        },
+        "js/scene/effects.js": {
+          "recorded": {
+            "sha256": "6aab7f577a826fce3f0a589851ab2a62edb00def08d2fd5485d92f91905244bf"
+          },
+          "gitPath": "public/js/scene/effects.js",
+          "gitSha256": "6aab7f577a826fce3f0a589851ab2a62edb00def08d2fd5485d92f91905244bf",
+          "matches": true
+        },
+        "js/scene/foyer.js": {
+          "recorded": {
+            "sha256": "2b28cfc6f46fa05a9168d587c85e8691c2c7b16ea735185b08f5cd46d6aea56e"
+          },
+          "gitPath": "public/js/scene/foyer.js",
+          "gitSha256": "2b28cfc6f46fa05a9168d587c85e8691c2c7b16ea735185b08f5cd46d6aea56e",
+          "matches": true
+        },
+        "js/scene/fx.js": {
+          "recorded": {
+            "sha256": "563990312786780a15d9b1f050465daa5533ac85133569c458d8c24afe0f6ee2"
+          },
+          "gitPath": "public/js/scene/fx.js",
+          "gitSha256": "563990312786780a15d9b1f050465daa5533ac85133569c458d8c24afe0f6ee2",
+          "matches": true
+        },
+        "js/scene/geometry.js": {
+          "recorded": {
+            "sha256": "28fc26938e8e2f4c9f64113dc018177c2694adadd8efc3dae8091a9e78e0a25e"
+          },
+          "gitPath": "public/js/scene/geometry.js",
+          "gitSha256": "28fc26938e8e2f4c9f64113dc018177c2694adadd8efc3dae8091a9e78e0a25e",
+          "matches": true
+        },
+        "js/scene/hallplan.js": {
+          "recorded": {
+            "sha256": "a9f13dcfe5bc1bd90ff4fad97246f0a5a2c5a0aaec8d66eaff8924fc1ad618ae"
+          },
+          "gitPath": "public/js/scene/hallplan.js",
+          "gitSha256": "a9f13dcfe5bc1bd90ff4fad97246f0a5a2c5a0aaec8d66eaff8924fc1ad618ae",
+          "matches": true
+        },
+        "js/scene/instance-batches.js": {
+          "recorded": {
+            "sha256": "09d81ddfc1a10dd34a5f44e053da2cb00678038403d42720f1e4aa2942923e01"
+          },
+          "gitPath": "public/js/scene/instance-batches.js",
+          "gitSha256": "09d81ddfc1a10dd34a5f44e053da2cb00678038403d42720f1e4aa2942923e01",
+          "matches": true
+        },
+        "js/scene/instruments.js": {
+          "recorded": {
+            "sha256": "e7aee816a225f6b0b7143c7cc30f870dc764ebbac63b15873d80592a77cbc2bc"
+          },
+          "gitPath": "public/js/scene/instruments.js",
+          "gitSha256": "e7aee816a225f6b0b7143c7cc30f870dc764ebbac63b15873d80592a77cbc2bc",
+          "matches": true
+        },
+        "js/scene/lobby.js": {
+          "recorded": {
+            "sha256": "207b3409cf76cd43e82c6b04b205ee364a3185b114dfc67f03a42b867bdcfa70"
+          },
+          "gitPath": "public/js/scene/lobby.js",
+          "gitSha256": "207b3409cf76cd43e82c6b04b205ee364a3185b114dfc67f03a42b867bdcfa70",
+          "matches": true
+        },
+        "js/scene/materials.js": {
+          "recorded": {
+            "sha256": "410e95a192304247ff34e52ec9874242bed577f0f37b1508423372fee17882c6"
+          },
+          "gitPath": "public/js/scene/materials.js",
+          "gitSha256": "410e95a192304247ff34e52ec9874242bed577f0f37b1508423372fee17882c6",
+          "matches": true
+        },
+        "js/scene/merge.js": {
+          "recorded": {
+            "sha256": "7634326eaa7ac3706e7834384ffe35a962f6da156c786f251510f25798f683de"
+          },
+          "gitPath": "public/js/scene/merge.js",
+          "gitSha256": "7634326eaa7ac3706e7834384ffe35a962f6da156c786f251510f25798f683de",
+          "matches": true
+        },
+        "js/scene/navgrid.js": {
+          "recorded": {
+            "sha256": "05bf18d4781d691d192400c847ee4dc190bada7b7ae8113555312b95e38a344f"
+          },
+          "gitPath": "public/js/scene/navgrid.js",
+          "gitSha256": "05bf18d4781d691d192400c847ee4dc190bada7b7ae8113555312b95e38a344f",
+          "matches": true
+        },
+        "js/scene/orchestra.js": {
+          "recorded": {
+            "sha256": "4465471bbcea945acf47516fae8d208374ef2ca5eb858eda3e67b1ce61a8c63f"
+          },
+          "gitPath": "public/js/scene/orchestra.js",
+          "gitSha256": "4465471bbcea945acf47516fae8d208374ef2ca5eb858eda3e67b1ce61a8c63f",
+          "matches": true
+        },
+        "js/scene/recital.js": {
+          "recorded": {
+            "sha256": "2fae6c7c3dfed6000a54ed867b6bcf397cc27be40a88ebbf13f9b6f0baa654dc"
+          },
+          "gitPath": "public/js/scene/recital.js",
+          "gitSha256": "2fae6c7c3dfed6000a54ed867b6bcf397cc27be40a88ebbf13f9b6f0baa654dc",
+          "matches": true
+        },
+        "js/scene/sphereplan.js": {
+          "recorded": {
+            "sha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585"
+          },
+          "gitPath": "public/js/scene/sphereplan.js",
+          "gitSha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585",
+          "matches": true
+        },
+        "js/scene/stage.js": {
+          "recorded": {
+            "sha256": "4bd644f2872339ef39e5f557e3b1d845e5fb0c0089770dcf66add0c5f320175a"
+          },
+          "gitPath": "public/js/scene/stage.js",
+          "gitSha256": "4bd644f2872339ef39e5f557e3b1d845e5fb0c0089770dcf66add0c5f320175a",
+          "matches": true
+        },
+        "js/scene/venue.js": {
+          "recorded": {
+            "sha256": "6a983fe2fda125922cf3cf00c1bb7943f6efabc2c49c5eedfad70bd43802b150"
+          },
+          "gitPath": "public/js/scene/venue.js",
+          "gitSha256": "6a983fe2fda125922cf3cf00c1bb7943f6efabc2c49c5eedfad70bd43802b150",
+          "matches": true
+        },
+        "js/tickets.js": {
+          "recorded": {
+            "sha256": "10249e5ec484c330b820b9922a140df9e1d5d6d71725bea218e24dec1bb7f961"
+          },
+          "gitPath": "public/js/tickets.js",
+          "gitSha256": "10249e5ec484c330b820b9922a140df9e1d5d6d71725bea218e24dec1bb7f961",
+          "matches": true
+        },
+        "js/ui.js": {
+          "recorded": {
+            "sha256": "ff0d7dcfdec3a4cf9b7a7f0dbb487fb16d1e58c13469d24a9db787c000630528"
+          },
+          "gitPath": "public/js/ui.js",
+          "gitSha256": "ff0d7dcfdec3a4cf9b7a7f0dbb487fb16d1e58c13469d24a9db787c000630528",
+          "matches": true
+        },
+        "vendor/three/addons/environments/RoomEnvironment.js": {
+          "recorded": {
+            "sha256": "55f466192cc84298755a424c5e040345006b2ee1455589b3b54126c2ea4123f4"
+          },
+          "gitPath": "public/vendor/three/addons/environments/RoomEnvironment.js",
+          "gitSha256": "55f466192cc84298755a424c5e040345006b2ee1455589b3b54126c2ea4123f4",
+          "matches": true
+        },
+        "vendor/three/addons/geometries/RoundedBoxGeometry.js": {
+          "recorded": {
+            "sha256": "c5feab96123858ed8823c889b238dc8734adab7e760e3cfd21e7f3f2f3e348e3"
+          },
+          "gitPath": "public/vendor/three/addons/geometries/RoundedBoxGeometry.js",
+          "gitSha256": "c5feab96123858ed8823c889b238dc8734adab7e760e3cfd21e7f3f2f3e348e3",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/EffectComposer.js": {
+          "recorded": {
+            "sha256": "4e079a5886152d7e529a59aef644e968ab4d32c6a33ce016b36bf29b2eac26f7"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/EffectComposer.js",
+          "gitSha256": "4e079a5886152d7e529a59aef644e968ab4d32c6a33ce016b36bf29b2eac26f7",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/MaskPass.js": {
+          "recorded": {
+            "sha256": "7cd08eee9d5d6f5578beaddbdcbe9c384f6873810af27f22ab7db3ceeb127aa3"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/MaskPass.js",
+          "gitSha256": "7cd08eee9d5d6f5578beaddbdcbe9c384f6873810af27f22ab7db3ceeb127aa3",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/OutputPass.js": {
+          "recorded": {
+            "sha256": "02e4a261af34de71338185e9e87f0cbe5cba9115608d984363e1269dec1d2272"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/OutputPass.js",
+          "gitSha256": "02e4a261af34de71338185e9e87f0cbe5cba9115608d984363e1269dec1d2272",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/Pass.js": {
+          "recorded": {
+            "sha256": "444b409c235ead986893c472e720da1b779a56985c7d10b279c7944b52bd61c5"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/Pass.js",
+          "gitSha256": "444b409c235ead986893c472e720da1b779a56985c7d10b279c7944b52bd61c5",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/RenderPass.js": {
+          "recorded": {
+            "sha256": "817f6c3cdcd0fd41515d112359ea0532568eefb5aabd3b33903957ebca1b8a6a"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/RenderPass.js",
+          "gitSha256": "817f6c3cdcd0fd41515d112359ea0532568eefb5aabd3b33903957ebca1b8a6a",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/ShaderPass.js": {
+          "recorded": {
+            "sha256": "e2500a5913b26bbf5148ceaae644c6edcff06a18b01494ee37bf856353d2ab9d"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/ShaderPass.js",
+          "gitSha256": "e2500a5913b26bbf5148ceaae644c6edcff06a18b01494ee37bf856353d2ab9d",
+          "matches": true
+        },
+        "vendor/three/addons/postprocessing/UnrealBloomPass.js": {
+          "recorded": {
+            "sha256": "ba8f2fcadfa6588384c9473498f974d81d120f02f0e63a0e59c265202a006b5a"
+          },
+          "gitPath": "public/vendor/three/addons/postprocessing/UnrealBloomPass.js",
+          "gitSha256": "ba8f2fcadfa6588384c9473498f974d81d120f02f0e63a0e59c265202a006b5a",
+          "matches": true
+        },
+        "vendor/three/addons/shaders/CopyShader.js": {
+          "recorded": {
+            "sha256": "a33057d5ac91c43304c186ac0e8816e62bb2ed471d3a00ff3018dfd5c0389718"
+          },
+          "gitPath": "public/vendor/three/addons/shaders/CopyShader.js",
+          "gitSha256": "a33057d5ac91c43304c186ac0e8816e62bb2ed471d3a00ff3018dfd5c0389718",
+          "matches": true
+        },
+        "vendor/three/addons/shaders/LuminosityHighPassShader.js": {
+          "recorded": {
+            "sha256": "5044f780b6e6cf863947f64c36fe1587132f7fbe395ada863cd1e5f0388dcf1e"
+          },
+          "gitPath": "public/vendor/three/addons/shaders/LuminosityHighPassShader.js",
+          "gitSha256": "5044f780b6e6cf863947f64c36fe1587132f7fbe395ada863cd1e5f0388dcf1e",
+          "matches": true
+        },
+        "vendor/three/addons/shaders/OutputShader.js": {
+          "recorded": {
+            "sha256": "353479f77a8d7e2629d49ccac9fc2f5dbfdda5442e0adf867b00377a2fcb0cb2"
+          },
+          "gitPath": "public/vendor/three/addons/shaders/OutputShader.js",
+          "gitSha256": "353479f77a8d7e2629d49ccac9fc2f5dbfdda5442e0adf867b00377a2fcb0cb2",
+          "matches": true
+        },
+        "vendor/three/addons/utils/BufferGeometryUtils.js": {
+          "recorded": {
+            "sha256": "9fb63427ce6641fa14fd0baff9cc4d1b5f9c3d85fd084bf2e90e803c44ec1797"
+          },
+          "gitPath": "public/vendor/three/addons/utils/BufferGeometryUtils.js",
+          "gitSha256": "9fb63427ce6641fa14fd0baff9cc4d1b5f9c3d85fd084bf2e90e803c44ec1797",
+          "matches": true
+        },
+        "vendor/three/three.core.js": {
+          "recorded": {
+            "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+          },
+          "gitPath": "public/vendor/three/three.core.js",
+          "gitSha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6",
+          "matches": true
+        },
+        "vendor/three/three.module.js": {
+          "recorded": {
+            "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+          },
+          "gitPath": "public/vendor/three/three.module.js",
+          "gitSha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea",
+          "matches": true
+        }
+      },
+      "allRecordedHashesMatchRevision": true
+    }
+  },
+  "pairs": [
+    {
+      "venue": "hall",
+      "scene": "front",
+      "eligibility": "VALID_CONTROLLED_SOFTWARE_DRIVER_PAIR",
+      "strictChecks": {
+        "fullConditionsDeepEqual": true,
+        "conditionFingerprintEqual": true,
+        "sameFixture": true,
+        "sameScenarioAndCameraTarget": true,
+        "samePresetViewportDPRActualScale": true,
+        "sameAllToolHashes": true,
+        "allFourSampleQueriesPerSideValid": true,
+        "hardwareOrLoadIndependentlyVerified": false,
+        "physicalGPUComparison": false
+      },
+      "conditions": {
+        "venue": "hall",
+        "quality": "high",
+        "device": "desktop",
+        "sceneName": "front",
+        "viewport": [
+          640,
+          360
+        ],
+        "devicePixelRatio": 1,
+        "samplesRequested": 4,
+        "warmupFrames": 4,
+        "frameTimeoutMs": 30000,
+        "queryTimeoutMs": 3000,
+        "pollIntervalMs": 25,
+        "fixture": {
+          "crowd": 1531,
+          "seats": 1885,
+          "eligibleAudienceSeats": 1879,
+          "recitalSeats": 6,
+          "lite": false,
+          "piece": "beethoven-ode-to-joy",
+          "sceneState": {
+            "phase": "playing",
+            "asleep": false,
+            "interval": false,
+            "recital": false,
+            "practice": false,
+            "hush": 0,
+            "sleepy": false,
+            "seatGroupVisible": true,
+            "audienceVisible": true
+          }
+        },
+        "scenario": {
+          "camera": {
+            "position": [
+              0,
+              1.75,
+              5
+            ],
+            "target": [
+              0,
+              2,
+              -7
+            ],
+            "fov": 64
+          },
+          "musicTime": 25,
+          "world": null,
+          "broadcast": false,
+          "effectsPeak": false,
+          "effectsShow": false
+        },
+        "meta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            640,
+            360
+          ],
+          "quality": "high",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+        },
+        "support": {
+          "extension": true,
+          "webgl2": true,
+          "counterBits": 64,
+          "probeError": 0,
+          "contextLost": false,
+          "supported": true,
+          "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+          "contextAttributes": {
+            "alpha": true,
+            "antialias": false,
+            "depth": true,
+            "desynchronized": false,
+            "failIfMajorPerformanceCaveat": false,
+            "powerPreference": "high-performance",
+            "premultipliedAlpha": true,
+            "preserveDrawingBuffer": false,
+            "stencil": false,
+            "xrCompatible": false
+          }
+        },
+        "fixturePolicy": {
+          "piece": "beethoven-ode-to-joy",
+          "randomSeed": 417,
+          "uuidSeed": 874,
+          "crowdSeed": 417,
+          "crowdFill": 0.8,
+          "musicClock": "existing fixture: 25 s (broadcast 5 s), advances 1/60 s per step",
+          "audio": "real engine created; note scheduler disabled; synthetic performance clock",
+          "animationDtCapSeconds": 0.016666666666666666,
+          "mainAnimation": "existing fixture step(true), original frame wrapped by one elapsed query",
+          "queryRange": "beginQuery immediately before original frame(); endQuery in finally immediately after it; readPixels is outside the query",
+          "completion": "existing fixture completeMs includes frame, query instrumentation overhead and 1x1 readPixels completion wait",
+          "polling": "one query at a time; Node timer yields between short page evaluations; no browser busy-wait or extra render steps",
+          "invalidation": "no retry or selective sample removal; any unsupported, disjoint, invalid or timed-out query makes the entire GPU summary SKIP"
+        },
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.64.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--ash-no-nudges",
+            "--disable-domain-reliability",
+            "--disable-print-preview",
+            "--disk-cache-size=33554432",
+            "--no-default-browser-check",
+            "--no-pings",
+            "--font-render-hinting=none",
+            "--disable-features=IsolateOrigins,site-per-process",
+            "--enable-features=SharedArrayBuffer",
+            "--ignore-gpu-blocklist",
+            "--allow-running-insecure-content",
+            "--disable-setuid-sandbox",
+            "--disable-site-isolation-trials",
+            "--disable-web-security",
+            "--headless='shell'",
+            "--no-sandbox",
+            "--no-zygote",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "local",
+          "headless": true
+        },
+        "fixtureSourceSha256": "ba197fc2117d8af462146b3c833c9e0b8c0a4fa8c19fa3cdf3037bb32c2d325d",
+        "instrumentationSourceSha256": "42a595a5cded9f8ea8ab5c9195bf243ec6c87a83051d648a4ce63bba089ab785",
+        "collectorSourceSha256": "cb9228baee7ccc4d08140fb6b743dbb61ee7249209c912bb3bac45e4238aaf53",
+        "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9"
+      },
+      "sourceChangesExpectedAcrossVersions": {
+        "js/audio/crowd-loader.js": {
+          "baseline": null,
+          "candidate": {
+            "sha256": "d7bfde3a5c3d63c752ae3b3625ee7f596732a757da1bb75f06069bb8ef8eb4c0"
+          }
+        },
+        "js/audio/crowd-worker.js": {
+          "baseline": null,
+          "candidate": {
+            "sha256": "3da0d399f5ece9c835ba457d14c26483f2ad85e055bad51b419635e89888a02b"
+          }
+        },
+        "js/audio/engine.js": {
+          "baseline": {
+            "sha256": "bcbff75934740669c934cc76b319ea5b28169bbd065d6a72dcb16d578e4a17a6"
+          },
+          "candidate": {
+            "sha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a"
+          }
+        },
+        "js/audio/performance.js": {
+          "baseline": {
+            "sha256": "a8294cddf767fcf3dd1adfaecddfecced5adeb5019fb89c1bd50a526a55b78a3"
+          },
+          "candidate": {
+            "sha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13"
+          }
+        },
+        "js/main.js": {
+          "baseline": {
+            "sha256": "9627b954dfb30a226df87e4eda83d96577e686995622c35f275dd1d2c4ed5283"
+          },
+          "candidate": {
+            "sha256": "a0d096e176f391537439c30aa4edd89fcace95fc542803a7dc1ea8a7790efaed"
+          }
+        },
+        "js/quality.js": {
+          "baseline": {
+            "httpStatus": 404
+          },
+          "candidate": {
+            "sha256": "c3f9ec2793c5799a02662099039b9c171df20a0943bd1bde3ecbcdd1b812f959"
+          }
+        },
+        "js/scene/audience.js": {
+          "baseline": {
+            "sha256": "8f2677507615e9f7a04cf919df391cc2ea034862ba40fb438ae8eaf3381e23d4"
+          },
+          "candidate": {
+            "sha256": "d54764015ae562570f5ab0ed82a1830eb8efcbb98a0d06ed3dc5127241e9f505"
+          }
+        },
+        "js/scene/dome3d.js": {
+          "baseline": {
+            "sha256": "fc47f58a98830be4483d3d44c8bc451aba9b52d0713cbda3be51bc4ed872a366"
+          },
+          "candidate": {
+            "sha256": "832f368158c44589a857183879771e55f90d234a600c9fafcd6b935e327c91c0"
+          }
+        },
+        "js/scene/domeshow.js": {
+          "baseline": {
+            "sha256": "c715eaf247da0afed5c4e6e63ab009a9917f1c23dc9507ef6b1a3be1929bcbb9"
+          },
+          "candidate": {
+            "sha256": "54ed6d88ff4c91bf802ba5affccdde96a09b6e512f20087131224108af8dbcbd"
+          }
+        },
+        "js/scene/geometry.js": {
+          "baseline": null,
+          "candidate": {
+            "sha256": "28fc26938e8e2f4c9f64113dc018177c2694adadd8efc3dae8091a9e78e0a25e"
+          }
+        },
+        "js/scene/hall.js": {
+          "baseline": {
+            "sha256": "df6eb3bf58c0c75a355fb4f1b0f0589be6a46ca30ca856ed7a94e4f9960eac5a"
+          },
+          "candidate": {
+            "sha256": "8e2831fcca6a7edba9250b4e42d2fa88a63fe0d92d2dde2e4ce1c92b0ddf2150"
+          }
+        },
+        "js/scene/instance-batches.js": {
+          "baseline": null,
+          "candidate": {
+            "sha256": "09d81ddfc1a10dd34a5f44e053da2cb00678038403d42720f1e4aa2942923e01"
+          }
+        },
+        "js/scene/merge.js": {
+          "baseline": {
+            "sha256": "bef873d393e1993d67506a6cd9022a105094326c43983341800bfb7f17f51c77"
+          },
+          "candidate": {
+            "sha256": "7634326eaa7ac3706e7834384ffe35a962f6da156c786f251510f25798f683de"
+          }
+        },
+        "js/scene/screen.js": {
+          "baseline": {
+            "sha256": "ec641d3ee0bb768e7b41b809fba27241fecd3a9b25b8fa8d7edb0e33c008c8a6"
+          },
+          "candidate": {
+            "sha256": "013fad18f30aba991063976b5c33d402182ac25cf61ad5d92112205029bf41df"
+          }
+        },
+        "js/scene/seats.js": {
+          "baseline": {
+            "sha256": "e355a11113f489808f594a5d1d84fd8dfba7a64d9f03c8a445e050bec16624e2"
+          },
+          "candidate": {
+            "sha256": "c5dc9616f0e127c2ff98e6707496c92cb2798af6c2364cae2df1bd5c00ecab27"
+          }
+        },
+        "js/scene/sphere.js": {
+          "baseline": {
+            "sha256": "4f22fa4b3204afa5b44ca424fdd8d95e851cea22bd20cdd9b295e99263173e29"
+          },
+          "candidate": {
+            "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc"
+          }
+        },
+        "js/ui.js": {
+          "baseline": {
+            "sha256": "25893fb283b166cfd0cd2dc86f72c1ca488758d0b317af6118808c1aa7eb907b"
+          },
+          "candidate": {
+            "sha256": "ff0d7dcfdec3a4cf9b7a7f0dbb487fb16d1e58c13469d24a9db787c000630528"
+          }
+        }
+      },
+      "metrics": {
+        "driverElapsedMs": {
+          "baselineSamples": [
+            2633.787794,
+            2474.737654,
+            2708.903065,
+            2367.699308
+          ],
+          "candidateSamples": [
+            1738.280343,
+            1707.959975,
+            1904.730722,
+            1968.186585
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 2546.28195525,
+            "p50": 2474.737654,
+            "p95": 2708.903065,
+            "p99": 2708.903065,
+            "min": 2367.699308,
+            "max": 2708.903065,
+            "sampleStandardDeviation": 153.96238295097834
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 1829.78940625,
+            "p50": 1738.280343,
+            "p95": 1968.186585,
+            "p99": 1968.186585,
+            "min": 1707.959975,
+            "max": 1968.186585,
+            "sampleStandardDeviation": 126.47305229163989
+          },
+          "changes": {
+            "mean": {
+              "baseline": 2546.28195525,
+              "candidate": 1829.78940625,
+              "differenceCandidateMinusBaseline": -716.492549,
+              "percentChange": -28.138774950775357
+            },
+            "p50": {
+              "baseline": 2474.737654,
+              "candidate": 1738.280343,
+              "differenceCandidateMinusBaseline": -736.4573110000001,
+              "percentChange": -29.75900535596732
+            },
+            "p95": {
+              "baseline": 2708.903065,
+              "candidate": 1968.186585,
+              "differenceCandidateMinusBaseline": -740.71648,
+              "percentChange": -27.34377946447486
+            },
+            "p99": {
+              "baseline": 2708.903065,
+              "candidate": 1968.186585,
+              "differenceCandidateMinusBaseline": -740.71648,
+              "percentChange": -27.34377946447486
+            },
+            "min": {
+              "baseline": 2367.699308,
+              "candidate": 1707.959975,
+              "differenceCandidateMinusBaseline": -659.7393330000002,
+              "percentChange": -27.86415195421429
+            },
+            "max": {
+              "baseline": 2708.903065,
+              "candidate": 1968.186585,
+              "differenceCandidateMinusBaseline": -740.71648,
+              "percentChange": -27.34377946447486
+            }
+          }
+        },
+        "completeMs": {
+          "baselineSamples": [
+            2656.900000002235,
+            2493.699999999255,
+            2729,
+            2389.199999999255
+          ],
+          "candidateSamples": [
+            1760.9000000022352,
+            1728.7999999970198,
+            1930.0999999977648,
+            2005.800000000745
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 2567.2000000001863,
+            "p50": 2493.699999999255,
+            "p95": 2729,
+            "p99": 2729,
+            "min": 2389.199999999255,
+            "max": 2729,
+            "sampleStandardDeviation": 154.17693299234244
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 1856.3999999994412,
+            "p50": 1760.9000000022352,
+            "p95": 2005.800000000745,
+            "p99": 2005.800000000745,
+            "min": 1728.7999999970198,
+            "max": 2005.800000000745,
+            "sampleStandardDeviation": 133.1090530357556
+          },
+          "changes": {
+            "mean": {
+              "baseline": 2567.2000000001863,
+              "candidate": 1856.3999999994412,
+              "differenceCandidateMinusBaseline": -710.8000000007451,
+              "percentChange": -27.68775319416849
+            },
+            "p50": {
+              "baseline": 2493.699999999255,
+              "candidate": 1760.9000000022352,
+              "differenceCandidateMinusBaseline": -732.7999999970198,
+              "percentChange": -29.38605285307931
+            },
+            "p95": {
+              "baseline": 2729,
+              "candidate": 2005.800000000745,
+              "differenceCandidateMinusBaseline": -723.1999999992549,
+              "percentChange": -26.50054965185984
+            },
+            "p99": {
+              "baseline": 2729,
+              "candidate": 2005.800000000745,
+              "differenceCandidateMinusBaseline": -723.1999999992549,
+              "percentChange": -26.50054965185984
+            },
+            "min": {
+              "baseline": 2389.199999999255,
+              "candidate": 1728.7999999970198,
+              "differenceCandidateMinusBaseline": -660.4000000022352,
+              "percentChange": -27.641051398059645
+            },
+            "max": {
+              "baseline": 2729,
+              "candidate": 2005.800000000745,
+              "differenceCandidateMinusBaseline": -723.1999999992549,
+              "percentChange": -26.50054965185984
+            }
+          }
+        },
+        "submitMs": {
+          "baselineSamples": [
+            22.700000002980232,
+            18.399999998509884,
+            19.699999999254942,
+            20.699999999254942
+          ],
+          "candidateSamples": [
+            23.900000002235174,
+            21.5,
+            25.099999997764826,
+            37.5
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 20.375,
+            "p50": 19.699999999254942,
+            "p95": 22.700000002980232,
+            "p99": 22.700000002980232,
+            "min": 18.399999998509884,
+            "max": 22.700000002980232,
+            "sampleStandardDeviation": 1.8136059862665483
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 27.0,
+            "p50": 23.900000002235174,
+            "p95": 37.5,
+            "p99": 37.5,
+            "min": 21.5,
+            "max": 37.5,
+            "sampleStandardDeviation": 7.158212067144411
+          },
+          "changes": {
+            "mean": {
+              "baseline": 20.375,
+              "candidate": 27.0,
+              "differenceCandidateMinusBaseline": 6.625,
+              "percentChange": 32.515337423312886
+            },
+            "p50": {
+              "baseline": 19.699999999254942,
+              "candidate": 23.900000002235174,
+              "differenceCandidateMinusBaseline": 4.200000002980232,
+              "percentChange": 21.319796970249122
+            },
+            "p95": {
+              "baseline": 22.700000002980232,
+              "candidate": 37.5,
+              "differenceCandidateMinusBaseline": 14.799999997019768,
+              "percentChange": 65.19823786377404
+            },
+            "p99": {
+              "baseline": 22.700000002980232,
+              "candidate": 37.5,
+              "differenceCandidateMinusBaseline": 14.799999997019768,
+              "percentChange": 65.19823786377404
+            },
+            "min": {
+              "baseline": 18.399999998509884,
+              "candidate": 21.5,
+              "differenceCandidateMinusBaseline": 3.100000001490116,
+              "percentChange": 16.847826096419393
+            },
+            "max": {
+              "baseline": 22.700000002980232,
+              "candidate": 37.5,
+              "differenceCandidateMinusBaseline": 14.799999997019768,
+              "percentChange": 65.19823786377404
+            }
+          }
+        },
+        "completionWaitMs": {
+          "baselineSamples": [
+            2634.199999999255,
+            2475.300000000745,
+            2709.300000000745,
+            2368.5
+          ],
+          "candidateSamples": [
+            1737,
+            1707.2999999970198,
+            1905,
+            1968.300000000745
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 2546.8250000001863,
+            "p50": 2475.300000000745,
+            "p95": 2709.300000000745,
+            "p99": 2709.300000000745,
+            "min": 2368.5,
+            "max": 2709.300000000745,
+            "sampleStandardDeviation": 153.78355731352352
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 1829.3999999994412,
+            "p50": 1737,
+            "p95": 1968.300000000745,
+            "p99": 1968.300000000745,
+            "min": 1707.2999999970198,
+            "max": 1968.300000000745,
+            "sampleStandardDeviation": 127.08886654743438
+          },
+          "changes": {
+            "mean": {
+              "baseline": 2546.8250000001863,
+              "candidate": 1829.3999999994412,
+              "differenceCandidateMinusBaseline": -717.4250000007451,
+              "percentChange": -28.16938737450326
+            },
+            "p50": {
+              "baseline": 2475.300000000745,
+              "candidate": 1737,
+              "differenceCandidateMinusBaseline": -738.3000000007451,
+              "percentChange": -29.82668767424243
+            },
+            "p95": {
+              "baseline": 2709.300000000745,
+              "candidate": 1968.300000000745,
+              "differenceCandidateMinusBaseline": -741.0,
+              "percentChange": -27.350238068866357
+            },
+            "p99": {
+              "baseline": 2709.300000000745,
+              "candidate": 1968.300000000745,
+              "differenceCandidateMinusBaseline": -741.0,
+              "percentChange": -27.350238068866357
+            },
+            "min": {
+              "baseline": 2368.5,
+              "candidate": 1707.2999999970198,
+              "differenceCandidateMinusBaseline": -661.2000000029802,
+              "percentChange": -27.916402786699607
+            },
+            "max": {
+              "baseline": 2709.300000000745,
+              "candidate": 1968.300000000745,
+              "differenceCandidateMinusBaseline": -741.0,
+              "percentChange": -27.350238068866357
+            }
+          }
+        },
+        "calls": {
+          "baselineSamples": [
+            1714,
+            1714,
+            1714,
+            1712
+          ],
+          "candidateSamples": [
+            1711,
+            1711,
+            1711,
+            1709
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 1713.5,
+            "p50": 1714,
+            "p95": 1714,
+            "p99": 1714,
+            "min": 1712,
+            "max": 1714,
+            "sampleStandardDeviation": 1.0
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 1710.5,
+            "p50": 1711,
+            "p95": 1711,
+            "p99": 1711,
+            "min": 1709,
+            "max": 1711,
+            "sampleStandardDeviation": 1.0
+          },
+          "changes": {
+            "mean": {
+              "baseline": 1713.5,
+              "candidate": 1710.5,
+              "differenceCandidateMinusBaseline": -3.0,
+              "percentChange": -0.17508024511234316
+            },
+            "p50": {
+              "baseline": 1714,
+              "candidate": 1711,
+              "differenceCandidateMinusBaseline": -3,
+              "percentChange": -0.1750291715285881
+            },
+            "p95": {
+              "baseline": 1714,
+              "candidate": 1711,
+              "differenceCandidateMinusBaseline": -3,
+              "percentChange": -0.1750291715285881
+            },
+            "p99": {
+              "baseline": 1714,
+              "candidate": 1711,
+              "differenceCandidateMinusBaseline": -3,
+              "percentChange": -0.1750291715285881
+            },
+            "min": {
+              "baseline": 1712,
+              "candidate": 1709,
+              "differenceCandidateMinusBaseline": -3,
+              "percentChange": -0.17523364485981308
+            },
+            "max": {
+              "baseline": 1714,
+              "candidate": 1711,
+              "differenceCandidateMinusBaseline": -3,
+              "percentChange": -0.1750291715285881
+            }
+          }
+        },
+        "triangles": {
+          "baselineSamples": [
+            11699390,
+            11699390,
+            11699390,
+            11698814
+          ],
+          "candidateSamples": [
+            7413382,
+            7413382,
+            7413382,
+            7412806
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 11699246.0,
+            "p50": 11699390,
+            "p95": 11699390,
+            "p99": 11699390,
+            "min": 11698814,
+            "max": 11699390,
+            "sampleStandardDeviation": 288.0
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 7413238.0,
+            "p50": 7413382,
+            "p95": 7413382,
+            "p99": 7413382,
+            "min": 7412806,
+            "max": 7413382,
+            "sampleStandardDeviation": 288.0
+          },
+          "changes": {
+            "mean": {
+              "baseline": 11699246.0,
+              "candidate": 7413238.0,
+              "differenceCandidateMinusBaseline": -4286008.0,
+              "percentChange": -36.634907924835495
+            },
+            "p50": {
+              "baseline": 11699390,
+              "candidate": 7413382,
+              "differenceCandidateMinusBaseline": -4286008,
+              "percentChange": -36.63445701015181
+            },
+            "p95": {
+              "baseline": 11699390,
+              "candidate": 7413382,
+              "differenceCandidateMinusBaseline": -4286008,
+              "percentChange": -36.63445701015181
+            },
+            "p99": {
+              "baseline": 11699390,
+              "candidate": 7413382,
+              "differenceCandidateMinusBaseline": -4286008,
+              "percentChange": -36.63445701015181
+            },
+            "min": {
+              "baseline": 11698814,
+              "candidate": 7412806,
+              "differenceCandidateMinusBaseline": -4286008,
+              "percentChange": -36.63626073548994
+            },
+            "max": {
+              "baseline": 11699390,
+              "candidate": 7413382,
+              "differenceCandidateMinusBaseline": -4286008,
+              "percentChange": -36.63445701015181
+            }
+          }
+        },
+        "geometries": {
+          "baselineSamples": [
+            1157,
+            1157,
+            1157,
+            1158
+          ],
+          "candidateSamples": [
+            1141,
+            1141,
+            1141,
+            1142
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 1157.25,
+            "p50": 1157,
+            "p95": 1158,
+            "p99": 1158,
+            "min": 1157,
+            "max": 1158,
+            "sampleStandardDeviation": 0.5
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 1141.25,
+            "p50": 1141,
+            "p95": 1142,
+            "p99": 1142,
+            "min": 1141,
+            "max": 1142,
+            "sampleStandardDeviation": 0.5
+          },
+          "changes": {
+            "mean": {
+              "baseline": 1157.25,
+              "candidate": 1141.25,
+              "differenceCandidateMinusBaseline": -16.0,
+              "percentChange": -1.3825880319723483
+            },
+            "p50": {
+              "baseline": 1157,
+              "candidate": 1141,
+              "differenceCandidateMinusBaseline": -16,
+              "percentChange": -1.382886776145203
+            },
+            "p95": {
+              "baseline": 1158,
+              "candidate": 1142,
+              "differenceCandidateMinusBaseline": -16,
+              "percentChange": -1.381692573402418
+            },
+            "p99": {
+              "baseline": 1158,
+              "candidate": 1142,
+              "differenceCandidateMinusBaseline": -16,
+              "percentChange": -1.381692573402418
+            },
+            "min": {
+              "baseline": 1157,
+              "candidate": 1141,
+              "differenceCandidateMinusBaseline": -16,
+              "percentChange": -1.382886776145203
+            },
+            "max": {
+              "baseline": 1158,
+              "candidate": 1142,
+              "differenceCandidateMinusBaseline": -16,
+              "percentChange": -1.381692573402418
+            }
+          }
+        },
+        "textures": {
+          "baselineSamples": [
+            38,
+            38,
+            38,
+            38
+          ],
+          "candidateSamples": [
+            37,
+            37,
+            37,
+            37
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 38.0,
+            "p50": 38,
+            "p95": 38,
+            "p99": 38,
+            "min": 38,
+            "max": 38,
+            "sampleStandardDeviation": 0.0
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 37.0,
+            "p50": 37,
+            "p95": 37,
+            "p99": 37,
+            "min": 37,
+            "max": 37,
+            "sampleStandardDeviation": 0.0
+          },
+          "changes": {
+            "mean": {
+              "baseline": 38.0,
+              "candidate": 37.0,
+              "differenceCandidateMinusBaseline": -1.0,
+              "percentChange": -2.631578947368421
+            },
+            "p50": {
+              "baseline": 38,
+              "candidate": 37,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -2.631578947368421
+            },
+            "p95": {
+              "baseline": 38,
+              "candidate": 37,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -2.631578947368421
+            },
+            "p99": {
+              "baseline": 38,
+              "candidate": 37,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -2.631578947368421
+            },
+            "min": {
+              "baseline": 38,
+              "candidate": 37,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -2.631578947368421
+            },
+            "max": {
+              "baseline": 38,
+              "candidate": 37,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -2.631578947368421
+            }
+          }
+        },
+        "queryFrameSubmitMs": {
+          "baseline": {
+            "n": 4,
+            "mean": 16.27500000037253,
+            "p50": 15.699999999254942,
+            "p95": 18,
+            "p99": 18,
+            "min": 14.300000000745058,
+            "max": 18,
+            "sampleStandardDeviation": 1.6214705260321085
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 18.52500000130385,
+            "p50": 16.900000002235174,
+            "p95": 22.200000002980232,
+            "p99": 22.200000002980232,
+            "min": 15.600000001490116,
+            "max": 22.200000002980232,
+            "sampleStandardDeviation": 2.9136174539173525
+          },
+          "meanChange": {
+            "baseline": 16.27500000037253,
+            "candidate": 18.52500000130385,
+            "differenceCandidateMinusBaseline": 2.2500000009313226,
+            "percentChange": 13.824884798032693
+          }
+        }
+      },
+      "phaseMeanChangesMs": {
+        "audioRoom": {
+          "baseline": 0,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": null
+        },
+        "director": {
+          "baseline": 0.14999999944120646,
+          "candidate": 0.14999999944120646,
+          "differenceCandidateMinusBaseline": 0.0,
+          "percentChange": 0.0
+        },
+        "effects": {
+          "baseline": 0,
+          "candidate": 0.049999999813735485,
+          "differenceCandidateMinusBaseline": 0.049999999813735485,
+          "percentChange": null
+        },
+        "fx": {
+          "baseline": 0.02500000037252903,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": -0.02500000037252903,
+          "percentChange": -100.0
+        },
+        "hall": {
+          "baseline": 0.10000000055879354,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": -0.10000000055879354,
+          "percentChange": -100.0
+        },
+        "listener": {
+          "baseline": 0.07500000018626451,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": -0.07500000018626451,
+          "percentChange": -100.0
+        },
+        "orchestra": {
+          "baseline": 1,
+          "candidate": 1.6749999998137355,
+          "differenceCandidateMinusBaseline": 0.6749999998137355,
+          "percentChange": 67.49999998137355
+        },
+        "renderSubmit": {
+          "baseline": 14.624999999068677,
+          "candidate": 16.074999997392297,
+          "differenceCandidateMinusBaseline": 1.4499999983236194,
+          "percentChange": 9.914529903698842
+        },
+        "stage": {
+          "baseline": 0.10000000055879354,
+          "candidate": 0.12500000093132257,
+          "differenceCandidateMinusBaseline": 0.02500000037252903,
+          "percentChange": 25.000000232830644
+        },
+        "syncLite": {
+          "baseline": 0,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": null
+        },
+        "visual": {
+          "baseline": 0.049999999813735485,
+          "candidate": 0.07500000018626451,
+          "differenceCandidateMinusBaseline": 0.02500000037252903,
+          "percentChange": 50.000000931322575
+        }
+      },
+      "memoryObservations": {
+        "mainSceneGeometryArrayBufferBytes": {
+          "baseline": 47355908,
+          "candidate": 21962730,
+          "differenceCandidateMinusBaseline": -25393178,
+          "percentChange": -53.62198524416425
+        },
+        "uniqueGeometries": {
+          "baseline": 1427,
+          "candidate": 1427,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": 0.0
+        },
+        "uniqueArrayBuffers": {
+          "baseline": 4761,
+          "candidate": 5692,
+          "differenceCandidateMinusBaseline": 931,
+          "percentChange": 19.554715395925225
+        },
+        "attributesWithoutArray": {
+          "baseline": 0,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": null
+        },
+        "cdpJSHeapUsedSize": {
+          "baseline": 23907348,
+          "candidate": 23886596,
+          "differenceCandidateMinusBaseline": -20752,
+          "percentChange": -0.08680176487998585
+        },
+        "cdpJSHeapTotalSize": {
+          "baseline": 26091520,
+          "candidate": 28712960,
+          "differenceCandidateMinusBaseline": 2621440,
+          "percentChange": 10.047095761381476
+        },
+        "performance.memory.usedJSHeapSize": {
+          "baseline": 410000000,
+          "candidate": 386000000,
+          "differenceCandidateMinusBaseline": -24000000,
+          "percentChange": -5.853658536585367
+        },
+        "performance.memory.totalJSHeapSize": {
+          "baseline": 462000000,
+          "candidate": 435000000,
+          "differenceCandidateMinusBaseline": -27000000,
+          "percentChange": -5.844155844155844
+        },
+        "performance.memory.jsHeapSizeLimit": {
+          "baseline": 3760000000,
+          "candidate": 3760000000,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": 0.0
+        }
+      },
+      "visualComparison": {
+        "comparison": "실측 완료 뒤 저장된 canvas PNG 한 장씩. 별도의 육안 평가는 이 리뷰에서 수행하지 않음.",
+        "baselineSha256": "075fb46da44734374aa00b14ed7fe3321f2edb6d1d49f73bc2eb21ea35e2f990",
+        "candidateSha256": "075fb46da44734374aa00b14ed7fe3321f2edb6d1d49f73bc2eb21ea35e2f990",
+        "byteIdentical": true,
+        "size": [
+          640,
+          360
+        ],
+        "differentPixels": 0,
+        "differentPixelPercent": 0.0,
+        "maeRGBA0to255": 0.0,
+        "rmseRGBA0to255": 0.0,
+        "maximumChannelDifference": 0,
+        "bboxExclusive": null,
+        "pixelCountByMinimumMaximumChannelDifference": {
+          "1": 0,
+          "2": 0,
+          "4": 0,
+          "8": 0,
+          "16": 0,
+          "32": 0
+        },
+        "interpretation": "한 캡처만 픽셀 동일. 전체 장면·애니메이션 동일성을 의미하지 않음."
+      },
+      "unmeasured": {
+        "actualPresentedFPS": null,
+        "onePercentLowFPS": null,
+        "cpuMainThreadTaskDeltaMs": null,
+        "physicalGPUFrameTimeMs": null,
+        "gpuOrVRAMBytes": null,
+        "initialLoadTimeMs": null,
+        "audioOutputOrGlitches": null
+      },
+      "interpretation": [
+        "각 버전 1회 실행, 예열 4프레임 이후 표본 4개. 실행 순서는 baseline→candidate이며 순서 교차 반복이나 신뢰구간 검증은 없다.",
+        "프레임별 query는 TIME_ELAPSED_EXT 결과가 실제 available이고 non-disjoint인 양의 정수 ns인지 검증됐다. 확장 존재만으로 시간을 주장한 결과가 아니다.",
+        "SwiftShader 소프트웨어 드라이버의 elapsed command 구간이다. 물리 GPU 시간·화면 표시 FPS·GPU 이용률·shader 단독 시간으로 바꾸어 말하지 않는다.",
+        "beginQuery는 원래 frame 호출 직전, endQuery는 직후이며 1×1 readPixels는 query 밖이다. completeMs는 query 계측 오버헤드와 readPixels 완료 대기를 포함한다.",
+        "query 조회는 프레임 완료 후 25ms Node 타이머를 거쳐 직렬 poll했다. pollWallMs는 query 시간에 더하지 않는다.",
+        "conditions에 카메라 목표·시야각과 fixture SHA가 같고, fixture는 매 director.update 뒤 같은 camera position/target/fov를 강제한다. 각 표본에서 camera matrix를 다시 저장한 독립 관측은 없다.",
+        "관객은 별도 seed 417와 fill .8로 만들고 UUID seed 874를 분리했으며 count도 일치한다. 이 도구는 실제 점유 좌석 hash를 저장하지 않아 전 관객 배치를 독립 해시로 증명하는 것은 아니다.",
+        "실제 엔진을 만들지만 note scheduler를 비활성화하고 음악 시간을 25초에서 1/60초씩 전진시켰다. 오디오 안정성·연주 출력 시험이 아니다.",
+        "기하학 ArrayBuffer 합계는 숨긴 객체를 포함한 main scene에 붙은 geometry의 attribute/index/morph backing store 구조 추정이다. 공유 버퍼는 1회, view는 전체 buffer.byteLength를 센다.",
+        "별도 cubemap 세계·미부착 geometry cache·instanceMatrix/instanceColor·텍스처/렌더 타깃·오디오·객체·드라이버 복제본은 geometry 합계에서 제외된다.",
+        "performance.memory와 CDP heap은 서로 다른 API 관측이다. 둘을 더하거나 그 차이를 geometry/audio/외부메모리의 원인으로 단정하지 않는다. GC 상태를 고정하지 않았고 메모리 값은 측정 후 한 시점이다.",
+        "phaseMeanMs와 submitMs는 계측된 JS 호출 벽시계 구간이며 CPU utilization이나 main-thread 전체 task 시간을 뜻하지 않는다. 작은 0.1ms 단계 및 n=4 차이에 과도한 의미를 부여하지 않는다."
+      ]
+    },
+    {
+      "venue": "sphere",
+      "scene": "forest",
+      "eligibility": "VALID_CONTROLLED_SOFTWARE_DRIVER_PAIR",
+      "strictChecks": {
+        "fullConditionsDeepEqual": true,
+        "conditionFingerprintEqual": true,
+        "sameFixture": true,
+        "sameScenarioAndCameraTarget": true,
+        "samePresetViewportDPRActualScale": true,
+        "sameAllToolHashes": true,
+        "allFourSampleQueriesPerSideValid": true,
+        "hardwareOrLoadIndependentlyVerified": false,
+        "physicalGPUComparison": false
+      },
+      "conditions": {
+        "venue": "sphere",
+        "quality": "high",
+        "device": "desktop",
+        "sceneName": "forest",
+        "viewport": [
+          640,
+          360
+        ],
+        "devicePixelRatio": 1,
+        "samplesRequested": 4,
+        "warmupFrames": 4,
+        "frameTimeoutMs": 30000,
+        "queryTimeoutMs": 3000,
+        "pollIntervalMs": 25,
+        "fixture": {
+          "crowd": 12863,
+          "seats": 13851,
+          "eligibleAudienceSeats": 13845,
+          "recitalSeats": 6,
+          "lite": false,
+          "piece": "beethoven-ode-to-joy",
+          "sceneState": {
+            "phase": "playing",
+            "asleep": false,
+            "interval": false,
+            "recital": false,
+            "practice": false,
+            "hush": 0,
+            "sleepy": false,
+            "seatGroupVisible": null,
+            "audienceVisible": true
+          }
+        },
+        "scenario": {
+          "camera": {
+            "position": [
+              0,
+              19,
+              34
+            ],
+            "target": [
+              0,
+              3,
+              -6
+            ],
+            "fov": 64
+          },
+          "musicTime": 25,
+          "world": "FOREST3D",
+          "broadcast": false,
+          "effectsPeak": false,
+          "effectsShow": false
+        },
+        "meta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            640,
+            360
+          ],
+          "quality": "high",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+        },
+        "support": {
+          "extension": true,
+          "webgl2": true,
+          "counterBits": 64,
+          "probeError": 0,
+          "contextLost": false,
+          "supported": true,
+          "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+          "contextAttributes": {
+            "alpha": true,
+            "antialias": false,
+            "depth": true,
+            "desynchronized": false,
+            "failIfMajorPerformanceCaveat": false,
+            "powerPreference": "high-performance",
+            "premultipliedAlpha": true,
+            "preserveDrawingBuffer": false,
+            "stencil": false,
+            "xrCompatible": false
+          }
+        },
+        "fixturePolicy": {
+          "piece": "beethoven-ode-to-joy",
+          "randomSeed": 417,
+          "uuidSeed": 874,
+          "crowdSeed": 417,
+          "crowdFill": 0.8,
+          "musicClock": "existing fixture: 25 s (broadcast 5 s), advances 1/60 s per step",
+          "audio": "real engine created; note scheduler disabled; synthetic performance clock",
+          "animationDtCapSeconds": 0.016666666666666666,
+          "mainAnimation": "existing fixture step(true), original frame wrapped by one elapsed query",
+          "queryRange": "beginQuery immediately before original frame(); endQuery in finally immediately after it; readPixels is outside the query",
+          "completion": "existing fixture completeMs includes frame, query instrumentation overhead and 1x1 readPixels completion wait",
+          "polling": "one query at a time; Node timer yields between short page evaluations; no browser busy-wait or extra render steps",
+          "invalidation": "no retry or selective sample removal; any unsupported, disjoint, invalid or timed-out query makes the entire GPU summary SKIP"
+        },
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.64.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--ash-no-nudges",
+            "--disable-domain-reliability",
+            "--disable-print-preview",
+            "--disk-cache-size=33554432",
+            "--no-default-browser-check",
+            "--no-pings",
+            "--font-render-hinting=none",
+            "--disable-features=IsolateOrigins,site-per-process",
+            "--enable-features=SharedArrayBuffer",
+            "--ignore-gpu-blocklist",
+            "--allow-running-insecure-content",
+            "--disable-setuid-sandbox",
+            "--disable-site-isolation-trials",
+            "--disable-web-security",
+            "--headless='shell'",
+            "--no-sandbox",
+            "--no-zygote",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "local",
+          "headless": true
+        },
+        "fixtureSourceSha256": "ba197fc2117d8af462146b3c833c9e0b8c0a4fa8c19fa3cdf3037bb32c2d325d",
+        "instrumentationSourceSha256": "42a595a5cded9f8ea8ab5c9195bf243ec6c87a83051d648a4ce63bba089ab785",
+        "collectorSourceSha256": "cb9228baee7ccc4d08140fb6b743dbb61ee7249209c912bb3bac45e4238aaf53",
+        "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9"
+      },
+      "sourceChangesExpectedAcrossVersions": {
+        "js/audio/crowd-loader.js": {
+          "baseline": null,
+          "candidate": {
+            "sha256": "d7bfde3a5c3d63c752ae3b3625ee7f596732a757da1bb75f06069bb8ef8eb4c0"
+          }
+        },
+        "js/audio/crowd-worker.js": {
+          "baseline": null,
+          "candidate": {
+            "sha256": "3da0d399f5ece9c835ba457d14c26483f2ad85e055bad51b419635e89888a02b"
+          }
+        },
+        "js/audio/engine.js": {
+          "baseline": {
+            "sha256": "bcbff75934740669c934cc76b319ea5b28169bbd065d6a72dcb16d578e4a17a6"
+          },
+          "candidate": {
+            "sha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a"
+          }
+        },
+        "js/audio/performance.js": {
+          "baseline": {
+            "sha256": "a8294cddf767fcf3dd1adfaecddfecced5adeb5019fb89c1bd50a526a55b78a3"
+          },
+          "candidate": {
+            "sha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13"
+          }
+        },
+        "js/main.js": {
+          "baseline": {
+            "sha256": "9627b954dfb30a226df87e4eda83d96577e686995622c35f275dd1d2c4ed5283"
+          },
+          "candidate": {
+            "sha256": "a0d096e176f391537439c30aa4edd89fcace95fc542803a7dc1ea8a7790efaed"
+          }
+        },
+        "js/quality.js": {
+          "baseline": {
+            "httpStatus": 404
+          },
+          "candidate": {
+            "sha256": "c3f9ec2793c5799a02662099039b9c171df20a0943bd1bde3ecbcdd1b812f959"
+          }
+        },
+        "js/scene/audience.js": {
+          "baseline": {
+            "sha256": "8f2677507615e9f7a04cf919df391cc2ea034862ba40fb438ae8eaf3381e23d4"
+          },
+          "candidate": {
+            "sha256": "d54764015ae562570f5ab0ed82a1830eb8efcbb98a0d06ed3dc5127241e9f505"
+          }
+        },
+        "js/scene/dome3d.js": {
+          "baseline": {
+            "sha256": "fc47f58a98830be4483d3d44c8bc451aba9b52d0713cbda3be51bc4ed872a366"
+          },
+          "candidate": {
+            "sha256": "832f368158c44589a857183879771e55f90d234a600c9fafcd6b935e327c91c0"
+          }
+        },
+        "js/scene/domeshow.js": {
+          "baseline": {
+            "sha256": "c715eaf247da0afed5c4e6e63ab009a9917f1c23dc9507ef6b1a3be1929bcbb9"
+          },
+          "candidate": {
+            "sha256": "54ed6d88ff4c91bf802ba5affccdde96a09b6e512f20087131224108af8dbcbd"
+          }
+        },
+        "js/scene/geometry.js": {
+          "baseline": null,
+          "candidate": {
+            "sha256": "28fc26938e8e2f4c9f64113dc018177c2694adadd8efc3dae8091a9e78e0a25e"
+          }
+        },
+        "js/scene/hall.js": {
+          "baseline": {
+            "sha256": "df6eb3bf58c0c75a355fb4f1b0f0589be6a46ca30ca856ed7a94e4f9960eac5a"
+          },
+          "candidate": {
+            "sha256": "8e2831fcca6a7edba9250b4e42d2fa88a63fe0d92d2dde2e4ce1c92b0ddf2150"
+          }
+        },
+        "js/scene/instance-batches.js": {
+          "baseline": null,
+          "candidate": {
+            "sha256": "09d81ddfc1a10dd34a5f44e053da2cb00678038403d42720f1e4aa2942923e01"
+          }
+        },
+        "js/scene/merge.js": {
+          "baseline": {
+            "sha256": "bef873d393e1993d67506a6cd9022a105094326c43983341800bfb7f17f51c77"
+          },
+          "candidate": {
+            "sha256": "7634326eaa7ac3706e7834384ffe35a962f6da156c786f251510f25798f683de"
+          }
+        },
+        "js/scene/screen.js": {
+          "baseline": {
+            "sha256": "ec641d3ee0bb768e7b41b809fba27241fecd3a9b25b8fa8d7edb0e33c008c8a6"
+          },
+          "candidate": {
+            "sha256": "013fad18f30aba991063976b5c33d402182ac25cf61ad5d92112205029bf41df"
+          }
+        },
+        "js/scene/seats.js": {
+          "baseline": {
+            "sha256": "e355a11113f489808f594a5d1d84fd8dfba7a64d9f03c8a445e050bec16624e2"
+          },
+          "candidate": {
+            "sha256": "c5dc9616f0e127c2ff98e6707496c92cb2798af6c2364cae2df1bd5c00ecab27"
+          }
+        },
+        "js/scene/sphere.js": {
+          "baseline": {
+            "sha256": "4f22fa4b3204afa5b44ca424fdd8d95e851cea22bd20cdd9b295e99263173e29"
+          },
+          "candidate": {
+            "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc"
+          }
+        },
+        "js/ui.js": {
+          "baseline": {
+            "sha256": "25893fb283b166cfd0cd2dc86f72c1ca488758d0b317af6118808c1aa7eb907b"
+          },
+          "candidate": {
+            "sha256": "ff0d7dcfdec3a4cf9b7a7f0dbb487fb16d1e58c13469d24a9db787c000630528"
+          }
+        }
+      },
+      "metrics": {
+        "driverElapsedMs": {
+          "baselineSamples": [
+            2204.147467,
+            2011.654622,
+            2014.908986,
+            2027.067324
+          ],
+          "candidateSamples": [
+            2010.482596,
+            2118.014372,
+            2015.445626,
+            2105.299638
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 2064.4445997499997,
+            "p50": 2014.908986,
+            "p95": 2204.147467,
+            "p99": 2204.147467,
+            "min": 2011.654622,
+            "max": 2204.147467,
+            "sampleStandardDeviation": 93.37114229567449
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 2062.310558,
+            "p50": 2015.445626,
+            "p95": 2118.014372,
+            "p99": 2118.014372,
+            "min": 2010.482596,
+            "max": 2118.014372,
+            "sampleStandardDeviation": 57.2521772215726
+          },
+          "changes": {
+            "mean": {
+              "baseline": 2064.4445997499997,
+              "candidate": 2062.310558,
+              "differenceCandidateMinusBaseline": -2.1340417499995965,
+              "percentChange": -0.1033712287681648
+            },
+            "p50": {
+              "baseline": 2014.908986,
+              "candidate": 2015.445626,
+              "differenceCandidateMinusBaseline": 0.536640000000034,
+              "percentChange": 0.026633461051031017
+            },
+            "p95": {
+              "baseline": 2204.147467,
+              "candidate": 2118.014372,
+              "differenceCandidateMinusBaseline": -86.13309499999968,
+              "percentChange": -3.9077736988819947
+            },
+            "p99": {
+              "baseline": 2204.147467,
+              "candidate": 2118.014372,
+              "differenceCandidateMinusBaseline": -86.13309499999968,
+              "percentChange": -3.9077736988819947
+            },
+            "min": {
+              "baseline": 2011.654622,
+              "candidate": 2010.482596,
+              "differenceCandidateMinusBaseline": -1.1720259999999598,
+              "percentChange": -0.05826179042775862
+            },
+            "max": {
+              "baseline": 2204.147467,
+              "candidate": 2118.014372,
+              "differenceCandidateMinusBaseline": -86.13309499999968,
+              "percentChange": -3.9077736988819947
+            }
+          }
+        },
+        "completeMs": {
+          "baselineSamples": [
+            2225,
+            2041.5,
+            2035.699999999255,
+            2046.699999999255
+          ],
+          "candidateSamples": [
+            2033,
+            2139.10000000149,
+            2038.9000000022352,
+            2126.800000000745
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 2087.2249999996275,
+            "p50": 2041.5,
+            "p95": 2225,
+            "p99": 2225,
+            "min": 2035.699999999255,
+            "max": 2225,
+            "sampleStandardDeviation": 91.95982365529193
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 2084.4500000011176,
+            "p50": 2038.9000000022352,
+            "p95": 2139.10000000149,
+            "p99": 2139.10000000149,
+            "min": 2033,
+            "max": 2139.10000000149,
+            "sampleStandardDeviation": 56.27921463566678
+          },
+          "changes": {
+            "mean": {
+              "baseline": 2087.2249999996275,
+              "candidate": 2084.4500000011176,
+              "differenceCandidateMinusBaseline": -2.774999998509884,
+              "percentChange": -0.13295164625329706
+            },
+            "p50": {
+              "baseline": 2041.5,
+              "candidate": 2038.9000000022352,
+              "differenceCandidateMinusBaseline": -2.599999997764826,
+              "percentChange": -0.1273573351831901
+            },
+            "p95": {
+              "baseline": 2225,
+              "candidate": 2139.10000000149,
+              "differenceCandidateMinusBaseline": -85.89999999850988,
+              "percentChange": -3.860674157236399
+            },
+            "p99": {
+              "baseline": 2225,
+              "candidate": 2139.10000000149,
+              "differenceCandidateMinusBaseline": -85.89999999850988,
+              "percentChange": -3.860674157236399
+            },
+            "min": {
+              "baseline": 2035.699999999255,
+              "candidate": 2033,
+              "differenceCandidateMinusBaseline": -2.699999999254942,
+              "percentChange": -0.13263250966527143
+            },
+            "max": {
+              "baseline": 2225,
+              "candidate": 2139.10000000149,
+              "differenceCandidateMinusBaseline": -85.89999999850988,
+              "percentChange": -3.860674157236399
+            }
+          }
+        },
+        "submitMs": {
+          "baselineSamples": [
+            21.5,
+            28.200000002980232,
+            18.699999999254942,
+            18.799999997019768
+          ],
+          "candidateSamples": [
+            22.399999998509884,
+            18.900000002235174,
+            21.199999999254942,
+            19.899999998509884
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 21.799999999813735,
+            "p50": 18.799999997019768,
+            "p95": 28.200000002980232,
+            "p99": 28.200000002980232,
+            "min": 18.699999999254942,
+            "max": 28.200000002980232,
+            "sampleStandardDeviation": 4.459446903695858
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 20.59999999962747,
+            "p50": 19.899999998509884,
+            "p95": 22.399999998509884,
+            "p99": 22.399999998509884,
+            "min": 18.900000002235174,
+            "max": 22.399999998509884,
+            "sampleStandardDeviation": 1.525341490533413
+          },
+          "changes": {
+            "mean": {
+              "baseline": 21.799999999813735,
+              "candidate": 20.59999999962747,
+              "differenceCandidateMinusBaseline": -1.2000000001862645,
+              "percentChange": -5.50458715686476
+            },
+            "p50": {
+              "baseline": 18.799999997019768,
+              "candidate": 19.899999998509884,
+              "differenceCandidateMinusBaseline": 1.1000000014901161,
+              "percentChange": 5.851063838640911
+            },
+            "p95": {
+              "baseline": 28.200000002980232,
+              "candidate": 22.399999998509884,
+              "differenceCandidateMinusBaseline": -5.800000004470348,
+              "percentChange": -20.567375900203523
+            },
+            "p99": {
+              "baseline": 28.200000002980232,
+              "candidate": 22.399999998509884,
+              "differenceCandidateMinusBaseline": -5.800000004470348,
+              "percentChange": -20.567375900203523
+            },
+            "min": {
+              "baseline": 18.699999999254942,
+              "candidate": 18.900000002235174,
+              "differenceCandidateMinusBaseline": 0.20000000298023224,
+              "percentChange": 1.0695187325572235
+            },
+            "max": {
+              "baseline": 28.200000002980232,
+              "candidate": 22.399999998509884,
+              "differenceCandidateMinusBaseline": -5.800000004470348,
+              "percentChange": -20.567375900203523
+            }
+          }
+        },
+        "completionWaitMs": {
+          "baselineSamples": [
+            2203.5,
+            2013.2999999970198,
+            2017,
+            2027.9000000022352
+          ],
+          "candidateSamples": [
+            2010.6000000014901,
+            2120.199999999255,
+            2017.7000000029802,
+            2106.900000002235
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 2065.4249999998137,
+            "p50": 2017,
+            "p95": 2203.5,
+            "p99": 2203.5,
+            "min": 2013.2999999970198,
+            "max": 2203.5,
+            "sampleStandardDeviation": 92.25838263656216
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 2063.85000000149,
+            "p50": 2017.7000000029802,
+            "p95": 2120.199999999255,
+            "p99": 2120.199999999255,
+            "min": 2010.6000000014901,
+            "max": 2120.199999999255,
+            "sampleStandardDeviation": 57.71773268726203
+          },
+          "changes": {
+            "mean": {
+              "baseline": 2065.4249999998137,
+              "candidate": 2063.85000000149,
+              "differenceCandidateMinusBaseline": -1.5749999983236194,
+              "percentChange": -0.07625549212988907
+            },
+            "p50": {
+              "baseline": 2017,
+              "candidate": 2017.7000000029802,
+              "differenceCandidateMinusBaseline": 0.7000000029802322,
+              "percentChange": 0.034705007584543
+            },
+            "p95": {
+              "baseline": 2203.5,
+              "candidate": 2120.199999999255,
+              "differenceCandidateMinusBaseline": -83.30000000074506,
+              "percentChange": -3.7803494441000707
+            },
+            "p99": {
+              "baseline": 2203.5,
+              "candidate": 2120.199999999255,
+              "differenceCandidateMinusBaseline": -83.30000000074506,
+              "percentChange": -3.7803494441000707
+            },
+            "min": {
+              "baseline": 2013.2999999970198,
+              "candidate": 2010.6000000014901,
+              "differenceCandidateMinusBaseline": -2.6999999955296516,
+              "percentChange": -0.1341081803771742
+            },
+            "max": {
+              "baseline": 2203.5,
+              "candidate": 2120.199999999255,
+              "differenceCandidateMinusBaseline": -83.30000000074506,
+              "percentChange": -3.7803494441000707
+            }
+          }
+        },
+        "calls": {
+          "baselineSamples": [
+            1749,
+            1749,
+            1749,
+            1747
+          ],
+          "candidateSamples": [
+            1749,
+            1749,
+            1749,
+            1747
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 1748.5,
+            "p50": 1749,
+            "p95": 1749,
+            "p99": 1749,
+            "min": 1747,
+            "max": 1749,
+            "sampleStandardDeviation": 1.0
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 1748.5,
+            "p50": 1749,
+            "p95": 1749,
+            "p99": 1749,
+            "min": 1747,
+            "max": 1749,
+            "sampleStandardDeviation": 1.0
+          },
+          "changes": {
+            "mean": {
+              "baseline": 1748.5,
+              "candidate": 1748.5,
+              "differenceCandidateMinusBaseline": 0.0,
+              "percentChange": 0.0
+            },
+            "p50": {
+              "baseline": 1749,
+              "candidate": 1749,
+              "differenceCandidateMinusBaseline": 0,
+              "percentChange": 0.0
+            },
+            "p95": {
+              "baseline": 1749,
+              "candidate": 1749,
+              "differenceCandidateMinusBaseline": 0,
+              "percentChange": 0.0
+            },
+            "p99": {
+              "baseline": 1749,
+              "candidate": 1749,
+              "differenceCandidateMinusBaseline": 0,
+              "percentChange": 0.0
+            },
+            "min": {
+              "baseline": 1747,
+              "candidate": 1747,
+              "differenceCandidateMinusBaseline": 0,
+              "percentChange": 0.0
+            },
+            "max": {
+              "baseline": 1749,
+              "candidate": 1749,
+              "differenceCandidateMinusBaseline": 0,
+              "percentChange": 0.0
+            }
+          }
+        },
+        "triangles": {
+          "baselineSamples": [
+            3275916,
+            3275916,
+            3275916,
+            3275340
+          ],
+          "candidateSamples": [
+            3269328,
+            3269328,
+            3269328,
+            3268752
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 3275772.0,
+            "p50": 3275916,
+            "p95": 3275916,
+            "p99": 3275916,
+            "min": 3275340,
+            "max": 3275916,
+            "sampleStandardDeviation": 288.0
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 3269184.0,
+            "p50": 3269328,
+            "p95": 3269328,
+            "p99": 3269328,
+            "min": 3268752,
+            "max": 3269328,
+            "sampleStandardDeviation": 288.0
+          },
+          "changes": {
+            "mean": {
+              "baseline": 3275772.0,
+              "candidate": 3269184.0,
+              "differenceCandidateMinusBaseline": -6588.0,
+              "percentChange": -0.2011128979672578
+            },
+            "p50": {
+              "baseline": 3275916,
+              "candidate": 3269328,
+              "differenceCandidateMinusBaseline": -6588,
+              "percentChange": -0.20110405761319888
+            },
+            "p95": {
+              "baseline": 3275916,
+              "candidate": 3269328,
+              "differenceCandidateMinusBaseline": -6588,
+              "percentChange": -0.20110405761319888
+            },
+            "p99": {
+              "baseline": 3275916,
+              "candidate": 3269328,
+              "differenceCandidateMinusBaseline": -6588,
+              "percentChange": -0.20110405761319888
+            },
+            "min": {
+              "baseline": 3275340,
+              "candidate": 3268752,
+              "differenceCandidateMinusBaseline": -6588,
+              "percentChange": -0.20113942369341808
+            },
+            "max": {
+              "baseline": 3275916,
+              "candidate": 3269328,
+              "differenceCandidateMinusBaseline": -6588,
+              "percentChange": -0.20110405761319888
+            }
+          }
+        },
+        "geometries": {
+          "baselineSamples": [
+            1168,
+            1168,
+            1168,
+            1169
+          ],
+          "candidateSamples": [
+            1155,
+            1155,
+            1155,
+            1156
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 1168.25,
+            "p50": 1168,
+            "p95": 1169,
+            "p99": 1169,
+            "min": 1168,
+            "max": 1169,
+            "sampleStandardDeviation": 0.5
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 1155.25,
+            "p50": 1155,
+            "p95": 1156,
+            "p99": 1156,
+            "min": 1155,
+            "max": 1156,
+            "sampleStandardDeviation": 0.5
+          },
+          "changes": {
+            "mean": {
+              "baseline": 1168.25,
+              "candidate": 1155.25,
+              "differenceCandidateMinusBaseline": -13.0,
+              "percentChange": -1.1127755189385833
+            },
+            "p50": {
+              "baseline": 1168,
+              "candidate": 1155,
+              "differenceCandidateMinusBaseline": -13,
+              "percentChange": -1.1130136986301369
+            },
+            "p95": {
+              "baseline": 1169,
+              "candidate": 1156,
+              "differenceCandidateMinusBaseline": -13,
+              "percentChange": -1.1120615911035072
+            },
+            "p99": {
+              "baseline": 1169,
+              "candidate": 1156,
+              "differenceCandidateMinusBaseline": -13,
+              "percentChange": -1.1120615911035072
+            },
+            "min": {
+              "baseline": 1168,
+              "candidate": 1155,
+              "differenceCandidateMinusBaseline": -13,
+              "percentChange": -1.1130136986301369
+            },
+            "max": {
+              "baseline": 1169,
+              "candidate": 1156,
+              "differenceCandidateMinusBaseline": -13,
+              "percentChange": -1.1120615911035072
+            }
+          }
+        },
+        "textures": {
+          "baselineSamples": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "candidateSamples": [
+            28,
+            28,
+            28,
+            28
+          ],
+          "baseline": {
+            "n": 4,
+            "mean": 29.0,
+            "p50": 29,
+            "p95": 29,
+            "p99": 29,
+            "min": 29,
+            "max": 29,
+            "sampleStandardDeviation": 0.0
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 28.0,
+            "p50": 28,
+            "p95": 28,
+            "p99": 28,
+            "min": 28,
+            "max": 28,
+            "sampleStandardDeviation": 0.0
+          },
+          "changes": {
+            "mean": {
+              "baseline": 29.0,
+              "candidate": 28.0,
+              "differenceCandidateMinusBaseline": -1.0,
+              "percentChange": -3.4482758620689653
+            },
+            "p50": {
+              "baseline": 29,
+              "candidate": 28,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -3.4482758620689653
+            },
+            "p95": {
+              "baseline": 29,
+              "candidate": 28,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -3.4482758620689653
+            },
+            "p99": {
+              "baseline": 29,
+              "candidate": 28,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -3.4482758620689653
+            },
+            "min": {
+              "baseline": 29,
+              "candidate": 28,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -3.4482758620689653
+            },
+            "max": {
+              "baseline": 29,
+              "candidate": 28,
+              "differenceCandidateMinusBaseline": -1,
+              "percentChange": -3.4482758620689653
+            }
+          }
+        },
+        "queryFrameSubmitMs": {
+          "baseline": {
+            "n": 4,
+            "mean": 17.300000000745058,
+            "p50": 15.099999997764826,
+            "p95": 24.400000002235174,
+            "p99": 24.400000002235174,
+            "min": 14.300000000745058,
+            "max": 24.400000002235174,
+            "sampleStandardDeviation": 4.756048781240237
+          },
+          "candidate": {
+            "n": 4,
+            "mean": 16.65000000037253,
+            "p50": 16.300000000745058,
+            "p95": 18.100000001490116,
+            "p99": 18.100000001490116,
+            "min": 14.699999999254942,
+            "max": 18.100000001490116,
+            "sampleStandardDeviation": 1.500000000745058
+          },
+          "meanChange": {
+            "baseline": 17.300000000745058,
+            "candidate": 16.65000000037253,
+            "differenceCandidateMinusBaseline": -0.650000000372529,
+            "percentChange": -3.7572254355175465
+          }
+        }
+      },
+      "phaseMeanChangesMs": {
+        "audienceLOD": {
+          "baseline": 0,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": null
+        },
+        "audioRoom": {
+          "baseline": 0,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": null
+        },
+        "director": {
+          "baseline": 0.24999999906867743,
+          "candidate": 0.19999999925494194,
+          "differenceCandidateMinusBaseline": -0.049999999813735485,
+          "percentChange": -20.0
+        },
+        "effects": {
+          "baseline": 0,
+          "candidate": 0.049999999813735485,
+          "differenceCandidateMinusBaseline": 0.049999999813735485,
+          "percentChange": null
+        },
+        "fx": {
+          "baseline": 0.02500000037252903,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": -0.02500000037252903,
+          "percentChange": -100.0
+        },
+        "hall": {
+          "baseline": 0.024999999441206455,
+          "candidate": 0.02500000037252903,
+          "differenceCandidateMinusBaseline": 9.313225746154785e-10,
+          "percentChange": 3.725290381728643e-06
+        },
+        "listener": {
+          "baseline": 0.02500000037252903,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": -0.02500000037252903,
+          "percentChange": -100.0
+        },
+        "orchestra": {
+          "baseline": 0.974999999627471,
+          "candidate": 0.8749999990686774,
+          "differenceCandidateMinusBaseline": -0.10000000055879354,
+          "percentChange": -10.256410317641194
+        },
+        "renderSubmit": {
+          "baseline": 14.725000001490116,
+          "candidate": 14.899999999441206,
+          "differenceCandidateMinusBaseline": 0.17499999795109034,
+          "percentChange": 1.1884549944542002
+        },
+        "seatLOD": {
+          "baseline": 0.024999999441206455,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": -0.024999999441206455,
+          "percentChange": -100.0
+        },
+        "stage": {
+          "baseline": 0.22500000055879354,
+          "candidate": 0.1500000013038516,
+          "differenceCandidateMinusBaseline": -0.07499999925494194,
+          "percentChange": -33.33333291941219
+        },
+        "syncLite": {
+          "baseline": 0,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": null
+        },
+        "visual": {
+          "baseline": 0.049999999813735485,
+          "candidate": 0.05000000074505806,
+          "differenceCandidateMinusBaseline": 9.313225746154785e-10,
+          "percentChange": 1.862645156169851e-06
+        },
+        "worlds": {
+          "baseline": 0.7749999994412065,
+          "candidate": 0.24999999906867743,
+          "differenceCandidateMinusBaseline": -0.525000000372529,
+          "percentChange": -67.74193558078278
+        }
+      },
+      "memoryObservations": {
+        "mainSceneGeometryArrayBufferBytes": {
+          "baseline": 39407436,
+          "candidate": 21996244,
+          "differenceCandidateMinusBaseline": -17411192,
+          "percentChange": -44.1825040329952
+        },
+        "uniqueGeometries": {
+          "baseline": 1365,
+          "candidate": 1365,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": 0.0
+        },
+        "uniqueArrayBuffers": {
+          "baseline": 4593,
+          "candidate": 5497,
+          "differenceCandidateMinusBaseline": 904,
+          "percentChange": 19.682124972784674
+        },
+        "attributesWithoutArray": {
+          "baseline": 0,
+          "candidate": 0,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": null
+        },
+        "cdpJSHeapUsedSize": {
+          "baseline": 60153464,
+          "candidate": 60316068,
+          "differenceCandidateMinusBaseline": 162604,
+          "percentChange": 0.2703152722842362
+        },
+        "cdpJSHeapTotalSize": {
+          "baseline": 63160320,
+          "candidate": 63422464,
+          "differenceCandidateMinusBaseline": 262144,
+          "percentChange": 0.4150453955901427
+        },
+        "performance.memory.usedJSHeapSize": {
+          "baseline": 435000000,
+          "candidate": 462000000,
+          "differenceCandidateMinusBaseline": 27000000,
+          "percentChange": 6.206896551724138
+        },
+        "performance.memory.totalJSHeapSize": {
+          "baseline": 521000000,
+          "candidate": 521000000,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": 0.0
+        },
+        "performance.memory.jsHeapSizeLimit": {
+          "baseline": 3760000000,
+          "candidate": 3760000000,
+          "differenceCandidateMinusBaseline": 0,
+          "percentChange": 0.0
+        }
+      },
+      "visualComparison": {
+        "comparison": "실측 완료 뒤 저장된 canvas PNG 한 장씩. 별도의 육안 평가는 이 리뷰에서 수행하지 않음.",
+        "baselineSha256": "65b6602fa49644291daebe0d2b463a4dc67f63dc74dbb96cfa2d3268ace25834",
+        "candidateSha256": "d167bb099c7735a927bcdc704cbb5ce5bc0d322e038098547eae66191f9c8297",
+        "byteIdentical": false,
+        "size": [
+          640,
+          360
+        ],
+        "differentPixels": 5784,
+        "differentPixelPercent": 2.5104166666666665,
+        "maeRGBA0to255": 0.014852430555555556,
+        "rmseRGBA0to255": 0.3920653998732581,
+        "maximumChannelDifference": 52,
+        "bboxExclusive": [
+          0,
+          0,
+          640,
+          153
+        ],
+        "pixelCountByMinimumMaximumChannelDifference": {
+          "1": 5784,
+          "2": 199,
+          "4": 168,
+          "8": 138,
+          "16": 82,
+          "32": 7
+        },
+        "interpretation": "동일 PNG가 아니다. 차이의 원인이나 육안 품질 저하 여부는 이 픽셀 지표만으로 확정하지 않음."
+      },
+      "unmeasured": {
+        "actualPresentedFPS": null,
+        "onePercentLowFPS": null,
+        "cpuMainThreadTaskDeltaMs": null,
+        "physicalGPUFrameTimeMs": null,
+        "gpuOrVRAMBytes": null,
+        "initialLoadTimeMs": null,
+        "audioOutputOrGlitches": null
+      },
+      "interpretation": [
+        "각 버전 1회 실행, 예열 4프레임 이후 표본 4개. 실행 순서는 baseline→candidate이며 순서 교차 반복이나 신뢰구간 검증은 없다.",
+        "프레임별 query는 TIME_ELAPSED_EXT 결과가 실제 available이고 non-disjoint인 양의 정수 ns인지 검증됐다. 확장 존재만으로 시간을 주장한 결과가 아니다.",
+        "SwiftShader 소프트웨어 드라이버의 elapsed command 구간이다. 물리 GPU 시간·화면 표시 FPS·GPU 이용률·shader 단독 시간으로 바꾸어 말하지 않는다.",
+        "beginQuery는 원래 frame 호출 직전, endQuery는 직후이며 1×1 readPixels는 query 밖이다. completeMs는 query 계측 오버헤드와 readPixels 완료 대기를 포함한다.",
+        "query 조회는 프레임 완료 후 25ms Node 타이머를 거쳐 직렬 poll했다. pollWallMs는 query 시간에 더하지 않는다.",
+        "conditions에 카메라 목표·시야각과 fixture SHA가 같고, fixture는 매 director.update 뒤 같은 camera position/target/fov를 강제한다. 각 표본에서 camera matrix를 다시 저장한 독립 관측은 없다.",
+        "관객은 별도 seed 417와 fill .8로 만들고 UUID seed 874를 분리했으며 count도 일치한다. 이 도구는 실제 점유 좌석 hash를 저장하지 않아 전 관객 배치를 독립 해시로 증명하는 것은 아니다.",
+        "실제 엔진을 만들지만 note scheduler를 비활성화하고 음악 시간을 25초에서 1/60초씩 전진시켰다. 오디오 안정성·연주 출력 시험이 아니다.",
+        "기하학 ArrayBuffer 합계는 숨긴 객체를 포함한 main scene에 붙은 geometry의 attribute/index/morph backing store 구조 추정이다. 공유 버퍼는 1회, view는 전체 buffer.byteLength를 센다.",
+        "별도 cubemap 세계·미부착 geometry cache·instanceMatrix/instanceColor·텍스처/렌더 타깃·오디오·객체·드라이버 복제본은 geometry 합계에서 제외된다.",
+        "performance.memory와 CDP heap은 서로 다른 API 관측이다. 둘을 더하거나 그 차이를 geometry/audio/외부메모리의 원인으로 단정하지 않는다. GC 상태를 고정하지 않았고 메모리 값은 측정 후 한 시점이다.",
+        "phaseMeanMs와 submitMs는 계측된 JS 호출 벽시계 구간이며 CPU utilization이나 main-thread 전체 task 시간을 뜻하지 않는다. 작은 0.1ms 단계 및 n=4 차이에 과도한 의미를 부여하지 않는다."
+      ]
+    }
+  ],
+  "excludedOriginalSpherePair": {
+    "decision": "EXCLUDED_ENTIRE_PAIR",
+    "evidence": {
+      "path": "gpu-timer/incomplete-sphere-evidence.json",
+      "bytes": 816,
+      "sha256": "45d7e5caa9bb93d433224281b7da51be9f85c179089018e6fcd59037e9af126a"
+    },
+    "recordedReason": {
+      "status": "INCOMPLETE_EVIDENCE",
+      "recordedProcessExit": 0,
+      "runRecordStatus": "PASS",
+      "rawStatus": "RUNNING",
+      "rawSamples": 4,
+      "logExpectedSha256": "5b0ea7951916b7e16f0a63cef4e854d07ad174dbf9feecc247ee2b5f23000d72",
+      "logObservedSha256": "a86fbd7a87a67bbb15084bae6e77afb89ba0145916633ae455e0b217e736f17b",
+      "rawSha256": "dd919baf54aa913cd00bc0ad6a2dba3ed0d0bc0493899f2e97db7f1e633d86c3",
+      "cause": "Unresolved. Process record says complete, but persisted log differs and final raw metadata/summary are absent. Do not reconstruct or promote the raw from process exit alone.",
+      "comparisonDecision": "Exclude this Sphere pair from finalized GPU comparisons; preserve both original runs and repeat the Sphere pair under new IDs. Hall pair remains separately auditable.",
+      "oldFilesModified": false
+    },
+    "usedInStatistics": false,
+    "interpretation": "원래 baseline Sphere는 run record PASS와 원시 RUNNING/최종 메타데이터 누락 및 로그 SHA 불일치가 함께 보존됐다. 원인을 확정하지 않는다. process exit나 이미 모인 4개 표본으로 완료 상태를 복원하지 않았다. 원래 candidate만 새 baseline과 짝지어 쓰지 않았다."
+  },
+  "sphereTransferAudit": {
+    "manifest": {
+      "path": "gpu-timer-recheck/transfer-gpu-recheck-plan-0-end.json",
+      "bytes": 2661,
+      "sha256": "2e4c8a1ae13c96db18bf7e536ac76c74eaa8731b6d461650763a4e6de4d99231"
+    },
+    "recordedStatus": "COMPLETE",
+    "all8ArtifactsMatch": true,
+    "artifacts": [
+      {
+        "path": "gpu/baseline-gpu-recheck-gpu-sphere-high-desktop-forest.json",
+        "bytesMatch": true,
+        "shaMatches": true
+      },
+      {
+        "path": "gpu/baseline-gpu-recheck-gpu-sphere-high-desktop-forest.png",
+        "bytesMatch": true,
+        "shaMatches": true
+      },
+      {
+        "path": "gpu/candidate-gpu-recheck-gpu-sphere-high-desktop-forest.json",
+        "bytesMatch": true,
+        "shaMatches": true
+      },
+      {
+        "path": "gpu/candidate-gpu-recheck-gpu-sphere-high-desktop-forest.png",
+        "bytesMatch": true,
+        "shaMatches": true
+      },
+      {
+        "path": "logs/000-baseline-gpu-recheck-sphere-high-desktop-forest.json",
+        "bytesMatch": true,
+        "shaMatches": true
+      },
+      {
+        "path": "logs/000-baseline-gpu-recheck-sphere-high-desktop-forest.log",
+        "bytesMatch": true,
+        "shaMatches": true
+      },
+      {
+        "path": "logs/001-candidate-gpu-recheck-sphere-high-desktop-forest.json",
+        "bytesMatch": true,
+        "shaMatches": true
+      },
+      {
+        "path": "logs/001-candidate-gpu-recheck-sphere-high-desktop-forest.log",
+        "bytesMatch": true,
+        "shaMatches": true
+      }
+    ],
+    "note": "staging에서 workspace로 옮긴 당시 manifest와 현재 8개 JSON/log/PNG 모두 대조."
+  },
+  "summary": {
+    "hall": "같은 high/640×360/DPR1/scale1 front 조건에서 소프트웨어 query 평균 2546.28195525→1829.78940625ms (−28.1387749508%). 완료 대기 포함 평균 −27.6877531942%, triangles −36.6349079248%. PNG 한 장은 byte/pixel 동일. 그러나 submitMs 평균은 +32.5153374233%, renderSubmit phase 평균도 증가했다.",
+    "sphere": "같은 high/640×360/DPR1/scale1 FOREST3D 조건의 재실행에서 query 평균 2064.44459975→2062.310558ms (−0.1033712288%). n=4 분산에 비해 매우 작아 체감 개선을 입증하지 못한다. query p50은 소폭 증가, p95는 감소했지만 p95=최대값이다. draw calls 동일, triangles −0.201112898%.",
+    "memory": "main-scene geometry backing buffer 구조 합계는 Hall −53.6219852442%, Sphere −44.1825040330%. unique ArrayBuffer 개수는 둘 다 증가했다. Sphere performance.memory.usedJSHeapSize는 435,000,000→462,000,000(+6.2068965517%)로 증가하며 CDP heap도 소폭 증가했다. geometry 합계만으로 전체 RAM 감소를 주장할 수 없다.",
+    "visual": "Hall PNG는 완전히 동일. Sphere PNG는 5,784px(2.5104166667%) 차이, RGBA MAE 0.0148524306, 최대 채널 차이 52, 변화 bbox [0,0,640,153]. 픽셀 동일을 주장하지 않는다.",
+    "limitations": "이 두 짧은 소프트웨어 드라이버 쌍만으로 실제 PC/모바일의 GPU 속도·FPS·30/60FPS 달성·장시간 안정성·오디오 품질을 입증하지 못한다."
+  }
+}

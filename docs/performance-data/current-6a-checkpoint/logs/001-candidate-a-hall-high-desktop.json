@@ -1,0 +1,39 @@
+{
+  "index": 1,
+  "job": {
+    "id": "candidate-a-hall-high-desktop",
+    "script": "tools/bench/full-frame.mjs",
+    "args": [
+      "candidate-a",
+      "hall",
+      "high",
+      "desktop",
+      "front,wide,foyer,rotate,broadcast,broadcast-hidden,broadcast-return,effects-show"
+    ],
+    "directory": "render",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "42dffe5-plus-screen-visibility",
+      "SAMPLES": 8,
+      "WARMUP": 4,
+      "SCREENSHOTS": 1,
+      "MODE": "sync"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/full-frame.mjs",
+    "candidate-a",
+    "hall",
+    "high",
+    "desktop",
+    "front,wide,foyer,rotate,broadcast,broadcast-hidden,broadcast-return,effects-show"
+  ],
+  "startedAt": "2026-10-21T09:14:46.804979+00:00",
+  "planSha256": "56fee7b728d4b73402e48836df466dda8fb84aa8c0a163d695ac438ee55f0157",
+  "collectorSha256": "f0b8973f462846a33413a4e55657d737554899e78b17988e28219545b37a5411",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T09:23:32.762265+00:00",
+  "logSha256": "2bc0b1481ebf55373c6f9448ad493b42e1a87db6a3a46c3473484ff49ad1a83e"
+}

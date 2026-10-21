@@ -1,0 +1,13 @@
+{
+  "status": "INCOMPLETE_EVIDENCE",
+  "recordedProcessExit": 0,
+  "runRecordStatus": "PASS",
+  "rawStatus": "RUNNING",
+  "rawSamples": 4,
+  "logExpectedSha256": "5b0ea7951916b7e16f0a63cef4e854d07ad174dbf9feecc247ee2b5f23000d72",
+  "logObservedSha256": "a86fbd7a87a67bbb15084bae6e77afb89ba0145916633ae455e0b217e736f17b",
+  "rawSha256": "dd919baf54aa913cd00bc0ad6a2dba3ed0d0bc0493899f2e97db7f1e633d86c3",
+  "cause": "Unresolved. Process record says complete, but persisted log differs and final raw metadata/summary are absent. Do not reconstruct or promote the raw from process exit alone.",
+  "comparisonDecision": "Exclude this Sphere pair from finalized GPU comparisons; preserve both original runs and repeat the Sphere pair under new IDs. Hall pair remains separately auditable.",
+  "oldFilesModified": false
+}

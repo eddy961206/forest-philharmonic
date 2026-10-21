@@ -1,0 +1,11 @@
+{
+  "originalPlanSha256": "b41aec7e9a92b0852b62eb177f389603d77d76ae08241d69b677068cc965a50e",
+  "jobs": [
+    2,
+    3
+  ],
+  "classification": "HARNESS_CONFIGURATION_ERROR",
+  "reason": "CONTINUE_ON_TRANSPORT_FAIL requires SCOPE=full, but these two baseline jobs selected transport scope. Both exited before browser launch. Candidate failures are separate observed UI failures.",
+  "correctedPlan": "functional-baseline-corrected-plan.json",
+  "preservedOriginal": true
+}

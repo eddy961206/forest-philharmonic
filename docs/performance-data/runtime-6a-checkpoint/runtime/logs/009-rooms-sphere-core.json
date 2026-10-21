@@ -1,0 +1,32 @@
+{
+  "index": 9,
+  "job": {
+    "id": "rooms-sphere-core",
+    "script": "tools/bench/rooms.mjs",
+    "args": [
+      "candidate",
+      "sphere",
+      "core"
+    ],
+    "directory": "rooms",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18081/",
+      "REVISION": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+      "TIMEOUT_MS": "180000"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/rooms.mjs",
+    "candidate",
+    "sphere",
+    "core"
+  ],
+  "startedAt": "2026-10-21T09:51:12.042329+00:00",
+  "planSha256": "998210cd65c4edf8f4e5c8aabf98fafa7a3132e63833bf34a197f839f30b6ddd",
+  "collectorSha256": "76efc3fef6bc604eab326fee079816c3ca12b974c9186ab7cf71e94ae0ac13a2",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T09:51:47.542606+00:00",
+  "logSha256": "29424b8bf81816b84514a5de165cdeb7823024fadf460ec5e93500578bf2d0ca"
+}

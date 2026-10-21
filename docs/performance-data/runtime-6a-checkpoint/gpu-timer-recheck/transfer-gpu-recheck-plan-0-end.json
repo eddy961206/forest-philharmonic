@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "startedAt": "2026-10-21T09:54:23.872460+00:00",
+  "staging": "/tmp/forest-qa-dh0j_wyd",
+  "destination": "/workspace/scratch/296fafc0af7f/verification/gpu-timer-recheck",
+  "plan": "/workspace/scratch/296fafc0af7f/verification/gpu-recheck-plan.json",
+  "command": [
+    "python3",
+    "tools/bench/run-plan.py",
+    "/workspace/scratch/296fafc0af7f/verification/gpu-recheck-plan.json",
+    "--output",
+    "/tmp/forest-qa-dh0j_wyd",
+    "--start",
+    "0",
+    "--continue-on-failure"
+  ],
+  "planSha256": "e34e983798dc776c281014506f5796b6862562b6338a749c2fb5844c023d6c62",
+  "runnerSha256": "a66055a67ef35d37a705c783852df9c7827d3869b92de206652e3409d5c64bed",
+  "wrapperSha256": "6a16eb897c76c073fc18d7fd8b0d098a13013e5afaa9b5b93790c31a71fcd15d",
+  "statusPolicy": "Copy original results without changing PASS/FAIL/RUNNING; report evidence inconsistencies separately.",
+  "files": [
+    {
+      "path": "gpu/baseline-gpu-recheck-gpu-sphere-high-desktop-forest.json",
+      "bytes": 35271,
+      "sha256": "6eb0b8962b1c2b68af2be4db3aaf5f52bdd1fff7f7dc2888401d17b8b87393fa"
+    },
+    {
+      "path": "gpu/baseline-gpu-recheck-gpu-sphere-high-desktop-forest.png",
+      "bytes": 241682,
+      "sha256": "65b6602fa49644291daebe0d2b463a4dc67f63dc74dbb96cfa2d3268ace25834"
+    },
+    {
+      "path": "gpu/candidate-gpu-recheck-gpu-sphere-high-desktop-forest.json",
+      "bytes": 36412,
+      "sha256": "78ae8bac99de250beab8c6144e86ae784759a8b33a196f1c9e56d094132786fd"
+    },
+    {
+      "path": "gpu/candidate-gpu-recheck-gpu-sphere-high-desktop-forest.png",
+      "bytes": 241520,
+      "sha256": "d167bb099c7735a927bcdc704cbb5ce5bc0d322e038098547eae66191f9c8297"
+    },
+    {
+      "path": "logs/000-baseline-gpu-recheck-sphere-high-desktop-forest.json",
+      "bytes": 1093,
+      "sha256": "289ea5b6db8d223f3ab9fa79b6b7ac71dded0cd4dcf278b577ebfcaedfdae7cf"
+    },
+    {
+      "path": "logs/000-baseline-gpu-recheck-sphere-high-desktop-forest.log",
+      "bytes": 1158,
+      "sha256": "fe0b277297fdb1f4023af44b8c289d488bd4bacb4e8f866b28b71935726c346c"
+    },
+    {
+      "path": "logs/001-candidate-gpu-recheck-sphere-high-desktop-forest.json",
+      "bytes": 1096,
+      "sha256": "b7bf38cf5ece8e61165f295d52cbc3930ef5926316d6534966139a0f42d02a81"
+    },
+    {
+      "path": "logs/001-candidate-gpu-recheck-sphere-high-desktop-forest.log",
+      "bytes": 1171,
+      "sha256": "a3ec5771a31fda7a9f7ed976a5afb9a0b13e3e3d15ac7e8241d0af28cb243a5a"
+    }
+  ],
+  "evidenceIssues": [],
+  "processExitCode": 0,
+  "finishedAt": "2026-10-21T09:55:29.003446+00:00",
+  "copyStatus": "PASS",
+  "evidenceStatus": "COMPLETE",
+  "stagingRetained": true
+}

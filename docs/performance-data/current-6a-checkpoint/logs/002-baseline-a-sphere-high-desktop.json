@@ -1,0 +1,39 @@
+{
+  "index": 2,
+  "job": {
+    "id": "baseline-a-sphere-high-desktop",
+    "script": "tools/bench/full-frame.mjs",
+    "args": [
+      "baseline-a",
+      "sphere",
+      "high",
+      "desktop",
+      "front,wide,dome,forest,peaks,ocean,clouds,crossfade,reveal,broadcast,effects-show"
+    ],
+    "directory": "render",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18080/",
+      "REVISION": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "SAMPLES": 8,
+      "WARMUP": 4,
+      "SCREENSHOTS": 1,
+      "MODE": "sync"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/full-frame.mjs",
+    "baseline-a",
+    "sphere",
+    "high",
+    "desktop",
+    "front,wide,dome,forest,peaks,ocean,clouds,crossfade,reveal,broadcast,effects-show"
+  ],
+  "startedAt": "2026-10-21T09:23:32.763112+00:00",
+  "planSha256": "56fee7b728d4b73402e48836df466dda8fb84aa8c0a163d695ac438ee55f0157",
+  "collectorSha256": "f0b8973f462846a33413a4e55657d737554899e78b17988e28219545b37a5411",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T09:28:23.885431+00:00",
+  "logSha256": "6cb3569e21cb11b5523f05141ada45fe1eb3aaca6241906b710c399408e60a92"
+}

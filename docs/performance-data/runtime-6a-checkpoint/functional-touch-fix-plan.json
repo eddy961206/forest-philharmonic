@@ -1,0 +1,34 @@
+[
+  {
+    "id": "functional-hall-mobile-touch-hit-fix",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "hall",
+      "mobile"
+    ],
+    "directory": "functional-v2",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18082/",
+      "REVISION": "0949203-plus-mobile-joy-zone-layer",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "candidate-touch-hit-fix",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    }
+  },
+  {
+    "id": "functional-sphere-mobile-touch-hit-fix",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "sphere",
+      "mobile"
+    ],
+    "directory": "functional-v2",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18082/",
+      "REVISION": "0949203-plus-mobile-joy-zone-layer",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "candidate-touch-hit-fix",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    }
+  }
+]

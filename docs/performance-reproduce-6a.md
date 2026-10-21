@@ -194,7 +194,7 @@ $env:CHROME_ARGS = "[]"
 $env:TIMEOUT_MS = "180000"
 Remove-Item Env:CHROME_EXECUTABLE -ErrorAction SilentlyContinue
 Remove-Item Env:WIDTH, Env:HEIGHT, Env:DPR -ErrorAction SilentlyContinue
-Remove-Item Env:FRAME_MODE, Env:READBACK, Env:LIVE_WINDOW_MS, Env:QUALITY, Env:PRELUDE_FRAMES, Env:PRE_PAUSE_MS, Env:SEEK_SECONDS, Env:PIECE_ID -ErrorAction SilentlyContinue
+Remove-Item Env:FRAME_MODE, Env:READBACK, Env:LIVE_WINDOW_MS, Env:FIXED_AUDIENCE_SEED, Env:QUALITY, Env:PRELUDE_FRAMES, Env:PRE_PAUSE_MS, Env:SEEK_SECONDS, Env:PIECE_ID -ErrorAction SilentlyContinue
 ```
 
 ```bash
@@ -203,7 +203,7 @@ export PLAYWRIGHT_MODULE="$tool_root/node_modules/playwright"
 export FONT_MODE=local FONT_ROOT="$tool_root/node_modules/@fontsource"
 export HEADLESS=0 SOFTWARE_RENDERER=0 CHROME_ARGS='[]' TIMEOUT_MS=180000
 unset CHROME_EXECUTABLE WIDTH HEIGHT DPR
-unset FRAME_MODE READBACK LIVE_WINDOW_MS QUALITY PRELUDE_FRAMES PRE_PAUSE_MS SEEK_SECONDS PIECE_ID
+unset FRAME_MODE READBACK LIVE_WINDOW_MS FIXED_AUDIENCE_SEED QUALITY PRELUDE_FRAMES PRE_PAUSE_MS SEEK_SECONDS PIECE_ID
 ```
 
 `SOFTWARE_RENDERER=0`은 도구가 SwiftShader 실행 인자를 추가하지 않도록 해. **하드웨어 사용을 강제하거나 보장하는 설정은 아니야.** `CHROME_ARGS` 안에 소프트웨어 렌더 인자가 남아 있거나 OS가 소프트웨어 경로를 선택할 수 있으므로 실제 renderer를 확인해야 해. `--single-process`, `--in-process-gpu`, `--use-angle=swiftshader`, `--disable-gpu` 등 컨테이너용 설정을 PC 비교에 그대로 복사하지 마.
@@ -568,17 +568,16 @@ loading의 cold는 새 BrowserContext의 첫 탐색이고 warm은 같은 context
 
 과거 Hall 재개 FAIL은 [a41 원본 보존 자료](historical-a41/README.md)에 남겨. 기준선·후보에서 모두 발생한 실패와 최소 oscillator 검사의 성공을 함께 보되, 그것만으로 제품 원인이나 환경 원인을 확정하지 않아. 새 6a 진단 결과도 새 폴더에 저장하고, 원본 실패의 상태나 `revision`을 수정하지 않아.
 
-### 후속 native 음악 관찰용 collector를 별도로 고정해
+### 기존 native 음악 관찰용 collector: 공개한 6bb 버전
 
-후속 collector에는 `LIVE_WINDOW_MS` 옵션이 추가됐어. **이 옵션은 위에서 고정한 `06c8ac5`나 감사 시점 `b3717c8`의 도구에는 없는 추가 기능**이야. 추가된 `audio-resume.mjs`의 SHA-256은 `6bbf491704265dbe5c8e133974c7cd947a242ca1ff40ac4dc517a0c36d010d11`야. 아래는 공개 PR 브랜치에서 도구 버전을 한 번 읽어 **전체 SHA로 고정한 별도 worktree**를 만드는 방법이야. 실행 중에는 그 버전을 바꾸지 않아. 최종 보고서에 확정된 collector 커밋이 있으면 fetch 뒤 그 전체 SHA를 `runtimeToolsRef`에 직접 지정해도 돼.
+후속 collector에는 `LIVE_WINDOW_MS` 옵션이 추가됐어. **이 옵션은 위에서 고정한 `06c8ac5`나 감사 시점 `b3717c8`의 도구에는 없는 추가 기능**이야. 이 첫 native collector는 공개 커밋 `09492033251fd1986f7ce8c755b39923e539407a`에 보존돼 있고, `audio-resume.mjs`의 SHA-256은 `6bbf491704265dbe5c8e133974c7cd947a242ca1ff40ac4dc517a0c36d010d11`야. 아래 명령은 이 공개 커밋을 **전체 SHA로 고정한 별도 worktree**를 만들어. 로컬에서만 사용했던 다른 커밋 ID를 PC 재현의 checkout 대상으로 쓰지 않아. 다음 절의 고정 관객 옵션은 이 6bb 버전에 없는 별도 변경이야.
 
 제품 서버는 계속 reference의 6a와 candidate의 06c8ac5를 서비스해. 후속 도구는 별도 폴더에서 실행하므로 baseline/candidate에 복사할 필요가 없어. helper를 포함한 같은 collector checkout을 A/B 모두에 사용해. 아직 이 파일이 공개되지 않았거나 이후 내용이 바뀐 경우 아래 해시 검사에서 중단돼. 그때는 최종 보고서/증거 묶음에 기록된 정확한 collector 버전을 사용하고 변경된 도구로 실행한 결과를 별도 측정으로 구분해.
 
 ```powershell
 git -C $sourceRoot fetch origin perf/261021-venue-rendering
 if ($LASTEXITCODE -ne 0) { throw "도구 버전 fetch 실패" }
-$runtimeToolsRef = (git -C $sourceRoot rev-parse FETCH_HEAD).Trim()
-if ($LASTEXITCODE -ne 0) { throw "도구 버전 확인 실패" }
+$runtimeToolsRef = "09492033251fd1986f7ce8c755b39923e539407a"
 $runtimeToolsRoot = Join-Path $benchRoot "runtime-collector"
 git -C $sourceRoot worktree add --detach $runtimeToolsRoot $runtimeToolsRef
 if ($LASTEXITCODE -ne 0) { throw "도구 worktree 생성 실패" }
@@ -593,7 +592,7 @@ if ($LASTEXITCODE -ne 0) { throw "도구 help 실패" }
 
 ```bash
 git -C "$source_root" fetch origin perf/261021-venue-rendering
-runtime_tools_ref=$(git -C "$source_root" rev-parse FETCH_HEAD)
+runtime_tools_ref=09492033251fd1986f7ce8c755b39923e539407a
 runtime_tools_root="$bench_root/runtime-collector"
 git -C "$source_root" worktree add --detach "$runtime_tools_root" "$runtime_tools_ref"
 cd "$runtime_tools_root"
@@ -640,6 +639,69 @@ printf 'baseline exit=%s, candidate exit=%s\n' "$baseline_audio_exit" "$candidat
 프레임 시작 시각만 매 프레임 저장하고, 실제 pose·품질·pixel ratio·음악/오디오 시계·heap은 시작·끝과 1초 간격으로 기록해. `liveWindow.cadence`는 평균 관측 rAF FPS와 p50/p95/p99·1% Low를 담고, 간격이 100개 미만이면 1% Low는 미측정이야. 시작/끝의 부분 구간과 전체 관찰 시간당 callback 수도 따로 기록하므로 마지막 프레임에서 긴 정지가 있었는지 함께 봐. `live-window` phase의 late note·score mismatch·worker tick 최대 간격도 준비 구간과 분리해.
 
 곡·transport 기준 시각·숨김·수면·프리셋/scale/pixel ratio가 달라지면 `liveWindow.sameConditionComparison`에 제외 사유가 남아. 제외 사유가 없더라도 A/B의 시작 음악 시각·pose·관찰 시간·실제 제품과 도구·기기 조건을 따로 맞춰야 해. 원래 2초 재개 FAIL은 이 관찰에서 회복해도 유지하고, 이 옵션의 결과를 물리 출력 음질이나 오디오 글리치 부재와 동등하게 주장하지 않아. 문서의 이 설명은 후속 도구 사용법이며 실제 실행 PASS 보고가 아니야.
+
+### 후속 선택 옵션: 관객 배치와 실제 좌석까지 맞추기
+
+`FIXED_AUDIENCE_SEED=417`을 지원하는 후속 `audio-resume.mjs`의 SHA-256은 `089678a0b0afcc9be77ae11d7bc160fffce2239e29afc64b78f7fdf6e8a154d7`야. 재사용하는 `loading-proxy.mjs` 해시는 `e8f311048df6104ca3fd7104753519c128e000e9dc93fe2a5b7f1a5641ef9f7b`야. 위 6bb 버전의 명령과 원본 결과는 그대로 보존하고, 이 옵션을 사용한 결과에는 새 collector 해시·전체 커밋 SHA·출력 폴더를 남겨.
+
+기존 전역 `Math.random=417`만으로는 버전별 Three 객체·UUID 생성 횟수 차이 때문에 solo 관객 배치까지 같다고 보장할 수 없어. 이 선택 옵션은 [`fixedAudienceMain()`](../tools/bench/loading-proxy.mjs)을 재사용해서 실제 main 응답의 `const rand = room ? seeded(room.seed) : Math.random;` 한 곳만 별도 `seeded(417)`로 바꿔. anchor가 없거나 두 개 이상이면 실패해. 디스크의 제품 파일·방의 seed·음악 시계·오디오 스케줄러·frame/readPixels 정책은 바꾸지 않아. 옵션을 생략하면 기존 solo 난수 경로와 `z+0.5` 접근을 유지해.
+
+옵션을 켠 경우에는 선택한 실제 빈 좌석의 `z+0.2`로 접근하고 E/touch로 앉은 뒤 `actualSeat.index === selectedSeat.index`를 검사해. 다르면 FAIL을 남겨. 원본/변환 main SHA, seed, 관객 수, `director.occupied`와 `audience.occupied` 각각의 숫자 오름차순 좌석 배열 SHA, 선택한 좌석·실제로 앉은 좌석·카메라 정보를 JSON에 남겨. 좌석 hash는 UTF-8 `JSON.stringify(sortedIndices)`의 SHA-256이야. A/B의 관객 수·hash·실제 좌석·pose도 비교해야 하며 seed 값만 같다는 이유로 조건이 일치했다고 판단하지 않아.
+
+후속 도구 커밋이 공개된 뒤 다음처럼 별도 worktree를 만들고 파일 해시를 확인해. fetch한 브랜치를 한 번 전체 SHA로 고정하므로 이후 브랜치 변경이 실행 중인 도구에 적용되지 않아. 최종 보고서가 명시한 후속 collector 전체 SHA가 있으면 `fixedToolsRef`에 그 값을 직접 지정해도 돼. 이 경로에서도 제품 서버 A/B는 계속 6a/06c8ac5야.
+
+```powershell
+git -C $sourceRoot fetch origin perf/261021-venue-rendering
+if ($LASTEXITCODE -ne 0) { throw "후속 도구 fetch 실패" }
+$fixedToolsRef = (git -C $sourceRoot rev-parse FETCH_HEAD).Trim()
+$fixedToolsRoot = Join-Path $benchRoot "fixed-audience-collector"
+git -C $sourceRoot worktree add --detach $fixedToolsRoot $fixedToolsRef
+if ($LASTEXITCODE -ne 0) { throw "후속 도구 worktree 생성 실패" }
+Set-Location $fixedToolsRoot
+if ((Get-FileHash "tools/bench/audio-resume.mjs").Hash.ToLowerInvariant() -ne "089678a0b0afcc9be77ae11d7bc160fffce2239e29afc64b78f7fdf6e8a154d7") { throw "후속 audio-resume 해시 불일치" }
+if ((Get-FileHash "tools/bench/loading-proxy.mjs").Hash.ToLowerInvariant() -ne "e8f311048df6104ca3fd7104753519c128e000e9dc93fe2a5b7f1a5641ef9f7b") { throw "관객 변환 함수 파일 해시 불일치" }
+if ((Get-FileHash "tools/bench/browser.mjs").Hash.ToLowerInvariant() -ne "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9") { throw "browser helper 해시 불일치" }
+git rev-parse HEAD
+git status --short
+$env:FIXED_AUDIENCE_SEED = "417"
+$env:FRAME_MODE = "native"
+$env:READBACK = "0"
+$env:LIVE_WINDOW_MS = "30000"
+$env:QUALITY = "low"
+$env:OUTPUT_DIR = Join-Path $benchRoot "results/audio-native-fixed-r1"
+$env:BASE_URL = "http://127.0.0.1:18080/"
+$env:REVISION = $baselineRef
+node tools/bench/audio-resume.mjs baseline-native-fixed-r1 hall desktop
+$baselineFixedExit = $LASTEXITCODE
+$env:BASE_URL = "http://127.0.0.1:18081/"
+$env:REVISION = $candidateRef
+node tools/bench/audio-resume.mjs candidate-native-fixed-r1 hall desktop
+$candidateFixedExit = $LASTEXITCODE
+Remove-Item Env:FIXED_AUDIENCE_SEED, Env:FRAME_MODE, Env:READBACK, Env:LIVE_WINDOW_MS, Env:QUALITY -ErrorAction SilentlyContinue
+Set-Location $candidateRoot
+"baseline exit=$baselineFixedExit, candidate exit=$candidateFixedExit"
+```
+
+```bash
+git -C "$source_root" fetch origin perf/261021-venue-rendering
+fixed_tools_ref=$(git -C "$source_root" rev-parse FETCH_HEAD)
+fixed_tools_root="$bench_root/fixed-audience-collector"
+git -C "$source_root" worktree add --detach "$fixed_tools_root" "$fixed_tools_ref"
+cd "$fixed_tools_root"
+node --input-type=module -e 'import fs from "node:fs"; import crypto from "node:crypto"; import assert from "node:assert/strict"; const hash = file => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"); assert.equal(hash("tools/bench/audio-resume.mjs"), "089678a0b0afcc9be77ae11d7bc160fffce2239e29afc64b78f7fdf6e8a154d7"); assert.equal(hash("tools/bench/loading-proxy.mjs"), "e8f311048df6104ca3fd7104753519c128e000e9dc93fe2a5b7f1a5641ef9f7b"); assert.equal(hash("tools/bench/browser.mjs"), "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9");'
+git rev-parse HEAD
+git status --short
+baseline_fixed_exit=0
+FIXED_AUDIENCE_SEED=417 FRAME_MODE=native READBACK=0 LIVE_WINDOW_MS=30000 QUALITY=low BASE_URL=http://127.0.0.1:18080/ REVISION="$baseline_ref" OUTPUT_DIR="$bench_root/results/audio-native-fixed-r1" node tools/bench/audio-resume.mjs baseline-native-fixed-r1 hall desktop || baseline_fixed_exit=$?
+candidate_fixed_exit=0
+FIXED_AUDIENCE_SEED=417 FRAME_MODE=native READBACK=0 LIVE_WINDOW_MS=30000 QUALITY=low BASE_URL=http://127.0.0.1:18081/ REVISION="$candidate_ref" OUTPUT_DIR="$bench_root/results/audio-native-fixed-r1" node tools/bench/audio-resume.mjs candidate-native-fixed-r1 hall desktop || candidate_fixed_exit=$?
+cd "$candidate_root"
+printf 'baseline exit=%s, candidate exit=%s\n' "$baseline_fixed_exit" "$candidate_fixed_exit"
+```
+
+예시는 A/B 모두 처음부터 같은 수동 `low`로 입장하는 별도 조건이야. 이전 high 결과와 섞거나, low로 내린 효과를 동일 품질 최적화 성과에 포함하지 않아. `hall`을 `sphere`로 바꾸어 다른 라벨·출력 폴더로 반복하고, 같은 프리셋이어도 실제 Lite 상태·pixel ratio·시작 음악 시각을 확인해. 이 설명은 재현 절차이며 새 옵션의 실제 브라우저 PASS 보고가 아니야.
+
+이 옵션의 main 응답은 Playwright route로 제공하므로 원본 HTTP 캐시·전송량·cold loading 결과로 사용하지 않아. 모든 관객·좌석 hash가 맞더라도 잔향 impulse response와 모든 절차적 난수, 물리 출력 음질까지 같다고 보장하지 않아. 실제 30초 관찰의 시계·음표·late 요청·메타데이터와 사람의 청취 결과를 별도로 확인해.
 
 앱 없이 네이티브 시계만 분리해 볼 때는 `node tools/bench/audio-clock.mjs pc-clock current 65`를 사용해. `AUDIO_MUTE=unmuted`, `AUDIO_OUTPUT=fake`, `multiprocess`는 각기 다른 출력·프로세스 조건이므로 원본 조건과 분리해. **최소 oscillator PASS는 실제 오케스트라 음질 보장이 아니야.** Playwright 기본 인자가 음소거를 포함하는 실행도 있으므로 실제 듣기 검증은 일반 브라우저와 실제 출력 장치에서 수행해.
 

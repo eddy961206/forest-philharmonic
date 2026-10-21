@@ -1,0 +1,23 @@
+{
+  "schema": 2,
+  "label": "baseline-mobile-transport-corrected",
+  "revision": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+  "scope": "transport",
+  "fixtureSourceSha256": "68752baa3f44b3638916215b108b190815af47c2c66aeb63a9be0468a47b45aa",
+  "diagnosticOptions": {
+    "continueOnTransportFail": false
+  },
+  "method": "Functional checks only; sequential explicit rendering, not an FPS benchmark.",
+  "results": [
+    {
+      "venue": "sphere",
+      "device": "mobile",
+      "scope": "transport",
+      "status": "FAIL",
+      "failure": "Newly visible live broadcast renders immediately",
+      "failureCount": 1,
+      "continuedAfterTransportFailure": false,
+      "file": "baseline-mobile-transport-corrected-sphere-mobile.json"
+    }
+  ]
+}

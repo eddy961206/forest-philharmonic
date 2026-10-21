@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "startedAt": "2026-10-21T10:07:03.245226+00:00",
+  "staging": "/tmp/forest-qa-2txbsh8e",
+  "destination": "/workspace/scratch/296fafc0af7f/verification/functional-baseline-corrected",
+  "plan": "/workspace/scratch/296fafc0af7f/verification/functional-baseline-corrected-plan.json",
+  "command": [
+    "python3",
+    "tools/bench/run-plan.py",
+    "/workspace/scratch/296fafc0af7f/verification/functional-baseline-corrected-plan.json",
+    "--output",
+    "/tmp/forest-qa-2txbsh8e",
+    "--start",
+    "0",
+    "--continue-on-failure"
+  ],
+  "planSha256": "2bb9f95061dede0161b2a570e7e3d0e997769000e0f303a208a0ac78e04c0ea5",
+  "runnerSha256": "a66055a67ef35d37a705c783852df9c7827d3869b92de206652e3409d5c64bed",
+  "wrapperSha256": "6a16eb897c76c073fc18d7fd8b0d098a13013e5afaa9b5b93790c31a71fcd15d",
+  "statusPolicy": "Copy original results without changing PASS/FAIL/RUNNING; report evidence inconsistencies separately.",
+  "files": [
+    {
+      "path": "functional-v2/baseline-mobile-transport-corrected-hall-mobile-failure.png",
+      "bytes": 571108,
+      "sha256": "e7d659e5ef82dc553e1ba67f10e754ff6e02ae74e4ad08d9d8950e38e8bbaf21"
+    },
+    {
+      "path": "functional-v2/baseline-mobile-transport-corrected-hall-mobile.json",
+      "bytes": 42330,
+      "sha256": "a628b502927ddf3a33f7525e71914df7debb2dc28cee41d8d8fefffec9ba8b79"
+    },
+    {
+      "path": "functional-v2/baseline-mobile-transport-corrected-sphere-mobile-failure.png",
+      "bytes": 299132,
+      "sha256": "1e67b248564029c24fd5a34a4172a27ef2a6dfc0b2124b8e545fe42bcedaf91f"
+    },
+    {
+      "path": "functional-v2/baseline-mobile-transport-corrected-sphere-mobile.json",
+      "bytes": 48221,
+      "sha256": "9864ad260f5301c4494b39f6873ce2931152418d6918926f1ba53e9e19b41728"
+    },
+    {
+      "path": "functional-v2/baseline-mobile-transport-corrected-summary.json",
+      "bytes": 749,
+      "sha256": "3d69c84430a42bfe8b9172422cbad911c48dddae17a87aa0eefebb9879bf2336"
+    },
+    {
+      "path": "logs/000-baseline-transport-hall-mobile-seekwait-v2-corrected.json",
+      "bytes": 1003,
+      "sha256": "c744f13b2d4e60da7d276bab7ce27286db5ee134b87cd00510f2deb2cce41dbf"
+    },
+    {
+      "path": "logs/000-baseline-transport-hall-mobile-seekwait-v2-corrected.log",
+      "bytes": 950,
+      "sha256": "e9c17a8b0f4b3b032ceb961303202624097f31868bee3d81025f4532bd87479b"
+    },
+    {
+      "path": "logs/001-baseline-transport-sphere-mobile-seekwait-v2-corrected.json",
+      "bytes": 1009,
+      "sha256": "b93c6fd446128662e700d679419510cf9d317bd6ef7f466fb3209c859462b042"
+    },
+    {
+      "path": "logs/001-baseline-transport-sphere-mobile-seekwait-v2-corrected.log",
+      "bytes": 990,
+      "sha256": "1850f6bddc8a053ea07254198ff5e4be6d28f3b9ac145562f45ce9c418042b2c"
+    }
+  ],
+  "evidenceIssues": [],
+  "processExitCode": 1,
+  "finishedAt": "2026-10-21T10:07:52.260076+00:00",
+  "copyStatus": "PASS",
+  "evidenceStatus": "COMPLETE",
+  "stagingRetained": true
+}

@@ -1,0 +1,1080 @@
+{
+  "schema": 1,
+  "suite": "whole-frame-driver-timer",
+  "status": "PASS",
+  "label": "candidate-gpu",
+  "venue": "hall",
+  "quality": "high",
+  "device": "desktop",
+  "sceneName": "front",
+  "revision": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+  "baseURL": "http://127.0.0.1:18081/",
+  "viewport": [
+    640,
+    360
+  ],
+  "devicePixelRatio": 1,
+  "samplesRequested": 4,
+  "warmupFrames": 4,
+  "frameTimeoutMs": 30000,
+  "queryTimeoutMs": 3000,
+  "pollIntervalMs": 25,
+  "fixtureSourceSha256": "ba197fc2117d8af462146b3c833c9e0b8c0a4fa8c19fa3cdf3037bb32c2d325d",
+  "instrumentationSourceSha256": "42a595a5cded9f8ea8ab5c9195bf243ec6c87a83051d648a4ce63bba089ab785",
+  "memoryEstimatorSourceSha256": "e1a552c3f96e4bf3280dd814a3c86c7c6edf22f0efc783db6fcbe9b57cb02961",
+  "collectorSourceSha256": "cb9228baee7ccc4d08140fb6b743dbb61ee7249209c912bb3bac45e4238aaf53",
+  "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+  "referenceCollectorSha256": "f0b8973f462846a33413a4e55657d737554899e78b17988e28219545b37a5411",
+  "clocks": {
+    "startedAt": "2026-10-21T09:42:28.165Z",
+    "nodeTimeOrigin": 1792575748121.843,
+    "nodeStart": 44.282803,
+    "browserReady": {
+      "timeOrigin": 1792575748559.8,
+      "now": 13772.300000000745,
+      "dateNow": 1792575762332,
+      "visibility": "visible"
+    },
+    "browserBefore": {
+      "timeOrigin": 1792575748559.8,
+      "now": 26556.10000000149,
+      "dateNow": 1792575775115,
+      "visibility": "visible"
+    },
+    "nodeMeasurementStart": 27002.606595,
+    "browserAfter": {
+      "timeOrigin": 1792575748559.8,
+      "now": 34172.60000000149,
+      "dateNow": 1792575782732,
+      "visibility": "visible"
+    },
+    "nodeMeasurementEnd": 34610.828525,
+    "finishedAt": "2026-10-21T09:43:03.075Z",
+    "nodeEnd": 34953.616304
+  },
+  "fixturePolicy": {
+    "piece": "beethoven-ode-to-joy",
+    "randomSeed": 417,
+    "uuidSeed": 874,
+    "crowdSeed": 417,
+    "crowdFill": 0.8,
+    "musicClock": "existing fixture: 25 s (broadcast 5 s), advances 1/60 s per step",
+    "audio": "real engine created; note scheduler disabled; synthetic performance clock",
+    "animationDtCapSeconds": 0.016666666666666666,
+    "mainAnimation": "existing fixture step(true), original frame wrapped by one elapsed query",
+    "queryRange": "beginQuery immediately before original frame(); endQuery in finally immediately after it; readPixels is outside the query",
+    "completion": "existing fixture completeMs includes frame, query instrumentation overhead and 1x1 readPixels completion wait",
+    "polling": "one query at a time; Node timer yields between short page evaluations; no browser busy-wait or extra render steps",
+    "invalidation": "no retry or selective sample removal; any unsupported, disjoint, invalid or timed-out query makes the entire GPU summary SKIP"
+  },
+  "interpretation": {
+    "driver": "Timer-query elapsed GL command interval; driver scheduling/idle gaps may contribute. Not frame cadence, FPS, or isolated shader time.",
+    "software": "SwiftShader/software driver elapsed time is not a physical GPU measurement.",
+    "missing": "Unsupported or invalid driver timing stays null. GPU memory, real audio stability and physical-mobile performance are unmeasured.",
+    "comparison": "Compare only runs from this collector with identical conditionsFingerprintSha256 and audited source versions; do not mix with full-frame timing rows."
+  },
+  "specification": [
+    "https://registry.khronos.org/webgl/extensions/EXT_disjoint_timer_query_webgl2/",
+    "https://registry.khronos.org/webgl/extensions/EXT_disjoint_timer_query/"
+  ],
+  "samples": [
+    {
+      "index": 0,
+      "completeMs": 1760.9000000022352,
+      "submitMs": 23.900000002235174,
+      "completionWaitMs": 1737,
+      "completed": true,
+      "calls": 1711,
+      "triangles": 7413382,
+      "times": {
+        "hall": 0,
+        "visual": 0,
+        "orchestra": 1.4000000022351742,
+        "stage": 0.09999999776482582,
+        "effects": 0.10000000149011612,
+        "director": 0.19999999925494194,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0,
+        "renderSubmit": 14.899999998509884
+      },
+      "geometries": 1141,
+      "textures": 37,
+      "heap": 386000000,
+      "quality": "high",
+      "renderScale": 1,
+      "visibility": "visible",
+      "asleep": false,
+      "glError": 0,
+      "contextLost": false,
+      "query": {
+        "status": "VALID",
+        "available": true,
+        "disjoint": false,
+        "elapsedNs": 1738280343,
+        "driverElapsedMs": 1738.280343,
+        "frameSubmitMs": 16.900000002235174,
+        "polls": 1,
+        "pollWallMs": 29.41313999999693
+      },
+      "driverElapsedMs": 1738.280343
+    },
+    {
+      "index": 1,
+      "completeMs": 1728.7999999970198,
+      "submitMs": 21.5,
+      "completionWaitMs": 1707.2999999970198,
+      "completed": true,
+      "calls": 1711,
+      "triangles": 7413382,
+      "times": {
+        "hall": 0,
+        "visual": 0,
+        "orchestra": 0.8999999985098839,
+        "stage": 0.10000000149011612,
+        "effects": 0,
+        "director": 0.10000000149011612,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0,
+        "renderSubmit": 14.099999997764826
+      },
+      "geometries": 1141,
+      "textures": 37,
+      "heap": 386000000,
+      "quality": "high",
+      "renderScale": 1,
+      "visibility": "visible",
+      "asleep": false,
+      "glError": 0,
+      "contextLost": false,
+      "query": {
+        "status": "VALID",
+        "available": true,
+        "disjoint": false,
+        "elapsedNs": 1707959975,
+        "driverElapsedMs": 1707.959975,
+        "frameSubmitMs": 15.600000001490116,
+        "polls": 1,
+        "pollWallMs": 31.288822999998956
+      },
+      "driverElapsedMs": 1707.959975
+    },
+    {
+      "index": 2,
+      "completeMs": 1930.0999999977648,
+      "submitMs": 25.099999997764826,
+      "completionWaitMs": 1905,
+      "completed": true,
+      "calls": 1711,
+      "triangles": 7413382,
+      "times": {
+        "hall": 0,
+        "visual": 0.19999999925494194,
+        "orchestra": 0.8999999985098839,
+        "stage": 0.20000000298023224,
+        "effects": 0,
+        "director": 0.09999999776482582,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0,
+        "renderSubmit": 17.69999999552965
+      },
+      "geometries": 1141,
+      "textures": 37,
+      "heap": 386000000,
+      "quality": "high",
+      "renderScale": 1,
+      "visibility": "visible",
+      "asleep": false,
+      "glError": 0,
+      "contextLost": false,
+      "query": {
+        "status": "VALID",
+        "available": true,
+        "disjoint": false,
+        "elapsedNs": 1904730722,
+        "driverElapsedMs": 1904.730722,
+        "frameSubmitMs": 19.399999998509884,
+        "polls": 1,
+        "pollWallMs": 57.4377029999996
+      },
+      "driverElapsedMs": 1904.730722
+    },
+    {
+      "index": 3,
+      "completeMs": 2005.800000000745,
+      "submitMs": 37.5,
+      "completionWaitMs": 1968.300000000745,
+      "completed": true,
+      "calls": 1709,
+      "triangles": 7412806,
+      "times": {
+        "hall": 0,
+        "visual": 0.10000000149011612,
+        "orchestra": 3.5,
+        "stage": 0.10000000149011612,
+        "effects": 0.09999999776482582,
+        "director": 0.19999999925494194,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0,
+        "renderSubmit": 17.599999997764826
+      },
+      "geometries": 1142,
+      "textures": 37,
+      "heap": 386000000,
+      "quality": "high",
+      "renderScale": 1,
+      "visibility": "visible",
+      "asleep": false,
+      "glError": 0,
+      "contextLost": false,
+      "query": {
+        "status": "VALID",
+        "available": true,
+        "disjoint": false,
+        "elapsedNs": 1968186585,
+        "driverElapsedMs": 1968.186585,
+        "frameSubmitMs": 22.200000002980232,
+        "polls": 1,
+        "pollWallMs": 29.547923999998602
+      },
+      "driverElapsedMs": 1968.186585
+    }
+  ],
+  "rejected": [],
+  "summary": {
+    "readPixelsCompletion": {
+      "timing": {
+        "metric": "completeMs",
+        "meanMs": 1856.3999999994412,
+        "p50Ms": 1760.9000000022352,
+        "p95Ms": 2005.800000000745,
+        "p99Ms": 2005.800000000745
+      },
+      "meanCalls": 1710.5,
+      "meanTriangles": 7413238,
+      "phaseMeanMs": {
+        "hall": 0,
+        "visual": 0.07500000018626451,
+        "orchestra": 1.6749999998137355,
+        "stage": 0.12500000093132257,
+        "effects": 0.049999999813735485,
+        "director": 0.14999999944120646,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0,
+        "renderSubmit": 16.074999997392297
+      }
+    },
+    "driverTimer": {
+      "timing": {
+        "metric": "driverElapsedMs",
+        "meanMs": 1829.78940625,
+        "p50Ms": 1738.280343,
+        "p95Ms": 1968.186585,
+        "p99Ms": 1968.186585
+      },
+      "meanCalls": 1710.5,
+      "meanTriangles": 7413238,
+      "phaseMeanMs": {
+        "hall": 0,
+        "visual": 0.07500000018626451,
+        "orchestra": 1.6749999998137355,
+        "stage": 0.12500000093132257,
+        "effects": 0.049999999813735485,
+        "director": 0.14999999944120646,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0,
+        "renderSubmit": 16.074999997392297
+      }
+    },
+    "driverKind": "software-driver",
+    "frames": 4
+  },
+  "environment": {
+    "browserVersion": "153.0.8010.0",
+    "playwrightVersion": "1.64.1",
+    "platform": "linux",
+    "architecture": "x64",
+    "softwareRequested": true,
+    "chromeArgs": [
+      "--ash-no-nudges",
+      "--disable-domain-reliability",
+      "--disable-print-preview",
+      "--disk-cache-size=33554432",
+      "--no-default-browser-check",
+      "--no-pings",
+      "--font-render-hinting=none",
+      "--disable-features=IsolateOrigins,site-per-process",
+      "--enable-features=SharedArrayBuffer",
+      "--ignore-gpu-blocklist",
+      "--allow-running-insecure-content",
+      "--disable-setuid-sandbox",
+      "--disable-site-isolation-trials",
+      "--disable-web-security",
+      "--headless='shell'",
+      "--no-sandbox",
+      "--no-zygote",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader"
+    ],
+    "fontMode": "local",
+    "headless": true
+  },
+  "diagnostics": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "warnings": [
+      "[.WebGL-0x217c001a1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0x217c001a1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0x217c001a1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0x217c001a1800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    ],
+    "failedRequests": []
+  },
+  "meta": {
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "gpuTimer": true,
+    "pixelRatio": 1,
+    "viewport": [
+      640,
+      360
+    ],
+    "quality": "high",
+    "renderScale": 1,
+    "hardwareConcurrency": 9,
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+  },
+  "support": {
+    "extension": true,
+    "webgl2": true,
+    "counterBits": 64,
+    "probeError": 0,
+    "contextLost": false,
+    "supported": true,
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+    "contextAttributes": {
+      "alpha": true,
+      "antialias": false,
+      "depth": true,
+      "desynchronized": false,
+      "failIfMajorPerformanceCaveat": false,
+      "powerPreference": "high-performance",
+      "premultipliedAlpha": true,
+      "preserveDrawingBuffer": false,
+      "stencil": false,
+      "xrCompatible": false
+    }
+  },
+  "driverKind": "software-driver",
+  "fixture": {
+    "crowd": 1531,
+    "seats": 1885,
+    "eligibleAudienceSeats": 1879,
+    "recitalSeats": 6,
+    "lite": false,
+    "piece": "beethoven-ode-to-joy",
+    "sceneState": {
+      "phase": "playing",
+      "asleep": false,
+      "interval": false,
+      "recital": false,
+      "practice": false,
+      "hush": 0,
+      "sleepy": false,
+      "seatGroupVisible": true,
+      "audienceVisible": true
+    }
+  },
+  "scenario": {
+    "camera": {
+      "position": [
+        0,
+        1.75,
+        5
+      ],
+      "target": [
+        0,
+        2,
+        -7
+      ],
+      "fov": 64
+    },
+    "musicTime": 25,
+    "world": null,
+    "broadcast": false,
+    "effectsPeak": false,
+    "effectsShow": false
+  },
+  "sourceHashes": {
+    "js/boot.js": {
+      "sha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4"
+    },
+    "js/main.js": {
+      "sha256": "a0d096e176f391537439c30aa4edd89fcace95fc542803a7dc1ea8a7790efaed"
+    },
+    "js/quality.js": {
+      "sha256": "c3f9ec2793c5799a02662099039b9c171df20a0943bd1bde3ecbcdd1b812f959"
+    },
+    "js/scene/hall.js": {
+      "sha256": "8e2831fcca6a7edba9250b4e42d2fa88a63fe0d92d2dde2e4ce1c92b0ddf2150"
+    },
+    "js/scene/seats.js": {
+      "sha256": "c5dc9616f0e127c2ff98e6707496c92cb2798af6c2364cae2df1bd5c00ecab27"
+    },
+    "js/scene/audience.js": {
+      "sha256": "d54764015ae562570f5ab0ed82a1830eb8efcbb98a0d06ed3dc5127241e9f505"
+    },
+    "js/scene/screen.js": {
+      "sha256": "013fad18f30aba991063976b5c33d402182ac25cf61ad5d92112205029bf41df"
+    },
+    "js/scene/sphere.js": {
+      "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc"
+    },
+    "js/scene/dome3d.js": {
+      "sha256": "832f368158c44589a857183879771e55f90d234a600c9fafcd6b935e327c91c0"
+    },
+    "js/scene/domeshow.js": {
+      "sha256": "54ed6d88ff4c91bf802ba5affccdde96a09b6e512f20087131224108af8dbcbd"
+    },
+    "js/audio/engine.js": {
+      "sha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a"
+    },
+    "js/audio/performance.js": {
+      "sha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13"
+    },
+    "js/audio/crowd-loader.js": {
+      "sha256": "d7bfde3a5c3d63c752ae3b3625ee7f596732a757da1bb75f06069bb8ef8eb4c0"
+    },
+    "js/audio/crowd-worker.js": {
+      "sha256": "3da0d399f5ece9c835ba457d14c26483f2ad85e055bad51b419635e89888a02b"
+    },
+    "js/audio/crowd.js": {
+      "sha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f"
+    },
+    "js/evening.js": {
+      "sha256": "0d54c854723679cb3dc9d97e116c7158328ff0553a5ead8609d211f4811e831b"
+    },
+    "js/joystick.js": {
+      "sha256": "3e4eadc3780e63b6b73f42b6cb90b45f33d1062f2ee0d1f89cda77514f88c0f8"
+    },
+    "js/layout.js": {
+      "sha256": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6"
+    },
+    "js/net/room.js": {
+      "sha256": "e915652566cf2c11b824ac156e4ac1f2ff0dfe4f1389c68654d1c117a3063ef5"
+    },
+    "js/programs.js": {
+      "sha256": "41841384eb68664a57a1af72d60dd7453099c19b5da7ed8a8d59721f37804db2"
+    },
+    "js/scene/avatars.js": {
+      "sha256": "3a2f3975402964ed151b6a81be3dc4f9b13f7673d5f39d581c2b7f444954da1d"
+    },
+    "js/scene/characters.js": {
+      "sha256": "331ade6a43aee760b6f18ed8478bc698e35386d9180fcff140d54567e4f1b0ce"
+    },
+    "js/scene/director.js": {
+      "sha256": "20ced19ffca9bac94e11b533ff18ea93b8417ab61cb0964e863da91a69bb3a8d"
+    },
+    "js/scene/effects.js": {
+      "sha256": "6aab7f577a826fce3f0a589851ab2a62edb00def08d2fd5485d92f91905244bf"
+    },
+    "js/scene/foyer.js": {
+      "sha256": "2b28cfc6f46fa05a9168d587c85e8691c2c7b16ea735185b08f5cd46d6aea56e"
+    },
+    "js/scene/fx.js": {
+      "sha256": "563990312786780a15d9b1f050465daa5533ac85133569c458d8c24afe0f6ee2"
+    },
+    "js/scene/geometry.js": {
+      "sha256": "28fc26938e8e2f4c9f64113dc018177c2694adadd8efc3dae8091a9e78e0a25e"
+    },
+    "js/scene/hallplan.js": {
+      "sha256": "a9f13dcfe5bc1bd90ff4fad97246f0a5a2c5a0aaec8d66eaff8924fc1ad618ae"
+    },
+    "js/scene/instance-batches.js": {
+      "sha256": "09d81ddfc1a10dd34a5f44e053da2cb00678038403d42720f1e4aa2942923e01"
+    },
+    "js/scene/instruments.js": {
+      "sha256": "e7aee816a225f6b0b7143c7cc30f870dc764ebbac63b15873d80592a77cbc2bc"
+    },
+    "js/scene/lobby.js": {
+      "sha256": "207b3409cf76cd43e82c6b04b205ee364a3185b114dfc67f03a42b867bdcfa70"
+    },
+    "js/scene/materials.js": {
+      "sha256": "410e95a192304247ff34e52ec9874242bed577f0f37b1508423372fee17882c6"
+    },
+    "js/scene/merge.js": {
+      "sha256": "7634326eaa7ac3706e7834384ffe35a962f6da156c786f251510f25798f683de"
+    },
+    "js/scene/navgrid.js": {
+      "sha256": "05bf18d4781d691d192400c847ee4dc190bada7b7ae8113555312b95e38a344f"
+    },
+    "js/scene/orchestra.js": {
+      "sha256": "4465471bbcea945acf47516fae8d208374ef2ca5eb858eda3e67b1ce61a8c63f"
+    },
+    "js/scene/recital.js": {
+      "sha256": "2fae6c7c3dfed6000a54ed867b6bcf397cc27be40a88ebbf13f9b6f0baa654dc"
+    },
+    "js/scene/sphereplan.js": {
+      "sha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585"
+    },
+    "js/scene/stage.js": {
+      "sha256": "4bd644f2872339ef39e5f557e3b1d845e5fb0c0089770dcf66add0c5f320175a"
+    },
+    "js/scene/venue.js": {
+      "sha256": "6a983fe2fda125922cf3cf00c1bb7943f6efabc2c49c5eedfad70bd43802b150"
+    },
+    "js/tickets.js": {
+      "sha256": "10249e5ec484c330b820b9922a140df9e1d5d6d71725bea218e24dec1bb7f961"
+    },
+    "js/ui.js": {
+      "sha256": "ff0d7dcfdec3a4cf9b7a7f0dbb487fb16d1e58c13469d24a9db787c000630528"
+    },
+    "vendor/three/addons/environments/RoomEnvironment.js": {
+      "sha256": "55f466192cc84298755a424c5e040345006b2ee1455589b3b54126c2ea4123f4"
+    },
+    "vendor/three/addons/geometries/RoundedBoxGeometry.js": {
+      "sha256": "c5feab96123858ed8823c889b238dc8734adab7e760e3cfd21e7f3f2f3e348e3"
+    },
+    "vendor/three/addons/postprocessing/EffectComposer.js": {
+      "sha256": "4e079a5886152d7e529a59aef644e968ab4d32c6a33ce016b36bf29b2eac26f7"
+    },
+    "vendor/three/addons/postprocessing/MaskPass.js": {
+      "sha256": "7cd08eee9d5d6f5578beaddbdcbe9c384f6873810af27f22ab7db3ceeb127aa3"
+    },
+    "vendor/three/addons/postprocessing/OutputPass.js": {
+      "sha256": "02e4a261af34de71338185e9e87f0cbe5cba9115608d984363e1269dec1d2272"
+    },
+    "vendor/three/addons/postprocessing/Pass.js": {
+      "sha256": "444b409c235ead986893c472e720da1b779a56985c7d10b279c7944b52bd61c5"
+    },
+    "vendor/three/addons/postprocessing/RenderPass.js": {
+      "sha256": "817f6c3cdcd0fd41515d112359ea0532568eefb5aabd3b33903957ebca1b8a6a"
+    },
+    "vendor/three/addons/postprocessing/ShaderPass.js": {
+      "sha256": "e2500a5913b26bbf5148ceaae644c6edcff06a18b01494ee37bf856353d2ab9d"
+    },
+    "vendor/three/addons/postprocessing/UnrealBloomPass.js": {
+      "sha256": "ba8f2fcadfa6588384c9473498f974d81d120f02f0e63a0e59c265202a006b5a"
+    },
+    "vendor/three/addons/shaders/CopyShader.js": {
+      "sha256": "a33057d5ac91c43304c186ac0e8816e62bb2ed471d3a00ff3018dfd5c0389718"
+    },
+    "vendor/three/addons/shaders/LuminosityHighPassShader.js": {
+      "sha256": "5044f780b6e6cf863947f64c36fe1587132f7fbe395ada863cd1e5f0388dcf1e"
+    },
+    "vendor/three/addons/shaders/OutputShader.js": {
+      "sha256": "353479f77a8d7e2629d49ccac9fc2f5dbfdda5442e0adf867b00377a2fcb0cb2"
+    },
+    "vendor/three/addons/utils/BufferGeometryUtils.js": {
+      "sha256": "9fb63427ce6641fa14fd0baff9cc4d1b5f9c3d85fd084bf2e90e803c44ec1797"
+    },
+    "vendor/three/three.core.js": {
+      "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+    },
+    "vendor/three/three.module.js": {
+      "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+    }
+  },
+  "conditions": {
+    "venue": "hall",
+    "quality": "high",
+    "device": "desktop",
+    "sceneName": "front",
+    "viewport": [
+      640,
+      360
+    ],
+    "devicePixelRatio": 1,
+    "samplesRequested": 4,
+    "warmupFrames": 4,
+    "frameTimeoutMs": 30000,
+    "queryTimeoutMs": 3000,
+    "pollIntervalMs": 25,
+    "fixture": {
+      "crowd": 1531,
+      "seats": 1885,
+      "eligibleAudienceSeats": 1879,
+      "recitalSeats": 6,
+      "lite": false,
+      "piece": "beethoven-ode-to-joy",
+      "sceneState": {
+        "phase": "playing",
+        "asleep": false,
+        "interval": false,
+        "recital": false,
+        "practice": false,
+        "hush": 0,
+        "sleepy": false,
+        "seatGroupVisible": true,
+        "audienceVisible": true
+      }
+    },
+    "scenario": {
+      "camera": {
+        "position": [
+          0,
+          1.75,
+          5
+        ],
+        "target": [
+          0,
+          2,
+          -7
+        ],
+        "fov": 64
+      },
+      "musicTime": 25,
+      "world": null,
+      "broadcast": false,
+      "effectsPeak": false,
+      "effectsShow": false
+    },
+    "meta": {
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "gpuTimer": true,
+      "pixelRatio": 1,
+      "viewport": [
+        640,
+        360
+      ],
+      "quality": "high",
+      "renderScale": 1,
+      "hardwareConcurrency": 9,
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+    },
+    "support": {
+      "extension": true,
+      "webgl2": true,
+      "counterBits": 64,
+      "probeError": 0,
+      "contextLost": false,
+      "supported": true,
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+      "contextAttributes": {
+        "alpha": true,
+        "antialias": false,
+        "depth": true,
+        "desynchronized": false,
+        "failIfMajorPerformanceCaveat": false,
+        "powerPreference": "high-performance",
+        "premultipliedAlpha": true,
+        "preserveDrawingBuffer": false,
+        "stencil": false,
+        "xrCompatible": false
+      }
+    },
+    "fixturePolicy": {
+      "piece": "beethoven-ode-to-joy",
+      "randomSeed": 417,
+      "uuidSeed": 874,
+      "crowdSeed": 417,
+      "crowdFill": 0.8,
+      "musicClock": "existing fixture: 25 s (broadcast 5 s), advances 1/60 s per step",
+      "audio": "real engine created; note scheduler disabled; synthetic performance clock",
+      "animationDtCapSeconds": 0.016666666666666666,
+      "mainAnimation": "existing fixture step(true), original frame wrapped by one elapsed query",
+      "queryRange": "beginQuery immediately before original frame(); endQuery in finally immediately after it; readPixels is outside the query",
+      "completion": "existing fixture completeMs includes frame, query instrumentation overhead and 1x1 readPixels completion wait",
+      "polling": "one query at a time; Node timer yields between short page evaluations; no browser busy-wait or extra render steps",
+      "invalidation": "no retry or selective sample removal; any unsupported, disjoint, invalid or timed-out query makes the entire GPU summary SKIP"
+    },
+    "environment": {
+      "browserVersion": "153.0.8010.0",
+      "playwrightVersion": "1.64.1",
+      "platform": "linux",
+      "architecture": "x64",
+      "softwareRequested": true,
+      "chromeArgs": [
+        "--ash-no-nudges",
+        "--disable-domain-reliability",
+        "--disable-print-preview",
+        "--disk-cache-size=33554432",
+        "--no-default-browser-check",
+        "--no-pings",
+        "--font-render-hinting=none",
+        "--disable-features=IsolateOrigins,site-per-process",
+        "--enable-features=SharedArrayBuffer",
+        "--ignore-gpu-blocklist",
+        "--allow-running-insecure-content",
+        "--disable-setuid-sandbox",
+        "--disable-site-isolation-trials",
+        "--disable-web-security",
+        "--headless='shell'",
+        "--no-sandbox",
+        "--no-zygote",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader"
+      ],
+      "fontMode": "local",
+      "headless": true
+    },
+    "fixtureSourceSha256": "ba197fc2117d8af462146b3c833c9e0b8c0a4fa8c19fa3cdf3037bb32c2d325d",
+    "instrumentationSourceSha256": "42a595a5cded9f8ea8ab5c9195bf243ec6c87a83051d648a4ce63bba089ab785",
+    "collectorSourceSha256": "cb9228baee7ccc4d08140fb6b743dbb61ee7249209c912bb3bac45e4238aaf53",
+    "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9"
+  },
+  "conditionsFingerprintSha256": "1f49238651b67703c848c536461d4f34e5b4053b5a1cca72d3aedc279788c400",
+  "sourceHashesAfter": {
+    "js/boot.js": {
+      "sha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4"
+    },
+    "js/main.js": {
+      "sha256": "a0d096e176f391537439c30aa4edd89fcace95fc542803a7dc1ea8a7790efaed"
+    },
+    "js/quality.js": {
+      "sha256": "c3f9ec2793c5799a02662099039b9c171df20a0943bd1bde3ecbcdd1b812f959"
+    },
+    "js/scene/hall.js": {
+      "sha256": "8e2831fcca6a7edba9250b4e42d2fa88a63fe0d92d2dde2e4ce1c92b0ddf2150"
+    },
+    "js/scene/seats.js": {
+      "sha256": "c5dc9616f0e127c2ff98e6707496c92cb2798af6c2364cae2df1bd5c00ecab27"
+    },
+    "js/scene/audience.js": {
+      "sha256": "d54764015ae562570f5ab0ed82a1830eb8efcbb98a0d06ed3dc5127241e9f505"
+    },
+    "js/scene/screen.js": {
+      "sha256": "013fad18f30aba991063976b5c33d402182ac25cf61ad5d92112205029bf41df"
+    },
+    "js/scene/sphere.js": {
+      "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc"
+    },
+    "js/scene/dome3d.js": {
+      "sha256": "832f368158c44589a857183879771e55f90d234a600c9fafcd6b935e327c91c0"
+    },
+    "js/scene/domeshow.js": {
+      "sha256": "54ed6d88ff4c91bf802ba5affccdde96a09b6e512f20087131224108af8dbcbd"
+    },
+    "js/audio/engine.js": {
+      "sha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a"
+    },
+    "js/audio/performance.js": {
+      "sha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13"
+    },
+    "js/audio/crowd-loader.js": {
+      "sha256": "d7bfde3a5c3d63c752ae3b3625ee7f596732a757da1bb75f06069bb8ef8eb4c0"
+    },
+    "js/audio/crowd-worker.js": {
+      "sha256": "3da0d399f5ece9c835ba457d14c26483f2ad85e055bad51b419635e89888a02b"
+    },
+    "js/audio/crowd.js": {
+      "sha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f"
+    },
+    "js/evening.js": {
+      "sha256": "0d54c854723679cb3dc9d97e116c7158328ff0553a5ead8609d211f4811e831b"
+    },
+    "js/joystick.js": {
+      "sha256": "3e4eadc3780e63b6b73f42b6cb90b45f33d1062f2ee0d1f89cda77514f88c0f8"
+    },
+    "js/layout.js": {
+      "sha256": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6"
+    },
+    "js/net/room.js": {
+      "sha256": "e915652566cf2c11b824ac156e4ac1f2ff0dfe4f1389c68654d1c117a3063ef5"
+    },
+    "js/programs.js": {
+      "sha256": "41841384eb68664a57a1af72d60dd7453099c19b5da7ed8a8d59721f37804db2"
+    },
+    "js/scene/avatars.js": {
+      "sha256": "3a2f3975402964ed151b6a81be3dc4f9b13f7673d5f39d581c2b7f444954da1d"
+    },
+    "js/scene/characters.js": {
+      "sha256": "331ade6a43aee760b6f18ed8478bc698e35386d9180fcff140d54567e4f1b0ce"
+    },
+    "js/scene/director.js": {
+      "sha256": "20ced19ffca9bac94e11b533ff18ea93b8417ab61cb0964e863da91a69bb3a8d"
+    },
+    "js/scene/effects.js": {
+      "sha256": "6aab7f577a826fce3f0a589851ab2a62edb00def08d2fd5485d92f91905244bf"
+    },
+    "js/scene/foyer.js": {
+      "sha256": "2b28cfc6f46fa05a9168d587c85e8691c2c7b16ea735185b08f5cd46d6aea56e"
+    },
+    "js/scene/fx.js": {
+      "sha256": "563990312786780a15d9b1f050465daa5533ac85133569c458d8c24afe0f6ee2"
+    },
+    "js/scene/geometry.js": {
+      "sha256": "28fc26938e8e2f4c9f64113dc018177c2694adadd8efc3dae8091a9e78e0a25e"
+    },
+    "js/scene/hallplan.js": {
+      "sha256": "a9f13dcfe5bc1bd90ff4fad97246f0a5a2c5a0aaec8d66eaff8924fc1ad618ae"
+    },
+    "js/scene/instance-batches.js": {
+      "sha256": "09d81ddfc1a10dd34a5f44e053da2cb00678038403d42720f1e4aa2942923e01"
+    },
+    "js/scene/instruments.js": {
+      "sha256": "e7aee816a225f6b0b7143c7cc30f870dc764ebbac63b15873d80592a77cbc2bc"
+    },
+    "js/scene/lobby.js": {
+      "sha256": "207b3409cf76cd43e82c6b04b205ee364a3185b114dfc67f03a42b867bdcfa70"
+    },
+    "js/scene/materials.js": {
+      "sha256": "410e95a192304247ff34e52ec9874242bed577f0f37b1508423372fee17882c6"
+    },
+    "js/scene/merge.js": {
+      "sha256": "7634326eaa7ac3706e7834384ffe35a962f6da156c786f251510f25798f683de"
+    },
+    "js/scene/navgrid.js": {
+      "sha256": "05bf18d4781d691d192400c847ee4dc190bada7b7ae8113555312b95e38a344f"
+    },
+    "js/scene/orchestra.js": {
+      "sha256": "4465471bbcea945acf47516fae8d208374ef2ca5eb858eda3e67b1ce61a8c63f"
+    },
+    "js/scene/recital.js": {
+      "sha256": "2fae6c7c3dfed6000a54ed867b6bcf397cc27be40a88ebbf13f9b6f0baa654dc"
+    },
+    "js/scene/sphereplan.js": {
+      "sha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585"
+    },
+    "js/scene/stage.js": {
+      "sha256": "4bd644f2872339ef39e5f557e3b1d845e5fb0c0089770dcf66add0c5f320175a"
+    },
+    "js/scene/venue.js": {
+      "sha256": "6a983fe2fda125922cf3cf00c1bb7943f6efabc2c49c5eedfad70bd43802b150"
+    },
+    "js/tickets.js": {
+      "sha256": "10249e5ec484c330b820b9922a140df9e1d5d6d71725bea218e24dec1bb7f961"
+    },
+    "js/ui.js": {
+      "sha256": "ff0d7dcfdec3a4cf9b7a7f0dbb487fb16d1e58c13469d24a9db787c000630528"
+    },
+    "vendor/three/addons/environments/RoomEnvironment.js": {
+      "sha256": "55f466192cc84298755a424c5e040345006b2ee1455589b3b54126c2ea4123f4"
+    },
+    "vendor/three/addons/geometries/RoundedBoxGeometry.js": {
+      "sha256": "c5feab96123858ed8823c889b238dc8734adab7e760e3cfd21e7f3f2f3e348e3"
+    },
+    "vendor/three/addons/postprocessing/EffectComposer.js": {
+      "sha256": "4e079a5886152d7e529a59aef644e968ab4d32c6a33ce016b36bf29b2eac26f7"
+    },
+    "vendor/three/addons/postprocessing/MaskPass.js": {
+      "sha256": "7cd08eee9d5d6f5578beaddbdcbe9c384f6873810af27f22ab7db3ceeb127aa3"
+    },
+    "vendor/three/addons/postprocessing/OutputPass.js": {
+      "sha256": "02e4a261af34de71338185e9e87f0cbe5cba9115608d984363e1269dec1d2272"
+    },
+    "vendor/three/addons/postprocessing/Pass.js": {
+      "sha256": "444b409c235ead986893c472e720da1b779a56985c7d10b279c7944b52bd61c5"
+    },
+    "vendor/three/addons/postprocessing/RenderPass.js": {
+      "sha256": "817f6c3cdcd0fd41515d112359ea0532568eefb5aabd3b33903957ebca1b8a6a"
+    },
+    "vendor/three/addons/postprocessing/ShaderPass.js": {
+      "sha256": "e2500a5913b26bbf5148ceaae644c6edcff06a18b01494ee37bf856353d2ab9d"
+    },
+    "vendor/three/addons/postprocessing/UnrealBloomPass.js": {
+      "sha256": "ba8f2fcadfa6588384c9473498f974d81d120f02f0e63a0e59c265202a006b5a"
+    },
+    "vendor/three/addons/shaders/CopyShader.js": {
+      "sha256": "a33057d5ac91c43304c186ac0e8816e62bb2ed471d3a00ff3018dfd5c0389718"
+    },
+    "vendor/three/addons/shaders/LuminosityHighPassShader.js": {
+      "sha256": "5044f780b6e6cf863947f64c36fe1587132f7fbe395ada863cd1e5f0388dcf1e"
+    },
+    "vendor/three/addons/shaders/OutputShader.js": {
+      "sha256": "353479f77a8d7e2629d49ccac9fc2f5dbfdda5442e0adf867b00377a2fcb0cb2"
+    },
+    "vendor/three/addons/utils/BufferGeometryUtils.js": {
+      "sha256": "9fb63427ce6641fa14fd0baff9cc4d1b5f9c3d85fd084bf2e90e803c44ec1797"
+    },
+    "vendor/three/three.core.js": {
+      "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+    },
+    "vendor/three/three.module.js": {
+      "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+    }
+  },
+  "sourceFingerprintSha256": "85d99c26d2d7cb39408c2b2c7cab75acd60d0266215630acaac856f33022988c",
+  "memory": {
+    "mainSceneGeometryArrayBufferBytes": 21962730,
+    "uniqueGeometries": 1427,
+    "uniqueArrayBuffers": 5692,
+    "attributesWithoutArray": 0,
+    "performanceMemory": {
+      "usedJSHeapSize": 386000000,
+      "totalJSHeapSize": 435000000,
+      "jsHeapSizeLimit": 3760000000
+    },
+    "browserNow": 34447.300000000745,
+    "interpretation": "Reachable main-scene geometry attribute/index/morph backing ArrayBuffers, including hidden objects; shared buffers counted once and full buffer.byteLength counted even for a view. JS storage structure estimate, not committed RAM, GPU memory, VRAM, or whole JS heap.",
+    "excluded": [
+      "separate cubemap/world scenes",
+      "geometry caches not attached to the main scene",
+      "object-owned instanceMatrix/instanceColor",
+      "textures and render targets",
+      "audio buffers",
+      "other JS objects and driver copies"
+    ],
+    "cdpJSHeapUsedSize": 23886596,
+    "cdpJSHeapTotalSize": 28712960,
+    "heapInterpretation": "performance.memory and CDP JSHeapUsedSize are separate API observations with different accounting behavior; do not add them together or infer the cause of their difference from these numbers alone. Geometry ArrayBuffer bytes are a partial structural estimate, not a replacement for either heap reading."
+  },
+  "cdpMetricsAfter": [
+    {
+      "name": "Timestamp",
+      "value": 29038.766488
+    },
+    {
+      "name": "AudioHandlers",
+      "value": 90
+    },
+    {
+      "name": "AudioWorkletProcessors",
+      "value": 0
+    },
+    {
+      "name": "Documents",
+      "value": 1
+    },
+    {
+      "name": "Frames",
+      "value": 1
+    },
+    {
+      "name": "JSEventListeners",
+      "value": 165
+    },
+    {
+      "name": "LayoutObjects",
+      "value": 5
+    },
+    {
+      "name": "MediaKeySessions",
+      "value": 0
+    },
+    {
+      "name": "MediaKeys",
+      "value": 0
+    },
+    {
+      "name": "Nodes",
+      "value": 1237
+    },
+    {
+      "name": "Resources",
+      "value": 960
+    },
+    {
+      "name": "ContextLifecycleStateObservers",
+      "value": 5
+    },
+    {
+      "name": "V8PerContextDatas",
+      "value": 2
+    },
+    {
+      "name": "WorkerGlobalScopes",
+      "value": 1
+    },
+    {
+      "name": "UACSSResources",
+      "value": 0
+    },
+    {
+      "name": "RTCPeerConnections",
+      "value": 0
+    },
+    {
+      "name": "ResourceFetchers",
+      "value": 2
+    },
+    {
+      "name": "AdSubframes",
+      "value": 0
+    },
+    {
+      "name": "DetachedScriptStates",
+      "value": 0
+    },
+    {
+      "name": "ArrayBufferContents",
+      "value": 6552
+    },
+    {
+      "name": "LayoutCount",
+      "value": 287
+    },
+    {
+      "name": "RecalcStyleCount",
+      "value": 300
+    },
+    {
+      "name": "LayoutDuration",
+      "value": 0.136205
+    },
+    {
+      "name": "RecalcStyleDuration",
+      "value": 0.058736
+    },
+    {
+      "name": "DevToolsCommandDuration",
+      "value": 20.655236
+    },
+    {
+      "name": "ScriptDuration",
+      "value": 1.225996
+    },
+    {
+      "name": "V8CompileDuration",
+      "value": 0.000067
+    },
+    {
+      "name": "TaskDuration",
+      "value": 32.821257
+    },
+    {
+      "name": "TaskOtherDuration",
+      "value": 10.745017
+    },
+    {
+      "name": "ThreadTime",
+      "value": 3.843532
+    },
+    {
+      "name": "ProcessTime",
+      "value": 16.35
+    },
+    {
+      "name": "JSHeapUsedSize",
+      "value": 23886596
+    },
+    {
+      "name": "JSHeapTotalSize",
+      "value": 28712960
+    },
+    {
+      "name": "FirstMeaningfulPaint",
+      "value": 29013.775758
+    },
+    {
+      "name": "DomContentLoaded",
+      "value": 29004.347188
+    },
+    {
+      "name": "NavigationStart",
+      "value": 29004.312513
+    }
+  ],
+  "cleanup": {
+    "created": 4,
+    "deleted": 4,
+    "outstanding": false,
+    "active": false,
+    "contextLost": false,
+    "glError": 0
+  }
+}

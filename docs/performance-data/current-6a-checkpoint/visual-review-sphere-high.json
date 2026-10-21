@@ -1,0 +1,306 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "sphere_review",
+  "inspectionStatus": "completed",
+  "inspectedAtUtc": "2026-10-21T09:37:44.992215+00:00",
+  "scope": "최신 6a 비교 자료의 Sphere high desktop sync 중 지정된 7개 장면 PNG 전후 7쌍을 육안으로 검토",
+  "method": {
+    "imageTool": "view_image",
+    "detail": "original",
+    "imageResolution": [
+      640,
+      360
+    ],
+    "sourceImagesInspected": 14,
+    "sourceImagesModified": false,
+    "imageTransformations": false,
+    "ssimOrPixelMetricsComputed": false,
+    "browserExecuted": false,
+    "rawJsonValidationRerun": false,
+    "sourceIntegrityMethod": "Python 표준 라이브러리로 PNG 헤더 크기, 원본 바이트 수와 SHA256만 읽음"
+  },
+  "provenance": {
+    "sourceDirectory": "/workspace/scratch/296fafc0af7f/verification/current/render",
+    "versions": [
+      "baseline-a",
+      "candidate-a"
+    ],
+    "sourceFiles": [
+      {
+        "scenario": "front",
+        "version": "baseline-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/baseline-a-full-sphere-high-desktop-sync-front.png",
+        "bytes": 100491,
+        "sha256": "a6ad618e342492eabf286ed44d9750a0bdb08c02b573b4b23533f1e15e95acbb",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "front",
+        "version": "candidate-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/candidate-a-full-sphere-high-desktop-sync-front.png",
+        "bytes": 100491,
+        "sha256": "a6ad618e342492eabf286ed44d9750a0bdb08c02b573b4b23533f1e15e95acbb",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "dome",
+        "version": "baseline-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/baseline-a-full-sphere-high-desktop-sync-dome.png",
+        "bytes": 188851,
+        "sha256": "f032de3a9c2ff7346b29535aa0e3380c79f257105d6ac38c8a0ee171c77247f3",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "dome",
+        "version": "candidate-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/candidate-a-full-sphere-high-desktop-sync-dome.png",
+        "bytes": 188851,
+        "sha256": "f032de3a9c2ff7346b29535aa0e3380c79f257105d6ac38c8a0ee171c77247f3",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "forest",
+        "version": "baseline-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/baseline-a-full-sphere-high-desktop-sync-forest.png",
+        "bytes": 241036,
+        "sha256": "7e9d9be90f3711497d248a844a096478f55f65fc9bd802aebcde0c9121eab5d3",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "forest",
+        "version": "candidate-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/candidate-a-full-sphere-high-desktop-sync-forest.png",
+        "bytes": 241174,
+        "sha256": "c237a0aba8c5349b94cead460d76d9ea0ee162e4486e5068642258954e907ec1",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "ocean",
+        "version": "baseline-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/baseline-a-full-sphere-high-desktop-sync-ocean.png",
+        "bytes": 254726,
+        "sha256": "97ba093b4f91a8fb3d257480b62c120bfea587965661d3eec7195121865d4baf",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "ocean",
+        "version": "candidate-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/candidate-a-full-sphere-high-desktop-sync-ocean.png",
+        "bytes": 254694,
+        "sha256": "f6633d483f9dba3099ae02491debddf6c66a84f880331c71b3a559fa2ad1ea5b",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "crossfade",
+        "version": "baseline-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/baseline-a-full-sphere-high-desktop-sync-crossfade.png",
+        "bytes": 300968,
+        "sha256": "c480de54b63163b0e03608d80bc4797729c839359b4152d37d5aed69793f5ec7",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "crossfade",
+        "version": "candidate-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/candidate-a-full-sphere-high-desktop-sync-crossfade.png",
+        "bytes": 301151,
+        "sha256": "28a4aeb515a0efc9fde245fa07cbc8a5642316ca89ef77b8f1fed7a6706b7dc7",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "broadcast",
+        "version": "baseline-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/baseline-a-full-sphere-high-desktop-sync-broadcast.png",
+        "bytes": 220290,
+        "sha256": "0ef57c431761b932e1600e9b7fcba5f94016ebdd4c060ea1b5d8927a4d6bb225",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "broadcast",
+        "version": "candidate-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/candidate-a-full-sphere-high-desktop-sync-broadcast.png",
+        "bytes": 220290,
+        "sha256": "0ef57c431761b932e1600e9b7fcba5f94016ebdd4c060ea1b5d8927a4d6bb225",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "effects-show",
+        "version": "baseline-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/baseline-a-full-sphere-high-desktop-sync-effects-show.png",
+        "bytes": 203541,
+        "sha256": "448862cfbd0b779cd90142a1e60c65b42425584bea57c137387daa843a8d9854",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      },
+      {
+        "scenario": "effects-show",
+        "version": "candidate-a",
+        "path": "/workspace/scratch/296fafc0af7f/verification/current/render/candidate-a-full-sphere-high-desktop-sync-effects-show.png",
+        "bytes": 203541,
+        "sha256": "448862cfbd0b779cd90142a1e60c65b42425584bea57c137387daa843a8d9854",
+        "width": 640,
+        "height": 360,
+        "openedWithViewImage": true
+      }
+    ]
+  },
+  "observations": [
+    {
+      "scenario": "front",
+      "visualAssessment": "뚜렷한 시각 회귀 없음",
+      "observed": [
+        "전면 무대의 동물 연주자, 중앙 지휘자, 악기와 받침대가 같은 구도로 보여.",
+        "어두운 무대 계단과 밝은 가장자리, 뒤 돔의 따뜻한 세로 빛줄기·작은 발광 입자가 유지돼."
+      ],
+      "immersionAssessment": "무대 크기와 뒤편 돔의 곡면 인상에서 큰 손실은 보이지 않아.",
+      "uncertainty": [
+        "멀리 작게 보이는 손가락·활·개별 악기 표면의 디테일과 동작 정확성은 이 해상도에서 확정할 수 없어."
+      ],
+      "sourcePngSha256Equal": true
+    },
+    {
+      "scenario": "dome",
+      "visualAssessment": "뚜렷한 시각 회귀 없음",
+      "observed": [
+        "보라색 하늘과 청록색 오로라 띠, 방사형 빛줄기, 점 형태의 별이 같은 구도로 보여.",
+        "보이는 돔을 넓게 채우는 연출이 유지되며 큰 빈 영역이나 눈에 띄는 이음새는 보이지 않아."
+      ],
+      "immersionAssessment": "화면을 가득 채우는 오로라 연출과 곡면을 따라 퍼지는 빛의 인상이 유지돼.",
+      "uncertainty": [
+        "정지 이미지 한 장으로 오로라 애니메이션의 부드러움이나 시점 회전 중 이음새를 판단할 수 없어."
+      ],
+      "sourcePngSha256Equal": true
+    },
+    {
+      "scenario": "forest",
+      "visualAssessment": "원본 PNG 파일은 다르지만 640×360 육안에서 뚜렷한 품질 손실이나 특정한 구조 차이를 식별하지 못함",
+      "observed": [
+        "앞쪽의 굵은 녹색 줄기부터 멀리 가늘어지는 줄기와 밝은 소실점까지 숲의 원근 구성이 유지돼.",
+        "숲 바닥의 명암과 돔 하단 경계, 그 아래 넓은 객석·관객·무대에서 큰 누락은 보이지 않아.",
+        "보이는 세계 영역에서 검은 큐브맵 면이나 큰 투영 이음새는 관찰되지 않아."
+      ],
+      "immersionAssessment": "거대한 줄기와 깊이 이어지는 숲의 원근감이 정지 화면에서 유지돼.",
+      "uncertainty": [
+        "SHA256이 달라 픽셀 완전 동일로 평가하지 않아.",
+        "수치 차분이나 확대를 하지 않아 미세한 윤곽·보간·음영 차이는 판별하지 못했어.",
+        "카메라를 움직일 때의 시차, 큐브맵 면 갱신, 월드 애니메이션은 확인하지 않았어."
+      ],
+      "sourcePngSha256Equal": false
+    },
+    {
+      "scenario": "ocean",
+      "visualAssessment": "원본 PNG 파일은 다르지만 640×360 육안에서 뚜렷한 품질 손실이나 특정한 구조 차이를 식별하지 못함",
+      "observed": [
+        "푸른 해저 배경, 앞뒤로 겹친 긴 수초, 굴곡과 빛 무늬가 있는 해저 바닥이 유지돼.",
+        "돔 아래 객석의 동심원 형태, 관객과 중앙 무대에서 큰 누락은 보이지 않아.",
+        "보이는 세계 영역에서 검은 큐브맵 면이나 큰 투영 이음새는 관찰되지 않아."
+      ],
+      "immersionAssessment": "수초의 크기·겹침과 바닥의 원근이 만드는 공간감이 정지 화면에서 유지돼.",
+      "uncertainty": [
+        "SHA256이 달라 픽셀 완전 동일로 평가하지 않아.",
+        "작은 수초 윤곽·바닥 명암의 차이와 애니메이션 상태는 이 육안 검사로 확정할 수 없어."
+      ],
+      "sourcePngSha256Equal": false
+    },
+    {
+      "scenario": "crossfade",
+      "visualAssessment": "원본 PNG 파일은 다르지만 640×360 육안에서 큰 구조 누락이나 전환 경계의 뚜렷한 파손을 식별하지 못함",
+      "observed": [
+        "세로로 뻗은 숲 줄기와 밝고 거친 산악 지형, 위쪽 청록색 띠가 겹치는 전환 장면이 양 버전 모두 보여.",
+        "전환 영역을 크게 가리는 검은 사각형, 한쪽 세계 전체의 소실 또는 뚜렷한 큐브 면 경계는 보이지 않아.",
+        "아래 객석·관객·중앙 무대의 큰 구성이 유지돼."
+      ],
+      "immersionAssessment": "두 세계가 함께 보이는 전환의 규모감은 정지 화면에서 유지돼.",
+      "uncertainty": [
+        "SHA256이 달라 픽셀 완전 동일로 평가하지 않아.",
+        "단일 전환 시점만 보았으므로 전체 크로스페이드의 시간 연속성, 면별 갱신 지연, 순간적인 깜빡임은 판단할 수 없어.",
+        "미세한 산 능선과 음영 차이를 수치화하지 않았어."
+      ],
+      "sourcePngSha256Equal": false
+    },
+    {
+      "scenario": "broadcast",
+      "visualAssessment": "뚜렷한 시각 회귀 없음; 원본 PNG 동일성으로 전후 차이 없음 확인",
+      "observed": [
+        "따뜻한 빛줄기가 있는 돔의 상단 중계 화면, 전체 객석과 관객, 중앙 무대가 유지돼.",
+        "중계 화면 안에 전경 인물과 관객이 채워진 객석, 작은 제목 자막이 보여.",
+        "검은 중계 화면이나 큰 객석 누락은 보이지 않아."
+      ],
+      "immersionAssessment": "돔 위 중계와 넓은 원형 객석·무대의 관계가 유지돼.",
+      "uncertainty": [
+        "중계 화면의 일부가 이미지 상단으로 잘려 있어 영상 전체를 검토한 것은 아니야.",
+        "작은 자막 내용·개별 좌석 점유·미세한 연주 포즈와 중계 프레임의 신선도는 정지 이미지로 확정할 수 없어."
+      ],
+      "sourcePngSha256Equal": true
+    },
+    {
+      "scenario": "effects-show",
+      "visualAssessment": "뚜렷한 시각 회귀 없음",
+      "observed": [
+        "무대 위 트러스와 여러 조명 빔, 색색의 폭죽, 무대 양옆 입자 효과가 유지돼.",
+        "돔의 따뜻한 세로 빛줄기, 넓은 객석·관객과 중앙 오케스트라가 유지돼.",
+        "큰 효과 누락이나 새로운 검은 영역은 보이지 않아."
+      ],
+      "immersionAssessment": "돔과 무대를 함께 채우는 조명 및 폭죽의 규모감이 정지 화면에서 유지돼.",
+      "uncertainty": [
+        "입자의 수명, 폭죽 타이밍, 광원의 동작과 프레임 안정성은 정지 이미지로 검증하지 못했어."
+      ],
+      "sourcePngSha256Equal": true
+    }
+  ],
+  "overall": {
+    "grossDetailLossObserved": false,
+    "obviousBlackCubeFaceObserved": false,
+    "sourcePngIdenticalPairs": [
+      "front",
+      "dome",
+      "broadcast",
+      "effects-show"
+    ],
+    "sourcePngDifferentPairs": [
+      "forest",
+      "ocean",
+      "crossfade"
+    ],
+    "specificLocalizedVisualDifferenceEstablished": false,
+    "conclusion": "지정 7쌍의 640×360 육안 검사에서 돔 연출·세계의 원근 구성·객석·중계·효과의 큰 손실을 발견하지 못했어. front·dome·broadcast·effects-show는 원본 PNG가 동일하고, forest·ocean·crossfade는 파일이 달라 완전 동일로 평가하지 않아.",
+    "requiresFurtherEvidence": [
+      "forest·ocean·crossfade의 픽셀 차이 크기와 영역",
+      "시점 회전 및 이동 중 큐브맵의 면 갱신과 이음새",
+      "세계 전환 전체 구간의 연속성과 순간적인 깜빡임",
+      "실제 고해상도 화면과 실기기에서의 체감 공간감",
+      "중계 프레임 갱신 타이밍과 연주·음악 동기화"
+    ]
+  },
+  "limits": [
+    "640×360 고정 시점의 7개 장면만 원본 해상도로 열었어. 별도 확대·자르기·변환은 하지 않았어.",
+    "큰 구조·색감·원근 표현의 육안 보존을 검토했으며, 몰입감을 정량 측정하거나 실제 VR·스마트폰·PC 고해상도 환경에서 검증한 결과는 아니야.",
+    "정지 이미지는 큐브맵 시간적 재사용의 품질, 빠른 카메라 이동, 전환의 연속성, 화면 지연, 애니메이션과 오디오 동기화를 검증하지 못해.",
+    "파일 SHA256 동등성은 원본 PNG 자체의 동일성을 뜻해. SHA가 다른 세계 장면의 SSIM·MAE·픽셀 차이는 계산하지 않았으므로 수치적으로 같은 품질이라고 주장하지 않아.",
+    "이 파일은 시각 검토 메모이며 FPS·GPU 시간·메모리·브라우저 기능 검증 결과를 추가로 생성하지 않았어."
+  ]
+}

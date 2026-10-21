@@ -1,0 +1,197 @@
+{
+  "measuredAt": "2026-10-21T10:08:04.742Z",
+  "origin": "http://127.0.0.1:18081",
+  "label": "candidate-6a",
+  "revision": "06c8ac5e6956b3b337102b342fbd4e422b43baf9",
+  "browserVersion": "153.0.8010.0",
+  "method": "Real Chromium dedicated module Worker and real OfflineAudioContext AudioBuffers. The production engine/loader/worker/synthesizer are imported unchanged from the local server. Each PCM channel is hashed and compared with the original synchronous synthesizer in the same browser. A second page blocks workers through Content-Security-Policy to exercise real fallback. No GPU workload, app boot, actual speaker output or device audio timing is measured. Durations are single-run diagnostic observations, not performance claims.",
+  "cases": [
+    {
+      "blocked": false,
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+      "samePromise": true,
+      "immediateBufferCount": 0,
+      "preparedBufferCount": 4,
+      "prepareCallMs": 0.30000000074505806,
+      "readyMs": 330.9000000022352,
+      "heartbeatCount": 87,
+      "originalSyncMs": 293,
+      "workers": [
+        {
+          "url": "http://127.0.0.1:18081/js/audio/crowd-worker.js",
+          "options": {
+            "type": "module"
+          },
+          "messages": 4,
+          "errors": 0,
+          "terminated": true
+        }
+      ],
+      "comparisons": [
+        {
+          "profile": "welcome",
+          "length": 242550,
+          "sampleRate": 44100,
+          "channels": 2,
+          "bytes": 1940400,
+          "actualHashes": [
+            "8a15ce04c94e00804fc77951ac3154192808908748cc7c5ceba53e3454f17f1d",
+            "2c461da980ce0de0a0d23ab79c68ae0ab1aa7d715e1364e70e594d29abd0c397"
+          ],
+          "expectedHashes": [
+            "8a15ce04c94e00804fc77951ac3154192808908748cc7c5ceba53e3454f17f1d",
+            "2c461da980ce0de0a0d23ab79c68ae0ab1aa7d715e1364e70e594d29abd0c397"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "normal0",
+          "length": 441000,
+          "sampleRate": 44100,
+          "channels": 2,
+          "bytes": 3528000,
+          "actualHashes": [
+            "5f4df9677442023828c2b6b55298e7529e750d2b3a5a5b1e14b016458ae05fd4",
+            "804ac3e18223117adbe6098675107a21ff897f59331846974cd3390cc64dd63c"
+          ],
+          "expectedHashes": [
+            "5f4df9677442023828c2b6b55298e7529e750d2b3a5a5b1e14b016458ae05fd4",
+            "804ac3e18223117adbe6098675107a21ff897f59331846974cd3390cc64dd63c"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "normal1",
+          "length": 441000,
+          "sampleRate": 44100,
+          "channels": 2,
+          "bytes": 3528000,
+          "actualHashes": [
+            "ea809a6d87d41e1b01a6b7262668705b32085825bb3437b97b80586a695dd08d",
+            "2f6ec52f582a73df907df86b82a6823897d0ddfba864abc1aecc5e360470a370"
+          ],
+          "expectedHashes": [
+            "ea809a6d87d41e1b01a6b7262668705b32085825bb3437b97b80586a695dd08d",
+            "2f6ec52f582a73df907df86b82a6823897d0ddfba864abc1aecc5e360470a370"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "finale",
+          "length": 661500,
+          "sampleRate": 44100,
+          "channels": 2,
+          "bytes": 5292000,
+          "actualHashes": [
+            "81db52601d500e2e68e2bc649324d8feea740f77ec6c72d8fb80590b0df5c303",
+            "1195e14a72d3c029cd844d19d876f822c10853814fdfcb8b517a546e7784ba86"
+          ],
+          "expectedHashes": [
+            "81db52601d500e2e68e2bc649324d8feea740f77ec6c72d8fb80590b0df5c303",
+            "1195e14a72d3c029cd844d19d876f822c10853814fdfcb8b517a546e7784ba86"
+          ],
+          "equal": true
+        }
+      ],
+      "outputBytes": 14288400,
+      "synchronousPlayback": true,
+      "pageErrors": [],
+      "consoleErrors": []
+    },
+    {
+      "blocked": true,
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36",
+      "samePromise": true,
+      "immediateBufferCount": 0,
+      "preparedBufferCount": 4,
+      "prepareCallMs": 0.6000000014901161,
+      "readyMs": 321.6000000014901,
+      "heartbeatCount": 1,
+      "originalSyncMs": 199.59999999776483,
+      "workers": [
+        {
+          "url": "http://127.0.0.1:18081/js/audio/crowd-worker.js",
+          "options": {
+            "type": "module"
+          },
+          "messages": 0,
+          "errors": 1,
+          "terminated": true
+        }
+      ],
+      "comparisons": [
+        {
+          "profile": "welcome",
+          "length": 242550,
+          "sampleRate": 44100,
+          "channels": 2,
+          "bytes": 1940400,
+          "actualHashes": [
+            "8a15ce04c94e00804fc77951ac3154192808908748cc7c5ceba53e3454f17f1d",
+            "2c461da980ce0de0a0d23ab79c68ae0ab1aa7d715e1364e70e594d29abd0c397"
+          ],
+          "expectedHashes": [
+            "8a15ce04c94e00804fc77951ac3154192808908748cc7c5ceba53e3454f17f1d",
+            "2c461da980ce0de0a0d23ab79c68ae0ab1aa7d715e1364e70e594d29abd0c397"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "normal0",
+          "length": 441000,
+          "sampleRate": 44100,
+          "channels": 2,
+          "bytes": 3528000,
+          "actualHashes": [
+            "5f4df9677442023828c2b6b55298e7529e750d2b3a5a5b1e14b016458ae05fd4",
+            "804ac3e18223117adbe6098675107a21ff897f59331846974cd3390cc64dd63c"
+          ],
+          "expectedHashes": [
+            "5f4df9677442023828c2b6b55298e7529e750d2b3a5a5b1e14b016458ae05fd4",
+            "804ac3e18223117adbe6098675107a21ff897f59331846974cd3390cc64dd63c"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "normal1",
+          "length": 441000,
+          "sampleRate": 44100,
+          "channels": 2,
+          "bytes": 3528000,
+          "actualHashes": [
+            "ea809a6d87d41e1b01a6b7262668705b32085825bb3437b97b80586a695dd08d",
+            "2f6ec52f582a73df907df86b82a6823897d0ddfba864abc1aecc5e360470a370"
+          ],
+          "expectedHashes": [
+            "ea809a6d87d41e1b01a6b7262668705b32085825bb3437b97b80586a695dd08d",
+            "2f6ec52f582a73df907df86b82a6823897d0ddfba864abc1aecc5e360470a370"
+          ],
+          "equal": true
+        },
+        {
+          "profile": "finale",
+          "length": 661500,
+          "sampleRate": 44100,
+          "channels": 2,
+          "bytes": 5292000,
+          "actualHashes": [
+            "81db52601d500e2e68e2bc649324d8feea740f77ec6c72d8fb80590b0df5c303",
+            "1195e14a72d3c029cd844d19d876f822c10853814fdfcb8b517a546e7784ba86"
+          ],
+          "expectedHashes": [
+            "81db52601d500e2e68e2bc649324d8feea740f77ec6c72d8fb80590b0df5c303",
+            "1195e14a72d3c029cd844d19d876f822c10853814fdfcb8b517a546e7784ba86"
+          ],
+          "equal": true
+        }
+      ],
+      "outputBytes": 14288400,
+      "synchronousPlayback": true,
+      "pageErrors": [],
+      "consoleErrors": [
+        "Creating a worker from 'http://127.0.0.1:18081/js/audio/crowd-worker.js' violates the following Content Security Policy directive: \"worker-src 'none'\". The action has been blocked."
+      ]
+    }
+  ],
+  "passed": true
+}

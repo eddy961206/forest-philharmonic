@@ -1,0 +1,39 @@
+{
+  "index": 0,
+  "job": {
+    "id": "baseline-gpu-recheck-sphere-high-desktop-forest",
+    "script": "tools/bench/gpu-timer.mjs",
+    "args": [
+      "baseline-gpu-recheck",
+      "sphere",
+      "high",
+      "desktop",
+      "forest"
+    ],
+    "directory": "gpu",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18080/",
+      "REVISION": "6a59c33ced4fbbe237b38eb5a4c63e38636bf07f",
+      "SAMPLES": "4",
+      "WARMUP": "4",
+      "SCREENSHOTS": "1",
+      "TIMEOUT_MS": "180000"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/gpu-timer.mjs",
+    "baseline-gpu-recheck",
+    "sphere",
+    "high",
+    "desktop",
+    "forest"
+  ],
+  "startedAt": "2026-10-21T09:54:23.904804+00:00",
+  "planSha256": "e34e983798dc776c281014506f5796b6862562b6338a749c2fb5844c023d6c62",
+  "collectorSha256": "cb9228baee7ccc4d08140fb6b743dbb61ee7249209c912bb3bac45e4238aaf53",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T09:54:56.763296+00:00",
+  "logSha256": "fe0b277297fdb1f4023af44b8c289d488bd4bacb4e8f866b28b71935726c346c"
+}
