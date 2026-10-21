@@ -823,7 +823,7 @@ export class AudioEngine {
     if (!this.ctx) return;
     if (typeof document !== 'undefined' && document.hidden) level = 0;
     const n = Math.max(0, people || 0);
-    const k = n > 0 ? clamp(Math.pow(n / 900, 0.4), 0.12, 1.2) : 0;
+    const k = n > 0 ? clamp(Math.pow(n / 900, 0.4), 0.12, 1) : 0;
     const target = clamp(level, 0, 1) * k;
     if (!this._house) {
       if (target <= 0) return;

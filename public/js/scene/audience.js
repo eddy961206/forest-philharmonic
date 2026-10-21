@@ -80,9 +80,9 @@ function parts(lite = false) {
 // off - slower breath, heads dropping forward and to one side. Both are in
 // every program from the start: changing them never recompiles anything.
 // uTalk (the interval): heads turn to the neighbours, some chatter, and here
-// and there a pair of paws goes up in a long stretch.
+// and there someone tells a story with their paws.
 const U = { uTime: { value: 0 }, uClap: { value: 0 }, uHush: { value: 0 }, uSleep: { value: 0 }, uTalk: { value: 0 } };
-const STRETCH = 'uTalk * step(0.86, fract(aPhase * 5.7)) * smoothstep(-0.2, 0.7, sin(uTime * 0.35 + aPhase * 4.0))';
+const TELL = 'uTalk * step(0.8, fract(aPhase * 5.7)) * smoothstep(-0.2, 0.7, sin(uTime * 0.35 + aPhase * 4.0)) * (0.8 + 0.2 * sin(uTime * 2.3 + aPhase))';
 const BREATH = 'sin(uTime * 1.3 * (1.0 - 0.45 * uSleep) + aPhase) * (0.004 + 0.004 * uSleep)';
 const NOD = `transformed.y -= uSleep * (0.06 + 0.025 * sin(aPhase * 1.7));
          transformed.z -= uSleep * 0.035;
@@ -96,11 +96,11 @@ const MOTION = {
          ${NOD}`,
   pawL: `float o = 0.5 + 0.5 * sin(uTime * 24.0 + aPhase * 7.0);
          transformed += uClap * (vec3(0.055, 0.2, -0.08) + vec3(-o * 0.04, 0.0, 0.0));
-         transformed += ${STRETCH} * vec3(-0.05, 0.5, 0.06);
+         transformed += ${TELL} * vec3(0.03, 0.2, -0.09);
          transformed.y += sin(uTime * 1.3 + aPhase) * 0.004;`,
   pawR: `float o = 0.5 + 0.5 * sin(uTime * 24.0 + aPhase * 7.0);
          transformed += uClap * (vec3(-0.055, 0.2, -0.08) + vec3(o * 0.04, 0.0, 0.0));
-         transformed += ${STRETCH} * vec3(0.05, 0.5, 0.06);
+         transformed += ${TELL} * vec3(-0.03, 0.2, -0.09);
          transformed.y += sin(uTime * 1.3 + aPhase) * 0.004;`,
 };
 
