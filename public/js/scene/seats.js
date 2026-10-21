@@ -7,6 +7,8 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { HALL, rakeY, BALCONIES, BALCONY_AISLES, AISLE_HALF, balconyZ, BOX_DAIS_X, BOX_DAIS_H } from './hallplan.js';
 import { M } from './materials.js';
+import { indexGeometry } from './geometry.js';
+import { accelerateInstancePicking } from './instance-batches.js';
 
 const RB = (w, h, d, r, seg = 2) => new RoundedBoxGeometry(w, h, d, seg, r);
 const strip = (g) => {
@@ -15,7 +17,7 @@ const strip = (g) => {
   for (const k of Object.keys(n.attributes)) if (!['position', 'normal', 'uv'].includes(k)) n.deleteAttribute(k);
   return n;
 };
-const merge = (list) => mergeGeometries(list.map(strip));
+const merge = (list) => indexGeometry(mergeGeometries(list.map(strip)));
 
 // ------------------------------------------------------------- furniture
 // Local frame: origin on the floor under the seat, sitter faces -z.
@@ -197,13 +199,25 @@ export function buildSeats(list, { lite = false } = {}) {
   const one = new THREE.Vector3(1, 1, 1);
   const c = new THREE.Color();
   const Y = new THREE.Vector3(0, 1, 0);
-  for (const [type, geo] of Object.entries(kinds)) {
-    const mine = list.filter((s) => s.type === type);
-    if (!mine.length) continue;
-    const fabric = new THREE.InstancedMesh(geo.fabric, M.velvetTint(), mine.length);
-    const frame = new THREE.InstancedMesh(geo.frame, frameMat[type], mine.length);
-    const accent = new THREE.InstancedMesh(geo.accent, M.gilt(), mine.length);
-    mine.forEach((s, i) => {
+  // A venue-wide instance bound keeps every chair on the GPU even when the
+  // entire audience is behind the camera. Small spatial batches retain the
+  // exact furniture/materials while Three can cull unseen rows and levels.
+  const batches = new Map();
+  const cellWidth = lite ? 16 : 10;
+  const cellDepth = lite ? 12 : 10;
+  list.forEach((s, index) => {
+    const key = `${s.type}|${s.level}|${Math.floor((s.x + HALL.halfW) / cellWidth)}|${Math.floor(s.z / cellDepth)}`;
+    if (!batches.has(key)) batches.set(key, []);
+    batches.get(key).push({ seat: s, index });
+  });
+  const pickBatches = [];
+  for (const [key, entries] of batches) {
+    const type = entries[0].seat.type;
+    const geo = kinds[type];
+    const fabric = new THREE.InstancedMesh(geo.fabric, M.velvetTint(), entries.length);
+    const frame = new THREE.InstancedMesh(geo.frame, frameMat[type], entries.length);
+    const accent = new THREE.InstancedMesh(geo.accent, M.gilt(), entries.length);
+    entries.forEach(({ seat: s }, i) => {
       q.setFromAxisAngle(Y, s.yaw);
       m.compose(new THREE.Vector3(s.x, s.y, s.z), q, one);
       fabric.setMatrixAt(i, m);
@@ -211,8 +225,14 @@ export function buildSeats(list, { lite = false } = {}) {
       accent.setMatrixAt(i, m);
       fabric.setColorAt(i, c.set(s.color));
     });
-    for (const im of [fabric, frame, accent]) { im.receiveShadow = true; im.castShadow = false; }
+    for (const [part, im] of [['fabric', fabric], ['frame', frame], ['accent', accent]]) {
+      im.name = `${key}|${part}`;
+      im.receiveShadow = true;
+      im.castShadow = false;
+      im.computeBoundingSphere();
+    }
     group.add(fabric, frame, accent);
+    pickBatches.push({ mesh: fabric, indices: entries.map((entry) => entry.index) });
   }
   // aisle end standards in the stalls
   const ends = list.filter((s) => s.level === '1층' && (s.endL || s.endR));
@@ -237,6 +257,7 @@ export function buildSeats(list, { lite = false } = {}) {
     pick.setMatrixAt(i, m);
   });
   pick.computeBoundingSphere();
+  accelerateInstancePicking(pick, pickBatches);
   group.add(pick);
   return { group, pick };
 }

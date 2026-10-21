@@ -471,7 +471,9 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
   const scene = new THREE.Scene();
   const uniforms = { uT: { value: 0 }, uTime: { value: 0 }, uLevel: { value: 0 }, uWorld: { value: 0 } };
   const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG, side: THREE.BackSide, depthTest: false, depthWrite: false });
-  const ball = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 24), mat);
+  // A box produces the same normalized camera rays as a sphere, with
+  // 12 triangles instead of 2,208 per requested cube face.
+  const ball = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), mat);
   ball.frustumCulled = false;
   scene.add(ball);
   const mk = () => new THREE.WebGLCubeRenderTarget(size, { type: THREE.HalfFloatType, generateMipmaps: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false });
@@ -493,21 +495,35 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
     const prevMip = renderer.getActiveMipmapLevel();
     const xr = renderer.xr.enabled;
     renderer.xr.enabled = false;
-    for (let i = 0; i < 6; i++) {
-      if (i === 3) continue; // -y: under the floor
-      const stale = slot.faceWorld[i] !== slot.world;
-      if (!(mask & (1 << i)) || (!due && !stale)) continue;
-      renderer.setRenderTarget(slot.rt, i);
-      renderer.render(scene, faces[i]);
-      slot.faceWorld[i] = slot.world;
+    try {
+      for (let i = 0; i < 6; i++) {
+        if (i === 3) continue; // -y: under the floor
+        const stale = slot.faceWorld[i] !== slot.world;
+        if (!(mask & (1 << i)) || (!due && !stale)) continue;
+        renderer.setRenderTarget(slot.rt, i);
+        renderer.render(scene, faces[i]);
+        slot.faceWorld[i] = slot.world;
+      }
+    } finally {
+      renderer.xr.enabled = xr;
+      renderer.setRenderTarget(prev, prevFace, prevMip);
     }
-    renderer.setRenderTarget(prev, prevFace, prevMip);
-    renderer.xr.enabled = xr;
   }
   const api = {
     slots,
     get every() { return every; },
     set every(v) { every = v; },
+    setSize(nextSize) {
+      if (nextSize === size) return;
+      size = nextSize;
+      for (const slot of slots) {
+        slot.rt.setSize(size, size);
+        // Resizing discards every face. An offscreen face must be treated as
+        // stale when a viewer later turns toward it, even on a skipped frame.
+        slot.faceWorld = [];
+        slot.fresh = true;
+      }
+    },
     // keep `want` (world names, up to two) rendered; returns the slot of each.
     // mask: the cube faces anyone can see right now (all by default)
     update(want, time, level, mask = 0x3f) {

@@ -676,8 +676,13 @@ void main() {
 
 // renderer + quality: the ray-traced worlds need the renderer (they are
 // drawn into cube maps); phones (lite) show the painted versions instead
+const WORLD_QUALITY = {
+  high: { size: 640, every: 1 },
+  medium: { size: 512, every: 2 },
+  low: { size: 384, every: 2 },
+};
 export function buildDome({ lite = false, renderer = null, quality = 'high' } = {}) {
-  const worlds = renderer && !lite ? makeWorldRenderer(renderer, { size: quality === 'high' ? 640 : 512, every: quality === 'high' ? 1 : 2 }) : null;
+  const worlds = renderer && !lite ? makeWorldRenderer(renderer, WORLD_QUALITY[quality] || WORLD_QUALITY.high) : null;
   const pick = (name) => (!worlds && LITE_FALLBACK[name]) || name;
   const uniforms = {
     uTime: { value: 0 }, uLevel: { value: 0 }, uBeat: { value: 0 }, uDown: { value: 0 },
@@ -693,7 +698,9 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
   const geo = new THREE.SphereGeometry(SP.R, lite ? 96 : 192, lite ? 64 : 128, 0, Math.PI * 2, 0, Math.PI * 0.62);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.set(SP.C.x, SP.C.y, SP.C.z);
-  mesh.renderOrder = -1;
+  // Opaque architecture writes depth first, rejecting covered dome pixels
+  // before the expensive procedural shader. Transparent rails/beams stay last.
+  mesh.renderOrder = 10;
   mesh.frustumCulled = false;
 
   // ---------------------------------------------- which cube faces are seen
@@ -784,8 +791,9 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
       uniforms.uCubeBId.value = b.world ? S[b.world] : -1;
     },
     showLive(on) { st.liveTarget = on ? 1 : 0; },
-    // is the live picture up (or coming up)? Otherwise nobody needs it drawn
-    get liveActive() { return st.liveTarget > 0 || st.live > 0.003; },
+    // Request the first picture before fade-in and keep it fresh until the
+    // shader stops sampling it (uLive > 0.001).
+    get liveActive() { return st.liveTarget > 0 || st.live > 0.001; },
     // the house look (walk-in, intermissions)
     house() { st.list = ['ARCH']; st.nextSwap = Infinity; go('ARCH', { dur: 5 }); st.brightTarget = 1; },
     // a piece begins: the roof lifts off into its first world
@@ -802,8 +810,13 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
     // straight to a world (for trying them out: __fp.hall.dome.go('FOREST3D'))
     go(name, opt = { dur: 1.5 }) { st.nextSwap = Infinity; go(name, opt); },
     dim(v) { st.brightTarget = v; },
-    // the quality setting changed: refresh the 3D worlds less often below 'high'
-    setQuality(q) { if (worlds) worlds.every = q === 'high' ? 1 : 2; },
+    // Keep face-mask/crossfade scheduling while resizing existing targets.
+    setQuality(q) {
+      if (!worlds) return;
+      const profile = WORLD_QUALITY[q] || WORLD_QUALITY.high;
+      worlds.every = profile.every;
+      worlds.setSize(profile.size);
+    },
     update(dt, { time = 0, level = 0, beat = 0, down = 0, playing = false } = {}) {
       uniforms.uTime.value += dt;
       uniforms.uLevel.value += (Math.min(1, level * 5) - uniforms.uLevel.value) * Math.min(1, dt * 4);

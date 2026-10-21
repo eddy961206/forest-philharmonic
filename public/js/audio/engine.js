@@ -46,12 +46,15 @@ export class AudioEngine {
     this.tickHandlers = new Set();
     this.listenerMode = 'camera';
     this.volume = 0.8;
+    this._listenerPose = null;
   }
 
   // lite: phones - a lower sample rate, shorter samples, cheaper panning
   // acoustics: the room (a venue other than the hall passes its own)
   async init({ lite = false, acoustics = null } = {}) {
     this.lite = lite;
+    this._lp = null;
+    this._listenerPose = null;
     this.ac = { rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15, airMin: 3800, airK: 0.055, reverb: 1, level: 1, model: 'inverse', ...(acoustics || {}) };
     const AC = window.AudioContext || window.webkitAudioContext;
     this.ctx = new AC({ latencyHint: 'playback', sampleRate: lite ? 24000 : 48000 });
@@ -203,31 +206,53 @@ export class AudioEngine {
     this._lp = L.positionX
       ? { px: L.positionX, py: L.positionY, pz: L.positionZ, fx: L.forwardX, fy: L.forwardY, fz: L.forwardZ, ux: L.upX, uy: L.upY, uz: L.upZ }
       : null;
+    // init can yield while the room impulse is being built. Rebind and
+    // invalidate any pose sent before the section filters were created.
+    this._listenerPose = null;
   }
 
   // pos/forward/up are plain {x,y,z}
   setListener(pos, fwd, up) {
+    if (!this.ctx) return;
+    const last = this._listenerPose;
+    const moved = !last || pos.x !== last.px || pos.y !== last.py || pos.z !== last.pz;
+    const turned = !last || fwd.x !== last.fx || fwd.y !== last.fy || fwd.z !== last.fz
+      || up.x !== last.ux || up.y !== last.uy || up.z !== last.uz;
+    // A stationary ear already has the right automation targets. Let the
+    // existing curves finish instead of scheduling the same targets at 60 Hz.
+    // Exact equality preserves every real movement, however small.
+    if (!moved && !turned) return;
     const t = this.ctx.currentTime;
     const k = 0.04;
     if (this._lp) {
       const p = this._lp;
-      p.px.setTargetAtTime(pos.x, t, k); p.py.setTargetAtTime(pos.y, t, k); p.pz.setTargetAtTime(pos.z, t, k);
-      p.fx.setTargetAtTime(fwd.x, t, k); p.fy.setTargetAtTime(fwd.y, t, k); p.fz.setTargetAtTime(fwd.z, t, k);
-      p.ux.setTargetAtTime(up.x, t, k); p.uy.setTargetAtTime(up.y, t, k); p.uz.setTargetAtTime(up.z, t, k);
+      if (moved) {
+        p.px.setTargetAtTime(pos.x, t, k); p.py.setTargetAtTime(pos.y, t, k); p.pz.setTargetAtTime(pos.z, t, k);
+      }
+      if (turned) {
+        p.fx.setTargetAtTime(fwd.x, t, k); p.fy.setTargetAtTime(fwd.y, t, k); p.fz.setTargetAtTime(fwd.z, t, k);
+        p.ux.setTargetAtTime(up.x, t, k); p.uy.setTargetAtTime(up.y, t, k); p.uz.setTargetAtTime(up.z, t, k);
+      }
     } else {
-      this.ctx.listener.setPosition(pos.x, pos.y, pos.z);
-      this.ctx.listener.setOrientation(fwd.x, fwd.y, fwd.z, up.x, up.y, up.z);
+      if (moved) this.ctx.listener.setPosition(pos.x, pos.y, pos.z);
+      if (turned) this.ctx.listener.setOrientation(fwd.x, fwd.y, fwd.z, up.x, up.y, up.z);
     }
     // Air absorption: high frequencies fall off with distance (~ ISO 9613 trend)
-    for (const s of Object.values(this.sections)) {
-      const dx = s.pos.x - pos.x;
-      const dy = s.pos.y - pos.y;
-      const dz = s.pos.z - pos.z;
-      const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
-      s.distance = d;
-      const cutoff = Math.max(this.ac.airMin, 21000 / (1 + d * this.ac.airK));
-      s.air.frequency.setTargetAtTime(this._hz(cutoff), t, 0.08);
+    if (moved) {
+      for (const s of Object.values(this.sections)) {
+        const dx = s.pos.x - pos.x;
+        const dy = s.pos.y - pos.y;
+        const dz = s.pos.z - pos.z;
+        const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        s.distance = d;
+        const cutoff = Math.max(this.ac.airMin, 21000 / (1 + d * this.ac.airK));
+        s.air.frequency.setTargetAtTime(this._hz(cutoff), t, 0.08);
+      }
     }
+    const next = last || (this._listenerPose = {});
+    next.px = pos.x; next.py = pos.y; next.pz = pos.z;
+    next.fx = fwd.x; next.fy = fwd.y; next.fz = fwd.z;
+    next.ux = up.x; next.uy = up.y; next.uz = up.z;
   }
 
   _initSections() {

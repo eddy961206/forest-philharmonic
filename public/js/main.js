@@ -48,6 +48,7 @@ const QUALITY = {
   // only every ~1.5 s at a small size
   low: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenEvery: 90, post: false },
 };
+if (settings.quality !== 'auto' && !Object.hasOwn(QUALITY, settings.quality)) settings.quality = 'auto';
 let quality = settings.quality === 'auto' ? (isMobile ? 'low' : 'high') : settings.quality;
 // Lite build (phones, or 'low' chosen): simpler seats, a smaller crowd, far
 // fewer lights, plain materials, lighter audio. Decided once at load.
@@ -61,6 +62,11 @@ renderer.setPixelRatio(QUALITY[quality].pr);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = QUALITY[quality].shadows;
 renderer.shadowMap.type = THREE.PCFShadowMap;
+// The broadcast and the viewer share the same lights and animated scene.
+// Refresh their shadow maps once per animation frame, not once per camera.
+renderer.shadowMap.autoUpdate = false;
+// Count the whole frame, including the dome, broadcast, shadows and post FX.
+renderer.info.autoReset = false;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -75,7 +81,10 @@ scene.fog = IS_SPHERE ? new THREE.FogExp2('#06070b', 0.0028) : new THREE.FogExp2
 const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, 0.1, 260); // near 0.1: better depth precision, no flicker
 
 const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+const environmentRoom = new RoomEnvironment();
+scene.environment = pmrem.fromScene(environmentRoom, 0.04).texture;
+environmentRoom.dispose();
+pmrem.dispose();
 // (the Sphere is a black room: the bright studio reflections would glow)
 scene.environmentIntensity = IS_SPHERE ? 0.05 : 0.2;
 
@@ -83,7 +92,7 @@ let composer;
 let bloomPass;
 function buildComposer() {
   const q = QUALITY[quality];
-  if (composer) { composer.passes.forEach((p) => p.dispose?.()); composer.renderTarget1?.dispose(); composer.renderTarget2?.dispose(); }
+  if (composer) { composer.passes.forEach((p) => p.dispose?.()); composer.dispose(); }
   if (!q.post) { composer = null; return; } // render straight to the screen
   const size = renderer.getDrawingBufferSize(new THREE.Vector2());
   const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: q.msaa });
@@ -155,13 +164,12 @@ if (IS_SPHERE) {
   // the 3D worlds are drawn only where these cameras can see the dome
   // (the broadcast cuts between shots of the stage: its faces are fixed -
   // everything but behind the house and under the floor)
-  hall.dome.setViewers([{ cam: camera }, { faces: 1 | 2 | 4 | 32, when: () => hall.dome.liveActive }]);
+  hall.dome.setViewers([{ cam: camera }, { faces: 1 | 2 | 4 | 32, when: () => settings.screen && concertStarted && hall.dome.liveActive }]);
 }
 director = new Director(camera, renderer.domElement, hall);
 director.uiTop = () => ui.bottomUiTop();
 director.hoverLook = false; // look by dragging, or click to capture the mouse
 seatAudience(settings.audience);
-buildComposer();
 applyQuality();
 
 // where the ear sits while the camera roams (cinema): 1층 H열, or the
@@ -616,8 +624,8 @@ function applyQuality() {
   hall.lights.key.shadow.mapSize.set(q.shadowSize, q.shadowSize);
   hall.dome?.setQuality(quality);
   scene.traverse((o) => { if (o.material) { const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach((m) => { m.needsUpdate = true; }); } });
-  onResize();
   buildComposer();
+  onResize();
   effects.setCounts(settings.fireflies);
 }
 
@@ -1007,6 +1015,12 @@ async function requestWakeLock() {
   } catch { /* denied or unsupported */ }
 }
 document.addEventListener('visibilitychange', () => {
+  // Background-tab time is not a slow rendered frame. Audio keeps its own clock.
+  lastNow = performance.now();
+  fpsAcc = 0;
+  fpsFrames = 0;
+  lowStreak = 0;
+  screenActive = false;
   if (document.visibilityState === 'visible' && concertStarted && (!wakeLock || wakeLock.released)) requestWakeLock();
 });
 
@@ -1105,11 +1119,16 @@ let lowStreak = 0;
 let levelSmoothed = 0;
 const levelBuf = new Uint8Array(512);
 let introT = 0;
+let screenActive = false;
+const frameStats = { frameMs: 0, cpuMs: 0, fps: 0, calls: 0, triangles: 0, quality, renderScale };
 
 function frame() {
   const nowMs = performance.now();
-  const dt = Math.min(window.__fpMaxDt || 0.05, (nowMs - lastNow) / 1000);
+  const elapsed = Math.max(0, (nowMs - lastNow) / 1000);
+  const dt = Math.min(window.__fpMaxDt || 0.05, elapsed);
   lastNow = nowMs;
+  if (document.hidden) { requestAnimationFrame(frame); return; }
+  renderer.info.reset();
   wallT += dt;
   const wall = wallT;
   const t = perf.time;
@@ -1157,27 +1176,40 @@ function frame() {
   if (perf.piece) ui.setTime(Math.min(perf.duration, t), perf.duration);
   if (fx) fx.update(dt, wall, levelSmoothed);
   audience?.updateLOD?.(camera.position);
-  hall.dome?.drawWorlds(); // (after the camera moved: only what it sees)
   hall.updateLOD?.(camera.position);
-  if (settings.screen && concertStarted) {
-    // (in the Sphere the picture is only filmed while it is on the dome)
-    screen.update(dt, { perf, time: t, phase, nextPiece }, IS_SPHERE && !hall.dome.liveActive ? 0 : QUALITY[quality].screenEvery);
-  }
-
+  hall.dome?.drawWorlds(); // after the camera moved: only what it sees
+  // Both cameras must see this frame's musician instance matrices.
   orchestra.syncLite();
+  renderer.shadowMap.needsUpdate = QUALITY[quality].shadows;
+  // Keep IMAG current through its fade-out, then stop rendering the unseen feed.
+  const wantsScreen = settings.screen && concertStarted && (!IS_SPHERE || hall.dome.liveActive);
+  if (wantsScreen) {
+    if (!screenActive) screen.invalidate();
+    screen.update(dt, { perf, time: t, phase, nextPiece }, QUALITY[quality].screenEvery);
+  }
+  screenActive = wantsScreen;
+
   if (composer) composer.render(dt);
   else renderer.render(scene, camera);
 
-  fpsAcc += dt;
+  frameStats.frameMs = elapsed * 1000;
+  frameStats.cpuMs = performance.now() - nowMs;
+  frameStats.calls = renderer.info.render.calls;
+  frameStats.triangles = renderer.info.render.triangles;
+  frameStats.quality = quality;
+  frameStats.renderScale = renderScale;
+  // Animation dt is clamped for stability; FPS must use real wall-clock time.
+  fpsAcc += elapsed;
   fpsFrames++;
   if (fpsAcc > 3) {
     const fps = fpsFrames / fpsAcc;
+    frameStats.fps = fps;
     ui.setFps(fps, quality);
     if (settings.quality === 'auto' && concertStarted) {
       if (fps < 36) lowStreak++; else lowStreak = 0;
       if (quality === 'low' && fps < 30 && renderScale > 0.6) {
         // already at the lightest settings: render fewer pixels
-        renderScale *= 0.85;
+        renderScale = Math.max(0.6, renderScale * 0.85);
         renderer.setPixelRatio(QUALITY.low.pr * renderScale);
         onResize();
       }
@@ -1201,7 +1233,7 @@ boot().catch((e) => {
 });
 
 window.__fp = {
-  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
+  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, stats: frameStats, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
 };
