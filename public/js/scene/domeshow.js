@@ -91,6 +91,8 @@ void main() {
   gl_Position = projectionMatrix * viewMatrix * w;
 }`;
 
+const S_CLOUDS = 16 + WORLDS3D.indexOf('CLOUDS3D');
+const S_PEAKS = 16 + WORLDS3D.indexOf('PEAKS3D');
 const FRAG = (lite) => /* glsl */`
 precision highp float;
 varying vec3 vWorld;
@@ -591,6 +593,14 @@ vec3 sVOYAGE(vec3 d, float az, float el) {
   return c * (0.9 + 0.3 * uLevel);
 }
 
+// stars over the 3D worlds, drawn here at screen resolution where the
+// world's cube map marks open sky (alpha)
+vec3 worldStars(int id, vec3 d) {
+  if (id == ${S_CLOUDS}) return starfield(d, 0.45, 0.6) * 0.5;
+  if (id == ${S_PEAKS}) return starfield(d, 1.0, 1.0) * 0.75;
+  return vec3(0.0);
+}
+
 vec3 scene(int id, vec3 d, float az, float el) {
   if (id == 0) return sARCH(d, az, el);
   if (id == 1) return sSTARS(d, az, el);
@@ -608,8 +618,8 @@ vec3 scene(int id, vec3 d, float az, float el) {
   if (id == 13) return sDECO(d, az, el);
   if (id == 14) return sNEBULA(d, az, el);
   if (id == 15) return sVOYAGE(d, az, el);
-  if (id == uCubeAId) return textureCube(uCubeA, d).rgb;
-  if (id == uCubeBId) return textureCube(uCubeB, d).rgb;
+  if (id == uCubeAId) { vec4 c = textureCube(uCubeA, d); return c.rgb + worldStars(id, d) * c.a; }
+  if (id == uCubeBId) { vec4 c = textureCube(uCubeB, d); return c.rgb + worldStars(id, d) * c.a; }
   return vec3(0.0);
 }
 
@@ -667,7 +677,7 @@ void main() {
 // renderer + quality: the ray-traced worlds need the renderer (they are
 // drawn into cube maps); phones (lite) show the painted versions instead
 export function buildDome({ lite = false, renderer = null, quality = 'high' } = {}) {
-  const worlds = renderer && !lite ? makeWorldRenderer(renderer, { size: quality === 'high' ? 512 : 384, every: quality === 'high' ? 1 : 2 }) : null;
+  const worlds = renderer && !lite ? makeWorldRenderer(renderer, { size: quality === 'high' ? 640 : 512, every: quality === 'high' ? 1 : 2 }) : null;
   const pick = (name) => (!worlds && LITE_FALLBACK[name]) || name;
   const uniforms = {
     uTime: { value: 0 }, uLevel: { value: 0 }, uBeat: { value: 0 }, uDown: { value: 0 },
@@ -685,6 +695,57 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
   mesh.position.set(SP.C.x, SP.C.y, SP.C.z);
   mesh.renderOrder = -1;
   mesh.frustumCulled = false;
+
+  // ---------------------------------------------- which cube faces are seen
+  // The 3D worlds live in a cube map round the sweet spot; only the faces
+  // that a camera can actually see on the dome need drawing. A grid of rays
+  // per camera finds where it looks on the screen (with a margin round each
+  // face's border, where the filtering reaches into the next face).
+  let viewers = []; // [{ cam, when? }]
+  const _o = new THREE.Vector3();
+  const _d = new THREE.Vector3();
+  const _p = new THREE.Vector3();
+  const C = new THREE.Vector3(SP.C.x, SP.C.y, SP.C.z);
+  const VIEW = new THREE.Vector3(SP.VIEW.x, SP.VIEW.y, SP.VIEW.z);
+  function facesSeen(cam) {
+    let mask = 0;
+    cam.updateMatrixWorld();
+    _o.setFromMatrixPosition(cam.matrixWorld);
+    const ox = _o.x - C.x;
+    const oy = _o.y - C.y;
+    const oz = _o.z - C.z;
+    const cc = ox * ox + oy * oy + oz * oz - SP.R * SP.R;
+    for (let gy = 0; gy <= 8; gy++) {
+      for (let gx = 0; gx <= 10; gx++) {
+        _d.set(gx / 5 - 1, gy / 4 - 1, 0.5).unproject(cam).sub(_o).normalize();
+        const b = ox * _d.x + oy * _d.y + oz * _d.z;
+        const disc = b * b - cc;
+        if (disc < 0) continue;
+        const t = -b + Math.sqrt(disc);
+        if (t <= 0) continue;
+        _p.copy(_o).addScaledVector(_d, t);
+        if (_p.y - SP.EDGE.k * _p.z - SP.EDGE.d < -0.5) continue; // the wall below the screen
+        _p.sub(VIEW);
+        const ax = Math.abs(_p.x);
+        const ay = Math.abs(_p.y);
+        const az = Math.abs(_p.z);
+        const lim = Math.max(ax, ay, az) * 0.8;
+        if (ax >= lim) mask |= _p.x > 0 ? 1 : 2;
+        if (ay >= lim) mask |= _p.y > 0 ? 4 : 8;
+        if (az >= lim) mask |= _p.z > 0 ? 16 : 32;
+      }
+    }
+    return mask;
+  }
+  function faceMask() {
+    if (!viewers.length) return 0x3f;
+    let m = 0;
+    for (const v of viewers) {
+      if (v.when && !v.when()) continue;
+      m |= v.faces ?? facesSeen(v.cam);
+    }
+    return m;
+  }
 
   // ------------------------------------------------------------ controller
   const st = {
@@ -708,7 +769,23 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
     mesh, uniforms,
     get current() { return st.next || st.cur; },
     setLive(tex, cap) { uniforms.uLiveTex.value = tex; uniforms.uCapTex.value = cap; },
+    // the cameras that look at the dome (the 3D worlds draw what they see)
+    setViewers(list) { viewers = list; },
+    // the ray-traced worlds on screen now (one, or two in a crossfade): call
+    // after the cameras have moved, right before rendering
+    drawWorlds() {
+      if (!worlds) return;
+      const want = [st.cur, st.next].filter((n) => n && WORLDS3D.includes(n));
+      worlds.update(want, uniforms.uTime.value, uniforms.uLevel.value, want.length ? faceMask() : 0);
+      const [a, b] = worlds.slots;
+      uniforms.uCubeA.value = a.world ? a.rt.texture : null;
+      uniforms.uCubeAId.value = a.world ? S[a.world] : -1;
+      uniforms.uCubeB.value = b.world ? b.rt.texture : null;
+      uniforms.uCubeBId.value = b.world ? S[b.world] : -1;
+    },
     showLive(on) { st.liveTarget = on ? 1 : 0; },
+    // is the live picture up (or coming up)? Otherwise nobody needs it drawn
+    get liveActive() { return st.liveTarget > 0 || st.live > 0.003; },
     // the house look (walk-in, intermissions)
     house() { st.list = ['ARCH']; st.nextSwap = Infinity; go('ARCH', { dur: 5 }); st.brightTarget = 1; },
     // a piece begins: the roof lifts off into its first world
@@ -753,16 +830,8 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
       uniforms.uLive.value = st.live;
       st.bright += (st.brightTarget - st.bright) * Math.min(1, dt * 0.8);
       uniforms.uBright.value = st.bright;
-      // the ray-traced worlds on screen now (one, or two in a crossfade)
-      if (worlds) {
-        const want = [st.cur, st.next].filter((n) => n && WORLDS3D.includes(n));
-        worlds.update(want, uniforms.uTime.value, uniforms.uLevel.value);
-        const [a, b] = worlds.slots;
-        uniforms.uCubeA.value = a.world ? a.rt.texture : null;
-        uniforms.uCubeAId.value = a.world ? S[a.world] : -1;
-        uniforms.uCubeB.value = b.world ? b.rt.texture : null;
-        uniforms.uCubeBId.value = b.world ? S[b.world] : -1;
-      }
+      // (the 3D worlds are drawn later, in drawWorlds, once the cameras
+      // have moved for this frame)
       // the light the dome throws into the room
       const ga = GLOW[st.cur];
       const gb = st.next ? GLOW[st.next] : ga;

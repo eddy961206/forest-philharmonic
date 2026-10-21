@@ -28,6 +28,9 @@ uniform float uTime;   // global clock (water, wind)
 uniform float uLevel;
 uniform int uWorld;
 #define PI 3.14159265
+// 1 where open sky shows (the dome adds stars there at full resolution:
+// points drawn into the cube map would turn into blocks when magnified)
+float gSky = 0.0;
 
 float h2(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 vec2 h22(vec2 p) { float n = h2(p); return vec2(n, h2(p + n + 17.17)); }
@@ -51,11 +54,14 @@ float ridged(vec2 p, int oct) {
 // --- exact ray vs one upright cylinder per grid cell (trunks, kelp) -------
 // cell: size; returns t (3D) of the first hit or 1e9; nrm = xz normal; info = (cx, cz, r)
 float pathX(float z) { return 3.0 * sin(z * 0.035) + 1.6 * sin(z * 0.011 + 1.0); }
+// the line each flight follows (x at z): the trunks and kelp keep clear of it
+float seaX(float z) { return 2.5 * sin(z * 0.03); }
+float laneX(float z) { return uWorld == 1 ? seaX(z) : pathX(z); }
 vec3 trunkIn(vec2 c, float cell, float keep, float clear, float rmin, float rmax) {
   if (h2(c) < keep) return vec3(0.0, 0.0, -1.0);
   vec2 j = h22(c + 3.1) - 0.5;
   vec2 p = (c + 0.5) * cell + j * cell * 0.5;
-  if (abs(p.x - pathX(p.y)) < clear) return vec3(0.0, 0.0, -1.0);
+  if (abs(p.x - laneX(p.y)) < clear) return vec3(0.0, 0.0, -1.0);
   return vec3(p, rmin + (rmax - rmin) * h2(c + 9.7));
 }
 float gridCyl(vec3 ro, vec3 rd, float tmax, float cell, float keep, float clear, float rmin, float rmax, out vec2 nrm, out vec3 info) {
@@ -90,6 +96,22 @@ float gridCyl(vec3 ro, vec3 rd, float tmax, float cell, float keep, float clear,
 }
 
 // ============================================================== FOREST
+// each tree's crown over its trunk (in the lower canopy layer): the trunk
+// rises into it, and it shades the floor under the tree
+float crownAt(vec2 p) {
+  vec2 c0 = floor(p / 5.0);
+  float best = 0.0;
+  float wob = (vn(p * 0.8) - 0.5) * 1.4;
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec3 tr = trunkIn(c0 + vec2(float(i), float(j)), 5.0, 0.28, 2.6, 0.22, 0.75);
+      if (tr.z <= 0.0) continue;
+      float r = 2.6 + tr.z * 3.0;
+      best = max(best, smoothstep(r, r * 0.55, length(p - tr.xy) + wob));
+    }
+  }
+  return best;
+}
 // walking-pace flight down a winding lane through an old beech forest
 vec3 forest(vec3 rd) {
   float z0 = -uT * 1.5;
@@ -106,7 +128,7 @@ vec3 forest(vec3 rd) {
   float tmax = 140.0;
   vec2 tn; vec3 ti;
   float tt = gridCyl(ro, rd, tmax, 5.0, 0.28, 2.6, 0.22, 0.75, tn, ti);
-  if (ro.y + rd.y * tt > C2) tt = 1e9;
+  if (ro.y + rd.y * tt > C1 + 1.5) tt = 1e9; // above that it is inside its crown
   float tg = rd.y < 0.0 ? -ro.y / rd.y : 1e9;
   float t = min(tt, tg);
   vec3 col;
@@ -118,7 +140,7 @@ vec3 forest(vec3 rd) {
     float t2 = (C2 - ro.y) / rd.y;
     vec2 p1 = (ro + rd * t1).xz;
     vec2 p2 = (ro + rd * t2).xz;
-    float c1 = COVER(p1, 0.11) * 0.85;
+    float c1 = max(COVER(p1, 0.11) * 0.85, crownAt(p1) * 0.95);
     float c2 = COVER(p2 + 40.0, 0.07);
     vec3 leafLit = vec3(0.42, 0.62, 0.16);
     vec3 leafDark = vec3(0.05, 0.12, 0.04);
@@ -135,7 +157,7 @@ vec3 forest(vec3 rd) {
     // sunlight reaching p through the canopy (dappled, moving with the wind)
     vec2 q1 = p.xz + sun.xz / sun.y * (C1 - p.y) + vec2(sin(uTime * 0.3), 0.0) * 0.3;
     vec2 q2 = p.xz + sun.xz / sun.y * (C2 - p.y) + 40.0;
-    float light = (1.0 - COVER(q1, 0.11) * 0.85) * (1.0 - COVER(q2, 0.07) * 0.9);
+    float light = (1.0 - max(COVER(q1, 0.11) * 0.85, crownAt(q1) * 0.9)) * (1.0 - COVER(q2, 0.07) * 0.9);
     if (tt < tg) {
       vec3 n = vec3(tn.x, 0.0, tn.y);
       float ang = atan(tn.y, tn.x);
@@ -146,6 +168,14 @@ vec3 forest(vec3 rd) {
       col = base * (0.12 + 1.05 * lam * light);
       col += vec3(0.04, 0.08, 0.03) * max(-n.y + 0.5, 0.0); // green bounce from the floor
       col *= 0.85 + 0.15 * smoothstep(0.0, 1.5, p.y);
+      // high up, the trunk disappears into the leaves
+      if (p.y > C1 - 3.0 && rd.y > 0.0) {
+        vec2 pc = (ro + rd * ((C1 - ro.y) / rd.y)).xz;
+        float cv = max(COVER(pc, 0.11), crownAt(pc));
+        vec3 leaf = mix(vec3(0.04, 0.1, 0.035), vec3(0.36, 0.55, 0.14), 0.25 + 0.4 * (1.0 - cv));
+        float m = max(cv * smoothstep(C1 - 3.0, C1 + 0.5, p.y), smoothstep(C1, C2 - 2.0, p.y));
+        col = mix(col, leaf, clamp(m, 0.0, 1.0));
+      }
     } else {
       float m = fbm(p.xz * 0.6, 4);
       vec3 litter = mix(vec3(0.16, 0.11, 0.05), vec3(0.32, 0.22, 0.1), m);
@@ -166,6 +196,29 @@ vec3 forest(vec3 rd) {
 }
 
 // ================================================================ OCEAN
+float sdEll(vec3 p, vec3 r) { float k0 = length(p / r); float k1 = length(p / (r * r)); return k0 * (k0 - 1.0) / max(k1, 1e-4); }
+float smin(float a, float b, float k) { float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0); return mix(b, a, h) - k * h * (1.0 - h); }
+// a humpback swimming toward +x: body, tapering tail stock, beating
+// flukes, long pectoral fins; the body undulates a little as it swims
+float whale(vec3 p) {
+  float sw = sin(uTime * 1.1 - p.x * 0.3);
+  p.y -= sw * 0.28 * smoothstep(1.0, -10.0, p.x);
+  float d = sdEll(p - vec3(1.5, 0.0, 0.0), vec3(8.2, 2.0, 2.3));
+  d = smin(d, sdEll(p - vec3(-6.8, 0.1, 0.0), vec3(4.2, 0.85, 0.75)), 1.3);
+  vec3 f = p - vec3(-10.8, 0.1, 0.0);
+  f.x -= 0.25 * abs(f.z); // swept back
+  d = smin(d, sdEll(f, vec3(0.9, 0.16, 3.1)), 0.5);
+  vec3 q = p - vec3(3.6, -1.2, 0.0);
+  q.z = abs(q.z) - 1.9;
+  q.x += q.z * 0.55; // fins angled back
+  d = smin(d, sdEll(q, vec3(1.0, 0.14, 2.6)), 0.45);
+  return d;
+}
+vec3 whaleNormal(vec3 p) {
+  const vec2 k = vec2(1.0, -1.0);
+  const float e = 0.06;
+  return normalize(k.xyy * whale(p + k.xyy * e) + k.yyx * whale(p + k.yyx * e) + k.yxy * whale(p + k.yxy * e) + k.xxx * whale(p + k.xxx * e));
+}
 float seabed(vec2 p) {
   float rocks = smoothstep(0.62, 0.72, fbm(p * 0.12 + 11.0, 3)) * 1.2 * (0.6 + 0.4 * vn(p * 0.9));
   return 1.6 * fbm(p * 0.05, 4) + 0.35 * sin(p.x * 0.35 + p.y * 0.12) * vn(p * 0.08) + rocks;
@@ -175,7 +228,7 @@ vec3 waterCol(vec3 rd) {
 }
 vec3 ocean(vec3 rd) {
   float z0 = -uT * 1.1;
-  vec3 ro = vec3(2.5 * sin(z0 * 0.03), 6.0 + 0.8 * sin(uT * 0.07), z0);
+  vec3 ro = vec3(seaX(z0), 6.0 + 0.8 * sin(uT * 0.07), z0);
   const float SURF = 26.0;
   float t = 1e9;
   vec3 col;
@@ -234,22 +287,38 @@ vec3 ocean(vec3 rd) {
     col += vec3(1.0, 0.95, 0.8) * pow(max(rd.y, 0.0), 30.0) * 1.5; // the sun right overhead
     t = ts;
   } else col = waterCol(rd);
-  // a whale gliding past high above
+  // a whale gliding past high above: a bounding ellipsoid first, then the
+  // shape is marched only where the ray passes through it
   {
     float wx = -70.0 + mod(uTime * 2.2, 160.0);
     vec3 c = vec3(wx, 17.0, ro.z - 26.0);
-    vec3 R = vec3(10.0, 2.4, 2.8);
-    vec3 oc = (ro - c) / R;
+    vec3 bc = c + vec3(-1.2, 0.0, 0.0);
+    vec3 R = vec3(11.8, 3.0, 4.6);
+    vec3 oc = (ro - bc) / R;
     vec3 dd = rd / R;
     float a = dot(dd, dd); float b = dot(oc, dd); float cc = dot(oc, oc) - 1.0;
     float disc = b * b - a * cc;
     if (disc > 0.0) {
-      float tw = (-b - sqrt(disc)) / a;
-      if (tw > 0.0 && tw < t) {
-        vec3 p = ro + rd * tw;
-        float belly = smoothstep(c.y - 1.0, c.y + 1.5, p.y);
-        col = mix(vec3(0.05, 0.08, 0.1), vec3(0.01, 0.03, 0.05), belly);
-        t = tw;
+      float sq = sqrt(disc);
+      float tw = max((-b - sq) / a, 0.0);
+      float t1 = (-b + sq) / a;
+      if (t1 > 0.0 && tw < t) {
+        bool hit = false;
+        for (int i = 0; i < 32; i++) {
+          float ds = whale(ro + rd * tw - c);
+          if (ds < 0.03) { hit = true; break; }
+          tw += ds * 0.9;
+          if (tw > t1) break;
+        }
+        if (hit && tw < t) {
+          vec3 n = whaleNormal(ro + rd * tw - c);
+          // dark slate back, pale belly, lit from the surface above
+          vec3 back = vec3(0.025, 0.045, 0.06);
+          vec3 belly = vec3(0.16, 0.22, 0.24);
+          vec3 wc = mix(belly, back, smoothstep(-0.35, 0.25, n.y));
+          col = wc * (0.45 + 0.75 * max(n.y, 0.0)) + vec3(0.05, 0.12, 0.15) * pow(1.0 - abs(dot(n, rd)), 3.0);
+          t = tw;
+        }
       }
     }
   }
@@ -294,6 +363,7 @@ vec3 clouds(vec3 rd) {
   vec3 ro = vec3(30.0 * sin(-uT * 22.0 * 0.0008), 210.0 + 20.0 * sin(uT * 0.05), -uT * 22.0);
   vec3 sun = normalize(vec3(0.05, 0.06, -1.0));
   vec3 col = duskSky(rd, sun);
+  gSky = smoothstep(0.5, 0.9, rd.y); // the first stars come out at the top
   if (rd.y < 0.12) {
     float tt = 1.0;
     float t = 1e9;
@@ -329,10 +399,6 @@ vec3 clouds(vec3 rd) {
     float ci = fbm(vec2(p.x * 0.0008, p.y * 0.0025) + 4.0, 5);
     col = mix(col, vec3(1.0, 0.72, 0.62), smoothstep(0.55, 0.8, ci) * 0.45 * smoothstep(0.12, 0.3, rd.y));
   }
-  // the first stars at the top of the sky
-  vec3 sp = floor(rd * 220.0);
-  float s = h3(sp);
-  col += vec3(0.9) * step(0.997, s) * smoothstep(0.55, 0.9, rd.y) * 0.8;
   return col;
 }
 
@@ -341,9 +407,6 @@ vec3 clouds(vec3 rd) {
 float terrain(vec2 p, int oct) { return 520.0 * ridged(p * 0.0011, oct) - 60.0; }
 vec3 auroraSky(vec3 rd) {
   vec3 c = mix(vec3(0.03, 0.05, 0.1), vec3(0.0, 0.01, 0.03), smoothstep(-0.1, 0.8, rd.y));
-  vec3 sp = floor(rd * 260.0);
-  float s = h3(sp);
-  c += vec3(0.85, 0.9, 1.0) * step(0.9965, s) * (0.5 + 0.5 * h3(sp + 3.0));
   // curtains: ray to a high sheet, folded by noise
   if (rd.y > 0.02) {
     for (int k = 0; k < 3; k++) {
@@ -363,6 +426,7 @@ vec3 peaks(vec3 rd) {
   vec3 ro = vec3(60.0 * sin(uT * 0.015), 0.0, -uT * 16.0);
   ro.y = 470.0; // steady altitude; the ridges come up to meet it
   vec3 col = auroraSky(rd);
+  gSky = 1.0;
   if (rd.y < 0.18) {
     float tt = 2.0;
     float t = 1e9;
@@ -374,6 +438,7 @@ vec3 peaks(vec3 rd) {
       if (tt > 9000.0) break;
     }
     if (t < 1e8) {
+      gSky = 0.0;
       for (int i = 0; i < 4; i++) { vec3 p = ro + rd * t; t += (p.y - terrain(p.xz, 6)) * 0.5; }
       vec3 p = ro + rd * t;
       vec2 e = vec2(3.0, 0.0);
@@ -397,7 +462,7 @@ void main() {
   else if (uWorld == 1) c = ocean(rd);
   else if (uWorld == 2) c = clouds(rd);
   else c = peaks(rd);
-  gl_FragColor = vec4(c, 1.0);
+  gl_FragColor = vec4(c, gSky);
 }`;
 
 // A cube render target per slot (the current world and, during a
@@ -410,13 +475,15 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
   ball.frustumCulled = false;
   scene.add(ball);
   const mk = () => new THREE.WebGLCubeRenderTarget(size, { type: THREE.HalfFloatType, generateMipmaps: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false });
-  const slots = [{ rt: mk(), world: null, start: 0 }, { rt: mk(), world: null, start: 0 }];
+  const slots = [0, 1].map(() => ({ rt: mk(), world: null, start: 0, faceWorld: [] }));
   const cam = new THREE.CubeCamera(0.01, 10, slots[0].rt);
   cam.coordinateSystem = renderer.coordinateSystem;
   cam.updateCoordinateSystem();
   const faces = cam.children;
   let frame = 0;
-  function draw(slot, time, level) {
+  // mask: which faces are on someone's screen (bit i = face i); a face is
+  // drawn when it is needed, and at once if it still shows an older world
+  function draw(slot, time, level, mask, due) {
     uniforms.uWorld.value = WORLDS3D.indexOf(slot.world);
     uniforms.uT.value = time - slot.start;
     uniforms.uTime.value = time;
@@ -428,8 +495,11 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
     renderer.xr.enabled = false;
     for (let i = 0; i < 6; i++) {
       if (i === 3) continue; // -y: under the floor
+      const stale = slot.faceWorld[i] !== slot.world;
+      if (!(mask & (1 << i)) || (!due && !stale)) continue;
       renderer.setRenderTarget(slot.rt, i);
       renderer.render(scene, faces[i]);
+      slot.faceWorld[i] = slot.world;
     }
     renderer.setRenderTarget(prev, prevFace, prevMip);
     renderer.xr.enabled = xr;
@@ -438,8 +508,9 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
     slots,
     get every() { return every; },
     set every(v) { every = v; },
-    // keep `want` (world names, up to two) rendered; returns the slot of each
-    update(want, time, level) {
+    // keep `want` (world names, up to two) rendered; returns the slot of each.
+    // mask: the cube faces anyone can see right now (all by default)
+    update(want, time, level, mask = 0x3f) {
       frame++;
       for (const s of slots) if (s.world && !want.includes(s.world)) s.world = null;
       for (const w of want) {
@@ -450,10 +521,16 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
         free.start = time; // the flight starts as the world appears
         free.fresh = true;
       }
-      for (const s of slots) {
-        if (!s.world) continue;
-        if (s.fresh || frame % every === 0) { draw(s, time, level); s.fresh = false; }
-      }
+      // two worlds crossfading: each is refreshed every other turn, so the
+      // fade costs no more than one world
+      const live = slots.filter((s) => s.world);
+      live.forEach((s, k) => {
+        const turn = live.length > 1 ? Math.floor(frame / every) % 2 === k : true;
+        const due = s.fresh || (frame % every === 0 && turn);
+        if (s.fresh) s.faceWorld = [];
+        draw(s, time, level, mask, due);
+        s.fresh = false;
+      });
       return want.map((w) => slots.find((s) => s.world === w) || null);
     },
   };

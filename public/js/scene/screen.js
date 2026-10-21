@@ -181,7 +181,8 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
       cam.position.copy(pos);
       cam.lookAt(s.look);
       cam.updateProjectionMatrix();
-      if (frame % every === 0) {
+      // every 0: the picture is not shown anywhere - film nothing
+      if (every > 0 && frame % every === 0) {
         group.visible = false; // the screen must not film itself
         before?.();
         const prevRT = renderer.getRenderTarget();

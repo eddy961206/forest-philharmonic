@@ -133,7 +133,7 @@ function seatAudience(on) {
     if (director?.seat && director.seat.index >= 0) exclude.add(director.seat.index);
     const rand = room ? seeded(room.seed) : Math.random;
     // the Sphere sells out: thousands of guests, drawn in full only near you
-    const big = IS_SPHERE ? { fill: 0.62 + rand() * 0.3, detail: LITE ? 120 : 650, cap: LITE ? 2500 : Infinity } : {};
+    const big = IS_SPHERE ? { fill: 0.62 + rand() * 0.3, detail: LITE ? 80 : 220, mid: LITE ? 0 : 900, cap: LITE ? 2500 : Infinity } : {};
     audience = buildAudience(hall.seats, { exclude, lite: LITE, rand, reserveAll: !!room, ...big });
     audience.updateLOD?.(camera.position, true);
     scene.add(audience.group);
@@ -150,7 +150,13 @@ const screen = buildScreen(scene, renderer, IS_SPHERE ? {
   before: () => hall.dome.setLive(null, null),
   after: () => hall.dome.setLive(screen.texture, screen.capTex),
 } : { lite: LITE });
-if (IS_SPHERE) hall.dome.setLive(screen.texture, screen.capTex);
+if (IS_SPHERE) {
+  hall.dome.setLive(screen.texture, screen.capTex);
+  // the 3D worlds are drawn only where these cameras can see the dome
+  // (the broadcast cuts between shots of the stage: its faces are fixed -
+  // everything but behind the house and under the floor)
+  hall.dome.setViewers([{ cam: camera }, { faces: 1 | 2 | 4 | 32, when: () => hall.dome.liveActive }]);
+}
 director = new Director(camera, renderer.domElement, hall);
 director.uiTop = () => ui.bottomUiTop();
 director.hoverLook = false; // look by dragging, or click to capture the mouse
@@ -623,7 +629,8 @@ function hitTest(x, y) {
   raycaster.setFromCamera(ndc, camera);
   // only musicians who are actually on stage (not waiting behind the doors)
   const hits = raycaster.intersectObjects(orchestra.pickables.filter((o) => o.visible), true);
-  const seatHit = raycaster.intersectObject(hall.seatMesh, false)[0];
+  // (the Sphere's seats come in sections: map back to the seat list)
+  const seatHit = raycaster.intersectObject(hall.seatMesh, true)[0];
   let player = null;
   let dist = Infinity;
   if (hits.length) {
@@ -632,7 +639,7 @@ function hitTest(x, y) {
     player = orchestra.players.find((p) => p.char.root === o) || (o === orchestra.conductor.char.root ? 'conductor' : null);
     dist = hits[0].distance;
   }
-  if (seatHit && seatHit.distance < dist) return { seat: hall.seats[seatHit.instanceId], dist: seatHit.distance };
+  if (seatHit && seatHit.distance < dist) return { seat: hall.seats[seatHit.object.userData.seatIdx?.[seatHit.instanceId] ?? seatHit.instanceId], dist: seatHit.distance };
   return { player, dist };
 }
 
@@ -1150,8 +1157,11 @@ function frame() {
   if (perf.piece) ui.setTime(Math.min(perf.duration, t), perf.duration);
   if (fx) fx.update(dt, wall, levelSmoothed);
   audience?.updateLOD?.(camera.position);
+  hall.dome?.drawWorlds(); // (after the camera moved: only what it sees)
+  hall.updateLOD?.(camera.position);
   if (settings.screen && concertStarted) {
-    screen.update(dt, { perf, time: t, phase, nextPiece }, QUALITY[quality].screenEvery);
+    // (in the Sphere the picture is only filmed while it is on the dome)
+    screen.update(dt, { perf, time: t, phase, nextPiece }, IS_SPHERE && !hall.dome.liveActive ? 0 : QUALITY[quality].screenEvery);
   }
 
   orchestra.syncLite();

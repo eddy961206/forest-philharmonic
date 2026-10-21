@@ -133,11 +133,22 @@ function buildSeatMeshes(list, lite) {
   const group = new THREE.Group();
   group.name = 'seats';
   const G = seatGeometry();
-  const fabricMat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.92 });
-  const frameMat = new THREE.MeshStandardMaterial({ color: '#0c0c0e', roughness: 0.45 });
-  const fabric = new THREE.InstancedMesh(G.fabric, fabricMat, list.length);
-  const frame = new THREE.InstancedMesh(G.frame, frameMat, list.length);
-  const pick = new THREE.InstancedMesh(new THREE.BoxGeometry(0.52, 0.95, 0.55).translate(0, 0.48, 0.05), new THREE.MeshBasicMaterial({ visible: false }), list.length);
+  const B = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+  // the fabric takes each seat's dye, the frame stays near-black: one mesh,
+  // coloured per vertex (fabric 1, frame dark) times the seat's colour
+  const shade = (g, v) => {
+    g.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 3).fill(v), 3));
+    return g;
+  };
+  const nearGeo = mergeGeometries([shade(G.fabric, 1), shade(G.frame, 0.22)]);
+  // from across the bowl: a cushion and a back (a quarter of the triangles)
+  const farGeo = mergeGeometries([
+    shade(B(0.5, 0.12, 0.46).translate(0, 0.45, -0.03), 1),
+    shade(B(0.5, 0.64, 0.1).rotateX(-0.17).translate(0, 0.8, 0.25), 0.8),
+  ]);
+  const pickGeo = B(0.52, 0.95, 0.55).translate(0, 0.48, 0.05);
+  const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.85, vertexColors: true });
+  const hidden = new THREE.MeshBasicMaterial({ visible: false });
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();
   const one = V3(1, 1, 1);
@@ -146,19 +157,51 @@ function buildSeatMeshes(list, lite) {
   // the floor and each level in its own deep tone, a few seats in a
   // slightly different dye, as in a real house
   const tone = { 플로어: '#2a2d36', '100 레벨': '#272a33', '200 레벨': '#2b2833', '300 레벨': '#262b31', '400 레벨': '#2a2a2e' };
+  // one chunk per section: sections off screen are skipped whole (and by
+  // the seat picker's ray), far ones drawn simply
+  const bySection = new Map();
   list.forEach((s, i) => {
-    q.setFromAxisAngle(Y, s.yaw);
-    m.compose(V3(s.x, s.y, s.z), q, one);
-    fabric.setMatrixAt(i, m);
-    frame.setMatrixAt(i, m);
-    pick.setMatrixAt(i, m);
-    c.set(tone[s.level] || '#2a2d36').multiplyScalar(0.92 + ((i * 7919) % 17) / 100);
-    fabric.setColorAt(i, c);
+    const k = s.section || s.level;
+    if (!bySection.has(k)) bySection.set(k, []);
+    bySection.get(k).push(i);
   });
-  for (const im of [fabric, frame]) { im.receiveShadow = !lite; im.computeBoundingSphere(); }
-  pick.computeBoundingSphere();
-  group.add(fabric, frame, pick);
-  return { group, pick };
+  const pickGroup = new THREE.Group();
+  const chunks = [];
+  for (const idx of bySection.values()) {
+    const n = idx.length;
+    const near = new THREE.InstancedMesh(nearGeo, mat, n);
+    const far = new THREE.InstancedMesh(farGeo, mat, n);
+    const pick = new THREE.InstancedMesh(pickGeo, hidden, n);
+    idx.forEach((si, j) => {
+      const s = list[si];
+      q.setFromAxisAngle(Y, s.yaw);
+      m.compose(V3(s.x, s.y, s.z), q, one);
+      near.setMatrixAt(j, m);
+      far.setMatrixAt(j, m);
+      pick.setMatrixAt(j, m);
+      c.set(tone[s.level] || '#2a2d36').multiplyScalar(0.92 + ((si * 7919) % 17) / 100);
+      near.setColorAt(j, c);
+      far.setColorAt(j, c);
+    });
+    for (const im of [near, far, pick]) im.computeBoundingSphere();
+    near.receiveShadow = !lite;
+    pick.userData.seatIdx = idx;
+    far.visible = false;
+    group.add(near, far);
+    pickGroup.add(pick);
+    chunks.push({ near, far, center: near.boundingSphere.center, radius: near.boundingSphere.radius });
+  }
+  group.add(pickGroup);
+  // near sections in full, the rest simple (checked every frame: 30 sections)
+  const NEAR = lite ? 12 : 22;
+  function update(cam) {
+    for (const ch of chunks) {
+      const close = cam.distanceTo(ch.center) - ch.radius < NEAR;
+      ch.near.visible = close;
+      ch.far.visible = !close;
+    }
+  }
+  return { group, pick: pickGroup, update };
 }
 
 // ---------------------------------------------------------------- styles
@@ -515,6 +558,8 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
     group,
     seats,
     seatMesh: seatData.pick,
+    // the camera moved: near sections in full detail
+    updateLOD(cam) { seatData.update(cam); },
     lights,
     dome,
     lifts,

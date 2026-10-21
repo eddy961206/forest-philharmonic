@@ -101,7 +101,7 @@ button { font: inherit; color: inherit; }
 .lb-create { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
 .lb-cap { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--paper-dim); }
 .lobby .lb-cap input { width: 64px; text-align: center; }
-.lb-vis, .lb-venue { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.lb-vis, .lb-venue { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
 .lb-venue { margin: 2px 0 4px; }
 .lb-vis button, .lb-venue button {
   appearance: none; cursor: pointer; color: var(--paper-dim); background: rgba(242, 237, 225, 0.04);
@@ -405,7 +405,9 @@ body.ui-hidden .transport { transform: translate(-50%, 20px); }
   /* above the joystick and the jump / sit buttons */
   .start-wrap { bottom: 316px; width: calc(100vw - 2 * var(--gutter)); }
   .splash { place-items: start center; }
-  .splash-inner { grid-template-columns: 1fr; gap: 20px; padding: 28px 0 40px; }
+  .splash-inner { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 28px 0 40px; }
+  .lb-who { grid-template-columns: minmax(0, 1fr) 104px; }
+  .lb-venue button small, .lb-vis button small { white-space: normal; text-align: center; }
   .splash-sub { font-size: 15px; margin-bottom: 18px; }
   .splash-hint { display: none; }
   .room-chip { max-width: 44vw; padding: 6px 12px; }

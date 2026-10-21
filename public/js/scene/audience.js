@@ -150,7 +150,7 @@ function dress(s, rand, push) {
 // Very large houses (the Sphere) pass detail: only that many people nearest
 // the camera are drawn in full; everyone else is a simple seated figure in
 // their own colours, swapped as you move (see updateLOD).
-export function buildAudience(seats, { exclude = new Set(), rand = Math.random, lite = false, reserveAll = false, fill: fillIn = null, detail = Infinity, cap = Infinity } = {}) {
+export function buildAudience(seats, { exclude = new Set(), rand = Math.random, lite = false, reserveAll = false, fill: fillIn = null, detail = Infinity, mid = 0, cap = Infinity } = {}) {
   const key = lite ? 'lite' : 'full';
   if (!GEO[key]) GEO[key] = parts(lite);
   const G = GEO[key];
@@ -183,7 +183,7 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random, 
     for (let i = chosen.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [chosen[i], chosen[j]] = [chosen[j], chosen[i]]; }
     chosen.length = max;
   }
-  if (lod) return lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail });
+  if (lod) return lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail, mid });
   const push = (part, m, color, phase) => {
     if (lite && !LITE_PARTS.has(part)) return;
     if (!lists[part]) lists[part] = [];
@@ -228,32 +228,111 @@ export function buildAudience(seats, { exclude = new Set(), rand = Math.random, 
 
 
 // ------------------------------------------------------------ a huge house
-// Everybody gets a simple seated figure (body + head in their colours);
-// the `detail` guests nearest the camera are drawn in full instead.
+// Three levels of detail, by distance from the camera:
+//   near  - the `detail` nearest guests, every part (as in a small house)
+//   mid   - the next `mid` guests, the simplified (phone) parts
+//   far   - everyone else: one merged seated figure (body in their outfit,
+//           head and ears in their fur), ~90 triangles, grouped per
+//           section so whole sections off screen are skipped by the GPU
 let BLOB = null;
 function blobGeo() {
   if (BLOB) return BLOB;
-  const body = merge([
-    new THREE.CapsuleGeometry(0.15, 0.16, 1, 7).scale(1.1, 1, 0.85).translate(0, 0.7, 0.1),
-    new THREE.BoxGeometry(0.3, 0.13, 0.36).translate(0, 0.5, -0.08),
-    new THREE.BoxGeometry(0.26, 0.4, 0.12).translate(0, 0.24, -0.24),
-  ]);
-  const head = merge([
-    new THREE.SphereGeometry(0.17, 9, 6).scale(1.05, 0.96, 0.98).translate(0, 1.06, 0.05),
-    new THREE.SphereGeometry(0.06, 5, 3).translate(-0.11, 1.2, 0.06),
-    new THREE.SphereGeometry(0.06, 5, 3).translate(0.11, 1.2, 0.06),
-  ]);
-  BLOB = { body, head };
+  const tone = (g, v) => {
+    g = clean(g);
+    g.setAttribute('aTone', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(v), 1));
+    return g;
+  };
+  // a smooth low-poly ball: icosahedron with shared normals
+  const ball = (r, detail) => {
+    const g = new THREE.IcosahedronGeometry(r, detail);
+    g.deleteAttribute('normal');
+    g.deleteAttribute('uv');
+    const m = mergeVerticesSimple(g);
+    m.computeVertexNormals();
+    return m;
+  };
+  const ear = (x) => {
+    const g = new THREE.OctahedronGeometry(0.065, 0);
+    g.deleteAttribute('normal');
+    g.deleteAttribute('uv');
+    const m = mergeVerticesSimple(g);
+    m.computeVertexNormals();
+    return m.translate(x, 1.2, 0.06);
+  };
+  const parts2 = [
+    tone(new THREE.CylinderGeometry(0.14, 0.165, 0.46, 6, 1, true).scale(1.1, 1, 0.85).translate(0, 0.7, 0.1), 0), // (the head and lap close it)
+    tone(new THREE.BoxGeometry(0.3, 0.13, 0.36).translate(0, 0.5, -0.08), 0),
+    tone(new THREE.BoxGeometry(0.26, 0.4, 0.12).translate(0, 0.24, -0.24), 0),
+    tone(ball(0.17, 0).scale(1.05, 0.96, 0.98).translate(0, 1.06, 0.05), 1),
+    tone(ear(-0.11), 1),
+    tone(ear(0.11), 1),
+  ];
+  BLOB = mergeGeometries(parts2);
   return BLOB;
 }
+// weld coincident vertices (icosahedra come unindexed) so normals are smooth
+function mergeVerticesSimple(g) {
+  const pos = g.attributes.position;
+  const map = new Map();
+  const verts = [];
+  const index = [];
+  for (let i = 0; i < pos.count; i++) {
+    const k = `${pos.getX(i).toFixed(4)},${pos.getY(i).toFixed(4)},${pos.getZ(i).toFixed(4)}`;
+    let j = map.get(k);
+    if (j === undefined) { j = verts.length / 3; map.set(k, j); verts.push(pos.getX(i), pos.getY(i), pos.getZ(i)); }
+    index.push(j);
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  out.setIndex(index);
+  return out;
+}
 
-function lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail }) {
+// the far figure: two colours (outfit = instance colour, fur = aFur) and
+// the same breathing / clapping bob as everyone else
+function blobMaterial() {
+  const mat = new THREE.MeshStandardMaterial({ roughness: 0.8 });
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = U.uTime;
+    shader.uniforms.uClap = U.uClap;
+    shader.vertexShader = `attribute float aPhase;\nattribute float aTone;\nattribute vec3 aFur;\nuniform float uTime;\nuniform float uClap;\n${shader.vertexShader
+      .replace('#include <begin_vertex>', `#include <begin_vertex>
+        transformed.y += sin(uTime * 1.3 + aPhase) * 0.004 + uClap * abs(sin(uTime * 12.0 + aPhase)) * (0.008 + 0.004 * aTone);
+        transformed.x += aTone * sin(uTime * 0.55 + aPhase) * 0.009;`)
+      .replace('#include <color_vertex>', '#include <color_vertex>\n  vColor.rgb = mix(vColor.rgb, aFur, aTone);')}`;
+  };
+  mat.customProgramCacheKey = () => 'aud-blob';
+  return mat;
+}
+
+// k-th smallest of a (partially reorders a copy); O(n) on average
+function kth(src, k) {
+  const a = Float32Array.from(src);
+  let lo = 0;
+  let hi = a.length - 1;
+  while (lo < hi) {
+    const p = a[(lo + hi) >> 1];
+    let i = lo;
+    let j = hi;
+    while (i <= j) {
+      while (a[i] < p) i++;
+      while (a[j] > p) j--;
+      if (i <= j) { const t = a[i]; a[i] = a[j]; a[j] = t; i++; j--; }
+    }
+    if (k <= j) hi = j; else if (k >= i) lo = i; else break;
+  }
+  return a[k];
+}
+
+function lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail, mid }) {
+  if (lite) mid = 0; // phones: near guests and far figures only
+  const GL = GEO.lite || (GEO.lite = parts(true));
   const people = [];
-  // collect each guest's parts (the same draws, in the same order, as a small house)
+  // each guest's parts (the same draws, in the same order, as a small house)
   for (const s of chosen) {
-    const parts2 = [];
-    const info = dress(s, rand, (part, m, color, phase) => { if (lite && !LITE_PARTS.has(part)) return; parts2.push([part, color]); });
-    people.push({ s, m: info.m, fur: new THREE.Color(info.fur), outfit: new THREE.Color(info.outfit), phase: info.phase, parts: parts2.map(([p, c]) => [p, new THREE.Color(c)]), near: false });
+    const ps = [];
+    const info = dress(s, rand, (part, m, color) => { if (lite && !LITE_PARTS.has(part)) return; ps.push([part, new THREE.Color(color)]); });
+    people.push({ s, m: info.m, fur: new THREE.Color(info.fur), outfit: new THREE.Color(info.outfit), phase: info.phase, parts: ps, tier: -1, chunk: null, slot: 0 });
   }
   const group = new THREE.Group();
   group.name = 'audience';
@@ -267,20 +346,56 @@ function lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail }) {
       : animated(new THREE.MeshStandardMaterial({ roughness: glossy ? 0.25 : 0.8 }), kind);
     const im = new THREE.InstancedMesh(geo, mat, Math.max(1, n));
     im.count = 0;
-    im.frustumCulled = false;
+    im.frustumCulled = false; // they surround the camera
     im.receiveShadow = !lite;
     im.setColorAt(0, new THREE.Color());
     group.add(im);
     meshes.push(im);
     return im;
   };
-  const B = blobGeo();
-  const blobBody = mk(B.body, 'blob', people.length, 'body');
-  const blobHead = mk(B.head, 'blob', people.length, 'head');
-  const full = {};
   const nFor = {};
-  for (const p of people) for (const [part] of p.parts) nFor[part] = (nFor[part] || 0) + 1;
-  for (const part of Object.keys(nFor)) full[part] = mk(G[part], part, Math.min(nFor[part], detail), KIND[part] || 'head');
+  const nLite = {};
+  for (const p of people) {
+    for (const [part] of p.parts) {
+      nFor[part] = (nFor[part] || 0) + 1;
+      if (LITE_PARTS.has(part)) nLite[part] = (nLite[part] || 0) + 1;
+    }
+  }
+  const near = {};
+  const midM = {};
+  for (const part of Object.keys(nFor)) near[part] = mk(G[part], part, Math.min(nFor[part], detail), KIND[part] || 'head');
+  if (mid > 0) for (const part of Object.keys(nLite)) midM[part] = mk(GL[part], part, Math.min(nLite[part], mid), KIND[part] || 'head');
+
+  // far figures, one instanced mesh per section (culled as a whole)
+  const blob = blobGeo();
+  const blobMat = blobMaterial();
+  const chunks = new Map();
+  for (const p of people) {
+    const key = p.s.section || p.s.level || 'all';
+    if (!chunks.has(key)) chunks.set(key, []);
+    p.slot = chunks.get(key).length;
+    chunks.get(key).push(p);
+  }
+  const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+  const chunkList = [];
+  for (const list of chunks.values()) {
+    const n = list.length;
+    const geo = blob.clone();
+    const ph = new Float32Array(n);
+    const fur = new Float32Array(n * 3);
+    list.forEach((p, i) => { ph[i] = p.phase; fur[i * 3] = p.fur.r; fur[i * 3 + 1] = p.fur.g; fur[i * 3 + 2] = p.fur.b; });
+    geo.setAttribute('aPhase', new THREE.InstancedBufferAttribute(ph, 1));
+    geo.setAttribute('aFur', new THREE.InstancedBufferAttribute(fur, 3));
+    const im = new THREE.InstancedMesh(geo, blobMat, n);
+    list.forEach((p, i) => { im.setMatrixAt(i, p.m); im.setColorAt(i, p.outfit); p.chunk = im; });
+    im.computeBoundingSphere();
+    // a little slack for the bobbing
+    im.boundingSphere.radius += 0.5;
+    im.receiveShadow = !lite;
+    group.add(im);
+    meshes.push(im);
+    chunkList.push(im);
+  }
 
   const put = (im, i, m, col, phase) => {
     im.setMatrixAt(i, m);
@@ -293,31 +408,51 @@ function lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail }) {
     if (im.instanceColor) im.instanceColor.needsUpdate = true;
     im.geometry.attributes.aPhase.needsUpdate = true;
   };
+  const dist = new Float32Array(people.length);
   const last = new THREE.Vector3(1e9, 0, 0);
+  let lastT = -1e9;
+  // who is near, mid, far - redone when the camera has moved a little
+  // (at most five times a second; only the changes touch the far chunks)
   function updateLOD(cam, force = false) {
-    if (!force && cam.distanceToSquared(last) < 4) return;
+    const now = performance.now();
+    if (!force && (cam.distanceToSquared(last) < 2.25 || now - lastT < 200)) return;
     last.copy(cam);
-    for (const p of people) { const dx = p.s.x - cam.x; const dy = p.s.y - cam.y; const dz = p.s.z - cam.z; p.d = dx * dx + dy * dy + dz * dz; p.near = false; }
-    if (people.length > detail) {
-      const ds = people.map((p) => p.d).sort((a, b) => a - b);
-      const lim = ds[detail - 1];
-      let k = 0;
-      for (const p of people) if (p.d <= lim && k < detail) { p.near = true; k++; }
-    } else for (const p of people) p.near = true;
-    const cnt = {};
-    let nb = 0;
-    for (const p of people) {
-      if (p.near) {
-        for (const [part, col] of p.parts) { const im = full[part]; const i = cnt[part] || 0; if (i >= im.instanceMatrix.count) continue; put(im, i, p.m, col, p.phase); cnt[part] = i + 1; }
-      } else {
-        put(blobBody, nb, p.m, p.outfit, p.phase);
-        put(blobHead, nb, p.m, p.fur, p.phase);
-        nb++;
-      }
+    lastT = now;
+    for (let i = 0; i < people.length; i++) {
+      const s = people[i].s;
+      const dx = s.x - cam.x;
+      const dy = s.y - cam.y;
+      const dz = s.z - cam.z;
+      dist[i] = dx * dx + dy * dy + dz * dz;
     }
-    for (const [part, im] of Object.entries(full)) flush(im, cnt[part] || 0);
-    flush(blobBody, nb);
-    flush(blobHead, nb);
+    const nNear = Math.min(detail, people.length);
+    const nMid = Math.min(mid, people.length - nNear);
+    const limNear = nNear > 0 ? (nNear >= people.length ? Infinity : kth(dist, nNear - 1)) : -1;
+    const limMid = nMid > 0 ? (nNear + nMid >= people.length ? Infinity : kth(dist, nNear + nMid - 1)) : limNear;
+    const cnt = {};
+    const cntMid = {};
+    let kn = 0;
+    let km = 0;
+    const dirty = new Set();
+    for (let i = 0; i < people.length; i++) {
+      const p = people[i];
+      let tier = 2;
+      if (dist[i] <= limNear && kn < nNear) { tier = 0; kn++; } else if (dist[i] <= limMid && km < nMid) { tier = 1; km++; }
+      if (tier === 0) {
+        for (const [part, col] of p.parts) { const im = near[part]; const j = cnt[part] || 0; if (j >= im.instanceMatrix.count) continue; put(im, j, p.m, col, p.phase); cnt[part] = j + 1; }
+      } else if (tier === 1) {
+        for (const [part, col] of p.parts) { const im = midM[part]; if (!im) continue; const j = cntMid[part] || 0; if (j >= im.instanceMatrix.count) continue; put(im, j, p.m, col, p.phase); cntMid[part] = j + 1; }
+      }
+      // the far figure stands in whenever the person is not drawn in detail
+      if ((tier === 2) !== (p.tier === 2) || p.tier === -1) {
+        p.chunk.setMatrixAt(p.slot, tier === 2 ? p.m : ZERO);
+        dirty.add(p.chunk);
+      }
+      p.tier = tier;
+    }
+    for (const [part, im] of Object.entries(near)) flush(im, cnt[part] || 0);
+    for (const [part, im] of Object.entries(midM)) flush(im, cntMid[part] || 0);
+    for (const im of dirty) im.instanceMatrix.needsUpdate = true;
   }
   return {
     group,
@@ -325,7 +460,8 @@ function lodCrowd(chosen, { G, lite, rand, taken, reserveAll, detail }) {
     count: chosen.length,
     updateLOD,
     dispose() {
-      for (const im of meshes) { im.geometry.dispose(); im.material.dispose(); im.dispose?.(); }
+      for (const im of meshes) { im.geometry.dispose(); if (im.material !== blobMat) im.material.dispose(); im.dispose?.(); }
+      blobMat.dispose();
       group.removeFromParent();
     },
   };
