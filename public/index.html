@@ -11,6 +11,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // (before anything is drawn: is this the square, or a building? - see js/boot.js)
+    (function () {
+      var q = new URLSearchParams(location.search);
+      if (!q.get('venue') && !q.get('room')) document.documentElement.classList.add('is-plaza');
+    })();
+  </script>
   <script type="importmap">
     { "imports": { "three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/" } }
   </script>
@@ -29,11 +36,23 @@
         <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. 걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></p>
       </div>
 
+      <!-- with a ticket from the square: the usher checks it, then in you go -->
+      <div class="ticket-check" id="ticketCheck" hidden>
+        <div id="tcTicket"></div>
+        <p class="tc-line" id="tcLine">표를 확인했어요. 공연장을 준비하고 있어요.</p>
+        <button id="tcEnter" class="btn-enter lb-go" disabled>입장하기</button>
+        <p id="tcError" class="lb-error" role="alert" hidden></p>
+        <div class="tc-fallback" id="tcFallback" hidden>
+          <button id="tcSolo" class="lb-solo" type="button">혼자 보기로 입장</button>
+          <a class="lb-mini" href="./">광장으로 돌아가기</a>
+        </div>
+      </div>
+
       <!-- lobby: who you are, then a room to watch in (or alone) -->
       <div class="lobby" id="lobby">
         <div class="lb-who">
           <label class="lb-field lb-name">닉네임<input id="lbName" maxlength="16" autocomplete="nickname" spellcheck="false"></label>
-          <label class="lb-field lb-animal">동물<select id="lbAvatar"></select></label>
+          <p class="lb-field lb-animal">나는<b id="lbAnimal"></b></p>
         </div>
 
         <div class="lb-venue" id="lbVenue" role="group" aria-label="공연장">
@@ -197,6 +216,7 @@
         <label class="check"><input type="checkbox" id="optRepeatOne"> 한 곡 반복</label>
       </div>
       <button class="btn-plain leaf-open" id="leafBtn" type="button">🍃 오늘 밤의 잎사귀 프로그램</button>
+      <button class="btn-plain leaf-open" id="plazaBtn" type="button">🎟 숲속 광장으로 나가기</button>
     </div>
 
     <div class="panel-body" data-body="room" hidden>
@@ -309,6 +329,77 @@
 
   <div id="toast" class="toast" hidden></div>
 
-  <script type="module" src="js/main.js"></script>
+  <!-- ============================================ the square (first page) -->
+  <section id="plaza" class="plaza" hidden>
+    <header class="pz-top">
+      <h1>숲속 공연 광장</h1>
+      <p id="pzHint">매표소에서 표를 사서, 가고 싶은 공연장 입구로 걸어가요.</p>
+    </header>
+    <div class="pz-me" id="pzMe"><span class="pz-ani" id="pzAni"></span><span class="pz-who"><b id="pzName"></b><small id="pzKind"></small></span></div>
+    <button id="pzQuick" class="pz-quick" type="button" hidden>🎟 지난번처럼 바로 입장<small id="pzQuickWhat"></small></button>
+    <button id="pzAct" class="act-btn" type="button" hidden><kbd>F</kbd><span id="pzActText"></span></button>
+    <button id="pzStub" class="pz-stub" type="button" hidden aria-label="내 표 보기"></button>
+    <div id="pzJoy" class="joystick" hidden aria-hidden="true"><div class="joy-base"><div class="joy-knob" id="pzKnob"></div></div></div>
+    <p id="pzToast" class="toast" hidden></p>
+    <div id="pzLoading" class="pz-loading"><p>숲속 광장으로 가는 중…</p></div>
+
+    <!-- the booth -->
+    <div id="booth" class="booth" hidden role="dialog" aria-modal="true" aria-labelledby="boothTitle">
+      <article class="booth-card">
+        <header class="booth-head">
+          <span class="booth-clerk" aria-hidden="true">🐿️</span>
+          <div><h2 id="boothTitle">매표소</h2><p id="boothSay">어서 와요! 어디로 가는 표를 드릴까요?</p></div>
+          <button class="ib booth-x" id="boothClose" type="button" aria-label="매표소 닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></button>
+        </header>
+        <ol class="booth-steps" id="boothSteps"><li data-s="1">공연장</li><li data-s="2">관람 방식</li><li data-s="3">표 받기</li></ol>
+
+        <section class="booth-step" data-step="1">
+          <div class="venue-cards" id="venueCards"></div>
+        </section>
+
+        <section class="booth-step" data-step="2" hidden>
+          <div class="mode-list">
+            <button type="button" class="mode-card" data-mode="solo"><b>혼자 보기</b><small>조용히 나만의 자리에서</small></button>
+            <button type="button" class="mode-card" data-mode="create"><b>단체석 예매</b><small>방을 만들고 친구를 불러요</small></button>
+            <button type="button" class="mode-card" data-mode="join"><b>친구 표 받기</b><small>방 코드 6자리로 같이 들어가요</small></button>
+          </div>
+          <div class="mode-form" id="formCreate" hidden>
+            <input id="bkTitle" maxlength="30" placeholder="단체석 이름 (예: 금요일 밤 클래식)">
+            <label class="lb-cap"><input id="bkCap" type="number" min="1" max="50" value="50" inputmode="numeric"> 명</label>
+            <div class="lb-vis" id="bkVis">
+              <button type="button" data-pub="1" aria-pressed="true"><b>공개</b><small>열린 공연에 보여요</small></button>
+              <button type="button" data-pub="0" aria-pressed="false"><b>비공개</b><small>초대 링크로만</small></button>
+            </div>
+          </div>
+          <div class="mode-form" id="formJoin" hidden>
+            <input id="bkCode" maxlength="6" placeholder="방 코드 (예: K7QH2M)" autocapitalize="characters" spellcheck="false">
+          </div>
+          <div class="open-rooms" id="openRooms" hidden>
+            <p class="booth-sub">지금 열린 공연</p>
+            <ul id="openList"></ul>
+          </div>
+          <p class="booth-off" id="boothOffline" hidden>지금은 같이 보는 방을 열 수 없어요. 혼자 보기 표만 드릴 수 있어요.</p>
+          <div class="booth-nav"><button type="button" class="btn-plain" data-back="1">이전</button><button type="button" class="btn-enter booth-next" id="toPay" disabled>다음</button></div>
+        </section>
+
+        <section class="booth-step" data-step="3" hidden>
+          <div class="pay-summary" id="paySummary"></div>
+          <label class="lb-field">표에 적을 이름<input id="bkName" maxlength="16" spellcheck="false"></label>
+          <div class="booth-nav"><button type="button" class="btn-plain" data-back="2">이전</button><button type="button" class="btn-enter booth-next" id="payBtn"></button></div>
+        </section>
+
+        <section class="booth-step" data-step="4" hidden>
+          <div id="boothTicket"></div>
+          <p class="booth-go" id="boothGo"></p>
+          <div class="booth-nav"><button type="button" class="btn-enter booth-next" id="boothDone">표 받기</button></div>
+        </section>
+      </article>
+    </div>
+
+    <!-- through the gate: the ticket torn, the path through the trees -->
+    <div id="pzGate" class="pz-gate" hidden><div id="pzGateTicket"></div><p id="pzGateLine"></p></div>
+  </section>
+
+  <script type="module" src="js/boot.js"></script>
 </body>
 </html>

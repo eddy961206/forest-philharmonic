@@ -32,5 +32,6 @@ export function goVenue(id, { room = null } = {}) {
   const u = new URL(location.href);
   u.searchParams.set('venue', id);
   if (room) u.searchParams.set('room', room); else u.searchParams.delete('room');
+  if (!room) u.searchParams.set('lobby', '1'); // (no ticket: the lobby there, not the square)
   location.href = u.toString();
 }
