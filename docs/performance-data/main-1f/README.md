@@ -17,7 +17,7 @@
 
 `gpu-plan.json`의 WebGL2 timer query는 이 실행 환경에서는 SwiftShader 소프트웨어 질의야. 물리 GPU 시간이나 VRAM으로 표현하지 않아.
 
-**계획 파일이 있다는 것은 완료했다는 뜻이 아니야.** 이 체크포인트에서는 새로운 광장 검증을 실행 중이고 나머지 최신 1f 결과는 아직 진행 전이야. 최종 상태와 원본은 후속 커밋으로 추가해. FAIL·미실행·제외 결과를 삭제하거나 PASS로 바꾸지 않아.
+**계획 파일이 있다는 것은 완료했다는 뜻이 아니야.** 현재 광장 4개와 candidate 모바일 기능 2개는 PASS야. desktop 기능 2개는 오디오 재개 시계 정지와 구형 수동/자동 preset 기대값으로 FAIL이며 원본을 보존했어. 제품을 바꾸지 않고 수집기의 기대값만 최신 main에 맞췄고 desktop은 별도 재검사할 예정이야. 고정 품질 재측정은 실행 중이야. 최종 상태와 원본은 후속 커밋으로 추가해. FAIL·미실행·제외 결과를 삭제하거나 PASS로 바꾸지 않아.
 
 ## 계측 변경
 
@@ -26,3 +26,5 @@
 광장 수집기는 UI 발권·부스 inert/Escape·표·복귀·무표 차단을 검사하고 CSS 포함 소스를 전후 대조해. 각 호출의 LABEL은 고유해야 해.
 
 소프트웨어 렌더러, viewport/UA/touch 에뮬레이션, 직접-entry 로비와 광장 UI 경로, synthetic 시각 clock과 실제 오디오 검증을 구분해. 실제 PC 재현 가이드는 후속 문서에서 고정 도구 커밋과 함께 제공해.
+
+수집기 기대값 수정은 `functional-*-expectation-correction.json`과 원본 snapshot에 기록했어. `collector-manifest-683cd2e.json`은 수정 전 공개 도구, `collector-manifest.json`은 현재 도구의 해시야. 각 raw가 기록한 실제 collector 해시를 우선해. `functional-preset-recheck-plan.json`은 원래 FAIL 결과를 덮어쓰지 않는 별도 desktop 재검사 계획이야.

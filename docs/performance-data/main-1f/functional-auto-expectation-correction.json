@@ -1,0 +1,8 @@
+{
+  "time": "2026-10-21T10:58:23.763089+00:00",
+  "previousCollectorSha256": "983c1a0e9489ef56d2115fe79a626039d32f09be771aef9a573875928d7f2807",
+  "collectorSha256": "ceeba92f2aa3a1bdc28307ad27134a254a152505deaf6bc862c0151292548fad",
+  "reason": "Latest main 1f autoStart is capability based. Controlled desktop startup manually selects high, but SwiftShader auto reset correctly selects medium. Preserve original failures; correct assertion only, with explicit optional expectation and scale reset check. Physical desktop GPU classifier remains unchecked without EXPECTED_AUTO_PRESET.",
+  "productChanged": false,
+  "preservation": "Original 983 collector, raw failures and prior DPR correction remain untouched. Desktop recheck uses new labels/output."
+}

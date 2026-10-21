@@ -15,7 +15,7 @@ if (args.includes('--help')) {
 환경: BASE_URL, REVISION, OUTPUT_DIR, LABEL, PLAYWRIGHT_MODULE,
       CHROME_EXECUTABLE, CHROME_ARGS, SOFTWARE_RENDERER=1, FONT_MODE,
       FONT_ROOT, WIDTH, HEIGHT, DPR, TIMEOUT_MS, SCOPE=full|transport,
-      CONTINUE_ON_TRANSPORT_FAIL=1
+      CONTINUE_ON_TRANSPORT_FAIL=1, EXPECTED_AUTO_PRESET=low|medium|high
 기본 화면: desktop 960x540 DPR 1, mobile 390x844 DPR 2.
 TIMEOUT_MS 기본값은 180000이야. 명시적 렌더 프레임 대기도 같은 제한을 써.
 예전 1280x720 desktop 조건은 WIDTH=1280 HEIGHT=720으로 지정해.
@@ -28,6 +28,10 @@ CONTINUE_ON_TRANSPORT_FAIL=1은 full 진단 전용이야. 재개 2초 검사를 
 대기 전/후 상태·시점을 기록해. 최초 조작/명시적 렌더 전에만 적용하며 Hall은 해당 없어.
 이 플래그는 compile 성공이나 첫 실제 GPU 프레임 완료의 증거가 아니야.
 TIMEOUT_MS 안에 보이지 않으면 원래 timeout과 상태를 FAIL 결과에 보존해.
+수동 DPR 기대값은 main 1f 기준 high cap 1.5, medium cap 1.25×0.85, low cap 1.25야.
+자동 복귀는 모바일 low, 명시적 SwiftShader desktop medium을 기대해.
+일반 desktop은 medium/high만 확인하며 GPU 분류를 따로 검증하지 않아.
+EXPECTED_AUTO_PRESET으로 알려진 기기의 정확한 시작 preset을 추가 검증할 수 있어.
 --help는 Playwright를 로드하거나 브라우저를 시작하지 않아.`);
   process.exit(0);
 }
@@ -38,6 +42,8 @@ const scope = process.env.SCOPE || 'full';
 assert.ok(['full', 'transport'].includes(scope), 'SCOPE must be full or transport');
 const continueOnTransportFail = process.env.CONTINUE_ON_TRANSPORT_FAIL === '1';
 assert.ok(!continueOnTransportFail || scope === 'full', 'CONTINUE_ON_TRANSPORT_FAIL requires SCOPE=full');
+const expectedAutoOverride = process.env.EXPECTED_AUTO_PRESET || null;
+assert.ok(expectedAutoOverride === null || ['low', 'medium', 'high'].includes(expectedAutoOverride), 'EXPECTED_AUTO_PRESET must be low, medium or high');
 const cfg = config(process.env.LABEL || 'functional');
 const out = cfg.outputDir;
 const cases = (args[0] ? [args[0]] : ['hall', 'sphere']).flatMap(venue =>
@@ -236,7 +242,7 @@ async function runCase({ venue, device }) {
   const report = {
     schema: 2, suite: 'functional-controlled', scope, venue, device, status: 'RUNNING', url: appURL(cfg.baseURL, venue),
     label: cfg.label, revision: cfg.revision, fixtureSourceSha256,
-    diagnosticOptions: { continueOnTransportFail },
+    diagnosticOptions: { continueOnTransportFail, expectedAutoOverride },
     viewport: [size.width, size.height], devicePixelRatio: size.dpr, timeoutMs: cfg.timeoutMs,
     method: 'Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.',
     fixtures: [
@@ -763,7 +769,9 @@ async function runCase({ venue, device }) {
         assert.equal(s.render.quality, quality, 'Manual preset is not automatically lowered');
         assert.equal(s.render.scale, 1);
         assert.equal(s.render.shadows, quality !== 'low');
-        const expectedPR = Math.min(report.checks.device.dpr, quality === 'high' ? 2 : 1.25);
+        // Latest main's explicit preset values, independent of the observed renderer.
+        const expectedPR = quality === 'high' ? Math.min(report.checks.device.dpr, 1.5)
+          : Math.min(report.checks.device.dpr, 1.25) * (quality === 'medium' ? 0.85 : 1);
         assert.equal(s.render.pixelRatio, expectedPR);
         let worldPasses;
         if (venue === 'sphere' && !mobile) {
@@ -802,8 +810,19 @@ async function runCase({ venue, device }) {
       await activate(page.locator('#qualitySeg button[data-q="auto"]'));
       const auto = await renderFrame('automatic-setting');
       assert.equal(auto.state.settings.quality, 'auto');
-      assert.equal(auto.state.render.quality, initialQuality);
-      report.checks.automatic = { requested: auto.state.settings.quality, initialPreset: auto.state.render.quality, note: 'Only the setting/reset path is checked here. Adaptation policy has separate Node regression tests; synthetic functional cadence is not evidence of automatic performance.' };
+      // Manual startup is deliberately high on desktop. Returning to auto uses
+      // main's capability policy; the current software renderer starts medium.
+      // Do not mirror a GPU-name regex or silently accept any observed value.
+      const expectedAuto = expectedAutoOverride || (mobile ? 'low' : cfg.softwareRequested ? 'medium' : null);
+      if (expectedAuto) assert.equal(auto.state.render.quality, expectedAuto);
+      else assert.ok(['medium', 'high'].includes(auto.state.render.quality), 'Desktop auto starts medium or high');
+      assert.equal(auto.state.render.scale, 1, 'Returning to automatic resets the resolution scale');
+      report.checks.automatic = {
+        requested: auto.state.settings.quality, initialPreset: auto.state.render.quality,
+        expectedPreset: expectedAuto, scale: auto.state.render.scale,
+        expectationSource: expectedAutoOverride ? 'explicit-EXPECTED_AUTO_PRESET' : mobile ? 'mobile-lite' : cfg.softwareRequested ? 'explicit-SwiftShader' : 'desktop-range-only',
+        note: 'Only the setting/reset path is checked here. Without an exact expectedPreset, desktop GPU classification is not independently checked. Adaptation and recovery are not demonstrated by synthetic functional cadence.',
+      };
       await closePanel();
       report.checks.layout = await page.evaluate(() => ({
         width: innerWidth, scrollWidth: document.documentElement.scrollWidth,
