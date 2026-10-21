@@ -118,6 +118,13 @@ function buildComposer() {
   composer.addPass(new RenderPass(scene, camera));
   // only true light sources bloom: bulbs, chandeliers, lasers - never fur
   bloomPass = new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.16, 0.3, 1.35);
+  // what feeds the bloom is kept finite and in range: a single bad pixel
+  // (NaN or Inf - some GPUs make them where others don't) would otherwise be
+  // blurred across the whole frame and turn it black
+  bloomPass.materialHighPassFilter.fragmentShader = bloomPass.materialHighPassFilter.fragmentShader.replace(
+    'vec4 texel = texture2D( tDiffuse, vUv );',
+    'vec4 texel = texture2D( tDiffuse, vUv ); texel = clamp( texel, vec4( 0.0 ), vec4( 64.0 ) );',
+  );
   bloomPass.enabled = q.bloom;
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());

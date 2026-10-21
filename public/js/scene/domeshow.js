@@ -106,8 +106,11 @@ uniform vec4 uLiveRect;      // az0, az1, el0, el1
 #define OCT ${lite ? 3 : 5}
 
 float hash1(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
-float hash2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-vec2 hash22(vec2 p) { return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453); }
+// (no sine: on Apple GPUs sin() of a large argument is fast and loose and can
+// come back NaN - and one NaN on the dome turned the whole picture black once
+// the bloom had spread it)
+float hash2(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+vec2 hash22(vec2 p) { vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973)); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.xx + p3.yz) * p3.zy); }
 float noise(vec3 x) {
   vec3 i = floor(x); vec3 f = fract(x); f = f * f * (3.0 - 2.0 * f);
   return mix(mix(mix(hash1(i), hash1(i + vec3(1,0,0)), f.x), mix(hash1(i + vec3(0,1,0)), hash1(i + vec3(1,1,0)), f.x), f.y),
@@ -675,8 +678,9 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
-  // (premultiplied: over the first world it makes mix(first, next, alpha))
-  gl_FragColor = vec4(gl_FragColor.rgb * alpha + seam * smoothstep(0.0, 1.4, edgeV), alpha);
+  // (premultiplied: over the first world it makes mix(first, next, alpha);
+  // kept finite and in range whatever happened above - see hash2)
+  gl_FragColor = vec4(clamp(gl_FragColor.rgb * alpha + seam * smoothstep(0.0, 1.4, edgeV), 0.0, 16.0), clamp(alpha, 0.0, 1.0));
 }`;
 
 // renderer + quality: the ray-traced worlds need the renderer (they are
