@@ -962,6 +962,26 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
   #joyKnob { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
   .jump-btn { width: 58px; height: 58px; right: calc(max(22px, env(safe-area-inset-right)) + 92px); }
 }
+/* (a landscape phone: the lift buttons two by two, under the title, clear of
+   the start button and of the sit / jump buttons) */
+@media (orientation: landscape) and (max-height: 500px) {
+  .lift-panel { top: calc(var(--gutter) + 72px); transform: none; padding: 6px 8px 8px; }
+  .lift-panel p { margin-bottom: 4px; }
+  .lift-btns { grid-template-columns: repeat(2, auto); gap: 4px; }
+  .lift-btns button { width: 56px; }
+}
+/* (the square, top right: the quick-entry card under the name chip, both
+   bounded; on a phone the act button sits above the thumb stick) */
+.pz-quick { top: 81px; max-width: min(320px, calc(100vw - 2 * var(--gutter))); }
+.pz-quick small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pz-who { min-width: 0; }
+.pz-who b { max-width: min(40vw, 260px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 640px) { .pz-quick { top: 58px; } }
+@media (max-width: 560px) {
+  /* (to the right of the stick, under the toast's place above it) */
+  #pzAct { left: auto; right: max(var(--gutter), env(safe-area-inset-right)); transform: none; bottom: calc(max(64px, 12vh) + 40px); max-width: calc(100vw - 168px); }
+}
+@media (max-width: 400px) { #pzAct { font-size: 14px; padding: 8px 12px; } .pz-who b { max-width: 32vw; } }
 /* (a tablet: the encore above the thumb stick and the jump button) */
 @media (min-width: 761px) and (min-height: 700px) { html.touch .encore { bottom: 290px; } }
 /* ---- end of the venue HUD layout pass ---- */

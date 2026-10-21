@@ -204,9 +204,14 @@ export class Performance {
     if (!act.length) return;
     const top = act.slice(0, Math.max(1, Math.ceil(act.length * 0.6)));
     const L = 10 * Math.log10(top.reduce((s, v) => s + v, 0) / top.length);
-    const mood = p.finale ? 2 : p.mood === 'grand' ? 1 : p.mood === 'calm' ? -1 : 0;
+    // (a piano alone sits a little under the orchestra; an orchestral finale
+    // is never turned down - it is the loudest moment of the evening)
+    const solo = p.tracks.every((t) => t.inst === 'piano');
+    let mood = (p.mood === 'grand' ? 1 : p.mood === 'calm' ? -1 : 0) + (p.finale ? 1 : 0) - (solo ? 1.5 : 0);
+    let trim = 0.9 * (LEVEL_REF - L) + mood;
+    if (p.finale && !solo) trim = Math.max(trim, 1);
     this.levelDb = L;
-    e.setTrim(Math.min(6, Math.max(-9, 0.9 * (LEVEL_REF - L) + mood)), 1.2);
+    e.setTrim(Math.min(6, Math.max(-9, trim)), 1.2);
   }
 
   pause() {

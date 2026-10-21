@@ -1729,7 +1729,8 @@ function wireRoom(c) {
     membersChanged();
     if (first) {
       seatAudience(); // the same house for everyone in the room
-      try { history.replaceState(null, '', roomAddress(c.room.code)); } catch { /* file: */ }
+      // (a ticket carried in the address - storage blocked - stays there; never in the invite)
+      try { const t = new URLSearchParams(location.search).get('t'); history.replaceState(null, '', roomAddress(c.room.code) + (t ? `&t=${encodeURIComponent(t)}` : '')); } catch { /* file: */ }
       ui.chatLine({ sys: true, text: c.isHost ? `방을 만들었어요. 방 코드는 ${c.room.code} — 오른쪽 위 방 이름을 눌러 초대 링크를 복사할 수 있어요.` : `「${c.room.title}」에 들어왔어요.` });
     }
     refreshOccupied();
@@ -2037,6 +2038,7 @@ function frame() {
   effects.update(wall, dt);
   director.joy.x = ui.joy.x;
   director.joy.y = ui.joy.y;
+  director.stick = ui.stickTouch; // (a pinch begun in the stick's corner, see director)
   animateAudience(wall, dt, performance.now() < clapUntil, { hush, sleep: sleepy ? 1 : 0 });
   spot.update(dt);
   const nod = recital.update(dt, t, perf.playing);

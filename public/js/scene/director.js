@@ -36,6 +36,7 @@ export class Director {
     this.vel = V();
     this.keys = new Set();
     this.joy = { x: 0, y: 0 }; // virtual joystick (-1..1)
+    this.stick = null; // the finger on the thumb stick, if any (see ui.js stickTouch)
     this.anim = null;
     this.seat = null;
     this.nearSeat = null;
@@ -334,6 +335,16 @@ export class Director {
     window.addEventListener('blur', () => { this.mouse.inside = false; });
     el.addEventListener('pointerdown', (e) => {
       if (this.locked) return;
+      // a pinch whose first finger landed in the thumb stick's corner: that
+      // finger (just down, hardly moved) is taken back from the stick, and
+      // the two zoom - rather than one walking and the other turning
+      const s = this.stick;
+      if (e.pointerType === 'touch' && !pointers.size && s && s.id !== null && performance.now() - s.t < 220 && s.moved < 12) {
+        const id = s.id;
+        s.release();
+        pointers.set(id, { x: s.x, y: s.y, type: 'touch', moved: 0, adopted: true });
+        lookPointer = id;
+      }
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY, type: e.pointerType, moved: 0 });
       if (pointers.size === 2) {
         const [a, b] = [...pointers.values()];
@@ -347,7 +358,7 @@ export class Director {
       // (a second click while the mouse is being captured cannot be held)
       try { el.setPointerCapture(e.pointerId); } catch { /* fine */ }
     });
-    el.addEventListener('pointermove', (e) => {
+    const onMove = (e) => {
       if (this.locked) return;
       const p = pointers.get(e.pointerId);
       if (!p) return;
@@ -368,7 +379,8 @@ export class Director {
       // drag to look: pull right and you turn right, like holding the
       // camera (the same direction as the captured mouse)
       this._look(dx, dy, (this.fov / 64) * 0.0042);
-    });
+    };
+    el.addEventListener('pointermove', onMove);
     const up = (e) => {
       const p = pointers.get(e.pointerId);
       // (a tap: this finger stayed put, alone, and was lifted - not cancelled)
@@ -388,6 +400,9 @@ export class Director {
     };
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', up);
+    // (the finger taken from the stick still moves over the stick's corner)
+    window.addEventListener('pointermove', (e) => { if (pointers.get(e.pointerId)?.adopted) onMove(e); });
+    for (const t of ['pointerup', 'pointercancel']) window.addEventListener(t, (e) => { if (pointers.get(e.pointerId)?.adopted) up(e); });
     el.addEventListener('wheel', (e) => { e.preventDefault(); this.zoom(e.deltaY); }, { passive: false });
     el.addEventListener('dblclick', (e) => {
       if (e.sourceCapabilities?.firesTouchEvents) return;

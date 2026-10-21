@@ -920,6 +920,30 @@ export class UI {
   _initJoystick() {
     // (a thumb stick that comes to your left thumb: see joystick.js)
     this.joy = thumbStick({ base: $('joystick'), knob: $('joyKnob'), zone: $('joyZone') });
+    // The finger on the stick, for the walker: a pinch whose first finger
+    // happened to land in the stick's corner takes that finger back from the
+    // stick (release) and zooms, instead of walking and turning
+    const s = (this.stickTouch = { id: null, x: 0, y: 0, t: 0, moved: 0, el: null });
+    s.release = () => {
+      const id = s.id;
+      try { s.el?.releasePointerCapture(id); } catch { /* already gone */ }
+      // (the stick lets go of that finger as if it had been lifted)
+      try { s.el?.dispatchEvent(new PointerEvent('pointercancel', { pointerId: id, pointerType: 'touch', bubbles: true })); } catch { /* old browser */ }
+      s.id = null;
+    };
+    for (const el of [$('joyZone'), $('joystick')]) {
+      el.addEventListener('pointerdown', (e) => {
+        if (s.id !== null) return;
+        Object.assign(s, { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), moved: 0, el });
+      });
+      el.addEventListener('pointermove', (e) => {
+        if (e.pointerId !== s.id) return;
+        s.moved += Math.abs(e.clientX - s.x) + Math.abs(e.clientY - s.y);
+        s.x = e.clientX;
+        s.y = e.clientY;
+      });
+      for (const t of ['pointerup', 'pointercancel']) el.addEventListener(t, (e) => { if (e.pointerId === s.id) s.id = null; });
+    }
   }
 
   // --------------------------------------------- the string progress bar
