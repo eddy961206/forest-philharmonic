@@ -244,9 +244,25 @@ async function boot() {
   // recital's chairs, ...) rather than with a hitch the first time they appear
   recital.show(true);
   try { renderer.compile(scene, camera); } catch { /* fine: compiled on first use */ }
+  warmTextures();
   recital.show(false);
   stage.clearStage();
   ui.ready();
+}
+
+// Every picture in the building sent to the GPU now, behind the loading
+// screen - not the first time it comes into view (a turn of the head that
+// stalls for a second on a laptop's graphics)
+function warmTextures() {
+  const seen = new Set();
+  scene.traverse((o) => {
+    const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+    for (const m of ms) {
+      for (const k in m) { const v = m[k]; if (v && v.isTexture && !v.isRenderTargetTexture) seen.add(v); }
+      if (m.uniforms) for (const u of Object.values(m.uniforms)) if (u?.value?.isTexture && !u.value.isRenderTargetTexture) seen.add(u.value);
+    }
+  });
+  for (const t of seen) { try { renderer.initTexture(t); } catch { /* uploaded on first use instead */ } }
 }
 
 ui.on('enter', async (opt) => {
@@ -1857,7 +1873,10 @@ function frame() {
   hall.updateLOD?.(camera.position);
   if (settings.screen && concertStarted) {
     // (in the Sphere the picture is only filmed while it is on the dome)
-    screen.update(dt, { perf, time: t, phase, nextPiece }, IS_SPHERE && !hall.dome.liveActive ? 0 : QUALITY[quality].screenEvery);
+    // (the picture is filmed only while someone can see it: from the foyer
+    // it shows, at most, through a door)
+    const seen = IS_SPHERE ? hall.dome.liveActive : screenInView();
+    screen.update(dt, { perf, time: t, phase, nextPiece }, seen ? QUALITY[quality].screenEvery : 0);
   }
 
   orchestra.syncLite();
@@ -1914,6 +1933,15 @@ function autoQuality(fps) {
     raisedAt = now;
     applyQuality();
   }
+}
+
+// Is the big screen (the hall's) anywhere in the camera's view?
+const _screenBox = IS_SPHERE ? null : new THREE.Box3().setFromObject(screen.group);
+function screenInView() {
+  if (!interiorShown) return false;
+  camera.updateMatrixWorld();
+  _frustum.setFromProjectionMatrix(_pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  return _frustum.intersectsBox(_screenBox);
 }
 
 // The hall from the foyer: the house (thousands of seats and guests, drawn
