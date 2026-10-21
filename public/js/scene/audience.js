@@ -7,9 +7,11 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const clean = (g) => {
-  const n = g.index ? g.toNonIndexed() : g;
-  for (const k of Object.keys(n.attributes)) if (!['position', 'normal'].includes(k)) n.deleteAttribute(k);
-  return n;
+  // Keep the primitive's shared vertices: the per-vertex breathing/clapping
+  // shader does not need a separate copy for every triangle corner.
+  if (!g.index) g.setIndex(Array.from({ length: g.attributes.position.count }, (_, i) => i));
+  for (const k of Object.keys(g.attributes)) if (!['position', 'normal'].includes(k)) g.deleteAttribute(k);
+  return g;
 };
 const merge = (list) => mergeGeometries(list.map(clean));
 const pick = (arr, r) => arr[Math.floor(r * arr.length) % arr.length];

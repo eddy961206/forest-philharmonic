@@ -115,8 +115,11 @@ class Walker {
       this.phase += dt * 7.2 * (0.4 + 0.6 * facing);
       ch.walk(this.phase, 0.5 * (0.4 + 0.6 * facing));
       ch.setStanding(1);
-      // feet follow the floor; steps are short and quick
-      this.pos.y = smooth(this.pos.y, floorAt(this.pos.x, this.pos.z), 14, dt);
+      // feet follow the floor; steps are short and quick (and never more
+      // than a few centimetres off it, even crossing two treads at once)
+      const under = floorAt(this.pos.x, this.pos.z);
+      this.pos.y = smooth(this.pos.y, under, 22, dt);
+      this.pos.y = Math.min(under + 0.06, Math.max(under - 0.04, this.pos.y));
       ch.root.position.copy(this.pos).add(V(0, Math.abs(Math.sin(this.phase)) * 0.025, 0));
       ch.root.rotation.y = this.yaw;
       this._swingArms(true);
@@ -202,9 +205,10 @@ export class StageManager {
     this.conductorOn = false;
   }
 
-  _arrive(w) {
+  // (stand: a soloist stays on their feet to take the welcome, see greet)
+  _arrive(w, stand = false) {
     return () => {
-      if (w.standingRole) { w.state = 'standing'; w.sitTarget = 0; } else { w.state = 'sitting'; w.sitTarget = 1; }
+      if (w.standingRole || stand) { w.state = 'standing'; w.sitTarget = 0; } else { w.state = 'sitting'; w.sitTarget = 1; }
     };
   }
 
@@ -226,18 +230,12 @@ export class StageManager {
   }
 
   exitAll() {
-    if (!this.onstage) return;
+    // (only those on stage: with rosters some may already be off)
+    const on = this.walkers.filter((w) => w.state !== 'off' && !w.leaving);
+    if (on.length) this.sendOff(on);
     this.onstage = false;
-    for (const side of ['L', 'R']) {
-      const list = this.walkers.filter((w) => w.door === side).sort((a, b) => a.routeLen - b.routeLen);
-      let t = 0.6;
-      for (const w of list) {
-        w.wasSeated = true;
-        w.walk([...w.route].reverse().slice(1), () => w.teleportOff(), t);
-        t += SPACING * 0.9 + Math.random() * 0.3;
-      }
-    }
   }
+
 
   conductorEnter() {
     if (this.conductorOn) return;
@@ -281,11 +279,108 @@ export class StageManager {
     }
   }
 
+  // ------------------------------------------------------------ the roster
+  // Who plays a piece changes from piece to piece: players are named by
+  // 'section:chair'. change() sends off whoever is not wanted (unless they
+  // are kept for the next piece) and calls on whoever is missing; exits
+  // first, then the entries - farthest seat first through each door, so
+  // nobody squeezes past a colleague.
+  static key(w) { return `${w.player.sid}:${w.player.ci}`; }
+
+  // the players on stage (or walking on): not off, and not on their way out
+  onstageKeys() {
+    const out = new Set();
+    for (const w of this.walkers) if (w.state !== 'off' && !w.leaving) out.add(StageManager.key(w));
+    return out;
+  }
+
+  plan(target, keep = new Set()) {
+    const exits = [];
+    const enters = [];
+    for (const w of this.walkers) {
+      const k = StageManager.key(w);
+      const on = w.state !== 'off' && !w.leaving;
+      if (on && !target.has(k) && !keep.has(k)) exits.push(w);
+      if (!on && target.has(k)) enters.push(w);
+    }
+    return { exits, enters };
+  }
+
+  // (leaving needs less room between them than arriving: nobody sits down
+  // in the way)
+  sendOff(list, spacing = SPACING * 0.55) {
+    for (const side of ['L', 'R']) {
+      const mine = list.filter((w) => w.door === side).sort((a, b) => a.routeLen - b.routeLen);
+      let t = 0.5;
+      for (const w of mine) {
+        w.wasSeated = w.state === 'seated' || w.state === 'standing';
+        w.leaving = true;
+        w.walk([...w.route].reverse().slice(1), () => { w.leaving = false; w.teleportOff(); }, t);
+        t += spacing + Math.random() * 0.3;
+      }
+    }
+    this.onstage = this.walkers.some((w) => w.state !== 'off' && !w.leaving);
+  }
+
+  callOn(list, spacing = SPACING, { stand = false } = {}) {
+    for (const side of ['L', 'R']) {
+      const mine = list.filter((w) => w.door === side).sort((a, b) => b.routeLen - a.routeLen);
+      let t = 0.4;
+      for (const w of mine) {
+        w.wasSeated = false;
+        w.leaving = false;
+        w.teleportOff();
+        w.walk(w.route, this._arrive(w, stand), t);
+        t += spacing + Math.random() * 0.35;
+      }
+    }
+    if (list.length) this.onstage = true;
+  }
+
+  // everyone in the list has sat down (or stands in place, the choir)
+  arrived(list) { return list.every((w) => w.state === 'seated' || w.state === 'standing'); }
+  gone(list) { return list.every((w) => w.state === 'off'); }
+
+  // straight to a roster (arriving late, or skipping ahead)
+  snapRoster(keys) {
+    for (const w of this.walkers) {
+      if (keys.has(StageManager.key(w))) this._snapHome(w);
+      else { w.path = []; w.leaving = false; w.teleportOff(); }
+    }
+    this.onstage = keys.size > 0;
+  }
+
+  _snapHome(w) {
+    w.path = [];
+    w.leaving = false;
+    w.state = w.standingRole ? 'standing' : 'seated';
+    w.sit = w.sitTarget = w.standingRole ? 0 : 1;
+    w.bow = w.bowTarget = 0;
+    w.pos.copy(w.home);
+    w.yaw = w.homeYaw;
+    w.char.root.visible = true;
+    w.char.setStanding(1 - w.sit);
+    w.char.root.position.copy(w.pos);
+    w.char.root.rotation.y = w.yaw;
+  }
+
+  // a soloist (or a small group) greets the audience: up, a bow, down again
+  greet(list, on) {
+    for (const w of list) {
+      if (!w.atHome) continue;
+      if (!w.standingRole) { w.sitTarget = on ? 0 : 1; w.state = 'sitting'; }
+      w.bowTarget = on ? 0.5 : 0;
+      // turned to the house for the bow, back to the instrument after
+      w.faceYaw = on ? Math.atan2(w.home.x, w.home.z - 30) : null; // (forward is -z)
+    }
+  }
+
   // Watching together, arriving late: put everyone where the show already
   // is - the orchestra in place, the conductor on the podium or not
   snapOnstage() {
     this.onstage = true;
     for (const w of this.walkers) {
+      w.leaving = false;
       w.path = [];
       w.state = w.standingRole ? 'standing' : 'seated';
       w.sit = w.sitTarget = w.standingRole ? 0 : 1;

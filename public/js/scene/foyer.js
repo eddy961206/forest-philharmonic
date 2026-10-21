@@ -4,7 +4,7 @@
 // moonlit forest. You arrive here, and you climb from here to the balconies.
 import * as THREE from 'three';
 import { M, phys } from './materials.js';
-import { HALL, LEVELS, LEVEL_NAMES, FOYER, FOYER_COLUMNS, SPIRAL, SPIRAL_RISE, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, spiralAngle, BRIDGE_END } from './hallplan.js';
+import { HALL, LEVELS, LEVEL_NAMES, FOYER, FOYER_DECOR, FOYER_COLUMNS, SPIRAL, SPIRAL_RISE, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, spiralAngle, BRIDGE_END } from './hallplan.js';
 import { mergeAll, wallSeg, buildChandelier, nightForestTexture } from './hall.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -347,8 +347,10 @@ export function buildFoyer(group, { halo, lite = false }) {
   add(group, posts, M.gilt());
   add(group, steps, M.marble());
   add(group, stepCarpet, M.carpetField());
-  add(group, soffit, M.ivoryPlaster());
-  add(group, stringer, M.walnut());
+  // (single sheets: seen from under the stairs as well as from outside)
+  const two = (m) => { const c = m.clone(); c.side = THREE.DoubleSide; return c; };
+  add(group, soffit, two(M.ivoryPlaster()));
+  add(group, stringer, two(M.walnut()));
   add(group, newels, M.marbleDark());
 
   // turned balusters (galleries, bridges, stairs)
@@ -403,7 +405,7 @@ export function buildFoyer(group, { halo, lite = false }) {
   // -------------------------------------------------------------- decor
   const pots = [];
   const leaves = [];
-  for (const [x, z] of [[-3.6, 41.0], [3.6, 41.0], [-13.6, 33.4], [13.6, 33.4]]) {
+  for (const [x, z] of FOYER_DECOR.pots) {
     pots.push(new THREE.CylinderGeometry(0.42, 0.3, 0.7, 20).translate(x, Y1 + 0.35, z));
     pots.push(new THREE.TorusGeometry(0.42, 0.04, 8, 24).rotateX(Math.PI / 2).translate(x, Y1 + 0.7, z));
     leaves.push(new THREE.SphereGeometry(0.62, 14, 10).translate(x, Y1 + 1.55, z));
@@ -414,7 +416,7 @@ export function buildFoyer(group, { halo, lite = false }) {
   add(group, leaves, M.leaf());
   // round velvet ottomans
   const ott = [];
-  for (const x of [-4.4, 4.4]) {
+  for (const [x] of FOYER_DECOR.ottomans) {
     ott.push(new THREE.CylinderGeometry(1.0, 1.0, 0.42, 32).translate(x, Y1 + 0.24, 37.6));
     ott.push(new THREE.CylinderGeometry(0.28, 0.32, 0.6, 20).translate(x, Y1 + 0.6, 37.6));
     giltG.push(new THREE.TorusGeometry(1.0, 0.03, 6, 40).rotateX(Math.PI / 2).translate(x, Y1 + 0.05, 37.6));

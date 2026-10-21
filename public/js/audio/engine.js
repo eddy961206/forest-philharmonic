@@ -12,7 +12,7 @@
 // roll-off - the same cues that make seats sound different in a real hall.
 
 import { SECTIONS, sectionCenter, sectionFacing } from '../layout.js';
-import { renderApplause } from './crowd.js';
+import { prepareCrowd } from './crowd-loader.js';
 
 const FAMILY = {
   violin: 'strings', viola: 'strings', cello: 'strings', contrabass: 'strings', strings: 'strings',
@@ -47,11 +47,16 @@ export class AudioEngine {
     this.listenerMode = 'camera';
     this.volume = 0.8;
     this._listenerPose = null;
+    this._crowd = null;
+    this._crowdPreparation = null;
   }
 
   // lite: phones - a lower sample rate, shorter samples, cheaper panning
   // acoustics: the room (a venue other than the hall passes its own)
   async init({ lite = false, acoustics = null } = {}) {
+    this._crowdPreparation?.cancel();
+    this._crowdPreparation = null;
+    this._crowd = null;
     this.lite = lite;
     this._lp = null;
     this._listenerPose = null;
@@ -513,17 +518,22 @@ export class AudioEngine {
   // ------------------------------------------------------------ applause
   _prepareCrowd() {
     if (this._crowd) return;
-    const ctx = this.ctx;
-    this._crowd = {
-      welcome: renderApplause(ctx, { seconds: 5.5, people: 120, seed: 11 }),
-      normal: [renderApplause(ctx, { seconds: 10, people: 170, seed: 21 }), renderApplause(ctx, { seconds: 10, people: 170, seed: 22 })],
-      finale: renderApplause(ctx, { seconds: 15, people: 240, seed: 31, rhythmic: true }),
-    };
+    this.prepareApplause();
+    // Direct callers keep the old synchronous guarantee even if preparation
+    // has not finished. Stop the worker before completing any missing profiles.
+    this._crowd = this._crowdPreparation.finishSync();
   }
 
-  // Pre-render the crowd once (a few hundred milliseconds at load)
+  // Start alongside sample loading; await before enabling the concert UI.
+  // Concurrent and subsequent calls share one promise per AudioContext.
   prepareApplause() {
-    this._prepareCrowd();
+    if (!this._crowdPreparation) {
+      const preparation = this._crowdPreparation = prepareCrowd(this.ctx);
+      preparation.promise.then(crowd => {
+        if (this._crowdPreparation === preparation && crowd) this._crowd = crowd;
+      }, () => { /* awaiting callers handle preparation errors */ });
+    }
+    return this._crowdPreparation.promise;
   }
 
   // intensity < 0.8: a short welcome; >= 1.2: the finale with rhythmic

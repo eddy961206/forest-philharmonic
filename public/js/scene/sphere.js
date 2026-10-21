@@ -216,7 +216,8 @@ const SPHERE_STYLE = (() => {
   return {
     boards: () => deck, skirt: () => skirt, trim: () => steel, rail: () => steel, carpet: () => carpet, shell: () => shell, leaf: () => leaf,
     strip: { color: '#d9f0ff', emissive: '#8fd0ff', intensity: 1.8 },
-    backstage: '#000000', shelf: false, apronPilasters: false,
+    backstage: '#000000', backstageCurtain: true, shelf: false, apronPilasters: false,
+    shellHeight: 2.9, shellSides: 1.0, // low, and waist-high past the doors: the side sections see in
   };
 })();
 
@@ -228,7 +229,9 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
 
   // ------------------------------------------------------------ materials
   const mat = {
-    concrete: new THREE.MeshStandardMaterial({ color: '#17181c', roughness: 0.82 }),
+    // (the bowl's side walls and the tunnels are seen from both sides here
+    // and there - at row ends and beside the tunnel mouths)
+    concrete: new THREE.MeshStandardMaterial({ color: '#17181c', roughness: 0.82, side: THREE.DoubleSide }),
     tread: new THREE.MeshStandardMaterial({ color: '#1a1b20', roughness: 0.9 }),
     aisle: new THREE.MeshStandardMaterial({ color: '#202127', roughness: 0.75 }),
     riser: new THREE.MeshStandardMaterial({ color: '#0f1013', roughness: 0.85 }),
@@ -241,7 +244,7 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
     led: new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#8fd0ff', emissiveIntensity: 1.6 }),
     // (the tunnels and cars are lit from within: a warm emissive stands in
     // for their ceiling lights, which would cost a light each)
-    tunnel: new THREE.MeshStandardMaterial({ color: '#2a2b30', roughness: 0.8, emissive: '#5a4630', emissiveIntensity: 0.22 }),
+    tunnel: new THREE.MeshStandardMaterial({ color: '#2a2b30', roughness: 0.8, emissive: '#5a4630', emissiveIntensity: 0.22, side: THREE.DoubleSide }),
     tunnelLight: new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#ffe2b8', emissiveIntensity: 1.1 }),
     car: new THREE.MeshStandardMaterial({ color: '#8a8f98', roughness: 0.35, metalness: 0.55, emissive: '#3c3e44', emissiveIntensity: 0.55 }),
     carFloor: new THREE.MeshStandardMaterial({ color: '#2a2b30', roughness: 0.6, emissive: '#2a2a2e', emissiveIntensity: 0.4 }),
@@ -392,6 +395,7 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
     // cap on top of the last wall, and the wall's ends
     if (!next) arcStrip(A.wall, T.rBack, T.rBack + 0.6, -thW, thW, top);
     const bW = T.solid ? 0 : underY(T, T.rEnd);
+    // (A.side is drawn both ways: from the cross-aisle you see its inside)
     for (const s of [-1, 1]) radialWall(A.side, s * thW, T.rEnd, T.rBack + 0.01, bW, top, bW, top, s);
     // a ribbon of light along the foot of the back wall
     arcWall(A.led, T.rBack - 0.01, -thW, thW, T.aisleY + 0.05, T.aisleY + 0.08);

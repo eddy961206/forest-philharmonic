@@ -214,7 +214,9 @@ function barrierTop(x, z, fy) {
       const d = (ath - edge) * r;
       // (the 100 level is solid to the floor: its low front rows need none)
       if (T.solid && yRow < 0.9) continue;
-      if (d > -0.12 && d < 0.18 && fy > yRow - 0.45 && fy < yRow + 1.0 - VAULT) return yRow + 1.0;
+      // (the cross-aisle behind the last row ends in a full-height wall - no
+      // rail to swing over, see sphere.js)
+      if (i >= T.rows) { if (d > -0.12 && d < 0.18 && fy > yRow - 0.45 && fy < yRow + 3.0) return yRow + 4.0; } else if (d > -0.12 && d < 0.18 && fy > yRow - 0.45 && fy < yRow + 1.0 - VAULT) return yRow + 1.0;
     }
   }
   return null;
@@ -289,12 +291,19 @@ export function sphereSeatList() {
         const th = -thM + ((k + shift) * pitch) / r;
         if (th > thM) break;
         if (AISLE_FR.some((f) => Math.abs((th - f * T.spanRad) * r) < AISLE_HALF + 0.24)) continue;
+        // the low front rows at the far ends of the 100s look at the side of
+        // the stage from below its deck: no seats there (an open wedge that
+        // narrows row by row; measured from each seat's eye)
+        if (T.n === 1 && i < 10 && Math.abs(th) > 1.13 + 0.025 * i) continue;
         const p = fromPolar(r, th);
         const sec = sectionOf(T, th);
         nums[sec] = (nums[sec] || 0) + 1;
         list.push({
           x: p.x, y: T.y0 + i * T.rise, z: p.z, yaw: th, type: 'sphere', color: '#1b2233',
           level: T.name, tier: T.n, section: `${T.n}0${sec}`, row: `${rowNo(i)}`, num: nums[sec], rowSlope: -Math.tan(th),
+          // the seat is solid right back to the riser of the row behind (no
+          // slot behind the shell to drop into from the row above)
+          backLen: T.depth - 0.55 - 0.04,
         });
       }
     }
