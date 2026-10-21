@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { AdaptiveQuality } from '../public/js/quality.js';
 
-function feed(c, ms, seconds) {
+function feed(c, ms, seconds, policy) {
   const changes = [];
   for (let t = 0; t < seconds * 1000; t += ms) {
-    const change = c.sample(ms);
+    const change = c.sample(ms, policy);
     if (change) changes.push(change);
   }
   return changes;
@@ -81,4 +81,82 @@ test('가벼운 자동 모드의 회복 상한과 잘못된 입력을 지켜', (
   feed(c,1000/60,120);
   assert.equal(c.quality,'medium');
   assert.equal(c.scale,1);
+});
+
+test('입장이나 전환 유예는 이전 느린 관측을 버리고 새 관측부터 판단해', () => {
+  const c = new AdaptiveQuality();
+  feed(c, 30, 9);
+  assert.equal(c.slow, 1);
+  c.hold(3500);
+  assert.equal(c.slow, 0);
+  assert.equal(c.fast, 0);
+  assert.equal(c.samples.length, 0);
+  assert.equal(feed(c, 100, 3.5).length, 0);
+  assert.equal(feed(c, 30, 3).length, 0);
+  assert.equal(c.quality, 'high');
+  assert.equal(c.scale, 1);
+  assert.equal(feed(c, 30, 3).length, 1);
+});
+
+test('긴 방해 뒤 유예 끝을 가로지른 프레임은 부하로 누적하지 않아', () => {
+  const c = new AdaptiveQuality({ nowMs: 1000 });
+  c.hold(3500, 100000);
+  assert.equal(c.holdUntil, 103500);
+  assert.equal(c.sample(100000, { nowMs: 103600 }), null);
+  assert.equal(c.samples.length, 0);
+  assert.equal(c.slow, 0);
+  assert.equal(feed(c, 30, 3).length, 0);
+  assert.equal(c.quality, 'high');
+});
+
+test('곡 중에는 해상도를 먼저 조절하고 보통 부하로 프리셋을 바꾸지 않아', () => {
+  const playing = { allowPresetChange: false, allowRecovery: false };
+  const c = new AdaptiveQuality({ quality: 'high' });
+  const changes = feed(c, 30, 100, playing);
+  assert.ok(changes.length > 0);
+  assert.ok(changes.every(change => change.quality === 'high'));
+  assert.equal(c.quality, 'high');
+  assert.equal(c.scale, 0.6);
+  assert.equal(feed(c, 30, 30, playing).length, 0);
+  const between = feed(c, 30, 3, { allowPresetChange: true, allowRecovery: true });
+  assert.equal(between.length, 1);
+  assert.equal(between[0].quality, 'medium');
+});
+
+test('곡 중에도 심한 지속 부하는 프리셋을 내리고 0.6 바닥을 지켜', () => {
+  const c = new AdaptiveQuality({ quality: 'high' });
+  const changes = feed(c, 100, 100, { allowPresetChange: false, allowRecovery: false });
+  assert.ok(changes.some(change => change.quality === 'medium'));
+  assert.equal(c.quality, 'low');
+  assert.equal(c.scale, 0.6);
+  assert.ok(changes.every(change => change.scale >= 0.6));
+});
+
+test('해상도와 프리셋 복구는 곡 사이에만 하고 Lite 상한을 넘지 않아', () => {
+  const c = new AdaptiveQuality({ quality: 'low', scale: 0.6, maxQuality: 'medium' });
+  assert.equal(feed(c, 1000 / 60, 60, { allowPresetChange: false, allowRecovery: false }).length, 0);
+  assert.equal(c.scale, 0.6);
+  c.hold(3500); // the new concert phase starts with its own grace period
+  const changes = feed(c, 1000 / 60, 150, { allowPresetChange: true, allowRecovery: true });
+  assert.ok(changes.length >= 5);
+  assert.ok(changes.every(change => change.reason === 'recovery' && change.quality !== 'high'));
+  assert.equal(c.quality, 'medium');
+  assert.equal(c.scale, 1);
+});
+
+test('실패한 복구는 전환·숨김 유예 뒤에도 재시도하지 않고 수동 선택으로 초기화해', () => {
+  const c = new AdaptiveQuality({ quality: 'low', scale: 0.6 });
+  assert.equal(feed(c, 1000 / 60, 22).length, 1);
+  assert.equal(c.scale, 0.7);
+  const raisedAt = c.raisedAt;
+  feed(c, 100, 20);
+  assert.equal(c.scale, 0.6);
+  assert.equal(c.raiseBlocked, true);
+  c.hold(6000);
+  assert.equal(c.raisedAt, raisedAt);
+  assert.equal(c.raiseBlocked, true);
+  assert.equal(feed(c, 1000 / 60, 90).length, 0);
+  c.reset('low', 0.6);
+  assert.equal(c.raiseBlocked, false);
+  assert.ok(feed(c, 1000 / 60, 30).some(change => change.reason === 'recovery'));
 });

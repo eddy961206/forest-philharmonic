@@ -125,7 +125,7 @@ class Walker {
       this._swingArms(true);
       return;
     }
-    if (this.state === 'off') return;
+    if (this.state === 'off' || this.state === 'away') return;
     this._idle(dt);
   }
 
@@ -335,6 +335,32 @@ export class StageManager {
       }
     }
     if (list.length) this.onstage = true;
+  }
+
+  // ------------------------------------------------------- the interval
+  // A player who is off stage can be somewhere else for a while (practising
+  // in the foyer, sitting in a seat that was left empty): placed there,
+  // seated, not walked by us until given back.
+  borrow(key, pos, yaw, { sit = true } = {}) {
+    const w = this.walkers.find((q) => StageManager.key(q) === key);
+    if (!w || (w.state !== 'off' && w.state !== 'away')) return null;
+    w.state = 'away';
+    w.path = [];
+    w.leaving = false;
+    w.pos.set(pos.x, pos.y, pos.z);
+    w.yaw = yaw;
+    w.sit = w.sitTarget = sit ? 1 : 0;
+    w.bow = w.bowTarget = 0;
+    w.char.root.visible = true;
+    w.char.setStanding(1 - w.sit);
+    w.char.root.position.copy(w.pos);
+    w.char.root.rotation.y = yaw;
+    w.char.walk(0, 0);
+    return w;
+  }
+
+  giveBack(w) {
+    if (w && w.state === 'away') w.teleportOff();
   }
 
   // everyone in the list has sat down (or stands in place, the choir)

@@ -11,6 +11,7 @@ function fixture({ legacy = false, sampleRate = 48000 } = {}) {
   const writes = [];
   const param = (name) => ({
     setTargetAtTime(value, time, constant) { writes.push({ name, value, time, constant }); },
+    setValueAtTime(value, time) { writes.push({ name, value, time }); },
   });
   const listener = legacy ? {
     setPosition(...values) { writes.push({ name: 'position', values }); },
@@ -25,7 +26,33 @@ function fixture({ legacy = false, sampleRate = 48000 } = {}) {
     pos: sectionCenter(key), air: { frequency: param(`air:${key}`) },
   }]));
   engine._initListener();
-  return { engine, writes };
+  return { engine, writes, param };
+}
+
+function spotFixture(t, options) {
+  const result = fixture(options);
+  const { engine, param } = result;
+  const node = (properties = {}) => ({ ...properties, connect(target) { return target; } });
+  let gains = 0, filters = 0;
+  engine.ctx.createGain = () => node({ gain: param(`spot:gain:${gains++}`) });
+  engine.ctx.createBiquadFilter = () => node({ frequency: param(`spot:filter:${filters++}`) });
+  engine.makeup = node();
+  engine.reverbIn = node();
+  engine._open = 1;
+  const original = Object.fromEntries(['GainNode', 'PannerNode'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
+  globalThis.GainNode = class { constructor() { return engine.ctx.createGain(); } };
+  globalThis.PannerNode = class {
+    constructor(_ctx, options) {
+      return node(Object.fromEntries(['positionX', 'positionY', 'positionZ'].map(key => [key, { ...param(`spot:${key}`), value: options[key] }])));
+    }
+  };
+  t.after(() => {
+    for (const [key, descriptor] of Object.entries(original)) {
+      if (descriptor) Object.defineProperty(globalThis, key, descriptor);
+      else delete globalThis[key];
+    }
+  });
+  return result;
 }
 
 test('calls before audio init do not establish a stale cached pose', () => {
@@ -137,4 +164,79 @@ test('legacy listeners keep separate position/orientation updates', () => {
   engine.setListener({ ...position, x: 1 }, { x: 1, y: 0, z: 0 }, up);
   assert.equal(writes.length, 16);
   assert.deepEqual(writes[0], { name: 'position', values: [1, 1.2, 10] });
+});
+
+test('adding a foyer source refreshes distance and air for a stationary listener only once', (t) => {
+  const { engine, writes } = spotFixture(t);
+  engine.setListener(position, forward, up);
+  const source = { x: 3, y: 1.2, z: 26 };
+  engine.addSpot('lobby', source);
+  assert.equal(engine._spatialDirty, true);
+  writes.length = 0; // Observe the next listener update, separately from node setup.
+  engine.ctx.currentTime = 2;
+  engine.setListener({ ...position }, { ...forward }, { ...up });
+  const distance = Math.sqrt(3 ** 2 + 16 ** 2);
+  assert.equal(engine.sections.lobby.distance, distance);
+  assert.deepEqual(writes.find(write => write.name === 'spot:filter:0'), {
+    name: 'spot:filter:0', value: 21000 / (1 + distance * 0.055), time: 2, constant: 0.08,
+  });
+  assert.equal(writes.length, 16); // Filters only: no unchanged listener targets.
+  assert.ok(writes.every(write => write.constant === 0.08));
+  assert.equal(engine._spatialDirty, false);
+  writes.length = 0;
+  for (let frame = 0; frame < 600; frame++) engine.setListener(position, forward, up);
+  assert.equal(writes.length, 0);
+});
+
+test('moving a foyer source refreshes a stationary legacy ear without duplicate pose writes', (t) => {
+  const { engine, writes } = spotFixture(t, { legacy: true, sampleRate: 24000 });
+  const source = { x: 3, y: 1.2, z: 26 };
+  engine.addSpot('lobby', source);
+  engine.setListener(position, forward, up);
+  writes.length = 0;
+  engine.moveSpot('lobby', { ...source });
+  engine.addSpot('lobby', { ...source }); // Existing-source path has the same exact cache.
+  engine.moveSpot('missing', source);
+  assert.equal(engine._spatialDirty, false);
+  engine.setListener(position, forward, up);
+  assert.equal(writes.length, 0);
+
+  const moved = { x: 3 + 1e-12, y: 1.2, z: 27 };
+  engine.ctx.currentTime = 3;
+  engine.moveSpot('lobby', moved);
+  assert.equal(engine._spatialDirty, true);
+  assert.deepEqual(writes.map(write => write.name), ['spot:positionX', 'spot:positionY', 'spot:positionZ']);
+  moved.x = 999; // A caller's mutable input cannot silently move the stored source.
+  writes.length = 0;
+  engine.setListener(position, forward, up);
+  const distance = Math.sqrt((3 + 1e-12) ** 2 + 17 ** 2);
+  assert.equal(engine.sections.lobby.distance, distance);
+  assert.deepEqual(writes.find(write => write.name === 'spot:filter:0'), {
+    name: 'spot:filter:0', value: Math.min(21000 / (1 + distance * 0.055), 24000 * 0.49), time: 3, constant: 0.08,
+  });
+  assert.equal(writes.length, 16);
+  assert.ok(writes.every(write => write.constant === 0.08));
+  writes.length = 0;
+  engine.setListener(position, forward, up);
+  assert.equal(writes.length, 0);
+});
+
+test('audio initialization resets source dirtiness before asynchronous setup', async (t) => {
+  const { engine } = fixture();
+  engine.setListener(position, forward, up);
+  engine._spatialDirty = true;
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'window');
+  t.after(() => {
+    if (original) Object.defineProperty(globalThis, 'window', original);
+    else delete globalThis.window;
+  });
+  const stopped = new Error('Stop before constructing a real audio graph');
+  globalThis.window = { AudioContext: class { constructor() { throw stopped; } } };
+  await assert.rejects(engine.init(), error => error === stopped);
+  assert.equal(engine._listenerPose, null);
+  assert.equal(engine._spatialDirty, false);
+  // Rebinding a listener later in init also invalidates a pose/source cache.
+  engine._spatialDirty = true;
+  engine._initListener();
+  assert.equal(engine._spatialDirty, false);
 });

@@ -10,7 +10,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { IS_SPHERE, VENUE, VENUES, goVenue } from './scene/venue.js';
 import { SPHERE_ACOUSTICS, SP } from './scene/sphereplan.js';
 import { buildSphere } from './scene/sphere.js';
-import { SPHERE_SETLIST } from './scene/domeshow.js';
+import { SPHERE_SETLIST, visualsFor } from './scene/domeshow.js';
 
 import { AudioEngine } from './audio/engine.js';
 import { Performance } from './audio/performance.js';
@@ -23,10 +23,13 @@ import { buildFX } from './scene/fx.js';
 import { StageManager } from './scene/stage.js';
 import { Director, ENTRANCE } from './scene/director.js';
 import { setAnisotropy, setLite } from './scene/materials.js';
-import { hallOpenness } from './scene/hallplan.js';
+import { hallOpenness, levelName, HALL, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H } from './scene/hallplan.js';
 import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
 import { RoomClient, listRooms } from './net/room.js';
+import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf, josa } from './evening.js';
+import { Practice, SeatThief, noticeLines, buildNoticeBoard } from './scene/lobby.js';
+import { buildRecital } from './scene/recital.js';
 import { Avatars, AVATARS, randomIdentity } from './scene/avatars.js';
 import { AdaptiveQuality } from './quality.js';
 
@@ -34,7 +37,7 @@ import { AdaptiveQuality } from './quality.js';
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
   fixedEar: true, applause: true, gap: 7, notes: true, glow: true, fireflies: true,
-  fx: true, lasers: true, screen: true, audience: true,
+  fx: true, lasers: true, screen: true, audience: true, interval: 3,
 };
 const settings = { ...DEFAULTS };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || '{}')); } catch { /* private mode */ }
@@ -61,7 +64,10 @@ const adaptiveQuality = new AdaptiveQuality({
   // It does not rebuild thousands of models during an ongoing performance.
   maxQuality: LITE ? 'medium' : 'high',
   pixelRatios: Object.fromEntries(Object.entries(QUALITY).map(([k, q]) => [k, q.pr])),
+  nowMs: performance.now(),
 });
+let qualityHold = 0; // real-time deadline, also respected by the FPS debug hook
+let interiorShown = true; // the house, seen from the foyer (see interiorCull)
 
 // --------------------------------------------------------------- render
 const container = document.getElementById('stage');
@@ -127,6 +133,11 @@ scene.add(hall.group);
 scene.onBeforeRender = (_renderer, _scene, view) => hall.prepareRender?.(view);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
+const spot = new Spotlight(hall.lights, scene); // a recital: the key light gathers on the soloist
+const thief = new SeatThief(stage, 'va:0'); // the interval: someone may take the seat you leave
+// a recital: chairs on the stage and a page turner's seat (added to the seat list, put away)
+const recital = buildRecital(scene, orchestra, hall.seats);
+const PIANIST = orchestra.playerAt('piano', 0);
 let audience = null;
 let director = null;
 let room = null; // RoomClient while watching together
@@ -154,9 +165,11 @@ function seatAudience(on) {
     const rand = room ? seeded(room.seed) : Math.random;
     // the Sphere sells out: thousands of guests, drawn in full only near you
     const big = IS_SPHERE ? { fill: 0.62 + rand() * 0.3, detail: LITE ? 80 : 220, mid: LITE ? 0 : 900, cap: LITE ? 2500 : Infinity } : {};
-    audience = buildAudience(hall.seats, { exclude, lite: LITE, rand, reserveAll: !!room, ...big });
+    audience = buildAudience(hall.seats.filter((s) => !s.stage), { exclude, lite: LITE, rand, reserveAll: !!room, ...big });
     audience.updateLOD?.(camera.position, true);
+    audience.group.visible = interiorShown;
     scene.add(audience.group);
+    holdQuality();
   }
   refreshOccupied();
 }
@@ -203,12 +216,16 @@ let showStarted = false; // the musicians have been called
 let muted = false;
 let focused = null;
 let wakeLock = null;
+let wakeLockPending = false;
 let phase = 'lobby'; // lobby | entering | tuning | announce | playing | applause | intermission | leaving
 let phaseUntil = 0;
 let nextPiece = null;
 let clapUntil = 0;
 let bowing = false;
 let seq = 0; // generation token for the concert sequence
+let ritualNext = false; // the next piece opens one of the evening's big moments (a held hush)
+let hush = 0; // the house holds its breath (0..1)
+let leaf = new Leaf(VENUE); // tonight, for the leaf programme
 
 async function boot() {
   try {
@@ -239,6 +256,11 @@ async function boot() {
   current = 0;
   const piece = await perf.load(program[0].id);
   ui.setCurrent(0, piece);
+  // every material the evening will need, compiled now (the players, the
+  // recital's chairs, ...) rather than with a hitch the first time they appear
+  recital.show(true);
+  try { renderer.compile(scene, camera); } catch { /* fine: compiled on first use */ }
+  recital.show(false);
   stage.clearStage();
   ui.ready();
 }
@@ -280,6 +302,7 @@ ui.on('enter', async (opt) => {
   director.placeAt(ENTRANCE.pos, ENTRANCE.look);
   director.targetFov = director.fov = 64;
   concertStarted = true;
+  holdQuality(6000);
   hall.setHouseLights(1);
   requestWakeLock();
   if (room && !room.isHost && pendingJoin !== undefined) followHost(pendingJoin, { joining: true });
@@ -300,6 +323,7 @@ function startShow() {
   if (!concertStarted || showStarted || hostOnly()) return;
   showStarted = true;
   ui.showStarted();
+  ritualNext = true;
   runConcert(current);
 }
 ui.on('start', startShow);
@@ -317,6 +341,7 @@ const until = (cond, tok, timeout = 60000) => new Promise((r) => {
 });
 
 function setPhase(p, seconds = 0) {
+  if (p !== phase) holdQuality();
   phase = p;
   phaseUntil = performance.now() + seconds * 1000;
   // the Sphere's dome follows the evening
@@ -329,6 +354,14 @@ function setPhase(p, seconds = 0) {
 // its chairs). Between pieces those not wanted - and not wanted by the
 // piece after either - leave, and those missing come on.
 const rosterCache = new Map();
+const scoreCache = new Map();
+async function scoreFor(i) {
+  const meta = program[i];
+  if (!meta) return null;
+  if (perf.piece?.id === meta.id) return perf.piece;
+  if (!scoreCache.has(meta.id)) scoreCache.set(meta.id, fetch(`music/${meta.id}.json`).then((r) => r.json()).catch(() => null));
+  return scoreCache.get(meta.id);
+}
 function rosterOf(piece) {
   const set = new Set();
   for (const tr of piece?.tracks || []) {
@@ -342,10 +375,8 @@ async function rosterFor(i) {
   if (!meta) return new Set();
   if (rosterCache.has(meta.id)) return rosterCache.get(meta.id);
   let r = new Set();
-  try {
-    const piece = perf.piece?.id === meta.id ? perf.piece : await (await fetch(`music/${meta.id}.json`)).json();
-    r = rosterOf(piece);
-  } catch { /* offline: keep everyone */ }
+  const piece = await scoreFor(i);
+  if (piece) r = rosterOf(piece); // (offline: keep everyone)
   rosterCache.set(meta.id, r);
   return r;
 }
@@ -357,6 +388,7 @@ const STRINGS = /^(vn1|vn2|va|vc|cb):/;
 // remote: a guest following the host's 'run' (the host starts the music)
 async function runConcert(i, { quick = false, remote = false } = {}) {
   const tok = ++seq;
+  endInterval();
   ceremony = true;
   if (perf.playing) perf.pause();
   if (quick) { engine.stopApplause(); clapUntil = 0; }
@@ -365,7 +397,7 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
   current = (i + program.length) % program.length;
   const meta = program[current];
   nextPiece = meta;
-  if (!remote) sendCmd({ c: 'run', i: current, quick });
+  if (!remote) sendCmd({ c: 'run', i: current, quick, ritual: ritualNext && !quick });
   const piece = perf.piece?.id === meta.id ? perf.piece : await perf.load(meta.id);
   if (tok !== seq || !piece) return;
   perf.seek(0);
@@ -380,6 +412,12 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
   const keep = await rosterFor(seqNext(current));
   if (tok !== seq) return;
   const fresh = !stage.onstage;
+  const kind = ensembleOf(piece, target);
+  const G = GRAMMAR[kind];
+  const isRecital = kind === 'solo' && target.has('piano:0');
+  spot.set(null);
+  if (!isRecital) closeRecital();
+  encoreUi(null);
   const { exits, enters } = stage.plan(target, keep);
   if (quick && (exits.length || enters.length)) {
     // skipping ahead: no procession, the stage straight as it should be
@@ -443,7 +481,22 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
     if (!(await wait(quick ? 500 : 2500, tok))) return;
   } else if (!(await wait(quick ? 300 : 1200, tok))) return;
 
-  hall.setHouseLights(0.12);
+  // a recital: the light gathers on the soloist (and chairs come out on the stage)
+  if (kind === 'solo') spot.set(rosterCentre(target));
+  if (isRecital) recital.open(true, piece);
+  if (ritualNext && !quick) {
+    // one of the evening's big moments: the lights go down, the house holds
+    // its breath, and only then the first note
+    ritualNext = false;
+    setPhase('hush');
+    hall.setHouseLights(0.3);
+    hush = 1;
+    if (!(await wait(1200, tok))) { hush = 0; return; }
+    hall.setHouseLights(G.house);
+    if (!(await wait(G.hush * 1000, tok))) { hush = 0; return; }
+  }
+  ritualNext = false;
+  hall.setHouseLights(G.house);
   setPhase('playing');
   if (remote || guest()) {
     // the host starts the music; we join on its clock (see applyPlayback).
@@ -452,8 +505,9 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
     if (!(await until(() => perf.playing || !guest(), tok, 1e9))) return;
     if (perf.playing) return;
   }
-  if (!(await wait(900, tok))) return;
+  if (!(await wait(900, tok))) { hush = 0; return; }
   ceremony = false;
+  hush = 0;
   perf.play();
   ui.setPlaying(true);
   sendCmd(playMsg());
@@ -465,12 +519,20 @@ perf.onEnd = () => endOfPiece();
 async function endOfPiece() {
   const tok = ++seq;
   const piece = perf.piece;
+  const kind = ensembleOf(piece, rosterOf(piece));
+  const G = GRAMMAR[kind];
   ui.setPlaying(false);
-  setPhase('applause');
+  leaf.ended(piece, IS_SPHERE ? visualsFor(piece) : null);
   fx?.lasers.set(false);
   fx?.wash.set(false);
-  hall.setHouseLights(0.5);
   const big = !!piece?.finale;
+  // after a quiet ending the silence is held a moment before anyone claps
+  if (!big && piece?.mood === 'calm') {
+    setPhase('afterglow');
+    if (!(await wait(G.after * 1000, tok))) return;
+  }
+  setPhase('applause');
+  hall.setHouseLights(kind === 'solo' ? 0.3 : 0.5);
   if (big) hall.show?.('finale');
   if (settings.applause) {
     engine.applause(engine.now + 0.35, big ? 1.3 : 1);
@@ -480,7 +542,7 @@ async function endOfPiece() {
     fx.fanfare(engine.now + 0.3);
     fx.confettiCannons();
     setTimeout(() => fx.fireworksShow(), 1500);
-  } else if (settings.fx && fx && piece?.mood === 'lively') {
+  } else if (settings.fx && fx && piece?.mood === 'lively' && G.confetti) {
     fx.confettiCannons();
   }
   // bows
@@ -533,11 +595,41 @@ async function endOfPiece() {
     if (!(await until(() => !guest(), tok, 1e9))) return;
   }
   const lastOfProgram = !settings.repeatOne && !settings.shuffle && (current === program.length - 1 || current === eveningLen - 1);
-  const next = nextIndex();
+  if (piece) playedTonight.add(piece.id);
+  if (lastOfProgram && !encoreActive && !guest()) {
+    // the end of the programme: the house asks for one more
+    const win = await encoreVote(tok);
+    if (win === null) return;
+    if (win >= 0) {
+      encoreActive = true;
+      ritualNext = true;
+      runConcert(win);
+      return;
+    }
+  }
+  const finalOfEvening = lastOfProgram || encoreActive;
+  let next = encoreActive ? 0 : nextIndex();
+  // falling asleep (alone): the last minutes are a quiet piano piece
+  if (sleepAt && !room && !finalOfEvening && sleepAt - performance.now() < 5 * 60000) next = lullaby(next);
   nextPiece = program[next];
+  if (!finalOfEvening && intervalDue(current) && !(sleepAt && sleepAt - performance.now() < 10 * 60000)) {
+    // the middle of the evening: the interval
+    intervalDone = true;
+    const endsAt = clockNow() + settings.interval * 60;
+    beginInterval(endsAt, next); // (first: the snapshot that goes with the command says so)
+    sendCmd({ c: 'interval', i: next, until: endsAt });
+    if (!(await until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9))) return;
+    ritualNext = true;
+    runConcert(next);
+    return;
+  }
   setPhase('intermission', Math.max(2, settings.gap));
-  if (lastOfProgram) {
+  if (finalOfEvening) {
     // end of the programme: everyone leaves, the house comes up, then a new evening begins
+    encoreActive = false;
+    ritualNext = true; // the next evening opens with its hush
+    closeRecital();
+    endEvening();
     hall.setHouseLights(1);
     hall.show?.('house');
     sendCmd({ c: 'exit' });
@@ -563,6 +655,8 @@ function nextIndex() {
 function togglePlay() {
   if (!concertStarted || hostOnly()) return;
   if (!showStarted) { startShow(); return; }
+  if (phase === 'interval' && intervalState) { secondHalf(); return; }
+  if (phase === 'encore' && encore) { encore.until = clockNow(); return; }
   if (phase !== 'playing') {
     // during a break: skip the ceremony and start the coming piece
     runConcert(phase === 'intermission' ? nextIndex() : current, { quick: true });
@@ -627,12 +721,405 @@ ui.on('unfocus', () => {
 });
 ui.on('solo', (on) => engine.setFocus(on && focused ? focused.sid : null));
 
+// ------------------------------------------------------------- the interval
+// Once an evening, at the programme's middle (by music, see intervalDue):
+// the house lights come up, everyone leaves the stage, the doors stand open.
+// The first cellist practises the coming half in the foyer (on stage at the
+// Sphere, which has no foyer), the violist may take the seat you left, the
+// notice board has the musicians' news. Bells call everyone back.
+const BEAR = 'vc:0';
+const practice = new Practice(engine);
+let intervalState = null; // { until (clock s), next, bear, bells }
+let intervalDone = false;
+let lastSeat = null;
+let tea = false;
+const clockNow = () => (room ? room.now() : performance.now() / 1000);
+// the foyer: where the cellist sits (an ottoman, facing the middle), the notice board
+const FOYER_BEAR = !IS_SPHERE ? { x: 4.4 - 0.78, y: LEVELS[0] - 0.05, z: 37.6, yaw: Math.PI / 2 } : null;
+const BOARD = !IS_SPHERE ? { x: 10, y: LEVELS[0] + 1.65, z: HALL.back + HALL.wallT + 0.02 } : null;
+if (BOARD) buildNoticeBoard(hall.group, new THREE.Vector3(BOARD.x, BOARD.y, BOARD.z), 0);
+
+function intervalDue(i) {
+  if (!settings.interval || settings.shuffle || settings.repeatOne || intervalDone) return false;
+  if (i >= eveningLen - 1) return false;
+  let total = 0;
+  let upto = 0;
+  for (let k = 0; k < eveningLen; k++) { total += program[k].duration; if (k <= i) upto += program[k].duration; }
+  return upto >= total / 2;
+}
+
+function beginInterval(endsAt, next) {
+  endInterval();
+  playTok++; // (a playback sync still on its way is out of date now)
+  if (perf.playing) { perf.pause(); ui.setPlaying(false); }
+  closeRecital();
+  intervalState = { until: endsAt, next, bear: 'wait', bells: 0 };
+  intervalDone = true;
+  setPhase('interval');
+  hall.setHouseLights(1);
+  hall.show?.('house');
+  spot.set(null);
+  fx?.lasers.set(false);
+  fx?.wash.set(false);
+  if (stage.conductorOn) stage.conductorExit();
+  // everyone leaves (at the Sphere the cellist stays on to practise)
+  const off = stage.walkers.filter((w) => w.state !== 'off' && !w.leaving && (!IS_SPHERE || StageManager.key(w) !== BEAR));
+  if (off.length) stage.sendOff(off);
+  ui.interval(true, !guest());
+  ui.setIntervalLeft(endsAt - clockNow());
+  // the seat you leave behind (seven times in ten, someone wants it)
+  const r = room ? seeded(room.seed ^ 0x5ea7)() : Math.random();
+  thief.arm(director.mode === 'seat' ? director.seat : lastSeat, r < 0.7);
+  ui.toast(`인터미션이에요. ${Math.max(1, Math.round((endsAt - clockNow()) / 60))}분 뒤에 2부가 시작돼요.${IS_SPHERE ? '' : ' 로비로 나가 봐요.'}`, 3600);
+}
+
+function endInterval() {
+  if (!intervalState) return;
+  intervalState = null;
+  practice.stop();
+  const bear = stage.walkers.find((w) => StageManager.key(w) === BEAR);
+  if (bear?.state === 'away') stage.giveBack(bear); // (at the Sphere he is already in his chair)
+  thief.clear();
+  refreshOccupied();
+  ui.interval(false);
+  ui.act(null);
+  tea = false;
+}
+
+// the host (or alone): start the second half now
+function secondHalf() {
+  if (!intervalState || hostOnly()) return;
+  const next = intervalState.next;
+  ritualNext = true;
+  runConcert(next);
+}
+
+async function startPractice() {
+  // a phrase from the coming half (the next piece with a cello part)
+  let score = null;
+  for (let k = 0; k < 8 && !score && intervalState; k++) {
+    const sc = await scoreFor((intervalState.next + k) % program.length);
+    if (sc?.tracks.some((tr) => tr.section === 'vc')) score = sc;
+  }
+  if (!score || !intervalState) return;
+  if (!IS_SPHERE) engine.addSpot('lobby', { x: FOYER_BEAR.x, y: FOYER_BEAR.y + 0.9, z: FOYER_BEAR.z });
+  practice.start(score, { section: IS_SPHERE ? 'vc' : 'lobby', seed: room ? room.seed : (Math.random() * 1e9) | 0 });
+}
+
+let thiefWas = null;
+function intervalTick(dt) {
+  const S = intervalState;
+  const bear = stage.walkers.find((w) => StageManager.key(w) === BEAR);
+  if (S.bear === 'wait' && bear) {
+    if (!IS_SPHERE && bear.state === 'off') {
+      stage.borrow(BEAR, FOYER_BEAR, FOYER_BEAR.yaw);
+      S.bear = 'on';
+      startPractice();
+    } else if (IS_SPHERE && bear.state === 'off') {
+      // (at the Sphere he practises in his own chair: walk on if he is not there)
+      stage.callOn([bear]);
+      S.bear = 'walking';
+    } else if (IS_SPHERE && bear.state === 'seated') {
+      S.bear = 'on';
+      startPractice();
+    }
+  } else if (S.bear === 'walking' && bear?.state === 'seated') {
+    S.bear = 'on';
+    startPractice();
+  }
+  // the seat thief (away: out in the foyer, or anywhere far from the seat)
+  const d = director;
+  const inFoyer = !IS_SPHERE && d.pos.z > HALL.back + 0.5;
+  const nearThief = thief.update(dt, d.pos, d.mode === 'walk' && (inFoyer || IS_SPHERE));
+  if (thief.taken !== thiefWas) { thiefWas = thief.taken; refreshOccupied(); }
+  ui.act(nearThief ? `${thief.name}에게 도토리 쿠키 건네기` : nearBoard() ? '숲속 소식 읽기' : null);
+}
+function nearBoard() {
+  const d = director;
+  return !!BOARD && d.mode === 'walk' && Math.abs(d.feet - LEVELS[0]) < 0.6 && Math.hypot(d.pos.x - BOARD.x, d.pos.z - BOARD.z) < 2.6;
+}
+// (outside the interval the board can still be read)
+setInterval(() => {
+  if (!concertStarted || intervalState || !BOARD) return;
+  ui.act(nearBoard() ? '숲속 소식 읽기' : null);
+}, 300);
+
+// the countdown, and the bells that call everyone back
+setInterval(() => {
+  const S = intervalState;
+  if (!S) return;
+  const left = S.until - clockNow();
+  ui.setIntervalLeft(left);
+  if (left < 60 && S.bells < 1) { S.bells = 1; bells(2); ui.toast('곧 2부가 시작돼요. 자리로 돌아와 주세요.', 3200); }
+  if (left < 15 && S.bells < 2) { S.bells = 2; bells(3); }
+}, 500);
+
+// the foyer bell: a soft three-note chime, rung `times` times
+function bells(times) {
+  const ctx = engine.ctx;
+  if (!ctx || muted) return;
+  const t0 = ctx.currentTime + 0.05;
+  const notes = [1046.5, 880, 698.5];
+  for (let k = 0; k < times; k++) {
+    notes.forEach((f, i) => {
+      const at = t0 + k * 1.6 + i * 0.36;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0, at);
+      g.gain.linearRampToValueAtTime(0.05 * settings.volume, at + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + 1.4);
+      o.connect(g).connect(ctx.destination);
+      o.start(at);
+      o.stop(at + 1.5);
+    });
+  }
+}
+
+async function showNews() {
+  // the coming pieces (the next half first), with who plays them
+  const coming = [];
+  const from = intervalState ? intervalState.next : nextIndex();
+  for (let k = 0; k < 6; k++) {
+    const i = (from + k) % program.length;
+    if (k > 0 && i === 0) break;
+    const sc = await scoreFor(i);
+    if (!sc) continue;
+    const roster = rosterOf(sc);
+    coming.push({ meta: program[i], roster, kind: ensembleOf(sc, roster) });
+  }
+  ui.showNews(noticeLines({ coming, practiser: intervalState && practice.on ? BEAR : null, week: Math.floor((Date.now() / 86400000 + 3) / 7) }));
+}
+
+ui.on('tea', () => {
+  if (tea) return;
+  tea = true;
+  ui.tea();
+  ui.toast('따뜻한 도토리차를 받았어요. 고소한 냄새가 나요.', 2600);
+});
+ui.on('news', showNews);
+ui.on('secondHalf', secondHalf);
+ui.on('act', () => {
+  const s = thief.taken;
+  if (s && Math.hypot(director.pos.x - s.x, director.pos.z - s.z) < 1.8) {
+    thief.shoo();
+    ui.act(null);
+    ui.toast(`${josa(thief.name, '이', '가')} 쿠키를 받아 들고 무대 뒤로 쪼르르 돌아갔어요. 자리가 다시 비었어요.`, 3200);
+    return;
+  }
+  showNews();
+});
+
+// -------------------------------------------------------------- a recital
+// When the pianist plays alone, chairs come out on the stage behind them and
+// a page turner's chair at their side (see recital.js): the chip at the top
+// takes you there, and you are seen back to your seat when it ends.
+function closeRecital() {
+  if (!recital.on) return;
+  recital.open(false);
+  if (director.seat?.stage) {
+    if (lastSeat && !director.occupied.has(lastSeat.index)) director.sitAt(lastSeat);
+    else { director.setMode('walk'); director.placeAt(ENTRANCE.pos, ENTRANCE.look); }
+  }
+}
+ui.on('stageSeat', (turner) => {
+  if (!recital.on) return;
+  const free = recital.seats.filter((s) => !!s.turner === turner && !director.occupied.has(s.index));
+  if (!free.length) { ui.toast(turner ? '악보 넘김이 자리에 이미 누가 앉아 있어요.' : '무대 위 자리가 다 찼어요.', 2000); return; }
+  focused = null;
+  ui.focus(null);
+  engine.setFocus(null);
+  director.sitAt(free[0]);
+  ui.toast(turner ? `${PIANIST.char.spec.name}의 악보 넘김이 자리예요. 연주에 맞춰 악보가 넘어가요.` : '무대 위 자리예요. 건반이 어깨 너머로 보여요.', 3000);
+});
+
+// the quiet piece to fall asleep to (alone, in the sleep timer's last minutes)
+function lullaby(next) {
+  const left = (sleepAt - performance.now()) / 1000;
+  const quiet = (m) => m && m.ensembleKo === '피아노' && m.mood === 'calm';
+  if (quiet(program[next])) return next;
+  const calm = program.map((m, i) => ({ m, i })).filter(({ m }) => quiet(m) && !playedTonight.has(m.id));
+  if (!calm.length) return next;
+  const fits = calm.filter(({ m }) => m.duration <= left + 20);
+  const pool = fits.length ? fits : calm;
+  return pool[Math.floor(Math.random() * pool.length)].i;
+}
+
+// --------------------------------------------------------------- the encore
+// At the end of the programme the house asks for one more: three short
+// pieces (one the players on stage can play right away, one of another
+// kind, one lively), one firefly lantern each. Alone your lantern decides;
+// in a room the host counts (lanterns go to the host only, a tie goes the
+// host's way). The hall's fireflies gather as lanterns go up; at the Sphere
+// the dome turns into a starry sky.
+let encore = null; // { cands, candMeta, until, votes: Map (the host) | null (a guest), mine, counts }
+let encoreActive = false; // the encore is playing: after it, the evening ends
+const playedTonight = new Set();
+const HOUSE = new THREE.Vector3(0, 10.5, 13);
+
+function encoreCounts() {
+  const n = [0, 0, 0];
+  if (encore?.votes) for (const k of encore.votes.values()) n[k]++;
+  return n;
+}
+
+async function encoreCandidates() {
+  const on = stage.onstageKeys();
+  const rand = room ? seeded((room.seed ^ 0xe7c0) + playedTonight.size) : Math.random;
+  const pool = [];
+  for (let i = 0; i < program.length; i++) if (program[i].duration <= 240 && !playedTonight.has(program[i].id)) pool.push(i);
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const info = [];
+  for (const i of pool.slice(0, 16)) {
+    const r = await rosterFor(i);
+    info.push({ i, fit: r.size > 0 && [...r].every((k) => on.has(k)), kind: ensembleOf(program[i], r), mood: program[i].mood });
+  }
+  const out = [];
+  const take = (f) => { const c = info.find((x) => !out.includes(x) && f(x)); if (c) out.push(c); };
+  take((x) => x.fit); // the players already there
+  take((x) => !out.length || x.kind !== out[0].kind); // something of another kind
+  take((x) => x.mood === 'lively' || x.mood === 'grand');
+  while (out.length < 3 && out.length < info.length) take(() => true);
+  return out.map((x) => x.i);
+}
+
+function encoreShow() {
+  if (!encore) return;
+  const counts = encore.votes ? encoreCounts() : encore.counts || [0, 0, 0];
+  ui.encore({ cands: encore.candMeta, counts, mine: encore.mine, left: encore.until - clockNow() });
+  // the more lanterns, the more fireflies come
+  const people = room ? room.members.size : 1;
+  const raised = counts.reduce((a, b) => a + b, 0);
+  if (!IS_SPHERE) effects.gather(0.3 + 0.7 * Math.min(1, raised / Math.max(1, people)), HOUSE);
+}
+
+function encoreUi(state) {
+  if (state !== null || !encore) return;
+  encore = null;
+  ui.encore(null);
+  effects.gather(0);
+}
+
+// the host (or alone): ask, wait, count. The winner's index, -1 for none, or
+// null when the evening moved on meanwhile
+async function encoreVote(tok) {
+  const cands = await encoreCandidates();
+  if (tok !== seq) return null;
+  if (!cands.length) return -1;
+  const endsAt = clockNow() + 14;
+  encore = { cands, candMeta: cands.map((i) => program[i]), until: endsAt, votes: new Map(), mine: -1 };
+  closeRecital();
+  setPhase('encore');
+  hall.setHouseLights(0.2);
+  spot.set(null);
+  if (IS_SPHERE) hall.dome?.go('STARS', { dur: 3 });
+  sendCmd({ c: 'encore', cands, until: endsAt });
+  encoreShow();
+  return countEncore(tok);
+}
+
+// wait for the lanterns, count them: the winner's index, or null
+async function countEncore(tok) {
+  // alone, your lantern decides (a moment after you raise it)
+  let chosenAt = 0;
+  const ok = await until(() => {
+    if (!encore) return true;
+    if (!room && encore.mine >= 0) { chosenAt ||= clockNow(); if (clockNow() - chosenAt > 1.6) return true; }
+    return clockNow() >= encore.until;
+  }, tok, 30000);
+  if (!ok || !encore) return null;
+  const counts = encoreCounts();
+  let best = -1;
+  let bestN = 0;
+  counts.forEach((n, k) => { if (n > bestN || (n === bestN && n > 0 && k === encore.mine)) { best = k; bestN = n; } });
+  if (best < 0) best = 0; // no lantern at all: the conductor's choice
+  const win = encore.cands[best];
+  encore = null;
+  ui.encore(null);
+  ui.toast(`앙코르: 「${program[win].titleKo}」`, 3200);
+  return win;
+}
+
+// a guest who became the host while the lanterns were up: count and go on
+async function finishEncore(tok) {
+  const win = await countEncore(tok);
+  if (win === null) return;
+  encoreActive = true;
+  ritualNext = true;
+  runConcert(win);
+}
+
+// a guest: the host's vote, as the host counts it (from the snapshots)
+function guestEncore(ev, fresh = false) {
+  if (!encore || fresh || encore.cands.join() !== ev.c.join()) {
+    playTok++;
+    closeRecital();
+    encore = { cands: ev.c, candMeta: ev.c.map((i) => program[i]), until: ev.u, votes: null, mine: -1, counts: ev.n };
+    setPhase('encore');
+    hall.setHouseLights(0.2);
+    spot.set(null);
+    if (IS_SPHERE) hall.dome?.go('STARS', { dur: 3 });
+  }
+  encore.counts = ev.n;
+  encore.until = ev.u;
+  encoreShow();
+}
+
+ui.on('vote', (k) => {
+  if (!encore) return;
+  encore.mine = encore.mine === k ? -1 : k;
+  if (encore.votes) {
+    // the host (or alone) counts their own lantern
+    const me = room ? room.id : 0;
+    if (encore.mine >= 0) encore.votes.set(me, encore.mine); else encore.votes.delete(me);
+    publish();
+  } else room?.vote(encore.mine);
+  encoreShow();
+});
+setInterval(() => { if (encore) encoreShow(); }, 500);
+
+// ------------------------------------------------------- the leaf programme
+// Tonight as you lived it: counted once a second, kept on this device,
+// handed to you when the evening ends (and on the programme panel anytime).
+setInterval(() => {
+  if (!concertStarted) return;
+  const d = director;
+  const seat = d.mode === 'seat' ? d.seat : d.mode === 'cinema' ? d.returnTo?.seat : null;
+  const ear = d.mode === 'cinema' && settings.fixedEar && bestSeat ? { x: bestSeat.x, y: bestSeat.y + 1.2, z: bestSeat.z } : camera.position;
+  leaf.tick({
+    playing: perf.playing,
+    piece: perf.piece,
+    seat: seat && seat.index >= 0 ? seat.label : null,
+    level: levelName(d.feet + 0.1),
+    ear,
+    cinema: d.mode === 'cinema',
+    sections: perf.playingSections ? [...perf.playingSections] : [],
+    people: room ? [...room.members.values()].filter((m) => m.id !== room.id).map((m) => m.name) : [],
+  });
+}, 1000);
+function endEvening() {
+  intervalDone = false; // a new evening has its own interval
+  playedTonight.clear();
+  if (!leaf.worthKeeping) return;
+  leaf.save();
+  ui.showLeaf(leaf.card(), Leaf.history());
+  leaf = new Leaf(VENUE);
+}
+ui.on('leaf', () => ui.showLeaf(leaf.worthKeeping ? leaf.card() : null, Leaf.history()));
+window.addEventListener('pagehide', () => leaf.save());
+
 // sleep timer
 let sleepAt = 0;
 let sleepFading = false;
+let sleepy = false; // the house nods off (the last minute)
+let asleep = false; // everything stopped: nothing drawn, the sound suspended
+let sleepGen = 0; // a changed timer cancels what the old one scheduled
 ui.on('sleep', (minutes) => {
+  sleepGen++;
   sleepAt = minutes ? performance.now() + minutes * 60000 : 0;
   sleepFading = false;
+  if (!minutes && sleepy) { sleepy = false; effects.dim(1); }
   engine.setVolume(muted ? 0 : settings.volume);
   ui.setSleepLeft(0);
   ui.toast(minutes ? `${minutes}분 뒤에 천천히 소리를 줄이고 멈출게요.` : '끄기 예약을 취소했어요.', 2400);
@@ -641,6 +1128,13 @@ setInterval(() => {
   if (!sleepAt) return;
   const left = sleepAt - performance.now();
   ui.setSleepLeft(Math.max(0, left));
+  if (left <= 75000 && !sleepy) {
+    // the last minute: the lights go down, the house nods off
+    sleepy = true;
+    hall.setHouseLights(0.04);
+    effects.dim(0.3);
+    spot.set(null);
+  }
   if (left <= 30000 && !sleepFading && perf.playing) {
     sleepFading = true;
     engine.master.gain.setTargetAtTime(0, engine.now, 8);
@@ -654,6 +1148,27 @@ setInterval(() => {
     ui.setMuted(true);
     ui.setSleepLeft(0);
     ui.toast('편안한 밤 되세요. 소리를 껐어요.', 4000);
+    const gen = sleepGen;
+    setTimeout(() => goToSleep(gen), 4000);
+    return;
+  }
+  if (left <= 0 && room?.isHost && room.members.size > 1) {
+    // 5. the host falls asleep: the show goes on for the others - the
+    // longest-present guest takes it over, and only this screen sleeps
+    const next = [...room.members.values()].filter((m) => m.id !== room.id).sort((a, b) => (a.since ?? 0) - (b.since ?? 0) || a.id - b.id)[0];
+    if (next) {
+      room.handoff(next.id);
+      ui.chatLine({ sys: true, text: `잠들기 전에 ${next.name}님에게 방장을 넘겼어요.` });
+    }
+    sleepAt = 0;
+    sleepFading = false;
+    muted = true;
+    engine.setVolume(0);
+    ui.setMuted(true);
+    ui.setSleepLeft(0);
+    ui.toast('편안한 밤 되세요. 방장을 넘기고 소리를 껐어요.', 4000);
+    const gen = sleepGen;
+    setTimeout(() => goToSleep(gen), 4000);
     return;
   }
   if (left <= 0) {
@@ -662,15 +1177,54 @@ setInterval(() => {
     seq++;
     if (perf.playing) perf.pause();
     ui.setPlaying(false);
-    hall.setHouseLights(0.25);
+    hall.setHouseLights(0.04);
     setTimeout(() => engine.setVolume(muted ? 0 : settings.volume), 800);
     ui.setSleepLeft(0);
     ui.toast('편안한 밤 되세요. 공연을 멈췄어요.', 4000);
+    // the musicians tiptoe off; then everything rests
+    closeRecital();
+    encoreUi(null);
+    if (stage.conductorOn) stage.conductorExit();
+    stage.exitAll();
+    const gen = sleepGen;
+    setTimeout(() => goToSleep(gen), 9000);
   }
 }, 1000);
 
+// Asleep: nothing is drawn and the sound is suspended (and the screen lock
+// let go, so a phone can rest too). A touch or a key wakes it all.
+function goToSleep(gen = sleepGen) {
+  if (asleep || sleepAt || gen !== sleepGen) return;
+  asleep = true;
+  cancelFrame();
+  holdQuality(6000);
+  screenActive = false;
+  ui.sleep(true);
+  try { engine.ctx.suspend(); } catch { /* fine */ }
+  try { wakeLock?.release(); } catch { /* fine */ }
+  wakeLock = null;
+}
+function wake() {
+  if (!asleep) return;
+  asleep = false;
+  sleepy = false;
+  ui.sleep(false);
+  try { engine.ctx.resume(); } catch { /* fine */ }
+  effects.dim(1);
+  hall.setHouseLights(0.6);
+  requestWakeLock();
+  holdQuality(6000);
+  lastNow = performance.now();
+  fpsAcc = 0;
+  fpsFrames = 0;
+  screenActive = false;
+  requestFrame();
+}
+for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => { if (asleep) wake(); }, true);
+
 director.on((type, data) => {
   if (type === 'mode') ui.setMode(data);
+  if (type === 'seat' && data?.index >= 0 && !data.stage) lastSeat = data;
   // no seat labels on screen; E (or a double-click) still sits you down.
   // Touch screens keep the plain "앉기" button - it is their only way to sit.
   if (type === 'nearSeat' && isTouch) ui.prompt(data ? '앉기' : null, '앉기');
@@ -690,7 +1244,7 @@ function onSetting(key, value) {
   if (key === 'quality') {
     quality = value === 'auto' ? (LITE ? 'low' : 'high') : value;
     renderScale = 1;
-    adaptiveQuality.reset(quality, renderScale);
+    adaptiveQuality.reset(quality, renderScale, performance.now());
     applyQuality();
   }
   if (key === 'fireflies') effects.setCounts(value);
@@ -703,6 +1257,7 @@ function onSetting(key, value) {
 }
 
 function applyQuality() {
+  holdQuality(4500); // every material is rebuilt: a hitch, not a slow machine
   const q = QUALITY[quality];
   renderer.setPixelRatio(q.pr * renderScale);
   renderer.shadowMap.enabled = q.shadows;
@@ -821,6 +1376,8 @@ function snapshot() {
     started: showStarted, i: current, title: program[current]?.titleKo || '', phase,
     playing: perf.playing, pos: perf.time, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
     on: [...stage.onstageKeys()],
+    iu: intervalState?.until, inext: intervalState?.next,
+    ev: encore ? { c: encore.cands, n: encoreCounts(), u: encore.until } : undefined,
   };
 }
 function publish() { if (room?.isHost && room.connected) room.state(snapshot()); }
@@ -830,7 +1387,8 @@ const playMsg = () => ({ c: perf.playing ? 'play' : 'pause', i: current, pos: pe
 function fxFor(piece) {
   if (!fx) return;
   const lively = piece?.mood === 'lively' && settings.lasers;
-  fx.lasers.set(lively);
+  // (a recital or a few players: the colour wash, but no laser show)
+  fx.lasers.set(lively && GRAMMAR[ensembleOf(piece, rosterOf(piece))].lasers);
   fx.wash.set(lively);
 }
 
@@ -866,7 +1424,10 @@ async function applyPlayback(s) {
     clapUntil = 0;
     setPhase('playing');
   }
-  hall.setHouseLights(s.playing ? 0.12 : 0.4);
+  const kind = ensembleOf(piece, rosterOf(piece));
+  spot.set(kind === 'solo' ? rosterCentre(rosterOf(piece)) : null);
+  if (kind === 'solo' && rosterOf(piece).has('piano:0')) { if (!recital.on) recital.open(true, piece); } else closeRecital();
+  hall.setHouseLights(s.playing ? GRAMMAR[kind].house : 0.4);
   if (s.playing) {
     // what the host hears right now; a little ahead, since starting takes a moment
     const want = s.pos + Math.max(0, room.now() - s.at);
@@ -890,9 +1451,10 @@ async function applyPlayback(s) {
 async function followHost(s, { joining = false } = {}) {
   if (!s || !room || room.isHost || !concertStarted || !s.started) return;
   showOn();
+  if (s.phase === 'encore' && s.ev && !joining) { guestEncore(s.ev); return; }
   if (s.phase === 'playing') { applyPlayback(s); return; }
   if (!joining) return;
-  if (['changing', 'entering', 'tuning', 'announce'].includes(s.phase)) {
+  if (['changing', 'entering', 'tuning', 'announce', 'hush'].includes(s.phase)) {
     // the orchestra is walking on right now: watch it (a little late)
     runConcert(s.i, { remote: true });
     return;
@@ -904,6 +1466,8 @@ async function followHost(s, { joining = false } = {}) {
   if (s.on) stage.snapRoster(new Set(s.on));
   else if (s.onstage) stage.snapOnstage();
   stage.snapConductor(!!s.cond && s.onstage);
+  if (s.phase === 'interval' && s.iu) { beginInterval(s.iu, s.inext ?? s.i); return; }
+  if (s.phase === 'encore' && s.ev) { guestEncore(s.ev, true); return; }
   hall.setHouseLights(s.onstage ? 0.5 : 1);
   setPhase('intermission');
 }
@@ -912,12 +1476,23 @@ function onHostCmd(c) {
   if (!room || room.isHost || !concertStarted || !c) return;
   if (c.c === 'run') {
     showOn();
+    ritualNext = !!c.ritual;
     runConcert(c.i, { quick: !!c.quick, remote: true });
   } else if (c.c === 'play' || c.c === 'pause') {
     showOn();
     applyPlayback({ i: c.i, playing: c.c === 'play', pos: c.pos, at: c.at });
+  } else if (c.c === 'encore') {
+    seq++;
+    ceremony = false;
+    guestEncore({ c: c.cands, n: [0, 0, 0], u: c.until }, true);
+  } else if (c.c === 'interval') {
+    seq++;
+    ceremony = false;
+    beginInterval(c.until, c.i);
   } else if (c.c === 'exit') {
     seq++;
+    playTok++;
+    closeRecital();
     ceremony = false;
     hall.setHouseLights(1);
     hall.show?.('house');
@@ -931,6 +1506,17 @@ function onHostCmd(c) {
 function takeOver() {
   ui.toast('이제 내가 방장이에요. 공연 진행을 맡아요.', 2600);
   ui.chatLine({ sys: true, text: '이제 내가 방장이에요.' });
+  // in the middle of the interval or the encore vote: carry it to its end
+  if (intervalState) {
+    ui.interval(true, true);
+    const tok = ++seq;
+    const next = intervalState.next;
+    until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9).then((ok) => { if (ok) { ritualNext = true; runConcert(next); } });
+  } else if (encore && !encore.votes) {
+    encore.votes = new Map();
+    if (encore.mine >= 0) encore.votes.set(room.id, encore.mine);
+    finishEncore(++seq);
+  }
   publish();
 }
 
@@ -943,6 +1529,7 @@ function refreshOccupied() {
   if (!director) return;
   const s = new Set(audience ? audience.occupied : []);
   for (const i of avatars.occupied()) s.add(i);
+  if (thief?.taken) s.add(thief.taken.index);
   director.occupied = s;
 }
 
@@ -974,6 +1561,7 @@ function wireRoom(c) {
   });
   c.on('left', (id, who) => {
     avatars.remove(id);
+    if (encore?.votes?.delete(id)) encoreShow(); // (a lantern leaves with its holder)
     membersChanged();
     refreshOccupied();
     if (who) ui.chatLine({ sys: true, text: `${who.name}님이 나갔어요.` });
@@ -992,6 +1580,12 @@ function wireRoom(c) {
   });
   c.on('state', (s) => { if (!c.isHost) followHost(s); });
   c.on('cmd', onHostCmd);
+  c.on('vote', (id, k) => {
+    if (!c.isHost || !encore?.votes || !c.members.has(id)) return;
+    if (k >= 0 && k < encore.cands.length) encore.votes.set(id, k); else encore.votes.delete(id);
+    encoreShow();
+    publish();
+  });
   c.on('chat', (m) => {
     ui.chatLine({ name: m.name, text: m.text });
     if (m.id !== c.id) avatars.say(m.id, m.text);
@@ -1034,6 +1628,7 @@ ui.on('handoff', (id, name) => {
 });
 ui.on('chat', (text) => room?.chat(text));
 ui.on('chatOpen', () => director.releaseLock());
+ui.on('leafOpen', () => director.releaseLock());
 
 // where I am, for everyone else (a seat, or a spot and a heading)
 const EYE_H = 1.62;
@@ -1105,18 +1700,30 @@ function updateMediaSession(piece) {
 }
 
 async function requestWakeLock() {
+  if (asleep || document.hidden || !concertStarted || wakeLockPending) return;
   try {
-    if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+    if ('wakeLock' in navigator && (!wakeLock || wakeLock.released)) {
+      wakeLockPending = true;
+      const lock = await navigator.wakeLock.request('screen');
+      // The request can settle after a sleep/visibility transition.
+      if (asleep || document.hidden) await lock.release();
+      else wakeLock = lock;
+    }
   } catch { /* denied or unsupported */ }
+  finally { wakeLockPending = false; }
 }
 document.addEventListener('visibilitychange', () => {
   // Background-tab time is not a slow rendered frame. Audio keeps its own clock.
   lastNow = performance.now();
   fpsAcc = 0;
   fpsFrames = 0;
-  adaptiveQuality.reset(quality, renderScale);
+  holdQuality(6000);
   screenActive = false;
-  if (document.visibilityState === 'visible' && concertStarted && (!wakeLock || wakeLock.released)) requestWakeLock();
+  if (document.hidden) cancelFrame();
+  else if (!asleep) {
+    requestFrame();
+    requestWakeLock();
+  }
 });
 
 // ------------------------------------------------------------- resize
@@ -1214,14 +1821,23 @@ let levelSmoothed = 0;
 const levelBuf = new Uint8Array(512);
 let introT = 0;
 let screenActive = false;
+let pendingFrame = null;
 const frameStats = { frameMs: 0, submitMs: 0, fps: 0, calls: 0, triangles: 0, quality, renderScale };
 
+function requestFrame() {
+  if (pendingFrame === null && !asleep && !document.hidden) pendingFrame = requestAnimationFrame(frame);
+}
+function cancelFrame() {
+  if (pendingFrame !== null) cancelAnimationFrame(pendingFrame);
+  pendingFrame = null;
+}
 function frame() {
+  pendingFrame = null;
+  if (asleep || document.hidden) return; // wake/visibility resumes a single chain
   const nowMs = performance.now();
   const elapsed = Math.max(0, (nowMs - lastNow) / 1000);
   const dt = Math.min(window.__fpMaxDt || 0.05, elapsed);
   lastNow = nowMs;
-  if (document.hidden) { requestAnimationFrame(frame); return; }
   renderer.info.reset();
   wallT += dt;
   const wall = wallT;
@@ -1230,15 +1846,24 @@ function frame() {
   let events = null;
   if (perf.piece) events = perf.updateVisual(t);
   const running = perf.playing;
-  orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing });
+  orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing, practice: practice.on ? practice.frame(BEAR) : null });
   stage.update(dt);
+  if (intervalState) intervalTick(dt);
   roomTick(dt);
   if (IS_SPHERE) sphereTick(dt, t);
   hall.update(dt, wall);
-  effects.update(wall);
+  effects.update(wall, dt);
   director.joy.x = ui.joy.x;
   director.joy.y = ui.joy.y;
-  animateAudience(wall, dt, performance.now() < clapUntil);
+  animateAudience(wall, dt, performance.now() < clapUntil, { hush, sleep: sleepy ? 1 : 0 });
+  spot.update(dt);
+  const nod = recital.update(dt, t, perf.playing);
+  if (nod && director.seat?.turner) PIANIST.char.body.rotation.x += 0.1 * nod; // a thank-you nod to the page turner
+  if (recital.on && concertStarted) {
+    const free = (s) => !director.occupied.has(s.index);
+    const here = director.seat?.stage;
+    ui.recital(here ? null : { stage: recital.seats.some((s) => !s.turner && free(s)), turner: !!recital.turner && free(recital.turner) });
+  } else ui.recital(null);
 
   if (!concertStarted) {
     // slow establishing shot behind the splash
@@ -1269,6 +1894,7 @@ function frame() {
   }
   if (perf.piece) ui.setTime(Math.min(perf.duration, t), perf.duration);
   if (fx) fx.update(dt, wall, levelSmoothed);
+  if (!IS_SPHERE) interiorCull();
   audience?.updateLOD?.(camera.position);
   hall.updateLOD?.(camera.position);
   hall.dome?.drawWorlds(); // after the camera moved: only what it sees
@@ -1294,20 +1920,7 @@ function frame() {
   frameStats.quality = quality;
   frameStats.renderScale = renderScale;
   if (settings.quality === 'auto' && concertStarted) {
-    const change = adaptiveQuality.sample(elapsed * 1000);
-    if (change) {
-      const presetChanged = quality !== change.quality;
-      quality = change.quality;
-      renderScale = change.scale;
-      if (presetChanged) applyQuality();
-      else {
-        renderer.setPixelRatio(QUALITY[quality].pr * renderScale);
-        onResize();
-      }
-      if (presetChanged) ui.toast(change.reason === 'recovery'
-        ? '여유가 생겨 화질을 한 단계 복구했어요.'
-        : '부드럽게 보이도록 화질을 조절했어요.', 2600);
-    }
+    sampleQuality(elapsed * 1000);
   }
   // Animation dt is clamped for stability; FPS must use real wall-clock time.
   fpsAcc += elapsed;
@@ -1319,9 +1932,89 @@ function frame() {
     fpsAcc = 0;
     fpsFrames = 0;
   }
-  requestAnimationFrame(frame);
+  requestFrame();
 }
-requestAnimationFrame(frame);
+
+// Automatic quality. A moment of change (the house lights, people walking
+// on, the doors opening for the interval, new things to draw for the first
+// time) can stutter for a second or two: that is not judged (holdQuality).
+// A steady poor frame rate steps down; a long steady good one between pieces
+// steps back up - if a recovery fails, it stays down until a
+// manual choice. Even resolution recovery waits: target reallocations can hitch.
+function holdQuality(ms = 3500) {
+  if (!Number.isFinite(ms) || ms < 0) return;
+  const now = performance.now();
+  qualityHold = Math.max(qualityHold, now + ms);
+  adaptiveQuality.hold(ms, now);
+}
+const walkingForQuality = (w) => w.state === 'queued' || w.state === 'walking';
+function sampleQuality(frameMs) {
+  if (settings.quality !== 'auto' || !concertStarted) return null;
+  // A long procession must not outlast a fixed 3.5 s grace period. Include
+  // interval departures and the conductor, even when the phase has settled.
+  if (hush > 0 || walkingForQuality(stage.conductor) || stage.walkers.some(walkingForQuality)) {
+    holdQuality();
+    return null;
+  }
+  const betweenPieces = phase !== 'playing' && !sleepy;
+  const change = adaptiveQuality.sample(frameMs, {
+    allowPresetChange: betweenPieces,
+    allowRecovery: betweenPieces,
+    nowMs: performance.now(),
+  });
+  if (!change) return null;
+  const presetChanged = quality !== change.quality;
+  quality = change.quality;
+  renderScale = change.scale;
+  if (presetChanged) applyQuality();
+  else {
+    renderer.setPixelRatio(QUALITY[quality].pr * renderScale);
+    onResize();
+  }
+  if (presetChanged) ui.toast(change.reason === 'recovery'
+    ? '여유가 생겨 화질을 한 단계 복구했어요.'
+    : '부드럽게 보이도록 화질을 조절했어요.', 2600);
+  return change;
+}
+// Debug hook retained from the evening flow: one FPS value represents a
+// three-second observation. Production feeds individual real frame intervals.
+function autoQuality(fps) {
+  if (!Number.isFinite(fps) || fps <= 0 || performance.now() < Math.max(qualityHold, adaptiveQuality.holdUntil)) return null;
+  const frameMs = 1000 / fps;
+  const frames = Math.ceil(3 * fps);
+  if (!Number.isSafeInteger(frames) || frames > 10000) return null;
+  let change = null;
+  for (let n = 0; n < frames; n++) change = sampleQuality(frameMs) || change;
+  return change;
+}
+
+// The hall from the foyer: the house (thousands of seats and guests, drawn
+// without culling) can only be seen through the doors in the back wall. When
+// none of them is in view, it is not drawn at all.
+const _frustum = new THREE.Frustum();
+const _pv = new THREE.Matrix4();
+const _box = new THREE.Box3();
+function interiorCull() {
+  let show = true;
+  if (concertStarted && camera.position.z > HALL.back + 0.05) {
+    camera.updateMatrixWorld();
+    _frustum.setFromProjectionMatrix(_pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+    show = false;
+    for (const Y of LEVELS) {
+      for (const dx of HALL_DOORS) {
+        _box.min.set(dx - HALL_DOOR_W / 2, Y, HALL.back - 0.6);
+        _box.max.set(dx + HALL_DOOR_W / 2, Y + HALL_DOOR_H, HALL.back + 0.6);
+        if (_frustum.intersectsBox(_box)) { show = true; break; }
+      }
+      if (show) break;
+    }
+  }
+  if (show === interiorShown) return;
+  interiorShown = show;
+  if (audience) audience.group.visible = show;
+  if (hall.seatGroup) hall.seatGroup.visible = show;
+}
+requestFrame();
 
 boot().catch((e) => {
   console.error(e);
@@ -1332,4 +2025,25 @@ window.__fp = {
   scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, stats: frameStats, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
+  // (tests) the automatic quality, fed a frame rate by hand
+  get leaf() { return leaf; }, endEvening, spot, thief, practice, get interval() { return intervalState; },
+  recital, effects, get encore() { return encore; }, encoreVote, goToSleep, wake, get asleep() { return asleep; },
+  // (tests) the interval right now, `sec` long, as the host would run it
+  intervalNow(sec = 90) {
+    if (perf.playing) perf.pause();
+    const tok = ++seq;
+    const next = nextIndex();
+    const endsAt = clockNow() + sec;
+    beginInterval(endsAt, next); // (first: the snapshot that goes with the command says so)
+    sendCmd({ c: 'interval', i: next, until: endsAt });
+    until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9).then((ok) => { if (ok) { ritualNext = true; runConcert(next); } });
+  },
+  get quality() { return quality; }, autoQuality, holdQuality,
+  get qualityState() {
+    return {
+      lowStreak: adaptiveQuality.slow, goodStreak: adaptiveQuality.fast,
+      raiseBlocked: adaptiveQuality.raiseBlocked, renderScale,
+      hold: Math.max(0, Math.max(adaptiveQuality.holdUntil, qualityHold) - performance.now()),
+    };
+  },
 };

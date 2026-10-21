@@ -47,6 +47,7 @@ export class AudioEngine {
     this.listenerMode = 'camera';
     this.volume = 0.8;
     this._listenerPose = null;
+    this._spatialDirty = false;
     this._crowd = null;
     this._crowdPreparation = null;
   }
@@ -60,6 +61,7 @@ export class AudioEngine {
     this.lite = lite;
     this._lp = null;
     this._listenerPose = null;
+    this._spatialDirty = false;
     this.ac = { rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15, airMin: 3800, airK: 0.055, reverb: 1, level: 1, model: 'inverse', ...(acoustics || {}) };
     const AC = window.AudioContext || window.webkitAudioContext;
     this.ctx = new AC({ latencyHint: 'playback', sampleRate: lite ? 24000 : 48000 });
@@ -214,6 +216,7 @@ export class AudioEngine {
     // init can yield while the room impulse is being built. Rebind and
     // invalidate any pose sent before the section filters were created.
     this._listenerPose = null;
+    this._spatialDirty = false;
   }
 
   // pos/forward/up are plain {x,y,z}
@@ -226,7 +229,7 @@ export class AudioEngine {
     // A stationary ear already has the right automation targets. Let the
     // existing curves finish instead of scheduling the same targets at 60 Hz.
     // Exact equality preserves every real movement, however small.
-    if (!moved && !turned) return;
+    if (!moved && !turned && !this._spatialDirty) return;
     const t = this.ctx.currentTime;
     const k = 0.04;
     if (this._lp) {
@@ -243,7 +246,9 @@ export class AudioEngine {
       if (turned) this.ctx.listener.setOrientation(fwd.x, fwd.y, fwd.z, up.x, up.y, up.z);
     }
     // Air absorption: high frequencies fall off with distance (~ ISO 9613 trend)
-    if (moved) {
+    // A foyer source may appear or move while the listener stays seated.
+    // Refresh its distance cues without rescheduling the unchanged ear pose.
+    if (moved || this._spatialDirty) {
       for (const s of Object.values(this.sections)) {
         const dx = s.pos.x - pos.x;
         const dy = s.pos.y - pos.y;
@@ -253,6 +258,7 @@ export class AudioEngine {
         const cutoff = Math.max(this.ac.airMin, 21000 / (1 + d * this.ac.airK));
         s.air.frequency.setTargetAtTime(this._hz(cutoff), t, 0.08);
       }
+      this._spatialDirty = false;
     }
     const next = last || (this._listenerPose = {});
     next.px = pos.x; next.py = pos.y; next.pz = pos.z;
@@ -294,6 +300,55 @@ export class AudioEngine {
     }
   }
 
+  // A player out in the foyer (practising in the interval): a source of its
+  // own outside the hall's walls - muffled while you are in the hall, clear
+  // when you are out there with them (the opposite of the stage, see setRoom).
+  addSpot(id, pos) {
+    if (this.sections[id]) { this.moveSpot(id, pos); return; }
+    const ctx = this.ctx;
+    const input = ctx.createGain();
+    const focus = new GainNode(ctx, { channelCount: 1, channelCountMode: 'explicit', channelInterpretation: 'speakers' });
+    const air = ctx.createBiquadFilter();
+    air.type = 'lowpass';
+    air.frequency.value = this._hz(16000);
+    const panner = new PannerNode(ctx, {
+      panningModel: this.lite ? 'equalpower' : 'HRTF', distanceModel: 'inverse', refDistance: 1.6, maxDistance: 60, rolloffFactor: 1.3,
+      positionX: pos.x, positionY: pos.y, positionZ: pos.z,
+    });
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = this._hz(20000);
+    const g = ctx.createGain();
+    const send = ctx.createGain();
+    send.gain.value = 0.12; // a smaller, drier room than the hall
+    input.connect(focus);
+    focus.connect(air).connect(panner).connect(lp).connect(g).connect(this.makeup);
+    focus.connect(send).connect(this.reverbIn);
+    this.sections[id] = { id, input, focus, air, panner, send, pos: { ...pos }, distance: 10, spot: { lp, g } };
+    this._spatialDirty = true;
+    this._spotRoom(this.sections[id], this._open, 0);
+  }
+
+  moveSpot(id, pos) {
+    const s = this.sections[id];
+    if (!s) return;
+    if (s.pos.x === pos.x && s.pos.y === pos.y && s.pos.z === pos.z) return;
+    s.pos = { ...pos };
+    this._spatialDirty = true;
+    const t = this.ctx.currentTime;
+    s.panner.positionX.setValueAtTime(pos.x, t);
+    s.panner.positionY.setValueAtTime(pos.y, t);
+    s.panner.positionZ.setValueAtTime(pos.z, t);
+  }
+
+  _spotRoom(s, open, k = 0.3) {
+    const t = this.ctx.currentTime;
+    const out = 1 - open; // 1 out in the foyer with them
+    const cutoff = 650 * Math.pow(20000 / 650, Math.pow(out, 0.8));
+    s.spot.lp.frequency.setTargetAtTime(this._hz(cutoff), t, k || 0.001);
+    s.spot.g.gain.setTargetAtTime(0.2 + 0.8 * out, t, k || 0.001);
+  }
+
   // Bring one section forward (others ducked) - for "listen to this part"
   setFocus(id) {
     const t = this.ctx.currentTime;
@@ -317,6 +372,7 @@ export class AudioEngine {
     this.occWet.lp.frequency.setTargetAtTime(this._hz(cutoff * 1.6), t, 0.3);
     this.occDry.g.gain.setTargetAtTime(0.17 + 0.83 * Math.pow(open, 1.3), t, 0.3);
     this.occWet.g.gain.setTargetAtTime(0.48 + 0.52 * open, t, 0.3);
+    for (const sec of Object.values(this.sections)) if (sec.spot) this._spotRoom(sec, open);
   }
 
   setVolume(v) {

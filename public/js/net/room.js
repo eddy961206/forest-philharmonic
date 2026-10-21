@@ -75,6 +75,7 @@ export class RoomClient {
   cmd(c) { if (this.isHost) this._send({ t: 'cmd', c }); }
   chat(text) { this._send({ t: 'chat', text }); }
   handoff(id) { if (this.isHost) this._send({ t: 'handoff', id }); }
+  vote(k) { this._send({ t: 'vote', k }); } // the encore (the host counts)
 
   _ping() { this._send({ t: 'ping', c: Date.now() }); }
 
@@ -134,6 +135,7 @@ export class RoomClient {
       case 'state': this._emit('state', m.s); return;
       case 'cmd': this._emit('cmd', m.c); return;
       case 'chat': this._emit('chat', m); return;
+      case 'vote': this._emit('vote', m.id, m.k); return;
       default:
     }
   }

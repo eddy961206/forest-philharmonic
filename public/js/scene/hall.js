@@ -270,6 +270,7 @@ export function buildHall({ quality = 'high', lite = false } = {}) {
     seats,
     seatMesh: seatData.pick,
     prepareRender: seatData.prepareRender,
+    seatGroup: seatData.group,
     lights,
     setHouseLights(v) { houseTarget = v; },
     update(dt, t) { for (const f of update) f(dt, t); },
