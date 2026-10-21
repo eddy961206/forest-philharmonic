@@ -311,6 +311,7 @@ export class UI {
       $('tcEnter').disabled = false;
       $('tcLine').textContent = '입장 준비가 끝났어요. 표를 내밀어 주세요.';
       $('tcEnter').focus({ preventScroll: true });
+      $('tcEnter').scrollIntoView?.({ block: 'nearest' }); // (a short screen: the button comes into view, not below the fold)
       return;
     }
     (this.invite ? $('lbInviteGo') : $('lbOnline').hidden ? $('enterBtn') : $('lbCreate')).focus({ preventScroll: true });

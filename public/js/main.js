@@ -149,6 +149,7 @@ scene.add(hall.group);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
 const spot = new Spotlight(hall.lights, scene); // a recital: the key light gathers on the soloist
+hall.setBeams?.(settings.lasers !== false); // (the Sphere's moving heads follow '조명 연출')
 const thief = new SeatThief(stage, 'va:0'); // the interval: someone may take the seat you leave
 // a recital: chairs on the stage and a page turner's seat (added to the seat list, put away)
 const recital = buildRecital(scene, orchestra, hall.seats);
@@ -541,7 +542,7 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
       // (a whole orchestra comes on closer together: it is a long walk-on)
       stage.callOn(enters, enters.length >= 16 ? 0.7 : undefined, { stand: soloists });
       // the stage fills in silence: say so (and that it can be skipped)
-      if (enters.length >= 6 && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 6000);
+      if (enters.length >= 6 && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 9000);
       if (!(await until(() => stage.arrived(enters), tok, 90000))) return;
       if (!(await wait(800, tok))) return;
       if (enters.length >= 6 && enters.some((w) => STRINGS.test(StageManager.key(w)))) {
@@ -1367,6 +1368,7 @@ function onSetting(key, value) {
   if (key === 'fireflies') effects.setCounts(value);
   if (key === 'screen') screen.setEnabled(value);
   if (key === 'lasers' && !value && fx) { fx.lasers.set(false); fx.wash.set(false); }
+  if (key === 'lasers') hall.setBeams?.(value); // (the Sphere's moving heads)
   // the audience slider: the crowd is rebuilt once the slider rests for a
   // moment, not on every step of a drag
   if (key === CROWD) {
@@ -1899,6 +1901,8 @@ ui.initLobby({ avatars: AVATARS, identity: { ...me, emoji: EMOJI[me.avatar] }, i
 const held = heldTicket(VENUE);
 const ticket = held && (!invite || held.code === invite) ? held : null;
 if (ticket) ui.ticketMode(ticket, ticketElement(ticket));
+// (an invite whose code is not a code: said at once, not after the building has loaded)
+else if (!invite && new URLSearchParams(location.search).get('room')) ui.lobbyError('초대 링크의 방 코드가 올바르지 않아요. 아래에서 방 코드를 직접 적어 들어가 보세요.');
 ui.on('venue', (id) => goVenue(id, { room: invite }));
 ui.on('dropTicket', () => dropTicket()); // (back to the square from a room that is gone: buy afresh)
 async function refreshRooms() {
