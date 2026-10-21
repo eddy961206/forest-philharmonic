@@ -23,7 +23,7 @@ import { buildFX } from './scene/fx.js';
 import { StageManager } from './scene/stage.js';
 import { Director, ENTRANCE } from './scene/director.js';
 import { setAnisotropy, setLite } from './scene/materials.js';
-import { hallOpenness } from './scene/hallplan.js';
+import { hallOpenness, HALL, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H } from './scene/hallplan.js';
 import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
 import { RoomClient, listRooms } from './net/room.js';
@@ -53,6 +53,14 @@ let quality = settings.quality === 'auto' ? (isMobile ? 'low' : 'high') : settin
 // fewer lights, plain materials, lighter audio. Decided once at load.
 const LITE = isMobile || quality === 'low';
 let renderScale = 1; // phones: lowered further while the frame rate is poor
+// automatic quality (see autoQuality)
+const AUTO_TOP = isMobile ? 'low' : 'high';
+let lowStreak = 0;
+let goodStreak = 0;
+let qualityHold = 0;
+let raisedAt = -1e9;
+let raiseBlocked = false;
+let interiorShown = true; // the house, seen from the foyer (see interiorCull)
 
 // --------------------------------------------------------------- render
 const container = document.getElementById('stage');
@@ -136,7 +144,9 @@ function seatAudience(on) {
     const big = IS_SPHERE ? { fill: 0.62 + rand() * 0.3, detail: LITE ? 80 : 220, mid: LITE ? 0 : 900, cap: LITE ? 2500 : Infinity } : {};
     audience = buildAudience(hall.seats, { exclude, lite: LITE, rand, reserveAll: !!room, ...big });
     audience.updateLOD?.(camera.position, true);
+    audience.group.visible = interiorShown;
     scene.add(audience.group);
+    holdQuality();
   }
   refreshOccupied();
 }
@@ -260,6 +270,7 @@ ui.on('enter', async (opt) => {
   director.placeAt(ENTRANCE.pos, ENTRANCE.look);
   director.targetFov = director.fov = 64;
   concertStarted = true;
+  holdQuality(6000);
   hall.setHouseLights(1);
   requestWakeLock();
   if (room && !room.isHost && pendingJoin !== undefined) followHost(pendingJoin, { joining: true });
@@ -297,6 +308,7 @@ const until = (cond, tok, timeout = 60000) => new Promise((r) => {
 });
 
 function setPhase(p, seconds = 0) {
+  if (p !== phase) holdQuality();
   phase = p;
   phaseUntil = performance.now() + seconds * 1000;
   // the Sphere's dome follows the evening
@@ -681,6 +693,7 @@ function onSetting(key, value) {
 }
 
 function applyQuality() {
+  holdQuality(4500); // every material is rebuilt: a hitch, not a slow machine
   const q = QUALITY[quality];
   renderer.setPixelRatio(q.pr * (quality === 'low' ? renderScale : 1));
   renderer.shadowMap.enabled = q.shadows;
@@ -1182,7 +1195,6 @@ let lastNow = performance.now();
 let wallT = 0;
 let fpsAcc = 0;
 let fpsFrames = 0;
-let lowStreak = 0;
 let levelSmoothed = 0;
 const levelBuf = new Uint8Array(512);
 let introT = 0;
@@ -1237,6 +1249,7 @@ function frame() {
   }
   if (perf.piece) ui.setTime(Math.min(perf.duration, t), perf.duration);
   if (fx) fx.update(dt, wall, levelSmoothed);
+  if (!IS_SPHERE) interiorCull();
   audience?.updateLOD?.(camera.position);
   hall.dome?.drawWorlds(); // (after the camera moved: only what it sees)
   hall.updateLOD?.(camera.position);
@@ -1254,25 +1267,77 @@ function frame() {
   if (fpsAcc > 3) {
     const fps = fpsFrames / fpsAcc;
     ui.setFps(fps, quality);
-    if (settings.quality === 'auto' && concertStarted) {
-      if (fps < 36) lowStreak++; else lowStreak = 0;
-      if (quality === 'low' && fps < 30 && renderScale > 0.6) {
-        // already at the lightest settings: render fewer pixels
-        renderScale *= 0.85;
-        renderer.setPixelRatio(QUALITY.low.pr * renderScale);
-        onResize();
-      }
-      if (lowStreak >= 2 && quality !== 'low') {
-        quality = quality === 'high' ? 'medium' : 'low';
-        applyQuality();
-        ui.toast(`부드럽게 보이도록 화질을 '${quality === 'medium' ? '보통' : '낮음'}'으로 낮췄어요.`, 2600);
-        lowStreak = 0;
-      }
-    }
+    if (settings.quality === 'auto' && concertStarted) autoQuality(fps);
     fpsAcc = 0;
     fpsFrames = 0;
   }
   requestAnimationFrame(frame);
+}
+
+// Automatic quality. A moment of change (the house lights, people walking
+// on, the doors opening for the interval, new things to draw for the first
+// time) can stutter for a second or two: that is not judged (holdQuality).
+// A steady poor frame rate steps down; a long steady good one between pieces
+// steps back up again, once - if that one drops again, it stays down.
+function holdQuality(ms = 3500) { qualityHold = Math.max(qualityHold, performance.now() + ms); lowStreak = 0; goodStreak = 0; }
+function autoQuality(fps) {
+  const now = performance.now();
+  if (now < qualityHold) { lowStreak = 0; goodStreak = 0; return; }
+  if (fps < 36) lowStreak++; else lowStreak = 0;
+  if (fps > 56) goodStreak++; else goodStreak = 0;
+  if (quality === 'low' && fps < 30 && renderScale > 0.6) {
+    // already at the lightest settings: render fewer pixels
+    renderScale *= 0.85;
+    renderer.setPixelRatio(QUALITY.low.pr * renderScale);
+    onResize();
+    return;
+  }
+  if (lowStreak >= 2 && quality !== 'low') {
+    if (now - raisedAt < 60000) raiseBlocked = true; // it could not hold the higher setting
+    quality = quality === 'high' ? 'medium' : 'low';
+    applyQuality();
+    ui.toast(`부드럽게 보이도록 화질을 '${quality === 'medium' ? '보통' : '낮음'}'으로 낮췄어요.`, 2600);
+    return;
+  }
+  // (steps up only between pieces: rebuilding the materials can hitch)
+  if (goodStreak < 5 || phase === 'playing' || raiseBlocked) return;
+  if (quality === 'low' && renderScale < 1) {
+    renderScale = Math.min(1, renderScale / 0.85);
+    renderer.setPixelRatio(QUALITY.low.pr * renderScale);
+    onResize();
+    goodStreak = 0;
+  } else if (quality !== AUTO_TOP) {
+    quality = quality === 'low' ? 'medium' : 'high';
+    raisedAt = now;
+    applyQuality();
+  }
+}
+
+// The hall from the foyer: the house (thousands of seats and guests, drawn
+// without culling) can only be seen through the doors in the back wall. When
+// none of them is in view, it is not drawn at all.
+const _frustum = new THREE.Frustum();
+const _pv = new THREE.Matrix4();
+const _box = new THREE.Box3();
+function interiorCull() {
+  let show = true;
+  if (concertStarted && camera.position.z > HALL.back + 0.05) {
+    camera.updateMatrixWorld();
+    _frustum.setFromProjectionMatrix(_pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+    show = false;
+    for (const Y of LEVELS) {
+      for (const dx of HALL_DOORS) {
+        _box.min.set(dx - HALL_DOOR_W / 2, Y, HALL.back - 0.6);
+        _box.max.set(dx + HALL_DOOR_W / 2, Y + HALL_DOOR_H, HALL.back + 0.6);
+        if (_frustum.intersectsBox(_box)) { show = true; break; }
+      }
+      if (show) break;
+    }
+  }
+  if (show === interiorShown) return;
+  interiorShown = show;
+  if (audience) audience.group.visible = show;
+  if (hall.seatGroup) hall.seatGroup.visible = show;
 }
 requestAnimationFrame(frame);
 
@@ -1285,4 +1350,6 @@ window.__fp = {
   scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
+  // (tests) the automatic quality, fed a frame rate by hand
+  get quality() { return quality; }, autoQuality, holdQuality, get qualityState() { return { lowStreak, goodStreak, raiseBlocked, renderScale, hold: Math.max(0, qualityHold - performance.now()) }; },
 };
