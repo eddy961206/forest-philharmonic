@@ -1,0 +1,56 @@
+{
+  "files": [
+    "/workspace/scratch/51e64c30577e/qa-3f/render/baseline-repeat-full-hall-high-desktop-sync.json",
+    "/workspace/scratch/51e64c30577e/qa-3f/render/after-repeat-full-hall-high-desktop-sync.json"
+  ],
+  "revisions": [
+    "3f1655b0c035a630adbcfbf19582dd9363386f34",
+    "3f-integrated-candidate"
+  ],
+  "suite": "whole-frame-controlled",
+  "mode": "synchronous-completion",
+  "venue": "hall",
+  "quality": "high",
+  "device": "desktop",
+  "scenarioOrder": [
+    "front"
+  ],
+  "samplesPerScenario": 6,
+  "warnings": [],
+  "scenarios": {
+    "front": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 2496.500000001242,
+        "after": 1804.25,
+        "difference": -692.2500000012419,
+        "percent": -27.728820348523836
+      },
+      "p50Ms": {
+        "before": 2521.900000002235,
+        "after": 1720.300000000745,
+        "difference": -801.6000000014901,
+        "percent": -31.785558507505442
+      },
+      "p95Ms": {
+        "before": 2633.400000002235,
+        "after": 2080.800000000745,
+        "difference": -552.6000000014901,
+        "percent": -20.984278879054497
+      },
+      "calls": {
+        "before": 1713.3333333333333,
+        "after": 1710.3333333333333,
+        "difference": -3,
+        "percent": -0.17509727626459146
+      },
+      "triangles": {
+        "before": 11699198,
+        "after": 7413190,
+        "difference": -4286008,
+        "percent": -36.63505823219677
+      }
+    }
+  },
+  "interpretation": "시간의 음수 변화는 이번 표본에서 짧아졌다는 뜻이야. 인과관계·실기기 FPS·최악 조건의 성능 보장은 아니야. 작은 차이는 반복 측정과 시각 확인을 함께 봐."
+}

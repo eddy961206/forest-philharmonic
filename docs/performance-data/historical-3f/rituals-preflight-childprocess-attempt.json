@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "status": "UNRELIABLE_CHILD_PROCESS_RESULT",
+  "explanation": "spawnSync returned EPERM together with status 0. This attempt is not proof of successful syntax/help execution; direct executor commands are recorded separately.",
+  "checkedAt": "2026-10-21T07:37:38.860Z",
+  "runtime": "v24.19.0",
+  "baseline": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+  "source": {
+    "file": "qa-3f/rituals.mjs",
+    "sha256": "919116bb065abf63f48d3b532b63cd8702d6d5b3e0d81cad17ce8c97bda80a7d"
+  },
+  "documentation": {
+    "file": "qa-3f/rituals.md",
+    "sha256": "26ff3ebabf90d27c240cc59a56df3bb3db1f00202ad838927fc23b40b9634e7e"
+  },
+  "helper": {
+    "file": "forest-philharmonic/tools/bench/browser.mjs",
+    "sha256": "68cebfd3719a1ee4c21f4296225a9631600e7d9b4ac2e40bfdd114ec3e00bcb6"
+  },
+  "checks": [
+    {
+      "name": "syntax",
+      "command": [
+        "node",
+        "--check",
+        "qa-3f/rituals.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": "spawnSync /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node EPERM",
+      "stdout": "rituals-syntax.stdout.log",
+      "stderr": "rituals-syntax.stderr.log"
+    },
+    {
+      "name": "help",
+      "command": [
+        "node",
+        "qa-3f/rituals.mjs",
+        "--help"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "error": "spawnSync /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node EPERM",
+      "stdout": "rituals-help.stdout.log",
+      "stderr": "rituals-help.stderr.log"
+    }
+  ],
+  "browserExecuted": false,
+  "gpuOrAudioBenchmarkExecuted": false,
+  "productFunctionalStatus": "NOT_RUN",
+  "staticReview": {
+    "scheduler": "Independent read by sphere_optimization; no blocking defect found, no execution.",
+    "ritualFlow": "Independent read by runtime_audit; no blocking defect found, no execution."
+  },
+  "limitations": [
+    "Syntax/help are not browser or product PASS evidence.",
+    "Known upstream sleep selection display is expected to be recorded as FAIL if observed, not ignored.",
+    "The second wake cycle fixes an explicit pending-callback order; it does not measure natural race frequency."
+  ]
+}

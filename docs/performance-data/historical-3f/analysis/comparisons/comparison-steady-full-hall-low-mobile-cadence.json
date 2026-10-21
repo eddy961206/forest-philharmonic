@@ -1,0 +1,85 @@
+{
+  "files": [
+    "/workspace/scratch/51e64c30577e/qa-3f/render/baseline-steady-full-hall-low-mobile-cadence.json",
+    "/workspace/scratch/51e64c30577e/qa-3f/render/after-steady-full-hall-low-mobile-cadence.json"
+  ],
+  "revisions": [
+    "3f1655b0c035a630adbcfbf19582dd9363386f34",
+    "3f-integrated-candidate"
+  ],
+  "suite": "whole-frame-controlled",
+  "mode": "raf-cadence",
+  "venue": "hall",
+  "quality": "low",
+  "device": "mobile",
+  "scenarioOrder": [
+    "broadcast"
+  ],
+  "samplesPerScenario": 100,
+  "warnings": [],
+  "scenarios": {
+    "broadcast": {
+      "metric": "cadenceMs",
+      "meanMs": {
+        "before": 353.9560000000149,
+        "after": 285.7529999999702,
+        "difference": -68.20300000004471,
+        "percent": -19.268779170304175
+      },
+      "p50Ms": {
+        "before": 404.80000000074506,
+        "after": 353.6000000014901,
+        "difference": -51.19999999925494,
+        "percent": -12.648221343666183
+      },
+      "p95Ms": {
+        "before": 819.5,
+        "after": 692.0999999977648,
+        "difference": -127.40000000223517,
+        "percent": -15.546064673854202
+      },
+      "calls": {
+        "before": 451.52,
+        "after": 466.91,
+        "difference": 15.390000000000043,
+        "percent": 3.408486888731406
+      },
+      "triangles": {
+        "before": 595078.13,
+        "after": 528240.05,
+        "difference": -66838.07999999996,
+        "percent": -11.231815896174837
+      },
+      "observedRafFps": {
+        "before": 2.825209913096424,
+        "after": 3.4995258142525336,
+        "delta": 0.6743159011561097,
+        "percent": 23.867815910962204
+      },
+      "onePercentLowRafFps": {
+        "before": 0.8149959250203749,
+        "after": 1.3157894736842106,
+        "delta": 0.5007935486638357,
+        "percent": 61.44736842105265
+      },
+      "rafCadence": {
+        "n": {
+          "before": 100,
+          "after": 100
+        },
+        "slowestSampleCount": {
+          "before": 1,
+          "after": 1
+        },
+        "sourceInterval": "samples[].cadenceMs",
+        "definitions": {
+          "observedRafFps": "1000 / 전체 rAF 간격(ms)의 산술평균. 프레임별 FPS를 평균한 값이 아니야.",
+          "onePercentLowRafFps": "표본 n >= 100일 때 1000 / 느린 상위 ceil(n * 0.01)개 간격(ms)의 산술평균. 100개 미만이면 null이야.",
+          "delta": "after - before, 단위는 FPS. percent는 before 대비 변화율이야."
+        },
+        "caveat": "외부 native rAF callback 간격의 관찰값이야. 시각 애니메이션과 음악 시각을 제어하고 실제 음표 스케줄러를 끈 fixture라 실제 오디오·입력 부하나 기기 FPS를 보장하지 않아. 100개 표본의 1% Low는 가장 느린 한 간격에 좌우돼."
+      }
+    }
+  },
+  "interpretation": "시간의 음수 변화는 이번 표본에서 짧아졌다는 뜻이야. 인과관계·실기기 FPS·최악 조건의 성능 보장은 아니야. 작은 차이는 반복 측정과 시각 확인을 함께 봐."
+}

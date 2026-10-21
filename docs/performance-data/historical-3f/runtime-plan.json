@@ -1,0 +1,523 @@
+[
+  {
+    "id": "loading-baseline-hall-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline-3f-fixed",
+      "hall",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-baseline-3f-fixed-hall-desktop.json"
+    ]
+  },
+  {
+    "id": "loading-candidate-hall-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "after-3f-fixed",
+      "hall",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-after-3f-fixed-hall-desktop.json"
+    ]
+  },
+  {
+    "id": "loading-baseline-hall-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline-3f-fixed",
+      "hall",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-baseline-3f-fixed-hall-mobile.json"
+    ]
+  },
+  {
+    "id": "loading-candidate-hall-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "after-3f-fixed",
+      "hall",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-after-3f-fixed-hall-mobile.json"
+    ]
+  },
+  {
+    "id": "loading-baseline-sphere-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline-3f-fixed",
+      "sphere",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-baseline-3f-fixed-sphere-desktop.json"
+    ]
+  },
+  {
+    "id": "loading-candidate-sphere-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "after-3f-fixed",
+      "sphere",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-after-3f-fixed-sphere-desktop.json"
+    ]
+  },
+  {
+    "id": "loading-baseline-sphere-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline-3f-fixed",
+      "sphere",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-baseline-3f-fixed-sphere-mobile.json"
+    ]
+  },
+  {
+    "id": "loading-candidate-sphere-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "after-3f-fixed",
+      "sphere",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-after-3f-fixed-sphere-mobile.json"
+    ]
+  },
+  {
+    "id": "audio-baseline-hall-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/audio-stability.mjs",
+    "args": [
+      "baseline-3f",
+      "hall",
+      "desktop",
+      "65"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/audio-stability-baseline-3f-hall-desktop.json"
+    ]
+  },
+  {
+    "id": "audio-candidate-hall-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/audio-stability.mjs",
+    "args": [
+      "after-3f",
+      "hall",
+      "desktop",
+      "65"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/audio-stability-after-3f-hall-desktop.json"
+    ]
+  },
+  {
+    "id": "audio-baseline-sphere-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/audio-stability.mjs",
+    "args": [
+      "baseline-3f",
+      "sphere",
+      "mobile",
+      "65"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/audio-stability-baseline-3f-sphere-mobile.json"
+    ]
+  },
+  {
+    "id": "audio-candidate-sphere-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/audio-stability.mjs",
+    "args": [
+      "after-3f",
+      "sphere",
+      "mobile",
+      "65"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/audio-stability-after-3f-sphere-mobile.json"
+    ]
+  },
+  {
+    "id": "audio-candidate-hall-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/audio-stability.mjs",
+    "args": [
+      "after-3f",
+      "hall",
+      "mobile",
+      "65"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/audio-stability-after-3f-hall-mobile.json"
+    ]
+  },
+  {
+    "id": "audio-candidate-sphere-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/audio-stability.mjs",
+    "args": [
+      "after-3f",
+      "sphere",
+      "desktop",
+      "65"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/audio-stability-after-3f-sphere-desktop.json"
+    ]
+  },
+  {
+    "id": "rooms-hall-cross",
+    "runner": "qa-3f/run-multiprocess.mjs",
+    "script": "tools/bench/rooms.mjs",
+    "args": [
+      "3f-current",
+      "hall",
+      "cross"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "640",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/rooms-3f-current-hall-cross.json"
+    ]
+  },
+  {
+    "id": "rooms-sphere-core",
+    "runner": "qa-3f/run-multiprocess.mjs",
+    "script": "tools/bench/rooms.mjs",
+    "args": [
+      "3f-current",
+      "sphere",
+      "core"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "640",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/rooms-3f-current-sphere-core.json"
+    ]
+  },
+  {
+    "id": "functional-hall-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "hall",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/functional-results/hall-desktop",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "functional-3f",
+      "SCOPE": "full",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    },
+    "expectedOutputs": [
+      "qa-3f/functional-results/hall-desktop/functional-3f-hall-desktop.json",
+      "qa-3f/functional-results/hall-desktop/functional-3f-summary.json"
+    ]
+  },
+  {
+    "id": "functional-hall-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "hall",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/functional-results/hall-mobile",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "functional-3f",
+      "SCOPE": "full",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    },
+    "expectedOutputs": [
+      "qa-3f/functional-results/hall-mobile/functional-3f-hall-mobile.json",
+      "qa-3f/functional-results/hall-mobile/functional-3f-summary.json"
+    ]
+  },
+  {
+    "id": "functional-sphere-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "sphere",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/functional-results/sphere-desktop",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "functional-3f",
+      "SCOPE": "full",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    },
+    "expectedOutputs": [
+      "qa-3f/functional-results/sphere-desktop/functional-3f-sphere-desktop.json",
+      "qa-3f/functional-results/sphere-desktop/functional-3f-summary.json"
+    ]
+  },
+  {
+    "id": "functional-sphere-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "sphere",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/functional-results/sphere-mobile",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000",
+      "LABEL": "functional-3f",
+      "SCOPE": "full",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1"
+    },
+    "expectedOutputs": [
+      "qa-3f/functional-results/sphere-mobile/functional-3f-sphere-mobile.json",
+      "qa-3f/functional-results/sphere-mobile/functional-3f-summary.json"
+    ]
+  },
+  {
+    "id": "protocol-localhost-3f",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/multiplayer.mjs",
+    "args": [
+      "3f-current"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000",
+      "REPO_DIR": "/workspace/scratch/51e64c30577e/forest-integration-3f"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/multiplayer-3f-current.json"
+    ]
+  }
+]

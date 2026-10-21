@@ -1,0 +1,55 @@
+(node:23) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# Subtest: cube rendering updates only the five visible faces and restores caller render state
+ok 1 - cube rendering updates only the five visible faces and restores caller render state
+  ---
+  duration_ms: 7.561117
+  type: 'test'
+  ...
+# Subtest: a failed cube face restores render state and retries the fresh world on the next update
+ok 2 - a failed cube face restores render state and retries the fresh world on the next update
+  ---
+  duration_ms: 1.733148
+  type: 'test'
+  ...
+# Subtest: face masks skip hidden faces and resizing invalidates even the previously cached offscreen faces
+ok 3 - face masks skip hidden faces and resizing invalidates even the previously cached offscreen faces
+  ---
+  duration_ms: 1.115869
+  type: 'test'
+  ...
+# Subtest: drawWorlds combines only enabled viewers after camera movement
+ok 4 - drawWorlds combines only enabled viewers after camera movement
+  ---
+  duration_ms: 19.542836
+  type: 'test'
+  ...
+# Subtest: the simplified cube proxy preserves ray directions on every face, including edges
+ok 5 - the simplified cube proxy preserves ray directions on every face, including edges
+  ---
+  duration_ms: 41.887801
+  type: 'test'
+  ...
+# Subtest: quality changes resize active cube targets immediately and preserve the worlds and cadence
+ok 6 - quality changes resize active cube targets immediately and preserve the worlds and cadence
+  ---
+  duration_ms: 16.445085
+  type: 'test'
+  ...
+# Subtest: live video is needed immediately on request and through the complete visible fade-out
+ok 7 - live video is needed immediately on request and through the complete visible fade-out
+  ---
+  duration_ms: 7.630231
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 105.786216

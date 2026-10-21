@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-21T07:15:54.194482+00:00",
+  "kind": "3f-runtime-integration-static-review",
+  "baselineRevision": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+  "integrationState": "Working tree during merge; runtime tests not executed by this agent",
+  "scope": [
+    "AudioEngine listener/spot integration",
+    "Performance/crowd worker retention",
+    "RoomClient/server room delta",
+    "upstream sleep/wake and quality-hold review"
+  ],
+  "confirmedRegression": {
+    "cause": "The optimized listener cache skipped air/distance refresh for new or moved spatial sources when the listener pose stayed unchanged. New main calls addSpot(lobby) at interval practice start. The original new-main per-frame listener path refreshed those values.",
+    "fix": "A separate _spatialDirty bit is reset during construction/init/listener rebinding, set by source addition or a real position change, and consumed only by the distance/air update. Existing listener position/orientation targets remain cached. Identical-source moves do not dirty or reschedule panner coordinates.",
+    "files": [
+      "public/js/audio/engine.js",
+      "tests/audio-listener.test.mjs"
+    ]
+  },
+  "validation": {
+    "executed": [
+      "node --check public/js/audio/engine.js",
+      "node --check tests/audio-listener.test.mjs",
+      "git diff --check -- public/js/audio/engine.js tests/audio-listener.test.mjs"
+    ],
+    "allExit0": true,
+    "unitTestsExecuted": false,
+    "browserExecuted": false,
+    "audioExecuted": false,
+    "addedTests": [
+      "adding a foyer source refreshes distance and air for a stationary listener only once",
+      "moving a foyer source refreshes a stationary legacy ear without duplicate pose writes",
+      "audio initialization resets source dirtiness before asynchronous setup"
+    ],
+    "testFileSha256": "b2c7b2952442509266aa9402c870e6b52ad815dc6d387b66df2114326547d7b9"
+  },
+  "otherFindings": [
+    "New main preserves the old Performance scheduler and crowd synthesizer; their complete baseline files are byte-equal between a41 and 3f. The integration Performance delta remains the prior in-place visual-array optimization.",
+    "Existing worker/helper sources are byte-identical to the a41 candidate. This is source continuity, not a new browser Worker or PCM test.",
+    "AudioEngine new-main additions are addSpot/moveSpot/_spotRoom and spot handling in setRoom. Sample loading, note scheduling, envelope, sample compaction and applause synthesis were not changed by that upstream diff.",
+    "RoomClient adds vote forwarding and server/rooms adds a 250ms rate-limited vote-to-host case. The integration copies these new-main files exactly; prior protocol checks do not constitute a new vote/encore integration test.",
+    "The old new-main sleep/wake path can enqueue another rAF before the previously queued callback observes asleep. This was reported to the main owner, who is integrating a pending-id/null guard. Hidden/sleep must not accumulate FPS or recovery samples.",
+    "Upstream phase changes, audience changes, entry, material rebuild and wake call holdQuality. The main/quality owner was told to preserve hold and failed-recovery blocking, and to block recovery during playing."
+  ],
+  "fileProof": [
+    {
+      "path": "public/js/audio/performance.js",
+      "a41Sha256": "a8294cddf767fcf3dd1adfaecddfecced5adeb5019fb89c1bd50a526a55b78a3",
+      "newMainSha256": "a8294cddf767fcf3dd1adfaecddfecced5adeb5019fb89c1bd50a526a55b78a3",
+      "integrationSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+      "a41AndNewMainByteEqual": true,
+      "integrationAndNewMainByteEqual": false
+    },
+    {
+      "path": "public/js/audio/crowd.js",
+      "a41Sha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f",
+      "newMainSha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f",
+      "integrationSha256": "99fffcba861e4d9e2afdb6dd2e7157f4d4f2a6e4300ed6b7eb2f42fe0611530f",
+      "a41AndNewMainByteEqual": true,
+      "integrationAndNewMainByteEqual": true
+    },
+    {
+      "path": "public/js/audio/engine.js",
+      "a41Sha256": "c4ef3c44b6f16c3e46979711e4e7c19d956fbdd379ab8e82f82aa75bd722fb81",
+      "newMainSha256": "bcbff75934740669c934cc76b319ea5b28169bbd065d6a72dcb16d578e4a17a6",
+      "integrationSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+      "a41AndNewMainByteEqual": false,
+      "integrationAndNewMainByteEqual": false
+    },
+    {
+      "path": "public/js/layout.js",
+      "a41Sha256": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6",
+      "newMainSha256": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6",
+      "integrationSha256": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6",
+      "a41AndNewMainByteEqual": true,
+      "integrationAndNewMainByteEqual": true
+    },
+    {
+      "path": "public/js/net/room.js",
+      "a41Sha256": "acc01eda76405ac32a3309d1d6e1d7380f11ccf1dd1dc9e8924aa9ecf3f26c2d",
+      "newMainSha256": "e915652566cf2c11b824ac156e4ac1f2ff0dfe4f1389c68654d1c117a3063ef5",
+      "integrationSha256": "e915652566cf2c11b824ac156e4ac1f2ff0dfe4f1389c68654d1c117a3063ef5",
+      "a41AndNewMainByteEqual": false,
+      "integrationAndNewMainByteEqual": true
+    },
+    {
+      "path": "server.js",
+      "a41Sha256": "525fa6171a6350d10957639ea8ab09c19b233b2260c6575937b0c0abde5d82b3",
+      "newMainSha256": "525fa6171a6350d10957639ea8ab09c19b233b2260c6575937b0c0abde5d82b3",
+      "integrationSha256": "525fa6171a6350d10957639ea8ab09c19b233b2260c6575937b0c0abde5d82b3",
+      "a41AndNewMainByteEqual": true,
+      "integrationAndNewMainByteEqual": true
+    },
+    {
+      "path": "server/rooms.js",
+      "a41Sha256": "7fcd6fa2ab0c0aae85fd1450ad0062cb9ed8c8eee9dc7871a0efd5b75c01e700",
+      "newMainSha256": "39507fbee21b59682edfe8033b5b06623f6375cc80f52f5e22eba3b235ebc6cd",
+      "integrationSha256": "39507fbee21b59682edfe8033b5b06623f6375cc80f52f5e22eba3b235ebc6cd",
+      "a41AndNewMainByteEqual": false,
+      "integrationAndNewMainByteEqual": true
+    },
+    {
+      "path": "server/ws.js",
+      "a41Sha256": "c604930a7c08ccbb9d130b544060d82b15c8d2beece59938b9e6c9a46d1b4d1f",
+      "newMainSha256": "c604930a7c08ccbb9d130b544060d82b15c8d2beece59938b9e6c9a46d1b4d1f",
+      "integrationSha256": "c604930a7c08ccbb9d130b544060d82b15c8d2beece59938b9e6c9a46d1b4d1f",
+      "a41AndNewMainByteEqual": true,
+      "integrationAndNewMainByteEqual": true
+    }
+  ],
+  "workerContinuity": [
+    {
+      "path": "public/js/audio/crowd-loader.js",
+      "a41MeasuredCandidateSha256": "d7bfde3a5c3d63c752ae3b3625ee7f596732a757da1bb75f06069bb8ef8eb4c0",
+      "integrationSha256": "d7bfde3a5c3d63c752ae3b3625ee7f596732a757da1bb75f06069bb8ef8eb4c0",
+      "byteEqual": true
+    },
+    {
+      "path": "public/js/audio/crowd-worker.js",
+      "a41MeasuredCandidateSha256": "3da0d399f5ece9c835ba457d14c26483f2ad85e055bad51b419635e89888a02b",
+      "integrationSha256": "3da0d399f5ece9c835ba457d14c26483f2ad85e055bad51b419635e89888a02b",
+      "byteEqual": true
+    }
+  ],
+  "limits": [
+    "No runtime, GPU, browser, audio, network or performance execution in this review.",
+    "The current 8080 a41 candidate and frozen loading tools were not changed.",
+    "Main/quality merge is owned by the Sphere agent; UI rAF concern was reported and not edited here."
+  ]
+}

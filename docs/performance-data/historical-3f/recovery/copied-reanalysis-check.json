@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "command": "node docs/performance-data/historical-3f/collect-summary.mjs --qa-root docs/performance-data/historical-3f --tools-root docs/performance-data/historical-3f/bench-source --output-root <new-output-outside-original>",
+  "expectedPairs": 21,
+  "completedPairs": 21,
+  "rows": 61,
+  "adaptive": 2,
+  "excluded": [],
+  "copiedSummaryByteEqualToOriginalReanalysis": true,
+  "copiedSummarySha256": "b60762bfd19b9e70c7b7ed879a8996525db39c6e5f06f43cdaab2e571a2cf654",
+  "meaning": "원본에서 직접 집계한 결과와 Git 보존본에서 다시 집계한 summary JSON이 byte 단위로 같아. 새 브라우저 실행은 하지 않았어."
+}

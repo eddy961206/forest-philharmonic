@@ -1,0 +1,44 @@
+{
+  "before": "/workspace/scratch/51e64c30577e/qa-3f/render/baseline-full-sphere-medium-desktop-sync-crossfade.png",
+  "after": "/workspace/scratch/51e64c30577e/qa-3f/render/after-full-sphere-medium-desktop-sync-crossfade.png",
+  "sha256": [
+    "f41a04c4c60a35496c6f7ae942b817e40a736d9626ad08e23381614862a81413",
+    "2add50391c33f99d72a3cb50b75494e765dc9761e7d8a9d82caa7ed79e616eab"
+  ],
+  "sourceSize": [
+    640,
+    360
+  ],
+  "comparedSize": [
+    640,
+    360
+  ],
+  "crop": null,
+  "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+  "mae": 0.09922453703703704,
+  "rmse": 0.7718180647017793,
+  "maxChannelDifference": 64.0,
+  "changedPixelPercent": 12.100694444444445,
+  "changedPixelCount": 27880,
+  "changedThreshold": 0,
+  "ssimUniform7": 0.9983966403329164,
+  "ssimChannels": [
+    0.9980649092336793,
+    0.9985083441810586,
+    0.9986166675840231
+  ],
+  "ssimDefinition": {
+    "window": [
+      7,
+      7
+    ],
+    "weights": "uniform",
+    "dataRange": 255,
+    "K1": 0.01,
+    "K2": 0.03,
+    "covariance": "sample 49/48",
+    "border": "valid windows; exclude outer 3 pixels",
+    "channels": "mean of RGB channel SSIM"
+  },
+  "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아."
+}

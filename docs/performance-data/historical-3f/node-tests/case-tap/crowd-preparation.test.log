@@ -1,0 +1,70 @@
+(node:13) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+(node:13) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: the actual module worker keeps all four original PCM buffers bit for bit
+ok 1 - the actual module worker keeps all four original PCM buffers bit for bit
+  ---
+  duration_ms: 669.841765
+  type: 'test'
+  ...
+# Subtest: one shared preparation requests the next profile only after copying the previous one
+ok 2 - one shared preparation requests the next profile only after copying the previous one
+  ---
+  duration_ms: 9.838924
+  type: 'test'
+  ...
+# Subtest: browsers without Worker complete through the unchanged synchronous synthesizer
+ok 3 - browsers without Worker complete through the unchanged synchronous synthesizer
+  ---
+  duration_ms: 140.13821
+  type: 'test'
+  ...
+# Subtest: a worker failure keeps completed buffers and synthesizes only the missing profile
+ok 4 - a worker failure keeps completed buffers and synthesizes only the missing profile
+  ---
+  duration_ms: 62.46008
+  type: 'test'
+  ...
+# Subtest: malformed worker messages fall back and late decode errors are ignored
+ok 5 - malformed worker messages fall back and late decode errors are ignored
+  ---
+  duration_ms: 86.434404
+  type: 'test'
+  ...
+# Subtest: direct applause remains synchronous while an unfinished worker is terminated
+ok 6 - direct applause remains synchronous while an unfinished worker is terminated
+  ---
+  duration_ms: 55.632707
+  type: 'test'
+  ...
+# Subtest: audio initialization cancels an old generation and ignores every late response
+ok 7 - audio initialization cancels an old generation and ignores every late response
+  ---
+  duration_ms: 6.996387
+  type: 'test'
+  ...
+# Subtest: a stalled worker is stopped and missing PCM is completed before resolving
+ok 8 - a stalled worker is stopped and missing PCM is completed before resolving
+  ---
+  duration_ms: 73.005228
+  type: 'test'
+  ...
+# Subtest: constructor restrictions fall back, and synthesis errors reject without leaking a worker
+ok 9 - constructor restrictions fall back, and synthesis errors reject without leaking a worker
+  ---
+  duration_ms: 9.456508
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1124.266206

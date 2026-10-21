@@ -1,0 +1,124 @@
+{
+  "files": [
+    "/workspace/scratch/51e64c30577e/qa-3f/render/baseline-full-hall-high-mobile-sync.json",
+    "/workspace/scratch/51e64c30577e/qa-3f/render/after-full-hall-high-mobile-sync.json"
+  ],
+  "revisions": [
+    "3f1655b0c035a630adbcfbf19582dd9363386f34",
+    "3f-integrated-candidate"
+  ],
+  "suite": "whole-frame-controlled",
+  "mode": "synchronous-completion",
+  "venue": "hall",
+  "quality": "high",
+  "device": "mobile",
+  "scenarioOrder": [
+    "front",
+    "wide",
+    "broadcast"
+  ],
+  "samplesPerScenario": 6,
+  "warnings": [],
+  "scenarios": {
+    "front": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 1084.2166666655492,
+        "after": 1024.6499999991308,
+        "difference": -59.566666666418314,
+        "percent": -5.493981830182747
+      },
+      "p50Ms": {
+        "before": 1091.699999999255,
+        "after": 1029.5999999977648,
+        "difference": -62.100000001490116,
+        "percent": -5.688375927592975
+      },
+      "p95Ms": {
+        "before": 1136.0999999977648,
+        "after": 1116.199999999255,
+        "difference": -19.899999998509884,
+        "percent": -1.751606372550747
+      },
+      "calls": {
+        "before": 537,
+        "after": 540,
+        "difference": 3,
+        "percent": 0.5586592178770949
+      },
+      "triangles": {
+        "before": 687172,
+        "after": 591784,
+        "difference": -95388,
+        "percent": -13.881240795608669
+      }
+    },
+    "wide": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 1695.300000000124,
+        "after": 1776.3666666671634,
+        "difference": 81.06666666703927,
+        "percent": 4.781847853892134
+      },
+      "p50Ms": {
+        "before": 1658.300000000745,
+        "after": 1750.5,
+        "difference": 92.19999999925494,
+        "percent": 5.559910751927487
+      },
+      "p95Ms": {
+        "before": 1817.3999999985099,
+        "after": 1951.800000000745,
+        "difference": 134.40000000223517,
+        "percent": 7.39517992749782
+      },
+      "calls": {
+        "before": 662,
+        "after": 698,
+        "difference": 36,
+        "percent": 5.438066465256798
+      },
+      "triangles": {
+        "before": 874003,
+        "after": 864835,
+        "difference": -9168,
+        "percent": -1.048966651144218
+      }
+    },
+    "broadcast": {
+      "metric": "completeMs",
+      "meanMs": {
+        "before": 1587.2833333338301,
+        "after": 1620.0333333332092,
+        "difference": 32.74999999937904,
+        "percent": 2.0632737276081015
+      },
+      "p50Ms": {
+        "before": 1513.9000000022352,
+        "after": 1590.0999999977648,
+        "difference": 76.19999999552965,
+        "percent": 5.03335755303634
+      },
+      "p95Ms": {
+        "before": 1781.6000000014901,
+        "after": 1828.300000000745,
+        "difference": 46.69999999925494,
+        "percent": 2.621239335384816
+      },
+      "calls": {
+        "before": 798.8333333333334,
+        "after": 726.8333333333334,
+        "difference": -72,
+        "percent": -9.013144168579178
+      },
+      "triangles": {
+        "before": 1075105.5,
+        "after": 936312.5,
+        "difference": -138793,
+        "percent": -12.909709791271649
+      }
+    }
+  },
+  "interpretation": "시간의 음수 변화는 이번 표본에서 짧아졌다는 뜻이야. 인과관계·실기기 FPS·최악 조건의 성능 보장은 아니야. 작은 차이는 반복 측정과 시각 확인을 함께 봐."
+}

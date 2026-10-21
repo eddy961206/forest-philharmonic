@@ -1,0 +1,1042 @@
+[
+  {
+    "i": 2,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "hall",
+        "high",
+        "desktop",
+        "front,wide,mid,rotate,broadcast,effects-show"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:27:52.351Z",
+    "finishedAt": "2026-10-21T07:33:10.211Z"
+  },
+  {
+    "i": 3,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "hall",
+        "high",
+        "desktop",
+        "front,wide,mid,rotate,broadcast,effects-show"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:33:10.212Z",
+    "finishedAt": "2026-10-21T07:38:03.924Z"
+  },
+  {
+    "i": 4,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "sphere",
+        "high",
+        "desktop",
+        "front,wide,dome,forest,peaks,crossfade,reveal,broadcast,effects-show"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:38:03.925Z",
+    "finishedAt": "2026-10-21T07:41:21.297Z"
+  },
+  {
+    "i": 5,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "sphere",
+        "high",
+        "desktop",
+        "front,wide,dome,forest,peaks,crossfade,reveal,broadcast,effects-show"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:41:21.298Z",
+    "finishedAt": "2026-10-21T07:44:34.586Z"
+  },
+  {
+    "i": 6,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "hall",
+        "medium",
+        "desktop",
+        "front,wide,broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:44:34.586Z",
+    "finishedAt": "2026-10-21T07:47:32.750Z"
+  },
+  {
+    "i": 7,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "hall",
+        "medium",
+        "desktop",
+        "front,wide,broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:47:32.751Z",
+    "finishedAt": "2026-10-21T07:50:16.822Z"
+  },
+  {
+    "i": 8,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "sphere",
+        "medium",
+        "desktop",
+        "front,wide,forest,crossfade,broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:50:16.823Z",
+    "finishedAt": "2026-10-21T07:52:11.224Z"
+  },
+  {
+    "i": 9,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "sphere",
+        "medium",
+        "desktop",
+        "front,wide,forest,crossfade,broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:52:11.225Z",
+    "finishedAt": "2026-10-21T07:54:02.037Z"
+  },
+  {
+    "i": 10,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "hall",
+        "low",
+        "desktop",
+        "front,wide,rotate"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:54:02.038Z",
+    "finishedAt": "2026-10-21T07:55:34.122Z"
+  },
+  {
+    "i": 11,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "hall",
+        "low",
+        "desktop",
+        "front,wide,rotate"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:55:34.123Z",
+    "finishedAt": "2026-10-21T07:56:59.962Z"
+  },
+  {
+    "i": 12,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "hall",
+        "low",
+        "mobile",
+        "front,wide,rotate"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:56:59.963Z",
+    "finishedAt": "2026-10-21T07:59:08.414Z"
+  },
+  {
+    "i": 13,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "hall",
+        "low",
+        "mobile",
+        "front,wide,rotate"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T07:59:08.415Z",
+    "finishedAt": "2026-10-21T08:01:14.923Z"
+  },
+  {
+    "i": 14,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "sphere",
+        "low",
+        "desktop",
+        "front,wide,rotate,dome"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:01:14.924Z",
+    "finishedAt": "2026-10-21T08:03:46.457Z"
+  },
+  {
+    "i": 15,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "sphere",
+        "low",
+        "desktop",
+        "front,wide,rotate,dome"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:03:46.458Z",
+    "finishedAt": "2026-10-21T08:06:16.710Z"
+  },
+  {
+    "i": 16,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "sphere",
+        "low",
+        "mobile",
+        "front,wide,rotate,dome"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:06:16.711Z",
+    "finishedAt": "2026-10-21T08:09:46.212Z"
+  },
+  {
+    "i": 17,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "sphere",
+        "low",
+        "mobile",
+        "front,wide,rotate,dome"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:09:46.212Z",
+    "finishedAt": "2026-10-21T08:13:24.193Z"
+  },
+  {
+    "i": 18,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline-steady",
+        "hall",
+        "low",
+        "desktop",
+        "broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "94",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:13:24.194Z",
+    "finishedAt": "2026-10-21T08:14:36.323Z"
+  },
+  {
+    "i": 19,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after-steady",
+        "hall",
+        "low",
+        "desktop",
+        "broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "94",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:14:36.324Z",
+    "finishedAt": "2026-10-21T08:15:44.755Z"
+  },
+  {
+    "i": 20,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline-steady",
+        "hall",
+        "low",
+        "mobile",
+        "broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "94",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:15:44.756Z",
+    "finishedAt": "2026-10-21T08:17:22.922Z"
+  },
+  {
+    "i": 21,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after-steady",
+        "hall",
+        "low",
+        "mobile",
+        "broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "94",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:17:22.923Z",
+    "finishedAt": "2026-10-21T08:18:53.082Z"
+  },
+  {
+    "i": 22,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline-steady",
+        "sphere",
+        "low",
+        "desktop",
+        "broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "94",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:18:53.082Z",
+    "finishedAt": "2026-10-21T08:20:00.571Z"
+  },
+  {
+    "i": 23,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after-steady",
+        "sphere",
+        "low",
+        "desktop",
+        "broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "94",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:20:00.572Z",
+    "finishedAt": "2026-10-21T08:21:07.055Z"
+  },
+  {
+    "i": 24,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline-steady",
+        "sphere",
+        "low",
+        "mobile",
+        "broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "94",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:21:07.056Z",
+    "finishedAt": "2026-10-21T08:22:31.008Z"
+  },
+  {
+    "i": 25,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after-steady",
+        "sphere",
+        "low",
+        "mobile",
+        "broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "100",
+        "WARMUP": "94",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:22:31.009Z",
+    "finishedAt": "2026-10-21T08:23:46.977Z"
+  },
+  {
+    "i": 26,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "hall",
+        "high",
+        "mobile",
+        "front,wide,broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:23:46.977Z",
+    "finishedAt": "2026-10-21T08:24:50.282Z"
+  },
+  {
+    "i": 27,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "hall",
+        "high",
+        "mobile",
+        "front,wide,broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:24:50.283Z",
+    "finishedAt": "2026-10-21T08:25:54.164Z"
+  },
+  {
+    "i": 28,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "hall",
+        "medium",
+        "mobile",
+        "front,wide,broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:25:54.165Z",
+    "finishedAt": "2026-10-21T08:26:37.282Z"
+  },
+  {
+    "i": 29,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "hall",
+        "medium",
+        "mobile",
+        "front,wide,broadcast"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:26:37.282Z",
+    "finishedAt": "2026-10-21T08:27:21.655Z"
+  },
+  {
+    "i": 30,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "sphere",
+        "high",
+        "mobile",
+        "front,wide,broadcast,dome"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:27:21.656Z",
+    "finishedAt": "2026-10-21T08:28:50.663Z"
+  },
+  {
+    "i": 31,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "sphere",
+        "high",
+        "mobile",
+        "front,wide,broadcast,dome"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:28:50.664Z",
+    "finishedAt": "2026-10-21T08:30:11.656Z"
+  },
+  {
+    "i": 32,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline",
+        "sphere",
+        "medium",
+        "mobile",
+        "front,wide,broadcast,dome"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:30:11.657Z",
+    "finishedAt": "2026-10-21T08:31:00.654Z"
+  },
+  {
+    "i": 33,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after",
+        "sphere",
+        "medium",
+        "mobile",
+        "front,wide,broadcast,dome"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:31:00.655Z",
+    "finishedAt": "2026-10-21T08:31:50.506Z"
+  },
+  {
+    "i": 34,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline-auto",
+        "hall",
+        "auto",
+        "mobile",
+        "front"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "120",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:31:50.506Z",
+    "finishedAt": "2026-10-21T08:32:36.638Z"
+  },
+  {
+    "i": 35,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after-auto",
+        "hall",
+        "auto",
+        "mobile",
+        "front"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "120",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:32:36.639Z",
+    "finishedAt": "2026-10-21T08:33:16.551Z"
+  },
+  {
+    "i": 36,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline-auto",
+        "sphere",
+        "auto",
+        "mobile",
+        "front"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "cadence",
+        "SAMPLES": "120",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:33:16.552Z",
+    "finishedAt": "2026-10-21T08:34:04.390Z"
+  },
+  {
+    "i": 37,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after-auto",
+        "sphere",
+        "auto",
+        "mobile",
+        "front"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "cadence",
+        "SAMPLES": "120",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:34:04.391Z",
+    "finishedAt": "2026-10-21T08:34:42.098Z"
+  },
+  {
+    "i": 38,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after-repeat",
+        "hall",
+        "high",
+        "desktop",
+        "front"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:34:42.099Z",
+    "finishedAt": "2026-10-21T08:35:22.367Z"
+  },
+  {
+    "i": 39,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline-repeat",
+        "hall",
+        "high",
+        "desktop",
+        "front"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:35:22.368Z",
+    "finishedAt": "2026-10-21T08:36:07.899Z"
+  },
+  {
+    "i": 40,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "after-repeat",
+        "sphere",
+        "high",
+        "desktop",
+        "front,wide,dome,forest"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8085",
+        "REVISION": "3f-integrated-candidate",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:36:07.900Z",
+    "finishedAt": "2026-10-21T08:37:36.989Z"
+  },
+  {
+    "i": 41,
+    "job": {
+      "script": "tools/bench/full-frame.mjs",
+      "args": [
+        "baseline-repeat",
+        "sphere",
+        "high",
+        "desktop",
+        "front,wide,dome,forest"
+      ],
+      "env": {
+        "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/render",
+        "BASE_URL": "http://127.0.0.1:8084",
+        "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+        "MODE": "sync",
+        "SAMPLES": "6",
+        "WARMUP": "4",
+        "SCREENSHOTS": "1"
+      },
+      "runner": "qa-3f/run-portable.mjs"
+    },
+    "code": 0,
+    "startedAt": "2026-10-21T08:37:36.990Z",
+    "finishedAt": "2026-10-21T08:39:05.803Z"
+  }
+]

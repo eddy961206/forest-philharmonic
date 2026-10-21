@@ -1,0 +1,22 @@
+{
+  "basis": "qa-a41/render-plan.json",
+  "basisSha256": "4910032b49861d38c1634a367a7c6049086a7e053eed6d4473b07ef8999129cb",
+  "newPlanSha256": "8a48fcae63a91beec550a870f283db70834aa50e4f705cfa07ccd40e081dfd70",
+  "jobs": 42,
+  "changes": [
+    "baseline/candidate localhost ports",
+    "revision labels",
+    "output directory",
+    "Use qa-3f/run-portable.mjs to execute the frozen bench-source snapshot"
+  ],
+  "unchanged": [
+    "scenario order",
+    "sample count",
+    "warmup count",
+    "viewport",
+    "quality",
+    "mode",
+    "seed"
+  ],
+  "note": "The 3f fixture must separately exclude recital stage seats from the audience, record new scene state and reject sleeping/hidden pages. The a41 raw evidence is retained under its original baseline and original fixture hash. This file is a plan, not a test result."
+}

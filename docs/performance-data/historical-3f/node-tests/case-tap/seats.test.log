@@ -1,0 +1,37 @@
+(node:75) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# Subtest: fine/coarse seats share geometry and part matrices while preserving every seat transform and colour
+ok 1 - fine/coarse seats share geometry and part matrices while preserving every seat transform and colour
+  ---
+  duration_ms: 24.722219
+  type: 'test'
+  ...
+# Subtest: broadcast and main cameras can alternate coarse/fine selection without reusing the other camera state
+ok 2 - broadcast and main cameras can alternate coarse/fine selection without reusing the other camera state
+  ---
+  duration_ms: 9.326853
+  type: 'test'
+  ...
+# Subtest: per-camera selection never submits more triangles, including parent transforms and a view away from the hall
+ok 3 - per-camera selection never submits more triangles, including parent transforms and a view away from the hall
+  ---
+  duration_ms: 9.702106
+  type: 'test'
+  ...
+# Subtest: seat picking keeps the same global IDs and hit distances after each render-camera switch
+ok 4 - seat picking keeps the same global IDs and hit distances after each render-camera switch
+  ---
+  duration_ms: 10.663155
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 68.178645

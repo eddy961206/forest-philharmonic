@@ -1,0 +1,79 @@
+(node:5) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# Subtest: calls before audio init do not establish a stale cached pose
+ok 1 - calls before audio init do not establish a stale cached pose
+  ---
+  duration_ms: 1.302039
+  type: 'test'
+  ...
+# Subtest: 600 identical frames keep the initial targets and schedule no duplicates
+ok 2 - 600 identical frames keep the initial targets and schedule no duplicates
+  ---
+  duration_ms: 1.805436
+  type: 'test'
+  ...
+# Subtest: turning updates orientation without changing distance filters
+ok 3 - turning updates orientation without changing distance filters
+  ---
+  duration_ms: 0.723779
+  type: 'test'
+  ...
+# Subtest: moving retains every spatial target and air absorption value
+ok 4 - moving retains every spatial target and air absorption value
+  ---
+  duration_ms: 0.869318
+  type: 'test'
+  ...
+# Subtest: the exact cache preserves tiny movements and mutable vector inputs
+ok 5 - the exact cache preserves tiny movements and mutable vector inputs
+  ---
+  duration_ms: 0.171778
+  type: 'test'
+  ...
+# Subtest: listener initialization invalidates a pose sent during async setup
+ok 6 - listener initialization invalidates a pose sent during async setup
+  ---
+  duration_ms: 0.150787
+  type: 'test'
+  ...
+# Subtest: reinitialization binds a new audio listener and resends unchanged targets
+ok 7 - reinitialization binds a new audio listener and resends unchanged targets
+  ---
+  duration_ms: 0.171708
+  type: 'test'
+  ...
+# Subtest: legacy listeners keep separate position/orientation updates
+ok 8 - legacy listeners keep separate position/orientation updates
+  ---
+  duration_ms: 0.255134
+  type: 'test'
+  ...
+# Subtest: adding a foyer source refreshes distance and air for a stationary listener only once
+ok 9 - adding a foyer source refreshes distance and air for a stationary listener only once
+  ---
+  duration_ms: 1.696928
+  type: 'test'
+  ...
+# Subtest: moving a foyer source refreshes a stationary legacy ear without duplicate pose writes
+ok 10 - moving a foyer source refreshes a stationary legacy ear without duplicate pose writes
+  ---
+  duration_ms: 4.454017
+  type: 'test'
+  ...
+# Subtest: audio initialization resets source dirtiness before asynchronous setup
+ok 11 - audio initialization resets source dirtiness before asynchronous setup
+  ---
+  duration_ms: 0.985012
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 25.743971

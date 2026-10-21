@@ -1,0 +1,175 @@
+{
+  "baseline": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+  "candidate": "3f-integrated-candidate",
+  "node": "v24.19.0",
+  "results": [
+    {
+      "file": "tests/audio-listener.test.mjs",
+      "sourceSha256": "b2c7b2952442509266aa9402c870e6b52ad815dc6d387b66df2114326547d7b9",
+      "command": [
+        "node",
+        "--experimental-loader",
+        "./tests/helpers/three-loader.mjs",
+        "--test-reporter=tap",
+        "tests/audio-listener.test.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-21T07:21:11.658946+00:00",
+      "finishedAt": "2026-10-21T07:21:11.802819+00:00",
+      "log": "audio-listener.test.log",
+      "tests": 11,
+      "pass": 11,
+      "fail": 0
+    },
+    {
+      "file": "tests/crowd-preparation.test.mjs",
+      "sourceSha256": "65f2ced136a91b84f256ba6c9e226e43a710aec6eba453995dd631313dee0b26",
+      "command": [
+        "node",
+        "--experimental-loader",
+        "./tests/helpers/three-loader.mjs",
+        "--test-reporter=tap",
+        "tests/crowd-preparation.test.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-21T07:21:11.803082+00:00",
+      "finishedAt": "2026-10-21T07:21:13.043913+00:00",
+      "log": "crowd-preparation.test.log",
+      "tests": 9,
+      "pass": 9,
+      "fail": 0
+    },
+    {
+      "file": "tests/dome.test.mjs",
+      "sourceSha256": "60add19bb24664c9128358dfad44333483268b61b66eee0ee2ad253c901801fb",
+      "command": [
+        "node",
+        "--experimental-loader",
+        "./tests/helpers/three-loader.mjs",
+        "--test-reporter=tap",
+        "tests/dome.test.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-21T07:21:13.044113+00:00",
+      "finishedAt": "2026-10-21T07:21:13.289086+00:00",
+      "log": "dome.test.log",
+      "tests": 7,
+      "pass": 7,
+      "fail": 0
+    },
+    {
+      "file": "tests/geometry.test.mjs",
+      "sourceSha256": "8c6a7932068a9b639323a0cb436f760cda5909de15536fc35fa264731cb4b79e",
+      "command": [
+        "node",
+        "--experimental-loader",
+        "./tests/helpers/three-loader.mjs",
+        "--test-reporter=tap",
+        "tests/geometry.test.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-21T07:21:13.289259+00:00",
+      "finishedAt": "2026-10-21T07:21:13.447082+00:00",
+      "log": "geometry.test.log",
+      "tests": 3,
+      "pass": 3,
+      "fail": 0
+    },
+    {
+      "file": "tests/instance-batches.test.mjs",
+      "sourceSha256": "10cc4b70d753c73e583e7bc1cf4008b10223b7576a28c24738c94cdebc1c7654",
+      "command": [
+        "node",
+        "--experimental-loader",
+        "./tests/helpers/three-loader.mjs",
+        "--test-reporter=tap",
+        "tests/instance-batches.test.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-21T07:21:13.447316+00:00",
+      "finishedAt": "2026-10-21T07:21:13.596141+00:00",
+      "log": "instance-batches.test.log",
+      "tests": 4,
+      "pass": 4,
+      "fail": 0
+    },
+    {
+      "file": "tests/performance.test.mjs",
+      "sourceSha256": "8030f499130beb0f518e250d6aa7cb12abf5ca036c52baf76c94d85305535bdf",
+      "command": [
+        "node",
+        "--experimental-loader",
+        "./tests/helpers/three-loader.mjs",
+        "--test-reporter=tap",
+        "tests/performance.test.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-21T07:21:13.596389+00:00",
+      "finishedAt": "2026-10-21T07:21:13.771673+00:00",
+      "log": "performance.test.log",
+      "tests": 6,
+      "pass": 6,
+      "fail": 0
+    },
+    {
+      "file": "tests/quality.test.mjs",
+      "sourceSha256": "fdaeb564970461f1f1b30f8a2e8e9ff4f81d6dd6e16aa72e42c9882fc813fc9a",
+      "command": [
+        "node",
+        "--experimental-loader",
+        "./tests/helpers/three-loader.mjs",
+        "--test-reporter=tap",
+        "tests/quality.test.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-21T07:21:13.771974+00:00",
+      "finishedAt": "2026-10-21T07:21:13.916420+00:00",
+      "log": "quality.test.log",
+      "tests": 14,
+      "pass": 14,
+      "fail": 0
+    },
+    {
+      "file": "tests/screen.test.mjs",
+      "sourceSha256": "31456b1fed9a32455cea73dc3538f56a8bcdb351a6402cc1fd6be52117fde481",
+      "command": [
+        "node",
+        "--experimental-loader",
+        "./tests/helpers/three-loader.mjs",
+        "--test-reporter=tap",
+        "tests/screen.test.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-21T07:21:13.916615+00:00",
+      "finishedAt": "2026-10-21T07:21:14.127139+00:00",
+      "log": "screen.test.log",
+      "tests": 11,
+      "pass": 11,
+      "fail": 0
+    },
+    {
+      "file": "tests/seats.test.mjs",
+      "sourceSha256": "df88b694c0dc75a338b86a19e6a21d3ddf4d8ac551568763e738272529b36182",
+      "command": [
+        "node",
+        "--experimental-loader",
+        "./tests/helpers/three-loader.mjs",
+        "--test-reporter=tap",
+        "tests/seats.test.mjs"
+      ],
+      "exitCode": 0,
+      "startedAt": "2026-10-21T07:21:14.127346+00:00",
+      "finishedAt": "2026-10-21T07:21:14.340437+00:00",
+      "log": "seats.test.log",
+      "tests": 4,
+      "pass": 4,
+      "fail": 0
+    }
+  ],
+  "passed": true,
+  "total": {
+    "tests": 69,
+    "pass": 69,
+    "fail": 0
+  }
+}

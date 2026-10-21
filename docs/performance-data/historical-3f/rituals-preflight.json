@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "status": "SYNTAX_AND_HELP_ONLY",
+  "checkedAt": "2026-10-21T07:38:29.428Z",
+  "runtime": "v24.19.0",
+  "baseline": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+  "source": {
+    "file": "qa-3f/rituals.mjs",
+    "sha256": "919116bb065abf63f48d3b532b63cd8702d6d5b3e0d81cad17ce8c97bda80a7d"
+  },
+  "documentation": {
+    "file": "qa-3f/rituals.md",
+    "sha256": "26ff3ebabf90d27c240cc59a56df3bb3db1f00202ad838927fc23b40b9634e7e"
+  },
+  "helper": {
+    "file": "forest-philharmonic/tools/bench/browser.mjs",
+    "sha256": "68cebfd3719a1ee4c21f4296225a9631600e7d9b4ac2e40bfdd114ec3e00bcb6"
+  },
+  "checks": [
+    {
+      "name": "syntax",
+      "command": [
+        "node",
+        "--check",
+        "qa-3f/rituals.mjs"
+      ],
+      "method": "Direct executor command, not nested child_process",
+      "chunk_id": "e4576c",
+      "wall_time_seconds": 0.000036495,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    },
+    {
+      "name": "help",
+      "command": [
+        "node",
+        "qa-3f/rituals.mjs",
+        "--help"
+      ],
+      "method": "Direct executor command, not nested child_process",
+      "chunk_id": "0ab461",
+      "wall_time_seconds": 0.000038749,
+      "exit_code": 0,
+      "original_token_count": 530,
+      "output": "node qa-3f/rituals.mjs [hall|sphere] [desktop|mobile]\n새 3f 상류와 통합본의 저녁 의식 UI를 직렬로 확인해. 성능/FPS 검사는 아니야.\n기본: 두 공연장 × desktop/mobile, 새 문맥에서 수동 low, 관객·효과 기본값 유지.\nSCENARIO=all|foyer|recital|interval|sleep 으로 한 묶음만 다시 확인할 수 있어.\nfoyer는 Hall 전용이야. Sphere에서 그 항목은 NOT_APPLICABLE로 남겨.\n\n필수 환경: BASE_URL, REVISION (연산자가 적는 commit/작업 트리 식별자)\n공통 환경: OUTPUT_DIR, LABEL, PLAYWRIGHT_MODULE, CHROME_EXECUTABLE,\n  CHROME_ARGS, SOFTWARE_RENDERER=1, FONT_MODE, FONT_ROOT, HEADLESS=0,\n  WIDTH, HEIGHT, DPR, TIMEOUT_MS, BENCH_HELPER_ROOT\n선택: EXPECTED_MAIN_SHA256 (실제로 응답한 main.js 바이트와 일치해야 해)\n기본 화면: desktop 960×540 DPR1, mobile 390×844 DPR2.\nTIMEOUT_MS 기본 180000. 오디오 suspend/resume clock 검사는 별도 2초 제한이야.\n출력 폴더가 이미 있으면 덮어쓰지 않고 실패해. 다른 LABEL/OUTPUT_DIR을 써 줘.\n\n실제 입력: 혼자 보기, 시작, 프로그램 선택, 좌석/일어나기, 차·소식·2부,\n  예약·취소, 마우스/터치 회전과 깨우기. phase나 오디오 시계는 쓰지 않아.\n명시적 fixture: 가까운 위치 배치/좌석 tween 완료, 단원 입퇴장 snap,\n  intervalNow(120), 예약 취소 뒤 goToSleep(). 15분 실제 만료·자연적인\n  프로그램 절반 도달·열/배터리·오디오 품질을 검증했다고 해석하면 안 돼.\n메인 rAF는 기본 보류 후 예약된 콜백만 소진해. 일반 수면과 ‘수면 직전\n  예약이 아직 전달되지 않은 빠른 깨우기’ 순서를 각각 검사하고, 깨우기 후\n  4개 콜백은 실제 native rAF로 관찰해. 경쟁 순서의 자연 발생 빈도나 FPS로\n  해석하면 안 돼.\n알려진 상류 예약 선택 표시 실패도 원본 그대로 FAIL로 남겨. 이후 별도\n  예약/취소/수면/깨우기 검사는 계속해도 전체 결과는 FAIL을 유지해.\n--help는 Playwright를 로드하거나 브라우저를 시작하지 않아.\n"
+    }
+  ],
+  "browserExecuted": false,
+  "gpuOrAudioBenchmarkExecuted": false,
+  "productFunctionalStatus": "NOT_RUN",
+  "supersedesUnreliableAttempt": "rituals-preflight-childprocess-attempt.json",
+  "staticReview": {
+    "scheduler": "Independent source review by sphere_optimization; no blocking defect found, no execution.",
+    "ritualFlow": "Independent source review by runtime_audit; no blocking defect found, no execution."
+  },
+  "limitations": [
+    "Syntax/help are not browser or product PASS evidence.",
+    "Known upstream sleep selection display remains FAIL if observed; subsequent independent checks do not erase it.",
+    "The second wake cycle fixes an explicit pending-callback order; it does not measure natural race frequency."
+  ]
+}

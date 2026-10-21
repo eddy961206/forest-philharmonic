@@ -1,0 +1,194 @@
+[
+  {
+    "id": "loading-baseline-hall-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline-3f-fixed",
+      "hall",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-baseline-3f-fixed-hall-desktop.json"
+    ]
+  },
+  {
+    "id": "loading-candidate-hall-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "after-3f-fixed",
+      "hall",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-after-3f-fixed-hall-desktop.json"
+    ]
+  },
+  {
+    "id": "loading-baseline-hall-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline-3f-fixed",
+      "hall",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-baseline-3f-fixed-hall-mobile.json"
+    ]
+  },
+  {
+    "id": "loading-candidate-hall-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "after-3f-fixed",
+      "hall",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-after-3f-fixed-hall-mobile.json"
+    ]
+  },
+  {
+    "id": "loading-baseline-sphere-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline-3f-fixed",
+      "sphere",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-baseline-3f-fixed-sphere-desktop.json"
+    ]
+  },
+  {
+    "id": "loading-candidate-sphere-desktop",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "after-3f-fixed",
+      "sphere",
+      "desktop"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "960",
+      "HEIGHT": "540",
+      "DPR": "1",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-after-3f-fixed-sphere-desktop.json"
+    ]
+  },
+  {
+    "id": "loading-baseline-sphere-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline-3f-fixed",
+      "sphere",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8084",
+      "REVISION": "3f1655b0c035a630adbcfbf19582dd9363386f34",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-baseline-3f-fixed-sphere-mobile.json"
+    ]
+  },
+  {
+    "id": "loading-candidate-sphere-mobile",
+    "runner": "qa-3f/run-portable.mjs",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "after-3f-fixed",
+      "sphere",
+      "mobile"
+    ],
+    "env": {
+      "OUTPUT_DIR": "/workspace/scratch/51e64c30577e/qa-3f/runtime-results",
+      "BASE_URL": "http://127.0.0.1:8085",
+      "REVISION": "3f-integrated-candidate",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "2",
+      "HEADLESS": "1",
+      "SCREENSHOTS": "0",
+      "TIMEOUT_MS": "180000"
+    },
+    "expectedOutputs": [
+      "qa-3f/runtime-results/loading-after-3f-fixed-sphere-mobile.json"
+    ]
+  }
+]
