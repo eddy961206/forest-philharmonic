@@ -268,6 +268,9 @@ let bowing = false;
 let seq = 0; // generation token for the concert sequence
 let ritualNext = false; // the next piece opens one of the evening's big moments (a held hush)
 let hush = 0; // the house holds its breath (0..1)
+// how much the audience talks in each phase (0 while the music plays; the
+// conductor's walk-on hushes it; it comes back between pieces and in the interval)
+const MURMUR = { lobby: 1, changing: 0.75, entering: 0.6, tuning: 0.3, announce: 0.12, hush: 0, playing: 0, afterglow: 0, applause: 0.45, intermission: 0.9, interval: 1, encore: 0.35, leaving: 0.8 };
 let leaf = new Leaf(VENUE); // tonight, for the leaf programme
 
 async function boot() {
@@ -413,6 +416,12 @@ function startShow() {
   if (!concertStarted || showStarted || hostOnly()) return;
   showStarted = true;
   ui.showStarted();
+  // still out in the foyer: the music comes through the wall (as it would) -
+  // say how to hear it properly, never move them
+  if (!IS_SPHERE && engine.ctx) {
+    const L = director.listener(settings.fixedEar ? bestSeat : null);
+    if (hallOpenness(L.pos.x, L.pos.y, L.pos.z) < 0.6) setTimeout(() => ui.toast('로비에서는 벽 너머로 들려요 · 홀 안으로 들어가 자리에 앉거나(좌석 클릭) 편하게 보기로 들으면 또렷해요', 6500), 1500);
+  }
   ritualNext = true;
   runConcert(current);
 }
@@ -2073,6 +2082,7 @@ function frame() {
     const L = director.listener(settings.fixedEar ? bestSeat : null);
     engine.setListener(L.pos, L.fwd, L.up);
     engine.setRoom(concertStarted ? hallOpenness(L.pos.x, L.pos.y, L.pos.z) : 1);
+    engine.setMurmur(!concertStarted || perf.playing ? 0 : (MURMUR[phase] ?? 0.5) * (1 - hush) * (sleepy ? 0.3 : 1), audience ? audience.count : 0);
     engine.analyser.getByteTimeDomainData(levelBuf);
     let sum = 0;
     for (let i = 0; i < levelBuf.length; i += 4) { const v = (levelBuf[i] - 128) / 128; sum += v * v; }

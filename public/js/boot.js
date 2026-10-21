@@ -16,5 +16,5 @@ try {
 }
 const venue = q.get('venue');
 if (q.get('room') || (venue && (ticket?.venue === venue || q.has('lobby')))) import('./main.js');
-else if (venue) location.replace(location.pathname);
+else if (venue) location.replace(`${location.pathname}?from=venue`); // (the square says why: see plaza.js)
 else import('./plaza.js');

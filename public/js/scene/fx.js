@@ -117,7 +117,9 @@ function buildFireworks(scene, N = 2400) {
   return {
     // schedule a show: n shells over `seconds`
     show(n = 8, seconds = 7) {
-      for (let i = 0; i < n; i++) launches.push({ at: i * (seconds / n) + Math.random() * 0.5, x: rnd(-9, 9), z: rnd(-9, 2), y: rnd(10, 15), color: palette[i % palette.length] });
+      // (low and to the front, as stage pyrotechnics are: up under the
+      // ceiling they burst above the picture of anyone in the stalls)
+      for (let i = 0; i < n; i++) launches.push({ at: i * (seconds / n) + Math.random() * 0.5, x: rnd(-8, 8), z: rnd(-6, 1), y: rnd(5, 7.5), color: palette[i % palette.length] });
       pts.visible = true;
       this.clock = 0;
     },
@@ -127,7 +129,7 @@ function buildFireworks(scene, N = 2400) {
       for (let k = 0; k < n; k++) {
         const u = Math.random() * Math.PI * 2;
         const v = Math.acos(2 * Math.random() - 1);
-        const sp = rnd(4, 7.5);
+        const sp = rnd(3, 5.5);
         spawn(at, V(Math.sin(v) * Math.cos(u) * sp, Math.cos(v) * sp, Math.sin(v) * Math.sin(u) * sp), k % 5 ? color : hue2, rnd(1.6, 2.6), rnd(0.28, 0.45));
       }
       flash.position.copy(at);

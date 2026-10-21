@@ -933,6 +933,7 @@ export class UI {
       s.id = null;
     };
     for (const el of [$('joyZone'), $('joystick')]) {
+      if (!el) continue;
       el.addEventListener('pointerdown', (e) => {
         if (s.id !== null) return;
         Object.assign(s, { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), moved: 0, el });
