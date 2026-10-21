@@ -114,6 +114,20 @@
     <button type="button" class="chip-btn" id="intervalNews">📜 숲속 소식</button>
     <button type="button" class="chip-btn ic-go" id="intervalGo">2부 시작</button>
   </div>
+  <!-- a recital: listen from the stage, or turn the pages -->
+  <div id="recitalChip" class="interval-chip recital-chip" hidden>
+    <span class="ic-title">독주회</span>
+    <button type="button" class="chip-btn" id="recitalStage">🎹 무대 위에서 듣기</button>
+    <button type="button" class="chip-btn" id="recitalTurner">📖 악보 넘김이 자리</button>
+  </div>
+  <!-- the encore: one firefly lantern each -->
+  <div id="encorePanel" class="encore" hidden>
+    <p class="encore-title">앙코르! <span id="encoreLeft"></span></p>
+    <p class="encore-sub">더 듣고 싶은 곡에 반딧불 랜턴을 들어 주세요</p>
+    <div class="encore-cands" id="encoreCands"></div>
+  </div>
+  <!-- the house asleep -->
+  <div id="sleepVeil" class="sleep-veil" hidden><p>편안한 밤 되세요</p><small>화면을 누르거나 아무 키나 누르면 깨어나요</small></div>
   <!-- things to do near you: a cookie for the one in your seat, the notice board -->
   <button id="actBtn" class="act-btn" type="button" hidden><kbd>F</kbd><span id="actText"></span></button>
 
@@ -229,6 +243,7 @@
           <button data-min="0" aria-pressed="true">끄지 않음</button><button data-min="15">15분</button><button data-min="30">30분</button><button data-min="60">1시간</button>
         </div>
         <p class="hint" id="sleepText">정한 시간이 지나면 30초에 걸쳐 소리를 줄이고 멈춰요.</p>
+        <p class="hint">혼자 볼 때는 마지막 몇 분을 잔잔한 피아노 곡으로 바꾸고, 관객도 하나둘 잠들어요. 다 잠들면 화면도 쉬어요.</p>
       </fieldset>
       <fieldset class="field">
         <legend>무대 효과</legend>

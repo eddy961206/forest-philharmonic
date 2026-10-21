@@ -152,6 +152,15 @@ function onMessage(m, msg) {
       broadcast(room, { t: 'chat', id: m.id, name: m.name, text });
       return;
     }
+    case 'vote': {
+      // the encore: one lantern each, told to the host only (who counts)
+      if (now - (m.lastVote || 0) < 250) return;
+      m.lastVote = now;
+      const k = Math.round(num(msg.k, -1, 3));
+      const host = room.members.get(room.host);
+      if (host && host !== m) host.sock.send({ t: 'vote', id: m.id, k });
+      return;
+    }
     case 'handoff': {
       if (!isHost || !room.members.has(msg.id)) return;
       room.host = msg.id;

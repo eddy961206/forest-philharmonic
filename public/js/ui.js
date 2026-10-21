@@ -548,6 +548,50 @@ export class UI {
     this.emit('leafOpen');
   }
 
+  // ------------------------------------------------------------- a recital
+  // null: hidden; otherwise which places are free
+  recital(state) {
+    $('recitalChip').hidden = !state;
+    if (!state) return;
+    $('recitalStage').disabled = !state.stage;
+    $('recitalTurner').disabled = !state.turner;
+  }
+
+  // ------------------------------------------------------------- the encore
+  // state: { cands: [{ titleKo, composerKo }], counts: [n], mine: k, left: s, people } or null
+  encore(state) {
+    const el = $('encorePanel');
+    if (!state) { el.hidden = true; this._enc = null; return; }
+    const box = $('encoreCands');
+    if (this._enc !== state.cands) {
+      this._enc = state.cands;
+      box.innerHTML = '';
+      state.cands.forEach((c, k) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<b></b><small></small><span class="lanterns"></span>';
+        b.querySelector('b').textContent = c.titleKo;
+        b.querySelector('small').textContent = `${c.composerKo} · ${c.ensembleKo}`;
+        b.addEventListener('click', () => this.emit('vote', k));
+        box.appendChild(b);
+      });
+    }
+    [...box.children].forEach((b, k) => {
+      b.setAttribute('aria-pressed', String(state.mine === k));
+      const n = state.counts?.[k] || 0;
+      b.querySelector('.lanterns').textContent = n ? '🏮'.repeat(Math.min(n, 12)) + (n > 12 ? ` ${n}` : '') : '';
+    });
+    $('encoreLeft').textContent = state.left > 0 ? `${Math.ceil(state.left)}초` : '';
+    el.hidden = false;
+  }
+
+  // ---------------------------------------------------------- asleep
+  sleep(on) {
+    $('sleepVeil').hidden = !on;
+    this.asleep = on;
+    if (!on && this._drawString) requestAnimationFrame(this._drawString);
+  }
+
   // ---------------------------------------------------------------- binding
   _bind() {
     const click = (id, fn) => $(id).addEventListener('click', (e) => { fn(e); if (e.detail > 0) e.currentTarget.blur(); });
@@ -559,6 +603,8 @@ export class UI {
     click('helpClose', () => { $('help').hidden = true; });
     click('leafBtn', () => this.emit('leaf'));
     click('intervalTea', () => this.emit('tea'));
+    click('recitalStage', () => this.emit('stageSeat', false));
+    click('recitalTurner', () => this.emit('stageSeat', true));
     click('intervalNews', () => this.emit('news'));
     click('intervalGo', () => this.emit('secondHalf'));
     click('actBtn', () => this.emit('act'));
@@ -788,8 +834,9 @@ export class UI {
       ctx.fillStyle = 'rgba(242,237,225,0.5)';
       ctx.fillRect(x0 - 1, y - 5, 2, 10);
       ctx.fillRect(x1 - 1, y - 5, 2, 10);
-      requestAnimationFrame(draw);
+      if (!this.asleep) requestAnimationFrame(draw); // (asleep: no drawing at all until woken)
     };
+    this._drawString = draw;
     requestAnimationFrame(draw);
   }
 }

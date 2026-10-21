@@ -499,3 +499,22 @@ body.touch .act-btn kbd { display: none; }
   .interval-chip .chip-btn { padding: 3px 8px; font-size: 12px; }
   .act-btn { bottom: 150px; }
 }
+
+/* a recital, the encore, the house asleep */
+.recital-chip .ic-title { margin-right: 2px; }
+.encore { position: fixed; left: 50%; bottom: 112px; transform: translateX(-50%); z-index: 13; width: min(640px, calc(100vw - 32px)); text-align: center;
+  padding: 14px 16px 16px; border-radius: 20px; background: var(--glass); border: 1px solid var(--glass-line); backdrop-filter: blur(8px); }
+.encore-title { margin: 0; font-family: var(--serif); font-size: 20px; color: var(--brass); }
+.encore-title span { font-family: var(--sans); font-size: 13px; color: var(--paper-dim); margin-left: 6px; font-variant-numeric: tabular-nums; }
+.encore-sub { margin: 2px 0 10px; font-size: 13px; color: var(--paper-dim); }
+.encore-cands { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.encore-cands button { appearance: none; text-align: left; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--glass-line); background: rgba(242, 237, 225, 0.05); cursor: pointer; color: var(--paper); }
+.encore-cands button:hover { border-color: var(--brass-dim); }
+.encore-cands button[aria-pressed="true"] { border-color: var(--brass); background: rgba(230, 192, 123, 0.14); box-shadow: 0 0 22px rgba(255, 220, 130, 0.25); }
+.encore-cands b { display: block; font-family: var(--serif); font-weight: 400; font-size: 15px; line-height: 1.35; }
+.encore-cands small { display: block; color: var(--paper-dim); font-size: 12px; margin-top: 2px; }
+.encore-cands .lanterns { display: block; margin-top: 6px; font-size: 12px; color: var(--brass); min-height: 1.2em; }
+.sleep-veil { position: fixed; inset: 0; z-index: 60; display: grid; place-content: center; text-align: center; background: #000; color: rgba(242, 237, 225, 0.55); cursor: pointer; }
+.sleep-veil p { font-family: var(--serif); font-size: 22px; margin: 0 0 6px; color: rgba(242, 237, 225, 0.7); }
+.sleep-veil small { font-size: 13px; }
+@media (max-width: 560px) { .encore { bottom: 140px; } .encore-cands { grid-template-columns: 1fr; } }

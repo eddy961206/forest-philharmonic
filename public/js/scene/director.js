@@ -124,7 +124,9 @@ export class Director {
     const eye = V(seat.x, seat.y + 1.2, seat.z).addScaledVector(fwd, -0.02);
     this.feet = seat.y;
     const near = this.pos.distanceTo(eye) < 3.5;
-    this.flyTo(eye, near ? eye.clone().addScaledVector(fwd, 10).setY(STAGE_FOCUS.y + (eye.y - STAGE_FOCUS.y) * 0.5) : STAGE_FOCUS, near ? dur : 2.4, 50);
+    // (a seat may know what it is for: the keys, from a chair on the stage)
+    const look = seat.look ? V(seat.look.x, seat.look.y, seat.look.z) : near ? eye.clone().addScaledVector(fwd, 10).setY(STAGE_FOCUS.y + (eye.y - STAGE_FOCUS.y) * 0.5) : STAGE_FOCUS;
+    this.flyTo(eye, look, near ? dur : 2.4, 50);
     if (near) this.anim.lift = false;
     this._emit('mode', 'seat');
     this._emit('seat', seat);
@@ -568,6 +570,7 @@ export class Director {
         if (!list) continue;
         for (const q of list) {
           const s = q.s;
+          if (s.off) continue; // (a recital's chairs, put away)
           if (this.feet < s.y - 0.5 || this.feet > s.y + 0.85) continue; // another level, or above it
           const dx = x - s.x;
           const dz = z - s.z;
@@ -707,7 +710,7 @@ export class Director {
       if (Math.abs(dx) > 2 || Math.abs(dz) > 2) continue;
       const d = Math.hypot(dx, dz);
       if (d > bestD || Math.abs(s.y - this.feet) > 0.75) continue;
-      if (this.occupied.has(s.index)) continue;
+      if (s.off || this.occupied.has(s.index)) continue;
       const dot = (dx * fwd.x + dz * fwd.z) / (d || 1);
       if (dot < 0.25 && d > 0.6) continue;
       best = s;
