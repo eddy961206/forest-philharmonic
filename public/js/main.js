@@ -304,6 +304,35 @@ function setPhase(p, seconds = 0) {
   publish();
 }
 
+// ---------------------------------------------------------------- rosters
+// Who plays each piece, from its tracks ('section:chair'; a track may name
+// its chairs). Between pieces those not wanted - and not wanted by the
+// piece after either - leave, and those missing come on.
+const rosterCache = new Map();
+function rosterOf(piece) {
+  const set = new Set();
+  for (const tr of piece?.tracks || []) {
+    const chairs = tr.chairs || SECTIONS[tr.section]?.chairs.map((_, k) => k) || [];
+    for (const ci of chairs) set.add(`${tr.section}:${ci}`);
+  }
+  return set;
+}
+async function rosterFor(i) {
+  const meta = program[i];
+  if (!meta) return new Set();
+  if (rosterCache.has(meta.id)) return rosterCache.get(meta.id);
+  let r = new Set();
+  try {
+    const piece = perf.piece?.id === meta.id ? perf.piece : await (await fetch(`music/${meta.id}.json`)).json();
+    r = rosterOf(piece);
+  } catch { /* offline: keep everyone */ }
+  rosterCache.set(meta.id, r);
+  return r;
+}
+// the piece that normally follows i (the evening's order)
+const seqNext = (i) => (i === eveningLen - 1 ? 0 : (i + 1) % program.length);
+const STRINGS = /^(vn1|vn2|va|vc|cb):/;
+
 // Start piece i: musicians on stage, conductor in, then play.
 // remote: a guest following the host's 'run' (the host starts the music)
 async function runConcert(i, { quick = false, remote = false } = {}) {
@@ -324,16 +353,52 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
   ui.setTime(0, piece.duration);
   updateMediaSession(piece);
 
-  if (!stage.onstage) {
-    // the orchestra walks on while the audience settles
-    setPhase('entering');
-    hall.setHouseLights(0.75);
-    stage.enterAll();
-    if (!(await until(() => stage.allSeated, tok, 90000))) return;
-    if (!(await wait(800, tok))) return;
-    setPhase('tuning');
-    const dur = engine.tuning();
-    if (!(await wait(dur * 1000, tok))) return;
+  // the players for this piece: whoever is not needed (now or next) walks
+  // off, then whoever is missing walks on - the orchestra filling up, a
+  // pianist alone at the keyboard, the choir arriving for a chorale
+  const target = rosterOf(piece);
+  const keep = await rosterFor(seqNext(current));
+  if (tok !== seq) return;
+  const fresh = !stage.onstage;
+  const { exits, enters } = stage.plan(target, keep);
+  if (quick && (exits.length || enters.length)) {
+    // skipping ahead: no procession, the stage straight as it should be
+    const keys = new Set([...stage.onstageKeys()].filter((k) => target.has(k) || keep.has(k)));
+    for (const k of target) keys.add(k);
+    stage.snapRoster(keys);
+  } else {
+    if (exits.length) {
+      setPhase('changing');
+      hall.setHouseLights(0.6);
+      stage.sendOff(exits);
+      if (!(await until(() => stage.gone(exits), tok, 90000))) return;
+    }
+    if (enters.length) {
+      // they walk on while the audience settles
+      setPhase('entering');
+      hall.setHouseLights(0.75);
+      // a soloist (or a duo) walks on to stand at their place for the welcome
+      const soloists = !piece.conducted && enters.length <= 3;
+      stage.callOn(enters, undefined, { stand: soloists });
+      if (!(await until(() => stage.arrived(enters), tok, 90000))) return;
+      if (!(await wait(800, tok))) return;
+      if (enters.length >= 6 && enters.some((w) => STRINGS.test(StageManager.key(w)))) {
+        // most of the orchestra has come on: the strings tune to the oboe
+        setPhase('tuning');
+        const dur = engine.tuning();
+        if (!(await wait(dur * 1000, tok))) return;
+      } else if (soloists) {
+        // ... is welcomed with applause, bows, and sits down to play
+        setPhase('announce');
+        if (settings.applause) { engine.applause(engine.now + 0.05, 0.5); clapUntil = performance.now() + 2800; }
+        stage.greet(enters, true);
+        if (!(await wait(1400, tok))) return;
+        stage.greet(enters, false);
+        if (!(await wait(1300, tok))) return;
+      }
+    } else if (fresh) {
+      if (!(await wait(400, tok))) return;
+    }
   }
   if (piece.conducted) {
     if (!stage.conductorOn) {
@@ -423,13 +488,24 @@ async function endOfPiece() {
     if (!(await wait(600, tok))) return;
     stage.conductorExit();
   } else {
-    stage.orchestraRise(true);
-    if (!(await wait(1300, tok))) return;
-    stage.orchestraBow(true);
-    if (!(await wait(1500, tok))) return;
-    stage.orchestraBow(false);
-    if (!(await wait(700, tok))) return;
-    stage.orchestraRise(false);
+    // (only those who played: a colleague resting there for the next piece stays seated)
+    const played = rosterOf(piece);
+    const few = stage.walkers.filter((w) => w.atHome && played.has(StageManager.key(w)));
+    if (few.length <= 3) {
+      // a soloist (or a duo) turns to the house for the curtain call
+      stage.greet(few, true);
+      if (!(await wait(2000, tok))) return;
+      stage.greet(few, false);
+      if (!(await wait(900, tok))) return;
+    } else {
+      stage.orchestraRise(true);
+      if (!(await wait(1300, tok))) return;
+      stage.orchestraBow(true);
+      if (!(await wait(1500, tok))) return;
+      stage.orchestraBow(false);
+      if (!(await wait(700, tok))) return;
+      stage.orchestraRise(false);
+    }
   }
   if (guest()) {
     // the host decides what comes next (unless we become the host meanwhile)
@@ -722,6 +798,7 @@ function snapshot() {
   return {
     started: showStarted, i: current, title: program[current]?.titleKo || '', phase,
     playing: perf.playing, pos: perf.time, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
+    on: [...stage.onstageKeys()],
   };
 }
 function publish() { if (room?.isHost && room.connected) room.state(snapshot()); }
@@ -754,11 +831,14 @@ async function applyPlayback(s) {
   const tok = ++playTok;
   if (!(await ensurePiece(s.i)) || tok !== playTok) return;
   const piece = perf.piece;
-  if (ceremony || phase !== 'playing' || !stage.onstage || (!!piece.conducted !== stage.conductorOn)) {
+  const want = s.on ? new Set(s.on) : rosterOf(piece);
+  const here = stage.onstageKeys();
+  const rosterOff = [...rosterOf(piece)].some((k) => !here.has(k));
+  if (ceremony || phase !== 'playing' || rosterOff || (!!piece.conducted !== stage.conductorOn)) {
     // late, or still walking on: skip to where the show is
     seq++;
     ceremony = false;
-    stage.snapOnstage();
+    stage.snapRoster(want);
     stage.snapConductor(!!piece.conducted);
     engine.stopApplause();
     clapUntil = 0;
@@ -790,7 +870,7 @@ async function followHost(s, { joining = false } = {}) {
   showOn();
   if (s.phase === 'playing') { applyPlayback(s); return; }
   if (!joining) return;
-  if (['entering', 'tuning', 'announce'].includes(s.phase)) {
+  if (['changing', 'entering', 'tuning', 'announce'].includes(s.phase)) {
     // the orchestra is walking on right now: watch it (a little late)
     runConcert(s.i, { remote: true });
     return;
@@ -799,7 +879,8 @@ async function followHost(s, { joining = false } = {}) {
   seq++;
   ceremony = false;
   if (!(await ensurePiece(s.i))) return;
-  if (s.onstage) stage.snapOnstage();
+  if (s.on) stage.snapRoster(new Set(s.on));
+  else if (s.onstage) stage.snapOnstage();
   stage.snapConductor(!!s.cond && s.onstage);
   hall.setHouseLights(s.onstage ? 0.5 : 1);
   setPhase('intermission');
