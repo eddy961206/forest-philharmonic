@@ -1,0 +1,23 @@
+{
+  "schema": 2,
+  "label": "main1f-functional-sphere-desktop",
+  "revision": "dea7997c6278f10ff467815ab96b370362549b0c",
+  "scope": "full",
+  "fixtureSourceSha256": "983c1a0e9489ef56d2115fe79a626039d32f09be771aef9a573875928d7f2807",
+  "diagnosticOptions": {
+    "continueOnTransportFail": true
+  },
+  "method": "Functional checks only; sequential explicit rendering, not an FPS benchmark.",
+  "results": [
+    {
+      "venue": "sphere",
+      "device": "desktop",
+      "scope": "full",
+      "status": "FAIL",
+      "failure": "page.waitForFunction: Timeout 2000ms exceeded.",
+      "failureCount": 2,
+      "continuedAfterTransportFailure": true,
+      "file": "main1f-functional-sphere-desktop-sphere-desktop.json"
+    }
+  ]
+}

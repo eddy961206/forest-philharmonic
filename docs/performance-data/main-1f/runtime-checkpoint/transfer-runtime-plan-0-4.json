@@ -1,0 +1,211 @@
+{
+  "schema": 1,
+  "startedAt": "2026-10-21T10:42:36.970380+00:00",
+  "staging": "/tmp/forest-qa-6onn068y",
+  "destination": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime",
+  "plan": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime-plan.json",
+  "command": [
+    "python3",
+    "tools/bench/run-plan.py",
+    "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime-plan.json",
+    "--output",
+    "/tmp/forest-qa-6onn068y",
+    "--start",
+    "0",
+    "--end",
+    "4",
+    "--continue-on-failure"
+  ],
+  "planSha256": "5c9791e3dd6d67e7d0d88d507688ec95d82697fb4eb9e69bf80cb28ad2b67ccc",
+  "runnerSha256": "a66055a67ef35d37a705c783852df9c7827d3869b92de206652e3409d5c64bed",
+  "wrapperSha256": "6a16eb897c76c073fc18d7fd8b0d098a13013e5afaa9b5b93790c31a71fcd15d",
+  "statusPolicy": "Copy original results without changing PASS/FAIL/RUNNING; report evidence inconsistencies separately.",
+  "files": [
+    {
+      "path": "logs/000-plaza-hall-desktop.json",
+      "bytes": 967,
+      "sha256": "5736fe9144d85769b29e5fb487ea5d39219eb01f6521747e00ed07c047050959"
+    },
+    {
+      "path": "logs/000-plaza-hall-desktop.log",
+      "bytes": 428,
+      "sha256": "bac7e8d1e850a3a2f44949ca49516b47d708b0091fb058276f9bc2d0fec521da"
+    },
+    {
+      "path": "logs/001-plaza-sphere-mobile.json",
+      "bytes": 971,
+      "sha256": "5b302fc086a12d65a8ad80320a55b9e924040f354110266fc89d9a9eedb5b09e"
+    },
+    {
+      "path": "logs/001-plaza-sphere-mobile.log",
+      "bytes": 435,
+      "sha256": "8fb78d79c19b9005e42c659b6c08d9b0dc82bcc03d70796f27f77e72c275a456"
+    },
+    {
+      "path": "logs/002-plaza-hall-mobile.json",
+      "bytes": 963,
+      "sha256": "240fc424aa5c1154a4e67c7e9e7d44c2e063773cf0df42ae37f0715fcd845c1d"
+    },
+    {
+      "path": "logs/002-plaza-hall-mobile.log",
+      "bytes": 421,
+      "sha256": "8e5f844b00caf1b1f64c372680daf35ab4c2253d5d15e96f97158175bfb09dec"
+    },
+    {
+      "path": "logs/003-plaza-sphere-desktop.json",
+      "bytes": 975,
+      "sha256": "8deb9fa4df2e7fd6f6a5ac2ce5f8dbe39a46dda0e8686d39fbb59efc737dd0e6"
+    },
+    {
+      "path": "logs/003-plaza-sphere-desktop.log",
+      "bytes": 442,
+      "sha256": "b866b52af209e180c8301410ad5a377e73e91658a9e2389cbf20f08023b1ac81"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-concert-entered.png",
+      "bytes": 299570,
+      "sha256": "737d3a4e9d44e257b870132fa21a1d4dedb078faede7acad492e7f59d04ab258"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-first-page.png",
+      "bytes": 242422,
+      "sha256": "0c12afdbaee2bc84b0cf09d05bc24640fa875b631f723b08b436c86bdc2899ac"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-issued-ticket.png",
+      "bytes": 261124,
+      "sha256": "86e043ba17ba519e7ae2796491e6bd801d6c06128140786d1a06b4a65283b6d1"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-returned-to-plaza.png",
+      "bytes": 261825,
+      "sha256": "25d1b10d806917e47d857bcaa91cc9dd800a07163cd52db0a1b6ef4b60882470"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-ticket-check.png",
+      "bytes": 306141,
+      "sha256": "a0f6892b05ea04cacd5e9c1096f7797b2fcdc962d3eeccaeafdb5ce6e6b14166"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-desktop-plaza-hall-desktop.json",
+      "bytes": 26207,
+      "sha256": "8dda5aa6527a2164950180f2872fecbfa008e21c72ce9b6a7eb0c7b280aa4fda"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-desktop-plaza-summary.json",
+      "bytes": 505,
+      "sha256": "307288ea46467889c4ad294160e6d6b876f9b5de08aff321b146be1126bfc166"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-concert-entered.png",
+      "bytes": 612574,
+      "sha256": "60c9c0b2022e32b1305baef7ef43b1bb2b74c6637114f92a6701d7df3ed5615a"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-first-page.png",
+      "bytes": 432421,
+      "sha256": "69002ec29651aa4b17d11cbfe80f8fb0465b135ed0ba76e0c0c86a4508479909"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-issued-ticket.png",
+      "bytes": 508503,
+      "sha256": "947c7f4f95b4874b14e4841cdba93346d50be6c8fba75b844c8e5deed0daacaa"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-returned-to-plaza.png",
+      "bytes": 258503,
+      "sha256": "98f70375df69bb41e6b769d77be51ebe4bb761c1959d4ad42c7021fb28ba4aa6"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-ticket-check.png",
+      "bytes": 582498,
+      "sha256": "5d5bcd199e132687099d8f74744023bfeeb165d3cc7b288ae392f5b70fe44752"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-mobile-plaza-hall-mobile.json",
+      "bytes": 26814,
+      "sha256": "56350460172d4b4091ab09d4e1e1f80eba2b2909825b7fac63dc16b096c776e8"
+    },
+    {
+      "path": "plaza/main1f-plaza-hall-mobile-plaza-summary.json",
+      "bytes": 502,
+      "sha256": "7e334759ed5744802daa75aff58c8741ef21f09f147b8fa70632cb136f0c2e7c"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-concert-entered.png",
+      "bytes": 110017,
+      "sha256": "6560fc9e2469e59eb17da0cfb9a16991d77d24e9d94714686a92d78f1b4cab09"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-first-page.png",
+      "bytes": 263011,
+      "sha256": "ffb2c306913893c813ce2a820abdee879e98a87a426bbe0e8ceede073e6e4d00"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-issued-ticket.png",
+      "bytes": 245598,
+      "sha256": "ed3582c9394a11a287f1f0ab0ae2f5b41324b67396e5a5ec29932655e7b54bdb"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-returned-to-plaza.png",
+      "bytes": 220697,
+      "sha256": "344930819767e06047134bf586d8c0a91ce90c652a644ae2eb52d5f1c781584b"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-ticket-check.png",
+      "bytes": 225886,
+      "sha256": "ba091f95a5f7418702249b2b64f6a6936fe7c19d94d24d69bb0e1f2aaace5636"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop.json",
+      "bytes": 26335,
+      "sha256": "fefeca8ef85767095187413869269d84f4609c008e1d95c416d9a486426ce6be"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-desktop-plaza-summary.json",
+      "bytes": 511,
+      "sha256": "9455c0fedb17094af5291af443fc1e71ec9b2df6c3fbeb80d2c4716fabc4360c"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-concert-entered.png",
+      "bytes": 196319,
+      "sha256": "7ee2add8797da643983a77a2b99e6571ed6a59114a94a8cfcb46f908c56d7978"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-first-page.png",
+      "bytes": 433305,
+      "sha256": "1bad86800837d3854f58aa142841ea9dcda6bc4038a1ebec2881a64f25390357"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-issued-ticket.png",
+      "bytes": 521374,
+      "sha256": "060de4579f930f208fffb552cd7267a17209813fd68e8d6290bd3e214289754c"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-returned-to-plaza.png",
+      "bytes": 300571,
+      "sha256": "d312a7f2bcee4c56007c9d94467cb3ad4d3535bd71c9405e7e773224b9da9b1a"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-ticket-check.png",
+      "bytes": 470865,
+      "sha256": "0765927740f09dd4100681ad8cf687b09f264375cf6f52e127d8cd30c4c7ef0b"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile.json",
+      "bytes": 26861,
+      "sha256": "4e331c6995b61593096e395156351e0107c70972e9c04b8b73756e8ad91c98ff"
+    },
+    {
+      "path": "plaza/main1f-plaza-sphere-mobile-plaza-summary.json",
+      "bytes": 508,
+      "sha256": "e9a0107011f44a115254d5c8c46bc1cdbd11df88704dd2f19c525b92612fc01e"
+    }
+  ],
+  "evidenceIssues": [],
+  "processExitCode": 0,
+  "finishedAt": "2026-10-21T10:48:27.634037+00:00",
+  "copyStatus": "PASS",
+  "evidenceStatus": "COMPLETE",
+  "stagingRetained": true
+}

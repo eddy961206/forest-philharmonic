@@ -1,0 +1,33 @@
+{
+  "index": 6,
+  "job": {
+    "id": "functional-sphere-desktop",
+    "script": "tools/bench/functional.mjs",
+    "args": [
+      "sphere",
+      "desktop"
+    ],
+    "directory": "functional",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18084/",
+      "REVISION": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "TIMEOUT_MS": "240000",
+      "LABEL": "main1f-functional-sphere-desktop",
+      "CONTINUE_ON_TRANSPORT_FAIL": "1",
+      "SCREENSHOTS": "1"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/functional.mjs",
+    "sphere",
+    "desktop"
+  ],
+  "startedAt": "2026-10-21T10:52:07.781164+00:00",
+  "planSha256": "5c9791e3dd6d67e7d0d88d507688ec95d82697fb4eb9e69bf80cb28ad2b67ccc",
+  "collectorSha256": "983c1a0e9489ef56d2115fe79a626039d32f09be771aef9a573875928d7f2807",
+  "status": "FAIL",
+  "exitCode": 1,
+  "finishedAt": "2026-10-21T10:53:14.412818+00:00",
+  "logSha256": "8d228db668262a611e03dd23b9ca6d43eef007341ded91f2d7c2ecc34db4730a"
+}

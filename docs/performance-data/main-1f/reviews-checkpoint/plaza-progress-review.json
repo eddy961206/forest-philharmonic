@@ -1,0 +1,2213 @@
+{
+  "schema": 2,
+  "kind": "independent completed-file plaza four-case review",
+  "reviewedAt": "2026-10-21T11:00:35.643179+00:00",
+  "scope": {
+    "jobIndices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "cases": [
+      "hall-desktop",
+      "sphere-mobile",
+      "hall-mobile",
+      "sphere-desktop"
+    ],
+    "excludedJobIndices": [],
+    "browserExecutedByReviewer": false,
+    "productOrCollectorModifiedByReviewer": false,
+    "runtimeOutputWritesByReviewer": false,
+    "screenshotsVisuallyReviewed": 20,
+    "unrelatedFunctionalResults": "Separate review; these plaza PASS results do not incorporate functional/audio suite outcomes."
+  },
+  "verdict": "All four completed runs substantiate their declared core solo plaza UI flow. Visual completion, emoji fidelity, focus restoration, shader readiness, music playback quality and performance are not established by these PASS results.",
+  "cases": [
+    {
+      "case": "hall-desktop",
+      "wrapperIndex": 0,
+      "reviewVerdict": "SUPPORTED_CORE_UI_PASS_WITH_LIMITATIONS",
+      "rawPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop.json",
+      "summaryPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-summary.json",
+      "wrapperPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/000-plaza-hall-desktop.json",
+      "logPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/000-plaza-hall-desktop.log",
+      "collectorStatus": "PASS",
+      "wrapperStatus": "PASS",
+      "exitCode": 0,
+      "logSha256Matches": true,
+      "startedAt": "2026-10-21T10:42:37.038Z",
+      "finishedAt": "2026-10-21T10:44:09.268Z",
+      "wrapperFinishedAt": "2026-10-21T10:44:10.406137+00:00",
+      "revision": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "collectorSha256": "08b9bc81034582c30ffcabd94c220ead66cf223fb8f1666a3d7466670b8e22ce",
+      "helperSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "planSha256Label": "5c9791e3dd6d67e7d0d88d507688ec95d82697fb4eb9e69bf80cb28ad2b67ccc",
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "playwrightVersion": "1.64.1",
+        "platform": "linux",
+        "architecture": "x64",
+        "softwareRequested": true,
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--font-render-hinting=none",
+          "--disable-features=IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "fontMode": "local",
+        "headless": true
+      },
+      "viewportCssPixels": [
+        960,
+        540
+      ],
+      "dpr": 1,
+      "navigation": "ui",
+      "fixtures": [],
+      "movement": {
+        "input": "W keyboard",
+        "before": [
+          0,
+          0,
+          8.6
+        ],
+        "after": [
+          0,
+          0,
+          0.936383209489872
+        ],
+        "distanceSceneUnits": 7.663616790510128,
+        "boothWindow": {
+          "x": 0,
+          "z": -1.05
+        },
+        "distanceToWindowAtBoothSceneUnits": 1.8379905887409271
+      },
+      "gateInput": {
+        "x": 125.31387577669744,
+        "y": 199.56652068960582,
+        "key": "gate:hall",
+        "world": [
+          -8.456910339524994,
+          -4.7683716530855236e-08,
+          -6.707833431234149
+        ],
+        "meshIndex": 0,
+        "triangle": 84,
+        "targetMethod": "triangle-centroid-and-native-pickable-raycast"
+      },
+      "navigationAttempts": [
+        {
+          "key": "gate:hall",
+          "attempt": 0,
+          "hit": {
+            "x": 125.31387577669744,
+            "y": 199.56652068960582,
+            "key": "gate:hall",
+            "world": [
+              -8.456910339524994,
+              -4.7683716530855236e-08,
+              -6.707833431234149
+            ],
+            "meshIndex": 0,
+            "triangle": 84,
+            "targetMethod": "triangle-centroid-and-native-pickable-raycast"
+          },
+          "diagnostics": {
+            "player": [
+              0,
+              0,
+              0.7549526782822678
+            ],
+            "camera": [
+              0,
+              2.5711795545876948,
+              4.741741476141711
+            ],
+            "yaw": 0,
+            "pitch": 0.32,
+            "samples": 186,
+            "rejected": {
+              "clipped": 150,
+              "domCovered": 0,
+              "noPickableHit": 0,
+              "otherPickable": 0
+            }
+          }
+        }
+      ],
+      "regressionStatuses": {
+        "boothDialogAndTab": "PASS",
+        "escapeFromName": "PASS",
+        "ticketStubInput": "PASS",
+        "ticketPersistence": "PASS",
+        "returnToPlaza": "PASS",
+        "noTicketGuard": "PASS"
+      },
+      "ticket": {
+        "number": "H-7635",
+        "venue": "hall",
+        "mode": "solo",
+        "avatar": "fox",
+        "name": "QA 데스크톱 관객",
+        "avatarPreserved": true,
+        "wholeTicketEqualThroughAdmissionAndConcert": true,
+        "returnedTicketIsNull": true,
+        "lastTicketShortcutVisible": true
+      },
+      "audioScope": "Only AudioContext.state running was observed at admission; no music start/output/listening/timing validation in this plaza suite.",
+      "focusCaveat": {
+        "immediatelyAfterEscape": {
+          "id": "bkName",
+          "tag": "INPUT",
+          "inBooth": true
+        },
+        "immediatelyAfterTicketClose": {
+          "id": "boothDone",
+          "tag": "BUTTON",
+          "inBooth": true
+        },
+        "reopenedImmediateFocus": {
+          "id": null,
+          "tag": "BODY",
+          "inBooth": false
+        },
+        "interpretation": "Immediate snapshots differ by run. Hidden controls remain active in some cases; BODY in others. Focus restoration duration, keyboard continuation and full tab traversal were not tested."
+      },
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [],
+        "failedRequests": []
+      },
+      "unchecked": [
+        "multiplayer ticket purchase (rooms/protocol are separate)",
+        "long-duration audio",
+        "physical mobile, Safari, thermal and power behavior",
+        "BFCache/browser-back restoration (return uses the app plaza button)",
+        "blocked storage/offline/slow rooms",
+        "full keyboard focus cycle, focus return and screen-reader accessibility",
+        "landscape/orientation and multiple simultaneous pointers"
+      ],
+      "sourceMap": [
+        {
+          "path": "public/js/boot.js",
+          "beforeSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "afterSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "declaredCommitSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "equal": true
+        },
+        {
+          "path": "public/js/main.js",
+          "beforeSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "afterSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "declaredCommitSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "equal": true
+        },
+        {
+          "path": "public/js/quality.js",
+          "beforeSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "afterSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "declaredCommitSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/hall.js",
+          "beforeSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "afterSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "declaredCommitSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/seats.js",
+          "beforeSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "afterSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "declaredCommitSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/audience.js",
+          "beforeSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "afterSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "declaredCommitSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/screen.js",
+          "beforeSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "afterSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "declaredCommitSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/sphere.js",
+          "beforeSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "afterSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "declaredCommitSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/dome3d.js",
+          "beforeSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "afterSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "declaredCommitSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/domeshow.js",
+          "beforeSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "afterSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "declaredCommitSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "equal": true
+        },
+        {
+          "path": "public/js/audio/engine.js",
+          "beforeSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "afterSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "declaredCommitSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "equal": true
+        },
+        {
+          "path": "public/js/audio/performance.js",
+          "beforeSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "afterSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "declaredCommitSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "equal": true
+        },
+        {
+          "path": "public/index.html",
+          "beforeSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "afterSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "declaredCommitSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "equal": true
+        },
+        {
+          "path": "public/css/style.css",
+          "beforeSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "afterSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "declaredCommitSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "equal": true
+        },
+        {
+          "path": "public/js/plaza.js",
+          "beforeSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "afterSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "declaredCommitSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "equal": true
+        },
+        {
+          "path": "public/js/tickets.js",
+          "beforeSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "afterSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "declaredCommitSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "equal": true
+        },
+        {
+          "path": "public/js/joystick.js",
+          "beforeSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "afterSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "declaredCommitSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/plazaWorld.js",
+          "beforeSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "afterSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "declaredCommitSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "equal": true
+        },
+        {
+          "path": "public/js/ui.js",
+          "beforeSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "afterSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "declaredCommitSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "equal": true
+        }
+      ],
+      "screenshots": [
+        {
+          "stage": "first-page",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-first-page.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-first-page.png",
+          "sha256": "0c12afdbaee2bc84b0cf09d05bc24640fa875b631f723b08b436c86bdc2899ac",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "issued-ticket",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-issued-ticket.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-issued-ticket.png",
+          "sha256": "86e043ba17ba519e7ae2796491e6bd801d6c06128140786d1a06b4a65283b6d1",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "ticket-check",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-ticket-check.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-ticket-check.png",
+          "sha256": "a0f6892b05ea04cacd5e9c1096f7797b2fcdc962d3eeccaeafdb5ce6e6b14166",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "concert-entered",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-concert-entered.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-concert-entered.png",
+          "sha256": "737d3a4e9d44e257b870132fa21a1d4dedb078faede7acad492e7f59d04ab258",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "returned-to-plaza",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-returned-to-plaza.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-returned-to-plaza.png",
+          "sha256": "25d1b10d806917e47d857bcaa91cc9dd800a07163cd52db0a1b6ef4b60882470",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        }
+      ]
+    },
+    {
+      "case": "sphere-mobile",
+      "wrapperIndex": 1,
+      "reviewVerdict": "SUPPORTED_CORE_UI_PASS_WITH_LIMITATIONS",
+      "rawPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile.json",
+      "summaryPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-summary.json",
+      "wrapperPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/001-plaza-sphere-mobile.json",
+      "logPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/001-plaza-sphere-mobile.log",
+      "collectorStatus": "PASS",
+      "wrapperStatus": "PASS",
+      "exitCode": 0,
+      "logSha256Matches": true,
+      "startedAt": "2026-10-21T10:44:10.448Z",
+      "finishedAt": "2026-10-21T10:45:30.381Z",
+      "wrapperFinishedAt": "2026-10-21T10:45:31.350402+00:00",
+      "revision": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "collectorSha256": "08b9bc81034582c30ffcabd94c220ead66cf223fb8f1666a3d7466670b8e22ce",
+      "helperSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "planSha256Label": "5c9791e3dd6d67e7d0d88d507688ec95d82697fb4eb9e69bf80cb28ad2b67ccc",
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "playwrightVersion": "1.64.1",
+        "platform": "linux",
+        "architecture": "x64",
+        "softwareRequested": true,
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--font-render-hinting=none",
+          "--disable-features=IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "fontMode": "local",
+        "headless": true
+      },
+      "viewportCssPixels": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "navigation": "ui",
+      "fixtures": [],
+      "movement": {
+        "input": "CDP thumb-stick touch",
+        "before": [
+          0,
+          0,
+          8.6
+        ],
+        "after": [
+          0,
+          0,
+          0.4230379244030843
+        ],
+        "distanceSceneUnits": 8.176962075596915,
+        "boothWindow": {
+          "x": 0,
+          "z": -1.05
+        },
+        "distanceToWindowAtBoothSceneUnits": 1.3496667439809036
+      },
+      "gateInput": {
+        "x": 345.559176204356,
+        "y": 288.0308671012188,
+        "key": "gate:sphere",
+        "world": [
+          8.482453058497068,
+          0.20000000596046444,
+          -6.87388614594788
+        ],
+        "meshIndex": 0,
+        "triangle": 42,
+        "targetMethod": "triangle-centroid-and-native-pickable-raycast"
+      },
+      "navigationAttempts": [
+        {
+          "key": "gate:sphere",
+          "attempt": 0,
+          "hit": null,
+          "diagnostics": {
+            "player": [
+              0,
+              0,
+              0.2813096631581532
+            ],
+            "camera": [
+              0,
+              3.2632259879431538,
+              6.356416339009528
+            ],
+            "yaw": 0,
+            "pitch": 0.32,
+            "samples": 186,
+            "rejected": {
+              "clipped": 186,
+              "domCovered": 0,
+              "noPickableHit": 0,
+              "otherPickable": 0
+            }
+          },
+          "steering": {
+            "deltaYaw": -1.0382162096638674,
+            "dx": 109.20000000000002,
+            "x": 195,
+            "y": 464.20000000000005
+          }
+        },
+        {
+          "key": "gate:sphere",
+          "attempt": 1,
+          "hit": {
+            "x": 345.559176204356,
+            "y": 288.0308671012188,
+            "key": "gate:sphere",
+            "world": [
+              8.482453058497068,
+              0.20000000596046444,
+              -6.87388614594788
+            ],
+            "meshIndex": 0,
+            "triangle": 42,
+            "targetMethod": "triangle-centroid-and-native-pickable-raycast"
+          },
+          "diagnostics": {
+            "player": [
+              0,
+              0,
+              0.28130966315807465
+            ],
+            "camera": [
+              -3.20070450968514,
+              3.2632259879431538,
+              5.268671218545246
+            ],
+            "yaw": -0.6552000732421875,
+            "pitch": 0.32,
+            "samples": 186,
+            "rejected": {
+              "clipped": 147,
+              "domCovered": 0,
+              "noPickableHit": 0,
+              "otherPickable": 0
+            }
+          }
+        }
+      ],
+      "regressionStatuses": {
+        "boothDialogAndTab": "PASS",
+        "escapeFromName": "PASS",
+        "ticketStubInput": "PASS",
+        "ticketPersistence": "PASS",
+        "returnToPlaza": "PASS",
+        "noTicketGuard": "PASS"
+      },
+      "ticket": {
+        "number": "S-4911",
+        "venue": "sphere",
+        "mode": "solo",
+        "avatar": "sheep",
+        "name": "QA 모바일 관객",
+        "avatarPreserved": true,
+        "wholeTicketEqualThroughAdmissionAndConcert": true,
+        "returnedTicketIsNull": true,
+        "lastTicketShortcutVisible": true
+      },
+      "audioScope": "Only AudioContext.state running was observed at admission; no music start/output/listening/timing validation in this plaza suite.",
+      "focusCaveat": {
+        "immediatelyAfterEscape": {
+          "id": "bkName",
+          "tag": "INPUT",
+          "inBooth": true
+        },
+        "immediatelyAfterTicketClose": {
+          "id": "boothDone",
+          "tag": "BUTTON",
+          "inBooth": true
+        },
+        "reopenedImmediateFocus": {
+          "id": null,
+          "tag": "BODY",
+          "inBooth": false
+        },
+        "interpretation": "Immediate snapshots differ by run. Hidden controls remain active in some cases; BODY in others. Focus restoration duration, keyboard continuation and full tab traversal were not tested."
+      },
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [
+          "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+        ],
+        "failedRequests": []
+      },
+      "unchecked": [
+        "multiplayer ticket purchase (rooms/protocol are separate)",
+        "long-duration audio",
+        "physical mobile, Safari, thermal and power behavior",
+        "BFCache/browser-back restoration (return uses the app plaza button)",
+        "blocked storage/offline/slow rooms",
+        "full keyboard focus cycle, focus return and screen-reader accessibility",
+        "landscape/orientation and multiple simultaneous pointers"
+      ],
+      "sourceMap": [
+        {
+          "path": "public/js/boot.js",
+          "beforeSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "afterSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "declaredCommitSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "equal": true
+        },
+        {
+          "path": "public/js/main.js",
+          "beforeSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "afterSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "declaredCommitSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "equal": true
+        },
+        {
+          "path": "public/js/quality.js",
+          "beforeSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "afterSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "declaredCommitSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/hall.js",
+          "beforeSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "afterSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "declaredCommitSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/seats.js",
+          "beforeSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "afterSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "declaredCommitSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/audience.js",
+          "beforeSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "afterSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "declaredCommitSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/screen.js",
+          "beforeSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "afterSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "declaredCommitSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/sphere.js",
+          "beforeSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "afterSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "declaredCommitSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/dome3d.js",
+          "beforeSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "afterSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "declaredCommitSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/domeshow.js",
+          "beforeSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "afterSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "declaredCommitSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "equal": true
+        },
+        {
+          "path": "public/js/audio/engine.js",
+          "beforeSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "afterSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "declaredCommitSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "equal": true
+        },
+        {
+          "path": "public/js/audio/performance.js",
+          "beforeSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "afterSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "declaredCommitSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "equal": true
+        },
+        {
+          "path": "public/index.html",
+          "beforeSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "afterSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "declaredCommitSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "equal": true
+        },
+        {
+          "path": "public/css/style.css",
+          "beforeSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "afterSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "declaredCommitSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "equal": true
+        },
+        {
+          "path": "public/js/plaza.js",
+          "beforeSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "afterSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "declaredCommitSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "equal": true
+        },
+        {
+          "path": "public/js/tickets.js",
+          "beforeSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "afterSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "declaredCommitSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "equal": true
+        },
+        {
+          "path": "public/js/joystick.js",
+          "beforeSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "afterSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "declaredCommitSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/plazaWorld.js",
+          "beforeSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "afterSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "declaredCommitSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "equal": true
+        },
+        {
+          "path": "public/js/ui.js",
+          "beforeSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "afterSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "declaredCommitSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "equal": true
+        }
+      ],
+      "screenshots": [
+        {
+          "stage": "first-page",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-first-page.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-first-page.png",
+          "sha256": "1bad86800837d3854f58aa142841ea9dcda6bc4038a1ebec2881a64f25390357",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "issued-ticket",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-issued-ticket.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-issued-ticket.png",
+          "sha256": "060de4579f930f208fffb552cd7267a17209813fd68e8d6290bd3e214289754c",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "ticket-check",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-ticket-check.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-ticket-check.png",
+          "sha256": "0765927740f09dd4100681ad8cf687b09f264375cf6f52e127d8cd30c4c7ef0b",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "concert-entered",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-concert-entered.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-concert-entered.png",
+          "sha256": "7ee2add8797da643983a77a2b99e6571ed6a59114a94a8cfcb46f908c56d7978",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "returned-to-plaza",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-returned-to-plaza.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-returned-to-plaza.png",
+          "sha256": "d312a7f2bcee4c56007c9d94467cb3ad4d3535bd71c9405e7e773224b9da9b1a",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        }
+      ]
+    },
+    {
+      "case": "hall-mobile",
+      "wrapperIndex": 2,
+      "reviewVerdict": "SUPPORTED_CORE_UI_PASS_WITH_LIMITATIONS",
+      "rawPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile.json",
+      "summaryPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-summary.json",
+      "wrapperPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/002-plaza-hall-mobile.json",
+      "logPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/002-plaza-hall-mobile.log",
+      "collectorStatus": "PASS",
+      "wrapperStatus": "PASS",
+      "exitCode": 0,
+      "logSha256Matches": true,
+      "startedAt": "2026-10-21T10:45:31.384Z",
+      "finishedAt": "2026-10-21T10:46:43.573Z",
+      "wrapperFinishedAt": "2026-10-21T10:46:44.590854+00:00",
+      "revision": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "collectorSha256": "08b9bc81034582c30ffcabd94c220ead66cf223fb8f1666a3d7466670b8e22ce",
+      "helperSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "planSha256Label": "5c9791e3dd6d67e7d0d88d507688ec95d82697fb4eb9e69bf80cb28ad2b67ccc",
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "playwrightVersion": "1.64.1",
+        "platform": "linux",
+        "architecture": "x64",
+        "softwareRequested": true,
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--font-render-hinting=none",
+          "--disable-features=IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "fontMode": "local",
+        "headless": true
+      },
+      "viewportCssPixels": [
+        390,
+        844
+      ],
+      "dpr": 2,
+      "navigation": "ui",
+      "fixtures": [],
+      "movement": {
+        "input": "CDP thumb-stick touch",
+        "before": [
+          0,
+          0,
+          8.6
+        ],
+        "after": [
+          0,
+          0,
+          0.8375140696214474
+        ],
+        "distanceSceneUnits": 7.762485930378553,
+        "boothWindow": {
+          "x": 0,
+          "z": -1.05
+        },
+        "distanceToWindowAtBoothSceneUnits": 1.7580789273265938
+      },
+      "gateInput": {
+        "x": 58.61117454264074,
+        "y": 289.68077254668935,
+        "key": "gate:hall",
+        "world": [
+          -8.482453058497068,
+          0.09999999999999994,
+          -6.87388614594788
+        ],
+        "meshIndex": 0,
+        "triangle": 93,
+        "targetMethod": "triangle-centroid-and-native-pickable-raycast"
+      },
+      "navigationAttempts": [
+        {
+          "key": "gate:hall",
+          "attempt": 0,
+          "hit": null,
+          "diagnostics": {
+            "player": [
+              0,
+              0,
+              0.6936377881744972
+            ],
+            "camera": [
+              0,
+              3.2632259879431538,
+              6.768744463997423
+            ],
+            "yaw": 0,
+            "pitch": 0.32,
+            "samples": 186,
+            "rejected": {
+              "clipped": 186,
+              "domCovered": 0,
+              "noPickableHit": 0,
+              "otherPickable": 0
+            }
+          },
+          "steering": {
+            "deltaYaw": 1.0059478040444925,
+            "dx": -109.20000000000002,
+            "x": 195,
+            "y": 464.20000000000005
+          }
+        },
+        {
+          "key": "gate:hall",
+          "attempt": 1,
+          "hit": {
+            "x": 58.61117454264074,
+            "y": 289.68077254668935,
+            "key": "gate:hall",
+            "world": [
+              -8.482453058497068,
+              0.09999999999999994,
+              -6.87388614594788
+            ],
+            "meshIndex": 0,
+            "triangle": 93,
+            "targetMethod": "triangle-centroid-and-native-pickable-raycast"
+          },
+          "diagnostics": {
+            "player": [
+              0,
+              0,
+              0.6936377881744434
+            ],
+            "camera": [
+              3.2110166133545404,
+              3.2632259879431538,
+              5.677494985192079
+            ],
+            "yaw": 0.6551999816894531,
+            "pitch": 0.32,
+            "samples": 186,
+            "rejected": {
+              "clipped": 131,
+              "domCovered": 0,
+              "noPickableHit": 0,
+              "otherPickable": 0
+            }
+          }
+        }
+      ],
+      "regressionStatuses": {
+        "boothDialogAndTab": "PASS",
+        "escapeFromName": "PASS",
+        "ticketStubInput": "PASS",
+        "ticketPersistence": "PASS",
+        "returnToPlaza": "PASS",
+        "noTicketGuard": "PASS"
+      },
+      "ticket": {
+        "number": "H-4299",
+        "venue": "hall",
+        "mode": "solo",
+        "avatar": "raccoon",
+        "name": "QA 모바일 관객",
+        "avatarPreserved": true,
+        "wholeTicketEqualThroughAdmissionAndConcert": true,
+        "returnedTicketIsNull": true,
+        "lastTicketShortcutVisible": true
+      },
+      "audioScope": "Only AudioContext.state running was observed at admission; no music start/output/listening/timing validation in this plaza suite.",
+      "focusCaveat": {
+        "immediatelyAfterEscape": {
+          "id": null,
+          "tag": "BODY",
+          "inBooth": false
+        },
+        "immediatelyAfterTicketClose": {
+          "id": null,
+          "tag": "BODY",
+          "inBooth": false
+        },
+        "reopenedImmediateFocus": {
+          "id": null,
+          "tag": "BODY",
+          "inBooth": false
+        },
+        "interpretation": "Immediate snapshots differ by run. Hidden controls remain active in some cases; BODY in others. Focus restoration duration, keyboard continuation and full tab traversal were not tested."
+      },
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [],
+        "failedRequests": []
+      },
+      "unchecked": [
+        "multiplayer ticket purchase (rooms/protocol are separate)",
+        "long-duration audio",
+        "physical mobile, Safari, thermal and power behavior",
+        "BFCache/browser-back restoration (return uses the app plaza button)",
+        "blocked storage/offline/slow rooms",
+        "full keyboard focus cycle, focus return and screen-reader accessibility",
+        "landscape/orientation and multiple simultaneous pointers"
+      ],
+      "sourceMap": [
+        {
+          "path": "public/js/boot.js",
+          "beforeSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "afterSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "declaredCommitSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "equal": true
+        },
+        {
+          "path": "public/js/main.js",
+          "beforeSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "afterSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "declaredCommitSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "equal": true
+        },
+        {
+          "path": "public/js/quality.js",
+          "beforeSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "afterSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "declaredCommitSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/hall.js",
+          "beforeSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "afterSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "declaredCommitSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/seats.js",
+          "beforeSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "afterSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "declaredCommitSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/audience.js",
+          "beforeSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "afterSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "declaredCommitSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/screen.js",
+          "beforeSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "afterSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "declaredCommitSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/sphere.js",
+          "beforeSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "afterSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "declaredCommitSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/dome3d.js",
+          "beforeSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "afterSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "declaredCommitSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/domeshow.js",
+          "beforeSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "afterSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "declaredCommitSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "equal": true
+        },
+        {
+          "path": "public/js/audio/engine.js",
+          "beforeSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "afterSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "declaredCommitSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "equal": true
+        },
+        {
+          "path": "public/js/audio/performance.js",
+          "beforeSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "afterSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "declaredCommitSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "equal": true
+        },
+        {
+          "path": "public/index.html",
+          "beforeSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "afterSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "declaredCommitSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "equal": true
+        },
+        {
+          "path": "public/css/style.css",
+          "beforeSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "afterSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "declaredCommitSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "equal": true
+        },
+        {
+          "path": "public/js/plaza.js",
+          "beforeSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "afterSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "declaredCommitSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "equal": true
+        },
+        {
+          "path": "public/js/tickets.js",
+          "beforeSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "afterSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "declaredCommitSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "equal": true
+        },
+        {
+          "path": "public/js/joystick.js",
+          "beforeSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "afterSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "declaredCommitSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/plazaWorld.js",
+          "beforeSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "afterSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "declaredCommitSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "equal": true
+        },
+        {
+          "path": "public/js/ui.js",
+          "beforeSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "afterSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "declaredCommitSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "equal": true
+        }
+      ],
+      "screenshots": [
+        {
+          "stage": "first-page",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-first-page.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-first-page.png",
+          "sha256": "69002ec29651aa4b17d11cbfe80f8fb0465b135ed0ba76e0c0c86a4508479909",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "issued-ticket",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-issued-ticket.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-issued-ticket.png",
+          "sha256": "947c7f4f95b4874b14e4841cdba93346d50be6c8fba75b844c8e5deed0daacaa",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "ticket-check",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-ticket-check.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-ticket-check.png",
+          "sha256": "5d5bcd199e132687099d8f74744023bfeeb165d3cc7b288ae392f5b70fe44752",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "concert-entered",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-concert-entered.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-concert-entered.png",
+          "sha256": "60c9c0b2022e32b1305baef7ef43b1bb2b74c6637114f92a6701d7df3ed5615a",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "returned-to-plaza",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-returned-to-plaza.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-returned-to-plaza.png",
+          "sha256": "98f70375df69bb41e6b769d77be51ebe4bb761c1959d4ad42c7021fb28ba4aa6",
+          "pixelDimensions": [
+            780,
+            1688
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        }
+      ]
+    },
+    {
+      "case": "sphere-desktop",
+      "wrapperIndex": 3,
+      "reviewVerdict": "SUPPORTED_CORE_UI_PASS_WITH_LIMITATIONS",
+      "rawPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop.json",
+      "summaryPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-summary.json",
+      "wrapperPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/003-plaza-sphere-desktop.json",
+      "logPath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/003-plaza-sphere-desktop.log",
+      "collectorStatus": "PASS",
+      "wrapperStatus": "PASS",
+      "exitCode": 0,
+      "logSha256Matches": true,
+      "startedAt": "2026-10-21T10:46:44.630Z",
+      "finishedAt": "2026-10-21T10:48:26.289Z",
+      "wrapperFinishedAt": "2026-10-21T10:48:27.627974+00:00",
+      "revision": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "collectorSha256": "08b9bc81034582c30ffcabd94c220ead66cf223fb8f1666a3d7466670b8e22ce",
+      "helperSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "planSha256Label": "5c9791e3dd6d67e7d0d88d507688ec95d82697fb4eb9e69bf80cb28ad2b67ccc",
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "playwrightVersion": "1.64.1",
+        "platform": "linux",
+        "architecture": "x64",
+        "softwareRequested": true,
+        "chromeArgs": [
+          "--ash-no-nudges",
+          "--disable-domain-reliability",
+          "--disable-print-preview",
+          "--disk-cache-size=33554432",
+          "--no-default-browser-check",
+          "--no-pings",
+          "--font-render-hinting=none",
+          "--disable-features=IsolateOrigins,site-per-process",
+          "--enable-features=SharedArrayBuffer",
+          "--ignore-gpu-blocklist",
+          "--allow-running-insecure-content",
+          "--disable-setuid-sandbox",
+          "--disable-site-isolation-trials",
+          "--disable-web-security",
+          "--headless='shell'",
+          "--no-sandbox",
+          "--no-zygote",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "fontMode": "local",
+        "headless": true
+      },
+      "viewportCssPixels": [
+        960,
+        540
+      ],
+      "dpr": 1,
+      "navigation": "ui",
+      "fixtures": [],
+      "movement": {
+        "input": "W keyboard",
+        "before": [
+          0,
+          0,
+          8.6
+        ],
+        "after": [
+          0,
+          0,
+          0.8189796082543972
+        ],
+        "distanceSceneUnits": 7.781020391745603,
+        "boothWindow": {
+          "x": 0,
+          "z": -1.05
+        },
+        "distanceToWindowAtBoothSceneUnits": 1.74346667557371
+      },
+      "gateInput": {
+        "x": 839.9056487525901,
+        "y": 202.48949222628715,
+        "key": "gate:sphere",
+        "world": [
+          8.369408194118293,
+          -4.7683716530855236e-08,
+          -6.5183632646146625
+        ],
+        "meshIndex": 0,
+        "triangle": 39,
+        "targetMethod": "triangle-centroid-and-native-pickable-raycast"
+      },
+      "navigationAttempts": [
+        {
+          "key": "gate:sphere",
+          "attempt": 0,
+          "hit": {
+            "x": 839.9056487525901,
+            "y": 202.48949222628715,
+            "key": "gate:sphere",
+            "world": [
+              8.369408194118293,
+              -4.7683716530855236e-08,
+              -6.5183632646146625
+            ],
+            "meshIndex": 0,
+            "triangle": 39,
+            "targetMethod": "triangle-centroid-and-native-pickable-raycast"
+          },
+          "diagnostics": {
+            "player": [
+              0,
+              0,
+              0.6373956645682656
+            ],
+            "camera": [
+              0,
+              2.5711795545876948,
+              4.6241846215516755
+            ],
+            "yaw": 0,
+            "pitch": 0.32,
+            "samples": 186,
+            "rejected": {
+              "clipped": 148,
+              "domCovered": 0,
+              "noPickableHit": 0,
+              "otherPickable": 0
+            }
+          }
+        }
+      ],
+      "regressionStatuses": {
+        "boothDialogAndTab": "PASS",
+        "escapeFromName": "PASS",
+        "ticketStubInput": "PASS",
+        "ticketPersistence": "PASS",
+        "returnToPlaza": "PASS",
+        "noTicketGuard": "PASS"
+      },
+      "ticket": {
+        "number": "S-3048",
+        "venue": "sphere",
+        "mode": "solo",
+        "avatar": "mouse",
+        "name": "QA 데스크톱 관객",
+        "avatarPreserved": true,
+        "wholeTicketEqualThroughAdmissionAndConcert": true,
+        "returnedTicketIsNull": true,
+        "lastTicketShortcutVisible": true
+      },
+      "audioScope": "Only AudioContext.state running was observed at admission; no music start/output/listening/timing validation in this plaza suite.",
+      "focusCaveat": {
+        "immediatelyAfterEscape": {
+          "id": "bkName",
+          "tag": "INPUT",
+          "inBooth": true
+        },
+        "immediatelyAfterTicketClose": {
+          "id": null,
+          "tag": "BODY",
+          "inBooth": false
+        },
+        "reopenedImmediateFocus": {
+          "id": null,
+          "tag": "BODY",
+          "inBooth": false
+        },
+        "interpretation": "Immediate snapshots differ by run. Hidden controls remain active in some cases; BODY in others. Focus restoration duration, keyboard continuation and full tab traversal were not tested."
+      },
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [
+          "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+        ],
+        "failedRequests": []
+      },
+      "unchecked": [
+        "multiplayer ticket purchase (rooms/protocol are separate)",
+        "long-duration audio",
+        "physical mobile, Safari, thermal and power behavior",
+        "BFCache/browser-back restoration (return uses the app plaza button)",
+        "blocked storage/offline/slow rooms",
+        "full keyboard focus cycle, focus return and screen-reader accessibility",
+        "landscape/orientation and multiple simultaneous pointers"
+      ],
+      "sourceMap": [
+        {
+          "path": "public/js/boot.js",
+          "beforeSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "afterSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "declaredCommitSha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4",
+          "equal": true
+        },
+        {
+          "path": "public/js/main.js",
+          "beforeSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "afterSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "declaredCommitSha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+          "equal": true
+        },
+        {
+          "path": "public/js/quality.js",
+          "beforeSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "afterSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "declaredCommitSha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/hall.js",
+          "beforeSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "afterSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "declaredCommitSha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/seats.js",
+          "beforeSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "afterSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "declaredCommitSha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/audience.js",
+          "beforeSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "afterSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "declaredCommitSha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/screen.js",
+          "beforeSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "afterSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "declaredCommitSha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/sphere.js",
+          "beforeSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "afterSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "declaredCommitSha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/dome3d.js",
+          "beforeSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "afterSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "declaredCommitSha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/domeshow.js",
+          "beforeSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "afterSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "declaredCommitSha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5",
+          "equal": true
+        },
+        {
+          "path": "public/js/audio/engine.js",
+          "beforeSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "afterSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "declaredCommitSha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a",
+          "equal": true
+        },
+        {
+          "path": "public/js/audio/performance.js",
+          "beforeSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "afterSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "declaredCommitSha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13",
+          "equal": true
+        },
+        {
+          "path": "public/index.html",
+          "beforeSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "afterSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "declaredCommitSha256": "128cb3278ec9cd9dcd151dec82cc373b2c6b02036c90a9f7b4e99ede3600de46",
+          "equal": true
+        },
+        {
+          "path": "public/css/style.css",
+          "beforeSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "afterSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "declaredCommitSha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+          "equal": true
+        },
+        {
+          "path": "public/js/plaza.js",
+          "beforeSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "afterSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "declaredCommitSha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+          "equal": true
+        },
+        {
+          "path": "public/js/tickets.js",
+          "beforeSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "afterSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "declaredCommitSha256": "c2e801b8a3f3916b1b481ea499cd8e01813176dce56dd853c1a0dd768295edee",
+          "equal": true
+        },
+        {
+          "path": "public/js/joystick.js",
+          "beforeSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "afterSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "declaredCommitSha256": "d2081cd0fba8abe11a5364153622c3257a0c32ef79d2558f6b4601b26c6721ec",
+          "equal": true
+        },
+        {
+          "path": "public/js/scene/plazaWorld.js",
+          "beforeSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "afterSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "declaredCommitSha256": "9066c72ea32aaa9b677e1456b8dc70c75da5a3639d4e5b1c608440b206e9a543",
+          "equal": true
+        },
+        {
+          "path": "public/js/ui.js",
+          "beforeSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "afterSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "declaredCommitSha256": "3b5fcefd9b61ef0af9a752208f8bd87387e0c72fe2c4972de21edfb67ff03d02",
+          "equal": true
+        }
+      ],
+      "screenshots": [
+        {
+          "stage": "first-page",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-first-page.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-first-page.png",
+          "sha256": "ffb2c306913893c813ce2a820abdee879e98a87a426bbe0e8ceede073e6e4d00",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "issued-ticket",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-issued-ticket.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-issued-ticket.png",
+          "sha256": "ed3582c9394a11a287f1f0ab0ae2f5b41324b67396e5a5ec29932655e7b54bdb",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "ticket-check",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-ticket-check.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-ticket-check.png",
+          "sha256": "ba091f95a5f7418702249b2b64f6a6936fe7c19d94d24d69bb0e1f2aaace5636",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "concert-entered",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-concert-entered.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-concert-entered.png",
+          "sha256": "6560fc9e2469e59eb17da0cfb9a16991d77d24e9d94714686a92d78f1b4cab09",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        },
+        {
+          "stage": "returned-to-plaza",
+          "evidencePath": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-returned-to-plaza.png",
+          "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-returned-to-plaza.png",
+          "sha256": "344930819767e06047134bf586d8c0a91ce90c652a644ae2eb52d5f1c781584b",
+          "pixelDimensions": [
+            960,
+            540
+          ],
+          "readiness": {
+            "fonts": "loaded",
+            "visibility": "visible",
+            "nativeFrameCallbacks": 2
+          }
+        }
+      ]
+    }
+  ],
+  "warningsAndLimitations": [
+    {
+      "id": "loading-overlay-in-captures",
+      "severity": "evidence limitation",
+      "observation": "All four first-page and all four returned-to-plaza screenshots visibly retain the dark loading overlay and Korean loading text.",
+      "evidence": [
+        "hall-desktop:first-page",
+        "hall-desktop:returned-to-plaza",
+        "sphere-mobile:first-page",
+        "sphere-mobile:returned-to-plaza",
+        "hall-mobile:first-page",
+        "hall-mobile:returned-to-plaza",
+        "sphere-desktop:first-page",
+        "sphere-desktop:returned-to-plaza"
+      ],
+      "causeInference": "The exact CSS defines a 1s opacity transition, while readyPlaza waits only for .done attachment and screenshot waits for fonts plus two native callbacks. The screenshots are consistent with a fade in progress; they do not establish a permanently stuck loading screen.",
+      "action": "Keep the originals. For future completed-scene visual captures, observe computed opacity/transition completion separately before a new screenshot; do not relabel these images as settled quality captures."
+    },
+    {
+      "id": "emoji-glyphs",
+      "severity": "visual limitation",
+      "observation": "Some animal/clerk/payment emoji locations show hollow missing-glyph shapes. The Sphere desktop mouse glyph is visible, so this is not an absence of every emoji. Korean text remains readable in the inspected captures.",
+      "evidence": [
+        "hall-desktop:ticket-check",
+        "sphere-mobile:ticket-check",
+        "hall-mobile:ticket-check",
+        "sphere-desktop:ticket-check"
+      ],
+      "interpretation": "document.fonts.status=loaded does not prove emoji glyph coverage. Environment font coverage is a plausible explanation, not established as the sole cause. No before/after pair here identifies this as a product regression."
+    },
+    {
+      "id": "focus-return",
+      "severity": "accessibility follow-up",
+      "observation": "After Escape, hall-desktop, sphere-mobile and sphere-desktop immediately report hidden bkName; hall-mobile reports BODY. After ticket close, hall-desktop and sphere-mobile report hidden boothDone, while the other two report BODY. All immediate reopen snapshots report BODY.",
+      "evidence": [
+        "#/cases/0/focusCaveat",
+        "#/cases/1/focusCaveat",
+        "#/cases/2/focusCaveat",
+        "#/cases/3/focusCaveat"
+      ],
+      "interpretation": "Initial dialog focus, one Tab and inert release are supported. Persistent focus restoration/full tab traversal are not. The immediate snapshots do not establish how long the state lasts."
+    },
+    {
+      "id": "parallel-compile-warning",
+      "severity": "environment capability",
+      "observation": "Both Sphere runs log one KHR_parallel_shader_compile-not-supported warning. Both Hall runs have no warnings.",
+      "interpretation": "This plaza collector records neither dome.mesh.visible nor compile completion. hasDome=true and entrance images are not shader-ready evidence. Separate functional observers must be assessed separately."
+    },
+    {
+      "id": "environment-boundary",
+      "severity": "scope limitation",
+      "observation": "Headless Linux x64 Chromium 153.0.8010.0, Playwright 1.64.1, local fonts, softwareRequested=true and --use-angle=swiftshader; custom flags include --disable-web-security and --no-sandbox.",
+      "interpretation": "No actual GL renderer string is captured by this collector. Mobile is 390x844 DPR2 touch emulation, not a physical Android/iOS result. These observations do not establish normal-browser security/network behavior, FPS, heat or battery life."
+    },
+    {
+      "id": "event-trace-boundary",
+      "severity": "scope limitation",
+      "observation": "The hashed collector uses Playwright keyboard/click/tap/fill and CDP touch input and reads resulting state. No placement fixture was used. Gate targeting reads actual mesh triangles/raycast/DOM hit testing before a real pointer event.",
+      "interpretation": "The stored result is state evidence plus a verifiable input code path, not a raw trusted-event trace or complete movement trajectory. Mobile Escape uses keyboard emulation and does not validate a phone soft keyboard."
+    },
+    {
+      "id": "audio-and-performance",
+      "severity": "scope limitation",
+      "observation": "The concert images show pre-start entry screens at 0:00. AudioContext state is running; no performance start or auditory output was tested in this plaza suite.",
+      "interpretation": "Do not report music quality/synchronization, frame cadence/FPS, load time or long-term stability from these files. Draw counts in snapshots are instantaneous diagnostics, not a controlled performance comparison."
+    }
+  ],
+  "visualReview": {
+    "method": "Read all twenty original PNG files with tools.view_image without editing/cropping or launching a browser. The two final ticket-check images were read from byte-identical transferred files.",
+    "supported": "Ticket text, venue identity and purchase/entry controls are visible in the inspected captures. Ticket number/name match the corresponding raw JSON. Concert entrance frames are before music start.",
+    "notEstablished": "No baseline visual pair, settled first/return plaza screen, complete emoji fidelity, full venue visual quality, performance or dome transition validation."
+  },
+  "sourceProof": [
+    {
+      "commit": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "path": "public/css/style.css",
+      "sha256": "69e1a71c3408c80180a6d2460b92bcf4cf96370e192ed553e03c7d2c63e76be7",
+      "anchorLine": 549,
+      "anchor": ".pz-loading {"
+    },
+    {
+      "commit": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "path": "public/js/plaza.js",
+      "sha256": "556f3800f37124ce2355cfc1e4f47964f562d0d0c8e481ea496eeb43868be280",
+      "anchorLine": 476,
+      "anchor": "function closeBooth()"
+    }
+  ],
+  "provenance": {
+    "servedSourceFilesPerCase": 19,
+    "beforeAfterEqualForAllFourCases": true,
+    "allCollectedSourcesMatchDeclaredCommit": true,
+    "allCollectedSourcesEqualAcrossAllFourCases": true,
+    "collectorCurrentBytesMatchRecordedHash": true,
+    "helperCurrentBytesMatchRecordedHash": true,
+    "planHashStatus": "Only matching plan SHA labels in all four completed metadata files were checked; the plan file itself was not read in this review.",
+    "sourceCommit": "dea7997c6278f10ff467815ab96b370362549b0c",
+    "evidenceFilesStableDuringReview": true,
+    "evidenceFileCount": 36,
+    "allTransferredCopiesByteEqualToOriginals": true,
+    "originalRoot": "/tmp/forest-qa-6onn068y",
+    "transferredRoot": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime"
+  },
+  "evidenceInventory": [
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/000-plaza-hall-desktop.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/logs/000-plaza-hall-desktop.json",
+      "kind": "completed-wrapper",
+      "sha256": "5736fe9144d85769b29e5fb487ea5d39219eb01f6521747e00ed07c047050959",
+      "originalSha256": "5736fe9144d85769b29e5fb487ea5d39219eb01f6521747e00ed07c047050959",
+      "copyByteEqual": true,
+      "bytes": 967
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/000-plaza-hall-desktop.log",
+      "originalPath": "/tmp/forest-qa-6onn068y/logs/000-plaza-hall-desktop.log",
+      "kind": "stdout",
+      "sha256": "bac7e8d1e850a3a2f44949ca49516b47d708b0091fb058276f9bc2d0fec521da",
+      "originalSha256": "bac7e8d1e850a3a2f44949ca49516b47d708b0091fb058276f9bc2d0fec521da",
+      "copyByteEqual": true,
+      "bytes": 428
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop.json",
+      "kind": "raw-json",
+      "sha256": "8dda5aa6527a2164950180f2872fecbfa008e21c72ce9b6a7eb0c7b280aa4fda",
+      "originalSha256": "8dda5aa6527a2164950180f2872fecbfa008e21c72ce9b6a7eb0c7b280aa4fda",
+      "copyByteEqual": true,
+      "bytes": 26207
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-summary.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-summary.json",
+      "kind": "summary",
+      "sha256": "307288ea46467889c4ad294160e6d6b876f9b5de08aff321b146be1126bfc166",
+      "originalSha256": "307288ea46467889c4ad294160e6d6b876f9b5de08aff321b146be1126bfc166",
+      "copyByteEqual": true,
+      "bytes": 505
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-first-page.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-first-page.png",
+      "kind": "screenshot",
+      "sha256": "0c12afdbaee2bc84b0cf09d05bc24640fa875b631f723b08b436c86bdc2899ac",
+      "originalSha256": "0c12afdbaee2bc84b0cf09d05bc24640fa875b631f723b08b436c86bdc2899ac",
+      "copyByteEqual": true,
+      "bytes": 242422,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-issued-ticket.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-issued-ticket.png",
+      "kind": "screenshot",
+      "sha256": "86e043ba17ba519e7ae2796491e6bd801d6c06128140786d1a06b4a65283b6d1",
+      "originalSha256": "86e043ba17ba519e7ae2796491e6bd801d6c06128140786d1a06b4a65283b6d1",
+      "copyByteEqual": true,
+      "bytes": 261124,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-ticket-check.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-ticket-check.png",
+      "kind": "screenshot",
+      "sha256": "a0f6892b05ea04cacd5e9c1096f7797b2fcdc962d3eeccaeafdb5ce6e6b14166",
+      "originalSha256": "a0f6892b05ea04cacd5e9c1096f7797b2fcdc962d3eeccaeafdb5ce6e6b14166",
+      "copyByteEqual": true,
+      "bytes": 306141,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-concert-entered.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-concert-entered.png",
+      "kind": "screenshot",
+      "sha256": "737d3a4e9d44e257b870132fa21a1d4dedb078faede7acad492e7f59d04ab258",
+      "originalSha256": "737d3a4e9d44e257b870132fa21a1d4dedb078faede7acad492e7f59d04ab258",
+      "copyByteEqual": true,
+      "bytes": 299570,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-returned-to-plaza.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-desktop-plaza-hall-desktop-returned-to-plaza.png",
+      "kind": "screenshot",
+      "sha256": "25d1b10d806917e47d857bcaa91cc9dd800a07163cd52db0a1b6ef4b60882470",
+      "originalSha256": "25d1b10d806917e47d857bcaa91cc9dd800a07163cd52db0a1b6ef4b60882470",
+      "copyByteEqual": true,
+      "bytes": 261825,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/001-plaza-sphere-mobile.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/logs/001-plaza-sphere-mobile.json",
+      "kind": "completed-wrapper",
+      "sha256": "5b302fc086a12d65a8ad80320a55b9e924040f354110266fc89d9a9eedb5b09e",
+      "originalSha256": "5b302fc086a12d65a8ad80320a55b9e924040f354110266fc89d9a9eedb5b09e",
+      "copyByteEqual": true,
+      "bytes": 971
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/001-plaza-sphere-mobile.log",
+      "originalPath": "/tmp/forest-qa-6onn068y/logs/001-plaza-sphere-mobile.log",
+      "kind": "stdout",
+      "sha256": "8fb78d79c19b9005e42c659b6c08d9b0dc82bcc03d70796f27f77e72c275a456",
+      "originalSha256": "8fb78d79c19b9005e42c659b6c08d9b0dc82bcc03d70796f27f77e72c275a456",
+      "copyByteEqual": true,
+      "bytes": 435
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile.json",
+      "kind": "raw-json",
+      "sha256": "4e331c6995b61593096e395156351e0107c70972e9c04b8b73756e8ad91c98ff",
+      "originalSha256": "4e331c6995b61593096e395156351e0107c70972e9c04b8b73756e8ad91c98ff",
+      "copyByteEqual": true,
+      "bytes": 26861
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-summary.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-summary.json",
+      "kind": "summary",
+      "sha256": "e9a0107011f44a115254d5c8c46bc1cdbd11df88704dd2f19c525b92612fc01e",
+      "originalSha256": "e9a0107011f44a115254d5c8c46bc1cdbd11df88704dd2f19c525b92612fc01e",
+      "copyByteEqual": true,
+      "bytes": 508
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-first-page.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-first-page.png",
+      "kind": "screenshot",
+      "sha256": "1bad86800837d3854f58aa142841ea9dcda6bc4038a1ebec2881a64f25390357",
+      "originalSha256": "1bad86800837d3854f58aa142841ea9dcda6bc4038a1ebec2881a64f25390357",
+      "copyByteEqual": true,
+      "bytes": 433305,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-issued-ticket.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-issued-ticket.png",
+      "kind": "screenshot",
+      "sha256": "060de4579f930f208fffb552cd7267a17209813fd68e8d6290bd3e214289754c",
+      "originalSha256": "060de4579f930f208fffb552cd7267a17209813fd68e8d6290bd3e214289754c",
+      "copyByteEqual": true,
+      "bytes": 521374,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-ticket-check.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-ticket-check.png",
+      "kind": "screenshot",
+      "sha256": "0765927740f09dd4100681ad8cf687b09f264375cf6f52e127d8cd30c4c7ef0b",
+      "originalSha256": "0765927740f09dd4100681ad8cf687b09f264375cf6f52e127d8cd30c4c7ef0b",
+      "copyByteEqual": true,
+      "bytes": 470865,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-concert-entered.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-concert-entered.png",
+      "kind": "screenshot",
+      "sha256": "7ee2add8797da643983a77a2b99e6571ed6a59114a94a8cfcb46f908c56d7978",
+      "originalSha256": "7ee2add8797da643983a77a2b99e6571ed6a59114a94a8cfcb46f908c56d7978",
+      "copyByteEqual": true,
+      "bytes": 196319,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-returned-to-plaza.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-mobile-plaza-sphere-mobile-returned-to-plaza.png",
+      "kind": "screenshot",
+      "sha256": "d312a7f2bcee4c56007c9d94467cb3ad4d3535bd71c9405e7e773224b9da9b1a",
+      "originalSha256": "d312a7f2bcee4c56007c9d94467cb3ad4d3535bd71c9405e7e773224b9da9b1a",
+      "copyByteEqual": true,
+      "bytes": 300571,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/002-plaza-hall-mobile.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/logs/002-plaza-hall-mobile.json",
+      "kind": "completed-wrapper",
+      "sha256": "240fc424aa5c1154a4e67c7e9e7d44c2e063773cf0df42ae37f0715fcd845c1d",
+      "originalSha256": "240fc424aa5c1154a4e67c7e9e7d44c2e063773cf0df42ae37f0715fcd845c1d",
+      "copyByteEqual": true,
+      "bytes": 963
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/002-plaza-hall-mobile.log",
+      "originalPath": "/tmp/forest-qa-6onn068y/logs/002-plaza-hall-mobile.log",
+      "kind": "stdout",
+      "sha256": "8e5f844b00caf1b1f64c372680daf35ab4c2253d5d15e96f97158175bfb09dec",
+      "originalSha256": "8e5f844b00caf1b1f64c372680daf35ab4c2253d5d15e96f97158175bfb09dec",
+      "copyByteEqual": true,
+      "bytes": 421
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile.json",
+      "kind": "raw-json",
+      "sha256": "56350460172d4b4091ab09d4e1e1f80eba2b2909825b7fac63dc16b096c776e8",
+      "originalSha256": "56350460172d4b4091ab09d4e1e1f80eba2b2909825b7fac63dc16b096c776e8",
+      "copyByteEqual": true,
+      "bytes": 26814
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-summary.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-summary.json",
+      "kind": "summary",
+      "sha256": "7e334759ed5744802daa75aff58c8741ef21f09f147b8fa70632cb136f0c2e7c",
+      "originalSha256": "7e334759ed5744802daa75aff58c8741ef21f09f147b8fa70632cb136f0c2e7c",
+      "copyByteEqual": true,
+      "bytes": 502
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-first-page.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-first-page.png",
+      "kind": "screenshot",
+      "sha256": "69002ec29651aa4b17d11cbfe80f8fb0465b135ed0ba76e0c0c86a4508479909",
+      "originalSha256": "69002ec29651aa4b17d11cbfe80f8fb0465b135ed0ba76e0c0c86a4508479909",
+      "copyByteEqual": true,
+      "bytes": 432421,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-issued-ticket.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-issued-ticket.png",
+      "kind": "screenshot",
+      "sha256": "947c7f4f95b4874b14e4841cdba93346d50be6c8fba75b844c8e5deed0daacaa",
+      "originalSha256": "947c7f4f95b4874b14e4841cdba93346d50be6c8fba75b844c8e5deed0daacaa",
+      "copyByteEqual": true,
+      "bytes": 508503,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-ticket-check.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-ticket-check.png",
+      "kind": "screenshot",
+      "sha256": "5d5bcd199e132687099d8f74744023bfeeb165d3cc7b288ae392f5b70fe44752",
+      "originalSha256": "5d5bcd199e132687099d8f74744023bfeeb165d3cc7b288ae392f5b70fe44752",
+      "copyByteEqual": true,
+      "bytes": 582498,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-concert-entered.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-concert-entered.png",
+      "kind": "screenshot",
+      "sha256": "60c9c0b2022e32b1305baef7ef43b1bb2b74c6637114f92a6701d7df3ed5615a",
+      "originalSha256": "60c9c0b2022e32b1305baef7ef43b1bb2b74c6637114f92a6701d7df3ed5615a",
+      "copyByteEqual": true,
+      "bytes": 612574,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-returned-to-plaza.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-hall-mobile-plaza-hall-mobile-returned-to-plaza.png",
+      "kind": "screenshot",
+      "sha256": "98f70375df69bb41e6b769d77be51ebe4bb761c1959d4ad42c7021fb28ba4aa6",
+      "originalSha256": "98f70375df69bb41e6b769d77be51ebe4bb761c1959d4ad42c7021fb28ba4aa6",
+      "copyByteEqual": true,
+      "bytes": 258503,
+      "pixelDimensions": [
+        780,
+        1688
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/003-plaza-sphere-desktop.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/logs/003-plaza-sphere-desktop.json",
+      "kind": "completed-wrapper",
+      "sha256": "8deb9fa4df2e7fd6f6a5ac2ce5f8dbe39a46dda0e8686d39fbb59efc737dd0e6",
+      "originalSha256": "8deb9fa4df2e7fd6f6a5ac2ce5f8dbe39a46dda0e8686d39fbb59efc737dd0e6",
+      "copyByteEqual": true,
+      "bytes": 975
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/logs/003-plaza-sphere-desktop.log",
+      "originalPath": "/tmp/forest-qa-6onn068y/logs/003-plaza-sphere-desktop.log",
+      "kind": "stdout",
+      "sha256": "b866b52af209e180c8301410ad5a377e73e91658a9e2389cbf20f08023b1ac81",
+      "originalSha256": "b866b52af209e180c8301410ad5a377e73e91658a9e2389cbf20f08023b1ac81",
+      "copyByteEqual": true,
+      "bytes": 442
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop.json",
+      "kind": "raw-json",
+      "sha256": "fefeca8ef85767095187413869269d84f4609c008e1d95c416d9a486426ce6be",
+      "originalSha256": "fefeca8ef85767095187413869269d84f4609c008e1d95c416d9a486426ce6be",
+      "copyByteEqual": true,
+      "bytes": 26335
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-summary.json",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-summary.json",
+      "kind": "summary",
+      "sha256": "9455c0fedb17094af5291af443fc1e71ec9b2df6c3fbeb80d2c4716fabc4360c",
+      "originalSha256": "9455c0fedb17094af5291af443fc1e71ec9b2df6c3fbeb80d2c4716fabc4360c",
+      "copyByteEqual": true,
+      "bytes": 511
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-first-page.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-first-page.png",
+      "kind": "screenshot",
+      "sha256": "ffb2c306913893c813ce2a820abdee879e98a87a426bbe0e8ceede073e6e4d00",
+      "originalSha256": "ffb2c306913893c813ce2a820abdee879e98a87a426bbe0e8ceede073e6e4d00",
+      "copyByteEqual": true,
+      "bytes": 263011,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-issued-ticket.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-issued-ticket.png",
+      "kind": "screenshot",
+      "sha256": "ed3582c9394a11a287f1f0ab0ae2f5b41324b67396e5a5ec29932655e7b54bdb",
+      "originalSha256": "ed3582c9394a11a287f1f0ab0ae2f5b41324b67396e5a5ec29932655e7b54bdb",
+      "copyByteEqual": true,
+      "bytes": 245598,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-ticket-check.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-ticket-check.png",
+      "kind": "screenshot",
+      "sha256": "ba091f95a5f7418702249b2b64f6a6936fe7c19d94d24d69bb0e1f2aaace5636",
+      "originalSha256": "ba091f95a5f7418702249b2b64f6a6936fe7c19d94d24d69bb0e1f2aaace5636",
+      "copyByteEqual": true,
+      "bytes": 225886,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-concert-entered.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-concert-entered.png",
+      "kind": "screenshot",
+      "sha256": "6560fc9e2469e59eb17da0cfb9a16991d77d24e9d94714686a92d78f1b4cab09",
+      "originalSha256": "6560fc9e2469e59eb17da0cfb9a16991d77d24e9d94714686a92d78f1b4cab09",
+      "copyByteEqual": true,
+      "bytes": 110017,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    },
+    {
+      "path": "/workspace/scratch/296fafc0af7f/verification/main-1f/runtime/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-returned-to-plaza.png",
+      "originalPath": "/tmp/forest-qa-6onn068y/plaza/main1f-plaza-sphere-desktop-plaza-sphere-desktop-returned-to-plaza.png",
+      "kind": "screenshot",
+      "sha256": "344930819767e06047134bf586d8c0a91ce90c652a644ae2eb52d5f1c781584b",
+      "originalSha256": "344930819767e06047134bf586d8c0a91ce90c652a644ae2eb52d5f1c781584b",
+      "copyByteEqual": true,
+      "bytes": 220697,
+      "pixelDimensions": [
+        960,
+        540
+      ],
+      "visuallyReviewedWith": "tools.view_image"
+    }
+  ],
+  "reproducibleReviewProcedure": [
+    "Require completed wrapper PASS, exitCode=0, finishedAt for jobs 0..3.",
+    "Hash stdout against each wrapper; cross-check raw/summary/collector/revision and six core regression states.",
+    "Independently compare input-induced positions, inert/focus, whole ticket objects, return identity and no-ticket redirect.",
+    "Hash git show <revision>:public/<file> for all 19 served entries; compare before/after/across cases.",
+    "Inspect twenty original PNGs; separate screenshot timing/font/focus caveats from core flow assertions.",
+    "Byte-compare all 36 transferred evidence files to their originals, then rehash before writing only review files."
+  ]
+}

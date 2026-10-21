@@ -1,0 +1,23 @@
+{
+  "schema": 2,
+  "label": "main1f-functional-hall-desktop",
+  "revision": "dea7997c6278f10ff467815ab96b370362549b0c",
+  "scope": "full",
+  "fixtureSourceSha256": "4583ac3b0118412c2c86eaa52b252a03df9605f3ad039f9df38a70da6ac31921",
+  "diagnosticOptions": {
+    "continueOnTransportFail": true
+  },
+  "method": "Functional checks only; sequential explicit rendering, not an FPS benchmark.",
+  "results": [
+    {
+      "venue": "hall",
+      "device": "desktop",
+      "scope": "full",
+      "status": "FAIL",
+      "failure": "page.waitForFunction: Timeout 2000ms exceeded.",
+      "failureCount": 2,
+      "continuedAfterTransportFailure": true,
+      "file": "main1f-functional-hall-desktop-hall-desktop.json"
+    }
+  ]
+}
