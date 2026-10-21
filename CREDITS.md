@@ -42,6 +42,12 @@ samples used to perform them come from these sources:
   Performance files derived from them carry the same non-commercial terms.
 - *Ode to Joy*, *Für Elise* (A section) and *Greensleeves* were written out
   by hand for this project from the public-domain originals.
+- *Amazing Grace* (the tune New Britain, *Southern Harmony*, 1835) and the
+  trio of Elgar's *Pomp and Circumstance* March No. 1 (1901) are public-domain
+  melodies, written out here and harmonised and orchestrated for this project.
+  The Elgar melody was checked against the melody line published by
+  [flutetunes.com](https://www.flutetunes.com/tunes.php?id=63); the
+  harmony, voicing and orchestration are our own.
 - Choir, voice and tubular-bell samples are also from FluidR3_GM (CC BY 3.0).
 
 ## Libraries

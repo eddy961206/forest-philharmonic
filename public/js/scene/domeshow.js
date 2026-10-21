@@ -59,6 +59,8 @@ export const VISUALS = {
   'mozart-k545': ['GOLD', 'SPRING'],
   'verdi-la-donna': ['DECO', 'SUNSET'],
   'weber-clarinet-concertino': ['GOLD', 'SPRING', 'FIREWORKS'],
+  'amazing-grace': ['SUNSET', 'CATHEDRAL', 'CLOUDS3D'],
+  'elgar-pomp-and-circumstance': ['GOLD', 'CATHEDRAL', 'FIREWORKS'],
 };
 const BY_MOOD = { calm: ['STARS', 'MOON', 'NEBULA', 'AURORA', 'FOREST3D', 'OCEAN3D', 'VOYAGE', 'PEAKS3D'], lively: ['GOLD', 'DECO', 'SPRING', 'CLOUDS3D'], grand: ['CATHEDRAL', 'CLOUDS3D', 'FIREWORKS'] };
 
@@ -73,14 +75,7 @@ export function visualsFor(piece) {
   return a === b ? [a] : [a, b];
 }
 
-// The Sphere setlist: an evening that travels from dawn through forest,
-// rain, moonlight, the deep sea and the northern lights to fireworks.
-export const SPHERE_SETLIST = [
-  'beethoven-ode-to-joy', 'debussy-clair-de-lune', 'bach-prelude-c', 'chopin-raindrop', 'mozart-turkish-march',
-  'beethoven-moonlight', 'greensleeves', 'tchaikovsky-june', 'joplin-entertainer', 'schubert-lindenbaum',
-  'handel-lascia', 'grieg-march-of-trolls', 'beethoven-fur-elise', 'tchaikovsky-troika', 'grieg-wedding-day',
-  'liliuokalani-aloha-oe', 'bach-wachet-auf', 'bach-nun-seid-ihr',
-];
+// (the Sphere's setlist lives in programs.js)
 
 // --------------------------------------------------------------- shader
 const VERT = /* glsl */`

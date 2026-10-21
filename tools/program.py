@@ -171,6 +171,69 @@ def _greensleeves():
     )
 
 
+def _amazing_grace():
+    # New Britain (Southern Harmony, 1835), G major. Three verses: the flute
+    # alone over the harp; the choir with the strings; everyone, the horn
+    # on the tune, the timpani underneath.
+    bars = ["G4:h B4:e G4:e", "B4:h A4:q", "G4:h E4:q", "D4:h D4:q", "G4:h B4:e G4:e", "B4:h A4:q",
+            "D5:h B4:q", "D5:q. B4:e D5:e B4:e", "G4:h D4:q", "E4:q. G4:e G4:e E4:e", "D4:h D4:q",
+            "G4:h B4:e G4:e", "B4:h A4:q"]
+    chords = ["G:h G/B:q", "G/D:h D7:q", "Em:h C:q", "G:h G:q", "G:h G/B:q", "G/D:h D7/C:q", "G/B:h G:q",
+              "G:h G:q", "G/B:h G/B:q", "C:h C:q", "G:h G/B:q", "Em:h G/D:q", "G/D:h D7:q"]
+    rest = "r:h."
+    def verse(last):  # the tune; the last bar holds (or leads into the next verse)
+        return " | ".join(bars) + (" | G4:h." if last else " | G4:h D4:q")
+    def harm(last):
+        return " | ".join(chords) + (" | G:h." if last else " | G:h G:q")
+    def silent():
+        return " | ".join([rest] * 14)
+    pick = "D4:q | "
+    v1 = pick + verse(False) + " | " + silent() + " | " + silent()
+    sop = "r:q | " + silent() + " | " + verse(False) + " | " + verse(True)
+    hn3 = "r:q | " + silent() + " | " + silent() + " | " + verse(True)
+    ch = "r:q | " + " | ".join([rest] * 14) + " | " + harm(False) + " | " + harm(True)
+    hp = "G:q | " + harm(False) + " | " + " | ".join([rest] * 14) + " | " + harm(True)
+    timp = "r:q | " + silent() + " | " + silent() + " | " + " | ".join(
+        ["G2:h r:q", "D2:h r:q", "r:h.", "G2:h r:q", "G2:h r:q", "D2:h r:q", "G2:h r:q",
+         "G2:h r:q", "r:h.", "r:h.", "G2:h r:q", "r:h.", "D2:h D2:q", "G2:h."])
+    return dict(
+        ts="3/4", pickup=1.0,
+        parts={"v1": ("@q " + v1, 1, 0.5), "sop": ("@q " + sop, 1, 0.55), "hn3": ("@q " + hn3, 1, 0.6),
+               "timp": ("@q " + timp, 2, 0.5)},
+        chords="@q " + ch,
+        voices=[("__bass", 38, 55, "bass"), ("__tenor", 48, 64, "inner"), ("__alto", 55, 69, "inner")],
+        chord_vel=0.42,
+        harp="@q " + hp,
+    )
+
+
+def _pomp():
+    # Elgar, Pomp and Circumstance March No. 1 (1901): the trio - the tune
+    # later sung as "Land of Hope and Glory" - in G, twice. First the strings
+    # alone, broad and noble (as Elgar scores it); then everyone: trumpets,
+    # choir and the whole orchestra, the timpani underneath.
+    first = "G5:h F#5:e G5:e A5:q E5:h D5:h C5:h B4:e C5:e D5:q A4:w B4:h C#5:e D5:q E5:e A5:h D5:h G5:2.5 F#5:q E5:e D5:3.5 r:e G5:h F#5:e G5:e A5:q E5:h D5:h C5:h B4:e C5:e D5:q A4:w B4:h C#5:e D5:q E5:e A5:h D5:h C6:h C6:e B5:q A5:e B5:w E5:h F#5:e G5:q A5:e D5:h G5:h G4:h C5:e B4:q A4:e G4:w"
+    second = "G5:h F#5:e G5:e A5:q E5:h D5:h C5:h B4:e C5:e D5:q A4:3.5 r:e B4:h C#5:e D5:q E5:e A5:h D5:h G5:h G5:e F#5:q E5:e D5:w G5:h F#5:e G5:e A5:q E5:h D5:h C5:h B4:e C5:e D5:q A4:w B4:h C#5:e D5:q E5:e A5:h D5:h C6:h C6:e B5:q A5:e B5:w E5:h F#5:e G5:q A5:e D5:h G5:h G4:h C5:e B4:q A4:e G4:3.5 r:e"
+    harm = ["G", "D7/F#", "C", "G/B", "Am", "G/D", "D", "D7",
+            "G", "A7", "D", "Bm", "C", "D/A", "D", "D",
+            "G", "D7/F#", "C", "G/B", "Am", "G/D", "D", "D7",
+            "G", "A7", "D", "Bm", "Am", "D7", "G", "G",
+            "C", "D7", "G/B", "C", "G/D", "D7", "G", "G"]
+    once = " | ".join(harm)
+    rests = " | ".join(["r:h"] * 40)
+    drums = {1: "G2", 7: "D2", 9: "G2", 11: "D2", 15: "D2", 17: "G2", 23: "D2", 25: "G2", 27: "D2", 31: "G2", 33: "C3", 35: "G2", 37: "D2"}
+    timp = " | ".join(f"{drums[b]}:q r:q" if b in drums else "r:h" for b in range(1, 39)) + " | G2:e G2:e G2:e G2:e | G2:h"
+    return dict(
+        ts="2/4",
+        parts={"m1": ("@q " + first + " | " + rests, 1, 0.55), "m2": ("@q " + rests + " | " + second, 1, 0.72),
+               "timp": ("@q " + rests + " | " + timp, 2, 0.7)},
+        chords="@h " + once + " | " + once,
+        voices=[("__bass", 36, 52, "bass"), ("__tenor", 48, 62, "inner"), ("__alto", 55, 69, "inner")],
+        chord_vel=0.45,
+        harp="@h " + rests + " | " + once,
+    )
+
+
 # ----------------------------------------------------------- the programme
 # Order = concert order. Famous pieces come first; moods drive lights & FX.
 
@@ -611,6 +674,62 @@ PROGRAM = [
         title='String Quartet Op. 59 No. 2 "Razumovsky" — II. Molto adagio', titleKo="현악 4중주 「라주모프스키」 2번 — 2악장 몰토 아다지오",
         composer="L. van Beethoven", composerKo="베토벤", year=1806, ensembleKo="현악 합주",
         tempo=[(1, 50)], final_rit=(6, 0.6), mood="calm", tracks=lambda n: string_orchestra(n),
+    ),
+    dict(
+        id="elgar-pomp-and-circumstance", src=("hand", _pomp()),
+        title='Pomp and Circumstance March No. 1 — Trio ("Land of Hope and Glory")', titleKo="위풍당당 행진곡 1번 — 트리오 「희망과 영광의 땅」",
+        composer="Edward Elgar", composerKo="엘가", year=1901, ensembleKo="관현악 · 합창",
+        tempo=[(1, 76), (14, 76), (16, 66, "ramp"), (17, 76), (30, 76), (32, 66, "ramp"), (33, 76), (38, 70, "ramp"), (40, 60, "ramp"),
+               (41, 82), (54, 82), (56, 72, "ramp"), (57, 82), (70, 82), (72, 72, "ramp"), (73, 82)],
+        final_rit=(4, 0.5), mood="grand", finale=True,
+        tracks=lambda n: [
+            dict(part="m1", section="vn1", inst="violin", layer="strings", gain=0.95),
+            dict(part="m1", section="vn2", inst="violin", layer="strings", gain=0.55, transpose=-12),
+            dict(part="__alto", section="va", inst="viola", layer="strings", gain=0.6),
+            dict(part="__tenor", section="vc", inst="cello", layer="strings", gain=0.55),
+            dict(part="__bass", section="vc", inst="cello", layer="strings", gain=0.75),
+            dict(part="__bass", section="cb", inst="contrabass", gain=0.55, transpose=-12, floor=28),
+            dict(part="__alto", section="hn", inst="horn", gain=0.35, chairs=[0]),
+            dict(part="__tenor", section="hn", inst="horn", gain=0.35, chairs=[1]),
+            dict(part="__bass", section="bn", inst="bassoon", gain=0.45),
+            dict(part="m2", section="vn1", inst="violin", layer="strings", gain=1.0),
+            dict(part="m2", section="tp", inst="trumpet", gain=0.8),
+            dict(part="m2", section="fl", inst="flute", gain=0.55, transpose=12),
+            dict(part="m2", section="ob", inst="oboe", gain=0.55),
+            dict(part="m2", section="choir", inst="choir", gain=0.95, chairs=[0, 1, 2]),
+            dict(part="m2", section="choir", inst="voice", gain=0.7, chairs=[6, 7, 8], transpose=-12),
+            dict(part="__harp_a", section="choir", inst="choir", gain=0.65, chairs=[3, 4, 5]),
+            dict(part="__harp_b", section="choir", inst="voice", gain=0.7, chairs=[9, 10, 11]),
+            dict(part="__harp_t", section="cl", inst="clarinet", gain=0.45),
+            dict(part="__harp_b", section="harp", inst="harp", gain=0.5),
+            dict(part="__harp_a", section="harp", inst="harp", gain=0.45),
+            dict(part="timp", section="timp", inst="timpani", gain=0.8),
+        ],
+        extra="harp_chords",
+    ),
+    dict(
+        id="amazing-grace", src=("hand", _amazing_grace()),
+        title="Amazing Grace (New Britain, arr.)", titleKo="어메이징 그레이스 (편곡)",
+        composer="Traditional (America)", composerKo="미국 찬송가", year=1835, ensembleKo="플루트 · 하프 · 합창 · 관현악",
+        tempo=[(0, 72), (14, 70), (28, 66), (40, 54, "ramp")], final_rit=(3, 0.55), mood="calm",
+        tracks=lambda n: [
+            dict(part="v1", section="fl", inst="flute", gain=0.95, legato=1.03),
+            dict(part="__harp_b", section="harp", inst="harp", gain=0.6),
+            dict(part="__harp_t", section="harp", inst="harp", gain=0.5),
+            dict(part="__harp_a", section="harp", inst="harp", gain=0.5),
+            dict(part="sop", section="choir", inst="choir", gain=0.85, chairs=[0, 1, 2]),
+            dict(part="__alto", section="choir", inst="choir", gain=0.65, chairs=[3, 4, 5]),
+            dict(part="__tenor", section="choir", inst="voice", gain=0.6, chairs=[6, 7, 8]),
+            dict(part="__bass", section="choir", inst="voice", gain=0.65, chairs=[9, 10, 11]),
+            dict(part="sop", section="vn1", inst="violin", layer="strings", gain=0.45),
+            dict(part="__alto", section="vn2", inst="violin", layer="strings", gain=0.5),
+            dict(part="__tenor", section="va", inst="viola", layer="strings", gain=0.5),
+            dict(part="__bass", section="vc", inst="cello", layer="strings", gain=0.65),
+            dict(part="__bass", section="cb", inst="contrabass", gain=0.4, transpose=-12, only_below=57, floor=28),
+            dict(part="hn3", section="hn", inst="horn", gain=0.7, chairs=[0], legato=1.02),
+            dict(part="timp", section="timp", inst="timpani", gain=0.45),
+        ],
+        extra="harp_chords",
     ),
     dict(
         id="bach-nun-seid-ihr", src=("m21", "bach/bwv248.64-6.mxl"),

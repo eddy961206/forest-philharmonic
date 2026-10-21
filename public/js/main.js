@@ -10,7 +10,8 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { IS_SPHERE, VENUE, VENUES, goVenue } from './scene/venue.js';
 import { SPHERE_ACOUSTICS, SP } from './scene/sphereplan.js';
 import { buildSphere } from './scene/sphere.js';
-import { SPHERE_SETLIST, visualsFor } from './scene/domeshow.js';
+import { visualsFor } from './scene/domeshow.js';
+import { SETLISTS } from './programs.js';
 
 import { AudioEngine } from './audio/engine.js';
 import { Performance } from './audio/performance.js';
@@ -195,7 +196,7 @@ const engine = new AudioEngine();
 const perf = new Performance(engine);
 let fx = null;
 let program = [];
-let eveningLen = 0; // the evening's programme (the rest can still be picked)
+let eveningLen = 0; // the evening's programme (this building's half of the pieces)
 let current = -1;
 let concertStarted = false; // we are inside
 let showStarted = false; // the musicians have been called
@@ -222,14 +223,12 @@ async function boot() {
   engine.setVolume(settings.volume);
   engine.setReverb(settings.reverb);
   fx = buildFX(scene, engine);
-  program = await (await fetch('music/index.json')).json();
-  if (IS_SPHERE) {
-    // tonight's show at the Sphere first, then everything else on request
-    const byId = new Map(program.map((p) => [p.id, p]));
-    const set = SPHERE_SETLIST.map((id) => byId.get(id)).filter(Boolean);
-    program = [...set, ...program.filter((p) => !SPHERE_SETLIST.includes(p.id))];
-    eveningLen = set.length;
-  } else eveningLen = program.length;
+  // each building plays its own half of the pieces (see programs.js)
+  const all = await (await fetch('music/index.json')).json();
+  const byId = new Map(all.map((p) => [p.id, p]));
+  program = (SETLISTS[VENUE] || SETLISTS.hall).map((id) => byId.get(id)).filter(Boolean);
+  if (!program.length) program = all;
+  eveningLen = program.length;
   ui.setProgram(program);
   await engine.loadSamples('samples', (done, total) => {
     ui.setLoading(`악기를 조율하는 중  ${done} / ${total}`, 0.08 + 0.85 * (done / total));
