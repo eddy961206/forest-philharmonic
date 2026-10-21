@@ -36,7 +36,9 @@ const sockets = new Set();
 const perIp = new Map();
 let nextId = 1;
 
-const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u001f\u007f\u200b-\u200f\u2028-\u202e]/g, '').trim().slice(0, max);
+// (invisible and direction-flipping characters go; the zero-width joiner stays: it
+// holds emoji such as a family of three together)
+const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u001f\u007f\u200b\u200c\u200e\u200f\u2028-\u202e\u2066-\u2069\ufeff]/g, '').trim().slice(0, max);
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : 0);
 
 // the buildings a room can be in (see public/js/scene/venue.js)
@@ -68,6 +70,13 @@ export function publicRooms() {
 
 // bye: left on purpose (the show passes on at once); otherwise the line
 // dropped or the page reloaded, and the host gets a moment to come back
+// one room by its code: the booth asks before it sells a friend's ticket
+// (which building, and is there a seat) - null if there is no such room
+export function roomLookup(code) {
+  const r = rooms.get(String(code || '').toUpperCase());
+  return r ? { code: r.code, venue: r.venue, full: r.members.size >= r.cap } : null;
+}
+
 function leave(m, bye = false) {
   const room = m.room;
   if (!room) return;

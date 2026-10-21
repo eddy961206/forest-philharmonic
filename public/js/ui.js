@@ -77,6 +77,8 @@ export class UI {
       go({ mode: 'join', code });
     };
     $('lbJoinCode').addEventListener('click', joinCode);
+    // (a pasted "K7Q-H2M" or " k7qh2m ": the letters and digits are the code)
+    $('lbCode').addEventListener('input', () => { $('lbCode').value = $('lbCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); });
     $('lbCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') joinCode(); });
     $('lbRefresh').addEventListener('click', () => this.emit('refreshRooms'));
   }
@@ -498,6 +500,21 @@ export class UI {
     }, ms);
   }
 
+  // the help dialog: focus goes into it, and back to where it was when it closes
+  showHelp(on) {
+    const h = $('help');
+    if (on && h.hidden) {
+      this._helpFrom = document.activeElement;
+      h.hidden = false;
+      $('helpClose').focus({ preventScroll: true });
+    } else if (!on && !h.hidden) {
+      h.hidden = true;
+      const back = this._helpFrom;
+      this._helpFrom = null;
+      if (back && back !== document.body && back.isConnected && !back.closest('[hidden]')) back.focus({ preventScroll: true });
+    }
+  }
+
   tooltip(info, x, y) {
     const el = $('tooltip');
     if (!info) { el.hidden = true; return; }
@@ -723,8 +740,10 @@ export class UI {
     click('btnPlay', () => this.emit('toggle'));
     click('btnNext', () => this.emit('next'));
     click('btnPrev', () => this.emit('prev'));
-    click('btnHelp', () => { $('help').hidden = false; $('helpClose').focus(); });
-    click('helpClose', () => { $('help').hidden = true; });
+    click('btnHelp', () => this.showHelp(true));
+    click('helpClose', () => this.showHelp(false));
+    // (a dialog: Tab stays in it - its one button)
+    $('help').addEventListener('keydown', (e) => { if (e.key === 'Tab') { e.preventDefault(); $('helpClose').focus(); } });
     click('leafBtn', () => this.emit('leaf'));
     click('plazaBtn', () => this.emit('toPlaza'));
     click('intervalTea', () => this.emit('tea'));
@@ -747,7 +766,7 @@ export class UI {
     });
     click('leafClose', () => { $('leaf').hidden = true; });
     $('leaf').addEventListener('click', (e) => { if (outside(e, 'leaf')) $('leaf').hidden = true; });
-    $('help').addEventListener('click', (e) => { if (outside(e, 'help')) $('help').hidden = true; });
+    $('help').addEventListener('click', (e) => { if (outside(e, 'help')) this.showHelp(false); });
     click('btnFull', () => this.emit('fullscreen'));
     click('focusClose', () => this.emit('unfocus'));
     click('sitBtn', () => this.emit('sit'));
@@ -847,13 +866,13 @@ export class UI {
       else if (c === 'KeyM') this.emit('mute');
       else if (c === 'Enter') { if (this.room) { e.preventDefault(); this.openChat(); } else this.emit('fullscreen'); }
       else if (e.key === '?') {
-        $('help').hidden = !$('help').hidden;
+        this.showHelp($('help').hidden);
         // (the help has buttons to press: the mouse comes back for them)
         if (!$('help').hidden && document.pointerLockElement) document.exitPointerLock();
       }
       // Esc while the mouse is captured only lets the mouse go (the walker
       // does that); the next Esc closes what is open
-      else if (c === 'Escape') { if (!e.defaultPrevented && !document.pointerLockElement) { $('help').hidden = true; $('leaf').hidden = true; $('news').hidden = true; this.showPanel(null); } }
+      else if (c === 'Escape') { if (!e.defaultPrevented && !document.pointerLockElement) { this.showHelp(false); $('leaf').hidden = true; $('news').hidden = true; this.showPanel(null); } }
       else if (c === 'KeyF') { if (!$('actBtn').hidden) this.emit('act'); }
       else if (c === 'ArrowLeft' || c === 'ArrowRight') this.emit('seekKey', c === 'ArrowLeft' ? -10 : 10, e);
     });

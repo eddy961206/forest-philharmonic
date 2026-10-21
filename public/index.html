@@ -88,8 +88,8 @@
 
           <h2 class="lb-h">방 만들기</h2>
           <div class="lb-create">
-            <input id="lbTitle" maxlength="30" placeholder="방 제목 (예: 금요일 밤 클래식)">
-            <label class="lb-cap"><input id="lbCap" type="number" min="1" max="50" value="50" inputmode="numeric"> 명</label>
+            <input id="lbTitle" maxlength="30" aria-label="방 제목" placeholder="방 제목 (예: 금요일 밤 클래식)">
+            <label class="lb-cap"><input id="lbCap" type="number" min="1" max="50" value="50" inputmode="numeric" aria-label="최대 인원"> 명</label>
           </div>
           <div class="lb-vis" id="lbVis">
             <button type="button" data-pub="1" aria-pressed="true"><b>공개</b><small>방 목록에 보여요</small></button>
@@ -98,7 +98,7 @@
           <button id="lbCreate" class="btn-enter lb-go" disabled>방 만들고 입장</button>
           <details class="lb-code">
             <summary>방 코드로 들어가기</summary>
-            <div><input id="lbCode" maxlength="6" placeholder="예: K7QH2M" autocapitalize="characters" spellcheck="false"><button id="lbJoinCode" class="lb-mini" type="button" disabled>들어가기</button></div>
+            <div><input id="lbCode" maxlength="14" aria-label="방 코드 6자리" placeholder="예: K7QH2M" autocapitalize="characters" spellcheck="false"><button id="lbJoinCode" class="lb-mini" type="button" disabled>들어가기</button></div>
           </details>
         </div>
 
@@ -310,7 +310,7 @@
         <dt class="h-hall">계단</dt><dd class="h-hall">로비 양쪽 나선 계단으로 2층 · 3층 · 4층</dd>
         <dt class="h-sphere">엘리베이터</dt><dd class="h-sphere">입구 바로 뒤 엘리베이터로 100 · 200 · 300 · 400 레벨<span class="h-key"> (안에서 숫자 키 1–4)</span></dd>
         <dt class="h-key">E</dt><dd class="h-key">앞의 빈 좌석에 앉기 / 일어서기</dd>
-        <dt class="h-touch">앉기 버튼</dt><dd class="h-touch">빈 좌석 앞에 서면 나타나요</dd>
+        <dt class="h-touch">앉기 버튼</dt><dd class="h-touch">빈 좌석 앞에 서면 나타나요 · 앉으면 일어서기 (조이스틱을 밀어도 돼요)</dd>
         <dt class="h-key">휠 · 두 손가락</dt><dd class="h-key">확대 / 축소 (오페라글라스)</dd>
         <dt class="h-touch">두 손가락</dt><dd class="h-touch">벌리고 오므려 확대 / 축소 (오페라글라스)</dd>
         <dt class="h-key">두 번 클릭</dt><dd class="h-key">연주자 곁으로 가서 듣기 · 좌석에 앉기</dd>
@@ -320,7 +320,7 @@
         <dt class="h-touch">아래 줄</dt><dd class="h-touch">눌러서 곡의 그 자리로 이동</dd>
         <dt class="h-key">K</dt><dd class="h-key">공연 시작 · 재생 / 일시정지</dd>
         <dt class="h-key">N / P</dt><dd class="h-key">다음 곡 / 이전 곡</dd>
-        <dt class="h-key">← →</dt><dd class="h-key">10초 이동</dd>
+        <dt class="h-key">← →</dt><dd class="h-key">10초 이동 (앉아 있거나 편하게 보기일 때 · 걸을 때는 방향 돌리기)</dd>
         <dt class="h-key">R</dt><dd class="h-key">확대 초기화</dd>
         <dt class="h-key">H</dt><dd class="h-key">화면 표시 숨기기</dd>
         <dt class="h-key">Enter</dt><dd class="h-key">전체 화면 · 같이 보는 방에서는 채팅</dd>
@@ -402,6 +402,7 @@
           </div>
           <div class="mode-form" id="formJoin" hidden>
             <input id="bkCode" maxlength="14" aria-label="방 코드 6자리" placeholder="방 코드 (예: K7QH2M)" autocapitalize="characters" spellcheck="false">
+            <p class="booth-off" id="bkCodeNote" role="alert" hidden></p>
           </div>
           <div class="open-rooms" id="openRooms" hidden>
             <p class="booth-sub">지금 열린 공연</p>

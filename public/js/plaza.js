@@ -440,12 +440,34 @@ document.querySelectorAll('#bkVis button').forEach((b) => b.addEventListener('cl
   pub = b.dataset.pub === '1';
   document.querySelectorAll('#bkVis button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
 }));
-$('bkCode').addEventListener('input', () => { $('bkCode').value = $('bkCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); markRoom(); validate(); });
+$('bkCode').addEventListener('input', () => { $('bkCode').value = $('bkCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); $('bkCodeNote').hidden = true; markRoom(); validate(); });
 function validate() {
   const ok = booth.mode === 'solo' || booth.mode === 'create' || (booth.mode === 'join' && $('bkCode').value.length === 6);
   $('toPay').disabled = !ok;
 }
-$('toPay').addEventListener('click', () => goStep(3));
+$('toPay').addEventListener('click', async () => {
+  if (booth.mode !== 'join') { goStep(3); return; }
+  // a friend's code: is there such a room, in which building, with a seat?
+  // (asked here, not at the door after the walk; no answer: the door checks)
+  const code = $('bkCode').value;
+  const note = (text) => { $('bkCodeNote').textContent = text; $('bkCodeNote').hidden = false; };
+  $('toPay').disabled = true;
+  let r = null;
+  try {
+    const res = await Promise.race([fetch(`api/rooms/${code}`, { cache: 'no-store' }), new Promise((_, no) => setTimeout(() => no(new Error('slow')), 4000))]);
+    if (res.status === 404) r = { gone: true }; else if (res.ok) r = await res.json();
+  } catch { /* no answer */ }
+  validate();
+  if (booth.mode !== 'join' || code !== $('bkCode').value) return; // (changed meanwhile)
+  if (r?.gone) { note('그 방을 찾지 못했어요. 코드를 다시 확인해 주세요.'); return; }
+  if (r?.full) { note('그 방은 지금 가득 찼어요.'); return; }
+  if (r?.venue && VENUE_NAMES[r.venue] && r.venue !== booth.venue) {
+    // the room is in the other building: the ticket is for that one
+    booth.venue = r.venue;
+    toast(`그 방은 ${VENUE_NAMES[r.venue]}에 있어요. 그곳 표로 드릴게요.`, 3600);
+  }
+  goStep(3);
+});
 // (not while the payment is on the counter: the ticket is already coming)
 document.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => { if (!paying) goStep(Number(b.dataset.back)); }));
 

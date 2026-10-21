@@ -748,6 +748,10 @@ async function endOfPiece() {
     stage.exitAll();
     if (!(await until(() => stage.allOffstage, tok, 60000))) return;
     if (!(await wait(4000, tok))) return;
+    // the next evening waits until tonight's leaf is put away (in a room,
+    // not for longer than a minute: the others are waiting too)
+    const leafCard = document.getElementById('leaf');
+    if (!(await until(() => !leafCard || leafCard.hidden, tok, room ? 60000 : 1e9))) return;
   } else if (!(await wait(Math.max(2, settings.gap) * 1000, tok))) return;
   runConcert(next);
 }
@@ -1098,10 +1102,13 @@ function encoreShow() {
 }
 
 function encoreUi(state) {
-  if (state !== null || !encore) return;
+  if (state !== null) return;
+  // the fireflies fly off again (also after a count, which has already put
+  // the lanterns down)
+  effects.gather(0);
+  if (!encore) return;
   encore = null;
   ui.encore(null);
-  effects.gather(0);
 }
 
 // the host (or alone): ask, wait, count. The winner's index, -1 for none, or
@@ -1113,6 +1120,7 @@ async function encoreVote(tok) {
   const endsAt = clockNow() + 14;
   encore = { cands, candMeta: cands.map((i) => program[i]), until: endsAt, votes: new Map(), mine: -1 };
   closeRecital();
+  director.releaseLock(); // (the lanterns are clicked: the mouse is let go)
   setPhase('encore');
   hall.setHouseLights(0.2);
   spot.set(null);
@@ -1159,6 +1167,7 @@ function guestEncore(ev, fresh = false) {
     playTok++;
     closeRecital();
     encore = { cands: ev.c, candMeta: ev.c.map((i) => program[i]), until: ev.u, votes: null, mine: -1, counts: ev.n };
+    director.releaseLock();
     setPhase('encore');
     hall.setHouseLights(0.2);
     spot.set(null);

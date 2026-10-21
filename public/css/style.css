@@ -956,6 +956,12 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
   body:has(#focusChip:not([hidden])):has(#intervalChip:not([hidden])) .now,
   body:has(#focusChip:not([hidden])):has(#recitalChip:not([hidden])) .now { opacity: 0; }
 }
+/* (a 320-wide phone: a smaller stick, the jump button clear of it and of 앉기) */
+@media (max-width: 340px) and (min-height: 501px) {
+  #joystick { width: 108px; height: 108px; left: 12px; }
+  #joyKnob { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+  .jump-btn { width: 58px; height: 58px; right: calc(max(22px, env(safe-area-inset-right)) + 92px); }
+}
 /* (a tablet: the encore above the thumb stick and the jump button) */
 @media (min-width: 761px) and (min-height: 700px) { html.touch .encore { bottom: 290px; } }
 /* ---- end of the venue HUD layout pass ---- */

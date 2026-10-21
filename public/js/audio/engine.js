@@ -40,7 +40,7 @@ const ENV = {
 };
 
 // Desks per section (beside the section's own sound): [desktop, phone]
-const DESKS = { vn1: [2, 1], vn2: [2, 1], va: [2, 0], vc: [2, 1], cb: [1, 0], choir: [2, 1], hn: [1, 0] };
+const DESKS = { vn1: [2, 1], vn2: [2, 0], va: [2, 0], vc: [2, 1], cb: [1, 0], choir: [2, 1], hn: [1, 0] };
 const DESK_GAIN = 0.62;
 
 // Rooms a venue can ask for by name (merged over its acoustics)
@@ -365,7 +365,7 @@ export class AudioEngine {
           // every sample - a desk does not need that)
           const pn = new StereoPannerNode(ctx, { pan: 0 });
           air.connect(delay).connect(g).connect(pn).connect(this.musicDry);
-          delay.connect(send);
+          delay.connect(new GainNode(ctx, { gain: level })).connect(send);
           desks.push({ delay, lfo, g, pan: pn, pos: p, level });
         }
       }

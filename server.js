@@ -10,7 +10,7 @@ import path from 'node:path';
 import os from 'node:os';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
-import { attachRooms, publicRooms } from './server/rooms.js';
+import { attachRooms, publicRooms, roomLookup } from './server/rooms.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const PORT = Number(process.env.PORT || 8080);
@@ -45,6 +45,11 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     const url = new URL(req.url, 'http://x');
+    if (url.pathname.startsWith('/api/rooms/')) {
+      const r = roomLookup(url.pathname.slice(11).replace(/[^A-Za-z0-9]/g, '').slice(0, 6));
+      res.writeHead(r ? 200 : 404, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(JSON.stringify(r || { error: 'notfound' }));
+      return;
+    }
     if (url.pathname === '/api/rooms') {
       const body = JSON.stringify(publicRooms());
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(body);
