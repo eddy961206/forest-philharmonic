@@ -1914,7 +1914,7 @@ function frame() {
   orchestra.syncLite();
   renderer.shadowMap.needsUpdate = QUALITY[quality].shadows;
   // Keep IMAG current through its fade-out, then stop rendering the unseen feed.
-  const wantsScreen = settings.screen && concertStarted && (!IS_SPHERE || hall.dome.liveActive);
+  const wantsScreen = settings.screen && concertStarted && (IS_SPHERE ? hall.dome.liveActive : screenInView());
   if (wantsScreen) {
     if (!screenActive) screen.invalidate();
     screen.update(dt, { perf, time: t, phase, nextPiece }, QUALITY[quality].screenEvery);
@@ -1998,6 +1998,17 @@ function autoQuality(fps) {
   let change = null;
   for (let n = 0; n < frames; n++) change = sampleQuality(frameMs) || change;
   return change;
+}
+
+// A feed hidden behind the visitor or the foyer wall needs no second scene
+// render. screenActive/invalidate refreshes it immediately on re-entry, even
+// at the low preset's 90-frame cadence. Never capture a foyer-culled house.
+const _screenBox = IS_SPHERE ? null : new THREE.Box3().setFromObject(screen.group);
+function screenInView() {
+  if (!interiorShown) return false;
+  camera.updateMatrixWorld();
+  _frustum.setFromProjectionMatrix(_pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  return _frustum.intersectsBox(_screenBox);
 }
 
 // The hall from the foyer: the house (thousands of seats and guests, drawn

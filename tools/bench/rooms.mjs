@@ -3,7 +3,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import { config, launchBrowser, configureFonts, viewport } from './browser.mjs';
+import { appURL, config, launchBrowser, configureFonts, viewport } from './browser.mjs';
 import { loopbackURL } from './loading-proxy.mjs';
 
 const [label = 'current', venue = 'hall', mode = 'cross'] = process.argv.slice(2);
@@ -78,9 +78,19 @@ async function frame(page) {
 try {
   const host = await makePage('host');
   const guest = await makePage('guest');
-  await host.goto(`${origin}/?venue=${venue}`, { waitUntil: 'domcontentloaded' });
+  await host.goto(appURL(`${origin}/`, venue), { waitUntil: 'domcontentloaded' });
   await ready(host);
   status('host-ready');
+  if (await host.locator('#lbAnimal').count()) {
+    result.checks.fixedIdentity = await host.evaluate(() => ({
+      stored: JSON.parse(localStorage.getItem('fp-identity') || 'null'),
+      animalLabel: document.getElementById('lbAnimal').textContent,
+      avatarSelectors: document.querySelectorAll('select#lbAvatar').length,
+    }));
+    assert.ok(result.checks.fixedIdentity.stored?.avatar);
+    assert.ok(result.checks.fixedIdentity.animalLabel.trim());
+    assert.equal(result.checks.fixedIdentity.avatarSelectors, 0);
+  } else result.checks.fixedIdentity = { status: 'NOT_APPLICABLE', reason: 'Reference predates plaza identity' };
   await host.locator('#lbName').fill('QA HOST');
   await host.locator('#lbTitle').fill('LOCAL PRIVATE UI QA');
   await host.locator('#lbCap').fill('3');

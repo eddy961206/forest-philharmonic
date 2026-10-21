@@ -14,11 +14,11 @@ choice(device, ['desktop', 'mobile'], 'device');
 const mode = choice(process.env.MODE || 'sync', ['sync', 'cadence'], 'MODE');
 if (quality === 'auto' && mode !== 'cadence') throw new Error('자동 품질은 MODE=cadence로만 관찰해. 고정 품질 비교에는 수동 프리셋을 써 줘.');
 const names = scenarioList.split(',');
-const available = ['front', 'mid', 'wide', 'foyer', 'rotate', 'broadcast', 'dome', 'forest', 'peaks', 'crossfade', 'reveal', 'effects-peak', 'effects-show'];
+const available = ['front', 'mid', 'wide', 'foyer', 'rotate', 'broadcast', 'broadcast-hidden', 'broadcast-return', 'dome', 'forest', 'peaks', 'ocean', 'clouds', 'crossfade', 'reveal', 'effects-peak', 'effects-show'];
 for (const name of names) choice(name, available, 'scenario');
 if (new Set(names).size !== names.length) throw new Error('시나리오 이름이 중복됐어.');
 if (names.some((name, i) => ['effects-peak', 'effects-show'].includes(name) && i !== names.length - 1)) throw new Error('effects-peak/effects-show는 시퀀스의 마지막에 놓아 줘. 남은 파티클이 다음 장면의 부하를 바꿀 수 있어.');
-if (venue !== 'sphere' && names.some(n => ['dome', 'forest', 'peaks', 'crossfade', 'reveal'].includes(n))) throw new Error('돔 시나리오는 sphere에서 실행해 줘.');
+if (venue !== 'sphere' && names.some(n => ['dome', 'forest', 'peaks', 'ocean', 'clouds', 'crossfade', 'reveal'].includes(n))) throw new Error('돔 시나리오는 sphere에서 실행해 줘.');
 const cfg = config(label);
 const size = viewport(device, device === 'mobile' ? { width: 390, height: 844 } : { width: 640, height: 360 });
 const samplesPerScenario = integer(process.env.SAMPLES, 'SAMPLES', 12);
@@ -29,6 +29,8 @@ const result = {
   label, revision: cfg.revision, baseURL: cfg.baseURL, venue, quality, device,
   viewport: [size.width, size.height], devicePixelRatio: size.dpr, samplesPerScenario, warmupFrames, scenarioOrder: names,
   fixtureSourceSha256: sha256(fixture),
+  collectorSourceSha256: sha256(await fs.readFile(new URL(import.meta.url))),
+  helperSourceSha256: sha256(await fs.readFile(new URL('./browser.mjs', import.meta.url))),
   screenshots: cfg.screenshots,
   fixturePolicy: {
     piece: 'beethoven-ode-to-joy', musicTime: '25 s; broadcast 5 s; advances 1/60 s per measured step',
@@ -98,6 +100,7 @@ try {
     const scenario = await page.evaluate(name => window.__bench.scenario(name), name);
     console.log(JSON.stringify({ label, name, stage: 'warmup' }));
     for (let i = 0; i < warmupFrames; i++) await page.evaluate(() => window.__bench.step(true));
+    const metricsBefore = (await cdp.send('Performance.getMetrics')).metrics;
     let samples;
     if (mode === 'cadence') {
       // Playwright's default timeout does not bound page.evaluate promises.
@@ -131,13 +134,21 @@ try {
       for (let i = 0; i < samplesPerScenario; i++) samples.push(await page.evaluate(() => window.__bench.step(true)));
     }
     const summary = summarize(samples, mode === 'sync' ? 'completeMs' : 'cadenceMs');
-    result.scenarios[name] = { scenario, samples, ...summary, cdpMetricsSnapshot: (await cdp.send('Performance.getMetrics')).metrics };
+    const metricsAfter = (await cdp.send('Performance.getMetrics')).metrics;
+    const beforeByName = Object.fromEntries(metricsBefore.map(m => [m.name, m.value]));
+    const afterByName = Object.fromEntries(metricsAfter.map(m => [m.name, m.value]));
+    const cdpDurationDeltaMs = Object.fromEntries(['TaskDuration', 'ScriptDuration', 'LayoutDuration', 'RecalcStyleDuration'].map(key =>
+      [key, Number.isFinite(beforeByName[key]) && Number.isFinite(afterByName[key]) ? (afterByName[key] - beforeByName[key]) * 1000 : null]));
+    result.scenarios[name] = { scenario, samples, ...summary, cdpMetricsBefore: metricsBefore, cdpMetricsSnapshot: metricsAfter, cdpDurationDeltaMs,
+      cdpInterpretation: 'Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time.' };
     if (samples.some(s => s.glError || s.contextLost)) throw new Error(`${name}: WebGL 오류가 생겼어.`);
     await save(cfg, filename, result);
     if (cfg.screenshots) await page.locator('#stage canvas').screenshot({ path: path.join(cfg.outputDir, `${label}-full-${venue}-${quality}-${device}-${mode}-${name}.png`) });
     console.log(JSON.stringify({ label, name, ...summary.timing, calls: summary.meanCalls, triangles: summary.meanTriangles }));
   }
   result.longTasks = await page.evaluate(() => window.__longTasks);
+  result.sourceHashesAfter = await sourceHashes(page, cfg.baseURL);
+  if (JSON.stringify(result.sourceHashesAfter) !== JSON.stringify(result.sourceHashes)) throw new Error('Served source changed during this benchmark; exclude and rerun.');
   result.status = diagnosticsFailed(session.diagnostics) ? 'FAIL' : 'PASS';
 } catch (error) {
   result.status = 'FAIL'; result.failure = { message: error.message, stack: error.stack };

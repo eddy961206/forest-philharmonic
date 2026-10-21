@@ -4,7 +4,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import { config, launchBrowser, sha256 } from './browser.mjs';
+import { appURL, config, launchBrowser, sha256 } from './browser.mjs';
 import { browserOptions, localAppProxy, installRuntimeProbe, waitReady, networkCollector, networkSummary, category, browserState } from './loading-proxy.mjs';
 
 const args = process.argv.slice(2);
@@ -69,7 +69,7 @@ try {
   });
   await installRuntimeProbe(page, quality);
   const network = await networkCollector(page, device === 'mobile');
-  const url = proxy.origin + '/?venue=' + venue;
+  const url = appURL(proxy.origin, venue);
   for (const name of ['cold', 'warm']) {
     if (name === 'warm') await page.goto('about:blank', { waitUntil: 'load' });
     network.reset();

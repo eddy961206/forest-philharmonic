@@ -310,6 +310,18 @@ async function runCase({ venue, device }) {
     }));
     if (mobile) assert.ok(report.checks.device.maxTouchPoints > 0);
     log('ready');
+    // The plaza fixes the animal on first visit. Only the name can change;
+    // never recreate the removed avatar selector in a functional fixture.
+    if (await page.locator('#lbAnimal').count()) {
+      report.checks.identity = await page.evaluate(() => ({
+        stored: JSON.parse(localStorage.getItem('fp-identity') || 'null'),
+        animalLabel: document.getElementById('lbAnimal').textContent,
+        avatarSelectors: document.querySelectorAll('select#lbAvatar').length,
+      }));
+      assert.ok(report.checks.identity.stored?.avatar, 'A persistent animal identity was created');
+      assert.ok(report.checks.identity.animalLabel.trim(), 'The fixed animal is shown in the lobby');
+      assert.equal(report.checks.identity.avatarSelectors, 0, 'The animal is not presented as an editable selector');
+    } else report.checks.identity = { status: 'NOT_APPLICABLE', reason: 'Reference predates fixed plaza identity' };
     await activate(page.getByRole('button', { name: '혼자 보기', exact: true }));
     await page.waitForFunction(() => !document.getElementById('splash') && window.__fp.director.active, null, { polling: 100 });
     await page.waitForFunction(() => window.__fp.engine.ctx.state === 'running', null, { polling: 100 });

@@ -31,7 +31,8 @@ window.__bench={
     director.active=false;
     audience?.dispose();
     const big=IS_SPHERE?{detail:LITE?80:220,mid:LITE?0:900,cap:LITE?2500:Infinity}:{};
-    audience=buildAudience(hall.seats,{lite:LITE,rand:seeded(417),fill:.8,...big});
+    const audienceSeats=hall.seats.filter(s=>!s.stage);
+    audience=buildAudience(audienceSeats,{lite:LITE,rand:seeded(417),fill:.8,...big});
     scene.add(audience.group);refreshOccupied();
     benchWrap(audience,'updateLOD','audienceLOD');
     hall.setHouseLights(.12);
@@ -39,20 +40,21 @@ window.__bench={
     renderer.info.autoReset=false;
     if(fx)benchWrap(fx,'update','fx');
     document.getElementById('splash')?.remove();
-    return {crowd:audience.count,seats:hall.seats.length,lite:LITE,piece:perf.piece.id};
+    return {crowd:audience.count,seats:hall.seats.length,eligibleAudienceSeats:audienceSeats.length,recitalSeats:hall.seats.filter(s=>s.stage).length,lite:LITE,piece:perf.piece.id,sceneState:{phase,asleep:!!window.__fp.asleep,interval:!!window.__fp.interval,recital:!!window.__fp.recital?.on,practice:!!window.__fp.practice?.on,hush:typeof hush==='undefined'?null:hush,sleepy:typeof sleepy==='undefined'?null:sleepy,seatGroupVisible:hall.seatGroup?.visible??null,audienceVisible:audience.group.visible}};
   },
   scenario(name){
-    window.__resetRandom();benchIndex=0;benchRotate=name==='rotate';wallT=20;benchT=name==='broadcast'?5:25;
+    window.__resetRandom();benchIndex=0;benchRotate=name==='rotate';wallT=20;benchT=name.startsWith('broadcast')?5:25;
     perf._resetVisual(benchT);levelSmoothed=0;
     benchPose=IS_SPHERE?[[0,19,34],[0,3,-6]]:[[0,4,16],[0,3,-6]];
     if(name==='front')benchPose=[[0,1.75,5],[0,2,-7]];
     if(name==='wide')benchPose=IS_SPHERE?[[0,44,62],[0,3,-6]]:[[0,22,30],[0,4,-4]];
     if(name==='foyer')benchPose=[[0,6,40.4],[0,6,30]];
+    if(name==='broadcast-hidden')benchPose=[[0,6,40.4],[0,6,48]];
     if(name==='dome')benchPose=[[0,19,34],[0,65,-15]];
-    settings.screen=name==='broadcast';screen.setEnabled(settings.screen);
+    settings.screen=name.startsWith('broadcast');screen.setEnabled(settings.screen);
     if(hall.dome){
       hall.dome.showLive(name==='broadcast');
-      const world=name==='forest'||name==='crossfade'?'FOREST3D':name==='peaks'?'PEAKS3D':name==='dome'?'AURORA':'ARCH';
+      const world=name==='forest'||name==='crossfade'?'FOREST3D':name==='peaks'?'PEAKS3D':name==='ocean'?'OCEAN3D':name==='clouds'?'CLOUDS3D':name==='dome'?'AURORA':'ARCH';
       hall.dome.go(world,{dur:.001});hall.dome.update(2);
       if(name==='crossfade') {hall.dome.go('PEAKS3D',{dur:60,reveal:false});hall.dome.update(30);}
       if(name==='reveal'){hall.dome.go('FOREST3D',{dur:60,reveal:true});hall.dome.update(30);}
@@ -84,6 +86,7 @@ window.__bench={
   },
   step(complete=true){
     if(document.hidden)throw new Error('Benchmark page is hidden; keep the tab visible and rerun.');
+    if(window.__fp.asleep)throw new Error('Benchmark app is asleep; wake it before measuring.');
     for(const key in benchTimes)benchTimes[key]=0;
     if(settings.quality!=='auto')lastNow=performance.now()-1000/60;
     renderer.info.reset();
@@ -93,7 +96,7 @@ window.__bench={
     const gl=renderer.getContext();
     if(complete)gl.readPixels(0,0,1,1,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(4));
     const end=performance.now();benchIndex++;benchT+=1/60;
-    return {completeMs:complete?end-start:null,submitMs:submit-start,completionWaitMs:complete?end-submit:null,completed:complete,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,times:{...benchTimes},geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,heap:performance.memory?.usedJSHeapSize??null,quality,renderScale,visibility:document.visibilityState,glError:gl.getError(),contextLost:gl.isContextLost()};
+    return {completeMs:complete?end-start:null,submitMs:submit-start,completionWaitMs:complete?end-submit:null,completed:complete,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,times:{...benchTimes},geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,heap:performance.memory?.usedJSHeapSize??null,quality,renderScale,visibility:document.visibilityState,asleep:!!window.__fp.asleep,glError:gl.getError(),contextLost:gl.isContextLost()};
   },
   meta(){const gl=renderer.getContext(),e=gl.getExtension('WEBGL_debug_renderer_info');return {renderer:e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):null,gpuTimer:!!gl.getExtension('EXT_disjoint_timer_query_webgl2'),pixelRatio:renderer.getPixelRatio(),viewport:[innerWidth,innerHeight],quality,renderScale,hardwareConcurrency:navigator.hardwareConcurrency,userAgent:navigator.userAgent};}
 };

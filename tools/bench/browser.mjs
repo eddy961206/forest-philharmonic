@@ -52,6 +52,9 @@ export function viewport(device, defaults) {
 export function appURL(baseURL, venue) {
   const url = new URL(baseURL);
   url.searchParams.set('venue', venue);
+  // The supported direct-entry lobby keeps a deterministic venue benchmark
+  // separate from the plaza/ticket flow, which plaza.mjs exercises through UI.
+  url.searchParams.set('lobby', '');
   return url.href;
 }
 
@@ -141,7 +144,7 @@ export async function openPage(cfg, device, size) {
 // REVISION is an operator-supplied label. These hashes separately record the
 // bytes actually served; requesting them does not alter either checkout.
 export async function sourceHashes(page, baseURL) {
-  const names = ['js/main.js', 'js/scene/hall.js', 'js/scene/seats.js', 'js/scene/audience.js', 'js/scene/sphere.js', 'js/scene/dome3d.js', 'js/scene/domeshow.js'];
+  const names = ['js/boot.js', 'js/main.js', 'js/quality.js', 'js/scene/hall.js', 'js/scene/seats.js', 'js/scene/audience.js', 'js/scene/screen.js', 'js/scene/sphere.js', 'js/scene/dome3d.js', 'js/scene/domeshow.js', 'js/audio/engine.js', 'js/audio/performance.js'];
   return Object.fromEntries(await Promise.all(names.map(async name => {
     const response = await page.request.get(new URL(name, baseURL).href);
     return [name, response.ok() ? { sha256: sha256(await response.body()) } : { httpStatus: response.status() }];

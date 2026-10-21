@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { config, launchBrowser } from './browser.mjs';
+import { appURL, config, launchBrowser } from './browser.mjs';
 import { browserOptions, localAppProxy, installRuntimeProbe, waitReady, networkCollector, networkSummary, browserState } from './loading-proxy.mjs';
 
 const [label = 'current', venue = 'hall', device = 'desktop', seconds = '65'] = process.argv.slice(2);
@@ -46,7 +46,7 @@ try {
   });
   await installRuntimeProbe(page, quality);
   const network = await networkCollector(page, device === 'mobile');
-  await page.goto(proxy.origin + '/?venue=' + venue, { waitUntil: 'domcontentloaded' });
+  await page.goto(appURL(proxy.origin, venue), { waitUntil: 'domcontentloaded' });
   await waitReady(page, cfg.timeoutMs);
   result.boot = await browserState(page);
   assert.equal(result.boot.sampleCount, device === 'mobile' ? 207 : 389);
