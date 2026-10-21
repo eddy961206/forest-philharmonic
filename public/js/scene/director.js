@@ -14,6 +14,10 @@ const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 export const ENTRANCE = { pos: V(ENTRY.pos.x, ENTRY.pos.y, ENTRY.pos.z), look: V(ENTRY.look.x, ENTRY.look.y, ENTRY.look.z) };
 const EYE = 1.62;
 const BODY = 0.24; // keep this far from walls and railings
+// and never closer than this to a wall on any side: the camera's near plane
+// would cut into it and show what is behind
+const WALL_R = 0.2;
+const RING = [0, 1, 2, 3, 4, 5, 6, 7].map((k) => [Math.cos((k * Math.PI) / 4), Math.sin((k * Math.PI) / 4)]);
 const GRAVITY = 9.8;
 const JUMP_SPEED = 4.7; // about 1.1 m: enough to swing over a railing
 
@@ -434,7 +438,26 @@ export class Director {
       if (mv.lengthSq() > 1) mv.normalize();
       mv.multiplyScalar(speed);
       this.vel.lerp(mv, 1 - Math.exp(-dt * 10));
+      const px = this.pos.x;
+      const pz = this.pos.z;
       this._move(this.vel.x * dt, this.vel.z * dt);
+      // a safety net: trying to walk but not moving at all for a while means
+      // a nook nobody can walk out of - step out to open floor
+      if (mv.lengthSq() > 0.25 && this.grounded && Math.hypot(this.pos.x - px, this.pos.z - pz) < 1e-3) {
+        this._stuckT = (this._stuckT || 0) + dt;
+        // (pushing into a wall is not stuck: any other way still opens)
+        if (this._stuckT > 0.4) { this._stuckT = 0; if (!this._canStep()) this._unstick(); }
+      } else this._stuckT = 0;
+      // ... and walking for a while without getting anywhere: a small closed
+      // pocket (quick look round with big steps first)
+      if (mv.lengthSq() > 0.25 && this.grounded) {
+        const w = (this._wiggle ||= { x: this.pos.x, z: this.pos.z, t: 0 });
+        if (Math.hypot(this.pos.x - w.x, this.pos.z - w.z) > 0.6) { w.x = this.pos.x; w.z = this.pos.z; w.t = 0; } else w.t += dt;
+        if (w.t > 1.2) {
+          w.t = 0;
+          if (this._enclosed(this.pos.x, this.pos.z, this.feet, 80, 0.25, 1.0)) this._unstick();
+        }
+      } else if (this._wiggle) this._wiggle.t = 0;
       this._fall(dt);
       // eyes follow the feet; stairs feel like steps, not a ramp; in the
       // air they follow exactly, and a landing gives a little dip
@@ -454,6 +477,30 @@ export class Director {
     this._applyFov(dt);
   }
 
+  // how far the nearest wall is (up to WALL_R) in each of eight directions
+  _wallDists(x, z, up) {
+    const d = [];
+    const blocked = (r, ox, oz) => {
+      const px = x + ox * r;
+      const pz = z + oz * r;
+      const g = groundBelow(px, pz, this.feet, up);
+      if (g === undefined || g === null) return true;
+      // a barrier taller than us is a wall too (a rail is not)
+      const b = barrierTop(px, pz, this.feet);
+      return b !== null && b - this.feet > 2.0;
+    };
+    for (const [ox, oz] of RING) {
+      // (most places have no wall within reach: one probe; else find how near)
+      let w = Infinity;
+      if (blocked(WALL_R, ox, oz)) {
+        w = WALL_R;
+        for (const r of [0.05, 0.1, 0.15]) if (blocked(r, ox, oz)) { w = r; break; }
+      }
+      d.push(w);
+    }
+    return d;
+  }
+
   // try the move, then slide along whatever stopped us
   // Walk: step up stairs, stop at walls and railings, and walk off any
   // edge without one - then gravity takes over (see _fall).
@@ -461,20 +508,27 @@ export class Director {
     const d = Math.hypot(dx, dz);
     if (d < 1e-6) return;
     const up = this.grounded ? 0.45 : 0.08;
-    const ok = (x, z) => {
+    const ok = (x, z, ring = true) => {
       const g = groundBelow(x, z, this.feet, up);
       if (g === undefined || g === null) return false; // a wall, or the face of a higher floor
       if (barrierTop(x, z, this.feet) !== null) return false; // a railing
       if (this._seatAt(x, z)) return false; // a seat (squeeze along the row instead)
-      return headroomAt(x, z, this.feet) > this.feet + 1.75; // no slab at head height
+      if (!(headroomAt(x, z, this.feet) > this.feet + 1.75)) return false; // no slab at head height
+      // never closer to a wall than WALL_R - or, if already closer (after a
+      // fall), no closer than we are: stepping away is always allowed
+      if (!ring) return true;
+      const near = this._wallDists(x, z, up);
+      for (let k = 0; k < 8; k++) if (near[k] < Math.min(WALL_R, here[k]) - 1e-3) return false;
+      return true;
     };
+    const here = this._wallDists(this.pos.x, this.pos.z, up);
     const tryAt = (mx, mz) => {
       const l = Math.hypot(mx, mz);
       if (l < 1e-6) return false;
       const nx = this.pos.x + mx;
       const nz = this.pos.z + mz;
       // probe a body-width ahead so we stop short of walls and railings
-      if (!ok(nx + (mx / l) * BODY, nz + (mz / l) * BODY) || !ok(nx, nz)) return false;
+      if (!ok(nx + (mx / l) * BODY, nz + (mz / l) * BODY, false) || !ok(nx, nz)) return false;
       this.pos.x = nx;
       this.pos.z = nz;
       if (this.grounded) {
@@ -501,7 +555,7 @@ export class Director {
         // seats in a row are boxed along the row (they turn a little toward
         // the stage, but the legroom between rows follows the row)
         const a = s.rowSlope !== undefined ? -Math.atan(s.rowSlope) : s.yaw;
-        g.get(k).push({ s, c: Math.cos(a), n: Math.sin(a), hw: s.type === 'premium' ? 0.32 : s.type === 'armchair' ? 0.28 : 0.27 });
+        g.get(k).push({ s, c: Math.cos(a), n: Math.sin(a), hw: s.type === 'premium' ? 0.32 : s.type === 'armchair' ? 0.28 : 0.27, back: Math.max(0.3, s.backLen ?? 0.3) });
       }
       this._seatGrid = g;
     }
@@ -519,7 +573,7 @@ export class Director {
           const dz = z - s.z;
           const lx = dx * q.c - dz * q.n;
           const lz = dx * q.n + dz * q.c;
-          if (Math.abs(lx) < q.hw + R && lz > -0.22 - R && lz < 0.3 + R) return true; // cushion front .. back shell
+          if (Math.abs(lx) < q.hw + R && lz > -0.22 - R && lz < q.back + R) return s; // cushion front .. back shell (or the riser behind)
         }
       }
     }
@@ -542,6 +596,102 @@ export class Director {
       this.vy = 0;
       this.grounded = true;
       this.pos.y = this.feet + EYE;
+      // a fall from high up can end where nobody could walk out
+      if (prev - g > 0.4 || this._seatAt(this.pos.x, this.pos.z)) this._unstick();
+    }
+  }
+
+  // Can a walker get out of here? Explore a little with the real step; a
+  // closed nook (inside a seat, a corner between a seat, a rail and the row
+  // behind) runs out of places long before the limit.
+  _enclosed(x0, z0, f0, limit = 240, step = 0.15, reach = Infinity) {
+    const save = { x: this.pos.x, y: this.pos.y, z: this.pos.z, feet: this.feet, g: this.grounded, vy: this.vy, vel: this.vel.clone() };
+    const key = (x, z, f) => `${Math.round(x / 0.1)},${Math.round(z / 0.1)},${Math.round(f * 20)}`;
+    const seen = new Set([key(x0, z0, f0)]);
+    const q = [[x0, z0, f0]];
+    let open = false;
+    for (let i = 0; i < q.length && !open; i++) {
+      const [x, z, f] = q[i];
+      for (let k = 0; k < 12; k++) {
+        const a = (k / 12) * Math.PI * 2;
+        this.pos.set(x, f + EYE, z);
+        this.feet = f;
+        this.grounded = true;
+        this.vy = 0;
+        this._move(Math.cos(a) * step, Math.sin(a) * step);
+        if (!this.grounded) { open = true; break; } // it can step off an edge
+        if (Math.hypot(this.pos.x - x0, this.pos.z - z0) > reach) { open = true; break; }
+        const kk = key(this.pos.x, this.pos.z, this.feet);
+        if (seen.has(kk)) continue;
+        seen.add(kk);
+        q.push([this.pos.x, this.pos.z, this.feet]);
+        if (q.length > limit) { open = true; break; }
+      }
+    }
+    this.pos.set(save.x, save.y, save.z);
+    this.feet = save.feet;
+    this.grounded = save.g;
+    this.vy = save.vy;
+    this.vel.copy(save.vel);
+    return !open;
+  }
+
+  // can we take a step in any direction from here?
+  _canStep() {
+    const save = { x: this.pos.x, y: this.pos.y, z: this.pos.z, feet: this.feet, g: this.grounded, vy: this.vy, vel: this.vel.clone() };
+    let ok = false;
+    for (let k = 0; k < 12 && !ok; k++) {
+      const a = (k / 12) * Math.PI * 2;
+      this.pos.set(save.x, save.y, save.z);
+      this.feet = save.feet;
+      this.grounded = true;
+      this._move(Math.cos(a) * 0.1, Math.sin(a) * 0.1);
+      ok = Math.hypot(this.pos.x - save.x, this.pos.z - save.z) > 0.005;
+    }
+    this.pos.set(save.x, save.y, save.z);
+    this.feet = save.feet;
+    this.grounded = save.g;
+    this.vy = save.vy;
+    this.vel.copy(save.vel);
+    return ok;
+  }
+
+  // closed in after a fall: step out to the legroom of the nearest seat, or
+  // the nearest open floor around
+  _unstick() {
+    const x0 = this.pos.x;
+    const z0 = this.pos.z;
+    const f0 = this.feet;
+    if (!this._seatAt(x0, z0) && !this._enclosed(x0, z0, f0)) return;
+    const cands = [];
+    let best = null;
+    let bd = 2.5;
+    for (const s of this.hall.seats) {
+      if (Math.abs(s.x - x0) > 2.5 || Math.abs(s.z - z0) > 2.5 || Math.abs(s.y - f0) > 1.2) continue;
+      const d = Math.hypot(s.x - x0, s.z - z0);
+      if (d < bd) { bd = d; best = s; }
+    }
+    if (best) cands.push(this._freeSpotNear(best));
+    for (let rad = 0.3; rad <= 3.01; rad += 0.3) {
+      for (let k = 0; k < 16; k++) {
+        const a = (k / 16) * Math.PI * 2;
+        const x = x0 + Math.cos(a) * rad;
+        const z = z0 + Math.sin(a) * rad;
+        const g = groundBelow(x, z, f0 + 1.0, 1.5);
+        if (g === undefined || g === null || Math.abs(g - f0) > 1.0) continue;
+        cands.push({ x, y: g, z });
+      }
+    }
+    for (const c of cands) {
+      this.feet = c.y;
+      const clear = !this._seatAt(c.x, c.z) && barrierTop(c.x, c.z, c.y) === null && headroomAt(c.x, c.z, c.y) > c.y + 1.75;
+      this.feet = f0;
+      if (!clear || this._enclosed(c.x, c.z, c.y)) continue;
+      this.feet = c.y;
+      this.pos.set(c.x, c.y + EYE, c.z);
+      this.vy = 0;
+      this.grounded = true;
+      return;
     }
   }
 

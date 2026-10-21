@@ -10,7 +10,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { M, glowTexture, phys } from './materials.js';
 import { STAGE_Y, PODIUM } from '../layout.js';
 import {
-  HALL, rakeY, lipZ, SHELL, shellPoint, DOORS, RISERS, PODIUM_R, PODIUM_H, STAGE_STAIRS,
+  HALL, rakeY, lipZ, SHELL, shellPoint, DOORS, RISERS, PODIUM_R, PODIUM_H, STAGE_STAIRS, PROS_COLUMNS,
   BALCONIES, BALCONY_AISLES, AISLE_HALF, balconyZ, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, BOX_DAIS_X, BOX_DAIS_H,
   rowFloorY, treadStart,
 } from './hallplan.js';
@@ -413,7 +413,9 @@ export function buildStage(group, S = HALL_STYLE) {
 
 // ================================================================= shell
 export function buildShell(group, S = HALL_STYLE) {
-  const top = STAGE_Y + SHELL.height;
+  // (an arena keeps it low, so the seats round the sides see in over it)
+  const height = S.shellHeight ?? SHELL.height;
+  const top = STAGE_Y + height;
   const doorHalf = (SHELL.doorW / 2) / SHELL.R;
   // sample the arc, splitting exactly at the door jambs
   const angles = [];
@@ -436,17 +438,22 @@ export function buildShell(group, S = HALL_STYLE) {
     const pb = shellPoint(b, R);
     const door = inDoor((a + b) / 2);
     const y0 = door ? STAGE_Y + SHELL.doorH : STAGE_Y;
-    panels.push(wallSeg(pa, pb, y0, top, T));
-    caps.push(wallSeg(shellPoint(a, R + 0.05), shellPoint(b, R + 0.05), top, top + 0.16, T + 0.25));
-    giltG.push(wallSeg(shellPoint(a, R - 0.12), shellPoint(b, R - 0.12), top - 0.05, top + 0.02, 0.06));
+    // past the doors the sides may step down to a low wall (S.shellSides)
+    const am = Math.abs((a + b) / 2);
+    const past = (am - (SHELL.doorA + doorHalf + 0.05)) / 0.1;
+    const segTop = S.shellSides && past > 0 ? STAGE_Y + Math.max(S.shellSides, height - Math.min(1, past) * (height - S.shellSides)) : top;
+    panels.push(wallSeg(pa, pb, y0, segTop, T));
+    caps.push(wallSeg(shellPoint(a, R + 0.05), shellPoint(b, R + 0.05), segTop, segTop + 0.16, T + 0.25));
+    giltG.push(wallSeg(shellPoint(a, R - 0.12), shellPoint(b, R - 0.12), segTop - 0.05, segTop + 0.02, 0.06));
     if (!door) {
       skirt.push(wallSeg(shellPoint(a, R - 0.12), shellPoint(b, R - 0.12), STAGE_Y, STAGE_Y + 0.22, 0.05));
       giltG.push(wallSeg(shellPoint(a, R - 0.13), shellPoint(b, R - 0.13), STAGE_Y + 1.02, STAGE_Y + 1.06, 0.05));
     }
     // a slim gilt fillet at every other joint
-    if (i % 2 === 0 && !door && !inDoor(a + 1e-3)) {
+    if (i % 2 === 0 && !door && !inDoor(a + 1e-3) && segTop - STAGE_Y > 0.8) {
       const p = shellPoint(a, R - 0.12);
-      giltG.push(new THREE.BoxGeometry(0.035, SHELL.height - 0.4, 0.035).translate(p.x, STAGE_Y + SHELL.height / 2 + 0.1, p.z));
+      const hh = segTop - STAGE_Y;
+      giltG.push(new THREE.BoxGeometry(0.035, hh - 0.4, 0.035).translate(p.x, STAGE_Y + hh / 2 + 0.1, p.z));
     }
   }
   addMesh(group, panels, S.shell(), { cast: false });
@@ -476,16 +483,25 @@ export function buildShell(group, S = HALL_STYLE) {
   shelfMat.side = THREE.DoubleSide;
   if (S.shelf) group.add(new THREE.Mesh(shelfGeo, shelfMat));
 
-  // backstage behind the doors stays dark
+  // backstage behind the doors stays dark: a dark room (inside a hall),
+  // or in an open arena a black masking curtain hung just behind each door
+  // (a room there would stand in the side seats' view of the stage)
   const back = [];
   for (const d of DOORS) {
     const b = d.behind;
-    const g = new THREE.BoxGeometry(2.6, 3.2, 2.4);
-    g.rotateY(-Math.atan2(d.normal.z, d.normal.x));
-    g.translate(b.x + d.normal.x * 0.4, STAGE_Y + 1.6, b.z + d.normal.z * 0.4);
+    let g;
+    if (S.backstageCurtain) {
+      g = new THREE.PlaneGeometry(SHELL.doorW + 0.4, SHELL.doorH + 0.15);
+      g.rotateY(Math.atan2(d.normal.x, d.normal.z));
+      g.translate(d.pos.x + d.normal.x * 0.6, STAGE_Y + (SHELL.doorH + 0.15) / 2, d.pos.z + d.normal.z * 0.6);
+    } else {
+      g = new THREE.BoxGeometry(2.6, 3.2, 2.4);
+      g.rotateY(-Math.atan2(d.normal.z, d.normal.x));
+      g.translate(b.x + d.normal.x * 0.4, STAGE_Y + 1.6, b.z + d.normal.z * 0.4);
+    }
     back.push(g);
   }
-  const dark = new THREE.Mesh(mergeAll(back), new THREE.MeshBasicMaterial({ color: S.backstage, side: THREE.BackSide }));
+  const dark = new THREE.Mesh(mergeAll(back), new THREE.MeshBasicMaterial({ color: S.backstage, side: S.backstageCurtain ? THREE.DoubleSide : THREE.BackSide }));
   group.add(dark);
 
   // doors: gilt architrave, two walnut leaves that swing outward
@@ -1078,7 +1094,7 @@ function buildProscenium(group) {
     const x1 = sx * H.halfW;
     marble.push(wallSeg({ x: x0, z: z - 0.15 }, { x: x1, z: z - 0.15 }, 0, H.ceiling, 0.3, 2.5));
     // twin columns with gilt capitals and bases
-    for (const cx of [sx * 12.8, sx * 14.5]) {
+    for (const cx of PROS_COLUMNS.map((c) => sx * c)) {
       marble.push(new THREE.CylinderGeometry(0.3, 0.34, H.ceiling - 3.4, 24).translate(cx, (H.ceiling - 3.4) / 2 + 0.5, z + 0.25));
       giltG.push(new THREE.CylinderGeometry(0.42, 0.42, 0.5, 24).translate(cx, 0.25, z + 0.25));
       giltG.push(new THREE.CylinderGeometry(0.46, 0.3, 0.6, 24).translate(cx, H.ceiling - 2.6, z + 0.25));

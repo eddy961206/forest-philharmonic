@@ -51,6 +51,12 @@ export function stallsY(x, z) {
 
 // floor-to-floor levels: stalls top / lobby, then 2층, 3층, 4층
 export const Y1 = rakeY(HALL.back);
+// the lobby furniture (foyer.js builds it here; you walk round it)
+export const PROS_COLUMNS = [12.8, 14.5]; // |x| of the proscenium's twin columns
+export const FOYER_DECOR = {
+  pots: [[-3.6, 41.0], [3.6, 41.0], [-13.6, 33.4], [13.6, 33.4]],
+  ottomans: [[-4.4, 37.6], [4.4, 37.6]],
+};
 export const LEVELS = [Y1, Y1 + 5, Y1 + 10, Y1 + 15];
 HALL.ceiling = Math.round((LEVELS[3] + 4.1) * 100) / 100;
 export const LEVEL_NAMES = ['1층', '2층', '3층', '4층'];
@@ -291,7 +297,8 @@ function foyerSurfaces(x, z, out) {
   // galleries and their bridges to the stairs
   const onGallery = z <= FOYER.galleryZ;
   const onBridge = SPIRAL.centers.some((c) => Math.abs(x - c.x) < FOYER.bridgeW / 2 && z > FOYER.galleryZ - 0.01 && z < BRIDGE_END(c));
-  if (onGallery || onBridge) for (let k = 1; k < LEVELS.length; k++) out.push(LEVELS[k]);
+  // (the columns run up through every gallery)
+  if ((onGallery || onBridge) && !foyerColumnAt(x, z)) for (let k = 1; k < LEVELS.length; k++) out.push(LEVELS[k]);
 }
 
 export const FOYER_COLUMNS = [-6, -2.2, 2.2, 6].map((x) => ({ x, z: FOYER.galleryZ - 0.35, r: 0.36 }));
@@ -370,9 +377,30 @@ export function headroomAt(x, z, fy) {
 // over them (getting within VAULT of the top is enough to swing over).
 // Returns the top of a barrier in the way of feet at fy, or null.
 const VAULT = 0.2;
+// the stage stairs' handrails: at the top they are at head height for
+// someone walking past on the floor - a line you cannot walk through
+export function stairRailTop(x, z, fy) {
+  for (const S of STAGE_STAIRS) {
+    const za = S.z0 - 0.3;
+    const zb = S.z1 + 0.1;
+    if (z < za || z > zb) continue;
+    for (const sx of [-1, 1]) {
+      const rx = S.cx + sx * (S.w / 2 + 0.04);
+      if (Math.abs(x - rx) > 0.14) continue;
+      const top = STAGE_Y + 0.92 + ((z - za) / (zb - za)) * (S.rise - STAGE_Y);
+      if (fy < top - VAULT && fy > top - 2.4) return top;
+    }
+  }
+  return null;
+}
+
 export function barrierTop(x, z, fy) {
+  const rail = stairRailTop(x, z, fy);
+  if (rail !== null) return rail;
   if (OV) return OV.barrierTop(x, z, fy);
   const ax = Math.abs(x);
+  // the twin marble columns either side of the proscenium (hall.js)
+  if (fy < 1.0) for (const cx of PROS_COLUMNS) if (Math.hypot(ax - cx, z - (HALL.prosZ + 0.25)) < 0.47) return HALL.ceiling;
   for (const B of BALCONIES) {
     const top = B.y0 + (B.level === 1 ? 0.86 : 0.74);
     if (fy < B.y0 - 0.4 || fy >= top - VAULT) continue;
@@ -388,6 +416,12 @@ export function barrierTop(x, z, fy) {
     }
   }
   if (z <= FOYER.z0 || z >= FOYER.z1) return null;
+  // the lobby's potted trees (their leaves reach head height) and the round
+  // ottomans (low enough to jump onto and over)
+  if (Math.abs(fy - Y1) < 0.5) {
+    for (const [px, pz] of FOYER_DECOR.pots) if (Math.hypot(x - px, z - pz) < 0.64) return Y1 + 3.0;
+    for (const [ox, oz] of FOYER_DECOR.ottomans) if (Math.hypot(x - ox, z - oz) < 1.03) return Y1 + 0.46;
+  }
   for (let k = 1; k < LEVELS.length; k++) {
     const Y = LEVELS[k];
     if (fy < Y - 0.4 || fy >= Y + 0.95 - VAULT) continue;

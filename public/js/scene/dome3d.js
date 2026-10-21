@@ -162,10 +162,10 @@ vec3 forest(vec3 rd) {
       vec3 n = vec3(tn.x, 0.0, tn.y);
       float ang = atan(tn.y, tn.x);
       float bark = vn(vec2(ang * 5.0 + ti.x, p.y * 1.4)) * 0.6 + vn(vec2(ang * 22.0, p.y * 9.0)) * 0.4;
-      vec3 base = mix(vec3(0.045, 0.035, 0.03), vec3(0.2, 0.17, 0.13), bark); // old bark
+      vec3 base = mix(vec3(0.03, 0.024, 0.02), vec3(0.17, 0.14, 0.1), bark * bark); // old bark, deep furrows
       base = mix(base, vec3(0.12, 0.2, 0.06), smoothstep(1.2, 0.0, p.y) * 0.6 + smoothstep(0.55, 0.8, vn(vec2(ang * 3.0, p.y * 0.5))) * 0.4); // moss
       float lam = max(dot(n, sun), 0.0);
-      col = base * (0.12 + 1.05 * lam * light);
+      col = base * (0.08 + 1.15 * lam * light);
       col += vec3(0.04, 0.08, 0.03) * max(-n.y + 0.5, 0.0); // green bounce from the floor
       col *= 0.85 + 0.15 * smoothstep(0.0, 1.5, p.y);
       // high up, the trunk disappears into the leaves
@@ -186,13 +186,76 @@ vec3 forest(vec3 rd) {
       col = base * (0.22 + 1.4 * light);
       // trunk shadow cast toward us (approx: dark where a trunk stands near)
     }
-    vec3 fogc = mix(vec3(0.26, 0.36, 0.28), vec3(0.85, 0.82, 0.66), pow(max(dot(rd, sun), 0.0), 4.0));
-    col = mix(col, fogc, 1.0 - exp(-t * 0.015));
+    // the forest air: deep green in the shade, golden toward the sun
+    vec3 fogc = mix(vec3(0.12, 0.17, 0.12), vec3(0.5, 0.47, 0.33), pow(max(dot(rd, sun), 0.0), 4.0));
+    col = mix(col, fogc, 1.0 - exp(-t * 0.011));
   }
-  // shafts of light hanging in the air toward the sun
+  // shafts of light hanging in the air toward the sun: as bright as the
+  // air they cross (a near trunk stays a dark silhouette against them)
+  float air = t < 1e8 ? 1.0 - exp(-t * 0.035) : 1.0;
   float shaft = pow(max(dot(rd, sun), 0.0), 10.0) * (0.4 + 0.6 * vn(vec2(atan(rd.x, rd.z) * 40.0, uT * 0.05)));
-  col += vec3(1.0, 0.92, 0.7) * shaft * 0.5;
+  col += vec3(1.0, 0.92, 0.7) * shaft * 0.5 * air;
   return col * (0.9 + 0.2 * uLevel);
+}
+
+
+// Giant kelp: a stalk that leans and sways more toward the top, hung with
+// long fronds that widen and narrow along it. Found by walking the cell
+// grid (one plant per cell), then sampling across the plant's reach.
+// info: x = how far along a frond (0..1), y = height on the plant (0..1),
+// z = which side the fronds face us (for the light through them)
+float kelpGrid(vec3 ro, vec3 rd, float tmax, out vec3 info) {
+  const float cell = 5.0;
+  const float RB = 1.1; // the reach of the fronds plus the sway
+  info = vec3(0.0);
+  vec2 o = ro.xz;
+  vec2 d = rd.xz;
+  float len = length(d);
+  if (len < 1e-4) return 1e9;
+  vec2 dn = d / len;
+  dn += vec2(dn.x == 0.0 ? 1e-5 : 0.0, dn.y == 0.0 ? 1e-5 : 0.0);
+  vec2 c = floor(o / cell);
+  vec2 st = sign(dn);
+  vec2 tD = abs(cell / dn);
+  vec2 nx = ((c + max(st, 0.0)) * cell - o) / dn;
+  float smax = tmax * len;
+  for (int i = 0; i < 24; i++) {
+    vec3 tr = trunkIn(c, cell, 0.45, 3.0, 0.1, 0.2);
+    if (tr.z > 0.0) {
+      vec2 oc = o - tr.xy;
+      float b = dot(oc, dn);
+      float disc = b * b - (dot(oc, oc) - RB * RB);
+      if (disc > 0.0) {
+        float sq = sqrt(disc);
+        float s0 = max(-b - sq, 0.0);
+        float s1 = min(-b + sq, smax);
+        float top = 6.0 + 9.0 * h2(tr.xy * 0.37);
+        float ph = h2(tr.xy + 5.3) * 6.28;
+        for (int k = 0; k < 10; k++) {
+          float s = mix(s0, s1, (float(k) + 0.5) / 10.0);
+          if (s > s1) break;
+          vec3 p = ro + rd * (s / len);
+          if (p.y < 0.0 || p.y > top) continue;
+          float h = p.y / top;
+          vec2 axis = tr.xy + vec2(sin(uTime * 0.45 + ph + p.y * 0.22), 0.6 * cos(uTime * 0.37 + ph * 1.7 + p.y * 0.18)) * 0.75 * h * h;
+          vec2 rel = p.xz - axis;
+          float r = length(rel);
+          // a frond every ~0.9 m, alternating sides, widest in its middle
+          float f = fract(p.y * 1.1 + ph);
+          float lobe = sin(f * PI);
+          float side = sin(atan(rel.y, rel.x) * 2.0 + floor(p.y * 1.1 + ph) * 2.4);
+          float reach = 0.09 + 0.55 * lobe * smoothstep(0.05, 0.25, h) * (0.55 + 0.45 * side);
+          if (r < reach) {
+            info = vec3(f, h, 0.5 + 0.5 * side);
+            return s / len;
+          }
+        }
+      }
+    }
+    if (nx.x < nx.y) { c.x += st.x; nx.x += tD.x; } else { c.y += st.y; nx.y += tD.y; }
+    if (min(nx.x, nx.y) > smax) break;
+  }
+  return 1e9;
 }
 
 // ================================================================ OCEAN
@@ -243,21 +306,18 @@ vec3 ocean(vec3 rd) {
       if (tt > 80.0) break;
     }
   }
-  // kelp: tall swaying stalks
-  vec2 kn; vec3 ki;
-  vec3 rs = ro + vec3(sin(uTime * 0.6) * 0.3, 0.0, 0.0);
-  float tk = gridCyl(rs, rd, 80.0, 5.0, 0.45, 3.0, 0.12, 0.3, kn, ki);
-  float ky = ro.y + rd.y * tk;
-  float kTop = 6.0 + 9.0 * h2(ki.xy * 0.37);
-  if (tk < 1e8 && (ky > kTop || ky < 0.0)) tk = 1e9;
+  // kelp forest
+  vec3 ki;
+  float tk = kelpGrid(ro, rd, min(t, 80.0), ki);
   if (tk < t) {
-    vec3 p = ro + rd * tk;
-    // a kelp stalk is a bundle of blades: bands of gold-green and gaps of shade
-    float ang = atan(kn.y, kn.x);
-    float blades = smoothstep(0.3, 0.7, vn(vec2(ang * 5.0 + sin(p.y * 0.4 + uTime * 0.5), p.y * 0.25)));
-    vec3 kelp = mix(vec3(0.015, 0.035, 0.02), vec3(0.08, 0.12, 0.04), blades);
-    // backlit from the surface: brighter toward the top, a rim on the sunny side
-    col = kelp * (0.5 + 0.6 * max(kn.x * 0.4 + 0.5, 0.0)) * (0.5 + 0.9 * p.y / kTop);
+    // olive-brown fronds, golden where the light from the surface comes
+    // through them (looking up), darker toward the root
+    vec3 deep = vec3(0.02, 0.035, 0.015);
+    vec3 lit = vec3(0.16, 0.2, 0.06);
+    vec3 kc = mix(deep, lit, (0.35 + 0.65 * ki.z) * (0.4 + 0.6 * ki.y));
+    kc *= 0.75 + 0.35 * sin(ki.x * PI); // the vein down each frond's middle
+    kc += vec3(0.22, 0.3, 0.08) * pow(max(rd.y, 0.0), 1.5) * (0.3 + 0.7 * ki.y) * sin(ki.x * PI);
+    col = kc;
     t = tk;
   } else if (t < 1e8) {
     vec3 p = ro + rd * t;
