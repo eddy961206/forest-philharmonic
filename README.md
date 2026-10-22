@@ -76,12 +76,13 @@ docker run -d --restart unless-stopped -p 8080:8080 forest-philharmonic
 
 ### 성능 검증하기
 
-현재 최적화 브랜치는 **로컬 실제 GPU 검증을 거쳐 병합 여부를 판단할 후보**야. 먼저 [로컬 AI 에이전트 인계](docs/LOCAL_AGENT_HANDOFF.md)를 읽고, 기준 `main`과 후보를 별도 worktree에서 같은 조건으로 실행해.
+현재 최적화 브랜치는 **로컬 실제 GPU 검증을 거쳐 병합 여부를 판단할 후보**야. [PR #1](https://github.com/eddy961206/forest-philharmonic/pull/1)과 `perf/261021-venue-rendering`의 커밋 이력 검토를 맡은 로컬 AI는 [로컬 AI 에이전트 실행 지시](docs/LOCAL_AGENT_HANDOFF.md)부터 읽어. 사용자가 위임한 범위는 직접 앱 실행·동일 회귀/기능 검사·실제 GPU 비교 뒤, 이득이 확인되면 병합하고 아니면 원인을 수정해 재측정하는 것까지야. 별도 채팅 프롬프트를 전달받아야 시작되는 절차가 아니야.
 
 | 읽을 문서 | 내용 |
 |---|---|
-| [로컬 AI 에이전트 인계](docs/LOCAL_AGENT_HANDOFF.md) | 설치·실행·기능 확인·실제 GPU A/B/B/A 측정·병합 판단과 추가 실험 |
-| [이번 수정과 검증](docs/MERGE_PREPARATION.md) | 테스트 실행 범위, 자동 화질 보정, 추가 CPU·메모리 개선과 확인 범위 |
+| [로컬 AI 에이전트 실행 지시](docs/LOCAL_AGENT_HANDOFF.md) | 사용자 위임 범위·설치·동일 기능 검사·실제 GPU A/B/B/A·수정/병합·PR 결과 기록 |
+| [추가 오디오 준비 검증](docs/AUDIO_PREPARATION_FOLLOWUP.md) | 직접 측정한 추가 후보, 채택·보류 근거, PCM 보존과 최신 회귀 결과 |
+| [cabfe78 수정과 검증](docs/MERGE_PREPARATION.md) | 테스트 실행 범위, 자동 화질 보정, CPU·배열 개선과 당시 확인 범위 |
 | [이전 e741 → 6c 보고서](docs/performance-e741.md) | 당시 관찰한 개선·악화·제한. 현재 후보의 성능 수치와 구분 |
 | [이전 원본 보관·복구](docs/PERFORMANCE_ARCHIVE.md) | 고정 커밋의 원시 JSON·실패 기록·이미지 해시·재현 절차 |
 

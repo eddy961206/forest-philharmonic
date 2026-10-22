@@ -1,0 +1,2699 @@
+{
+  "schema": 1,
+  "kind": "additional-audio-preparation-validation",
+  "recordedAt": "2026-10-22T06:16:50.156187+00:00",
+  "baselineCommit": "cabfe78d4ef04112372479c98d67a45e552c9b77",
+  "candidateIdentity": "Product commit a9c0b95ee62e65520a167206a606d9309844a6ad contains the exact tested product bytes. The following documentation commit keeps those bytes unchanged; the final PR head is linked from PR #1.",
+  "candidateProductSha256": {
+    "public/js/audio/engine.js": "8cad266cdefafc6d4b0beabea13a59c60bafd05ffdaa8c944ebfafb2e3b166e7",
+    "public/js/audio/crowd-loader.js": "75a079da9805c5413df7af28b42f6f65665c4dd9157abe90fc2e7257a1d311ec",
+    "public/js/audio/crowd-worker.js": "bc5b21f18b941661fb5c1db341e0a86184033e28d2d50d64d978f07aab7486f1",
+    "public/js/audio/crowd.js": "ccf4499590848196094527ec601b5d72ef2422825db2fae6101e4918749998d2"
+  },
+  "scope": "Incremental audio preparation vs cabfe78. No physical GPU, audible listening, complete app startup, total CPU, or total/native-memory performance claim.",
+  "rawArtifactsIncluded": false,
+  "evidenceFormat": "Selected complete per-run audio metrics, all confirmation pairs, PCM/source/tool identities, and functional outcomes. Original raw filenames and digests identify scratch observations; the raw dumps are not Git attachments. Reproduce with AUDIO_PREPARATION_FOLLOWUP.md.",
+  "houseWorker": {
+    "schema": 1,
+    "baseline": "cabfe78d4ef04112372479c98d67a45e552c9b77",
+    "candidate": "Product commit a9c0b95ee62e65520a167206a606d9309844a6ad; identify the measured bytes with sourceHashes.candidate and the final PR head.",
+    "design": "Serial ABBA repeated twice; every fresh browser invocation measures full then Lite. Four independent baseline and four candidate observations per mode. Dedicated audio module QA page, not app boot, physical GPU, speaker output or total CPU measurement. Candidate contract additionally exercises CSP-blocked fallback. All durations in milliseconds.",
+    "browserVersion": "153.0.8010.0",
+    "sourceHashes": {
+      "baseline": {
+        "engine.js": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0",
+        "crowd-loader.js": "b0640be50fda8b5da1fd69702d41aa722cde62b29d7594ca3cbf970b96edd9e7",
+        "crowd-worker.js": "26cc6c5015c59827c97745846a8b276ea0d25c057bde03a7654a2cffc58a6e0d",
+        "crowd.js": "e7f23633ad2a55afb3985382ccd69a4bdd61b1b98fa4c917de6e79fdf0c7875b"
+      },
+      "candidate": {
+        "engine.js": "8cad266cdefafc6d4b0beabea13a59c60bafd05ffdaa8c944ebfafb2e3b166e7",
+        "crowd-loader.js": "75a079da9805c5413df7af28b42f6f65665c4dd9157abe90fc2e7257a1d311ec",
+        "crowd-worker.js": "bc5b21f18b941661fb5c1db341e0a86184033e28d2d50d64d978f07aab7486f1",
+        "crowd.js": "ccf4499590848196094527ec601b5d72ef2422825db2fae6101e4918749998d2"
+      }
+    },
+    "collectorSha256": "09f2d82032c57977768abffcb97960c77cb424694bdbdeef5cf91fee9d6358d2",
+    "crossSourcePcm": {
+      "full": {
+        "equal": true,
+        "buffers": 17,
+        "channels": 26,
+        "comparedCases": 10,
+        "actualBuffers": [
+          {
+            "profile": "welcome",
+            "length": 132000,
+            "sampleRate": 24000,
+            "channels": 2,
+            "actualHashes": [
+              "7a5d3f5758a3435df5c160d121953dc22ec1ca60cd697f13fbf195afdc07fd95",
+              "206bc95e405648c7326c05f126cf23198a0511b6ad2138e6d0c0e8bd93125deb"
+            ],
+            "layer": "close"
+          },
+          {
+            "profile": "welcome",
+            "length": 132000,
+            "sampleRate": 24000,
+            "channels": 2,
+            "actualHashes": [
+              "f7e0dd1ec3ab98c299d1d8a026e2a2e8829a6df60816dadca3a44bab88a02073",
+              "22f4d763b3b56d102f39b1d3e65947a5ea859b47c6591df5212d63750f37b403"
+            ],
+            "layer": "wash"
+          },
+          {
+            "profile": "normal0",
+            "length": 240000,
+            "sampleRate": 24000,
+            "channels": 2,
+            "actualHashes": [
+              "5e532fcd87fc6fb7ab89ec0e5f9f6a569dc2d0119414f5d65ad2a10542eb9b5a",
+              "7a9ea3b4bda6fe4cc3a2a6af7f657e914bf194371f408300aa4966a9b39f693d"
+            ],
+            "layer": "close"
+          },
+          {
+            "profile": "normal0",
+            "length": 240000,
+            "sampleRate": 24000,
+            "channels": 2,
+            "actualHashes": [
+              "232054d4412e32321f98a76b11457974622dc506cfd8badbd439d0ce2d650124",
+              "9a6ff58210bcd708f54c8695c1afaa664f47c0fdacff6919bebeded6078eefc1"
+            ],
+            "layer": "wash"
+          },
+          {
+            "profile": "normal1",
+            "length": 240000,
+            "sampleRate": 24000,
+            "channels": 2,
+            "actualHashes": [
+              "af5f3b7ac4ceb4b97ad2ba56977280a32a2b9f7a921f5422dd9720ceeba8df64",
+              "0b64e8cb9a17dcbcf9c48bee039d627c4661217f41afb789c98382af24175548"
+            ],
+            "layer": "close"
+          },
+          {
+            "profile": "normal1",
+            "length": 240000,
+            "sampleRate": 24000,
+            "channels": 2,
+            "actualHashes": [
+              "b559af5f6ddead661f40ee274830adfdb758e057e5c89860d4c6d3110d29af9e",
+              "21650a9dd0447de1ff780eb4592767241ec65e06af5378cca00a56a917045f9c"
+            ],
+            "layer": "wash"
+          },
+          {
+            "profile": "finale",
+            "length": 360000,
+            "sampleRate": 24000,
+            "channels": 2,
+            "actualHashes": [
+              "764cfcd0e718e952328154552779f9ec467de549b2ae827d5d6e00c05ea0827c",
+              "31bff308117162c94f24dfd60ee7518229696208728241d6cef843417304f75c"
+            ],
+            "layer": "close"
+          },
+          {
+            "profile": "finale",
+            "length": 360000,
+            "sampleRate": 24000,
+            "channels": 2,
+            "actualHashes": [
+              "e35871b25750bec47c3fbc55017422bcf4a599f2dbec2b3d7d98e5401d27403f",
+              "cb967bd0477582d5699795c2a8de4046c3e9d9ec79ab796c2c8334651c0113dc"
+            ],
+            "layer": "wash"
+          },
+          {
+            "profile": "murmur",
+            "length": 144000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "415415b93af700f660342948e70c9bfed69a40f098e27cb36f5a2f2721f6e110",
+              "8e9c6085c98f94ba9de8c8d1996336c3433efd7f0a53ff62cd596813151dce88"
+            ]
+          },
+          {
+            "profile": "cough0",
+            "length": 9600,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "e59c404b4966a7fc408507794dbe6eb562dd2ccadbc658f2d99962a2f3e23362"
+            ]
+          },
+          {
+            "profile": "cough1",
+            "length": 9600,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "3369d1e24ad12efb2894b18c828c35472d03294f7059619e0641225c494d9fa1"
+            ]
+          },
+          {
+            "profile": "cough2",
+            "length": 9600,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "fb40d5225fa8cf6b9f5eef785496c7486bf36aff8f41484094598d7594a075b6"
+            ]
+          },
+          {
+            "profile": "creak3",
+            "length": 6215,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "7f8fc6f8963a943d85928d3574d120c22385ba452880bbfed177e9fa71317c74"
+            ]
+          },
+          {
+            "profile": "creak4",
+            "length": 6217,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "2b2a7b3b249c940988df757b12035338a6b01831b9af92f4bad094e13c6ec158"
+            ]
+          },
+          {
+            "profile": "rustle5",
+            "length": 7628,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "bca457d8e2d85f0d364bad2403a1340a2103156225e5e7039a6ef79b54b5993f"
+            ]
+          },
+          {
+            "profile": "rustle6",
+            "length": 7631,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "c9e5b918e319906471ddda852005162a4242daeb19e1eca8889dbb89f116bc3c"
+            ]
+          },
+          {
+            "profile": "rustle7",
+            "length": 7634,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "9860d37a4a542fd1de5d89af35fd84dbdfe7e8be8d16c9d2362cbee88cfd2369"
+            ]
+          }
+        ]
+      },
+      "Lite": {
+        "equal": true,
+        "buffers": 17,
+        "channels": 26,
+        "comparedCases": 10,
+        "actualBuffers": [
+          {
+            "profile": "welcome",
+            "length": 88000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "7d6fcd24637f3ea8674b4d9dbaadaf4f67e55937e8457fe91e87623333f2fdca",
+              "e3d4ab3c104805d8421e411d7cbfa605a7798fa0abe67d7b83dda59b7f63cfd4"
+            ],
+            "layer": "close"
+          },
+          {
+            "profile": "welcome",
+            "length": 88000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "110ae1d776aee75a8124c4d7f98dee83fe49d206cc6d019d4a6e45436025d829",
+              "3e12c5d074a72eb68ae3cbfd32f5e3871c507f4d296637338e1ff512efade301"
+            ],
+            "layer": "wash"
+          },
+          {
+            "profile": "normal0",
+            "length": 160000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "c7f223b25f15f32557a389fd8b1f8c0c7edcdcfcfbb3f7b2668ff473671a5f2d",
+              "65a99eec6871389ab8066365f42e8f286019b15f5ffb8eb3df8fd41a9ec177ed"
+            ],
+            "layer": "close"
+          },
+          {
+            "profile": "normal0",
+            "length": 160000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "8b30ca52b3d2a015a95150dba3fd7a04563751b3e26c70ab09cba3dabd403262",
+              "13dfc49f46abae1e3d0fd6e4cea1575931414b2cbfa9a76abedcccdb7286be5a"
+            ],
+            "layer": "wash"
+          },
+          {
+            "profile": "normal1",
+            "length": 160000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "84a0f808359ed649c96dc1d9faded9bb580bdfba2fecfc3c2500b804dee0f0df",
+              "ba520230181e8904d33f5ced9a11283b610253bee1b5368b1859d308e365456c"
+            ],
+            "layer": "close"
+          },
+          {
+            "profile": "normal1",
+            "length": 160000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "f3a10d4876a1ce32a0447850fcc6637ea3f70ecbc3341ad38d789f1d80ac02e6",
+              "0842abeff9a22bb803cbb122b16be1a8d3f0da42e6f6ad66115c361d1e472847"
+            ],
+            "layer": "wash"
+          },
+          {
+            "profile": "finale",
+            "length": 240000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "c94a2f9eb7f455ccdbd5b1a7736da9014ad11a3b776c8c05e8f90a9b431f2373",
+              "09c8376d79eb06956e4abe3c0a9ccf2e1e135d061b7d654ae2812b5f73de0d26"
+            ],
+            "layer": "close"
+          },
+          {
+            "profile": "finale",
+            "length": 240000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "74b77da5ccd3f27bf7e7fdd3f6ecf25fca114b4528aa65338dd3358599fe8213",
+              "01448f26235196132636249c07ad5244bfaf8c762f43cc9ba0a256fdaeb2dcd6"
+            ],
+            "layer": "wash"
+          },
+          {
+            "profile": "murmur",
+            "length": 144000,
+            "sampleRate": 16000,
+            "channels": 2,
+            "actualHashes": [
+              "90eb7bfac0787877b013bbcafdbbe4bff47173d1b41a402da353b6314259147f",
+              "695f677390520e903bb40dd34e27ffea71e013b2a37e4125c086ae95c310ad68"
+            ]
+          },
+          {
+            "profile": "cough0",
+            "length": 9600,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "e59c404b4966a7fc408507794dbe6eb562dd2ccadbc658f2d99962a2f3e23362"
+            ]
+          },
+          {
+            "profile": "cough1",
+            "length": 9600,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "3369d1e24ad12efb2894b18c828c35472d03294f7059619e0641225c494d9fa1"
+            ]
+          },
+          {
+            "profile": "cough2",
+            "length": 9600,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "fb40d5225fa8cf6b9f5eef785496c7486bf36aff8f41484094598d7594a075b6"
+            ]
+          },
+          {
+            "profile": "creak3",
+            "length": 6215,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "7f8fc6f8963a943d85928d3574d120c22385ba452880bbfed177e9fa71317c74"
+            ]
+          },
+          {
+            "profile": "creak4",
+            "length": 6217,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "2b2a7b3b249c940988df757b12035338a6b01831b9af92f4bad094e13c6ec158"
+            ]
+          },
+          {
+            "profile": "rustle5",
+            "length": 7628,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "bca457d8e2d85f0d364bad2403a1340a2103156225e5e7039a6ef79b54b5993f"
+            ]
+          },
+          {
+            "profile": "rustle6",
+            "length": 7631,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "c9e5b918e319906471ddda852005162a4242daeb19e1eca8889dbb89f116bc3c"
+            ]
+          },
+          {
+            "profile": "rustle7",
+            "length": 7634,
+            "sampleRate": 16000,
+            "channels": 1,
+            "actualHashes": [
+              "9860d37a4a542fd1de5d89af35fd84dbdfe7e8be8d16c9d2362cbee88cfd2369"
+            ]
+          }
+        ]
+      }
+    },
+    "timing": {
+      "full": {
+        "baseline": {
+          "observations": 4,
+          "prepareCallMs": {
+            "median": 188.15000000223517,
+            "min": 176.89999999850988,
+            "max": 216.30000000074506
+          },
+          "readyMs": {
+            "median": 571.5999999996275,
+            "min": 500.30000000074506,
+            "max": 615.8999999985099
+          },
+          "maximumTimerGapMs": {
+            "median": 188.69999999925494,
+            "min": 177.39999999850988,
+            "max": 216.69999999925494
+          },
+          "houseCallMs": {
+            "median": 187.39999999850988,
+            "min": 176,
+            "max": 215.79999999701977
+          },
+          "longTaskCount": 4,
+          "longTaskDurations": [
+            191,
+            177,
+            216,
+            184
+          ]
+        },
+        "candidate": {
+          "observations": 4,
+          "prepareCallMs": {
+            "median": 0.9499999992549419,
+            "min": 0.8000000007450581,
+            "max": 1
+          },
+          "readyMs": {
+            "median": 504.84999999962747,
+            "min": 453.19999999925494,
+            "max": 564.6000000014901
+          },
+          "maximumTimerGapMs": {
+            "median": 8.049999998882413,
+            "min": 5.300000000745058,
+            "max": 11.300000000745058
+          },
+          "houseCallMs": {
+            "median": 0.5499999988824129,
+            "min": 0.3999999985098839,
+            "max": 0.6000000014901161
+          },
+          "longTaskCount": 0,
+          "longTaskDurations": []
+        }
+      },
+      "Lite": {
+        "baseline": {
+          "observations": 4,
+          "prepareCallMs": {
+            "median": 114.19999999925494,
+            "min": 105.5,
+            "max": 140.29999999701977
+          },
+          "readyMs": {
+            "median": 359.49999999813735,
+            "min": 313.1000000014901,
+            "max": 379.79999999701977
+          },
+          "maximumTimerGapMs": {
+            "median": 114.59999999962747,
+            "min": 106,
+            "max": 141.10000000149012
+          },
+          "houseCallMs": {
+            "median": 113.55000000074506,
+            "min": 104.79999999701977,
+            "max": 139.19999999925494
+          },
+          "longTaskCount": 4,
+          "longTaskDurations": [
+            105,
+            111,
+            140,
+            117
+          ]
+        },
+        "candidate": {
+          "observations": 4,
+          "prepareCallMs": {
+            "median": 1.049999998882413,
+            "min": 0.7999999970197678,
+            "max": 1.8999999985098839
+          },
+          "readyMs": {
+            "median": 320.7999999988824,
+            "min": 263.8999999985099,
+            "max": 392
+          },
+          "maximumTimerGapMs": {
+            "median": 6.900000000372529,
+            "min": 4.5,
+            "max": 9.800000000745058
+          },
+          "houseCallMs": {
+            "median": 0.599999999627471,
+            "min": 0.5,
+            "max": 1.0999999977648258
+          },
+          "longTaskCount": 0,
+          "longTaskDurations": []
+        }
+      }
+    },
+    "runs": [
+      {
+        "file": "abba-run/raw/audio-worker-baseline-b1-p1.json",
+        "sha256": "b3488fe0f2291443b30e8be26b3cff0a3b6695d012ad41141fcce25119dd4bb1",
+        "label": "baseline-b1-p1",
+        "cases": [
+          {
+            "lite": false,
+            "prepareCallMs": 191.60000000149012,
+            "readyMs": 500.30000000074506,
+            "maximumTimerGapMs": 192,
+            "preparationLongTasks": [
+              {
+                "startTime": 59.30000000074506,
+                "duration": 191
+              }
+            ],
+            "immediateBufferCount": 9,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 15552000
+          },
+          {
+            "lite": true,
+            "prepareCallMs": 105.5,
+            "readyMs": 313.1000000014901,
+            "maximumTimerGapMs": 106,
+            "preparationLongTasks": [
+              {
+                "startTime": 59.19999999925494,
+                "duration": 105
+              }
+            ],
+            "immediateBufferCount": 9,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 10368000
+          }
+        ]
+      },
+      {
+        "file": "abba-run/raw/audio-worker-candidate-b1-p2.json",
+        "sha256": "b6a0e93ebb2eb3031d22477917058a56e068f59de2ae6a956a43d60ea39deb38",
+        "label": "candidate-b1-p2",
+        "cases": [
+          {
+            "lite": false,
+            "prepareCallMs": 0.8999999985098839,
+            "readyMs": 453.19999999925494,
+            "maximumTimerGapMs": 5.300000000745058,
+            "preparationLongTasks": [],
+            "immediateBufferCount": 0,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 15552000
+          },
+          {
+            "lite": true,
+            "prepareCallMs": 0.7999999970197678,
+            "readyMs": 263.8999999985099,
+            "maximumTimerGapMs": 4.5,
+            "preparationLongTasks": [],
+            "immediateBufferCount": 0,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 10368000
+          }
+        ]
+      },
+      {
+        "file": "abba-run/raw/audio-worker-candidate-b1-p3.json",
+        "sha256": "d05c1fb97bd1a511becca2deda5331e1d183c26643614f1f5fd4989b87908cc8",
+        "label": "candidate-b1-p3",
+        "cases": [
+          {
+            "lite": false,
+            "prepareCallMs": 1,
+            "readyMs": 487.5,
+            "maximumTimerGapMs": 11.300000000745058,
+            "preparationLongTasks": [],
+            "immediateBufferCount": 0,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 15552000
+          },
+          {
+            "lite": true,
+            "prepareCallMs": 0.7999999970197678,
+            "readyMs": 317.5999999977648,
+            "maximumTimerGapMs": 6,
+            "preparationLongTasks": [],
+            "immediateBufferCount": 0,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 10368000
+          }
+        ]
+      },
+      {
+        "file": "abba-run/raw/audio-worker-baseline-b1-p4.json",
+        "sha256": "3c9067f97b5811ad285d244ad6ed3196d98c6d160f7ba474aeb3f02d733032c3",
+        "label": "baseline-b1-p4",
+        "cases": [
+          {
+            "lite": false,
+            "prepareCallMs": 176.89999999850988,
+            "readyMs": 599.3999999985099,
+            "maximumTimerGapMs": 177.39999999850988,
+            "preparationLongTasks": [
+              {
+                "startTime": 60.599999997764826,
+                "duration": 177
+              }
+            ],
+            "immediateBufferCount": 9,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 15552000
+          },
+          {
+            "lite": true,
+            "prepareCallMs": 111.29999999701977,
+            "readyMs": 367.5999999977648,
+            "maximumTimerGapMs": 111.59999999776483,
+            "preparationLongTasks": [
+              {
+                "startTime": 72.30000000074506,
+                "duration": 111
+              }
+            ],
+            "immediateBufferCount": 9,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 10368000
+          }
+        ]
+      },
+      {
+        "file": "abba-run/raw/audio-worker-baseline-b2-p1.json",
+        "sha256": "c49f28daecede6c2c571f3ba2bfd90a6220c254213bd3c86565fc45281937c09",
+        "label": "baseline-b2-p1",
+        "cases": [
+          {
+            "lite": false,
+            "prepareCallMs": 216.30000000074506,
+            "readyMs": 615.8999999985099,
+            "maximumTimerGapMs": 216.69999999925494,
+            "preparationLongTasks": [
+              {
+                "startTime": 77.5,
+                "duration": 216
+              }
+            ],
+            "immediateBufferCount": 9,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 15552000
+          },
+          {
+            "lite": true,
+            "prepareCallMs": 140.29999999701977,
+            "readyMs": 379.79999999701977,
+            "maximumTimerGapMs": 141.10000000149012,
+            "preparationLongTasks": [
+              {
+                "startTime": 66.30000000074506,
+                "duration": 140
+              }
+            ],
+            "immediateBufferCount": 9,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 10368000
+          }
+        ]
+      },
+      {
+        "file": "abba-run/raw/audio-worker-candidate-b2-p2.json",
+        "sha256": "8ac13ade3bd674bd8656807337b6c60f086e9ff84eabc3a26b4bcd54b39e3e45",
+        "label": "candidate-b2-p2",
+        "cases": [
+          {
+            "lite": false,
+            "prepareCallMs": 0.8000000007450581,
+            "readyMs": 522.1999999992549,
+            "maximumTimerGapMs": 6.099999997764826,
+            "preparationLongTasks": [],
+            "immediateBufferCount": 0,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 15552000
+          },
+          {
+            "lite": true,
+            "prepareCallMs": 1.8999999985098839,
+            "readyMs": 392,
+            "maximumTimerGapMs": 9.800000000745058,
+            "preparationLongTasks": [],
+            "immediateBufferCount": 0,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 10368000
+          }
+        ]
+      },
+      {
+        "file": "abba-run/raw/audio-worker-candidate-b2-p3.json",
+        "sha256": "b12cf27a8aff34cd0d4053967fbd9446a94b8acaa4a9938a8596c97a0e59f067",
+        "label": "candidate-b2-p3",
+        "cases": [
+          {
+            "lite": false,
+            "prepareCallMs": 1,
+            "readyMs": 564.6000000014901,
+            "maximumTimerGapMs": 10,
+            "preparationLongTasks": [],
+            "immediateBufferCount": 0,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 15552000
+          },
+          {
+            "lite": true,
+            "prepareCallMs": 1.300000000745058,
+            "readyMs": 324,
+            "maximumTimerGapMs": 7.800000000745058,
+            "preparationLongTasks": [],
+            "immediateBufferCount": 0,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 10368000
+          }
+        ]
+      },
+      {
+        "file": "abba-run/raw/audio-worker-baseline-b2-p4.json",
+        "sha256": "038caea849e636d24e3ca3f59b240603aa2d126f9110f22cf598b8d0799f1ae3",
+        "label": "baseline-b2-p4",
+        "cases": [
+          {
+            "lite": false,
+            "prepareCallMs": 184.70000000298023,
+            "readyMs": 543.8000000007451,
+            "maximumTimerGapMs": 185.39999999850988,
+            "preparationLongTasks": [
+              {
+                "startTime": 69.19999999925494,
+                "duration": 184
+              }
+            ],
+            "immediateBufferCount": 9,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 15552000
+          },
+          {
+            "lite": true,
+            "prepareCallMs": 117.10000000149012,
+            "readyMs": 351.3999999985099,
+            "maximumTimerGapMs": 117.60000000149012,
+            "preparationLongTasks": [
+              {
+                "startTime": 57.69999999925494,
+                "duration": 117
+              }
+            ],
+            "immediateBufferCount": 9,
+            "preparedBufferCount": 17,
+            "houseOutputBytes": 1408500,
+            "outputBytes": 10368000
+          }
+        ]
+      }
+    ],
+    "contractFile": "audio-worker-candidate-contract.json",
+    "contractSha256": "ef855fc68fc5094c47501b2cbd97c625e94f28d586ce05496902c4b8c0f5b194",
+    "adoption": "Adopt for main-thread responsiveness: candidate removes the synchronous murmur/noise synthesis long task. No claim of overall CPU, PCM-memory or app-boot reduction. Ready-time ranges overlap and one candidate Lite ready observation exceeds every baseline Lite observation; the observed medians are diagnostic only. CSP fallback necessarily remains synchronous. Direct setMurmur while a house request is in flight may duplicate temporary worker computation, but no duplicate AudioBuffers are copied/retained."
+  },
+  "samplePreparation": {
+    "schema": 2,
+    "kind": "sample-preparation-compact-summary",
+    "baselineRevision": "cabfe78d4ef04112372479c98d67a45e552c9b77",
+    "productRevisionDescription": "Measured as a frozen working tree, then committed as a9c0b95ee62e65520a167206a606d9309844a6ad. The recorded HTTP source hashes identify the exact tested product bytes.",
+    "phases": [
+      {
+        "name": "initial-baseline-profile",
+        "browserInvocations": 2,
+        "coldWarmObservations": 4,
+        "toolSha256": [
+          "41921d277df3dcf702579a877d62cd9dc5826dd5912b1eceb88320427325f7dc"
+        ],
+        "fixtureSha256": [
+          "ebd78ca0607ec9c224ed8793fce254a5dab9fa9cdb2724f3d7fe0560a9093b18"
+        ]
+      },
+      {
+        "name": "initial-fixture-exploration",
+        "browserInvocations": 2,
+        "coldWarmObservations": 4,
+        "toolSha256": [
+          "45d10ccf8b8d26f43619741e87e3b5eb1f95fd53caf7f9b95c5f42ca9f26830c"
+        ],
+        "fixtureSha256": [
+          "ebd78ca0607ec9c224ed8793fce254a5dab9fa9cdb2724f3d7fe0560a9093b18"
+        ]
+      },
+      {
+        "name": "confirmation-ABBA",
+        "browserInvocations": 16,
+        "coldWarmObservations": 32,
+        "toolSha256": [
+          "45d10ccf8b8d26f43619741e87e3b5eb1f95fd53caf7f9b95c5f42ca9f26830c"
+        ],
+        "fixtureSha256": [
+          "ebd78ca0607ec9c224ed8793fce254a5dab9fa9cdb2724f3d7fe0560a9093b18"
+        ]
+      },
+      {
+        "name": "actual-product-verification",
+        "browserInvocations": 2,
+        "coldWarmObservations": 4,
+        "toolSha256": [
+          "623001e7c5f82f57742e0590794624d6861baa0dca78db0b26b52a1951553ad3"
+        ],
+        "fixtureSha256": [
+          "ebd78ca0607ec9c224ed8793fce254a5dab9fa9cdb2724f3d7fe0560a9093b18"
+        ]
+      }
+    ],
+    "canonicalHashConvention": "SHA-256 of UTF-8 Python json.dumps(value, sort_keys=True, separators=(comma, colon), ensure_ascii=True), without a trailing newline. PCM arrays are sorted by (instrument, integer midi); each record includes instrument, midi, length, sampleRate, channels, and per-channel PCM SHA-256. Source maps use pathname keys.",
+    "profiles": {
+      "full": {
+        "sampleCount": 389,
+        "actualSampleRate": 48000,
+        "retainedPcmBytes": 296771776,
+        "sortedPcmCollectionSha256": "650a3918e4767959b8c57f74cb89ae48245427ff88aa819b821dc5cf82aad86d"
+      },
+      "lite": {
+        "sampleCount": 207,
+        "actualSampleRate": 24000,
+        "retainedPcmBytes": 64184568,
+        "sortedPcmCollectionSha256": "23733009d57f26b3f842afa05a5d02f04d645a68f43b975df52a8e3c4bd0f720"
+      }
+    },
+    "sourceGroups": {
+      "baseline": {
+        "pathCount": 394,
+        "canonicalSourceMapSha256": "d8d7094e1a5dfe095a7fb94218a3a8ec03bfe4ee7b39fb22fd595c9771865a9a",
+        "fileSha256": {
+          "js/audio/engine.js": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0",
+          "js/audio/crowd-loader.js": "b0640be50fda8b5da1fd69702d41aa722cde62b29d7594ca3cbf970b96edd9e7",
+          "js/audio/crowd.js": "e7f23633ad2a55afb3985382ccd69a4bdd61b1b98fa4c917de6e79fdf0c7875b",
+          "js/layout.js": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6",
+          "samples/manifest.json": "66bd0110a11b533b5956aa880662e2a0d5c6edef3b833ae5108e8d9f1462a777"
+        },
+        "mp3Count": 389,
+        "canonicalMp3MapSha256": "e79d5d6bf925ee635e12230b134e301f4f0e0b4fc758eeb67d6a628c2dca2a6f",
+        "originalCompactMethodSha256": "40e2637d38ce7a33a38860152a4847cb5b79107a26bcc62ddcf161ae92901699"
+      },
+      "product": {
+        "pathCount": 394,
+        "canonicalSourceMapSha256": "e77960799d3173e0459fde4dd97933d13752d3a0feb4fd1e687cb21083334a00",
+        "fileSha256": {
+          "js/audio/engine.js": "8cad266cdefafc6d4b0beabea13a59c60bafd05ffdaa8c944ebfafb2e3b166e7",
+          "js/audio/crowd-loader.js": "75a079da9805c5413df7af28b42f6f65665c4dd9157abe90fc2e7257a1d311ec",
+          "js/audio/crowd.js": "ccf4499590848196094527ec601b5d72ef2422825db2fae6101e4918749998d2",
+          "js/layout.js": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6",
+          "samples/manifest.json": "66bd0110a11b533b5956aa880662e2a0d5c6edef3b833ae5108e8d9f1462a777"
+        },
+        "mp3Count": 389,
+        "canonicalMp3MapSha256": "e79d5d6bf925ee635e12230b134e301f4f0e0b4fc758eeb67d6a628c2dca2a6f",
+        "originalCompactMethodSha256": "ae5f5c8b2ad1f76390a547878c994babcf4dceff92bda25062c2717721ed51f1"
+      }
+    },
+    "productPathsChangedFromBaseline": [
+      "js/audio/crowd-loader.js",
+      "js/audio/crowd.js",
+      "js/audio/engine.js"
+    ],
+    "sourceValidation": {
+      "allPrePostPairsEqual": true,
+      "baselineAndFixtureUseIdentical394Sources": true,
+      "allProductRunsUseIdentical394Sources": true,
+      "all389Mp3FilesAndManifestUnchanged": true
+    },
+    "pcmValidation": {
+      "all44ColdWarmObservationsMatchInitialProfilePcmAndShape": true,
+      "allDecodedInputChannels": 2,
+      "sampleRates": [
+        48000,
+        24000
+      ],
+      "productUsesServedMethodWithoutFixtureDefined": true
+    },
+    "confirmation": {
+      "order": "Full ABBA, Lite ABBA, Full ABBA, Lite ABBA; A=original, B=stereo-fused. Each invocation launches a new browser and measures cold then warm.",
+      "allInvocationsIncluded": true,
+      "allLongTasksIncluded": true,
+      "pairs": [
+        {
+          "profile": "full",
+          "temperature": "cold",
+          "block": 1,
+          "originalLabel": "confirm-full-b1-1-original",
+          "stereoFusedLabel": "confirm-full-b1-2-stereo-fused",
+          "originalElapsedMs": 2714.8,
+          "stereoFusedElapsedMs": 2075.3,
+          "elapsedDecreasePercent": 23.556,
+          "originalCompactTotalMs": 936.6,
+          "stereoFusedCompactTotalMs": 251.0,
+          "compactDecreasePercent": 73.201
+        },
+        {
+          "profile": "full",
+          "temperature": "cold",
+          "block": 1,
+          "originalLabel": "confirm-full-b1-4-original",
+          "stereoFusedLabel": "confirm-full-b1-3-stereo-fused",
+          "originalElapsedMs": 2820.4,
+          "stereoFusedElapsedMs": 2104.3,
+          "elapsedDecreasePercent": 25.39,
+          "originalCompactTotalMs": 961.8,
+          "stereoFusedCompactTotalMs": 245.7,
+          "compactDecreasePercent": 74.454
+        },
+        {
+          "profile": "full",
+          "temperature": "cold",
+          "block": 2,
+          "originalLabel": "confirm-full-b2-1-original",
+          "stereoFusedLabel": "confirm-full-b2-2-stereo-fused",
+          "originalElapsedMs": 2570.4,
+          "stereoFusedElapsedMs": 2214.6,
+          "elapsedDecreasePercent": 13.842,
+          "originalCompactTotalMs": 898.3,
+          "stereoFusedCompactTotalMs": 276.5,
+          "compactDecreasePercent": 69.22
+        },
+        {
+          "profile": "full",
+          "temperature": "cold",
+          "block": 2,
+          "originalLabel": "confirm-full-b2-4-original",
+          "stereoFusedLabel": "confirm-full-b2-3-stereo-fused",
+          "originalElapsedMs": 2612.6,
+          "stereoFusedElapsedMs": 2285.3,
+          "elapsedDecreasePercent": 12.528,
+          "originalCompactTotalMs": 951.7,
+          "stereoFusedCompactTotalMs": 261.1,
+          "compactDecreasePercent": 72.565
+        },
+        {
+          "profile": "full",
+          "temperature": "warm",
+          "block": 1,
+          "originalLabel": "confirm-full-b1-1-original",
+          "stereoFusedLabel": "confirm-full-b1-2-stereo-fused",
+          "originalElapsedMs": 2659.5,
+          "stereoFusedElapsedMs": 1761.8,
+          "elapsedDecreasePercent": 33.754,
+          "originalCompactTotalMs": 850.4,
+          "stereoFusedCompactTotalMs": 252.9,
+          "compactDecreasePercent": 70.261
+        },
+        {
+          "profile": "full",
+          "temperature": "warm",
+          "block": 1,
+          "originalLabel": "confirm-full-b1-4-original",
+          "stereoFusedLabel": "confirm-full-b1-3-stereo-fused",
+          "originalElapsedMs": 2591.5,
+          "stereoFusedElapsedMs": 1868.9,
+          "elapsedDecreasePercent": 27.883,
+          "originalCompactTotalMs": 854.3,
+          "stereoFusedCompactTotalMs": 227.4,
+          "compactDecreasePercent": 73.382
+        },
+        {
+          "profile": "full",
+          "temperature": "warm",
+          "block": 2,
+          "originalLabel": "confirm-full-b2-1-original",
+          "stereoFusedLabel": "confirm-full-b2-2-stereo-fused",
+          "originalElapsedMs": 2638.5,
+          "stereoFusedElapsedMs": 1971.7,
+          "elapsedDecreasePercent": 25.272,
+          "originalCompactTotalMs": 910.8,
+          "stereoFusedCompactTotalMs": 261.1,
+          "compactDecreasePercent": 71.333
+        },
+        {
+          "profile": "full",
+          "temperature": "warm",
+          "block": 2,
+          "originalLabel": "confirm-full-b2-4-original",
+          "stereoFusedLabel": "confirm-full-b2-3-stereo-fused",
+          "originalElapsedMs": 2541.2,
+          "stereoFusedElapsedMs": 2383.4,
+          "elapsedDecreasePercent": 6.21,
+          "originalCompactTotalMs": 952.6,
+          "stereoFusedCompactTotalMs": 297.0,
+          "compactDecreasePercent": 68.822
+        },
+        {
+          "profile": "lite",
+          "temperature": "cold",
+          "block": 1,
+          "originalLabel": "confirm-lite-b1-1-original",
+          "stereoFusedLabel": "confirm-lite-b1-2-stereo-fused",
+          "originalElapsedMs": 1001,
+          "stereoFusedElapsedMs": 834.4,
+          "elapsedDecreasePercent": 16.643,
+          "originalCompactTotalMs": 327.4,
+          "stereoFusedCompactTotalMs": 65.0,
+          "compactDecreasePercent": 80.147
+        },
+        {
+          "profile": "lite",
+          "temperature": "cold",
+          "block": 1,
+          "originalLabel": "confirm-lite-b1-4-original",
+          "stereoFusedLabel": "confirm-lite-b1-3-stereo-fused",
+          "originalElapsedMs": 990.6,
+          "stereoFusedElapsedMs": 763.6,
+          "elapsedDecreasePercent": 22.915,
+          "originalCompactTotalMs": 346.9,
+          "stereoFusedCompactTotalMs": 68.2,
+          "compactDecreasePercent": 80.34
+        },
+        {
+          "profile": "lite",
+          "temperature": "cold",
+          "block": 2,
+          "originalLabel": "confirm-lite-b2-1-original",
+          "stereoFusedLabel": "confirm-lite-b2-2-stereo-fused",
+          "originalElapsedMs": 949.5,
+          "stereoFusedElapsedMs": 822.1,
+          "elapsedDecreasePercent": 13.418,
+          "originalCompactTotalMs": 308.5,
+          "stereoFusedCompactTotalMs": 74.7,
+          "compactDecreasePercent": 75.786
+        },
+        {
+          "profile": "lite",
+          "temperature": "cold",
+          "block": 2,
+          "originalLabel": "confirm-lite-b2-4-original",
+          "stereoFusedLabel": "confirm-lite-b2-3-stereo-fused",
+          "originalElapsedMs": 943.8,
+          "stereoFusedElapsedMs": 910,
+          "elapsedDecreasePercent": 3.581,
+          "originalCompactTotalMs": 288.0,
+          "stereoFusedCompactTotalMs": 86.9,
+          "compactDecreasePercent": 69.826
+        },
+        {
+          "profile": "lite",
+          "temperature": "warm",
+          "block": 1,
+          "originalLabel": "confirm-lite-b1-1-original",
+          "stereoFusedLabel": "confirm-lite-b1-2-stereo-fused",
+          "originalElapsedMs": 960,
+          "stereoFusedElapsedMs": 660.5,
+          "elapsedDecreasePercent": 31.198,
+          "originalCompactTotalMs": 275.2,
+          "stereoFusedCompactTotalMs": 60.8,
+          "compactDecreasePercent": 77.907
+        },
+        {
+          "profile": "lite",
+          "temperature": "warm",
+          "block": 1,
+          "originalLabel": "confirm-lite-b1-4-original",
+          "stereoFusedLabel": "confirm-lite-b1-3-stereo-fused",
+          "originalElapsedMs": 886.6,
+          "stereoFusedElapsedMs": 678.6,
+          "elapsedDecreasePercent": 23.46,
+          "originalCompactTotalMs": 314.2,
+          "stereoFusedCompactTotalMs": 65.4,
+          "compactDecreasePercent": 79.185
+        },
+        {
+          "profile": "lite",
+          "temperature": "warm",
+          "block": 2,
+          "originalLabel": "confirm-lite-b2-1-original",
+          "stereoFusedLabel": "confirm-lite-b2-2-stereo-fused",
+          "originalElapsedMs": 967.1,
+          "stereoFusedElapsedMs": 670.4,
+          "elapsedDecreasePercent": 30.679,
+          "originalCompactTotalMs": 273.3,
+          "stereoFusedCompactTotalMs": 60.5,
+          "compactDecreasePercent": 77.863
+        },
+        {
+          "profile": "lite",
+          "temperature": "warm",
+          "block": 2,
+          "originalLabel": "confirm-lite-b2-4-original",
+          "stereoFusedLabel": "confirm-lite-b2-3-stereo-fused",
+          "originalElapsedMs": 899.9,
+          "stereoFusedElapsedMs": 793.1,
+          "elapsedDecreasePercent": 11.868,
+          "originalCompactTotalMs": 271.3,
+          "stereoFusedCompactTotalMs": 66.7,
+          "compactDecreasePercent": 75.415
+        }
+      ],
+      "aggregates": [
+        {
+          "profile": "full",
+          "temperature": "cold",
+          "elapsedMs": {
+            "original": {
+              "median": 2663.7,
+              "min": 2570.4,
+              "max": 2820.4,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 2159.45,
+              "min": 2075.3,
+              "max": 2285.3,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 18.93
+          },
+          "compactTotalMs": {
+            "original": {
+              "median": 944.15,
+              "min": 898.3,
+              "max": 961.8,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 256.05,
+              "min": 245.7,
+              "max": 276.5,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 72.88
+          },
+          "compactMaxMs": {
+            "original": {
+              "median": 28.3,
+              "min": 26.8,
+              "max": 35.7,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 6.15,
+              "min": 4.8,
+              "max": 6.4,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 78.269
+          },
+          "longTasksOriginal": 0,
+          "longTasksStereoFused": 0
+        },
+        {
+          "profile": "full",
+          "temperature": "warm",
+          "elapsedMs": {
+            "original": {
+              "median": 2615.0,
+              "min": 2541.2,
+              "max": 2659.5,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 1920.3,
+              "min": 1761.8,
+              "max": 2383.4,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 26.566
+          },
+          "compactTotalMs": {
+            "original": {
+              "median": 882.55,
+              "min": 850.4,
+              "max": 952.6,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 257.0,
+              "min": 227.4,
+              "max": 297.0,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 70.88
+          },
+          "compactMaxMs": {
+            "original": {
+              "median": 29.25,
+              "min": 22.3,
+              "max": 30.6,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 7.85,
+              "min": 5.9,
+              "max": 16.9,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 73.162
+          },
+          "longTasksOriginal": 0,
+          "longTasksStereoFused": 0
+        },
+        {
+          "profile": "lite",
+          "temperature": "cold",
+          "elapsedMs": {
+            "original": {
+              "median": 970.05,
+              "min": 943.8,
+              "max": 1001,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 828.25,
+              "min": 763.6,
+              "max": 910,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 14.618
+          },
+          "compactTotalMs": {
+            "original": {
+              "median": 317.95,
+              "min": 288.0,
+              "max": 346.9,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 71.45,
+              "min": 65.0,
+              "max": 86.9,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 77.528
+          },
+          "compactMaxMs": {
+            "original": {
+              "median": 14.15,
+              "min": 12,
+              "max": 15.7,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 7.25,
+              "min": 2.6,
+              "max": 15.3,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 48.763
+          },
+          "longTasksOriginal": 0,
+          "longTasksStereoFused": 0
+        },
+        {
+          "profile": "lite",
+          "temperature": "warm",
+          "elapsedMs": {
+            "original": {
+              "median": 929.95,
+              "min": 886.6,
+              "max": 967.1,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 674.5,
+              "min": 660.5,
+              "max": 793.1,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 27.469
+          },
+          "compactTotalMs": {
+            "original": {
+              "median": 274.25,
+              "min": 271.3,
+              "max": 314.2,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 63.1,
+              "min": 60.5,
+              "max": 66.7,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 76.992
+          },
+          "compactMaxMs": {
+            "original": {
+              "median": 10.9,
+              "min": 6.1,
+              "max": 19.7,
+              "count": 4
+            },
+            "stereoFused": {
+              "median": 4.2,
+              "min": 1.5,
+              "max": 8.6,
+              "count": 4
+            },
+            "decreaseOfMediansPercent": 61.468
+          },
+          "longTasksOriginal": 0,
+          "longTasksStereoFused": 0
+        }
+      ]
+    },
+    "exploratoryException": {
+      "label": "fused-lite-01",
+      "temperature": "cold",
+      "elapsedMs": 1310.8,
+      "compactTotalMs": 455.4,
+      "compactMaxMs": 366.8,
+      "longTaskCount": 1,
+      "longTaskTotalMs": 370,
+      "explanation": "Cause undetermined. Retained as observed; not removed as noise. It did not recur in the 32 subsequent ABBA observations, all of which are included.",
+      "use": "Initial exploration is separate from the fixed-tool confirmation set; this exception remains part of the evidence and local cold-start follow-up."
+    },
+    "interpretation": [
+      "Four A and four B invocations per profile support a reduction in isolated sample-preparation and compact time in this headless Chromium environment.",
+      "The two final product invocations verify actual served-method execution and PCM preservation. They are not added to the ABBA performance aggregate.",
+      "Browser response cache was measured: cold 0 hits, warm every selected MP3 cached. OS/server/process cache state was not claimed cold.",
+      "Pending decode promise peak is not native thread count or peak decoded-memory usage. Retained PCM bytes are not JS/native heap or GPU memory.",
+      "This tool does not measure whole app entry, FPS, playback, or audible quality. Local hardware/browser UI and audio acceptance remain required.",
+      "Mono fast path was not adopted because the actual decoded source set is entirely stereo. Decode concurrency reduction was not adopted: cap6 had no long tasks in baseline or confirmation."
+    ],
+    "environment": {
+      "browserVersion": "153.0.8010.0",
+      "platform": "linux",
+      "arch": "x64",
+      "chromeArgs": [
+        "--no-sandbox",
+        "--disable-dev-shm-usage"
+      ],
+      "headless": true,
+      "logicalCpu": 9
+    },
+    "commands": {
+      "baseEnvironment": {
+        "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+        "CHROME_EXECUTABLE": "/tmp/chromium",
+        "CHROME_ARGS": "[\"--no-sandbox\",\"--disable-dev-shm-usage\"]",
+        "HEADLESS": "1",
+        "TIMEOUT_MS": "90000"
+      },
+      "baselineExample": "BASE_URL=http://127.0.0.1:8391 REVISION=cabfe78d4ef04112372479c98d67a45e552c9b77 OUTPUT_DIR=<fresh-output> node tools/bench/sample-preparation.mjs baseline-full full original 6",
+      "fixtureExample": "BASE_URL=http://127.0.0.1:8391 REVISION=cabfe78d4ef04112372479c98d67a45e552c9b77 OUTPUT_DIR=<fresh-output> node tools/bench/sample-preparation.mjs candidate-full full stereo-fused 6",
+      "productExample": "BASE_URL=http://127.0.0.1:8392 REVISION=<candidate-sha> OUTPUT_DIR=<fresh-output> node tools/bench/sample-preparation.mjs product-full full original 6",
+      "lite": "Replace full with lite and use a new label. Run serially with no other browser or CPU benchmarks.",
+      "deadline": "Every invocation was wrapped in timeout --signal=TERM --kill-after=5s 120s; collector TIMEOUT_MS=90000.",
+      "collectorChange": "Final product verification uses a new tool SHA that defines the fixture only for stereo-fused and records the execution source. Timing logic otherwise unchanged.",
+      "preservedConfirmationCollector": "collector-confirmation-45d10ccf.mjs"
+    },
+    "observationValidation": "All rows PASS. Every PCM/shape matches its profile reference; source before/after and observed cold/warm cache checks passed; errors, consoleErrors, failedRequests and warnings are empty for every invocation. Source/tool identity is determined by phase; product rows use the product source group and no experimental fixture was defined.",
+    "observationColumns": [
+      "label",
+      "profile",
+      "variant",
+      "temperature",
+      "elapsedMs",
+      "compactTotalMs",
+      "compactMaxMs",
+      "decodePeakPendingPromises",
+      "decodePeakQueue",
+      "decodeSummedElapsedMs",
+      "longTaskCount",
+      "longTaskTotalMs",
+      "longTaskMaxMs",
+      "cacheHits",
+      "sampleCount",
+      "trimmedSamples"
+    ],
+    "observations": [
+      [
+        "baseline-full-01",
+        "full",
+        "original",
+        "cold",
+        2543.7,
+        872.1,
+        29.2,
+        6,
+        0,
+        10657.1,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "baseline-full-01",
+        "full",
+        "original",
+        "warm",
+        2459.6,
+        907.5,
+        32.5,
+        6,
+        0,
+        10370.5,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "baseline-lite-01",
+        "lite",
+        "original",
+        "cold",
+        926,
+        280.4,
+        13.1,
+        6,
+        0,
+        3721.6,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "baseline-lite-01",
+        "lite",
+        "original",
+        "warm",
+        851.5,
+        266.5,
+        6.3,
+        6,
+        0,
+        3569.1,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "confirm-full-b1-1-original",
+        "full",
+        "original",
+        "cold",
+        2714.8,
+        936.6,
+        35.7,
+        6,
+        0,
+        11316.4,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b1-1-original",
+        "full",
+        "original",
+        "warm",
+        2659.5,
+        850.4,
+        28.4,
+        6,
+        0,
+        11654.6,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b1-2-stereo-fused",
+        "full",
+        "stereo-fused",
+        "cold",
+        2075.3,
+        251.0,
+        4.8,
+        6,
+        0,
+        9070.6,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b1-2-stereo-fused",
+        "full",
+        "stereo-fused",
+        "warm",
+        1761.8,
+        252.9,
+        6.9,
+        6,
+        0,
+        8447.6,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b1-3-stereo-fused",
+        "full",
+        "stereo-fused",
+        "cold",
+        2104.3,
+        245.7,
+        6.4,
+        6,
+        0,
+        9194.0,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b1-3-stereo-fused",
+        "full",
+        "stereo-fused",
+        "warm",
+        1868.9,
+        227.4,
+        5.9,
+        6,
+        0,
+        8905.9,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b1-4-original",
+        "full",
+        "original",
+        "cold",
+        2820.4,
+        961.8,
+        26.8,
+        6,
+        0,
+        11654.5,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b1-4-original",
+        "full",
+        "original",
+        "warm",
+        2591.5,
+        854.3,
+        22.3,
+        6,
+        0,
+        11009.5,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b2-1-original",
+        "full",
+        "original",
+        "cold",
+        2570.4,
+        898.3,
+        28,
+        6,
+        0,
+        10819.6,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b2-1-original",
+        "full",
+        "original",
+        "warm",
+        2638.5,
+        910.8,
+        30.6,
+        6,
+        0,
+        11185.8,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b2-2-stereo-fused",
+        "full",
+        "stereo-fused",
+        "cold",
+        2214.6,
+        276.5,
+        6.4,
+        6,
+        0,
+        9645.3,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b2-2-stereo-fused",
+        "full",
+        "stereo-fused",
+        "warm",
+        1971.7,
+        261.1,
+        8.8,
+        6,
+        0,
+        9154.0,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b2-3-stereo-fused",
+        "full",
+        "stereo-fused",
+        "cold",
+        2285.3,
+        261.1,
+        5.9,
+        6,
+        0,
+        9953.4,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b2-3-stereo-fused",
+        "full",
+        "stereo-fused",
+        "warm",
+        2383.4,
+        297.0,
+        16.9,
+        6,
+        0,
+        10824.5,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b2-4-original",
+        "full",
+        "original",
+        "cold",
+        2612.6,
+        951.7,
+        28.6,
+        6,
+        0,
+        10869.4,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "confirm-full-b2-4-original",
+        "full",
+        "original",
+        "warm",
+        2541.2,
+        952.6,
+        30.1,
+        6,
+        0,
+        10801.5,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "confirm-lite-b1-1-original",
+        "lite",
+        "original",
+        "cold",
+        1001,
+        327.4,
+        15.7,
+        6,
+        0,
+        3858.2,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b1-1-original",
+        "lite",
+        "original",
+        "warm",
+        960,
+        275.2,
+        19.7,
+        6,
+        0,
+        4070.8,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b1-2-stereo-fused",
+        "lite",
+        "stereo-fused",
+        "cold",
+        834.4,
+        65.0,
+        2.6,
+        6,
+        0,
+        3411.0,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b1-2-stereo-fused",
+        "lite",
+        "stereo-fused",
+        "warm",
+        660.5,
+        60.8,
+        5.1,
+        6,
+        0,
+        3075.4,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b1-3-stereo-fused",
+        "lite",
+        "stereo-fused",
+        "cold",
+        763.6,
+        68.2,
+        4.2,
+        6,
+        0,
+        3177.2,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b1-3-stereo-fused",
+        "lite",
+        "stereo-fused",
+        "warm",
+        678.6,
+        65.4,
+        8.6,
+        6,
+        0,
+        3116.6,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b1-4-original",
+        "lite",
+        "original",
+        "cold",
+        990.6,
+        346.9,
+        13.6,
+        6,
+        0,
+        3754.6,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b1-4-original",
+        "lite",
+        "original",
+        "warm",
+        886.6,
+        314.2,
+        15.4,
+        6,
+        0,
+        3672.1,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b2-1-original",
+        "lite",
+        "original",
+        "cold",
+        949.5,
+        308.5,
+        12,
+        6,
+        0,
+        3776.9,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b2-1-original",
+        "lite",
+        "original",
+        "warm",
+        967.1,
+        273.3,
+        6.1,
+        6,
+        0,
+        4027.0,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b2-2-stereo-fused",
+        "lite",
+        "stereo-fused",
+        "cold",
+        822.1,
+        74.7,
+        10.3,
+        6,
+        0,
+        3337.7,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b2-2-stereo-fused",
+        "lite",
+        "stereo-fused",
+        "warm",
+        670.4,
+        60.5,
+        1.5,
+        6,
+        0,
+        3125.4,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b2-3-stereo-fused",
+        "lite",
+        "stereo-fused",
+        "cold",
+        910,
+        86.9,
+        15.3,
+        6,
+        0,
+        3439.0,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b2-3-stereo-fused",
+        "lite",
+        "stereo-fused",
+        "warm",
+        793.1,
+        66.7,
+        3.3,
+        6,
+        0,
+        3454.7,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b2-4-original",
+        "lite",
+        "original",
+        "cold",
+        943.8,
+        288.0,
+        14.7,
+        6,
+        0,
+        3738.2,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "confirm-lite-b2-4-original",
+        "lite",
+        "original",
+        "warm",
+        899.9,
+        271.3,
+        6.4,
+        6,
+        0,
+        3734.4,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "fused-full-01",
+        "full",
+        "stereo-fused",
+        "cold",
+        1856.9,
+        242.2,
+        4.6,
+        6,
+        0,
+        8376.2,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "fused-full-01",
+        "full",
+        "stereo-fused",
+        "warm",
+        1717.3,
+        231.0,
+        4.5,
+        6,
+        0,
+        8276.2,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "fused-lite-01",
+        "lite",
+        "stereo-fused",
+        "cold",
+        1310.8,
+        455.4,
+        366.8,
+        6,
+        0,
+        5178.6,
+        1,
+        370,
+        370,
+        0,
+        207,
+        14
+      ],
+      [
+        "fused-lite-01",
+        "lite",
+        "stereo-fused",
+        "warm",
+        912.6,
+        76.5,
+        1.7,
+        6,
+        0,
+        4093.3,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ],
+      [
+        "product-full-01",
+        "full",
+        "original",
+        "cold",
+        2245.2,
+        269.0,
+        8.4,
+        6,
+        0,
+        9930.6,
+        0,
+        0,
+        0,
+        0,
+        389,
+        0
+      ],
+      [
+        "product-full-01",
+        "full",
+        "original",
+        "warm",
+        1822.9,
+        236.8,
+        5.4,
+        6,
+        0,
+        8688.7,
+        0,
+        0,
+        0,
+        389,
+        389,
+        0
+      ],
+      [
+        "product-lite-01",
+        "lite",
+        "original",
+        "cold",
+        1116.2,
+        88.2,
+        10.3,
+        6,
+        0,
+        4173.5,
+        0,
+        0,
+        0,
+        0,
+        207,
+        14
+      ],
+      [
+        "product-lite-01",
+        "lite",
+        "original",
+        "warm",
+        706.7,
+        77.9,
+        9.2,
+        6,
+        0,
+        3251.3,
+        0,
+        0,
+        0,
+        207,
+        207,
+        14
+      ]
+    ]
+  },
+  "regression": {
+    "node": {
+      "version": "v24.19.0",
+      "command": "npm test",
+      "status": "PASS",
+      "testFiles": 16,
+      "failedFiles": 0,
+      "logSha256": "9879385eeb764984ba581889972bdbaf46df3122b3a9c6a1eb5b0bc30d5cd5d7"
+    },
+    "python": {
+      "version": "3.12.14",
+      "command": "python3 -m unittest discover -s tools/bench/tests -p 'test_*.py'",
+      "status": "PASS",
+      "cases": 5,
+      "logSha256": "9b33b7438a79695f1440ca459ba7e7408f4467bfeb70d4e199e867799fdb60ae"
+    },
+    "functional": [
+      {
+        "venue": "hall",
+        "device": "desktop",
+        "status": "PASS",
+        "scope": "full",
+        "viewport": [
+          640,
+          360
+        ],
+        "devicePixelRatio": 1,
+        "fixtureSourceSha256": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+        "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+        "fixtures": [
+          "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+          "Google Fonts CSS is replaced with an empty response and browser system fallback fonts are used; font fidelity is outside this check.",
+          "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+          "Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.",
+          "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+          "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+          "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active."
+        ],
+        "unchecked": [],
+        "failures": [],
+        "errors": [],
+        "warnings": [
+          "[.WebGL-0xa5400f37c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "[.WebGL-0xa5400f37c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "[.WebGL-0xa5400f37c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "[.WebGL-0xa5400f37c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+        ],
+        "failedRequests": [],
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "diagnostics": {
+          "pageErrors": [],
+          "consoleErrors": [],
+          "warnings": [
+            "[.WebGL-0xa5400f37c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+            "[.WebGL-0xa5400f37c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+            "[.WebGL-0xa5400f37c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+            "[.WebGL-0xa5400f37c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+          ],
+          "failedRequests": []
+        },
+        "sourceHashes": {
+          "js/boot.js": {
+            "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+          },
+          "js/main.js": {
+            "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+          },
+          "js/quality.js": {
+            "sha256": "3be39f32cbada41743f0ecb168de8a31599af1374db940ca7c9bfaae6c96336e"
+          },
+          "js/scene/hall.js": {
+            "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+          },
+          "js/scene/seats.js": {
+            "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+          },
+          "js/scene/audience.js": {
+            "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+          },
+          "js/scene/screen.js": {
+            "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+          },
+          "js/scene/sphere.js": {
+            "sha256": "6cfa58b0cda059640888c1db7a9e509cce6e6bcab8fc1557c6d6ff20da47ee55"
+          },
+          "js/scene/dome3d.js": {
+            "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+          },
+          "js/scene/domeshow.js": {
+            "sha256": "15900b22108ee66b04212725b18b2b0d131227e1044ef64f04393adde52b86b9"
+          },
+          "js/audio/engine.js": {
+            "sha256": "8cad266cdefafc6d4b0beabea13a59c60bafd05ffdaa8c944ebfafb2e3b166e7"
+          },
+          "js/audio/performance.js": {
+            "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+          }
+        },
+        "contextLosses": [],
+        "checksCompleted": [
+          "domeVisibility",
+          "device",
+          "identity",
+          "entry",
+          "movement",
+          "look",
+          "listenerAudioParams",
+          "seatFixture",
+          "sitStand",
+          "roster",
+          "seek",
+          "resumeClock",
+          "resumeTrace",
+          "playback",
+          "quality",
+          "audienceControl",
+          "audience",
+          "broadcastToggle",
+          "automatic",
+          "layout"
+        ],
+        "completedRenderFrames": 14,
+        "rawFilename": "followup-hall-desktop-hall-desktop.json",
+        "rawSha256": "c5071e395c13b7bf9ce2277cafa6b3640cb7fc422665d485c44a9aa2693b7297"
+      },
+      {
+        "venue": "hall",
+        "device": "mobile",
+        "status": "PASS",
+        "scope": "full",
+        "viewport": [
+          390,
+          844
+        ],
+        "devicePixelRatio": 2,
+        "fixtureSourceSha256": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+        "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+        "fixtures": [
+          "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+          "Google Fonts CSS is replaced with an empty response and browser system fallback fonts are used; font fidelity is outside this check.",
+          "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+          "Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.",
+          "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+          "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+          "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active."
+        ],
+        "unchecked": [],
+        "failures": [],
+        "errors": [],
+        "warnings": [],
+        "failedRequests": [],
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "diagnostics": {
+          "pageErrors": [],
+          "consoleErrors": [],
+          "warnings": [],
+          "failedRequests": []
+        },
+        "sourceHashes": {
+          "js/boot.js": {
+            "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+          },
+          "js/main.js": {
+            "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+          },
+          "js/quality.js": {
+            "sha256": "3be39f32cbada41743f0ecb168de8a31599af1374db940ca7c9bfaae6c96336e"
+          },
+          "js/scene/hall.js": {
+            "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+          },
+          "js/scene/seats.js": {
+            "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+          },
+          "js/scene/audience.js": {
+            "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+          },
+          "js/scene/screen.js": {
+            "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+          },
+          "js/scene/sphere.js": {
+            "sha256": "6cfa58b0cda059640888c1db7a9e509cce6e6bcab8fc1557c6d6ff20da47ee55"
+          },
+          "js/scene/dome3d.js": {
+            "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+          },
+          "js/scene/domeshow.js": {
+            "sha256": "15900b22108ee66b04212725b18b2b0d131227e1044ef64f04393adde52b86b9"
+          },
+          "js/audio/engine.js": {
+            "sha256": "8cad266cdefafc6d4b0beabea13a59c60bafd05ffdaa8c944ebfafb2e3b166e7"
+          },
+          "js/audio/performance.js": {
+            "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+          }
+        },
+        "contextLosses": [],
+        "checksCompleted": [
+          "domeVisibility",
+          "device",
+          "identity",
+          "entry",
+          "movement",
+          "look",
+          "listenerAudioParams",
+          "seatFixture",
+          "sitStand",
+          "roster",
+          "seek",
+          "resumeClock",
+          "resumeTrace",
+          "playback",
+          "quality",
+          "audienceControl",
+          "audience",
+          "broadcastToggle",
+          "automatic",
+          "layout"
+        ],
+        "completedRenderFrames": 14,
+        "rawFilename": "followup-hall-mobile-hall-mobile.json",
+        "rawSha256": "433926cc240ea3c4dc2ff9fa6192e626997b0b0514b3bc2db16a868402d49a73"
+      },
+      {
+        "venue": "sphere",
+        "device": "desktop",
+        "status": "PASS",
+        "scope": "full",
+        "viewport": [
+          640,
+          360
+        ],
+        "devicePixelRatio": 1,
+        "fixtureSourceSha256": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+        "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+        "fixtures": [
+          "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+          "Google Fonts CSS is replaced with an empty response and browser system fallback fonts are used; font fidelity is outside this check.",
+          "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+          "Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.",
+          "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+          "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+          "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active.",
+          "For the selected Bach programme item, snapConductor(false) completes only the conductor exit animation; the programme selection and music start use real controls.",
+          "After the UI selects the world and seeks past the title, dome.update(8) advances the existing dome controller, including shader time and lighting, past the maximum 7-second startPiece reveal and live fade-out. It does not select a world, replace the shader, write transition uniforms directly or manually advance the audio clock."
+        ],
+        "unchecked": [],
+        "failures": [],
+        "errors": [],
+        "warnings": [
+          "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.",
+          "[.WebGL-0x155c00fa0000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "[.WebGL-0x155c00fa0000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "[.WebGL-0x155c00fa0000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "[.WebGL-0x155c00fa0000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+        ],
+        "failedRequests": [],
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "diagnostics": {
+          "pageErrors": [],
+          "consoleErrors": [],
+          "warnings": [
+            "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.",
+            "[.WebGL-0x155c00fa0000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+            "[.WebGL-0x155c00fa0000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+            "[.WebGL-0x155c00fa0000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+            "[.WebGL-0x155c00fa0000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+          ],
+          "failedRequests": []
+        },
+        "sourceHashes": {
+          "js/boot.js": {
+            "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+          },
+          "js/main.js": {
+            "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+          },
+          "js/quality.js": {
+            "sha256": "3be39f32cbada41743f0ecb168de8a31599af1374db940ca7c9bfaae6c96336e"
+          },
+          "js/scene/hall.js": {
+            "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+          },
+          "js/scene/seats.js": {
+            "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+          },
+          "js/scene/audience.js": {
+            "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+          },
+          "js/scene/screen.js": {
+            "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+          },
+          "js/scene/sphere.js": {
+            "sha256": "6cfa58b0cda059640888c1db7a9e509cce6e6bcab8fc1557c6d6ff20da47ee55"
+          },
+          "js/scene/dome3d.js": {
+            "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+          },
+          "js/scene/domeshow.js": {
+            "sha256": "15900b22108ee66b04212725b18b2b0d131227e1044ef64f04393adde52b86b9"
+          },
+          "js/audio/engine.js": {
+            "sha256": "8cad266cdefafc6d4b0beabea13a59c60bafd05ffdaa8c944ebfafb2e3b166e7"
+          },
+          "js/audio/performance.js": {
+            "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+          }
+        },
+        "contextLosses": [],
+        "checksCompleted": [
+          "domeVisibility",
+          "device",
+          "identity",
+          "entry",
+          "movement",
+          "look",
+          "listenerAudioParams",
+          "seatFixture",
+          "sitStand",
+          "roster",
+          "seek",
+          "resumeClock",
+          "resumeTrace",
+          "playback",
+          "worldSeek",
+          "dome",
+          "quality",
+          "audienceControl",
+          "audience",
+          "broadcastToggle",
+          "automatic",
+          "layout"
+        ],
+        "completedRenderFrames": 17,
+        "rawFilename": "followup-sphere-desktop-sphere-desktop.json",
+        "rawSha256": "650252b31d09e7a0d7fbfb8a1fb71a1700b6e678e5d8230e1f0ecf73710e4769"
+      },
+      {
+        "venue": "sphere",
+        "device": "mobile",
+        "status": "PASS",
+        "scope": "full",
+        "viewport": [
+          390,
+          844
+        ],
+        "devicePixelRatio": 2,
+        "fixtureSourceSha256": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+        "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+        "fixtures": [
+          "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+          "Google Fonts CSS is replaced with an empty response and browser system fallback fonts are used; font fidelity is outside this check.",
+          "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+          "Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.",
+          "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+          "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+          "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active.",
+          "For the selected Bach programme item, snapConductor(false) completes only the conductor exit animation; the programme selection and music start use real controls.",
+          "After the UI selects the world and seeks past the title, dome.update(8) advances the existing dome controller, including shader time and lighting, past the maximum 7-second startPiece reveal and live fade-out. It does not select a world, replace the shader, write transition uniforms directly or manually advance the audio clock."
+        ],
+        "unchecked": [],
+        "failures": [],
+        "errors": [],
+        "warnings": [
+          "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+        ],
+        "failedRequests": [],
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "diagnostics": {
+          "pageErrors": [],
+          "consoleErrors": [],
+          "warnings": [
+            "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+          ],
+          "failedRequests": []
+        },
+        "sourceHashes": {
+          "js/boot.js": {
+            "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+          },
+          "js/main.js": {
+            "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+          },
+          "js/quality.js": {
+            "sha256": "3be39f32cbada41743f0ecb168de8a31599af1374db940ca7c9bfaae6c96336e"
+          },
+          "js/scene/hall.js": {
+            "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+          },
+          "js/scene/seats.js": {
+            "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+          },
+          "js/scene/audience.js": {
+            "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+          },
+          "js/scene/screen.js": {
+            "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+          },
+          "js/scene/sphere.js": {
+            "sha256": "6cfa58b0cda059640888c1db7a9e509cce6e6bcab8fc1557c6d6ff20da47ee55"
+          },
+          "js/scene/dome3d.js": {
+            "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+          },
+          "js/scene/domeshow.js": {
+            "sha256": "15900b22108ee66b04212725b18b2b0d131227e1044ef64f04393adde52b86b9"
+          },
+          "js/audio/engine.js": {
+            "sha256": "8cad266cdefafc6d4b0beabea13a59c60bafd05ffdaa8c944ebfafb2e3b166e7"
+          },
+          "js/audio/performance.js": {
+            "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+          }
+        },
+        "contextLosses": [],
+        "checksCompleted": [
+          "domeVisibility",
+          "device",
+          "identity",
+          "entry",
+          "movement",
+          "look",
+          "listenerAudioParams",
+          "seatFixture",
+          "sitStand",
+          "roster",
+          "seek",
+          "resumeClock",
+          "resumeTrace",
+          "playback",
+          "worldSeek",
+          "dome",
+          "quality",
+          "audienceControl",
+          "audience",
+          "broadcastToggle",
+          "automatic",
+          "layout"
+        ],
+        "completedRenderFrames": 17,
+        "rawFilename": "followup-sphere-mobile-sphere-mobile.json",
+        "rawSha256": "ccdaceb90b63a14c4c46d3e16a25171dabe8df916dbb6cd63023fa130ecc0a7a"
+      }
+    ],
+    "functionalPlanSha256": "8964051160e4de7f300d6d8711f7104a3ab3bb70a2afdefe9e1732270980f74f",
+    "ci": "Inspect the exact final PR head checks; prior cabfe78 checks are not this candidate’s CI."
+  },
+  "candidateProductCommit": "a9c0b95ee62e65520a167206a606d9309844a6ad",
+  "inputSummaryFileSha256": {
+    "houseWorker": "501ff9db8c96ba0853c73279f726d8fbe80d27f39f4435b267f03ac809e71bb0",
+    "samplePreparation": "7e69d935f86afed43656bd0143010a539ed131246d6e87d8446b5cb6e75143e7"
+  },
+  "inputSummaryNote": "Digests identify the original pre-publication summary files; embedded candidate descriptions were subsequently updated to the actual product commit."
+}
