@@ -716,36 +716,95 @@ vec3 sSNOW(vec3 d, float az, float el) {
   return c * (0.9 + 0.2 * uLevel);
 }
 
+float segDist(vec2 p, vec2 a, vec2 b, out float t) {
+  vec2 pa = p - a; vec2 ba = b - a;
+  t = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * t);
+}
+mat2 rot2(float a) { float c = cos(a); float s = sin(a); return mat2(c, -s, s, c); }
 vec3 sSPRING(vec3 d, float az, float el) {
-  // lying under cherry trees in April: a deep blue sky with a few high
-  // clouds, blossom-laden boughs reaching in from all round the rim, and
-  // petals drifting down across everything
-  vec3 c = mix(vec3(0.62, 0.78, 0.95), vec3(0.16, 0.38, 0.82), smoothstep(-0.05, 1.2, el));
-  vec3 cl = clouds(d, el, vec3(1.0), vec3(0.78, 0.82, 0.92), 0.3, 0.008);
-  c = mix(c, cl, clamp(length(cl) * 0.8, 0.0, 0.8) * step(0.0, el));
-  // boughs: a fringe of blossom clusters whose reach varies round the rim
-  vec2 pp = d.xz / max(d.y + 0.2, 0.05);
-  float reach = 0.42 + 0.22 * fbm(vec3(az * 1.6, 2.0, 0.0));
-  float cluster = fbm(vec3(pp * 3.0, 5.0)) * 0.7 + 0.3 * noise(vec3(pp * 18.0, 1.0));
-  float bough = smoothstep(reach + 0.06, reach - 0.08, el) * smoothstep(0.38, 0.55, cluster);
-  vec3 bloom = mix(vec3(0.98, 0.6, 0.74), vec3(1.0, 0.86, 0.9), noise(vec3(pp * 30.0, 2.0)));
-  bloom *= 0.8 + 0.25 * noise(vec3(pp * 9.0, 4.0));
-  // shade deep inside the clusters, light on their edges
-  float depth = smoothstep(0.55, 0.75, cluster);
-  bloom = mix(bloom, bloom * vec3(0.72, 0.55, 0.62), depth * 0.6);
-  c = mix(c, bloom, bough);
+  // Lying on the grass among cherry trees in April, looking up: five trees
+  // round the rim, their dark limbs reaching in toward the top of the sky
+  // and heavy with blossom, a deep blue sky between with a few fair-weather
+  // clouds, the sun glowing through the flowers, petals drifting down.
+  // (Drawn on the sky seen from below: p = d.xz / (1 + d.y) puts the zenith
+  // at the centre and the horizon on the unit circle.)
+  vec2 p = d.xz / (1.0 + max(d.y, -0.6));
+  vec3 c = mix(vec3(0.3, 0.45, 0.7), vec3(0.035, 0.12, 0.42), smoothstep(-0.05, 1.1, el));
+  vec3 sd = normalize(vec3(-0.3, 0.8, -0.5));
+  float sun = max(dot(d, sd), 0.0);
+  c += vec3(1.0, 0.92, 0.75) * (pow(sun, 300.0) * 1.0 + pow(sun, 24.0) * 0.08);
+  vec3 cl = clouds(d, el, vec3(0.95, 0.93, 0.9), vec3(0.5, 0.55, 0.68), 0.28, 0.006);
+  c = mix(c, cl, clamp(length(cl) * 0.9, 0.0, 0.85) * step(0.0, el));
+  // the trees: limbs as tapering segments, blossom heaped along the outer ones
+  // (cd: distance to the nearest clump of blossom, < 0 inside one)
+  float wood = 0.0;
+  float lump = fbm(vec3(p * 24.0, 5.0));
+  float cd = 1.0;
+  for (int i = 0; i < 5 * uOne; i++) {
+    float fi = float(i);
+    float ang = fi * 1.2566 + 0.35 + 0.3 * hash2(vec2(fi, 1.0));
+    vec2 T = vec2(sin(ang), -cos(ang)) * 1.06;
+    vec2 inward = -normalize(T);
+    for (int j = 0; j < 6 * uOne; j++) {
+      float fj = float(j);
+      float h1 = hash2(vec2(fi, fj + 3.0));
+      float h2 = hash2(vec2(fi, fj + 7.0));
+      float h3 = hash2(vec2(fi, fj + 13.0));
+      float a = (fj - 2.5) * 0.3 + (h1 - 0.5) * 0.3;
+      vec2 dir = rot2(a) * inward;
+      float L = 0.4 + 0.34 * h2;
+      vec2 m = T + dir * L * 0.45;
+      vec2 dir2 = rot2(a * 0.6 + (h2 - 0.5) * 0.7) * dir;
+      vec2 e = m + dir2 * L * 0.55;
+      vec2 k1 = m + (e - m) * 0.35;
+      vec2 k2 = m + (e - m) * 0.7;
+      vec2 w1 = k1 + rot2(0.8) * dir2 * L * (0.16 + 0.1 * h3);
+      vec2 w2 = k2 + rot2(-0.75) * dir2 * L * (0.14 + 0.1 * h1);
+      float t1; float t2; float t3; float t4;
+      float d1 = segDist(p, T, m, t1);
+      float d2 = segDist(p, m, e, t2);
+      float d3 = segDist(p, k1, w1, t3);
+      float d4 = segDist(p, k2, w2, t4);
+      wood = max(wood, smoothstep(0.004, -0.003, d1 - mix(0.028, 0.015, t1)));
+      float t0;
+      wood = max(wood, smoothstep(0.004, -0.003, segDist(p, T * 1.5, T, t0) - 0.034)); // the trunk, down out of sight
+      wood = max(wood, smoothstep(0.003, -0.002, d2 - mix(0.015, 0.004, t2)));
+      wood = max(wood, smoothstep(0.003, -0.002, min(d3 - mix(0.007, 0.002, t3), d4 - mix(0.007, 0.002, t4))));
+      float rr = 0.035 + 0.035 * t2;
+      cd = min(cd, d2 - rr * (0.4 + 1.1 * lump) + 0.03 * (1.0 - smoothstep(0.1, 0.3, t2)));
+      cd = min(cd, min(d3, d4) - 0.045 * (0.4 + 1.1 * lump));
+    }
+  }
+  // the flowers themselves: little five-petalled cups, many to a clump
+  float cells;
+  {
+    vec2 g = p * 150.0;
+    vec2 gi = floor(g);
+    vec2 q = fract(g) - 0.5 - (hash22(gi) - 0.5) * 0.5;
+    float pet = 0.34 + 0.08 * cos(atan(q.y, q.x) * 5.0 + hash2(gi) * 6.0);
+    cells = smoothstep(pet, pet - 0.12, length(q)) * step(0.2, hash2(gi + 4.0));
+  }
+  cd += 0.03 * smoothstep(0.62, 0.8, fbm(vec3(p * 9.0, 8.0))); // sky showing through
+  float flower = smoothstep(0.006, -0.004, cd - 0.014 * cells); // ragged with single flowers at the edge
+  float depth = smoothstep(0.0, -0.05, cd); // deep in a clump, in its own shade
+  vec3 pink = mix(vec3(0.98, 0.72, 0.78), vec3(0.62, 0.22, 0.34), depth * 0.8);
+  pink *= 0.62 + 0.45 * cells;
+  pink += vec3(1.0, 0.8, 0.7) * pow(sun, 6.0) * 0.5 * (1.0 - depth * 0.6); // the sun through the petals
+  c = mix(c, vec3(0.03, 0.02, 0.018), wood);
+  c = mix(c, pink * 0.8, flower * (0.85 + 0.15 * cells));
   // petals drifting across
   for (int l = 0; l < 2 * uOne; l++) {
-    float fl = float(l);
-    float k = 10.0 + fl * 9.0;
-    vec2 g = vec2(az * k - uTime * (0.22 + fl * 0.1), el * k + uTime * 0.1 + sin(az * 4.0 + uTime) * 0.3);
+    float fl2 = float(l);
+    float k = 10.0 + fl2 * 9.0;
+    vec2 g = vec2(az * k - uTime * (0.22 + fl2 * 0.1), el * k + uTime * 0.1 + sin(az * 4.0 + uTime) * 0.3);
     vec2 gi = floor(g);
-    vec2 o = hash22(gi + fl * 3.0) - 0.5;
+    vec2 o = hash22(gi + fl2 * 3.0) - 0.5;
     vec2 f = fract(g) - 0.5 - o * 0.6;
-    float rot = uTime * (1.0 + hash2(gi)) + hash2(gi + 1.0) * 6.0;
-    f = mat2(cos(rot), -sin(rot), sin(rot), cos(rot)) * f;
+    float rt = uTime * (1.0 + hash2(gi)) + hash2(gi + 1.0) * 6.0;
+    f = mat2(cos(rt), -sin(rt), sin(rt), cos(rt)) * f;
     float pet = smoothstep(1.0, 0.65, length(f / vec2(0.11, 0.06)));
-    c = mix(c, vec3(1.0, 0.76, 0.84), pet * step(0.45, hash2(gi + 8.0 + fl)) * 0.95);
+    c = mix(c, vec3(0.95, 0.6, 0.68), pet * step(0.8, hash2(gi + 8.0 + fl2)) * 0.9);
   }
   return c * (0.9 + 0.15 * uLevel);
 }
