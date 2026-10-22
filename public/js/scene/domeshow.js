@@ -606,45 +606,94 @@ vec3 sDECO(vec3 d, float az, float el) {
   return c * (0.85 + 0.3 * uLevel);
 }
 
-vec3 burst(vec2 p, float seed, float tt, vec3 col) {
-  // a peony: sparks flung out on 48 rays, each with a short tail, falling
-  // and fading; only the ray nearest the pixel is evaluated
+vec3 burst(vec2 p, float seed, float tt, vec3 col, float kind) {
+  // one shell: sparks flung out on rays, each with a tail, falling and
+  // fading; only the ray nearest the pixel is evaluated. kind: 0 peony,
+  // 1 willow (gold, slow, long drooping trails), 2 ring, 3 crossette that
+  // turns to white glitter at the end
+  float willow = step(0.5, kind) * step(kind, 1.5);
+  float ring = step(1.5, kind) * step(kind, 2.5);
+  float glit = step(2.5, kind);
   float age = tt;
   vec2 rel = p;
-  rel.y += 0.05 * age * age; // gravity
-  float rad = 0.3 * (1.0 - exp(-age * 2.6));
-  float N = 48.0;
+  rel.y += (0.05 + 0.07 * willow) * age * age; // gravity
+  if (ring > 0.5) rel.y *= 1.8 + 0.6 * hash2(vec2(seed, 2.0)); // a ring seen at a slant
+  float rad = (0.3 + 0.06 * willow) * (1.0 - exp(-age * (2.6 - willow)));
+  float N = 48.0 - 16.0 * willow + 12.0 * ring;
   float a = atan(rel.y, rel.x);
   float k = floor(a / (2.0 * PI) * N + 0.5);
   float ak = k / N * 2.0 * PI + (hash2(vec2(k, seed)) - 0.5) * 0.06;
-  float rk = rad * (0.82 + 0.3 * hash2(vec2(k + 7.0, seed)));
+  float rk = rad * mix(0.82 + 0.3 * hash2(vec2(k + 7.0, seed)), 1.0, ring);
   vec2 dir = vec2(cos(ak), sin(ak));
   float t = dot(rel, dir);
   float perp = abs(dot(rel, vec2(-dir.y, dir.x)));
   float head = exp(-(perp * perp + (t - rk) * (t - rk)) * 30000.0);
-  float tail = exp(-perp * perp * 90000.0) * smoothstep(rk * 0.45, rk, t) * step(t, rk) * 0.5;
-  float fade = exp(-age * 1.15);
+  float tailLen = mix(0.45, 0.05, willow);
+  float tail = exp(-perp * perp * mix(90000.0, 50000.0, willow)) * smoothstep(rk * tailLen, rk, t) * step(t, rk) * mix(0.5, 0.8, willow);
+  float fade = exp(-age * mix(1.15, 0.55, willow));
   float tw = 0.65 + 0.35 * sin(uTime * 37.0 + k * 3.1 + seed * 20.0);
-  // the flash at the moment of the burst
+  vec3 cc = col;
+  // the crossette's glitter: the heads break into crackling white points
+  float late = smoothstep(0.9, 1.4, age) * glit;
+  cc = mix(cc, vec3(1.0, 0.95, 0.85), late);
+  tw = mix(tw, step(0.6, hash2(vec2(floor(uTime * 20.0) + k * 7.0, seed * 31.0))) * 1.6, late); // (no sine hash: see hash2)
+  // the flash at the moment of the burst, and the light it throws on the sky
   float flash = exp(-age * 9.0) * exp(-dot(rel, rel) * 400.0) * 1.5;
-  return col * ((head * 2.6 + tail) * fade * tw * 2.0) + vec3(1.0, 0.95, 0.85) * flash;
+  float glow = exp(-age * 2.0) * exp(-length(rel) * 5.0) * 0.06;
+  return cc * ((head * 1.7 + tail) * fade * tw * 1.6 + glow) + vec3(1.0, 0.95, 0.85) * flash;
 }
 
 vec3 sFIREWORKS(vec3 d, float az, float el) {
-  vec3 c = sSTARS(d, az, el) * 0.4 + vec3(0.02, 0.01, 0.04);
+  // A festival night over a harbour town: shells climbing on spark trails
+  // and bursting - peonies, gold willows that hang and drift down, rings,
+  // crossettes that end in crackling glitter - their smoke hanging lit in
+  // the air, the town's roofs and windows black and gold along the rim.
+  vec3 c = sSTARS(d, az, el) * 0.3 + mix(vec3(0.03, 0.02, 0.05), vec3(0.008, 0.008, 0.025), smoothstep(-0.05, 0.9, el));
   vec2 p = vec2(az, el);
+  vec3 lightSum = vec3(0.0);
   for (int i = 0; i < 7 * uOne; i++) {
     float fi = float(i);
-    float period = 2.6 + fi * 0.37;
+    float period = 3.1 + fi * 0.41;
     float t = uTime + fi * 1.13;
     float k = floor(t / period);
-    float tt = mod(t, period);
+    float tt = mod(t, period) - 0.7; // 0.7 s of climbing first
     vec2 h = hash22(vec2(k, fi));
-    vec2 c0 = vec2(h.x * 2.6 - 1.3, 0.25 + h.y * 0.7);
-    vec3 col = 0.5 + 0.5 * cos(6.2831 * (hash2(vec2(k, fi + 9.0)) + vec3(0.0, 0.33, 0.67)));
-    c += burst(p - c0, hash2(vec2(fi, k)), tt, col);
+    vec2 c0 = vec2(h.x * 2.6 - 1.3, 0.28 + h.y * 0.6);
+    float hk = hash2(vec2(k, fi + 9.0));
+    float kind = floor(hash2(vec2(k + 3.0, fi)) * 4.0);
+    vec3 col = hk < 0.2 ? vec3(1.0, 0.25, 0.12) : hk < 0.4 ? vec3(0.25, 1.0, 0.35) : hk < 0.6 ? vec3(0.3, 0.45, 1.0) : hk < 0.8 ? vec3(0.85, 0.35, 1.0) : vec3(1.0, 0.85, 0.5);
+    if (kind == 1.0) col = vec3(1.0, 0.62, 0.22);
+    if (tt < 0.0) {
+      // the shell climbing, a short trail of sparks under it
+      float y = mix(-0.02, c0.y, 1.0 - (tt / -0.7) * (tt / -0.7));
+      vec2 q = p - vec2(c0.x, y);
+      float trail = exp(-q.x * q.x * 60000.0) * smoothstep(-0.08, 0.0, q.y) * step(q.y, 0.0) * 0.6;
+      c += vec3(1.0, 0.75, 0.45) * (trail + exp(-dot(q, q) * 40000.0) * 1.5);
+    } else {
+      c += burst(p - c0, hash2(vec2(fi, k)), tt, col, kind);
+      // its smoke, lit from inside at first, then drifting grey
+      vec2 q = p - c0 - vec2(tt * 0.01, 0.0);
+      float sm = smoothstep(0.38, 0.0, length(q)) * smoothstep(0.35, 0.75, fbm(vec3(q * 7.0, k + fi * 3.0)));
+      c += (col * exp(-tt * 1.5) * 0.35 + vec3(0.025, 0.022, 0.03)) * sm * smoothstep(0.0, 0.5, tt) * exp(-tt * 0.35);
+      lightSum += col * exp(-tt * 2.5) * exp(-abs(p.x - c0.x) * 1.5);
+    }
   }
-  c += vec3(1.0, 0.8, 0.6) * uDown * 0.06;
+  // the town on the rim: roofs, a spire or two, windows; lit by the bursts
+  float u = az * 40.0;
+  float ui = floor(u);
+  float hb = 0.015 + 0.03 * hash2(vec2(ui, 1.0)) + 0.06 * step(0.96, hash2(vec2(ui, 2.0))) * smoothstep(0.5, 0.0, abs(fract(u) - 0.5));
+  float town = smoothstep(hb + 0.002, hb - 0.002, el) * step(-0.004, el);
+  vec2 wg = vec2(u * 4.0, el * 300.0);
+  float win = step(0.9, hash2(floor(wg) + 5.0)) * step(0.3, fract(wg.x)) * step(0.35, fract(wg.y)) * step(el, hb - 0.006);
+  vec3 townC = vec3(0.008, 0.008, 0.014) + lightSum * 0.03 + vec3(1.0, 0.7, 0.35) * win * 0.6;
+  c = mix(c, townC, town);
+  // the harbour below it, the bursts and the windows smeared across the water
+  float sea = step(el, -0.004);
+  float rip = noise(vec3(az * 260.0, el * 30.0 + uTime * 0.3, 1.0)); // smeared up and down, as reflections are
+  vec3 seaC = mix(vec3(0.022, 0.016, 0.04), vec3(0.003, 0.004, 0.01), smoothstep(0.0, 0.12, -el));
+  seaC += lightSum * 0.08 * rip * rip * rip + vec3(1.0, 0.7, 0.35) * 0.08 * pow(rip, 6.0) * step(0.6, hash2(vec2(ui, 9.0))) * smoothstep(-0.1, 0.0, el);
+  c = mix(c, seaC, sea);
+  c += vec3(1.0, 0.8, 0.6) * uDown * 0.05;
   return c;
 }
 
