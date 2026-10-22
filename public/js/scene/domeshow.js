@@ -224,31 +224,80 @@ vec3 sSTARS(vec3 d0, float az, float el) {
 }
 
 vec3 sNEBULA(vec3 d, float az, float el) {
+  // Inside a star-forming nebula: glowing clouds of hydrogen (rose) and
+  // oxygen (teal) folded into pillars and filaments, dark lanes of dust
+  // in front of them, a cluster of young blue-white stars at the heart
+  // lighting it all, each bright one with its glow and spikes.
   vec3 q = d * 1.6 + vec3(0.0, 0.0, uTime * 0.01);
   float a = fbm(q + fbm(q * 1.7 + 3.0));
   float b = fbm(q * 2.3 - 5.0 + uTime * 0.008);
-  vec3 col = vec3(0.01, 0.0, 0.03);
-  col += vec3(0.55, 0.12, 0.45) * pow(a, 3.0) * 1.6;
-  col += vec3(0.1, 0.35, 0.65) * pow(b, 3.0) * 1.4;
+  vec3 hc = normalize(vec3(0.25, 0.55, -0.8)); // the cluster
+  float ca = acos(clamp(dot(d, hc), -1.0, 1.0));
+  float lit = 0.55 + 0.9 * exp(-ca * 2.2); // the clouds lit from the cluster
+  vec3 col = vec3(0.006, 0.0, 0.016);
+  col += vec3(0.6, 0.1, 0.28) * pow(a, 3.0) * 1.6 * lit;
+  col += vec3(0.04, 0.42, 0.5) * pow(b, 2.6) * 2.0 * lit;
+  float edge = smoothstep(0.07, 0.0, abs(a - 0.62)); // bright rims where the clouds face the stars
+  col += vec3(1.0, 0.55, 0.45) * edge * pow(a, 2.0) * 0.28 * lit;
   col += vec3(1.0, 0.75, 0.45) * pow(a * b, 4.0) * 3.0;
+  // dust in front: dark lanes eating into the glow
+  float dust = smoothstep(0.5, 0.68, fbm(q * 2.8 + 11.0));
+  col *= 1.0 - dust * 0.8;
   col *= 0.8 + 0.6 * uLevel;
-  return col + starfield(d, 0.8, 1.6) * (1.0 - a * 0.6);
+  col += starfield(d, 0.8, 1.6) * (1.0 - a * 0.6) * (1.0 - dust * 0.7);
+  // the young stars at the heart
+  for (int i = 0; i < 7 * uOne; i++) {
+    float fi = float(i);
+    vec2 o = (hash22(vec2(fi, 3.0)) - 0.5) * 0.35;
+    vec3 sd = normalize(hc + vec3(o.x, o.y, o.x * o.y));
+    float sa = acos(clamp(dot(d, sd), -1.0, 1.0));
+    float br = 0.4 + 0.8 * hash2(vec2(fi, 9.0));
+    vec3 rgt = normalize(cross(sd, vec3(0.0, 1.0, 0.0)));
+    vec3 upv = cross(rgt, sd);
+    vec2 pl = vec2(dot(d - sd, rgt), dot(d - sd, upv));
+    float spikes = (exp(-abs(pl.x) * 900.0) + exp(-abs(pl.y) * 900.0)) * exp(-sa * 40.0);
+    col += vec3(0.8, 0.88, 1.0) * br * (exp(-sa * sa * 90000.0) * 3.0 + exp(-sa * 60.0) * 0.12 + spikes * 0.6);
+  }
+  return col;
 }
 
 vec3 sAURORA(vec3 d, float az, float el) {
+  // An arctic night: curtains of aurora folding and rippling across the sky,
+  // green at their hems, violet higher up, their rays shimmering; snowy
+  // peaks black round the horizon with the aurora's light on their snow,
+  // and a frozen lake below catching a smear of it. (Also the phones'
+  // version of PEAKS3D.)
   vec3 c = sSTARS(d, az, el) * 0.6;
   float t = uTime * 0.05;
+  vec3 glow = vec3(0.0);
   for (int i = 0; i < 3 * uOne; i++) {
     float fi = float(i);
     float base = 0.18 + fi * 0.12 + 0.12 * sin(az * (1.3 + fi * 0.4) + t * (1.0 + fi * 0.3) + fi * 2.0) + 0.06 * (fbm(vec3(az * 2.0, t, fi)) - 0.5);
     float h = el - base;
     float curtain = smoothstep(-0.03, 0.02, h) * exp(-max(h, 0.0) * (5.0 - fi));
-    float streak = 0.55 + 0.45 * noise(vec3(az * 70.0, t * 4.0, fi * 9.0));
+    // rays along the curtain, shimmering; fading out where the azimuths crowd together overhead
+    float streak = mix(1.0, 0.45 + 0.55 * noise(vec3(az * 70.0, t * 4.0, fi * 9.0)), smoothstep(1.15, 0.7, el));
+    float fold = 0.6 + 0.4 * smoothstep(0.3, 0.7, noise(vec3(az * 6.0 - t * 2.0, fi, 2.0))); // brighter where it folds
     vec3 col = mix(vec3(0.1, 1.0, 0.55), vec3(0.65, 0.25, 1.0), smoothstep(0.0, 0.35, h));
-    c += col * curtain * streak * (0.45 + 0.6 * uLevel) * (0.7 - fi * 0.15);
+    col = mix(col, vec3(1.0, 0.3, 0.45), smoothstep(-0.03, -0.01, -h) * smoothstep(0.02, 0.0, h) * 0.3 * fold); // a pink fringe at the hem
+    vec3 a = col * curtain * streak * fold * (0.45 + 0.6 * uLevel) * (0.7 - fi * 0.15);
+    c += a;
+    glow += col * (0.7 - fi * 0.15) * fold;
   }
-  // snow horizon glow
-  c += vec3(0.08, 0.12, 0.16) * exp(-max(el + 0.25, 0.0) * 6.0);
+  glow *= 0.33;
+  // snowy peaks round the horizon
+  float rn = 1.0 - abs(noise(vec3(az * 5.0, 1.0, 4.0)) * 2.0 - 1.0); // ridged: sharp summits
+  float ridge = 0.02 + 0.13 * rn * rn * (0.5 + 0.5 * noise(vec3(az * 1.5, 3.0, 2.0))) + 0.012 * noise(vec3(az * 40.0, 2.0, 1.0));
+  float mtn = smoothstep(ridge + 0.002, ridge - 0.002, el) * step(-0.004, el);
+  float face = noise(vec3(az * 160.0 + el * 60.0, el * 18.0, 3.0)) * 0.7 + 0.3 * noise(vec3(az * 20.0, el * 20.0, 6.0)); // snow in gullies down the faces
+  vec3 rock = vec3(0.004, 0.006, 0.012) + (glow * 0.12 + vec3(0.02, 0.025, 0.035)) * smoothstep(0.45, 0.62, face) * smoothstep(ridge - 0.09, ridge - 0.004, el);
+  c = mix(c, rock, mtn);
+  // the frozen lake
+  float lake = step(el, -0.004);
+  float sheen = 0.6 + 0.4 * noise(vec3(az * 12.0, el * 80.0, 5.0));
+  c = mix(c, vec3(0.006, 0.01, 0.02) + glow * 0.035 * sheen * smoothstep(-0.25, 0.0, el), lake);
+  // the snow-light along the horizon
+  c += vec3(0.04, 0.08, 0.07) * exp(-abs(el) * 30.0) * (1.0 - mtn);
   return c;
 }
 
@@ -339,36 +388,72 @@ vec3 sFOREST(vec3 d, float az, float el) {
 }
 
 vec3 sOCEAN(vec3 d, float az, float el) {
-  // under the sea: the surface overhead, caustics, light shafts, bubbles
-  float up = clamp(d.y, -0.3, 1.0);
-  vec3 deep = vec3(0.0, 0.05, 0.12);
-  vec3 shallow = vec3(0.05, 0.45, 0.62);
-  vec3 c = mix(deep, shallow, smoothstep(-0.3, 1.0, up));
-  vec2 p = d.xz / max(d.y + 0.2, 0.05) * 1.3;
-  float t = uTime * 0.35;
-  float ca = 0.0;
+  // Twenty metres down in clear water: overhead the bright window onto the
+  // sky that water allows (Snell's window, 49 degrees round the zenith),
+  // rippling and edged with light; outside it the surface is a dark mirror;
+  // rays fan down through the blue, a school of fish turns slowly against
+  // the light, motes drift, and now and then a humpback glides over.
+  float zen = acos(clamp(d.y, -1.0, 1.0));
+  vec3 c = mix(vec3(0.0, 0.012, 0.035), vec3(0.0, 0.09, 0.16), smoothstep(-0.4, 0.75, el));
+  // the window: the sky through a moving surface
+  vec2 p = d.xz / max(d.y, 0.05);
+  float t = uTime * 0.3;
+  float wv = 0.0;
   for (int i = 0; i < 3 * uOne; i++) {
     float fi = float(i);
-    vec2 q = p * (1.5 + fi * 0.7) + vec2(t * (0.6 + fi * 0.2), -t * 0.4);
-    ca += pow(abs(sin(q.x + sin(q.y * 1.3 + t)) * sin(q.y + sin(q.x * 1.1 - t))), 6.0);
+    vec2 q = p * (2.2 + fi * 1.3) + vec2(t * (0.7 + fi * 0.3), -t * 0.5);
+    wv += abs(sin(q.x + sin(q.y * 1.3 + t)) * sin(q.y + sin(q.x * 1.1 - t)));
   }
-  c += vec3(0.55, 0.9, 1.0) * ca * smoothstep(0.2, 0.9, up) * 0.45;
-  float shaft = pow(noise(vec3(az * 14.0, uTime * 0.12, 0.0)), 3.0) * smoothstep(-0.1, 0.8, up);
-  c += vec3(0.4, 0.8, 0.9) * shaft * 0.35;
-  // bubbles
-  vec2 g = vec2(az * 22.0, el * 22.0 - uTime * 0.6);
+  wv /= 3.0;
+  float W = 0.85; // the window's radius (radians)
+  float zw = zen + (wv - 0.5) * 0.06; // its edge wobbles with the waves
+  float win = smoothstep(W + 0.03, W - 0.03, zw);
+  vec3 sky = mix(vec3(0.22, 0.45, 0.55), vec3(0.1, 0.3, 0.45), zen / W) * (0.55 + 1.1 * pow(wv, 4.0));
+  sky += vec3(1.0, 0.98, 0.9) * exp(-zen * zen * 60.0) * 0.7 * (0.6 + 0.8 * wv); // the sun, high, broken by the waves
+  float n = noise(vec3(p * 13.0 + vec2(t * 1.6, -t), t * 1.2)) * 0.6 + 0.4 * noise(vec3(p * 29.0 - vec2(t, t * 1.4), t));
+  sky += vec3(0.45, 0.75, 0.8) * (smoothstep(0.465, 0.5, n) - smoothstep(0.5, 0.535, n)) * 0.45; // the caustic net of the waves
+  c = mix(c, sky, win);
+  c += vec3(0.5, 0.85, 0.95) * exp(-abs(zw - W) * 40.0) * 0.35; // the bright rim
+  c += vec3(0.0, 0.05, 0.08) * pow(wv, 4.0) * (1.0 - win) * smoothstep(0.3, 1.0, el); // the mirror outside, faintly rippled
+  // rays fanning down from the window
+  float ray = pow(noise(vec3(az * 16.0, uTime * 0.1, 0.0)), 3.0) * smoothstep(-0.25, 0.6, el) * (1.0 - win);
+  c += vec3(0.25, 0.6, 0.7) * ray * 0.3;
+  // a school of fish drifting across against the light
+  {
+    vec2 sc = vec2(0.7 * sin(uTime * 0.04), 0.95 + 0.15 * sin(uTime * 0.06));
+    vec2 rel = vec2(az, el) - sc;
+    float school = smoothstep(0.32, 0.12, length(rel * vec2(0.6, 1.4)) + 0.12 * fbm(vec3(rel * 6.0, uTime * 0.05)));
+    vec2 g = vec2(az * 22.0 - uTime * 0.25, el * 22.0);
+    vec2 gi = floor(g);
+    vec2 f = fract(g) - 0.5 - (hash22(gi) - 0.5) * 0.5;
+    f.y += 0.04 * sin(uTime * 3.0 + gi.x); // each one's own wriggle
+    float fish = max(smoothstep(1.0, 0.6, length(f / vec2(0.22, 0.08))), smoothstep(1.0, 0.4, length((f - vec2(0.24, 0.0)) / vec2(0.05, 0.09))));
+    c = mix(c, vec3(0.0, 0.03, 0.05), fish * step(0.35, hash2(gi + 2.0)) * school * 0.85);
+  }
+  // marine snow drifting, and a few bubbles rising
+  vec2 g = vec2(az * 40.0, el * 40.0 + uTime * 0.05);
   vec2 gi = floor(g);
-  vec2 f = fract(g) - 0.5 - (hash22(gi) - 0.5) * 0.5;
-  float r = 0.08 + 0.1 * hash2(gi);
-  float ring = smoothstep(r, r - 0.02, length(f)) - smoothstep(r - 0.03, r - 0.05, length(f));
-  c += vec3(0.75, 0.95, 1.0) * ring * step(0.82, hash2(gi + 3.0)) * 0.8;
-  // a whale gliding past
-  float wx = fract(uTime * 0.012) * 4.0 - 2.0;
-  vec2 rel = vec2(az - wx, el - 0.35);
-  float body = smoothstep(1.0, 0.85, length(rel / vec2(0.32, 0.055)));
-  float tail = smoothstep(1.0, 0.8, length((rel + vec2(0.36, 0.0)) / vec2(0.05, 0.08 * (0.7 + 0.3 * sin(uTime * 1.2)))));
-  float fin = smoothstep(1.0, 0.8, length((rel + vec2(-0.05, 0.06)) / vec2(0.09, 0.025)));
-  c = mix(c, vec3(0.0, 0.03, 0.06), clamp(body + tail + fin, 0.0, 1.0) * 0.85);
+  vec2 f = fract(g) - 0.5 - (hash22(gi) - 0.5) * 0.7;
+  c += vec3(0.5, 0.7, 0.75) * exp(-dot(f, f) * 400.0) * step(0.7, hash2(gi + 1.0)) * 0.25;
+  vec2 bg = vec2(az * 18.0, el * 18.0 - uTime * 0.5);
+  vec2 bi = floor(bg);
+  vec2 bf = fract(bg) - 0.5 - (hash22(bi) - 0.5) * 0.5;
+  float br = 0.06 + 0.08 * hash2(bi);
+  float ring = smoothstep(br, br - 0.02, length(bf)) - smoothstep(br - 0.03, br - 0.05, length(bf));
+  c += vec3(0.7, 0.9, 1.0) * ring * step(0.93, hash2(bi + 3.0)) * 0.5;
+  // a humpback gliding over: long body, knobbled head, long white flippers
+  float wx = fract(uTime * 0.01) * 5.0 - 2.5;
+  vec2 rel = vec2(az - wx, el - 0.62);
+  float bx = clamp(rel.x / 0.42, -1.0, 1.0);
+  float hw = 0.06 * sqrt(max(1.0 - bx * bx, 0.0)) * (1.0 - 0.45 * smoothstep(-0.2, -1.0, bx)) + 0.004;
+  float body = smoothstep(hw + 0.004, hw - 0.004, abs(rel.y + 0.01 * bx)) * step(abs(rel.x), 0.42);
+  vec2 tp = rel + vec2(0.44, 0.0);
+  float flap = 0.04 * sin(uTime * 0.9);
+  float fluke = smoothstep(0.012, 0.0, abs(tp.y - flap - abs(tp.x) * 0.0) - 0.07 * smoothstep(0.06, 0.0, abs(tp.x))) * step(abs(tp.x), 0.05);
+  vec2 fp = rel - vec2(0.12, -0.03);
+  float flip = smoothstep(0.012, 0.0, abs(fp.y + fp.x * 0.9) - 0.012) * step(-0.2, fp.x) * step(fp.x, 0.0);
+  float whale = clamp(body + fluke + flip, 0.0, 1.0);
+  c = mix(c, vec3(0.0, 0.02, 0.04) + vec3(0.05, 0.1, 0.12) * flip, whale * 0.9);
   return c * (0.85 + 0.25 * uLevel);
 }
 
@@ -543,65 +628,157 @@ vec3 sGOLD(vec3 d, float az, float el) {
 }
 
 vec3 sDECO(vec3 d, float az, float el) {
-  // art deco sunburst: gilt rays from the stage, stepped arcs, black lacquer
+  // An art deco picture palace: round the stage, rings of gilded sunburst
+  // arches stepping outward like the crown of a skyscraper, each arch's peak
+  // set with a marquee bulb that chases round with the music; behind and
+  // overhead, black lacquer worked with gold fans; a gilded sun at the heart.
+  vec3 gold = vec3(1.0, 0.64, 0.18);
   vec3 cc = normalize(vec3(0.0, -0.15, -1.0));
   float a = acos(clamp(dot(d, cc), -1.0, 1.0));
   vec3 rx = normalize(cross(cc, vec3(0.0, 1.0, 0.0)));
   vec3 ry = cross(rx, cc);
   float ang = atan(dot(d, ry), dot(d, rx));
-  float rays = step(0.5, fract(ang / (2.0 * PI) * 36.0 + uTime * 0.01));
-  float arcs = smoothstep(0.0, 0.03, abs(fract(a * 6.0 - uTime * 0.08) - 0.5) - 0.46);
-  vec3 c = mix(vec3(0.02, 0.02, 0.03), vec3(0.06, 0.05, 0.03), rays);
-  vec3 gold = vec3(0.95, 0.72, 0.35);
-  c += gold * arcs * (0.5 + 0.5 * uBeat);
-  float edge = smoothstep(0.0, 0.012, abs(fract(ang / (2.0 * PI) * 36.0 + uTime * 0.01) - 0.5) - 0.488);
-  c += gold * edge * 0.6 * smoothstep(0.1, 0.3, a);
-  // chevrons around the horizon
-  float ch = smoothstep(0.0, 0.02, abs(fract(az * 6.0 + abs(el + 0.05) * 8.0) - 0.5) - 0.46) * smoothstep(0.25, 0.05, abs(el + 0.05));
-  c += gold * ch * 0.5;
-  c += gold * smoothstep(0.14, 0.0, a) * (1.0 + uBeat);
-  return c * (0.85 + 0.35 * uLevel);
+  vec3 c = vec3(0.006, 0.012, 0.014); // black lacquer with teal in it
+  float bw = 0.13;
+  float b = floor(a / bw);
+  float u = fract(a / bw);
+  if (b < 9.0 && b > 0.0) {
+    float N = 12.0 + b * 8.0;
+    float x = ang / (2.0 * PI) * N + b * 0.5;
+    float f = fract(x);
+    float arch = 0.8 + 0.17 * sin(f * PI); // each cell an arch, peak in the middle
+    float g = u / arch;
+    float inside = step(u, arch);
+    // the sunburst inside the arch: alternating rays, brighter toward the rim
+    float sub = fract(f * 4.0);
+    float stripe = smoothstep(0.38, 0.46, abs(sub - 0.5)); // pinstripes between the rays
+    vec3 fill = mix(vec3(0.02, 0.01, 0.004), gold * 0.3, pow(g, 1.8)) * mix(1.0, 0.6, step(0.5, sub)) + gold * stripe * 0.12 * g;
+    // every other ring lacquer, worked only with gold lines
+    vec3 lacq = vec3(0.008, 0.026, 0.028) * (0.7 + 0.5 * g) + gold * stripe * 0.2 * g;
+    fill = mix(fill, lacq, step(0.5, mod(b, 2.0)));
+    fill *= 0.8 + 0.25 * sin(b * 1.7 + uTime * 0.4 + ang * 2.0) * 0.5;
+    c = mix(c, fill, inside);
+    // the gilt moulding round each arch
+    float rim = smoothstep(0.035, 0.0, abs(u - arch));
+    c += gold * rim * 0.55;
+    // the marquee bulb at each arch's peak, chasing round
+    vec2 q = vec2((f - 0.5) * (2.0 * PI / N) * sin(max(a, 0.05)), (u - 0.995) * bw);
+    float bulb = exp(-dot(q, q) / 0.00006);
+    float on = 0.25 + 0.75 * step(0.55, fract((floor(x) + b * 2.0) / 5.0 - uTime * (0.6 + 0.8 * uLevel)));
+    c += vec3(1.0, 0.82, 0.55) * bulb * on * (1.4 + 1.2 * uBeat);
+  } else if (b >= 9.0) {
+    // gold fans on black, in rows like scales
+    vec2 g = vec2(az * 9.0 / PI, el * 7.0);
+    float row = floor(g.y);
+    g.x += 0.5 * mod(row, 2.0);
+    vec2 cell = vec2(fract(g.x) - 0.5, fract(g.y));
+    float r = length(cell);
+    float fa = atan(cell.x, cell.y);
+    float fan = step(r, 0.52) * step(0.0, cell.y);
+    float rings = smoothstep(0.4, 0.47, abs(fract(r * 5.0) - 0.5));
+    float spokes = smoothstep(0.42, 0.48, abs(fract(fa / PI * 8.0 + 0.5) - 0.5)) * step(0.18, r);
+    vec3 lac = mix(vec3(0.006, 0.012, 0.014), vec3(0.012, 0.03, 0.032), step(0.5, mod(row + floor(g.x), 2.0)));
+    c = lac + gold * fan * max(rings, spokes) * 0.3;
+    c += gold * smoothstep(0.025, 0.0, abs(r - 0.52)) * step(0.0, cell.y) * 0.45; // each fan's gilt edge
+    c *= 0.75 + 0.35 * smoothstep(1.6, 1.2, a);
+  }
+  // the gilded sun at the heart, with the beat
+  float core = smoothstep(bw, bw * 0.85, a);
+  vec3 sunC = gold * (0.9 + 0.6 * uBeat) * (1.0 - 0.5 * smoothstep(0.0, bw, a));
+  sunC += vec3(1.0, 0.85, 0.6) * smoothstep(0.035, 0.0, a) * 1.5;
+  c = mix(c, sunC, core);
+  c += gold * smoothstep(0.02, 0.0, abs(a - bw)) * 0.9;
+  return c * (0.85 + 0.3 * uLevel);
 }
 
-vec3 burst(vec2 p, float seed, float tt, vec3 col) {
-  // a peony: sparks flung out on 48 rays, each with a short tail, falling
-  // and fading; only the ray nearest the pixel is evaluated
+vec3 burst(vec2 p, float seed, float tt, vec3 col, float kind) {
+  // one shell: sparks flung out on rays, each with a tail, falling and
+  // fading; only the ray nearest the pixel is evaluated. kind: 0 peony,
+  // 1 willow (gold, slow, long drooping trails), 2 ring, 3 crossette that
+  // turns to white glitter at the end
+  float willow = step(0.5, kind) * step(kind, 1.5);
+  float ring = step(1.5, kind) * step(kind, 2.5);
+  float glit = step(2.5, kind);
   float age = tt;
   vec2 rel = p;
-  rel.y += 0.05 * age * age; // gravity
-  float rad = 0.3 * (1.0 - exp(-age * 2.6));
-  float N = 48.0;
+  rel.y += (0.05 + 0.07 * willow) * age * age; // gravity
+  if (ring > 0.5) rel.y *= 1.8 + 0.6 * hash2(vec2(seed, 2.0)); // a ring seen at a slant
+  float rad = (0.3 + 0.06 * willow) * (1.0 - exp(-age * (2.6 - willow)));
+  float N = 48.0 - 16.0 * willow + 12.0 * ring;
   float a = atan(rel.y, rel.x);
   float k = floor(a / (2.0 * PI) * N + 0.5);
   float ak = k / N * 2.0 * PI + (hash2(vec2(k, seed)) - 0.5) * 0.06;
-  float rk = rad * (0.82 + 0.3 * hash2(vec2(k + 7.0, seed)));
+  float rk = rad * mix(0.82 + 0.3 * hash2(vec2(k + 7.0, seed)), 1.0, ring);
   vec2 dir = vec2(cos(ak), sin(ak));
   float t = dot(rel, dir);
   float perp = abs(dot(rel, vec2(-dir.y, dir.x)));
   float head = exp(-(perp * perp + (t - rk) * (t - rk)) * 30000.0);
-  float tail = exp(-perp * perp * 90000.0) * smoothstep(rk * 0.45, rk, t) * step(t, rk) * 0.5;
-  float fade = exp(-age * 1.15);
+  float tailLen = mix(0.45, 0.05, willow);
+  float tail = exp(-perp * perp * mix(90000.0, 50000.0, willow)) * smoothstep(rk * tailLen, rk, t) * step(t, rk) * mix(0.5, 0.8, willow);
+  float fade = exp(-age * mix(1.15, 0.55, willow));
   float tw = 0.65 + 0.35 * sin(uTime * 37.0 + k * 3.1 + seed * 20.0);
-  // the flash at the moment of the burst
+  vec3 cc = col;
+  // the crossette's glitter: the heads break into crackling white points
+  float late = smoothstep(0.9, 1.4, age) * glit;
+  cc = mix(cc, vec3(1.0, 0.95, 0.85), late);
+  tw = mix(tw, step(0.6, hash2(vec2(floor(uTime * 20.0) + k * 7.0, seed * 31.0))) * 1.6, late); // (no sine hash: see hash2)
+  // the flash at the moment of the burst, and the light it throws on the sky
   float flash = exp(-age * 9.0) * exp(-dot(rel, rel) * 400.0) * 1.5;
-  return col * ((head * 2.6 + tail) * fade * tw * 2.0) + vec3(1.0, 0.95, 0.85) * flash;
+  float glow = exp(-age * 2.0) * exp(-length(rel) * 5.0) * 0.06;
+  return cc * ((head * 1.7 + tail) * fade * tw * 1.6 + glow) + vec3(1.0, 0.95, 0.85) * flash;
 }
 
 vec3 sFIREWORKS(vec3 d, float az, float el) {
-  vec3 c = sSTARS(d, az, el) * 0.4 + vec3(0.02, 0.01, 0.04);
+  // A festival night over a harbour town: shells climbing on spark trails
+  // and bursting - peonies, gold willows that hang and drift down, rings,
+  // crossettes that end in crackling glitter - their smoke hanging lit in
+  // the air, the town's roofs and windows black and gold along the rim.
+  vec3 c = sSTARS(d, az, el) * 0.3 + mix(vec3(0.03, 0.02, 0.05), vec3(0.008, 0.008, 0.025), smoothstep(-0.05, 0.9, el));
   vec2 p = vec2(az, el);
+  vec3 lightSum = vec3(0.0);
   for (int i = 0; i < 7 * uOne; i++) {
     float fi = float(i);
-    float period = 2.6 + fi * 0.37;
+    float period = 3.1 + fi * 0.41;
     float t = uTime + fi * 1.13;
     float k = floor(t / period);
-    float tt = mod(t, period);
+    float tt = mod(t, period) - 0.7; // 0.7 s of climbing first
     vec2 h = hash22(vec2(k, fi));
-    vec2 c0 = vec2(h.x * 2.6 - 1.3, 0.25 + h.y * 0.7);
-    vec3 col = 0.5 + 0.5 * cos(6.2831 * (hash2(vec2(k, fi + 9.0)) + vec3(0.0, 0.33, 0.67)));
-    c += burst(p - c0, hash2(vec2(fi, k)), tt, col);
+    vec2 c0 = vec2(h.x * 2.6 - 1.3, 0.28 + h.y * 0.6);
+    float hk = hash2(vec2(k, fi + 9.0));
+    float kind = floor(hash2(vec2(k + 3.0, fi)) * 4.0);
+    vec3 col = hk < 0.2 ? vec3(1.0, 0.25, 0.12) : hk < 0.4 ? vec3(0.25, 1.0, 0.35) : hk < 0.6 ? vec3(0.3, 0.45, 1.0) : hk < 0.8 ? vec3(0.85, 0.35, 1.0) : vec3(1.0, 0.85, 0.5);
+    if (kind == 1.0) col = vec3(1.0, 0.62, 0.22);
+    if (tt < 0.0) {
+      // the shell climbing, a short trail of sparks under it
+      float y = mix(-0.02, c0.y, 1.0 - (tt / -0.7) * (tt / -0.7));
+      vec2 q = p - vec2(c0.x, y);
+      float trail = exp(-q.x * q.x * 60000.0) * smoothstep(-0.08, 0.0, q.y) * step(q.y, 0.0) * 0.6;
+      c += vec3(1.0, 0.75, 0.45) * (trail + exp(-dot(q, q) * 40000.0) * 1.5);
+    } else {
+      c += burst(p - c0, hash2(vec2(fi, k)), tt, col, kind);
+      // its smoke, lit from inside at first, then drifting grey
+      vec2 q = p - c0 - vec2(tt * 0.01, 0.0);
+      float sm = smoothstep(0.38, 0.0, length(q)) * smoothstep(0.35, 0.75, fbm(vec3(q * 7.0, k + fi * 3.0)));
+      c += (col * exp(-tt * 1.5) * 0.35 + vec3(0.025, 0.022, 0.03)) * sm * smoothstep(0.0, 0.5, tt) * exp(-tt * 0.35);
+      lightSum += col * exp(-tt * 2.5) * exp(-abs(p.x - c0.x) * 1.5);
+    }
   }
-  c += vec3(1.0, 0.8, 0.6) * uDown * 0.06;
+  // the town on the rim: roofs, a spire or two, windows; lit by the bursts
+  float u = az * 40.0;
+  float ui = floor(u);
+  float hb = 0.015 + 0.03 * hash2(vec2(ui, 1.0)) + 0.06 * step(0.96, hash2(vec2(ui, 2.0))) * smoothstep(0.5, 0.0, abs(fract(u) - 0.5));
+  float town = smoothstep(hb + 0.002, hb - 0.002, el) * step(-0.004, el);
+  vec2 wg = vec2(u * 4.0, el * 300.0);
+  float win = step(0.9, hash2(floor(wg) + 5.0)) * step(0.3, fract(wg.x)) * step(0.35, fract(wg.y)) * step(el, hb - 0.006);
+  vec3 townC = vec3(0.008, 0.008, 0.014) + lightSum * 0.03 + vec3(1.0, 0.7, 0.35) * win * 0.6;
+  c = mix(c, townC, town);
+  // the harbour below it, the bursts and the windows smeared across the water
+  float sea = step(el, -0.004);
+  float rip = noise(vec3(az * 260.0, el * 30.0 + uTime * 0.3, 1.0)); // smeared up and down, as reflections are
+  vec3 seaC = mix(vec3(0.022, 0.016, 0.04), vec3(0.003, 0.004, 0.01), smoothstep(0.0, 0.12, -el));
+  seaC += lightSum * 0.08 * rip * rip * rip + vec3(1.0, 0.7, 0.35) * 0.08 * pow(rip, 6.0) * step(0.6, hash2(vec2(ui, 9.0))) * smoothstep(-0.1, 0.0, el);
+  c = mix(c, seaC, sea);
+  c += vec3(1.0, 0.8, 0.6) * uDown * 0.05;
   return c;
 }
 
@@ -716,36 +893,95 @@ vec3 sSNOW(vec3 d, float az, float el) {
   return c * (0.9 + 0.2 * uLevel);
 }
 
+float segDist(vec2 p, vec2 a, vec2 b, out float t) {
+  vec2 pa = p - a; vec2 ba = b - a;
+  t = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * t);
+}
+mat2 rot2(float a) { float c = cos(a); float s = sin(a); return mat2(c, -s, s, c); }
 vec3 sSPRING(vec3 d, float az, float el) {
-  // lying under cherry trees in April: a deep blue sky with a few high
-  // clouds, blossom-laden boughs reaching in from all round the rim, and
-  // petals drifting down across everything
-  vec3 c = mix(vec3(0.62, 0.78, 0.95), vec3(0.16, 0.38, 0.82), smoothstep(-0.05, 1.2, el));
-  vec3 cl = clouds(d, el, vec3(1.0), vec3(0.78, 0.82, 0.92), 0.3, 0.008);
-  c = mix(c, cl, clamp(length(cl) * 0.8, 0.0, 0.8) * step(0.0, el));
-  // boughs: a fringe of blossom clusters whose reach varies round the rim
-  vec2 pp = d.xz / max(d.y + 0.2, 0.05);
-  float reach = 0.42 + 0.22 * fbm(vec3(az * 1.6, 2.0, 0.0));
-  float cluster = fbm(vec3(pp * 3.0, 5.0)) * 0.7 + 0.3 * noise(vec3(pp * 18.0, 1.0));
-  float bough = smoothstep(reach + 0.06, reach - 0.08, el) * smoothstep(0.38, 0.55, cluster);
-  vec3 bloom = mix(vec3(0.98, 0.6, 0.74), vec3(1.0, 0.86, 0.9), noise(vec3(pp * 30.0, 2.0)));
-  bloom *= 0.8 + 0.25 * noise(vec3(pp * 9.0, 4.0));
-  // shade deep inside the clusters, light on their edges
-  float depth = smoothstep(0.55, 0.75, cluster);
-  bloom = mix(bloom, bloom * vec3(0.72, 0.55, 0.62), depth * 0.6);
-  c = mix(c, bloom, bough);
+  // Lying on the grass among cherry trees in April, looking up: five trees
+  // round the rim, their dark limbs reaching in toward the top of the sky
+  // and heavy with blossom, a deep blue sky between with a few fair-weather
+  // clouds, the sun glowing through the flowers, petals drifting down.
+  // (Drawn on the sky seen from below: p = d.xz / (1 + d.y) puts the zenith
+  // at the centre and the horizon on the unit circle.)
+  vec2 p = d.xz / (1.0 + max(d.y, -0.6));
+  vec3 c = mix(vec3(0.3, 0.45, 0.7), vec3(0.035, 0.12, 0.42), smoothstep(-0.05, 1.1, el));
+  vec3 sd = normalize(vec3(-0.3, 0.8, -0.5));
+  float sun = max(dot(d, sd), 0.0);
+  c += vec3(1.0, 0.92, 0.75) * (pow(sun, 300.0) * 1.0 + pow(sun, 24.0) * 0.08);
+  vec3 cl = clouds(d, el, vec3(0.95, 0.93, 0.9), vec3(0.5, 0.55, 0.68), 0.28, 0.006);
+  c = mix(c, cl, clamp(length(cl) * 0.9, 0.0, 0.85) * step(0.0, el));
+  // the trees: limbs as tapering segments, blossom heaped along the outer ones
+  // (cd: distance to the nearest clump of blossom, < 0 inside one)
+  float wood = 0.0;
+  float lump = fbm(vec3(p * 24.0, 5.0));
+  float cd = 1.0;
+  for (int i = 0; i < 5 * uOne; i++) {
+    float fi = float(i);
+    float ang = fi * 1.2566 + 0.35 + 0.3 * hash2(vec2(fi, 1.0));
+    vec2 T = vec2(sin(ang), -cos(ang)) * 1.06;
+    vec2 inward = -normalize(T);
+    for (int j = 0; j < 6 * uOne; j++) {
+      float fj = float(j);
+      float h1 = hash2(vec2(fi, fj + 3.0));
+      float h2 = hash2(vec2(fi, fj + 7.0));
+      float h3 = hash2(vec2(fi, fj + 13.0));
+      float a = (fj - 2.5) * 0.3 + (h1 - 0.5) * 0.3;
+      vec2 dir = rot2(a) * inward;
+      float L = 0.4 + 0.34 * h2;
+      vec2 m = T + dir * L * 0.45;
+      vec2 dir2 = rot2(a * 0.6 + (h2 - 0.5) * 0.7) * dir;
+      vec2 e = m + dir2 * L * 0.55;
+      vec2 k1 = m + (e - m) * 0.35;
+      vec2 k2 = m + (e - m) * 0.7;
+      vec2 w1 = k1 + rot2(0.8) * dir2 * L * (0.16 + 0.1 * h3);
+      vec2 w2 = k2 + rot2(-0.75) * dir2 * L * (0.14 + 0.1 * h1);
+      float t1; float t2; float t3; float t4;
+      float d1 = segDist(p, T, m, t1);
+      float d2 = segDist(p, m, e, t2);
+      float d3 = segDist(p, k1, w1, t3);
+      float d4 = segDist(p, k2, w2, t4);
+      wood = max(wood, smoothstep(0.004, -0.003, d1 - mix(0.028, 0.015, t1)));
+      float t0;
+      wood = max(wood, smoothstep(0.004, -0.003, segDist(p, T * 1.5, T, t0) - 0.034)); // the trunk, down out of sight
+      wood = max(wood, smoothstep(0.003, -0.002, d2 - mix(0.015, 0.004, t2)));
+      wood = max(wood, smoothstep(0.003, -0.002, min(d3 - mix(0.007, 0.002, t3), d4 - mix(0.007, 0.002, t4))));
+      float rr = 0.035 + 0.035 * t2;
+      cd = min(cd, d2 - rr * (0.4 + 1.1 * lump) + 0.03 * (1.0 - smoothstep(0.1, 0.3, t2)));
+      cd = min(cd, min(d3, d4) - 0.045 * (0.4 + 1.1 * lump));
+    }
+  }
+  // the flowers themselves: little five-petalled cups, many to a clump
+  float cells;
+  {
+    vec2 g = p * 150.0;
+    vec2 gi = floor(g);
+    vec2 q = fract(g) - 0.5 - (hash22(gi) - 0.5) * 0.5;
+    float pet = 0.34 + 0.08 * cos(atan(q.y, q.x) * 5.0 + hash2(gi) * 6.0);
+    cells = smoothstep(pet, pet - 0.12, length(q)) * step(0.2, hash2(gi + 4.0));
+  }
+  cd += 0.03 * smoothstep(0.62, 0.8, fbm(vec3(p * 9.0, 8.0))); // sky showing through
+  float flower = smoothstep(0.006, -0.004, cd - 0.014 * cells); // ragged with single flowers at the edge
+  float depth = smoothstep(0.0, -0.05, cd); // deep in a clump, in its own shade
+  vec3 pink = mix(vec3(0.98, 0.72, 0.78), vec3(0.62, 0.22, 0.34), depth * 0.8);
+  pink *= 0.62 + 0.45 * cells;
+  pink += vec3(1.0, 0.8, 0.7) * pow(sun, 6.0) * 0.5 * (1.0 - depth * 0.6); // the sun through the petals
+  c = mix(c, vec3(0.03, 0.02, 0.018), wood);
+  c = mix(c, pink * 0.8, flower * (0.85 + 0.15 * cells));
   // petals drifting across
   for (int l = 0; l < 2 * uOne; l++) {
-    float fl = float(l);
-    float k = 10.0 + fl * 9.0;
-    vec2 g = vec2(az * k - uTime * (0.22 + fl * 0.1), el * k + uTime * 0.1 + sin(az * 4.0 + uTime) * 0.3);
+    float fl2 = float(l);
+    float k = 10.0 + fl2 * 9.0;
+    vec2 g = vec2(az * k - uTime * (0.22 + fl2 * 0.1), el * k + uTime * 0.1 + sin(az * 4.0 + uTime) * 0.3);
     vec2 gi = floor(g);
-    vec2 o = hash22(gi + fl * 3.0) - 0.5;
+    vec2 o = hash22(gi + fl2 * 3.0) - 0.5;
     vec2 f = fract(g) - 0.5 - o * 0.6;
-    float rot = uTime * (1.0 + hash2(gi)) + hash2(gi + 1.0) * 6.0;
-    f = mat2(cos(rot), -sin(rot), sin(rot), cos(rot)) * f;
+    float rt = uTime * (1.0 + hash2(gi)) + hash2(gi + 1.0) * 6.0;
+    f = mat2(cos(rt), -sin(rt), sin(rt), cos(rt)) * f;
     float pet = smoothstep(1.0, 0.65, length(f / vec2(0.11, 0.06)));
-    c = mix(c, vec3(1.0, 0.76, 0.84), pet * step(0.45, hash2(gi + 8.0 + fl)) * 0.95);
+    c = mix(c, vec3(0.95, 0.6, 0.68), pet * step(0.8, hash2(gi + 8.0 + fl2)) * 0.9);
   }
   return c * (0.9 + 0.15 * uLevel);
 }
@@ -758,6 +994,32 @@ vec3 sVOYAGE(vec3 d, float az, float el) {
   float a = fbm(q + fbm(q * 1.6 + 2.0));
   c += vec3(0.32, 0.1, 0.42) * pow(a, 3.0) * 1.2 + vec3(0.06, 0.2, 0.42) * pow(fbm(q * 2.1 - 4.0), 3.0) * 1.1;
   c += milkyway(d) * 0.7 + starfield(d, 0.6, 1.0) * 0.6;
+  // a ringed giant far off, its night side toward us, slowly turning past
+  {
+    float pa = 0.9 - uTime * 0.004;
+    vec3 pd = normalize(vec3(sin(pa), 0.42, -cos(pa)));
+    float R = 0.16;
+    float sa = acos(clamp(dot(d, pd), -1.0, 1.0));
+    vec3 rgt = normalize(cross(pd, vec3(0.0, 1.0, 0.0)));
+    vec3 upv = cross(rgt, pd);
+    vec2 pl = vec2(dot(d, rgt), dot(d, upv));
+    vec3 sunDir = normalize(vec3(0.8, 0.2, 0.3));
+    vec3 nrm = normalize(d - pd * cos(sa) + pd * sqrt(max(R * R - sa * sa, 0.0)) * 0.0);
+    float disc = smoothstep(R, R - 0.004, sa);
+    float lat = pl.y / R;
+    float bands = 0.82 + 0.12 * sin(lat * 15.0 + 3.0 * fbm(vec3(pl * 18.0, 1.0))) + 0.06 * sin(lat * 47.0);
+    float lit = smoothstep(-0.2, 0.6, dot(normalize(vec3(pl / R, sqrt(max(1.0 - dot(pl / R, pl / R), 0.0)))), normalize(vec3(-0.85, 0.3, 0.2))));
+    vec3 planet = mix(vec3(0.42, 0.3, 0.2), vec3(0.5, 0.42, 0.32), smoothstep(-0.3, 0.3, lat)) * bands * (0.015 + 0.6 * lit);
+    // the rings: an ellipse through the planet's centre, hidden behind it on the far half
+    vec2 rp = vec2(pl.x, pl.y / 0.22 + pl.x * 0.6);
+    float rr = length(rp) / R;
+    float ring = smoothstep(1.35, 1.4, rr) * smoothstep(2.25, 2.2, rr) * (0.6 + 0.4 * noise(vec3(rr * 30.0, 0.0, 2.0))) * step(rr, 2.3);
+    ring *= 1.0 - smoothstep(1.75, 1.8, rr) * smoothstep(1.9, 1.85, rr) * 0.8; // a gap
+    float front = step(0.0, -pl.y / 0.22 - pl.x * 0.6 + 0.0) ; // the near half crosses in front
+    c = mix(c, planet, disc * (1.0 - ring * front * 0.9));
+    c += vec3(0.5, 0.42, 0.33) * ring * 0.22 * (1.0 - disc * (1.0 - front));
+    c += vec3(0.5, 0.45, 0.6) * exp(-max(sa - R, 0.0) * 120.0) * step(R, sa) * 0.08; // its thin air lit at the limb
+  }
   vec3 ro = vec3(0.0, 0.0, -uTime * 5.0);
   const float CELL = 7.0;
   for (int i = 0; i < 12 * uOne; i++) {
