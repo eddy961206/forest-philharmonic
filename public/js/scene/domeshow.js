@@ -377,72 +377,131 @@ vec3 sSUNSET(vec3 d, float az, float el) {
 }
 
 vec3 sCATHEDRAL(vec3 d, float az, float el) {
-  // a gothic rose window over the stage, lancet windows round the walls,
-  // vault ribs meeting overhead; light pulses with the music
-  vec3 stone = vec3(0.05, 0.045, 0.05) * (0.7 + 0.4 * fbm(d * 18.0));
-  vec3 c = stone;
-  // vault ribs: meridians and parallels
+  // A gothic choir seen from the nave: a dim stone vault on ribs, and over
+  // the stage a rose window - stone tracery round a rosette, eight petals,
+  // a ring of sixteen roundels - glazed in Chartres blue with ruby, amber
+  // and a little green, glowing as if the sun stood behind it; tall lancets
+  // round the walls; light falling through the dust. It breathes with the music.
   float lon = az * 8.0 / PI;
-  float rib = smoothstep(0.0, 0.06, abs(fract(lon) - 0.5) - 0.44) * smoothstep(0.2, 0.5, el);
-  c += vec3(0.2, 0.17, 0.13) * rib;
-  // rose window
+  float course = fract(el * 22.0);
+  float stoneN = fbm(d * 14.0);
+  vec3 c = vec3(0.06, 0.05, 0.047) * (0.65 + 0.5 * stoneN);
+  c *= 0.85 + 0.15 * smoothstep(0.0, 0.08, course) * smoothstep(1.0, 0.92, course); // ashlar courses
+  // vault ribs: meridians gathering overhead, catching a warm light
+  float rib = smoothstep(0.0, 0.05, abs(fract(lon) - 0.5) - 0.445) * smoothstep(0.15, 0.5, el);
+  c = mix(c, vec3(0.26, 0.21, 0.16) * (0.7 + 0.3 * stoneN), rib * 0.9);
+  // the rose window
   vec3 rc = normalize(vec3(0.0, 0.42, -0.9));
   float a = acos(clamp(dot(d, rc), -1.0, 1.0));
   vec3 rx = normalize(cross(rc, vec3(0.0, 1.0, 0.0)));
   vec3 ry = cross(rx, rc);
   float ang = atan(dot(d, ry), dot(d, rx));
-  float R = 0.42;
-  if (a < R) {
-    float rr = a / R;
-    float ring = floor(rr * 7.0);
-    float seg = 12.0 + ring * 6.0;
-    float sa = ang / (2.0 * PI) * seg;
-    float cell = floor(sa + ring * 0.5);
-    float h = hash2(vec2(cell, ring));
-    vec3 glass = h < 0.33 ? vec3(0.1, 0.25, 0.85) : h < 0.6 ? vec3(0.85, 0.1, 0.15) : h < 0.82 ? vec3(0.95, 0.75, 0.2) : vec3(0.1, 0.6, 0.35);
-    float lead = smoothstep(0.0, 0.08, abs(fract(sa + ring * 0.5) - 0.5) - 0.42) + smoothstep(0.0, 0.06, abs(fract(rr * 7.0) - 0.5) - 0.44);
-    float petal = smoothstep(0.02, 0.0, abs(rr - 0.5 - 0.08 * cos(ang * 8.0)) - 0.012);
-    vec3 win = glass * (0.55 + 0.8 * noise(vec3(sa * 4.0, rr * 30.0, 0.0))) * (0.9 + 0.8 * uLevel + 0.5 * uBeat);
-    win = mix(win, vec3(0.02), clamp(lead + petal, 0.0, 1.0));
-    win = mix(win, vec3(1.0, 0.9, 0.7) * 1.5, smoothstep(0.08, 0.0, rr));
-    c = mix(c, win, smoothstep(R, R - 0.01, a));
-    c += vec3(0.02) * smoothstep(R + 0.03, R, a);
+  float R = 0.34;
+  float glow = 0.75 + 0.45 * uLevel + 0.2 * uBeat;
+  if (a < R + 0.03) {
+    float rr = a / R; // 0 centre .. 1 rim
+    vec2 pp = vec2(cos(ang), sin(ang)) * rr;
+    // glass: small panes, mostly blue, jewels by hash, each pane its own depth
+    float sa = ang / (2.0 * PI) * (10.0 + floor(rr * 6.0) * 6.0);
+    vec2 cellId = vec2(floor(sa), floor(rr * 6.0));
+    float h = hash2(cellId + 3.0);
+    vec3 glass = h < 0.52 ? vec3(0.08, 0.2, 0.72) : h < 0.72 ? vec3(0.62, 0.06, 0.1) : h < 0.88 ? vec3(0.86, 0.58, 0.12) : h < 0.95 ? vec3(0.1, 0.42, 0.28) : vec3(0.5, 0.16, 0.5);
+    glass *= 0.55 + 0.55 * hash2(cellId + 17.0); // no two panes alike
+    glass *= 0.75 + 0.5 * noise(vec3(pp * 40.0, 1.0)); // the grain of old glass
+    glass *= mix(1.05, 0.6, rr); // brighter toward the centre, as with the sun behind
+    float lead = max(smoothstep(0.0, 0.05, abs(fract(sa) - 0.5) - 0.45), smoothstep(0.0, 0.05, abs(fract(rr * 6.0) - 0.5) - 0.45));
+    // stone tracery (in light cream stone, its edges lit)
+    float tr = 0.0;
+    tr = max(tr, smoothstep(0.035, 0.0, abs(rr - 0.2) - 0.012)); // round the rosette
+    float pet = abs(rr - 0.42 - 0.13 * cos(ang * 8.0)); // eight petals
+    tr = max(tr, smoothstep(0.03, 0.0, pet - 0.01));
+    float seg = 2.0 * PI / 16.0;
+    float la = mod(ang + seg * 0.5, seg) - seg * 0.5;
+    vec2 lp = vec2(rr * cos(la) - 0.8, rr * sin(la));
+    tr = max(tr, smoothstep(0.03, 0.0, abs(length(lp) - 0.13) - 0.012)); // sixteen roundels
+    tr = max(tr, smoothstep(0.035, 0.0, abs(rr - 0.97) - 0.025)); // the rim
+    vec3 win = glass * glow;
+    win = mix(win, vec3(0.012), clamp(lead, 0.0, 1.0) * 0.85);
+    vec3 stone = vec3(0.2, 0.17, 0.14) * (0.75 + 0.35 * stoneN) + vec3(0.06, 0.05, 0.04) * smoothstep(0.6, 0.2, rr);
+    win = mix(win, stone, tr);
+    win += vec3(1.0, 0.86, 0.6) * smoothstep(0.1, 0.0, rr) * 1.1 * glow; // the sun behind the rosette
+    c = mix(c, win, smoothstep(R + 0.01, R - 0.005, a));
+    // the deep moulded frame round it
+    c = mix(c, vec3(0.2, 0.17, 0.14) * (0.7 + 0.4 * stoneN), smoothstep(R + 0.03, R + 0.015, a) * smoothstep(R - 0.005, R + 0.01, a));
   }
-  // lancets: tall pointed windows of small leaded panes
+  // a halo of coloured light round the window, falling into the dusty air
+  c += vec3(0.16, 0.2, 0.55) * exp(-max(a - R, 0.0) * 12.0) * 0.12 * glow;
+  // lancets: tall pointed windows of small leaded panes, in the walls
   float n = 10.0;
   float u = (az + PI) / (2.0 * PI) * n;
   float cx = fract(u) - 0.5;
-  float top = 0.5 - 1.6 * cx * cx;
+  float top = 0.48 - 1.6 * cx * cx;
   bool front = abs(az) < 0.7;
-  if (!front && el > -0.12 && el < top && abs(cx) < 0.14) {
+  if (!front && el > -0.12 && el < top && abs(cx) < 0.13) {
     float k = floor(u);
-    float py = (el + 0.12) * 34.0;
-    float px = cx * 26.0;
+    float py = (el + 0.12) * 30.0;
+    float px = cx * 24.0;
     vec2 pane = vec2(floor(px), floor(py));
     float h = hash2(pane + k * 13.0);
-    vec3 glass = h < 0.38 ? vec3(0.12, 0.22, 0.75) : h < 0.62 ? vec3(0.78, 0.12, 0.16) : h < 0.8 ? vec3(0.92, 0.72, 0.22) : h < 0.92 ? vec3(0.12, 0.5, 0.3) : vec3(0.55, 0.2, 0.6);
-    glass *= 0.55 + 0.6 * noise(vec3(px * 3.0, py * 3.0, k)) ;
-    float lead = max(smoothstep(0.0, 0.07, abs(fract(py) - 0.5) - 0.42), smoothstep(0.0, 0.07, abs(fract(px) - 0.5) - 0.42));
-    float frame = smoothstep(0.125, 0.14, abs(cx)) + smoothstep(top - 0.015, top, el);
-    c = mix(glass * (0.75 + 0.6 * uLevel + 0.3 * uBeat), vec3(0.015), clamp(lead + frame, 0.0, 1.0));
+    vec3 glass = h < 0.55 ? vec3(0.08, 0.2, 0.66) : h < 0.75 ? vec3(0.6, 0.07, 0.11) : h < 0.9 ? vec3(0.8, 0.55, 0.14) : vec3(0.1, 0.4, 0.26);
+    glass *= (0.5 + 0.5 * hash2(pane + k * 7.0 + 5.0)) * (0.8 + 0.4 * noise(vec3(px * 3.0, py * 3.0, k)));
+    float lead = max(smoothstep(0.0, 0.07, abs(fract(py) - 0.5) - 0.43), smoothstep(0.0, 0.07, abs(fract(px) - 0.5) - 0.43));
+    float frame = smoothstep(0.115, 0.13, abs(cx)) + smoothstep(top - 0.015, top, el);
+    c = mix(glass * glow * 0.75, vec3(0.08, 0.07, 0.06), clamp(lead * 0.8 + frame, 0.0, 1.0));
   }
-  // shafts of coloured light coming down
-  c += vec3(0.5, 0.4, 0.7) * pow(max(dot(d, rc), 0.0), 18.0) * 0.4;
+  // shafts of light from the rose window down toward the stage
+  float shaft = pow(max(dot(d, normalize(vec3(0.0, 0.1, -1.0))), 0.0), 10.0) * smoothstep(0.32, 0.05, el);
+  c += vec3(0.45, 0.42, 0.7) * shaft * 0.14 * glow;
   return c;
 }
 
 vec3 sGOLD(vec3 d, float az, float el) {
-  vec3 q = d * 2.2;
-  float t = uTime * 0.07;
-  vec3 w = vec3(fbm(q + t), fbm(q + 5.2 - t), fbm(q + 9.7 + t * 0.5));
-  float f = fbm(q + 2.5 * w + uBeat * 0.3);
-  vec3 c = mix(vec3(0.02, 0.01, 0.0), vec3(0.55, 0.32, 0.05), smoothstep(0.3, 0.6, f));
-  c = mix(c, vec3(1.0, 0.82, 0.4), smoothstep(0.6, 0.8, f));
-  c += vec3(1.0, 0.95, 0.8) * pow(smoothstep(0.75, 0.9, f), 3.0) * 1.5;
+  // A gilded baroque ceiling: rows of sunken coffers, each framed in gold
+  // with a rosette at its heart, on a deep lacquer ground; a slow band of
+  // light glides across the gold, and the gilding glints on the beat.
+  float rows = 9.0;
+  float ring = el * rows / (0.5 * PI);
+  float ri = floor(ring);
+  float per = max(6.0, floor(cos(clamp(ri + 0.5, 0.0, rows) / rows * 0.5 * PI) * 30.0)); // fewer coffers toward the crown
+  float col = (az + PI) / (2.0 * PI) * per;
+  vec2 f = vec2(fract(col), fract(ring)) - 0.5; // within one coffer, -0.5..0.5
+  vec2 id = vec2(floor(col), ri);
+  float edge = max(abs(f.x), abs(f.y));
+  vec3 lacquer = vec3(0.09, 0.025, 0.02);
+  vec3 gold = vec3(1.0, 0.64, 0.18);
+  // the frame: two gilt mouldings with a dark groove between
+  float frame = smoothstep(0.38, 0.42, edge);
+  float groove = smoothstep(0.435, 0.445, edge) * smoothstep(0.47, 0.455, edge);
+  // the coffer's sunken floor, shaded by its depth (light from above)
+  float depth = 1.0 - smoothstep(0.2, 0.4, edge);
+  vec3 floorC = lacquer * (0.7 + 0.6 * (0.5 - f.y)) * (0.8 + 0.4 * hash2(id));
+  // a rosette: eight petals round a boss
+  float r = length(f);
+  float a = atan(f.y, f.x);
+  float petals = smoothstep(0.02, 0.0, r - (0.12 + 0.05 * cos(a * 8.0)));
+  float boss = smoothstep(0.045, 0.035, r);
+  // gold catching the light: the slow band, plus a glint from the music
+  float sweep = exp(-pow(fract(az / (2.0 * PI) + el * 0.15 - uTime * 0.035) - 0.5, 2.0) * 60.0);
+  float sheen = 0.55 + 0.45 * sweep + 0.35 * uLevel;
+  // (a bevel: the mouldings lit from above, darker underneath)
+  float bevel = 0.7 + 0.6 * smoothstep(-0.45, 0.45, -f.y) * smoothstep(0.38, 0.5, edge) + 0.15 * (1.0 - smoothstep(0.38, 0.5, edge));
+  vec3 g = gold * sheen * bevel * (0.72 + 0.28 * noise(vec3(f * 12.0, ri + id.x)));
+  vec3 c = floorC;
+  c = mix(c, g * 0.85, petals);
+  c = mix(c, g * 1.2, boss);
+  c = mix(c, g, frame);
+  c = mix(c, lacquer * 0.4, groove);
+  c *= 0.85 + 0.15 * depth;
+  // a sparkle here and there on the gilding, with the beat
+  float spark = step(0.985, hash2(id * 3.1 + floor(uTime * 4.0))) * frame;
+  c += vec3(1.0, 0.9, 0.7) * spark * (0.4 + 1.2 * uBeat);
+  // the crown: a gilded sunburst
+  float crown = smoothstep(1.32, 1.5, el);
+  c = mix(c, gold * (0.6 + 0.5 * pow(abs(cos(az * 12.0)), 6.0)) * sheen, crown);
   // rings ripple out from the stage on strong beats
-  float a = acos(clamp(dot(d, normalize(vec3(0.0, 0.0, -1.0))), -1.0, 1.0));
-  c += vec3(1.0, 0.8, 0.4) * exp(-abs(a - (1.0 - uDown) * 2.0) * 30.0) * uDown * 1.2;
-  return c * (0.75 + 0.45 * uLevel);
+  float ra = acos(clamp(dot(d, vec3(0.0, 0.0, -1.0)), -1.0, 1.0));
+  c += vec3(1.0, 0.8, 0.4) * exp(-abs(ra - (1.0 - uDown) * 2.0) * 30.0) * uDown * 0.8;
+  return c * (0.85 + 0.3 * uLevel);
 }
 
 vec3 sDECO(vec3 d, float az, float el) {
