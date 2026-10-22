@@ -5,8 +5,16 @@
 // you to the square first.
 const q = new URLSearchParams(location.search);
 let ticket = null;
-try { ticket = JSON.parse(sessionStorage.getItem('fp-ticket') || 'null'); } catch { /* private mode */ }
+try {
+  sessionStorage.setItem('fp-probe', '1');
+  sessionStorage.removeItem('fp-probe');
+  ticket = JSON.parse(sessionStorage.getItem('fp-ticket') || 'null');
+} catch {
+  // (nowhere to keep a ticket - all cookies blocked: it came along in the
+  // address instead, see tickets.js)
+  try { ticket = JSON.parse(q.get('t') || 'null'); } catch { /* not a ticket */ }
+}
 const venue = q.get('venue');
 if (q.get('room') || (venue && (ticket?.venue === venue || q.has('lobby')))) import('./main.js');
-else if (venue) location.replace(location.pathname);
+else if (venue) location.replace(`${location.pathname}?from=venue`); // (the square says why: see plaza.js)
 else import('./plaza.js');

@@ -47,20 +47,52 @@ function keep(kind, key, v) {
   try { const st = store(kind); if (!st) return; if (v === null) st.removeItem(key); else st.setItem(key, JSON.stringify(v)); } catch { /* private mode */ }
 }
 
-// you: { name, avatar }. The animal is drawn once and kept (and, where
-// nothing can be kept, at least stays the same for the life of this page).
+// Where nothing can be kept, the ticket travels in the address instead
+// (?t=...): the building's door still sees it, and coming back to the square
+// the address you came from still says who you are.
+const OUTFITS = ['dress', 'tail'];
+const MODES = ['solo', 'create', 'join'];
+function fromAddress(href) {
+  try {
+    const u = new URL(href, location.href);
+    if (u.origin !== location.origin) return null;
+    const t = JSON.parse(u.searchParams.get('t') || 'null');
+    if (!t || !VENUE_NAMES[t.venue] || !MODES.includes(t.mode) || !AVATARS.some((a) => a.id === t.avatar)) return null;
+    return { ...t, name: String(t.name || '').slice(0, 16), code: t.code ? String(t.code).replace(/[^A-Z0-9]/g, '').slice(0, 6) : t.code };
+  } catch { return null; }
+}
+const addressTicket = () => fromAddress(location.href) || (document.referrer ? fromAddress(document.referrer) : null);
+
+// is there anywhere to keep a ticket in this tab? (if not, see ticketQuery)
+export function canKeep() {
+  try { const st = store(SESSION); st.setItem('fp-probe', '1'); st.removeItem('fp-probe'); return true; } catch { return false; }
+}
+// what to add to a building's address so the ticket goes along ('' when it is kept)
+export function ticketQuery(t) {
+  if (!t || canKeep()) return '';
+  const { venue, mode, code, title, cap, pub, name, avatar, outfit, no, date, issued } = t;
+  return `&t=${encodeURIComponent(JSON.stringify({ venue, mode, code, title, cap, pub, name, avatar, outfit, no, date, issued }))}`;
+}
+
+// you: { name, avatar, outfit }. The animal (and what it wears) is drawn
+// once and kept (and, where nothing can be kept, at least stays the same for
+// the life of this page).
 let me = null;
 export function identity() {
   if (me) return { ...me };
-  const v = load(LOCAL, ID_KEY);
-  if (v?.avatar && AVATARS.some((a) => a.id === v.avatar)) me = { name: v.name || randomIdentity().name, avatar: v.avatar };
-  else { me = randomIdentity(); keep(LOCAL, ID_KEY, me); }
+  const v = load(LOCAL, ID_KEY) || addressTicket();
+  if (v?.avatar && AVATARS.some((a) => a.id === v.avatar)) {
+    me = { name: v.name || randomIdentity().name, avatar: v.avatar, outfit: OUTFITS.includes(v.outfit) ? v.outfit : OUTFITS[Math.floor(Math.random() * 2)] };
+    if (v.outfit !== me.outfit) keep(LOCAL, ID_KEY, me);
+  } else { me = { ...randomIdentity(), outfit: OUTFITS[Math.floor(Math.random() * 2)] }; keep(LOCAL, ID_KEY, me); }
   return { ...me };
 }
 
 export function setName(name) {
   const cur = identity();
-  const clean = String(name || '').trim().slice(0, 16);
+  // (no invisible letters or text turned backwards; and sixteen letters,
+  // not sixteen halves of an emoji)
+  const clean = Array.from(String(name || '').replace(/[\u0000-\u001f\u200b\u200c\u200e\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, '').trim()).slice(0, 16).join('').trim();
   if (!clean) return cur;
   me = { ...cur, name: clean };
   keep(LOCAL, ID_KEY, me);
@@ -75,6 +107,7 @@ export function issueTicket(opt) {
     ...opt,
     name: me.name,
     avatar: me.avatar,
+    outfit: me.outfit,
     no: `${opt.venue === 'sphere' ? 'S' : 'H'}-${String(Math.floor(1000 + Math.random() * 9000))}`,
     date: `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`,
     issued: Date.now(),
@@ -88,7 +121,7 @@ export function issueTicket(opt) {
 
 // the ticket in your paw (for this building), or null
 export function heldTicket(venue = null) {
-  const t = load(SESSION, TICKET_KEY);
+  const t = load(SESSION, TICKET_KEY) || (canKeep() ? null : fromAddress(location.href));
   if (!t || (venue && t.venue !== venue)) return null;
   return t;
 }
@@ -106,7 +139,8 @@ export function lastTicket() { return load(LOCAL, LAST_KEY); }
 export const VENUE_NAMES = { hall: '숲속 필하모닉 홀', sphere: '스피어' };
 
 export function modeLine(t) {
-  if (t.mode === 'create') return `단체석 「${t.title || '우리들의 공연'}」 · ${t.pub === false ? '비공개' : '공개'}`;
+  // (no line break before "· 공개": it stays with the name)
+  if (t.mode === 'create') return `단체석 「${t.title || '우리들의 공연'}」\u00a0·\u00a0${t.pub === false ? '비공개' : '공개'}`;
   if (t.mode === 'join') return `친구와 함께 · 방 ${t.code || ''}`;
   return '혼자 보기 · 자유석';
 }

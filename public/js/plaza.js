@@ -9,12 +9,13 @@ import { buildPlaza, PLAZA, walkable, gateYaw } from './scene/plazaWorld.js';
 import { buildCharacter, setArm, liteArmMeshes, syncLiteArms, updateFace } from './scene/characters.js';
 import { setLite, setAnisotropy } from './scene/materials.js';
 import { avatarInfo } from './scene/avatars.js';
-import { identity, setName, issueTicket, heldTicket, lastTicket, ticketElement, modeLine, PAY, EMOJI, VENUE_NAMES } from './tickets.js';
+import { identity, setName, issueTicket, heldTicket, lastTicket, ticketElement, modeLine, ticketQuery, canKeep, PAY, EMOJI, VENUE_NAMES } from './tickets.js';
 import { SETLISTS } from './programs.js';
 import { listRooms } from './net/room.js';
-import { thumbStick } from './joystick.js';
+import { thumbStick, tapButton } from './joystick.js';
 
 const $ = (id) => document.getElementById(id);
+const GATE_IDS = Object.keys(PLAZA.gates);
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const smooth = (cur, target, k, dt) => cur + (target - cur) * (1 - Math.exp(-k * dt));
 const lerpAngle = (a, b, k) => {
@@ -32,6 +33,7 @@ $('splash')?.remove();
 $('plaza').hidden = false;
 document.body.classList.toggle('touch', isTouch);
 document.title = '숲속 공연 광장 · 숲속 필하모닉';
+$('stage').setAttribute('aria-label', '3D 숲속 공연 광장');
 
 // ------------------------------------------------------------- the stage
 const container = $('stage');
@@ -41,6 +43,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 container.appendChild(renderer.domElement);
+renderer.domElement.tabIndex = -1; // (where the keys go back to when the booth closes)
 setAnisotropy(Math.min(LITE ? 2 : 8, renderer.capabilities.getMaxAnisotropy()));
 setLite(LITE);
 
@@ -57,13 +60,28 @@ $('pzName').textContent = me.name;
 $('pzKind').textContent = `오늘 밤 나는 ${kind.ko}`;
 
 const player = {
-  char: buildCharacter({ species: me.avatar, fur: kind.fur, outfit: Math.random() < 0.5 ? 'dress' : 'tail', standing: true }, '#e6c07b'),
+  char: buildCharacter({ species: me.avatar, fur: kind.fur, outfit: me.outfit || 'tail', standing: true }, '#e6c07b'),
   pos: V(PLAZA.spawn.x, 0, PLAZA.spawn.z),
   vel: V(),
   yaw: 0, // facing the booth (-z)
   phase: 0,
 };
 player.char.setStanding(1);
+// Back from a building (the page you came from was one): you come out of
+// its gate, facing the square - not at the far edge like the first time.
+const cameFrom = (() => {
+  try {
+    const u = new URL(document.referrer);
+    if (u.origin !== location.origin) return null;
+    const v = u.searchParams.get('venue') || (u.searchParams.get('room') ? 'hall' : null);
+    return PLAZA.gates[v] ? v : null;
+  } catch { return null; }
+})();
+if (cameFrom) {
+  const g = PLAZA.gates[cameFrom];
+  player.pos.set(g.x * 0.7, 0, g.z * 0.7);
+  player.yaw = Math.atan2(g.x, g.z);
+}
 // (no name over your own head: seen from behind it sat in the middle of
 // everything you were looking at - the corner of the screen says who you are)
 scene.add(player.char.root);
@@ -106,7 +124,8 @@ function showStub() {
   $('pzHint').textContent = `표를 들고 ${side} 숲길의 ${VENUE_NAMES[ticket.venue]} 입구로 걸어가요.`;
 }
 showStub();
-$('pzStub').addEventListener('click', () => { if (ticket) toast(`${VENUE_NAMES[ticket.venue]} · ${modeLine(ticket)} · ${ticket.no}`, 2600); });
+// (tapButton: a tap counts while the other thumb is on the stick, see joystick.js)
+tapButton($('pzStub'), () => { if (ticket) toast(`${VENUE_NAMES[ticket.venue]} · ${modeLine(ticket)} · ${ticket.no}`, 2600); });
 
 // "the same as last time": straight through
 const last = lastTicket();
@@ -114,7 +133,7 @@ if (last && VENUE_NAMES[last.venue]) {
   quickOk = true;
   $('pzQuick').hidden = !!ticket;
   $('pzQuickWhat').textContent = `${VENUE_NAMES[last.venue]} · ${modeLine({ ...last, code: '' })}`;
-  $('pzQuick').addEventListener('click', () => {
+  tapButton($('pzQuick'), () => {
     if (busy) return;
     sfx.init();
     ticket = issueTicket({ venue: last.venue, mode: last.mode === 'create' ? 'create' : 'solo', title: last.title, cap: last.cap, pub: last.pub });
@@ -149,21 +168,21 @@ const sfx = {
     src.loop = true;
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
-    lp.frequency.value = 360;
+    lp.frequency.value = 650;
     const lfo = ctx.createOscillator();
     const lfoAmt = ctx.createGain();
     lfo.frequency.value = 0.07;
-    lfoAmt.gain.value = 120;
+    lfoAmt.gain.value = 220;
     lfo.connect(lfoAmt).connect(lp.frequency);
     const g = ctx.createGain();
     g.gain.setValueAtTime(0, t);
-    g.gain.setTargetAtTime(0.032, t, 1.5);
+    g.gain.setTargetAtTime(0.085, t, 1.5);
     src.connect(lp).connect(g).connect(this.out);
     src.start(t);
     lfo.start(t);
     // crickets: four of them, each in its own place in the grass with its
     // own voice - they call, rest, and call again
-    const crickets = [-0.75, -0.3, 0.35, 0.8].map((x, i) => ({ pan: x, f: 4050 + i * 170 + Math.random() * 80, v: 0.005 + Math.random() * 0.006 }));
+    const crickets = [-0.75, -0.3, 0.35, 0.8].map((x, i) => ({ pan: x, f: 4050 + i * 170 + Math.random() * 80, v: 0.016 + Math.random() * 0.014 }));
     const chirp = (c) => {
       if (!this.ctx) return;
       if (document.hidden) { setTimeout(() => chirp(c), 1500); return; }
@@ -283,16 +302,28 @@ function toast(text, ms = 2400) {
 const booth = { step: 1, venue: null, mode: null, room: null, pieces: null, online: null };
 let index = null;
 // (the cards are there at once; the setlists fill in when they arrive)
-fetch('music/index.json').then((r) => (r.ok ? r.json() : Promise.reject(r.status))).then((list) => { index = new Map(list.map((p) => [p.id, p])); buildVenueCards(); }).catch(() => {});
+// (a failed fetch is tried again when the booth opens)
+let indexAsk = null;
+function fetchIndex() {
+  if (index || indexAsk) return;
+  indexAsk = fetch('music/index.json').then((r) => (r.ok ? r.json() : Promise.reject(r.status))).then((list) => { index = new Map(list.map((p) => [p.id, p])); buildVenueCards(); }).catch(() => {}).finally(() => { indexAsk = null; });
+}
+fetchIndex();
 
 const INTRO = {
   hall: '달빛 숲 가장자리의 4층 그랜드 콘서트홀. 독주회와 현악 4중주, 합창 코랄이 진짜 공연장 울림으로 들려요. 환희의 송가로 열고 위풍당당 행진곡으로 닫아요.',
   sphere: '머리 위를 통째로 감싸는 16K 돔 스크린의 원형 공연장. 음악에 맞춰 돔이 숲이 되고, 바닷속이 되고, 별밤이 돼요. 바흐 크리스마스 오라토리오의 불꽃놀이로 끝나요.',
 };
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+// Korean particles follow the last syllable: 홀로 / 숲으로, 개면 / 알이면
+const lastJong = (w) => { const t = String(w).trim(); const c = t.charCodeAt(t.length - 1) - 0xac00; return c >= 0 && c < 11172 ? c % 28 : 0; };
+const ro = (w) => { const j = lastJong(w); return `${w}${j && j !== 8 ? '으로' : '로'}`; };
+const imyeon = (w) => `${w}${lastJong(w) ? '이면' : '면'}`;
 
 function buildVenueCards() {
   const box = $('venueCards');
+  // (rebuilt while you are on them: the focus stays on the same card)
+  const had = [...box.querySelectorAll('button')].indexOf(document.activeElement);
   box.innerHTML = '';
   for (const v of ['hall', 'sphere']) {
     const list = (SETLISTS[v] || []).map((id) => index?.get(id)).filter(Boolean);
@@ -325,11 +356,14 @@ function buildVenueCards() {
     });
     box.appendChild(card);
   }
+  if (had >= 0) box.querySelectorAll('button')[had]?.focus({ preventScroll: true });
 }
 
 function goStep(n) {
   booth.step = n;
   document.querySelectorAll('.booth-step').forEach((s) => { s.hidden = Number(s.dataset.step) !== n; });
+  // (a new step starts at the top of the card, not where the last one was scrolled)
+  const card = document.querySelector('.booth-card'); if (card) card.scrollTop = 0;
   document.querySelectorAll('#boothSteps li').forEach((li) => {
     const s = Number(li.dataset.s);
     li.toggleAttribute('data-done', s < n);
@@ -338,18 +372,25 @@ function goStep(n) {
   const say = {
     1: '어서 와요! 어디로 가는 표를 드릴까요?',
     2: `${VENUE_NAMES[booth.venue] || ''}, 좋은 선택이에요. 어떻게 볼 거예요?`,
-    3: `${PAY[me.avatar]?.what || '도토리 세 개'}면 돼요.`,
+    3: `${imyeon(PAY[me.avatar]?.what || '도토리 세 개')} 돼요.`,
     4: '여기 있어요. 즐거운 밤 되세요!',
   }[n];
   $('boothSay').textContent = say;
   if (n === 2) refreshModes();
   if (n === 3) fillPay();
+  // (the keys go on with you: to the first thing on the new step)
+  if (boothOpen && n < 4) {
+    const first = n === 1 ? $('venueCards').querySelector('button') : n === 2 ? document.querySelector(`.mode-card[data-mode=${booth.mode || 'solo'}]`) : isTouch ? $('payBtn') : $('bkName'); // (no keyboard popping up on a phone)
+    first?.focus({ preventScroll: true });
+  }
 }
 
 async function refreshModes() {
   // is the server there for rooms? and which rooms are open in this building
   // (until it answers, only "alone" can be chosen)
   if (booth.online !== true) document.querySelectorAll('.mode-card').forEach((b) => { b.disabled = b.dataset.mode !== 'solo'; });
+  // (and alone is chosen already: "next" works while the server is asked)
+  pickMode(booth.online === true ? booth.mode || 'solo' : 'solo');
   let rooms = [];
   try {
     rooms = await Promise.race([listRooms(), new Promise((_, no) => setTimeout(() => no(new Error('slow')), 5000))]);
@@ -367,6 +408,7 @@ async function refreshModes() {
     const li = document.createElement('li');
     const b = document.createElement('button');
     b.type = 'button';
+    b.dataset.code = r.code;
     b.innerHTML = '<span></span><small></small>';
     b.querySelector('span').textContent = r.title;
     b.querySelector('small').textContent = `${r.count}/${r.cap} · ${r.piece ? (r.playing ? '연주 중' : '쉬는 중') : '시작 전'}`;
@@ -375,7 +417,6 @@ async function refreshModes() {
       booth.room = r.code;
       $('bkCode').value = r.code;
       pickMode('join');
-      ul.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
     });
     li.appendChild(b);
     ul.appendChild(li);
@@ -388,7 +429,13 @@ function pickMode(m) {
   document.querySelectorAll('.mode-card').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
   $('formCreate').hidden = m !== 'create';
   $('formJoin').hidden = m !== 'join';
+  markRoom();
   validate();
+}
+// (an open show is marked chosen only while it is the code you will join)
+function markRoom() {
+  const code = booth.mode === 'join' ? $('bkCode').value : '';
+  $('openList').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(!!code && x.dataset.code === code)));
 }
 document.querySelectorAll('.mode-card').forEach((b) => b.addEventListener('click', () => pickMode(b.dataset.mode)));
 let pub = true;
@@ -396,13 +443,36 @@ document.querySelectorAll('#bkVis button').forEach((b) => b.addEventListener('cl
   pub = b.dataset.pub === '1';
   document.querySelectorAll('#bkVis button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
 }));
-$('bkCode').addEventListener('input', () => { $('bkCode').value = $('bkCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); validate(); });
+$('bkCode').addEventListener('input', () => { $('bkCode').value = $('bkCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); $('bkCodeNote').hidden = true; markRoom(); validate(); });
 function validate() {
   const ok = booth.mode === 'solo' || booth.mode === 'create' || (booth.mode === 'join' && $('bkCode').value.length === 6);
   $('toPay').disabled = !ok;
 }
-$('toPay').addEventListener('click', () => goStep(3));
-document.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => goStep(Number(b.dataset.back))));
+$('toPay').addEventListener('click', async () => {
+  if (booth.mode !== 'join') { goStep(3); return; }
+  // a friend's code: is there such a room, in which building, with a seat?
+  // (asked here, not at the door after the walk; no answer: the door checks)
+  const code = $('bkCode').value;
+  const note = (text) => { $('bkCodeNote').textContent = text; $('bkCodeNote').hidden = false; };
+  $('toPay').disabled = true;
+  let r = null;
+  try {
+    const res = await Promise.race([fetch(`api/rooms/${code}`, { cache: 'no-store' }), new Promise((_, no) => setTimeout(() => no(new Error('slow')), 4000))]);
+    if (res.status === 404) r = { gone: true }; else if (res.ok) r = await res.json();
+  } catch { /* no answer */ }
+  validate();
+  if (booth.mode !== 'join' || code !== $('bkCode').value) return; // (changed meanwhile)
+  if (r?.gone) { note('그 방을 찾지 못했어요. 코드를 다시 확인해 주세요.'); return; }
+  if (r?.full) { note('그 방은 지금 가득 찼어요.'); return; }
+  if (r?.venue && VENUE_NAMES[r.venue] && r.venue !== booth.venue) {
+    // the room is in the other building: the ticket is for that one
+    booth.venue = r.venue;
+    toast(`그 방은 ${VENUE_NAMES[r.venue]}에 있어요. 그곳 표로 드릴게요.`, 3600);
+  }
+  goStep(3);
+});
+// (not while the payment is on the counter: the ticket is already coming)
+document.querySelectorAll('[data-back]').forEach((b) => b.addEventListener('click', () => { if (!paying) goStep(Number(b.dataset.back)); }));
 
 function fillPay() {
   const pay = PAY[me.avatar] || PAY.squirrel;
@@ -410,13 +480,16 @@ function fillPay() {
   box.innerHTML = '<span class="ps-icon"></span><span><b></b><small></small></span>';
   box.querySelector('.ps-icon').textContent = pay.icon;
   box.querySelector('b').textContent = `${VENUE_NAMES[booth.venue]} 입장권 한 장`;
-  const how = booth.mode === 'create' ? `단체석 「${$('bkTitle').value.trim() || '우리들의 공연'}」` : booth.mode === 'join' ? `친구와 함께 · 방 ${$('bkCode').value}` : '혼자 보기 · 자유석';
+  const how = booth.mode === 'create' ? `단체석 「${$('bkTitle').value.trim() || `${me.name}의 공연`}」` : booth.mode === 'join' ? `친구와 함께 · 방 ${$('bkCode').value}` : '혼자 보기 · 자유석';
   box.querySelector('small').textContent = `${how} · 값: ${pay.what}`;
-  $('bkName').value = me.name;
+  // (what you wrote stays written, also after a step back)
+  if (!nameDraft) $('bkName').value = me.name;
   $('payBtn').textContent = `${pay.icon} ${pay.what} 내고 표 받기`;
 }
 
 let paying = false;
+let nameDraft = false;
+$('bkName').addEventListener('input', () => { nameDraft = true; });
 $('payBtn').addEventListener('click', () => {
   if (paying) return;
   paying = true;
@@ -424,7 +497,8 @@ $('payBtn').addEventListener('click', () => {
   $('pzName').textContent = me.name;
   // the payment drops on the counter
   const pay = PAY[me.avatar] || PAY.squirrel;
-  const r = $('payBtn').getBoundingClientRect();
+  // (from your paw over the counter: where the price is shown, so it is seen falling)
+  const r = ($('paySummary').querySelector('.ps-icon') || $('payBtn')).getBoundingClientRect();
   const coins = document.createElement('div');
   coins.className = 'coins';
   for (let i = 0; i < 4; i++) {
@@ -443,7 +517,8 @@ $('payBtn').addEventListener('click', () => {
     ticket = issueTicket({
       venue: booth.venue, mode: booth.mode,
       code: booth.mode === 'join' ? $('bkCode').value : undefined,
-      title: booth.mode === 'create' ? $('bkTitle').value.trim() : undefined,
+      // (no name for the seats: the room is called after you, and so is the ticket)
+      title: booth.mode === 'create' ? $('bkTitle').value.trim() || `${me.name}의 공연` : undefined,
       cap: booth.mode === 'create' ? Math.max(1, Math.min(50, Math.round(Number($('bkCap').value) || 50))) : undefined,
       pub: booth.mode === 'create' ? pub : undefined,
     });
@@ -455,11 +530,11 @@ $('payBtn').addEventListener('click', () => {
     $('payBtn').disabled = false;
     paying = false;
     goStep(4);
-    $('boothDone').focus();
+    $('boothDone').focus({ preventScroll: true }); // (the ticket stays in view from its top)
   }, 650);
 });
 
-const BEHIND = ['pzQuick', 'pzStub', 'pzAct', 'pzMe'];
+const BEHIND = ['pzTop', 'pzQuick', 'pzStub', 'pzAct', 'pzMe', 'stage'];
 function openBooth() {
   if (busy || boothOpen) return;
   boothOpen = true;
@@ -468,6 +543,7 @@ function openBooth() {
   autoTo = null;
   keys.clear();
   if (!$('venueCards').children.length) buildVenueCards();
+  fetchIndex();
   goStep(1);
   // (what is behind the dialog cannot be reached while it is open)
   for (const id of BEHIND) $(id)?.setAttribute('inert', '');
@@ -483,7 +559,11 @@ function closeBooth() {
 }
 $('boothClose').addEventListener('click', closeBooth);
 $('boothDone').addEventListener('click', closeBooth);
-$('booth').addEventListener('click', (e) => { if (e.target.id === 'booth') closeBooth(); });
+// (a click on the veil round the card closes it - one that started there too,
+// and not the second half of a double click whose first half changed the step)
+let veilDown = false;
+$('booth').addEventListener('pointerdown', (e) => { veilDown = e.target.id === 'booth'; });
+$('booth').addEventListener('click', (e) => { if (e.target.id === 'booth' && veilDown && e.detail < 2) closeBooth(); });
 
 // ------------------------------------------------------------- the gates
 let busy = false;
@@ -491,19 +571,28 @@ function enterGate(venue) {
   if (busy) return;
   busy = true;
   keys.clear();
+  // (whatever was being said - "welcome", "buy a ticket" - is over now)
+  clearTimeout(toastT);
+  clearTimeout(toastOff);
+  $('pzToast').hidden = true;
   const gate = $('pzGate');
   const t = ticketElement(ticket);
   $('pzGateTicket').innerHTML = '';
   $('pzGateTicket').appendChild(t);
-  $('pzGateLine').textContent = `숲길을 따라 ${VENUE_NAMES[venue]}(으)로 가는 중…`;
+  $('pzGateLine').textContent = `숲길을 따라 ${ro(VENUE_NAMES[venue])} 가는 중…`;
   gate.hidden = false;
   $('pzStub').hidden = true;
   requestAnimationFrame(() => t.classList.add('torn'));
   sfx.stamp();
   setTimeout(() => { gate.classList.add('dark'); sfx.hush(); }, 700);
   try { localStorage.setItem('fp-venue', venue); } catch { /* ignore */ }
-  setTimeout(() => { location.href = `./?venue=${venue}`; }, 2300);
+  // (where nothing can be kept, the ticket goes along in the address)
+  setTimeout(() => { location.href = `./?venue=${venue}${ticketQuery(ticket)}`; }, 2300);
 }
+// (a gate opens for someone walking into it. Back on the square by the
+// browser's Back button you are still standing in its mouth: it waits until
+// you have stepped away from it)
+let gateArmed = true;
 
 // Back from a building with the browser's back button: the page can come
 // back exactly as it was left - dark, mid-way through the gate. Start over.
@@ -512,8 +601,18 @@ window.addEventListener('pageshow', (e) => {
   busy = false;
   $('pzGate').hidden = true;
   $('pzGate').classList.remove('dark');
-  ticket = heldTicket();
+  // (nowhere to keep it: the ticket is still the one in your paw)
+  ticket = heldTicket() || (canKeep() ? null : ticket);
   showStub();
+  gateArmed = false;
+  autoTo = null;
+  keys.clear();
+  player.vel.set(0, 0, 0);
+  // (turned round, facing the square again)
+  for (const id of GATE_IDS) {
+    const g = PLAZA.gates[id];
+    if (Math.hypot(player.pos.x - g.x, player.pos.z - g.z) < 3) player.yaw = cam.yaw = Math.atan2(g.x, g.z);
+  }
   if (sfx.ctx) {
     sfx.leaving = false;
     sfx.ctx.resume().catch(() => {});
@@ -527,7 +626,8 @@ window.addEventListener('pageshow', (e) => {
 const keys = new Set();
 let boothOpen = false;
 window.addEventListener('keydown', (e) => {
-  if (e.code === 'Escape' && boothOpen) { closeBooth(); return; }
+  // (Esc in the middle of a Korean syllable only ends the syllable)
+  if (e.code === 'Escape' && boothOpen) { if (!e.isComposing && e.keyCode !== 229) closeBooth(); return; }
   if (e.target instanceof HTMLInputElement) return;
   if (boothOpen || busy) return;
   if (e.code === 'KeyF' || e.code === 'KeyE') { if (act) act(); return; }
@@ -541,7 +641,7 @@ window.addEventListener('keyup', (e) => keys.delete(e.code));
 window.addEventListener('blur', () => keys.clear());
 
 // the camera: behind you, turned by dragging, nearer or farther with the wheel
-const cam = { yaw: 0, pitch: 0.32, dist: 4.2 };
+const cam = { yaw: player.yaw, pitch: 0.32, dist: 4.2 };
 // (a tall, narrow screen sees less to the sides: stand the camera farther back)
 let camFit = 0;
 const fitCam = () => {
@@ -589,11 +689,11 @@ function onTap(x, y) {
     if (hit && (!best || hit.distance < best.d)) best = { k, d: hit.distance };
   }
   if (!best) return;
-  if (best.k === 'booth') autoTo = { x: PLAZA.window.x, z: PLAZA.window.z + 0.3, then: 'booth' };
+  if (best.k === 'booth') autoTo = { x: PLAZA.window.x, z: PLAZA.window.z + 0.3, then: 'booth', best: Infinity, stuck: 0 };
   else {
     const id = best.k.split(':')[1];
     const g = PLAZA.gates[id];
-    autoTo = { x: g.x * 0.93, z: g.z * 0.93, then: `gate:${id}` };
+    autoTo = { x: g.x * 0.93, z: g.z * 0.93, then: `gate:${id}`, best: Infinity, stuck: 0 };
   }
 }
 
@@ -604,7 +704,7 @@ if (isTouch) { $('pzJoy').hidden = false; $('pzJoyZone').hidden = false; }
 // what F (or the button) does here
 let act = null;
 let actText = '';
-$('pzAct').addEventListener('click', () => { if (act) act(); });
+tapButton($('pzAct'), () => { if (act) act(); });
 function setAct(text, fn) {
   act = fn;
   if (text === actText) return;
@@ -640,7 +740,15 @@ function movePlayer(dt) {
         const then = autoTo.then;
         autoTo = null;
         if (then === 'booth') { p.yaw = 0; openBooth(); }
-      } else { mx = dx / d; mz = dz / d; }
+      } else {
+        mx = dx / d;
+        mz = dz / d;
+        // (no nearer for a while - a wall in the way: stop, and say so)
+        if (d < autoTo.best - 0.05) { autoTo.best = d; autoTo.stuck = 0; } else if ((autoTo.stuck += dt) > 0.8) {
+          autoTo = null;
+          toast('여기서는 막혀 있어요. 돌아서 걸어가 봐요.', 2200);
+        }
+      }
     }
   }
   const len = Math.hypot(mx, mz);
@@ -743,6 +851,8 @@ function updateStrollers(dt) {
       s.yaw = lerpAngle(s.yaw, Math.atan2(-vx, -vz), 1 - Math.exp(-dt * 6));
     }
     animateWalker(ch, s.pos, s.yaw, d > step ? 1.15 : 0, s, dt);
+    // (walking right under the camera: not a giant head at the foot of the picture)
+    ch.root.visible = Math.hypot(camera.position.x - s.pos.x, camera.position.z - s.pos.z) > 1.1;
   }
 }
 
@@ -774,15 +884,54 @@ function placeCamera(dt, first = false) {
   const p = player.pos;
   const cp = Math.cos(cam.pitch);
   _want.set(p.x + Math.sin(cam.yaw) * cp * cam.dist, 1.25 + Math.sin(cam.pitch) * cam.dist, p.z + Math.cos(cam.yaw) * cp * cam.dist);
-  // (not inside the booth)
-  const B = PLAZA.booth;
-  if (Math.abs(_want.x - B.x) < B.w / 2 + 0.25 && Math.abs(_want.z - B.z) < B.d / 2 + 0.25 && _want.y < 3.2) _want.y = 3.4;
+  // (not inside the booth, its roof or its awning: with the booth between
+  // you and the camera, the camera comes in to this side of it)
+  const t = boothHit(p.x, 1.25, p.z, _want.x, _want.y, _want.z);
+  if (t > 0 && t < 1) {
+    const k = Math.max(0.08, t - 0.2 / cam.dist);
+    _want.set(p.x + (_want.x - p.x) * k, 1.25 + (_want.y - 1.25) * k, p.z + (_want.z - p.z) * k);
+  } else if (t === 0) {
+    // (standing under the awning at the window)
+    const B = PLAZA.booth;
+    if (Math.abs(_want.x - B.x) < B.w / 2 + 0.25 && Math.abs(_want.z - B.z) < B.d / 2 + 0.25 && _want.y < 3.2) _want.y = 3.4;
+  }
   // (and not out among the trees round the square)
   const rr = Math.hypot(_want.x, _want.z);
   if (rr > 14.5) { _want.x *= 14.5 / rr; _want.z *= 14.5 / rr; }
   if (first) camera.position.copy(_want); else camera.position.lerp(_want, 1 - Math.exp(-dt * 8));
-  _look.set(p.x, 1.05, p.z);
+  // (looking a little ahead of you and above your shoulders: you stand in
+  // the lower part of the picture and what you walk toward is not hidden
+  // behind your own head)
+  _look.set(p.x - Math.sin(cam.yaw) * 1.3, 1.4, p.z - Math.cos(cam.yaw) * 1.3);
   camera.lookAt(_look);
+}
+
+// the booth as two blocks - the walls with the counter, and above them the
+// roof, the awning and the sign, which reach out farther: how far along the
+// line from a to b the first of them begins (0: a is in one already; 1: the
+// line misses both)
+const BOOTH_WALLS = { x0: PLAZA.booth.x - 1.85, x1: PLAZA.booth.x + 1.85, y0: 0, y1: 2.5, z0: PLAZA.booth.z - 1.25, z1: PLAZA.booth.z + 1.55 };
+const BOOTH_ROOF = { x0: PLAZA.booth.x - 2.2, x1: PLAZA.booth.x + 2.2, y0: 2.0, y1: 4.55, z0: PLAZA.booth.z - 2.05, z1: PLAZA.booth.z + 2.0 };
+let _t0 = 0;
+let _t1 = 1;
+function slab(a, d, lo, hi) {
+  if (Math.abs(d) < 1e-6) { if (a < lo || a > hi) _t1 = -1; return; }
+  let ta = (lo - a) / d;
+  let tb = (hi - a) / d;
+  if (ta > tb) { const s = ta; ta = tb; tb = s; }
+  if (ta > _t0) _t0 = ta;
+  if (tb < _t1) _t1 = tb;
+}
+function boxHit(B, ax, ay, az, bx, by, bz) {
+  _t0 = 0;
+  _t1 = 1;
+  slab(ax, bx - ax, B.x0, B.x1);
+  slab(ay, by - ay, B.y0, B.y1);
+  slab(az, bz - az, B.z0, B.z1);
+  return _t0 <= _t1 ? _t0 : 1;
+}
+function boothHit(ax, ay, az, bx, by, bz) {
+  return Math.min(boxHit(BOOTH_WALLS, ax, ay, az, bx, by, bz), boxHit(BOOTH_ROOF, ax, ay, az, bx, by, bz));
 }
 
 // --------------------------------------------------------------- the loop
@@ -790,9 +939,13 @@ let lastT = performance.now();
 let elapsed = 0;
 placeCamera(0, true);
 let skip = 0;
+// (on a phone the booth stands on a plain dark veil: the square behind it is
+// drawn once and left - nothing there moves while you buy)
+let still = false;
 function frame() {
   requestAnimationFrame(frame);
   const now = performance.now();
+  if (still && boothOpen) { lastT = now; return; }
   // (behind the booth's blurred glass, every other frame is plenty)
   if ((boothOpen || busy) && (++skip & 1)) return;
   const dt = Math.min(0.05, (now - lastT) / 1000);
@@ -800,6 +953,7 @@ function frame() {
   step(dt, now);
   syncLiteArms();
   renderer.render(scene, camera);
+  still = boothOpen && isTouch;
 }
 
 // one moment of the square (without drawing it)
@@ -816,7 +970,14 @@ function step(dt, now = performance.now()) {
   if (!busy && !boothOpen) {
     const dWin = Math.hypot(player.pos.x - PLAZA.window.x, player.pos.z - PLAZA.window.z);
     let near = null;
-    for (const [id, g] of Object.entries(PLAZA.gates)) if (Math.hypot(player.pos.x - g.x, player.pos.z - g.z) < 1.9) near = id;
+    let away = true;
+    for (let i = 0; i < GATE_IDS.length; i++) {
+      const g = PLAZA.gates[GATE_IDS[i]];
+      const d = Math.hypot(player.pos.x - g.x, player.pos.z - g.z);
+      if (d < 1.9) near = GATE_IDS[i];
+      if (d < 2.6) away = false;
+    }
+    if (!gateArmed) { if (away) gateArmed = true; else near = null; }
     if (near) {
       if (ticket?.venue === near) { setAct(null, null); enterGate(near); } else {
         setAct(null, null);
@@ -831,6 +992,7 @@ function step(dt, now = performance.now()) {
 }
 
 window.addEventListener('resize', () => {
+  still = false; // (a turned phone: the picture behind the booth again)
   fitCam();
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -843,7 +1005,13 @@ renderer.compile(scene, camera);
 requestAnimationFrame(() => {
   frame();
   setTimeout(() => $('pzLoading').classList.add('done'), 120);
-  if (!ticket) setTimeout(() => toast(`어서 와요, ${me.name}! 오늘 밤은 ${kind.ko}의 모습으로 왔어요. 가운데 매표소에서 표를 사 봐요.`, 4600), 900);
+  // (back from a building: not the first-time welcome again)
+  // (a building's address without a ticket sent you here: say why)
+  const bounced = new URLSearchParams(location.search).get('from') === 'venue';
+  if (bounced) try { history.replaceState(null, '', location.pathname); } catch { /* file: */ }
+  if (bounced && !ticket) setTimeout(() => toast('공연장에 들어가려면 표가 있어야 해요. 가운데 매표소에서 표를 사요.', 4600), 900);
+  else if (cameFrom) setTimeout(() => toast(`다시 광장이에요, ${me.name}. ${ticket ? '표는 그대로 들고 있어요.' : '또 보고 싶으면 가운데 매표소로 가요.'}`, 3200), 900);
+  else if (!ticket) setTimeout(() => toast(`어서 와요, ${me.name}! 오늘 밤은 ${kind.ko}의 모습으로 왔어요. 가운데 매표소에서 표를 사 봐요.`, 4600), 900);
 });
 
 window.__plaza = { scene, camera, renderer, world, player, cam, keys, step, walkable, joy, get autoTo() { return autoTo; }, get ticket() { return ticket; }, openBooth, enterGate, PLAZA, gateYaw };

@@ -22,7 +22,7 @@ const result = {
 };
 
 try {
-  for (const blocked of [false, true]) {
+  for (const { blocked, lite } of [false, true].flatMap(blocked => [false, true].map(lite => ({ blocked, lite })))) {
     const page = await context.newPage();
     page.setDefaultTimeout(cfg.timeoutMs);
     const pageErrors = [];
@@ -36,7 +36,7 @@ try {
       body: '<!doctype html><meta charset="utf-8"><title>Local audio worker QA</title><p>Local audio module QA</p>',
     }));
     await page.goto(`${origin}/__runtime-audio-qa`, { waitUntil: 'load' });
-    const data = await page.evaluate(async ({ blocked }) => {
+    const data = await page.evaluate(async ({ blocked, lite }) => {
       const { AudioEngine } = await import('/js/audio/engine.js');
       const { renderApplause } = await import('/js/audio/crowd.js');
       const NativeWorker = window.Worker;
@@ -57,6 +57,17 @@ try {
       ctx.createBuffer = (...args) => { bufferCount++; return nativeCreateBuffer(...args); };
       const engine = new AudioEngine();
       engine.ctx = ctx;
+      engine.lite = lite;
+      engine.ac = { level: 1, reverb: 1 };
+      engine.makeup = ctx.createGain();
+      engine.reverbIn = ctx.createGain();
+      let houseBufferCount = 0;
+      const nativePrepareMurmur = engine._prepareMurmur.bind(engine);
+      engine._prepareMurmur = () => {
+        const before = bufferCount;
+        nativePrepareMurmur();
+        houseBufferCount += bufferCount - before;
+      };
       let heartbeatCount = 0;
       const timer = setInterval(() => { heartbeatCount++; }, 0);
       const began = performance.now();
@@ -66,6 +77,7 @@ try {
       const samePromise = ready === engine.prepareApplause();
       const crowd = await ready;
       const readyMs = performance.now() - began;
+      const preparedBufferCount = bufferCount - houseBufferCount;
       clearInterval(timer);
       window.Worker = NativeWorker;
       const toHex = buffer => [...new Uint8Array(buffer)].map(value => value.toString(16).padStart(2, '0')).join('');
@@ -76,11 +88,13 @@ try {
         }
         return hashes;
       };
+      const people = lite ? 200 : 320;
+      const sr = lite ? 16000 : 24000;
       const profiles = [
-        ['welcome', crowd.welcome, { seconds: 5.5, people: 120, seed: 11 }],
-        ['normal0', crowd.normal[0], { seconds: 10, people: 170, seed: 21 }],
-        ['normal1', crowd.normal[1], { seconds: 10, people: 170, seed: 22 }],
-        ['finale', crowd.finale, { seconds: 15, people: 240, seed: 31, rhythmic: true }],
+        ['welcome', crowd.welcome, { seconds: 5.5, people, seed: 11, sr }],
+        ['normal0', crowd.normal[0], { seconds: 10, people, seed: 21, sr }],
+        ['normal1', crowd.normal[1], { seconds: 10, people, seed: 22, sr }],
+        ['finale', crowd.finale, { seconds: 15, people, seed: 31, rhythmic: true, sr }],
       ];
       let originalSyncMs = 0;
       const comparisons = [];
@@ -88,30 +102,34 @@ try {
         const start = performance.now();
         const expected = renderApplause(ctx, options);
         originalSyncMs += performance.now() - start;
-        const actualHashes = await hashBuffer(actual);
-        const expectedHashes = await hashBuffer(expected);
-        comparisons.push({ profile, length: actual.length, sampleRate: actual.sampleRate, channels: actual.numberOfChannels, bytes: actual.length * actual.numberOfChannels * 4, actualHashes, expectedHashes, equal: actual.length === expected.length && actualHashes.every((hash, i) => hash === expectedHashes[i]) });
+        for (const layer of ['close', 'wash']) {
+          const buffer = actual[layer], original = expected[layer];
+          const actualHashes = await hashBuffer(buffer);
+          const expectedHashes = await hashBuffer(original);
+          comparisons.push({ profile, layer, length: buffer.length, sampleRate: buffer.sampleRate, channels: buffer.numberOfChannels, bytes: buffer.length * buffer.numberOfChannels * 4, actualHashes, expectedHashes, equal: buffer.length === original.length && actualHashes.every((hash, i) => hash === expectedHashes[i]) });
+        }
       }
       // Connect only to silent, unrendered OfflineAudioContext nodes. This checks
       // the public playback method without touching a speaker or the real app.
       engine.dryBus = ctx.createGain();
-      engine.reverbIn = ctx.createGain();
       const source = engine.applause(0.25, 1);
-      const synchronousPlayback = source.buffer === crowd.normal[1];
+      const synchronousPlayback = source.buffer === crowd.normal[1].close;
       engine.stopApplause();
-      return { blocked, userAgent: navigator.userAgent, samePromise, immediateBufferCount, preparedBufferCount: bufferCount - 4, prepareCallMs, readyMs, heartbeatCount, originalSyncMs, workers, comparisons, outputBytes: comparisons.reduce((bytes, item) => bytes + item.bytes, 0), synchronousPlayback };
-    }, { blocked });
+      return { blocked, lite, userAgent: navigator.userAgent, samePromise, housePrepared: !!engine._house, houseBufferCount, immediateBufferCount, preparedBufferCount, prepareCallMs, readyMs, heartbeatCount, originalSyncMs, workers, comparisons, outputBytes: comparisons.reduce((bytes, item) => bytes + item.bytes, 0), synchronousPlayback };
+    }, { blocked, lite });
     data.pageErrors = pageErrors;
     data.consoleErrors = consoleErrors;
     result.cases.push(data);
     assert.equal(data.samePromise, true);
-    assert.equal(data.preparedBufferCount, 4);
-    assert.equal(data.outputBytes, 14288400);
-    assert.ok(data.comparisons.every(profile => profile.equal && profile.sampleRate === 44100 && profile.channels === 2));
+    assert.equal(data.housePrepared, true);
+    assert.equal(data.houseBufferCount, 9);
+    assert.equal(data.preparedBufferCount, 8);
+    assert.equal(data.outputBytes, 40.5 * (lite ? 16000 : 24000) * 16);
+    assert.ok(data.comparisons.length === 8 && data.comparisons.every(profile => profile.equal && profile.sampleRate === (lite ? 16000 : 24000) && profile.channels === 2));
     assert.equal(data.synchronousPlayback, true);
     assert.deepEqual(pageErrors, []);
     if (!blocked) {
-      assert.equal(data.immediateBufferCount, 0);
+      assert.equal(data.immediateBufferCount, data.houseBufferCount);
       assert.equal(data.workers.length, 1);
       assert.equal(data.workers[0].messages, 4);
       assert.equal(data.workers[0].errors, 0);
@@ -130,5 +148,5 @@ try {
 } finally {
   await browser.close();
   await fs.writeFile(output, JSON.stringify(result, null, 2) + '\n');
-  console.log(JSON.stringify({ output, passed: result.passed, cases: result.cases.map(item => ({ blocked: item.blocked, samePromise: item.samePromise, pcmEqual: item.comparisons.every(profile => profile.equal), workers: item.workers, outputBytes: item.outputBytes, pageErrors: item.pageErrors, consoleErrors: item.consoleErrors })), error: result.error }, null, 2));
+  console.log(JSON.stringify({ output, passed: result.passed, cases: result.cases.map(item => ({ blocked: item.blocked, lite: item.lite, samePromise: item.samePromise, pcmEqual: item.comparisons.every(profile => profile.equal), workers: item.workers, outputBytes: item.outputBytes, pageErrors: item.pageErrors, consoleErrors: item.consoleErrors })), error: result.error }, null, 2));
 }

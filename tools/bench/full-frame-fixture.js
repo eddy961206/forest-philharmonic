@@ -114,7 +114,9 @@ window.__bench={
     audience?.dispose();
     const big=IS_SPHERE?{detail:LITE?80:220,mid:LITE?0:900,cap:LITE?2500:Infinity}:{};
     const audienceSeats=hall.seats.filter(s=>!s.stage);
-    audience=buildAudience(audienceSeats,{lite:LITE,rand:seeded(417),fill:.8,...big});
+    audience=typeof planHouse==='function'
+      ?buildAudience(planHouse(audienceSeats,seeded(417)),{lite:LITE,share:.8,...big})
+      :buildAudience(audienceSeats,{lite:LITE,rand:seeded(417),fill:.8,...big});
     scene.add(audience.group);refreshOccupied();
     benchWrap(audience,'updateLOD','audienceLOD');
     hall.setHouseLights(.12);

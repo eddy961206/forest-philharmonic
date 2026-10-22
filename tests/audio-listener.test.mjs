@@ -88,6 +88,30 @@ test('turning updates orientation without changing distance filters', () => {
   assert.equal(writes.length, 6); // Camera roll also changes the listening orientation.
 });
 
+test('section desks follow head turns while unchanged distance and pose targets are reused', () => {
+  const { engine, writes, param } = fixture();
+  Object.assign(engine.ac, { model: 'inverse', refDistance: 3.2, rolloff: 1.15 });
+  const desk = { pos: { x: 3, y: position.y, z: 0 }, level: 0.62,
+    pan: { pan: param('desk:pan') }, g: { gain: param('desk:gain') } };
+  engine.sections.vn1.desks = [desk];
+  engine.setListener(position, forward, up);
+  const initialPan = writes.find(write => write.name === 'desk:pan').value;
+  const initialGain = writes.find(write => write.name === 'desk:gain').value;
+  assert.ok(initialPan > 0, 'a desk to the right is heard to the right');
+  assert.ok(initialGain > 0);
+  writes.length = 0;
+  for (let i = 0; i < 600; i++) engine.setListener({ ...position }, { ...forward }, { ...up });
+  assert.equal(writes.length, 0);
+
+  engine.setListener(position, { x: 0, y: 0, z: 1 }, up);
+  assert.equal(writes.find(write => write.name === 'desk:pan').value, -initialPan);
+  assert.equal(writes.filter(write => write.name === 'desk:gain' || write.name.startsWith('air:')).length, 0);
+  writes.length = 0;
+  engine.setListener({ x: 3, y: position.y, z: 20 }, { x: 0, y: 0, z: 1 }, up);
+  assert.ok(writes.find(write => write.name === 'desk:gain').value < initialGain, 'a more distant desk stays quieter');
+  assert.equal(Math.abs(writes.find(write => write.name === 'desk:pan').value), 0, 'a centred desk stays centred');
+});
+
 test('moving retains every spatial target and air absorption value', () => {
   const { engine, writes } = fixture({ sampleRate: 24000 });
   engine.setListener(position, forward, up);

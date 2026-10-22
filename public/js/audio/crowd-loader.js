@@ -1,15 +1,19 @@
 import { renderApplause } from './crowd.js';
 
 const PROFILES = [
-  { seconds: 5.5, people: 120, seed: 11 },
-  { seconds: 10, people: 170, seed: 21 },
-  { seconds: 10, people: 170, seed: 22 },
-  { seconds: 15, people: 240, seed: 31, rhythmic: true },
+  { seconds: 5.5, seed: 11 },
+  { seconds: 10, seed: 21 },
+  { seconds: 10, seed: 22 },
+  { seconds: 15, seed: 31, rhythmic: true },
 ];
 
 // Keep the original synthesizer and PCM format. Only its execution moves off
 // the UI thread; Web Audio objects are created in the owning AudioContext.
-export function prepareCrowd(ctx) {
+export function prepareCrowd(ctx, { lite = false } = {}) {
+  // These are the venue's existing sound-design settings, including both
+  // nearby clappers and the full-house wash. The worker changes no PCM math.
+  const sr = lite ? 16000 : 24000;
+  const profiles = PROFILES.map(profile => ({ ...profile, people: lite ? 200 : 320, sr }));
   const buffers = [];
   let worker = null;
   let timeout = null;
@@ -42,7 +46,7 @@ export function prepareCrowd(ctx) {
     stopWorker();
     try {
       // A failure after one or more transfers retains those exact buffers.
-      for (let i = buffers.length; i < PROFILES.length; i++) buffers.push(renderApplause(ctx, PROFILES[i]));
+      for (let i = buffers.length; i < profiles.length; i++) buffers.push(renderApplause(ctx, profiles[i]));
       return complete();
     } catch (error) {
       done = true;
@@ -57,11 +61,11 @@ export function prepareCrowd(ctx) {
     try { finishSync(); } catch { /* the preparation promise reports the error */ }
   };
   const requestNext = () => {
-    // Request/response is also backpressure: never queue all four PCM buffers
+    // Request/response is also backpressure: never queue all four PCM pairs
     // while their AudioBuffer copies are being made. A stalled worker falls back.
     clearTimeout(timeout);
     timeout = setTimeout(fallback, 30000);
-    worker.postMessage({ index: buffers.length, options: PROFILES[buffers.length] });
+    worker.postMessage({ index: buffers.length, options: profiles[buffers.length] });
   };
 
   try {
@@ -70,14 +74,21 @@ export function prepareCrowd(ctx) {
       if (done) return;
       try {
         const index = buffers.length;
-        const length = Math.floor(PROFILES[index].seconds * 44100);
-        if (data?.index !== index || data.sampleRate !== 44100 || data.length !== length || !Array.isArray(data.channels) || data.channels.length !== 2 || !data.channels.every(channel => channel instanceof Float32Array && channel.length === length)) {
+        const length = Math.floor(profiles[index].seconds * sr);
+        const valid = layer => layer?.sampleRate === sr && layer.length === length
+          && Array.isArray(layer.channels) && layer.channels.length === 2
+          && layer.channels.every(channel => channel instanceof Float32Array && channel.length === length);
+        if (data?.index !== index || !valid(data.layers?.close) || !valid(data.layers?.wash)) {
           throw new Error('Invalid applause worker result');
         }
-        const buffer = ctx.createBuffer(2, length, 44100);
-        for (let channel = 0; channel < 2; channel++) buffer.getChannelData(channel).set(data.channels[channel]);
-        buffers.push(buffer);
-        if (buffers.length === PROFILES.length) complete(); else requestNext();
+        const pair = {};
+        for (const name of ['close', 'wash']) {
+          const buffer = ctx.createBuffer(2, length, sr);
+          for (let channel = 0; channel < 2; channel++) buffer.getChannelData(channel).set(data.layers[name].channels[channel]);
+          pair[name] = buffer;
+        }
+        buffers.push(pair);
+        if (buffers.length === profiles.length) complete(); else requestNext();
       } catch {
         fallback();
       }

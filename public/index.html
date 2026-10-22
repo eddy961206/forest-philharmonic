@@ -9,15 +9,28 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%230f1d17'/><text x='32' y='44' font-size='34' text-anchor='middle' fill='%23e6c07b'>♪</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- (the fonts never hold up the first paint: a slow or blocked font host leaves the fallback fonts on screen) -->
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // (a finger, not a mouse: touch hints from the first screen on - the same test as main.js)
+    try { if (navigator.maxTouchPoints > 1 && !matchMedia('(pointer: fine)').matches) document.documentElement.classList.add('touch'); } catch (e) { /* old browser */ }
+  </script>
   <script>
     // (before anything is drawn: is this the square, or a building? - see js/boot.js)
     (function () {
       var q = new URLSearchParams(location.search);
       var v = q.get('venue');
       var t = null;
-      try { t = JSON.parse(sessionStorage.getItem('fp-ticket') || 'null'); } catch (e) { /* private mode */ }
+      try {
+        sessionStorage.setItem('fp-probe', '1');
+        sessionStorage.removeItem('fp-probe');
+        t = JSON.parse(sessionStorage.getItem('fp-ticket') || 'null');
+      } catch (e) {
+        // (nowhere to keep it: the ticket came along in the address)
+        try { t = JSON.parse(q.get('t') || 'null'); } catch (e2) { /* not a ticket */ }
+      }
       // (a building without a ticket for it is turned back to the square: no glimpse of it first)
       if (!q.get('room') && (!v || (!(t && t.venue === v) && !q.has('lobby')))) document.documentElement.classList.add('is-plaza');
     })();
@@ -34,10 +47,10 @@
     <div class="splash-inner">
       <div class="splash-intro">
         <h1 class="splash-title" id="splashTitle">숲속 필하모닉</h1>
-        <p class="splash-sub" id="splashSub">달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 쉰 곡을 들려드립니다.</p>
+        <p class="splash-sub" id="splashSub">달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 스물여섯 곡을 들려드립니다.</p>
         <p id="loadText" class="splash-load">공연장을 짓는 중</p>
         <div class="splash-bar" aria-hidden="true"><span id="loadBar"></span></div>
-        <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. 걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></p>
+        <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. <span class="h-key">걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></span><span class="h-touch">걷기 <b>왼쪽 스틱</b> · 둘러보기 <b>화면 끌기</b> · 앉기 <b>두 번 탭</b></span></p>
       </div>
 
       <!-- with a ticket from the square: the usher checks it, then in you go -->
@@ -48,7 +61,7 @@
         <p id="tcError" class="lb-error" role="alert" hidden></p>
         <div class="tc-fallback" id="tcFallback" hidden>
           <button id="tcSolo" class="lb-solo" type="button">혼자 보기로 입장</button>
-          <a class="lb-mini" href="./">광장으로 돌아가기</a>
+          <a class="lb-mini" id="tcPlaza" href="./">광장으로 돌아가기</a>
         </div>
       </div>
 
@@ -61,7 +74,7 @@
 
         <div class="lb-venue" id="lbVenue" role="group" aria-label="공연장">
           <button type="button" data-venue="hall" aria-pressed="true"><b>숲속 필하모닉 홀</b><small>달빛 숲 4층 그랜드 콘서트홀</small></button>
-          <button type="button" data-venue="sphere" aria-pressed="false"><b>스피어 · 라스베이거스</b><small>머리 위를 감싸는 16K 돔</small></button>
+          <button type="button" data-venue="sphere" aria-pressed="false"><b>스피어</b><small>머리 위를 감싸는 16K 돔</small></button>
         </div>
 
         <div id="lbInvite" class="lb-invite" hidden>
@@ -75,8 +88,8 @@
 
           <h2 class="lb-h">방 만들기</h2>
           <div class="lb-create">
-            <input id="lbTitle" maxlength="30" placeholder="방 제목 (예: 금요일 밤 클래식)">
-            <label class="lb-cap"><input id="lbCap" type="number" min="1" max="50" value="50" inputmode="numeric"> 명</label>
+            <input id="lbTitle" maxlength="30" aria-label="방 제목" placeholder="방 제목 (예: 금요일 밤 클래식)">
+            <label class="lb-cap"><input id="lbCap" type="number" min="1" max="50" value="50" inputmode="numeric" aria-label="최대 인원"> 명</label>
           </div>
           <div class="lb-vis" id="lbVis">
             <button type="button" data-pub="1" aria-pressed="true"><b>공개</b><small>방 목록에 보여요</small></button>
@@ -85,7 +98,7 @@
           <button id="lbCreate" class="btn-enter lb-go" disabled>방 만들고 입장</button>
           <details class="lb-code">
             <summary>방 코드로 들어가기</summary>
-            <div><input id="lbCode" maxlength="6" placeholder="예: K7QH2M" autocapitalize="characters" spellcheck="false"><button id="lbJoinCode" class="lb-mini" type="button" disabled>들어가기</button></div>
+            <div><input id="lbCode" maxlength="14" aria-label="방 코드 6자리" placeholder="예: K7QH2M" autocapitalize="characters" spellcheck="false"><button id="lbJoinCode" class="lb-mini" type="button" disabled>들어가기</button></div>
           </details>
         </div>
 
@@ -105,7 +118,7 @@
   <!-- start of the show: the musicians come on when you are ready -->
   <div id="startWrap" class="start-wrap" hidden>
     <button id="startBtn" class="btn-start">공연 시작</button>
-    <p class="start-hint" id="startHint">화면을 끌거나 클릭해서 둘러봐요 · <kbd>Space</kbd> 점프 · <kbd>E</kbd> 앉기 · <kbd>K</kbd> 공연 시작</p>
+    <p class="start-hint" id="startHint"><kbd>W A S D</kbd> 걷기 · 끌어서 둘러보기 · <kbd>E</kbd> 앉기 · <kbd>K</kbd> 공연 시작</p>
   </div>
 
   <!-- how to look around -->
@@ -191,7 +204,7 @@
         <span class="time" id="time">0:00 / 0:00</span>
       </div>
       <div class="t-mid" role="group" aria-label="보기 방식">
-        <button class="mode" data-mode="walk" title="직접 걸어 다니기 (W A S D)">걷기</button>
+        <button class="mode" data-mode="walk" aria-pressed="true" title="직접 걸어 다니기 (W A S D)">걷기</button>
         <button class="mode" data-mode="cinema" title="자동 카메라로 편하게 보기">편하게 보기</button>
       </div>
       <div class="t-right">
@@ -259,8 +272,9 @@
       </fieldset>
       <fieldset class="field">
         <legend>관객</legend>
-        <label class="check"><input type="checkbox" id="optAudience" checked> 관객석에 관객 앉히기</label>
-        <p class="hint">켤 때마다 관객 수와 얼굴, 앉는 자리가 새로 바뀌어요.</p>
+        <label class="slider">객석 채우기 <input type="range" id="crowd" min="0" max="100" step="1" value="45" aria-label="관객 수 (객석의 몇 퍼센트)"><output id="crowdOut">45%</output></label>
+        <p class="hint" id="crowdText"></p>
+        <p class="hint">0%면 빈 객석이에요. 공연장에 올 때마다 오는 얼굴과 앉는 자리가 새로 바뀌어요.</p>
       </fieldset>
       <fieldset class="field">
         <legend>잠들기 전에</legend>
@@ -287,21 +301,30 @@
     <div class="help-card">
       <h3 id="helpTitle">조작법</h3>
       <dl class="keys">
-        <dt>W A S D</dt><dd>걷기 · Shift 달리기 · 모바일은 왼쪽 조이스틱</dd>
-        <dt>드래그</dt><dd>누른 채 끌어서 둘러보기</dd>
-        <dt>클릭</dt><dd>마우스 고정 — 움직이기만 해도 둘러봐요 (Esc 로 풀기)</dd>
-        <dt>계단</dt><dd>로비 양쪽 나선 계단으로 2층 · 3층 · 4층</dd>
-        <dt>E</dt><dd>앞의 빈 좌석에 앉기 / 일어서기</dd>
-        <dt>휠 · 두 손가락</dt><dd>확대 / 축소 (오페라글라스)</dd>
-        <dt>두 번 클릭</dt><dd>연주자 곁으로 가서 듣기 · 좌석에 앉기</dd>
-        <dt>Space</dt><dd>점프 — 난간을 넘어 아래층으로 뛰어내릴 수도 있어요</dd>
-        <dt>K</dt><dd>공연 시작 · 재생 / 일시정지</dd>
-        <dt>N / P</dt><dd>다음 곡 / 이전 곡</dd>
-        <dt>← →</dt><dd>10초 이동</dd>
-        <dt>R</dt><dd>확대 초기화</dd>
-        <dt>H</dt><dd>화면 표시 숨기기</dd>
-        <dt>Enter</dt><dd>전체 화면 · 같이 보는 방에서는 채팅</dd>
-        <dt>M</dt><dd>음소거</dd>
+        <!-- (rows for the keyboard and mouse: .h-key; for a finger: .h-touch; one building only: .h-hall / .h-sphere) -->
+        <dt class="h-key">W A S D</dt><dd class="h-key">걷기 · Shift 달리기</dd>
+        <dt class="h-touch">왼쪽 스틱</dt><dd class="h-touch">걷기 · 끝까지 밀고 있으면 달리기 · 앉아 있을 때 밀면 일어서기</dd>
+        <dt class="h-key">드래그</dt><dd class="h-key">누른 채 끌어서 둘러보기</dd>
+        <dt class="h-touch">화면 끌기</dt><dd class="h-touch">둘러보기</dd>
+        <dt class="h-key">클릭</dt><dd class="h-key">마우스 고정 — 움직이기만 해도 둘러봐요 (Esc 로 풀기)</dd>
+        <dt class="h-hall">계단</dt><dd class="h-hall">로비 양쪽 나선 계단으로 2층 · 3층 · 4층</dd>
+        <dt class="h-sphere">엘리베이터</dt><dd class="h-sphere">입구 바로 뒤 엘리베이터로 100 · 200 · 300 · 400 레벨<span class="h-key"> (안에서 숫자 키 1–4)</span></dd>
+        <dt class="h-key">E</dt><dd class="h-key">앞의 빈 좌석에 앉기 / 일어서기</dd>
+        <dt class="h-touch">앉기 버튼</dt><dd class="h-touch">빈 좌석 앞에 서면 나타나요 · 앉으면 일어서기 (조이스틱을 밀어도 돼요)</dd>
+        <dt class="h-key">휠 · 두 손가락</dt><dd class="h-key">확대 / 축소 (오페라글라스)</dd>
+        <dt class="h-touch">두 손가락</dt><dd class="h-touch">벌리고 오므려 확대 / 축소 (오페라글라스)</dd>
+        <dt class="h-key">두 번 클릭</dt><dd class="h-key">연주자 곁으로 가서 듣기 · 좌석에 앉기</dd>
+        <dt class="h-touch">두 번 탭</dt><dd class="h-touch">연주자 곁으로 가서 듣기 · 좌석에 앉기</dd>
+        <dt class="h-key">Space</dt><dd class="h-key">점프 — 난간을 넘어 아래층으로 뛰어내릴 수도 있어요</dd>
+        <dt class="h-touch">점프 버튼</dt><dd class="h-touch">난간을 넘어 아래층으로 뛰어내릴 수도 있어요</dd>
+        <dt class="h-touch">아래 줄</dt><dd class="h-touch">눌러서 곡의 그 자리로 이동</dd>
+        <dt class="h-key">K</dt><dd class="h-key">공연 시작 · 재생 / 일시정지</dd>
+        <dt class="h-key">N / P</dt><dd class="h-key">다음 곡 / 이전 곡</dd>
+        <dt class="h-key">← →</dt><dd class="h-key">10초 이동 (앉아 있거나 편하게 보기일 때 · 걸을 때는 방향 돌리기)</dd>
+        <dt class="h-key">R</dt><dd class="h-key">확대 초기화</dd>
+        <dt class="h-key">H</dt><dd class="h-key">화면 표시 숨기기</dd>
+        <dt class="h-key">Enter</dt><dd class="h-key">전체 화면 · 같이 보는 방에서는 채팅</dd>
+        <dt class="h-key">M</dt><dd class="h-key">음소거</dd>
       </dl>
       <button class="btn-plain" id="helpClose">닫기</button>
     </div>
@@ -336,7 +359,7 @@
 
   <!-- ============================================ the square (first page) -->
   <section id="plaza" class="plaza" hidden>
-    <header class="pz-top">
+    <header class="pz-top" id="pzTop">
       <h1>숲속 공연 광장</h1>
       <p id="pzHint">매표소에서 표를 사서, 가고 싶은 공연장 입구로 걸어가요.</p>
     </header>
@@ -370,15 +393,16 @@
             <button type="button" class="mode-card" data-mode="join"><b>친구 표 받기</b><small>방 코드 6자리로 같이 들어가요</small></button>
           </div>
           <div class="mode-form" id="formCreate" hidden>
-            <input id="bkTitle" maxlength="30" placeholder="단체석 이름 (예: 금요일 밤 클래식)">
-            <label class="lb-cap"><input id="bkCap" type="number" min="1" max="50" value="50" inputmode="numeric"> 명</label>
+            <input id="bkTitle" maxlength="30" aria-label="단체석 이름" placeholder="단체석 이름 (예: 금요일 밤 클래식)">
+            <label class="lb-cap"><input id="bkCap" aria-label="단체석 인원" type="number" min="1" max="50" value="50" inputmode="numeric"> 명</label>
             <div class="lb-vis" id="bkVis">
               <button type="button" data-pub="1" aria-pressed="true"><b>공개</b><small>열린 공연에 보여요</small></button>
               <button type="button" data-pub="0" aria-pressed="false"><b>비공개</b><small>초대 링크로만</small></button>
             </div>
           </div>
           <div class="mode-form" id="formJoin" hidden>
-            <input id="bkCode" maxlength="6" placeholder="방 코드 (예: K7QH2M)" autocapitalize="characters" spellcheck="false">
+            <input id="bkCode" maxlength="14" aria-label="방 코드 6자리" placeholder="방 코드 (예: K7QH2M)" autocapitalize="characters" spellcheck="false">
+            <p class="booth-off" id="bkCodeNote" role="alert" hidden></p>
           </div>
           <div class="open-rooms" id="openRooms" hidden>
             <p class="booth-sub">지금 열린 공연</p>
@@ -397,7 +421,7 @@
         <section class="booth-step" data-step="4" hidden>
           <div id="boothTicket"></div>
           <p class="booth-go" id="boothGo"></p>
-          <div class="booth-nav"><button type="button" class="btn-enter booth-next" id="boothDone">표 받기</button></div>
+          <div class="booth-nav"><button type="button" class="btn-enter booth-next" id="boothDone">고마워요!</button></div>
         </section>
       </article>
     </div>
