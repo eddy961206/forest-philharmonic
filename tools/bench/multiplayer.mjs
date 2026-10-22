@@ -170,7 +170,9 @@ try {
       assert.match(response.headers.get('content-type'), /^text\/javascript/);
       assert.equal(response.headers.get('cache-control'), 'no-cache');
       assert.equal(sha(Buffer.from(await response.arrayBuffer())), expected);
-      const cached = await fetch(url, { headers: { 'If-None-Match': response.headers.get('etag') } });
+      // Revalidate the same representation. Node fetch otherwise negotiates
+      // gzip, whose strong ETag must differ from the identity response above.
+      const cached = await fetch(url, { headers: { 'Accept-Encoding': 'identity', 'If-None-Match': response.headers.get('etag') } });
       assert.equal(cached.status, 304);
       assert.equal((await cached.arrayBuffer()).byteLength, 0);
       result.audioModuleResponses.push({ file, expectedSha256: expected, httpStatus: 200, revalidation: 304 });
