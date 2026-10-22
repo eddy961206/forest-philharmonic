@@ -1,0 +1,15 @@
+✔ fine/coarse seats share geometry and part matrices while preserving every seat transform and colour (20.620894ms)
+✔ broadcast and main cameras can alternate coarse/fine selection without reusing the other camera state (7.445554ms)
+✔ per-camera selection never submits more triangles, including parent transforms and a view away from the hall (7.733942ms)
+✔ seat picking keeps the same global IDs and hit distances after each render-camera switch (8.342133ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.181209
+(node:5219) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)

@@ -1,0 +1,64 @@
+{
+  "output": "/workspace/scratch/25707ad85ea4/verification/runtime-core/raw/multiplayer-candidate.json",
+  "passed": false,
+  "cases": [
+    {
+      "name": "worker, loader and original synthesis modules retain correct JavaScript MIME, contents and revalidation",
+      "passed": true
+    },
+    {
+      "name": "sample caching and byte ranges preserve exact encoded audio bytes",
+      "passed": true
+    },
+    {
+      "name": "create a public Hall room, host identity, seed and fresh room listing",
+      "passed": true
+    },
+    {
+      "name": "joining the other venue returns the correct venue instead of changing rooms",
+      "passed": true
+    },
+    {
+      "name": "a Hall guest joins with identical seed and member identity",
+      "passed": true
+    },
+    {
+      "name": "host state and commands reach guests without changing the snapshot payload",
+      "passed": true
+    },
+    {
+      "name": "the server rejects forged guest state, commands and host handoff",
+      "passed": true
+    },
+    {
+      "name": "a late guest receives the complete playing snapshot and a full room rejects more members",
+      "passed": true
+    },
+    {
+      "name": "clock ping echoes the timestamp and RoomClient maintains a finite server clock estimate",
+      "passed": true
+    },
+    {
+      "name": "pose broadcast clamps coordinates, preserves seat zero and throttles duplicate updates",
+      "passed": true
+    },
+    {
+      "name": "local chat is sanitized, echoed to its sender and rate limited",
+      "passed": true
+    },
+    {
+      "name": "host handoff changes authorization and host departure restores the oldest member",
+      "passed": true
+    },
+    {
+      "name": "RoomClient automatically rejoins after a local socket drop with preserved seed and snapshot",
+      "passed": false,
+      "error": "Expected \"actual\" to be strictly unequal to: 4"
+    }
+  ],
+  "error": {
+    "message": "Expected \"actual\" to be strictly unequal to: 4",
+    "stack": "AssertionError [ERR_ASSERTION]: Expected \"actual\" to be strictly unequal to: 4\n    at file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/multiplayer.mjs:279:12\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async check (file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/multiplayer.mjs:40:9)\n    at async file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/multiplayer.mjs:270:3"
+  },
+  "serverErrors": ""
+}

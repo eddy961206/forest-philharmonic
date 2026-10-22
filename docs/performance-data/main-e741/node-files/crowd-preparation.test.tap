@@ -1,0 +1,27 @@
+✔ the actual module worker preserves both applause layers bit for bit (desktop) (641.10249ms)
+✔ the actual module worker preserves both applause layers bit for bit (Lite) (350.959789ms)
+✔ one shared preparation requests the next profile only after copying the previous one (11.131512ms)
+✔ browsers without Worker complete through the unchanged synchronous synthesizer (211.416526ms)
+✔ a worker failure keeps completed buffers and synthesizes only the missing profile (93.35838ms)
+✔ malformed worker messages fall back and late decode errors are ignored (81.713138ms)
+✔ direct applause remains synchronous while an unfinished worker is terminated (80.781251ms)
+✔ audio initialization cancels an old generation and ignores every late response (9.066831ms)
+✔ a stalled worker is stopped and missing PCM is completed before resolving (82.070539ms)
+✔ constructor restrictions fall back, and synthesis errors reject without leaking a worker (4.570811ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1573.397087
+(node:5143) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5143) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5143) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)

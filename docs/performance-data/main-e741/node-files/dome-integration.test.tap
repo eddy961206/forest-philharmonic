@@ -1,0 +1,15 @@
+✔ world warm-up draws one face through the box and leaves the first flight fresh (6.409078ms)
+✔ failed world warm-up releases its temporary slot and restores the caller state (1.273195ms)
+✔ the two-pass dome shares resized cube uniforms and keeps both flights during a crossfade (18.494193ms)
+✔ Lite warm-up keeps cube rendering disabled and the painted transition completes in two passes (2.468976ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 38.714006
+(node:5155) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)

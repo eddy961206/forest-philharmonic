@@ -1,0 +1,27 @@
+✔ 진입·한 번의 끊김은 화질을 내리지 않아 (2.05742ms)
+✔ 지속 부하에서는 해상도부터 내리고 바닥을 넘지 않아 (2.450168ms)
+✔ 안정적으로 회복되면 해상도와 화질을 한 단계씩 복구해 (2.550135ms)
+✔ 큰 지연은 프리셋을 내리되 DPR를 늘리지 않아 (0.318119ms)
+✔ 소수 DPR에서 프리셋을 내려도 반올림으로 해상도가 늘지 않아 (0.162029ms)
+✔ 경계 근처의 부하는 설정을 왕복하지 않아 (0.815841ms)
+✔ 숨긴 탭에서 돌아오거나 수동 선택하면 이전 부하 기록을 버려 (0.434469ms)
+✔ 가벼운 자동 모드의 회복 상한과 잘못된 입력을 지켜 (0.677367ms)
+✔ 입장이나 전환 유예는 이전 느린 관측을 버리고 새 관측부터 판단해 (0.20363ms)
+✔ 긴 방해 뒤 유예 끝을 가로지른 프레임은 부하로 누적하지 않아 (0.233073ms)
+✔ 곡 중에는 해상도를 먼저 조절하고 보통 부하로 프리셋을 바꾸지 않아 (1.113279ms)
+✔ 곡 중에도 심한 지속 부하는 프리셋을 내리고 0.6 바닥을 지켜 (0.316967ms)
+✔ 해상도와 프리셋 복구는 곡 사이에만 하고 Lite 상한을 넘지 않아 (1.482874ms)
+✔ 실패한 복구는 전환·숨김 유예 뒤에도 재시도하지 않고 수동 선택으로 초기화해 (2.018422ms)
+✔ 일반 모드의 자동 품질은 심한 부하에도 보통 재질을 유지해 (0.442702ms)
+✔ 일반 모드도 안정적인 곡 사이에는 해상도와 높음 프리셋을 복구해 (2.397971ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25.771724
+(node:5203) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)

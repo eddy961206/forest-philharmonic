@@ -1,0 +1,52 @@
+{
+  "index": 0,
+  "job": {
+    "id": "baseline-a-hall-high",
+    "script": "tools/bench/full-frame.mjs",
+    "args": [
+      "baseline-a",
+      "hall",
+      "high",
+      "desktop",
+      "front,wide,broadcast-hidden,broadcast-return"
+    ],
+    "env": {
+      "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+      "CHROME_EXECUTABLE": "/tmp/chromium",
+      "CHROME_ARGS": "[\"--no-sandbox\", \"--disable-dev-shm-usage\", \"--use-gl=angle\", \"--use-angle=swiftshader\", \"--enable-unsafe-swiftshader\"]",
+      "SOFTWARE_RENDERER": "1",
+      "FONT_MODE": "system",
+      "TIMEOUT_MS": "60000",
+      "WIDTH": "640",
+      "HEIGHT": "360",
+      "DPR": "1",
+      "SAMPLES": "4",
+      "WARMUP": "2",
+      "SCREENSHOTS": "1",
+      "BASE_URL": "http://127.0.0.1:8381",
+      "REVISION": "e741811d1d7a040afcdd3a8230465980c64f82fc"
+    },
+    "timeoutSeconds": 360
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/full-frame.mjs",
+    "baseline-a",
+    "hall",
+    "high",
+    "desktop",
+    "front,wide,broadcast-hidden,broadcast-return"
+  ],
+  "startedAt": "2026-10-22T00:19:14.278983+00:00",
+  "planSha256": "428e5748c25e290995aa614045736fa2e912e94518a37fc3fe54ece6e6861c1a",
+  "collectorSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+  "runnerSha256": "2699605c709470533cdb7c7892b8ea7ca8a77fbce94ae64f9b01e86be17a77f8",
+  "timeoutSeconds": 360.0,
+  "status": "PASS",
+  "lastHeartbeatAt": "2026-10-22T00:20:54.294859+00:00",
+  "elapsedSeconds": 100.012,
+  "pid": 5761,
+  "exitCode": 0,
+  "finishedAt": "2026-10-22T00:21:05.304666+00:00",
+  "logSha256": "811b02331d03997fb454063d813d91dea9f43f11c3342519ada0d1d0627d27fb"
+}

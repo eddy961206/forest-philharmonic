@@ -1,0 +1,17 @@
+✔ visual updates before loading and retained note-on lists keep independent results (1.905726ms)
+✔ in-place expiry preserves polyphonic order, timing, peak velocity and event lists (2.555383ms)
+✔ 600 frames and time discontinuities exactly match the original visual states and events (29.564934ms)
+✔ seek, rewind, stop and loading a new score rebuild the cached chair references (1.620446ms)
+✔ frame updates reuse active arrays without filter, map or Object.values allocations (3.240341ms)
+✔ audio scheduling is identical with frequent, 5 FPS or absent visual updates (3.027869ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.272357
+(node:5191) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)

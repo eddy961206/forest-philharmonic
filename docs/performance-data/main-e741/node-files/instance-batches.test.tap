@@ -1,0 +1,15 @@
+✔ batched picking returns the original global IDs and all raw raycast intersections (7.3686ms)
+✔ parent movement, rotation and nonuniform scale preserve picking and edge hits (3.387318ms)
+✔ misses and near/far limits behave like the original mesh without changing existing hits (0.621375ms)
+✔ a ray only inspects instances in intersected spatial bounds (0.765717ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16.914947
+(node:5182) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)

@@ -1,0 +1,536 @@
+{
+  "measuredAt": "2026-10-22T00:32:18.774Z",
+  "node": "v24.19.0",
+  "repo": "/workspace/scratch/25707ad85ea4/forest-philharmonic",
+  "label": "candidate",
+  "revision": "6c7817218814f00631089eb2c6f150d68190980f",
+  "method": "Functional tests of real server.js/server/rooms.js/server/ws.js and real browser RoomClient using Node WebSocket. Temporary rooms and messages exist only in a new process bound to 127.0.0.1 on an OS-assigned port. No production host, existing server or real users are contacted. This is protocol/static-serving QA, not rendered UI, audio-device synchronization or load/performance benchmarking.",
+  "cases": [
+    {
+      "name": "worker, loader and original synthesis modules retain correct JavaScript MIME, contents and revalidation",
+      "passed": true
+    },
+    {
+      "name": "sample caching and byte ranges preserve exact encoded audio bytes",
+      "passed": true
+    },
+    {
+      "name": "create a public Hall room, host identity, seed and fresh room listing",
+      "passed": true
+    },
+    {
+      "name": "joining the other venue returns the correct venue instead of changing rooms",
+      "passed": true
+    },
+    {
+      "name": "a Hall guest joins with identical seed and member identity",
+      "passed": true
+    },
+    {
+      "name": "host state and commands reach guests without changing the snapshot payload",
+      "passed": true
+    },
+    {
+      "name": "the server rejects forged guest state, commands and host handoff",
+      "passed": true
+    },
+    {
+      "name": "a late guest receives the complete playing snapshot and a full room rejects more members",
+      "passed": true
+    },
+    {
+      "name": "clock ping echoes the timestamp and RoomClient maintains a finite server clock estimate",
+      "passed": true
+    },
+    {
+      "name": "pose broadcast clamps coordinates, preserves seat zero and throttles duplicate updates",
+      "passed": true
+    },
+    {
+      "name": "local chat is sanitized, echoed to its sender and rate limited",
+      "passed": true
+    },
+    {
+      "name": "host handoff changes authorization and host departure restores the oldest member",
+      "passed": true
+    },
+    {
+      "name": "RoomClient automatically rejoins after a local socket drop with preserved seed and snapshot",
+      "passed": false,
+      "error": "Expected \"actual\" to be strictly unequal to: 4"
+    }
+  ],
+  "sources": {
+    "server.js": "6308179f7cf4f0c805a26ebc0864aba5758373a9ca37ba8793ca414431a0aa23",
+    "server/rooms.js": "c37927ed4f59765a3c1d01e43e461271d257f8a883af6151ed66bd9c2ef75080",
+    "server/ws.js": "c604930a7c08ccbb9d130b544060d82b15c8d2beece59938b9e6c9a46d1b4d1f",
+    "public/js/net/room.js": "37cdd8a526644498a2648a7b68deabff0ad9b5a18199bf8b3f4e2185ba722da7",
+    "public/js/audio/crowd-loader.js": "b0640be50fda8b5da1fd69702d41aa722cde62b29d7594ca3cbf970b96edd9e7",
+    "public/js/audio/crowd-worker.js": "26cc6c5015c59827c97745846a8b276ea0d25c057bde03a7654a2cffc58a6e0d"
+  },
+  "origin": "http://127.0.0.1:39115/",
+  "sampleRangeAsset": "samples/bassoon/34.mp3",
+  "error": {
+    "message": "Expected \"actual\" to be strictly unequal to: 4",
+    "stack": "AssertionError [ERR_ASSERTION]: Expected \"actual\" to be strictly unequal to: 4\n    at file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/multiplayer.mjs:279:12\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async check (file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/multiplayer.mjs:40:9)\n    at async file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/multiplayer.mjs:270:3"
+  },
+  "serverErrors": "",
+  "messages": [
+    {
+      "label": "hall-host",
+      "joinedFirst": [
+        true
+      ],
+      "messages": [
+        {
+          "t": "joined",
+          "room": {
+            "code": "5X75KP",
+            "title": "LOCAL QA ONLY",
+            "cap": 3,
+            "pub": true,
+            "venue": "hall"
+          },
+          "you": 1,
+          "host": 1,
+          "members": [
+            {
+              "id": 1,
+              "name": "QA HOST",
+              "avatar": "owl",
+              "p": null,
+              "since": 1792629138910
+            }
+          ],
+          "state": null,
+          "seed": 3833868083,
+          "now": 1792629138910
+        },
+        {
+          "t": "member",
+          "m": {
+            "id": 3,
+            "name": "QA GUEST",
+            "avatar": "rabbit",
+            "p": {
+              "x": 200,
+              "y": -50,
+              "z": -200,
+              "r": 10,
+              "s": 0,
+              "m": 1
+            },
+            "since": 1792629138928
+          }
+        },
+        {
+          "t": "member",
+          "m": {
+            "id": 4,
+            "name": "QA LATE",
+            "avatar": "cat",
+            "p": null,
+            "since": 1792629138934
+          }
+        },
+        {
+          "t": "pose",
+          "id": 3,
+          "p": {
+            "x": 200,
+            "y": -50,
+            "z": -200,
+            "r": 10,
+            "s": 0,
+            "m": 1
+          }
+        },
+        {
+          "t": "chat",
+          "id": 3,
+          "name": "QA GUEST",
+          "text": "안녕xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        {
+          "t": "host",
+          "id": 3
+        },
+        {
+          "t": "pong",
+          "c": 1792629138934.005,
+          "s": 1792629138944
+        },
+        {
+          "t": "state",
+          "s": {
+            "started": true,
+            "i": 1,
+            "title": "LOCAL QA SCORE",
+            "phase": "playing",
+            "playing": true,
+            "pos": 12.34,
+            "at": 1792629138.928,
+            "onstage": [
+              "vn1"
+            ],
+            "cond": true,
+            "qa": "new-host-state"
+          }
+        },
+        {
+          "t": "left",
+          "id": 3
+        },
+        {
+          "t": "host",
+          "id": 1
+        },
+        {
+          "t": "left",
+          "id": 4
+        },
+        {
+          "t": "pong",
+          "c": 1792629138962,
+          "s": 1792629138962
+        },
+        {
+          "t": "pong",
+          "c": 1792629139212,
+          "s": 1792629139212
+        },
+        {
+          "t": "pong",
+          "c": 1792629139463,
+          "s": 1792629139463
+        }
+      ]
+    },
+    {
+      "label": "wrong-venue",
+      "joinedFirst": [],
+      "messages": [
+        {
+          "t": "error",
+          "code": "venue",
+          "venue": "hall",
+          "msg": "다른 공연장의 방이에요. 그 공연장으로 옮겨 갈게요."
+        }
+      ]
+    },
+    {
+      "label": "hall-guest",
+      "joinedFirst": [
+        true
+      ],
+      "messages": [
+        {
+          "t": "joined",
+          "room": {
+            "code": "5X75KP",
+            "title": "LOCAL QA ONLY",
+            "cap": 3,
+            "pub": true,
+            "venue": "hall"
+          },
+          "you": 3,
+          "host": 1,
+          "members": [
+            {
+              "id": 1,
+              "name": "QA HOST",
+              "avatar": "owl",
+              "p": null,
+              "since": 1792629138910
+            },
+            {
+              "id": 3,
+              "name": "QA GUEST",
+              "avatar": "rabbit",
+              "p": null,
+              "since": 1792629138928
+            }
+          ],
+          "state": null,
+          "seed": 3833868083,
+          "now": 1792629138928
+        },
+        {
+          "t": "state",
+          "s": {
+            "started": true,
+            "i": 1,
+            "title": "LOCAL QA SCORE",
+            "phase": "playing",
+            "playing": true,
+            "pos": 12.34,
+            "at": 1792629138.928,
+            "onstage": [
+              "vn1"
+            ],
+            "cond": true
+          }
+        },
+        {
+          "t": "cmd",
+          "c": {
+            "k": "seek",
+            "pos": 24.5,
+            "at": 1792629138.928
+          }
+        },
+        {
+          "t": "pong",
+          "c": 1792629138921.001,
+          "s": 1792629138931
+        },
+        {
+          "t": "state",
+          "s": {
+            "started": true,
+            "i": 1,
+            "title": "LOCAL QA SCORE",
+            "phase": "playing",
+            "playing": true,
+            "pos": 12.34,
+            "at": 1792629138.928,
+            "onstage": [
+              "vn1"
+            ],
+            "cond": true,
+            "qa": "authorization-barrier"
+          }
+        },
+        {
+          "t": "member",
+          "m": {
+            "id": 4,
+            "name": "QA LATE",
+            "avatar": "cat",
+            "p": null,
+            "since": 1792629138934
+          }
+        },
+        {
+          "t": "pong",
+          "c": 1792629138929.002,
+          "s": 1792629138939
+        },
+        {
+          "t": "pong",
+          "c": 1792629138931.003,
+          "s": 1792629138941
+        },
+        {
+          "t": "cmd",
+          "c": {
+            "qa": "pose-barrier"
+          }
+        },
+        {
+          "t": "chat",
+          "id": 3,
+          "name": "QA GUEST",
+          "text": "안녕xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        {
+          "t": "pong",
+          "c": 1792629138933.004,
+          "s": 1792629138943
+        },
+        {
+          "t": "cmd",
+          "c": {
+            "qa": "chat-barrier"
+          }
+        },
+        {
+          "t": "host",
+          "id": 3
+        }
+      ]
+    },
+    {
+      "label": "hall-late-guest",
+      "joinedFirst": [
+        true,
+        false
+      ],
+      "messages": [
+        {
+          "t": "joined",
+          "room": {
+            "code": "5X75KP",
+            "title": "LOCAL QA ONLY",
+            "cap": 3,
+            "pub": true,
+            "venue": "hall"
+          },
+          "you": 4,
+          "host": 1,
+          "members": [
+            {
+              "id": 1,
+              "name": "QA HOST",
+              "avatar": "owl",
+              "p": null,
+              "since": 1792629138910
+            },
+            {
+              "id": 3,
+              "name": "QA GUEST",
+              "avatar": "rabbit",
+              "p": {
+                "x": 200,
+                "y": -50,
+                "z": -200,
+                "r": 10,
+                "s": 0,
+                "m": 1
+              },
+              "since": 1792629138928
+            },
+            {
+              "id": 4,
+              "name": "QA LATE",
+              "avatar": "cat",
+              "p": null,
+              "since": 1792629138934
+            }
+          ],
+          "state": {
+            "started": true,
+            "i": 1,
+            "title": "LOCAL QA SCORE",
+            "phase": "playing",
+            "playing": true,
+            "pos": 12.34,
+            "at": 1792629138.928,
+            "onstage": [
+              "vn1"
+            ],
+            "cond": true,
+            "qa": "authorization-barrier"
+          },
+          "seed": 3833868083,
+          "now": 1792629138935
+        },
+        {
+          "t": "pose",
+          "id": 3,
+          "p": {
+            "x": 200,
+            "y": -50,
+            "z": -200,
+            "r": 10,
+            "s": 0,
+            "m": 1
+          }
+        },
+        {
+          "t": "cmd",
+          "c": {
+            "qa": "pose-barrier"
+          }
+        },
+        {
+          "t": "chat",
+          "id": 3,
+          "name": "QA GUEST",
+          "text": "안녕xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        {
+          "t": "cmd",
+          "c": {
+            "qa": "chat-barrier"
+          }
+        },
+        {
+          "t": "host",
+          "id": 3
+        },
+        {
+          "t": "state",
+          "s": {
+            "started": true,
+            "i": 1,
+            "title": "LOCAL QA SCORE",
+            "phase": "playing",
+            "playing": true,
+            "pos": 12.34,
+            "at": 1792629138.928,
+            "onstage": [
+              "vn1"
+            ],
+            "cond": true,
+            "qa": "new-host-state"
+          }
+        },
+        {
+          "t": "left",
+          "id": 3
+        },
+        {
+          "t": "host",
+          "id": 1
+        },
+        {
+          "t": "joined",
+          "room": {
+            "code": "5X75KP",
+            "title": "LOCAL QA ONLY",
+            "cap": 3,
+            "pub": true,
+            "venue": "hall"
+          },
+          "you": 4,
+          "host": 1,
+          "members": [
+            {
+              "id": 1,
+              "name": "QA HOST",
+              "avatar": "owl",
+              "p": null,
+              "since": 1792629138910
+            },
+            {
+              "id": 4,
+              "name": "QA LATE",
+              "avatar": "cat",
+              "p": null,
+              "since": 1792629138934
+            }
+          ],
+          "state": {
+            "started": true,
+            "i": 1,
+            "title": "LOCAL QA SCORE",
+            "phase": "playing",
+            "playing": true,
+            "pos": 12.34,
+            "at": 1792629138.928,
+            "onstage": [
+              "vn1"
+            ],
+            "cond": true,
+            "qa": "new-host-state"
+          },
+          "seed": 3833868083,
+          "now": 1792629139549
+        }
+      ]
+    },
+    {
+      "label": "full-room",
+      "joinedFirst": [],
+      "messages": [
+        {
+          "t": "error",
+          "code": "full",
+          "msg": "방이 가득 찼어요 (3명)."
+        }
+      ]
+    }
+  ],
+  "passed": false
+}

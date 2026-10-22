@@ -1,0 +1,12 @@
+{
+  "executable": "/tmp/chromium",
+  "args": [
+    "--no-sandbox",
+    "--disable-dev-shm-usage",
+    "--use-gl=angle",
+    "--use-angle=swiftshader",
+    "--enable-unsafe-swiftshader"
+  ],
+  "chromiumPackage": "153.0.0",
+  "playwright": "1.62.1"
+}
