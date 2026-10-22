@@ -58,11 +58,11 @@ const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (isTou
 // (the hall is paid for per pixel - a dozen lights on every one: beyond 1.5
 // pixels per point a sharper picture is hard to see and costs half again)
 const QUALITY = {
-  high: { pr: Math.min(window.devicePixelRatio || 1, 1.5), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenEvery: 2, post: true },
-  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25) * 0.85, shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenEvery: 3, post: true },
+  high: { pr: Math.min(window.devicePixelRatio || 1, 1.5), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenHz: 30, post: true },
+  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25) * 0.85, shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenHz: 20, post: true },
   // phones: no post-processing pass, no shadows, the big screen redrawn
   // only every ~1.5 s at a small size
-  low: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenEvery: 90, post: false },
+  low: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenHz: 8, post: false },
 };
 if (settings.quality !== 'auto' && !Object.hasOwn(QUALITY, settings.quality)) settings.quality = 'auto';
 // A computer's built-in graphics (most laptops, and desktops without a card
@@ -2236,7 +2236,9 @@ function frame() {
     if (wantsScreen && !screenActive) screen.invalidate();
     // Keep the broadcast shot clock in step while its picture is hidden.
     // A zero cadence advances time without a scene render or camera update.
-    screen.update(dt, { perf, time: t, phase, nextPiece }, wantsScreen ? QUALITY[quality].screenEvery : 0);
+    // (a broadcast picture costs about as much as a frame of the hall: fewer
+    // of them while the automatic quality is already easing the load)
+    screen.update(dt, { perf, time: t, phase, nextPiece }, wantsScreen ? QUALITY[quality].screenHz * (renderScale < 0.95 ? 0.6 : 1) : 0);
   }
   screenActive = wantsScreen;
 

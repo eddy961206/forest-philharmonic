@@ -57,6 +57,7 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
   const cam = new THREE.PerspectiveCamera(40, W / H, 0.1, 160);
   const state = { shot: null, t: 0, hold: 0, from: null, to: null, cutT: 0, lastKind: '' };
   let frame = 0;
+  let sinceShot = Infinity; // seconds since the picture was last filmed
   let forceRender = true;
   let captionState = { text: null, since: -99, mode: 'none' };
   let lastCapKey = '';
@@ -174,9 +175,18 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
     // fading it back in instead of waiting up to 90 low-quality frames.
     invalidate() { forceRender = true; },
     // every call advances the broadcast; renders every `every` frames
-    update(dt, ctx, every = 2) {
+    // hz: how often the picture is filmed while someone can see it, in real
+    // time (counting frames made a slow phone's broadcast a slide show: 90
+    // frames at 30 fps is one picture every 3 s); 0 = not shown, film nothing
+    update(dt, ctx, hz = 30) {
       frame++;
+      const every = hz;
       const refresh = forceRender && every > 0;
+      sinceShot += dt;
+      // (due once the interval has passed; a long stall is not caught up
+      // with a burst of renders - the next picture is simply the next one)
+      const due = every > 0 && sinceShot >= 1 / hz;
+      if (due) sinceShot = Math.min(sinceShot - 1 / hz, 1 / hz);
       const now = performance.now() / 1000;
       state.t += dt;
       if (!state.shot || state.t > state.hold) {
@@ -190,7 +200,7 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
         state.cutT = 0;
       }
       const s = state.shot;
-      if (every > 0 && (forceRender || frame % every === 0)) {
+      if (every > 0 && (forceRender || due)) {
         const x = state.t / state.hold;
         const pos = s.pos.clone().addScaledVector(s.drift, x);
         if (!state.cut && state.from && state.t < 2.2) {
