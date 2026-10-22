@@ -406,7 +406,7 @@ ui.on('enter', async (opt) => {
   holdQuality(6000);
   hall.setHouseLights(1);
   requestWakeLock();
-  if (room && !room.isHost && pendingJoin !== undefined) followHost(pendingJoin, { joining: true });
+  if (room && !room.isHost && pendingJoin !== undefined) catchUp(pendingJoin);
   pendingJoin = undefined;
 });
 
@@ -509,7 +509,9 @@ const STRINGS = /^(vn1|vn2|va|vc|cb):/;
 
 // Start piece i: musicians on stage, conductor in, then play.
 // remote: a guest following the host's 'run' (the host starts the music)
-async function runConcert(i, { quick = false, remote = false } = {}) {
+// late: a guest coming in while the host's orchestra walks on - { cond: the
+// host's conductor is out already, set(): called once our stage is set }
+async function runConcert(i, { quick = false, remote = false, late = null } = {}) {
   const tok = ++seq;
   endInterval();
   ceremony = true;
@@ -552,8 +554,10 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
   const { exits, enters } = stage.plan(target, keep);
   // Skipping ahead - or in a background tab, where nothing is drawn and so
   // nobody would walk - there is no procession: the stage straight as it
-  // should be (also when ▶ is pressed while they are still walking on)
-  const snap = quick || document.hidden;
+  // should be (also when ▶ is pressed while they are still walking on, and
+  // for a guest who comes in while the host's orchestra walks on: they see
+  // the stage as it is now, not a procession of their own from an empty one)
+  const snap = quick || !!late || document.hidden;
   const moving = stage.walkers.some((w) => w.state === 'walking' || w.state === 'queued' || w.leaving);
   if (snap && (exits.length || enters.length || moving)) {
     const keys = new Set([...stage.onstageKeys()].filter((k) => target.has(k) || keep.has(k)));
@@ -596,8 +600,17 @@ async function runConcert(i, { quick = false, remote = false } = {}) {
       if (!(await wait(400, tok))) return;
     }
   }
+  if (late) {
+    // in late: our stage is set (the host's page, reloaded, may run the show
+    // again from here). The conductor comes on when the host's does - unless
+    // they are out there already
+    late.set?.();
+    setPhase('entering');
+    hall.setHouseLights(0.75);
+    if (!late.cond && !(await until(() => !guest() || hostState?.cond || ['announce', 'hush', 'playing'].includes(hostState?.phase), tok, 1e9))) return;
+  }
   if (piece.conducted) {
-    if (snap && !(stage.conductorOn && stage.conductorReady)) {
+    if (snap && (!late || late.cond) && !(stage.conductorOn && stage.conductorReady)) {
       // (skipping ahead: already on the podium, turned to the orchestra)
       stage.snapConductor(true);
       if (!(await wait(600, tok))) return;
@@ -1569,10 +1582,11 @@ async function ensurePiece(i) {
   return true;
 }
 
-// the host's playback: { i, playing, pos, at }
+// the host's playback: { i, playing, pos, at }. True once we are in step
+// ('over': the host's piece has already ended by now; false: overtaken)
 async function applyPlayback(s) {
   const tok = ++playTok;
-  if (!(await ensurePiece(s.i)) || tok !== playTok) return;
+  if (!(await ensurePiece(s.i)) || tok !== playTok) return false;
   const piece = perf.piece;
   const want = s.on ? new Set(s.on) : rosterOf(piece);
   const here = stage.onstageKeys();
@@ -1594,7 +1608,7 @@ async function applyPlayback(s) {
   if (s.playing) {
     // what the host hears right now; a little ahead, since starting takes a moment
     const want = s.pos + Math.max(0, room.now() - s.at);
-    if (want >= perf.duration - 0.2) return;
+    if (want >= perf.duration - 0.2) return 'over';
     if (!perf.playing) {
       perf.seek(want + 0.12);
       perf.play();
@@ -1608,32 +1622,44 @@ async function applyPlayback(s) {
     if (Math.abs(perf.pos - s.pos) > 0.05) perf.seek(s.pos);
     ui.setPlaying(false);
   }
+  return true;
 }
 
-// a snapshot from the host (on joining, then every few seconds)
+// a snapshot from the host (on joining, then every few seconds). Joining,
+// it comes true once we are in step with the show (see room.ready)
+let hostState = null; // the host's latest snapshot
 async function followHost(s, { joining = false } = {}) {
-  if (!s || !room || room.isHost || !concertStarted || !s.started) return;
+  if (s) hostState = s;
+  if (!s || !room || room.isHost || !concertStarted || !s.started) return true;
   showOn();
-  if (s.phase === 'encore' && s.ev && !joining) { guestEncore(s.ev); return; }
-  if (s.phase === 'playing') { applyPlayback(s); return; }
-  if (!joining) return;
+  if (s.phase === 'encore' && s.ev && !joining) { guestEncore(s.ev); return true; }
+  let over = false;
+  if (s.phase === 'playing') {
+    const now = await applyPlayback(s);
+    // (in after the piece ended, with nobody running the show meanwhile - the
+    // host's page reloading: it is between pieces, the conductor gone after the bows)
+    if (now !== 'over' || !joining) return now === true;
+    over = true;
+  }
+  if (!joining) return true;
   if (['changing', 'entering', 'tuning', 'announce', 'hush'].includes(s.phase)) {
-    // the orchestra is walking on right now: watch it (a little late)
-    runConcert(s.i, { remote: true });
-    return;
+    // the orchestra is walking on right now: in a little late, to the stage as
+    // it is (the rest of the walk-on goes with the host's)
+    return new Promise((set) => runConcert(s.i, { remote: true, late: { cond: !!s.cond, set: () => set(true) } }));
   }
   // between pieces: set the stage as it is and wait for the host
   seq++;
   ceremony = false;
-  if (!(await ensurePiece(s.i))) return;
+  if (!(await ensurePiece(s.i))) return false;
   if (s.on) stage.snapRoster(new Set(s.on));
   else if (s.onstage) stage.snapOnstage();
-  stage.snapConductor(!!s.cond && s.onstage);
-  if (s.phase === 'interval' && s.iu) { beginInterval(s.iu, s.inext ?? s.i); return; }
-  if (s.phase === 'encore' && s.ev) { guestEncore(s.ev, true); return; }
+  stage.snapConductor(!!s.cond && s.onstage && !over);
+  if (s.phase === 'interval' && s.iu) { beginInterval(s.iu, s.inext ?? s.i); return true; }
+  if (s.phase === 'encore' && s.ev) { guestEncore(s.ev, true); return true; }
   hall.setHouseLights(s.onstage ? 0.5 : 1);
   adrift = seq; // (nothing of ours waits to go on: see carryOn)
   setPhase('intermission');
+  return true;
 }
 
 function onHostCmd(c) {
@@ -1676,11 +1702,19 @@ function onHostCmd(c) {
 }
 
 // a guest who becomes the host carries the show on from where it is
-function takeOver() {
-  ui.toast('이제 내가 방장이에요. 공연 진행을 맡아요.', 2600);
-  ui.chatLine({ sys: true, text: '이제 내가 방장이에요.' });
+// (back: the host's own page, reloaded, has it again)
+function takeOver(back = false) {
+  ui.toast(back ? '다시 방장이에요. 공연을 이어서 진행해요.' : '이제 내가 방장이에요. 공연 진행을 맡아요.', 2600);
+  ui.chatLine({ sys: true, text: back ? '다시 방장이에요.' : '이제 내가 방장이에요.' });
   carryOn();
   publish();
+}
+
+// coming into a show under way: follow it, and say so once we are in step
+// (the host's own page, reloaded, gets the show back then: server/rooms.js)
+function catchUp(s) {
+  const c = room;
+  followHost(s, { joining: true }).then((ok) => { if (ok && room === c && !c.isHost) c.ready(); }, (e) => console.error(e));
 }
 
 // the show is ours now (the host's role came to us, or the room was lost):
@@ -1793,34 +1827,47 @@ function wireRoom(c) {
     if (!first && !c.isHost && encore?.mine >= 0) c.vote(encore.mine); // (our lantern left with the line: up again)
     if (c.isHost) publish();
     else if (!concertStarted) pendingJoin = m.state;
-    else followHost(m.state, { joining: true });
+    else catchUp(m.state);
   });
   // (a dropped line that comes straight back - the same id - is not news:
   // "left" is said only once they have stayed away a few seconds)
   const goneSay = new Map();
-  c.on('member', (m) => {
+  c.on('member', (m, back) => {
     avatars.add(m);
     avatars.setHost(c.host);
     membersChanged();
     if (goneSay.has(m.id)) { clearTimeout(goneSay.get(m.id)); goneSay.delete(m.id); return; }
+    // the host's own page back: not someone new. A dropped line is the host
+    // again at once; a reloaded page is on the way back (the show is theirs
+    // again once it has caught up)
+    if (back) {
+      const text = m.id === c.host ? '방장이 돌아왔어요.' : '방장이 다시 들어오는 중이에요.';
+      ui.toast(text, 4000);
+      ui.chatLine({ sys: true, text });
+      return;
+    }
     ui.chatLine({ sys: true, text: `${m.name}님이 들어왔어요.` });
   });
-  c.on('left', (id, who) => {
+  c.on('left', (id, who, wait) => {
     if (id === c.host) awayTold = false; // (the host left: no "back again" for a hidden screen)
     avatars.remove(id);
     if (encore?.votes?.delete(id)) encoreShow(); // (a lantern leaves with its holder)
     membersChanged();
     refreshOccupied();
+    // the host's line dropped (a reload, most often): the room waits for them -
+    // said calmly, and no "left" for someone who is on the way back
+    if (wait) { ui.toast('방장의 연결이 잠시 끊겼어요. 돌아오기를 기다려요.', 4000); ui.chatLine({ sys: true, text: '방장의 연결이 잠시 끊겼어요. 돌아오기를 기다려요.' }); return; }
     if (who) goneSay.set(id, setTimeout(() => { goneSay.delete(id); if (room === c) ui.chatLine({ sys: true, text: `${who.name}님이 나갔어요.` }); }, 6000));
   });
-  c.on('host', (id) => {
+  c.on('host', (id, back) => {
     avatars.setHost(id);
     membersChanged();
     ui.setHostControls(c.isHost);
     const handed = wasHost && !c.isHost;
     wasHost = c.isHost;
-    if (c.isHost) { takeOver(); return; }
-    ui.chatLine({ sys: true, text: `${c.members.get(id)?.name ?? '누군가'}님이 이제 방장이에요.` });
+    if (c.isHost) { takeOver(back); return; }
+    if (back) { ui.toast('방장이 돌아왔어요.', 2000); ui.chatLine({ sys: true, text: '방장이 돌아왔어요.' }); }
+    else ui.chatLine({ sys: true, text: `${c.members.get(id)?.name ?? '누군가'}님이 이제 방장이에요.` });
     if (encore) {
       // the lanterns are counted by the new host now: ours goes to them
       if (handed && encore.votes) { seq++; encore.counts = encoreCounts(); encore.votes = null; }

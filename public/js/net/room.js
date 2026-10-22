@@ -123,6 +123,8 @@ export class RoomClient {
   }
   handoff(id) { if (this.isHost) this._send({ t: 'handoff', id }); }
   vote(k) { this._send({ t: 'vote', k }); } // the encore (the host counts)
+  // in step with the show after joining (the host's own reloaded page gets the show back)
+  ready() { this._send({ t: 'ready' }); }
 
   _ping() { this._send({ t: 'ping', c: Date.now() }); }
 
@@ -161,17 +163,17 @@ export class RoomClient {
         return;
       case 'member':
         this.members.set(m.m.id, m.m);
-        this._emit('member', m.m);
+        this._emit('member', m.m, !!m.back); // (back: the host's own page, reloaded)
         return;
       case 'left': {
         const who = this.members.get(m.id);
         this.members.delete(m.id);
-        this._emit('left', m.id, who);
+        this._emit('left', m.id, who, !!m.wait); // (wait: the host's line dropped; the room waits for them)
         return;
       }
       case 'host':
         this.host = m.id;
-        this._emit('host', m.id);
+        this._emit('host', m.id, !!m.back); // (back: the same host as before, on a new line)
         return;
       case 'pose': {
         const mm = this.members.get(m.id);

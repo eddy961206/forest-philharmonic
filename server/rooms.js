@@ -12,13 +12,16 @@
 //   handoff {id}      (host only)
 //   ping   {c}                             pong {c, s}
 //   bye    {}         (leaving on purpose)  error {code, msg}
+//   ready  {}         (in step with the show, after joining)
 //
 // Coming back: cid is a tab's own random id (kept for the tab's life). A
 // member who drops and comes back with it gets their place back - their
 // seniority, a seat even in a full room - and a host whose line dropped
 // (resume: the same page, the show still running there) gets the show back
-// if they return within HOST_GRACE; after that the longest-staying member
-// carries it on. An empty room waits ROOM_GRACE for its people (a reload,
+// if they return within HOST_GRACE. The host's own tab reloaded during the
+// show comes in as a guest first; once it has caught up with the show (it
+// says 'ready') the show is its again. With neither in HOST_GRACE the
+// longest-staying member carries it on. An empty room waits ROOM_GRACE for its people (a reload,
 // the invite already sent) before it closes.
 import crypto from 'node:crypto';
 import { accept, heartbeat } from './ws.js';
@@ -27,7 +30,8 @@ const MAX_ROOMS = 300;
 const MAX_CAP = 50;
 const PER_IP = 12;
 const ROOM_GRACE = 120000; // an empty room stays open this long
-const HOST_GRACE = 15000; // a dropped host's show waits this long before it passes on
+const HOST_GRACE = 45000; // a dropped host's show waits this long before it passes on (long enough for a slow reload)
+const CATCH_UP = 20000; // (the host's page, reloaded during the show: this long to catch up before the show passes on regardless)
 const PRESHOW_GRACE = 60000; // (before the show nothing waits on a host: a reloading host has time to come back)
 const FOLLOW_GRACE = 2500; // (before the show: the host's own reloaded tab gets it back this soon after rejoining)
 const ROOMS_PER_IP = 24; // rooms one address may hold open, counting the empty ones waiting for their people
@@ -101,7 +105,9 @@ function leave(m, bye = false) {
     clearTimeout(room.awayT);
     return;
   }
-  broadcast(room, { t: 'left', id: m.id });
+  // (the host's line dropped: the room waits for them, and says so)
+  const awaited = room.host === m.id && !bye && !!m.cid;
+  broadcast(room, awaited ? { t: 'left', id: m.id, wait: true } : { t: 'left', id: m.id });
   if (room.host !== m.id) return;
   clearTimeout(room.awayT);
   if (bye || !m.cid) { promote(room); return; }
@@ -109,18 +115,23 @@ function leave(m, bye = false) {
 }
 
 // the host's own tab, back on a new line, carries the show on - else the
-// longest-staying member takes it over
+// longest-staying member takes it over (one still catching up with the show
+// only when there is nobody else)
 function promote(room) {
-  const all = [...room.members.values()];
-  const next = all.find((x) => x.cid && x.cid === room.hostCid) || all.sort((a, b) => a.since - b.since)[0];
+  const all = [...room.members.values()].sort((a, b) => a.since - b.since);
+  const mine = all.find((x) => x.cid && x.cid === room.hostCid);
+  const next = (mine && !mine.behind ? mine : null) || all.find((x) => !x.behind) || mine || all[0];
   if (next) setHost(room, next);
 }
 
 function setHost(room, m) {
   clearTimeout(room.awayT);
+  // (the same tab as before, on a new line: the room hears "back", not "new")
+  const back = !!m.cid && m.cid === room.hostCid && room.host !== m.id;
+  m.behind = false;
   room.host = m.id;
   room.hostCid = m.cid;
-  broadcast(room, { t: 'host', id: m.id });
+  broadcast(room, back ? { t: 'host', id: m.id, back: true } : { t: 'host', id: m.id });
   // the lanterns already up go to whoever counts them now
   for (const [id, k] of room.votes) if (id !== m.id) m.sock.send({ t: 'vote', id, k });
 }
@@ -141,6 +152,7 @@ function enter(m, room, resume = false) {
   room.members.set(m.id, m);
   let hostBack = false;
   let gotShow = false;
+  let ownPage = false; // the host's own tab back (a dropped line, or reloaded: then it follows first)
   if (empty) {
     // the first one into an empty room runs a fresh show
     room.emptyAt = 0;
@@ -154,11 +166,20 @@ function enter(m, room, resume = false) {
     hostBack = room.host !== m.id;
     room.host = m.id;
     gotShow = true;
+    ownPage = true;
   } else if (hostAway && m.cid && m.cid === room.hostCid && !room.state?.started) {
     // the host's own page, reloaded before the show: it joins as a guest, then
     // gets the show back soon (promote finds it by its cid)
+    ownPage = true;
     clearTimeout(room.awayT);
     room.awayT = setTimeout(() => { if (!room.members.has(room.host)) promote(room); }, FOLLOW_GRACE);
+  } else if (hostAway && m.cid && m.cid === room.hostCid) {
+    // ... reloaded during the show: it follows the show first and gets it back
+    // as soon as it is in step (its 'ready'); nobody else is given it meanwhile
+    ownPage = true;
+    m.behind = true;
+    clearTimeout(room.awayT);
+    room.awayT = setTimeout(() => { if (!room.members.has(room.host)) promote(room); }, CATCH_UP);
   }
   m.sock.send({
     t: 'joined',
@@ -170,8 +191,8 @@ function enter(m, room, resume = false) {
     seed: room.seed,
     now: Date.now(),
   });
-  broadcast(room, { t: 'member', m: info(m) }, m);
-  if (hostBack) broadcast(room, { t: 'host', id: m.id }, m);
+  broadcast(room, ownPage ? { t: 'member', m: info(m), back: true } : { t: 'member', m: info(m) }, m);
+  if (hostBack) broadcast(room, { t: 'host', id: m.id, back: true }, m);
   // (the lanterns raised while the host was away)
   if (gotShow) for (const [id, k] of room.votes) if (id !== m.id) m.sock.send({ t: 'vote', id, k });
 }
@@ -257,6 +278,12 @@ function onMessage(m, msg) {
       if (k >= 0) room.votes.set(m.id, k); else room.votes.delete(m.id);
       const host = room.members.get(room.host);
       if (host && host !== m) host.sock.send({ t: 'vote', id: m.id, k });
+      return;
+    }
+    case 'ready': {
+      // the host's own page, back during the show, has caught up: the show is its again
+      if (m.behind && m.cid === room.hostCid && !room.members.has(room.host)) setHost(room, m);
+      m.behind = false;
       return;
     }
     case 'handoff': {
