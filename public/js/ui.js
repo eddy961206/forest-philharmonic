@@ -1,6 +1,6 @@
 // DOM interface: now-playing card, the vibrating "string" seek bar,
 // transport, side panel (programme, settings), touch controls, prompts.
-import { thumbStick } from './joystick.js';
+import { tapButton, thumbStick } from './joystick.js';
 import { IS_SPHERE } from './scene/venue.js';
 
 const $ = (id) => document.getElementById(id);
@@ -456,6 +456,7 @@ export class UI {
       $('time').textContent = txt;
       this._timeTxt = txt;
       $('seek').setAttribute('aria-valuenow', String(Math.round(this.progress * 100)));
+      $('seek').setAttribute('aria-valuetext', `${fmt(t)} / ${fmt(d)}`);
     }
   }
 
@@ -501,20 +502,37 @@ export class UI {
     }, ms);
   }
 
-  // the help dialog: focus goes into it, and back to where it was when it closes
-  showHelp(on) {
-    const h = $('help');
-    if (on && h.hidden) {
-      this._helpFrom = document.activeElement;
-      h.hidden = false;
-      $('helpClose').focus({ preventScroll: true });
-    } else if (!on && !h.hidden) {
-      h.hidden = true;
-      const back = this._helpFrom;
-      this._helpFrom = null;
-      if (back && back !== document.body && back.isConnected && !back.closest('[hidden]')) back.focus({ preventScroll: true });
+  // The three venue dialogs share focus and background isolation. Automatic
+  // end-of-evening cards can replace help without leaving two modals open.
+  _showDialog(id, on, { restoreFocus = true } = {}) {
+    const el = $(id);
+    if (on) {
+      if (this._dialog?.id === id) return;
+      let from = document.activeElement;
+      if (this._dialog) {
+        from = this._dialog.from;
+        this._showDialog(this._dialog.id, false, { restoreFocus: false });
+      }
+      el.hidden = false;
+      const background = [...document.body.children].filter((child) => child !== el && !child.contains(el) && !['renderStatus', 'sleepVeil'].includes(child.id));
+      this._dialog = { id, from, background: background.map((child) => [child, child.inert]) };
+      background.forEach((child) => { child.inert = true; });
+      this.stickTouch?.release?.();
+      this.joy.reset?.();
+      this.emit('dialogOpen');
+      if (document.pointerLockElement) document.exitPointerLock();
+      $(`${id}Close`).focus({ preventScroll: true });
+    } else {
+      el.hidden = true;
+      if (this._dialog?.id !== id) return;
+      const { from, background } = this._dialog;
+      this._dialog = null;
+      background.forEach(([child, inert]) => { child.inert = inert; });
+      if (restoreFocus && from && from !== document.body && from.isConnected && !from.closest('[hidden], [inert]')) from.focus({ preventScroll: true });
     }
   }
+
+  showHelp(on) { this._showDialog('help', on); }
 
   tooltip(info, x, y) {
     const el = $('tooltip');
@@ -618,8 +636,7 @@ export class UI {
       past.appendChild(b);
     }
     show(list[0]);
-    $('leaf').hidden = false;
-    $('leafClose').focus({ preventScroll: true });
+    this._showDialog('leaf', true);
     this.emit('leafOpen');
   }
 
@@ -659,8 +676,7 @@ export class UI {
       li.append(b, document.createTextNode(l.text));
       ul.appendChild(li);
     }
-    $('news').hidden = false;
-    $('newsClose').focus({ preventScroll: true });
+    this._showDialog('news', true);
     this.emit('leafOpen');
   }
 
@@ -712,33 +728,37 @@ export class UI {
   }
 
   // ---------------------------------------------------------------- binding
+  _bindDialogs() {
+    for (const id of ['help', 'leaf', 'news']) {
+      $(id).addEventListener('keydown', (e) => {
+        // Reading a card must not move the walker, seek or change the song.
+        e.stopPropagation();
+        if (e.key === 'Escape') { e.preventDefault(); this._showDialog(id, false); return; }
+        if (e.key !== 'Tab') return;
+        const buttons = [...$(id).querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), [tabindex="0"]')]
+          .filter((node) => node.getClientRects().length && !node.closest('[hidden], [inert]'));
+        const first = buttons[0], last = buttons.at(-1);
+        if (!first) return;
+        if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+          e.preventDefault();
+          (e.shiftKey ? last : first).focus();
+        }
+      });
+    }
+  }
+
   _bind() {
+    this._bindDialogs();
     // A finger's tap counts when it lifts on the button: the browser makes no
     // click of a tap while another finger is down (the left thumb on the
     // stick), so a jump, a pause or a sit would be lost while walking. The
     // mouse and the keyboard keep the plain click (and the click that
     // follows a lone finger's tap is not counted twice).
-    const tap = (el, fn, { onDown = false } = {}) => {
-      let finger = null;
-      let tapped = 0;
-      const fire = (e) => { tapped = this._tapAt = performance.now(); fn(e); el.blur(); };
-      el.addEventListener('pointerdown', (e) => {
-        if (e.pointerType === 'mouse' || el.disabled) return;
-        if (onDown) fire(e); else finger = e.pointerId;
-      });
-      el.addEventListener('pointerup', (e) => {
-        if (e.pointerId !== finger) return;
-        finger = null;
-        const r = el.getBoundingClientRect();
-        if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) fire(e);
-      });
-      el.addEventListener('pointercancel', () => { finger = null; });
-      el.addEventListener('click', (e) => {
-        if (performance.now() - tapped < 800) return;
-        fn(e);
-        if (e.detail > 0) el.blur();
-      });
-    };
+    const tap = (el, fn, opt) => tapButton(el, (e) => {
+      if (e.type.startsWith('pointer')) this._tapAt = performance.now();
+      fn(e);
+      if (e.type.startsWith('pointer') || e.detail > 0) el.blur();
+    }, opt);
     const click = (id, fn, opt) => tap($(id), fn, opt);
     click('startBtn', () => this.emit('start'));
     click('btnPlay', () => this.emit('toggle'));
@@ -746,8 +766,6 @@ export class UI {
     click('btnPrev', () => this.emit('prev'));
     click('btnHelp', () => this.showHelp(true));
     click('helpClose', () => this.showHelp(false));
-    // (a dialog: Tab stays in it - its one button)
-    $('help').addEventListener('keydown', (e) => { if (e.key === 'Tab') { e.preventDefault(); $('helpClose').focus(); } });
     click('leafBtn', () => this.emit('leaf'));
     click('plazaBtn', () => this.emit('toPlaza'));
     click('intervalTea', () => this.emit('tea'));
@@ -756,11 +774,11 @@ export class UI {
     click('intervalNews', () => this.emit('news'));
     click('intervalGo', () => this.emit('secondHalf'));
     click('actBtn', () => this.emit('act'));
-    click('newsClose', () => { $('news').hidden = true; });
+    click('newsClose', () => this._showDialog('news', false));
     // (the click a finger's tap leaves behind lands on the backdrop of the dialog
     // it just opened: not a click outside the card, so it does not close it)
     const outside = (e, id) => e.target.id === id && performance.now() - (this._tapAt || 0) > 700;
-    $('news').addEventListener('click', (e) => { if (outside(e, 'news')) $('news').hidden = true; });
+    $('news').addEventListener('click', (e) => { if (outside(e, 'news')) this._showDialog('news', false); });
     document.querySelectorAll('#intervalSeg button').forEach((b) => {
       b.setAttribute('aria-pressed', String(Number(b.dataset.min) === this.settings.interval));
       b.addEventListener('click', () => {
@@ -768,13 +786,13 @@ export class UI {
         this.onSetting('interval', Number(b.dataset.min));
       });
     });
-    click('leafClose', () => { $('leaf').hidden = true; });
-    $('leaf').addEventListener('click', (e) => { if (outside(e, 'leaf')) $('leaf').hidden = true; });
+    click('leafClose', () => this._showDialog('leaf', false));
+    $('leaf').addEventListener('click', (e) => { if (outside(e, 'leaf')) this._showDialog('leaf', false); });
     $('help').addEventListener('click', (e) => { if (outside(e, 'help')) this.showHelp(false); });
     click('btnFull', () => this.emit('fullscreen'));
     click('focusClose', () => this.emit('unfocus'));
     click('sitBtn', () => this.emit('sit'));
-    click('roomChip', () => { const open = $('panel').hidden || this.openPanel !== 'room'; this.showPanel(open ? 'room' : null); });
+    click('roomChip', () => { const open = $('panel').hidden || this.openPanel !== 'room'; this.showPanel(open ? 'room' : null, $('roomChip')); });
     click('roomLeave', () => this.emit('leaveRoom'));
     click('roomCopy', () => this.emit('copyInvite'));
     click('chatBtn', () => ($('chatForm').hidden ? this.openChat() : this.closeChat()));
@@ -799,7 +817,7 @@ export class UI {
     document.querySelectorAll('.tab-btn').forEach((b) => tap(b, () => {
       const name = b.dataset.panel;
       const open = $('panel').hidden || this.openPanel !== name;
-      this.showPanel(open ? name : null);
+      this.showPanel(open ? name : null, b);
     }));
     click('panelClose', () => this.showPanel(null));
 
@@ -876,41 +894,60 @@ export class UI {
       }
       // Esc while the mouse is captured only lets the mouse go (the walker
       // does that); the next Esc closes what is open
-      else if (c === 'Escape') { if (!e.defaultPrevented && !document.pointerLockElement) { this.showHelp(false); $('leaf').hidden = true; $('news').hidden = true; this.showPanel(null); } }
+      else if (c === 'Escape') { if (!e.defaultPrevented && !document.pointerLockElement) { if (this._dialog) this._showDialog(this._dialog.id, false); else this.showPanel(null); } }
       else if (c === 'KeyF') { if (!$('actBtn').hidden) this.emit('act'); }
       else if (c === 'ArrowLeft' || c === 'ArrowRight') this.emit('seekKey', c === 'ArrowLeft' ? -10 : 10, e);
     });
 
-    // seek on the string: scrub shows the position, release commits it
+    this._bindSeek();
+  }
+
+  // Seek on the string: one finger previews the position; only its release
+  // commits it. Cancelling or losing focus never changes playback.
+  _bindSeek() {
     const seek = $('seek');
     const frac = (e) => {
       const r = seek.getBoundingClientRect();
       return Math.min(1, Math.max(0, (e.clientX - r.left - 6) / (r.width - 12)));
     };
-    let down = false;
-    seek.addEventListener('pointerdown', (e) => { down = true; seek.setPointerCapture(e.pointerId); this.scrub = frac(e); });
-    seek.addEventListener('pointermove', (e) => { if (down) this.scrub = frac(e); });
+    let pointer = null;
+    const canSeek = () => seek.getAttribute('aria-disabled') !== 'true' && this.duration > 0;
+    const cancelSeek = () => { pointer = null; this.scrub = null; };
+    seek.addEventListener('pointerdown', (e) => {
+      if (pointer !== null || !canSeek() || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      pointer = e.pointerId;
+      seek.setPointerCapture(pointer);
+      this.scrub = frac(e);
+      e.preventDefault();
+    });
+    seek.addEventListener('pointermove', (e) => { if (e.pointerId === pointer) this.scrub = frac(e); });
     const release = (e) => {
-      if (!down) return;
-      down = false;
-      this.emit('seek', frac(e) * this.duration);
-      this.scrub = null;
+      if (e.pointerId !== pointer) return;
+      cancelSeek();
+      if (canSeek()) this.emit('seek', frac(e) * this.duration);
     };
     seek.addEventListener('pointerup', release);
-    seek.addEventListener('pointercancel', () => { down = false; this.scrub = null; });
+    for (const type of ['pointercancel', 'lostpointercapture']) seek.addEventListener(type, (e) => { if (e.pointerId === pointer) cancelSeek(); });
+    window.addEventListener('blur', cancelSeek);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) cancelSeek(); });
     seek.addEventListener('keydown', (e) => {
-      if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.code)) {
         e.stopPropagation();
         e.preventDefault();
-        this.emit('seekKey', e.code === 'ArrowLeft' ? -5 : 5, e);
+        if (!canSeek()) return;
+        if (e.code === 'Home' || e.code === 'End') this.emit('seek', e.code === 'Home' ? 0 : this.duration);
+        else this.emit('seekKey', ['ArrowLeft', 'ArrowDown'].includes(e.code) ? -5 : 5, e);
       }
     });
   }
 
-  showPanel(name) {
+  showPanel(name, opener = document.activeElement) {
+    const wasOpen = !$('panel').hidden;
+    if (name) this._panelFrom = opener;
     this.openPanel = name;
     $('panel').hidden = !name;
     document.querySelectorAll('.tab-btn').forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.panel === name)));
+    $('roomChip').setAttribute('aria-expanded', String(name === 'room'));
     document.querySelectorAll('.panel-body').forEach((b) => { b.hidden = b.dataset.body !== name; });
     const titles = { program: '오늘의 프로그램', settings: '설정', room: '같이 보는 사람들' };
     if (name) $('panelTitle').textContent = titles[name];
@@ -918,6 +955,8 @@ export class UI {
       const cur = $('programList').querySelector('.current');
       if (cur) cur.scrollIntoView({ block: 'nearest' });
     }
+    if (name) $('panelClose').focus({ preventScroll: true });
+    else if (wasOpen && this._panelFrom?.isConnected && !this._panelFrom.closest('[hidden], [inert]')) this._panelFrom.focus({ preventScroll: true });
   }
 
   // ------------------------------------------------------------ joystick

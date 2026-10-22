@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>숲속 필하모닉</title>
   <meta name="description" content="숲속 동물 오케스트라와 합창단이 연주하는 3D 콘서트홀. 직접 걸어 들어가 원하는 자리에 앉아 공간 음향으로 감상하세요.">
   <meta name="theme-color" content="#0f1d17">
@@ -41,6 +41,10 @@
 </head>
 <body>
   <div id="stage" aria-label="3D 콘서트홀"></div>
+  <div id="renderStatus" class="render-status" hidden role="status" aria-live="polite">
+    <p id="renderStatusText"></p>
+    <button id="renderRetry" class="btn-plain" type="button">다시 불러오기</button>
+  </div>
 
   <!-- splash / loading -->
   <section id="splash" class="splash" aria-live="polite">
@@ -178,10 +182,10 @@
   </div>
 
   <!-- watching together: the room, its people, chat -->
-  <button id="roomChip" class="room-chip" hidden aria-label="같이 보는 사람들"><span class="rc-dot" aria-hidden="true"></span><span id="roomChipTitle"></span><span id="roomChipCount" class="rc-count"></span></button>
+  <button id="roomChip" class="room-chip" hidden aria-label="같이 보는 사람들" aria-controls="panel" aria-expanded="false"><span class="rc-dot" aria-hidden="true"></span><span id="roomChipTitle"></span><span id="roomChipCount" class="rc-count"></span></button>
   <div id="chat" class="chat" hidden>
     <ol id="chatLog" class="chat-log" aria-live="polite"></ol>
-    <form id="chatForm" class="chat-form" hidden autocomplete="off"><input id="chatInput" maxlength="140" enterkeyhint="send" placeholder="메시지 보내기 (Esc 닫기)"></form>
+    <form id="chatForm" class="chat-form" hidden autocomplete="off"><input id="chatInput" maxlength="140" enterkeyhint="send" aria-label="채팅 메시지" placeholder="메시지 보내기 (Esc 닫기)"></form>
   </div>
   <button id="chatBtn" class="chat-btn" hidden aria-label="채팅">채팅</button>
 
@@ -212,8 +216,8 @@
           <button class="ib vol-ico" id="btnMute" aria-label="음소거" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path class="vol-wave" d="M16 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.8"/><path class="vol-x" d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
           <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8" aria-label="음량">
         </div>
-        <button class="tab-btn" data-panel="program">프로그램</button>
-        <button class="tab-btn" data-panel="settings">설정</button>
+        <button class="tab-btn" data-panel="program" aria-controls="panel" aria-expanded="false">프로그램</button>
+        <button class="tab-btn" data-panel="settings" aria-controls="panel" aria-expanded="false">설정</button>
         <button class="ib" id="btnHelp" aria-label="조작법" title="조작법 (?)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4V14" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="17" r="1.1"/></svg></button>
         <button class="ib" id="btnFull" aria-label="전체 화면" title="전체 화면 (Enter)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
       </div>
@@ -221,7 +225,7 @@
   </footer>
 
   <!-- side panel -->
-  <aside id="panel" class="panel" hidden aria-label="공연 패널">
+  <aside id="panel" class="panel" hidden aria-labelledby="panelTitle">
     <div class="panel-head">
       <h3 id="panelTitle">프로그램</h3>
       <button class="ib" id="panelClose" aria-label="패널 닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></button>
@@ -355,7 +359,7 @@
     </article>
   </div>
 
-  <div id="toast" class="toast" hidden></div>
+  <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
 
   <!-- ============================================ the square (first page) -->
   <section id="plaza" class="plaza" hidden>
