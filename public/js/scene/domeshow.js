@@ -279,52 +279,62 @@ vec3 sMOON(vec3 d, float az, float el) {
 }
 
 vec3 sFOREST(vec3 d, float az, float el) {
-  // standing in a clearing in an old forest: a hazy tree line all round,
-  // tall trunks rising past you and converging overhead into a canopy
-  // that opens on a bright morning sky; sun shafts through the leaves
-  float up = clamp(d.y, -0.2, 1.0);
-  vec3 sky = mix(vec3(0.62, 0.8, 0.95), vec3(0.95, 0.96, 0.9), smoothstep(0.75, 1.0, up));
-  vec3 c = sky;
-  // distant tree lines, three layers of bumpy crowns fading into the haze
-  for (int l = 0; l < 3 * uOne; l++) {
-    float fl = float(l);
-    float h = 0.035 + fl * 0.04 + 0.035 * fbm(vec3(az * (3.0 + fl * 2.0), fl * 4.0, 1.0)) + 0.02 * abs(sin(az * (90.0 - fl * 25.0) + fl)) ;
-    float m = smoothstep(h + 0.003, h - 0.003, el);
-    vec3 tree = mix(vec3(0.05, 0.12, 0.07), vec3(0.3, 0.42, 0.4), 1.0 - fl / 2.5);
-    tree = mix(tree, sky, 0.5 - fl * 0.2);
-    c = mix(c, tree * (0.8 + 0.25 * noise(vec3(az * 80.0, el * 80.0, fl))), m);
-  }
-  // the canopy overhead, with gaps of sky; sunlit edges
-  vec2 pp = d.xz / max(d.y + 0.15, 0.05);
-  float sway = sin(uTime * 0.3) * 0.04;
-  float leaves = fbm(vec3(pp * 2.2 + sway, uTime * 0.015)) * 0.75 + 0.25 * noise(vec3(pp * 14.0, 3.0));
-  float cover = smoothstep(0.25, 0.6, el) * (1.0 - smoothstep(0.92, 1.0, up) * 0.6);
-  float canopy = smoothstep(0.62, 0.42, leaves + (1.0 - cover) * 0.5);
-  vec3 leafCol = mix(vec3(0.04, 0.12, 0.04), vec3(0.28, 0.5, 0.14), fbm(vec3(pp * 5.0, 1.0)));
-  leafCol += vec3(0.75, 0.7, 0.25) * smoothstep(0.05, 0.0, abs(leaves - 0.5)) * 0.45;
-  c = mix(c, leafCol, canopy * cover);
-  // trunks: dark columns rising from the tree line into the canopy
-  float N = 34.0;
-  float u = (az + PI) / (2.0 * PI) * N + 0.2 * noise(vec3(az * 3.0, 0.0, 2.0));
-  float idx = floor(u);
-  float on = step(0.35, hash2(vec2(idx, 7.0)));
-  float w = mix(0.2, 0.05, smoothstep(0.0, 0.8, el)) * (0.55 + 0.6 * hash2(vec2(idx, 1.0)));
-  float cxu = fract(u) - 0.5;
-  float trunk = smoothstep(w, w - 0.015, abs(cxu)) * smoothstep(-0.02, 0.06, el) * (1.0 - smoothstep(0.5, 0.8, el)) * on;
-  float barkLines = noise(vec3(u * 40.0, el * 6.0, idx));
-  vec3 bark = vec3(0.1, 0.07, 0.05) * (0.6 + 0.7 * barkLines);
-  bark += vec3(0.55, 0.45, 0.25) * smoothstep(0.0, w, cxu) * 0.35; // the sunlit side
-  c = mix(c, bark, trunk);
-  // light shafts from the sun high in front
+  // Standing among the trunks of an old beech wood in the morning: columns
+  // of grey bark at every depth fading into the green haze, rising straight
+  // up past you (a trunk keeps its width in azimuth all the way up, so it
+  // narrows toward the top of the sky as a real one would) into a high
+  // canopy with small bright gaps, leaves lit gold at their edges, and the
+  // sun coming down through it in shafts. (The phones' version of FOREST3D.)
   vec3 sd = normalize(vec3(0.15, 0.75, -0.65));
-  float ray = pow(max(dot(d, sd), 0.0), 5.0) * (0.45 + 0.55 * noise(vec3(az * 26.0, uTime * 0.2, 0.0)));
-  c += vec3(1.0, 0.92, 0.65) * ray * 0.4;
-  // pollen and fireflies drifting low
-  vec2 g = vec2(az * 30.0, el * 30.0 + uTime * 0.2);
+  float sun = max(dot(d, sd), 0.0);
+  vec3 haze = mix(vec3(0.17, 0.22, 0.13), vec3(0.3, 0.34, 0.22), smoothstep(-0.05, 0.4, el)) * (0.8 + 0.5 * sun);
+  vec3 c = haze;
+  // the floor: moss and old leaves, lighter in the distance
+  float fl0 = fbm(vec3(az * 8.0, el * 30.0, 2.0));
+  vec3 floorCol = mix(vec3(0.06, 0.055, 0.025), vec3(0.11, 0.13, 0.05), fl0);
+  c = mix(c, mix(floorCol, haze, smoothstep(-0.12, 0.0, el) * 0.6), smoothstep(0.0, -0.01, el));
+  // trunks in three depths, far ones thin and hazy
+  for (int l = 0; l < 3 * uOne; l++) {
+    float fl = float(l); // 0 far .. 2 near
+    float N = 90.0 - fl * 32.0;
+    float u = (az + PI) / (2.0 * PI) * N + fl * 0.37;
+    float ui = floor(u);
+    float h = hash2(vec2(ui, fl + 3.0));
+    float w = (0.1 + 0.12 * h) * (0.8 + fl * 0.35) * (1.0 - 0.15 * smoothstep(0.0, 1.0, el)); // a slight taper
+    float x = fract(u) - 0.5 - (hash2(vec2(ui, fl + 8.0)) - 0.5) * 0.4;
+    float base = -0.02 - fl * 0.03 + 0.012 * h;
+    float top = 0.45 + 0.25 * hash2(vec2(ui, fl + 5.0)) + fl * 0.1;
+    float on = step(0.45 - fl * 0.12, hash2(vec2(ui, fl + 11.0)));
+    float trunk = smoothstep(w, w - 0.02 - fl * 0.01, abs(x)) * step(base, el) * smoothstep(top + 0.08, top - 0.05, el) * on;
+    float side = clamp(x / w, -1.0, 1.0);
+    vec3 bark = vec3(0.16, 0.155, 0.14) * (0.7 + 0.45 * noise(vec3(u * 30.0, el * 25.0, ui)));
+    bark *= 0.55 + 0.45 * smoothstep(-0.9, 0.7, side); // round: lit from the sun's side
+    bark = mix(bark, vec3(0.06, 0.1, 0.035), smoothstep(0.3, 0.9, noise(vec3(u * 12.0, el * 8.0, ui + 4.0))) * smoothstep(0.15, 0.0, el) * 0.6); // moss low down
+    bark = mix(bark, haze, (0.65 - fl * 0.3) * (1.0 - smoothstep(0.0, 0.6, el) * 0.5));
+    c = mix(c, bark, trunk);
+  }
+  // the canopy
+  vec2 pp = d.xz / max(d.y + 0.15, 0.05);
+  float sway = sin(uTime * 0.3) * 0.03;
+  float leaves = fbm(vec3(pp * 3.2 + sway, uTime * 0.012)) * 0.6 + 0.4 * fbm(vec3(pp * 14.0 + sway * 2.0, 3.0));
+  float cover = smoothstep(0.32, 0.7, el);
+  float gap = smoothstep(0.7, 0.76, leaves) * (1.0 - smoothstep(0.92, 1.0, d.y) * 0.3);
+  float leafT = fbm(vec3(pp * 6.0, 1.0));
+  vec3 leafCol = mix(vec3(0.025, 0.06, 0.02), vec3(0.13, 0.22, 0.05), leafT) * (0.6 + 0.6 * smoothstep(0.3, 0.6, leaves));
+  leafCol = mix(leafCol, vec3(0.38, 0.5, 0.1), smoothstep(0.6, 0.7, leaves) * 0.7); // light through the thin leaves
+  leafCol += vec3(0.7, 0.62, 0.2) * smoothstep(0.025, 0.0, abs(leaves - 0.69)) * 0.25 * (0.4 + sun); // gold edges at the gaps
+  vec3 gapCol = vec3(0.75, 0.8, 0.65) * (0.8 + sun);
+  vec3 can = mix(leafCol, gapCol, gap);
+  c = mix(c, can, cover);
+  // shafts of sun down through it
+  float ray = pow(sun, 4.0) * (0.35 + 0.65 * noise(vec3(az * 30.0, uTime * 0.15, 0.0)));
+  c += vec3(1.0, 0.92, 0.6) * ray * 0.22 * (1.0 - cover * 0.85);
+  // motes drifting in the light
+  vec2 g = vec2(az * 30.0, el * 30.0 + uTime * 0.12);
   vec2 gi = floor(g);
   vec2 off = hash22(gi) - 0.5;
-  float ff = exp(-dot(fract(g) - 0.5 - off * 0.6, fract(g) - 0.5 - off * 0.6) * 260.0) * step(0.88, hash2(gi + 9.0)) * smoothstep(0.4, 0.0, el);
-  c += vec3(1.0, 0.92, 0.5) * ff * (0.6 + 0.4 * sin(uTime * 3.0 + gi.x)) * 1.2;
+  float ff = exp(-dot(fract(g) - 0.5 - off * 0.6, fract(g) - 0.5 - off * 0.6) * 300.0) * step(0.9, hash2(gi + 9.0)) * smoothstep(0.45, 0.05, el);
+  c += vec3(1.0, 0.95, 0.7) * ff * (0.5 + 0.5 * sin(uTime * 2.0 + gi.x)) * 0.8;
   return c * (0.85 + 0.2 * uLevel);
 }
 
@@ -363,86 +373,173 @@ vec3 sOCEAN(vec3 d, float az, float el) {
 }
 
 vec3 sSUNSET(vec3 d, float az, float el) {
-  float h = el;
-  vec3 c = mix(vec3(1.0, 0.45, 0.2), vec3(0.95, 0.5, 0.55), smoothstep(-0.1, 0.25, h));
-  c = mix(c, vec3(0.35, 0.25, 0.55), smoothstep(0.2, 0.7, h));
-  c = mix(c, vec3(0.05, 0.08, 0.25), smoothstep(0.6, 1.4, h));
-  vec3 sd = normalize(vec3(0.0, 0.03, -1.0));
-  float a = acos(clamp(dot(d, sd), -1.0, 1.0));
-  c += vec3(1.0, 0.75, 0.4) * (smoothstep(0.06, 0.05, a) * 2.5 + exp(-a * 5.0) * 0.6 + exp(-a * 1.5) * 0.15);
-  vec3 cl = clouds(d, el, vec3(1.0, 0.55, 0.45), vec3(0.25, 0.12, 0.25), 0.5, 0.008);
-  c = mix(c, cl, clamp(length(cl) * 1.3, 0.0, 0.85) * smoothstep(-0.05, 0.1, el));
-  c += starfield(d, 0.6, 1.0) * smoothstep(0.9, 1.4, el);
-  return c * (0.8 + 0.2 * uLevel);
+  // The sun setting beyond the stage: a sky in layers from fire at the
+  // horizon through rose and mauve to deep blue overhead, long cirrus
+  // streaks lit pink and gold from below on the sun's side and violet
+  // away from it, a dark bank of cloud on the horizon with a burning rim,
+  // and the first stars at the top. (Linear values: the tone mapping
+  // lifts them, so the sky is painted darker than it looks.)
+  vec3 sd = normalize(vec3(0.0, 0.06, -1.0));
+  float sa = acos(clamp(dot(d, sd), -1.0, 1.0));
+  float facing = 0.5 - 0.5 * normalize(vec3(d.x, 0.0, d.z) + vec3(0.0, 0.0, 1e-4)).z; // 1 toward the sun
+  float h = max(el, -0.2);
+  vec3 c = mix(vec3(0.95, 0.32, 0.07), vec3(0.85, 0.36, 0.2), smoothstep(-0.05, 0.14, h));
+  c = mix(c, vec3(0.42, 0.17, 0.3), smoothstep(0.1, 0.4, h));
+  c = mix(c, vec3(0.12, 0.08, 0.26), smoothstep(0.34, 0.85, h));
+  c = mix(c, vec3(0.012, 0.018, 0.07), smoothstep(0.8, 1.45, h));
+  c *= mix(0.5, 1.0, facing); // the far side of the sky already dimmer
+  // the sun half down, and its glow in the haze
+  float disc = smoothstep(0.055, 0.05, sa) * smoothstep(-0.02, 0.01, el);
+  c += vec3(1.0, 0.75, 0.4) * disc * 3.0;
+  c += vec3(1.0, 0.45, 0.15) * (exp(-sa * 7.0) * 0.8 + exp(-sa * 1.8) * 0.25);
+  // cirrus: long thin streaks across the sky, lit from below
+  vec2 p = d.xz / max(d.y + 0.3, 0.06);
+  float t = uTime * 0.006;
+  float n = fbm(vec3(p.x * 0.45 + p.y * 0.12 + t, p.y * 2.6, 3.0));
+  float streak = smoothstep(0.5, 0.72, n) * smoothstep(-0.02, 0.1, el) * smoothstep(1.35, 0.5, el);
+  float under = smoothstep(0.72, 0.5, n); // the thin edges catch the most light
+  vec3 lit = mix(vec3(0.3, 0.12, 0.3), vec3(1.0, 0.42, 0.22), facing) * mix(1.4, 0.55, smoothstep(0.08, 0.9, el));
+  lit += vec3(1.0, 0.6, 0.3) * under * facing * 0.35 * smoothstep(0.7, 0.1, el);
+  c = mix(c, lit, streak * 0.85);
+  // the cloud bank on the horizon, its rim burning
+  float bank = fbm(vec3(az * 5.0, 0.0, 7.0));
+  float bh = -0.01 + 0.1 * bank + 0.025 * noise(vec3(az * 26.0, 1.0, 3.0));
+  float inBank = smoothstep(bh + 0.004, bh - 0.008, el);
+  float rim = smoothstep(0.018, 0.0, abs(el - bh)) * facing * (0.4 + 1.6 * exp(-sa * 3.0));
+  vec3 bankCol = mix(vec3(0.16, 0.05, 0.07), vec3(0.04, 0.02, 0.04), smoothstep(bh, bh - 0.12, el));
+  c = mix(c, bankCol, inBank);
+  c += vec3(1.0, 0.5, 0.2) * rim * 0.6;
+  // the first stars
+  c += starfield(d, 0.45, 0.8) * smoothstep(0.9, 1.4, el);
+  return c * (0.85 + 0.2 * uLevel);
 }
 
 vec3 sCATHEDRAL(vec3 d, float az, float el) {
-  // a gothic rose window over the stage, lancet windows round the walls,
-  // vault ribs meeting overhead; light pulses with the music
-  vec3 stone = vec3(0.05, 0.045, 0.05) * (0.7 + 0.4 * fbm(d * 18.0));
-  vec3 c = stone;
-  // vault ribs: meridians and parallels
+  // A gothic choir seen from the nave: a dim stone vault on ribs, and over
+  // the stage a rose window - stone tracery round a rosette, eight petals,
+  // a ring of sixteen roundels - glazed in Chartres blue with ruby, amber
+  // and a little green, glowing as if the sun stood behind it; tall lancets
+  // round the walls; light falling through the dust. It breathes with the music.
   float lon = az * 8.0 / PI;
-  float rib = smoothstep(0.0, 0.06, abs(fract(lon) - 0.5) - 0.44) * smoothstep(0.2, 0.5, el);
-  c += vec3(0.2, 0.17, 0.13) * rib;
-  // rose window
+  float course = fract(el * 22.0);
+  float stoneN = fbm(d * 14.0);
+  vec3 c = vec3(0.06, 0.05, 0.047) * (0.65 + 0.5 * stoneN);
+  c *= 0.85 + 0.15 * smoothstep(0.0, 0.08, course) * smoothstep(1.0, 0.92, course); // ashlar courses
+  // vault ribs: meridians gathering overhead, catching a warm light
+  float rib = smoothstep(0.0, 0.05, abs(fract(lon) - 0.5) - 0.445) * smoothstep(0.15, 0.5, el);
+  c = mix(c, vec3(0.26, 0.21, 0.16) * (0.7 + 0.3 * stoneN), rib * 0.9);
+  // the rose window
   vec3 rc = normalize(vec3(0.0, 0.42, -0.9));
   float a = acos(clamp(dot(d, rc), -1.0, 1.0));
   vec3 rx = normalize(cross(rc, vec3(0.0, 1.0, 0.0)));
   vec3 ry = cross(rx, rc);
   float ang = atan(dot(d, ry), dot(d, rx));
-  float R = 0.42;
-  if (a < R) {
-    float rr = a / R;
-    float ring = floor(rr * 7.0);
-    float seg = 12.0 + ring * 6.0;
-    float sa = ang / (2.0 * PI) * seg;
-    float cell = floor(sa + ring * 0.5);
-    float h = hash2(vec2(cell, ring));
-    vec3 glass = h < 0.33 ? vec3(0.1, 0.25, 0.85) : h < 0.6 ? vec3(0.85, 0.1, 0.15) : h < 0.82 ? vec3(0.95, 0.75, 0.2) : vec3(0.1, 0.6, 0.35);
-    float lead = smoothstep(0.0, 0.08, abs(fract(sa + ring * 0.5) - 0.5) - 0.42) + smoothstep(0.0, 0.06, abs(fract(rr * 7.0) - 0.5) - 0.44);
-    float petal = smoothstep(0.02, 0.0, abs(rr - 0.5 - 0.08 * cos(ang * 8.0)) - 0.012);
-    vec3 win = glass * (0.55 + 0.8 * noise(vec3(sa * 4.0, rr * 30.0, 0.0))) * (0.9 + 0.8 * uLevel + 0.5 * uBeat);
-    win = mix(win, vec3(0.02), clamp(lead + petal, 0.0, 1.0));
-    win = mix(win, vec3(1.0, 0.9, 0.7) * 1.5, smoothstep(0.08, 0.0, rr));
-    c = mix(c, win, smoothstep(R, R - 0.01, a));
-    c += vec3(0.02) * smoothstep(R + 0.03, R, a);
+  float R = 0.34;
+  float glow = 0.75 + 0.45 * uLevel + 0.2 * uBeat;
+  if (a < R + 0.03) {
+    float rr = a / R; // 0 centre .. 1 rim
+    vec2 pp = vec2(cos(ang), sin(ang)) * rr;
+    // glass: small panes, mostly blue, jewels by hash, each pane its own depth
+    float sa = ang / (2.0 * PI) * (10.0 + floor(rr * 6.0) * 6.0);
+    vec2 cellId = vec2(floor(sa), floor(rr * 6.0));
+    float h = hash2(cellId + 3.0);
+    vec3 glass = h < 0.52 ? vec3(0.08, 0.2, 0.72) : h < 0.72 ? vec3(0.62, 0.06, 0.1) : h < 0.88 ? vec3(0.86, 0.58, 0.12) : h < 0.95 ? vec3(0.1, 0.42, 0.28) : vec3(0.5, 0.16, 0.5);
+    glass *= 0.55 + 0.55 * hash2(cellId + 17.0); // no two panes alike
+    glass *= 0.75 + 0.5 * noise(vec3(pp * 40.0, 1.0)); // the grain of old glass
+    glass *= mix(1.05, 0.6, rr); // brighter toward the centre, as with the sun behind
+    float lead = max(smoothstep(0.0, 0.05, abs(fract(sa) - 0.5) - 0.45), smoothstep(0.0, 0.05, abs(fract(rr * 6.0) - 0.5) - 0.45));
+    // stone tracery (in light cream stone, its edges lit)
+    float tr = 0.0;
+    tr = max(tr, smoothstep(0.035, 0.0, abs(rr - 0.2) - 0.012)); // round the rosette
+    float pet = abs(rr - 0.42 - 0.13 * cos(ang * 8.0)); // eight petals
+    tr = max(tr, smoothstep(0.03, 0.0, pet - 0.01));
+    float seg = 2.0 * PI / 16.0;
+    float la = mod(ang + seg * 0.5, seg) - seg * 0.5;
+    vec2 lp = vec2(rr * cos(la) - 0.8, rr * sin(la));
+    tr = max(tr, smoothstep(0.03, 0.0, abs(length(lp) - 0.13) - 0.012)); // sixteen roundels
+    tr = max(tr, smoothstep(0.035, 0.0, abs(rr - 0.97) - 0.025)); // the rim
+    vec3 win = glass * glow;
+    win = mix(win, vec3(0.012), clamp(lead, 0.0, 1.0) * 0.85);
+    vec3 stone = vec3(0.2, 0.17, 0.14) * (0.75 + 0.35 * stoneN) + vec3(0.06, 0.05, 0.04) * smoothstep(0.6, 0.2, rr);
+    win = mix(win, stone, tr);
+    win += vec3(1.0, 0.86, 0.6) * smoothstep(0.1, 0.0, rr) * 1.1 * glow; // the sun behind the rosette
+    c = mix(c, win, smoothstep(R + 0.01, R - 0.005, a));
+    // the deep moulded frame round it
+    c = mix(c, vec3(0.2, 0.17, 0.14) * (0.7 + 0.4 * stoneN), smoothstep(R + 0.03, R + 0.015, a) * smoothstep(R - 0.005, R + 0.01, a));
   }
-  // lancets: tall pointed windows of small leaded panes
+  // a halo of coloured light round the window, falling into the dusty air
+  c += vec3(0.16, 0.2, 0.55) * exp(-max(a - R, 0.0) * 12.0) * 0.12 * glow;
+  // lancets: tall pointed windows of small leaded panes, in the walls
   float n = 10.0;
   float u = (az + PI) / (2.0 * PI) * n;
   float cx = fract(u) - 0.5;
-  float top = 0.5 - 1.6 * cx * cx;
+  float top = 0.48 - 1.6 * cx * cx;
   bool front = abs(az) < 0.7;
-  if (!front && el > -0.12 && el < top && abs(cx) < 0.14) {
+  if (!front && el > -0.12 && el < top && abs(cx) < 0.13) {
     float k = floor(u);
-    float py = (el + 0.12) * 34.0;
-    float px = cx * 26.0;
+    float py = (el + 0.12) * 30.0;
+    float px = cx * 24.0;
     vec2 pane = vec2(floor(px), floor(py));
     float h = hash2(pane + k * 13.0);
-    vec3 glass = h < 0.38 ? vec3(0.12, 0.22, 0.75) : h < 0.62 ? vec3(0.78, 0.12, 0.16) : h < 0.8 ? vec3(0.92, 0.72, 0.22) : h < 0.92 ? vec3(0.12, 0.5, 0.3) : vec3(0.55, 0.2, 0.6);
-    glass *= 0.55 + 0.6 * noise(vec3(px * 3.0, py * 3.0, k)) ;
-    float lead = max(smoothstep(0.0, 0.07, abs(fract(py) - 0.5) - 0.42), smoothstep(0.0, 0.07, abs(fract(px) - 0.5) - 0.42));
-    float frame = smoothstep(0.125, 0.14, abs(cx)) + smoothstep(top - 0.015, top, el);
-    c = mix(glass * (0.75 + 0.6 * uLevel + 0.3 * uBeat), vec3(0.015), clamp(lead + frame, 0.0, 1.0));
+    vec3 glass = h < 0.55 ? vec3(0.08, 0.2, 0.66) : h < 0.75 ? vec3(0.6, 0.07, 0.11) : h < 0.9 ? vec3(0.8, 0.55, 0.14) : vec3(0.1, 0.4, 0.26);
+    glass *= (0.5 + 0.5 * hash2(pane + k * 7.0 + 5.0)) * (0.8 + 0.4 * noise(vec3(px * 3.0, py * 3.0, k)));
+    float lead = max(smoothstep(0.0, 0.07, abs(fract(py) - 0.5) - 0.43), smoothstep(0.0, 0.07, abs(fract(px) - 0.5) - 0.43));
+    float frame = smoothstep(0.115, 0.13, abs(cx)) + smoothstep(top - 0.015, top, el);
+    c = mix(glass * glow * 0.75, vec3(0.08, 0.07, 0.06), clamp(lead * 0.8 + frame, 0.0, 1.0));
   }
-  // shafts of coloured light coming down
-  c += vec3(0.5, 0.4, 0.7) * pow(max(dot(d, rc), 0.0), 18.0) * 0.4;
+  // shafts of light from the rose window down toward the stage
+  float shaft = pow(max(dot(d, normalize(vec3(0.0, 0.1, -1.0))), 0.0), 10.0) * smoothstep(0.32, 0.05, el);
+  c += vec3(0.45, 0.42, 0.7) * shaft * 0.14 * glow;
   return c;
 }
 
 vec3 sGOLD(vec3 d, float az, float el) {
-  vec3 q = d * 2.2;
-  float t = uTime * 0.07;
-  vec3 w = vec3(fbm(q + t), fbm(q + 5.2 - t), fbm(q + 9.7 + t * 0.5));
-  float f = fbm(q + 2.5 * w + uBeat * 0.3);
-  vec3 c = mix(vec3(0.02, 0.01, 0.0), vec3(0.55, 0.32, 0.05), smoothstep(0.3, 0.6, f));
-  c = mix(c, vec3(1.0, 0.82, 0.4), smoothstep(0.6, 0.8, f));
-  c += vec3(1.0, 0.95, 0.8) * pow(smoothstep(0.75, 0.9, f), 3.0) * 1.5;
+  // A gilded baroque ceiling: rows of sunken coffers, each framed in gold
+  // with a rosette at its heart, on a deep lacquer ground; a slow band of
+  // light glides across the gold, and the gilding glints on the beat.
+  float rows = 9.0;
+  float ring = el * rows / (0.5 * PI);
+  float ri = floor(ring);
+  float per = max(6.0, floor(cos(clamp(ri + 0.5, 0.0, rows) / rows * 0.5 * PI) * 30.0)); // fewer coffers toward the crown
+  float col = (az + PI) / (2.0 * PI) * per;
+  vec2 f = vec2(fract(col), fract(ring)) - 0.5; // within one coffer, -0.5..0.5
+  vec2 id = vec2(floor(col), ri);
+  float edge = max(abs(f.x), abs(f.y));
+  vec3 lacquer = vec3(0.09, 0.025, 0.02);
+  vec3 gold = vec3(1.0, 0.64, 0.18);
+  // the frame: two gilt mouldings with a dark groove between
+  float frame = smoothstep(0.38, 0.42, edge);
+  float groove = smoothstep(0.435, 0.445, edge) * smoothstep(0.47, 0.455, edge);
+  // the coffer's sunken floor, shaded by its depth (light from above)
+  float depth = 1.0 - smoothstep(0.2, 0.4, edge);
+  vec3 floorC = lacquer * (0.7 + 0.6 * (0.5 - f.y)) * (0.8 + 0.4 * hash2(id));
+  // a rosette: eight petals round a boss
+  float r = length(f);
+  float a = atan(f.y, f.x);
+  float petals = smoothstep(0.02, 0.0, r - (0.12 + 0.05 * cos(a * 8.0)));
+  float boss = smoothstep(0.045, 0.035, r);
+  // gold catching the light: the slow band, plus a glint from the music
+  float sweep = exp(-pow(fract(az / (2.0 * PI) + el * 0.15 - uTime * 0.035) - 0.5, 2.0) * 60.0);
+  float sheen = 0.55 + 0.45 * sweep + 0.35 * uLevel;
+  // (a bevel: the mouldings lit from above, darker underneath)
+  float bevel = 0.7 + 0.6 * smoothstep(-0.45, 0.45, -f.y) * smoothstep(0.38, 0.5, edge) + 0.15 * (1.0 - smoothstep(0.38, 0.5, edge));
+  vec3 g = gold * sheen * bevel * (0.72 + 0.28 * noise(vec3(f * 12.0, ri + id.x)));
+  vec3 c = floorC;
+  c = mix(c, g * 0.85, petals);
+  c = mix(c, g * 1.2, boss);
+  c = mix(c, g, frame);
+  c = mix(c, lacquer * 0.4, groove);
+  c *= 0.85 + 0.15 * depth;
+  // a sparkle here and there on the gilding, with the beat
+  float spark = step(0.985, hash2(id * 3.1 + floor(uTime * 4.0))) * frame;
+  c += vec3(1.0, 0.9, 0.7) * spark * (0.4 + 1.2 * uBeat);
+  // the crown: a gilded sunburst
+  float crown = smoothstep(1.32, 1.5, el);
+  c = mix(c, gold * (0.6 + 0.5 * pow(abs(cos(az * 12.0)), 6.0)) * sheen, crown);
   // rings ripple out from the stage on strong beats
-  float a = acos(clamp(dot(d, normalize(vec3(0.0, 0.0, -1.0))), -1.0, 1.0));
-  c += vec3(1.0, 0.8, 0.4) * exp(-abs(a - (1.0 - uDown) * 2.0) * 30.0) * uDown * 1.2;
-  return c * (0.75 + 0.45 * uLevel);
+  float ra = acos(clamp(dot(d, vec3(0.0, 0.0, -1.0)), -1.0, 1.0));
+  c += vec3(1.0, 0.8, 0.4) * exp(-abs(ra - (1.0 - uDown) * 2.0) * 30.0) * uDown * 0.8;
+  return c * (0.85 + 0.3 * uLevel);
 }
 
 vec3 sDECO(vec3 d, float az, float el) {
@@ -509,55 +606,114 @@ vec3 sFIREWORKS(vec3 d, float az, float el) {
 }
 
 vec3 sRAIN(vec3 d, float az, float el) {
-  // a night storm overhead: low clouds racing, rain falling past the
-  // horizon, now and then lightning lighting the clouds from inside
-  vec3 c = mix(vec3(0.07, 0.085, 0.11), vec3(0.015, 0.02, 0.03), smoothstep(-0.2, 1.0, el));
-  float bolt = 0.0;
+  // Rain on a glass roof at dusk: a low ceiling of grey-blue cloud drifting
+  // over, rain falling out of it straight at you (looking up, the streaks
+  // spread out from the top of the sky), veils of rain on the horizon,
+  // drops beading on the glass, the lights of a town low down; a rare
+  // flash far off inside the clouds.
+  float zen = acos(clamp(d.y, -1.0, 1.0));
+  vec3 c = mix(vec3(0.075, 0.09, 0.115), vec3(0.03, 0.038, 0.055), smoothstep(-0.1, 1.1, el));
+  // cloud: two decks moving at different speeds, lighter where thinner
+  vec2 p = d.xz / max(d.y + 0.35, 0.08);
+  float n1 = fbm(vec3(p * 0.7 + vec2(uTime * 0.012, uTime * 0.004), 1.0));
+  float n2 = fbm(vec3(p * 1.6 + vec2(uTime * 0.03, -uTime * 0.006), 5.0));
+  float thin = smoothstep(0.35, 0.75, n1 * 0.65 + n2 * 0.35);
+  c = mix(c * 0.6, vec3(0.16, 0.18, 0.225), thin * 0.85 * smoothstep(-0.05, 0.25, el));
+  c *= 0.8 + 0.4 * smoothstep(0.3, 0.7, n2); // the folds of the cloud base
+  c += vec3(0.05, 0.055, 0.07) * smoothstep(0.55, 0.8, n2) * smoothstep(0.0, 0.4, el); // ragged scud below
+  // a flash, far off, lighting a patch of the clouds from inside
   {
-    float t = uTime * 0.18;
+    float t = uTime * 0.07;
     float k = floor(t);
-    float f = fract(t);
-    float on = step(0.55, hash2(vec2(k, 2.0)));
-    bolt = on * (exp(-f * 40.0) + 0.6 * exp(-abs(f - 0.06) * 60.0));
+    float f = fract(t) * 14.3; // (a few seconds into each 14 s window)
+    float on = step(0.6, hash2(vec2(k, 2.0)));
+    float fl = on * (exp(-max(f - 0.5, 0.0) * 9.0) * step(0.5, f) + 0.5 * exp(-abs(f - 0.75) * 30.0));
+    float fa = (hash2(vec2(k, 5.0)) - 0.5) * 4.0;
+    vec3 fd = normalize(vec3(sin(fa), 0.25, -cos(fa)));
+    float near = exp(-acos(clamp(dot(d, fd), -1.0, 1.0)) * 2.6);
+    c += vec3(0.55, 0.6, 0.8) * fl * near * (0.3 + 0.7 * thin) * 0.7;
   }
-  vec3 cl = clouds(d, el, vec3(0.2, 0.22, 0.27) + bolt * vec3(0.6, 0.65, 0.8), vec3(0.035, 0.04, 0.055), 0.8, 0.025);
-  c += cl * 0.9;
-  // rain: fine streaks falling past the lower dome
+  // veils of rain hanging below the clouds on the horizon
+  float veil = noise(vec3(az * 9.0 + uTime * 0.04, el * 3.0, 4.0)) * (0.6 + 0.4 * noise(vec3(az * 30.0 + el * 20.0, uTime * 0.3, 6.0)));
+  c = mix(c, vec3(0.1, 0.115, 0.14), smoothstep(0.32, 0.0, el) * (0.35 + 0.5 * veil));
+  c += vec3(0.16, 0.09, 0.04) * exp(-max(el, 0.0) * 11.0) * (0.7 + 0.3 * veil); // the lights of a town, through the rain
+  // the rain: streaks coming at you, spreading from the zenith
+  float lz = log(max(zen, 0.02));
   for (int l = 0; l < 2 * uOne; l++) {
     float fl = float(l);
-    vec2 g = vec2(az * (90.0 + fl * 70.0), el * (6.0 + fl * 3.0) + uTime * (3.0 + fl * 1.3));
+    float N = 260.0 + fl * 220.0;
+    vec2 g = vec2((az + PI) / (2.0 * PI) * N, lz * (7.0 + fl * 4.0) - uTime * (3.2 + fl * 1.4));
     vec2 gi = floor(g);
-    float h = hash2(gi + fl * 7.0);
-    float x = abs(fract(g.x) - 0.5 - (h - 0.5) * 0.6);
-    float y = fract(g.y + h);
-    float streak = smoothstep(0.08, 0.0, x) * smoothstep(0.0, 0.25, y) * smoothstep(1.0, 0.55, y) * step(0.5, h);
-    c += vec3(0.5, 0.56, 0.66) * streak * 0.3 * smoothstep(0.75, 0.1, el);
+    float h = hash2(gi + fl * 17.0);
+    float x = abs(fract(g.x) - 0.5 - (h - 0.5) * 0.5);
+    float y = fract(g.y + h * 3.0);
+    float streak = smoothstep(0.12, 0.0, x) * smoothstep(0.0, 0.3, y) * smoothstep(0.55, 0.35, y) * step(0.86, h);
+    c += vec3(0.42, 0.47, 0.56) * streak * (0.2 - fl * 0.06) * smoothstep(0.25, 0.8, zen);
   }
-  // drops on the glass, catching the light
-  vec2 g = vec2(az * 16.0, el * 16.0);
+  // drops beaded on the glass, each a tiny lens showing the bright sky upside down
+  vec2 g = vec2(az * 22.0, el * 22.0);
   vec2 gi = floor(g);
   vec2 o = hash22(gi) * 0.6 + 0.2;
   vec2 f = fract(g) - o;
-  float r = 0.05 + 0.09 * hash2(gi + 2.0);
-  float drop = smoothstep(r, r * 0.65, length(f * vec2(1.0, 0.8))) * step(0.35, hash2(gi + 5.0));
-  c = c * (1.0 - drop * 0.3) + vec3(0.35, 0.4, 0.5) * drop * 0.25 + vec3(0.9) * drop * smoothstep(r * 0.45, 0.0, length(f + vec2(r * 0.3, -r * 0.3))) * 0.35;
-  c += vec3(0.75, 0.8, 1.0) * bolt * 0.06;
-  return c;
+  float r = 0.04 + 0.1 * hash2(gi + 2.0);
+  float drop = smoothstep(r, r * 0.75, length(f * vec2(1.0, 0.85))) * step(0.45, hash2(gi + 5.0));
+  vec3 lens = vec3(0.17, 0.19, 0.24) * (0.7 + 0.6 * smoothstep(r, -r, f.y));
+  c = mix(c, lens, drop * 0.75);
+  c += vec3(0.8, 0.85, 0.95) * drop * smoothstep(r * 0.4, 0.0, length(f + vec2(r * 0.35, -r * 0.35))) * 0.45;
+  c *= 1.0 - smoothstep(r * 1.25, r, length(f * vec2(1.0, 0.85))) * (1.0 - drop) * step(0.45, hash2(gi + 5.0)) * 0.25; // its shadow ring
+  return c * (0.9 + 0.2 * uLevel);
 }
 
 vec3 sSNOW(vec3 d, float az, float el) {
-  vec3 c = mix(vec3(0.12, 0.16, 0.24), vec3(0.02, 0.03, 0.07), smoothstep(-0.25, 1.1, el));
-  c += vec3(0.25, 0.3, 0.38) * exp(-max(el + 0.2, 0.0) * 5.0);
+  // A winter night at the edge of a village: low snow cloud glowing faintly
+  // with the lights below, a snowfield and rows of snow-laden firs round the
+  // horizon with a few warm windows among them, and snow falling out of the
+  // dark straight at you - small and far, then big and soft as it comes close.
+  float zen = acos(clamp(d.y, -1.0, 1.0));
+  vec3 c = mix(vec3(0.1, 0.095, 0.11), vec3(0.022, 0.03, 0.06), smoothstep(-0.02, 0.9, el));
+  vec2 p = d.xz / max(d.y + 0.4, 0.1);
+  c *= 0.8 + 0.45 * fbm(vec3(p * 0.8 + vec2(uTime * 0.004, 0.0), 2.0)); // the cloud's soft folds
+  c += vec3(0.1, 0.06, 0.03) * exp(-max(el, 0.0) * 12.0); // the village's glow in the haze
+  // the snowfield
+  c = mix(c, vec3(0.085, 0.09, 0.11) + vec3(0.06, 0.035, 0.015) * smoothstep(-0.08, 0.0, el), smoothstep(0.002, -0.004, el));
+  // firs, a far row in the haze and a near row, each in tiers of snowy boughs
+  for (int l = 0; l < 2 * uOne; l++) {
+    float fl = float(l);
+    float k = 52.0 - fl * 20.0;
+    float u = az * k / PI + fl * 3.7;
+    float ui = floor(u);
+    float hh = hash2(vec2(ui, fl + 1.0));
+    float H = (0.04 + 0.05 * hh) * (0.8 + fl * 0.9) * step(0.08, hash2(vec2(ui, fl + 7.0)));
+    float x = abs(fract(u) - 0.5 - (hh - 0.5) * 0.25) * 2.0;
+    float y = (el + 0.012 + fl * 0.02) / max(H, 1e-3);
+    float tier = fract(-y * 5.0 + hh);
+    float w = (1.0 - y) * (0.45 + 0.5 * tier) * 1.1;
+    float tree = step(0.0, y) * smoothstep(w + 0.06, w - 0.06, x) * step(y, 1.0);
+    vec3 fir = mix(vec3(0.05, 0.055, 0.07), vec3(0.012, 0.018, 0.024), fl);
+    fir += vec3(0.13, 0.14, 0.17) * smoothstep(w * 0.5, w * 0.95, x) * smoothstep(0.15, 0.6, tier) * (0.5 + 0.5 * fl); // snow along each tier's boughs
+    c = mix(c, fir, tree);
+  }
+  // windows: a few warm lights low among the trees, and their glow
+  vec2 wg = vec2(az * 80.0, el * 140.0 + 1.0);
+  vec2 wi = floor(wg);
+  float win = step(0.9, hash2(wi + 3.0)) * step(abs(wi.y - 0.0), 0.5);
+  win *= smoothstep(0.42, 0.25, length((fract(wg) - 0.5) * vec2(1.0, 0.7)));
+  c += vec3(1.0, 0.6, 0.25) * win * (0.85 + 0.15 * sin(uTime * 1.3 + wi.x)) * 1.4;
+  // the snow, in three depths, streaming out from the top of the sky
+  float lz = log(max(zen, 0.015));
   for (int l = 0; l < 3 * uOne; l++) {
     float fl = float(l);
-    float k = 16.0 + fl * 16.0;
-    vec2 g = vec2(az * k + sin(uTime * 0.4 + el * 6.0 + fl) * 0.4, el * k + uTime * (0.35 + fl * 0.25));
+    float N = 70.0 - fl * 22.0; // far (many, small) to near (few, big)
+    vec2 g = vec2((az + PI) / (2.0 * PI) * N, lz * N / (2.0 * PI) - uTime * (0.18 + fl * 0.16));
+    g.x += sin(uTime * 0.35 + g.y * 0.7 + fl * 2.0) * 0.25; // the drift
     vec2 gi = floor(g);
     vec2 o = hash22(gi + fl * 13.0) - 0.5;
-    float s = exp(-dot(fract(g) - 0.5 - o * 0.7, fract(g) - 0.5 - o * 0.7) * (220.0 + fl * 180.0));
-    c += vec3(0.95, 0.97, 1.0) * s * step(0.4, hash2(gi + 5.0 + fl)) * (1.2 - fl * 0.3);
+    vec2 q = fract(g) - 0.5 - o * 0.6;
+    float sz = mix(0.045, 0.15, fl * 0.5) * (0.6 + 0.6 * hash2(gi + 2.0));
+    float flake = smoothstep(sz, sz * (0.35 - fl * 0.17), length(q)) * step(0.38 + fl * 0.18, hash2(gi + 5.0 + fl));
+    c += vec3(0.85, 0.88, 0.95) * flake * (0.55 - fl * 0.12) * smoothstep(0.02, 0.15, zen);
   }
-  return c;
+  return c * (0.9 + 0.2 * uLevel);
 }
 
 vec3 sSPRING(vec3 d, float az, float el) {

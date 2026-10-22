@@ -127,7 +127,7 @@ vec3 forest(vec3 rd) {
   float cy = cos(yaw); float sy = sin(yaw);
   rd = vec3(cy * rd.x + sy * rd.z, rd.y, -sy * rd.x + cy * rd.z);
   vec3 sun = normalize(vec3(0.25, 0.55, -0.8));
-  vec3 sky = mix(vec3(0.72, 0.85, 0.98), vec3(1.0, 0.97, 0.88), pow(max(dot(rd, sun), 0.0), 6.0));
+  vec3 sky = mix(vec3(0.42, 0.58, 0.8), vec3(1.0, 0.95, 0.8), pow(max(dot(rd, sun), 0.0), 6.0));
   const float C1 = 15.0; const float C2 = 22.0;
   float tmax = 140.0;
   vec2 tn; vec3 ti;
@@ -146,14 +146,17 @@ vec3 forest(vec3 rd) {
     vec2 p2 = (ro + rd * t2).xz;
     float c1 = max(COVER(p1, 0.11) * 0.85, crownAt(p1) * 0.95);
     float c2 = COVER(p2 + 40.0, 0.07);
-    vec3 leafLit = vec3(0.42, 0.62, 0.16);
+    vec3 leafLit = vec3(0.3, 0.46, 0.09);
     vec3 leafDark = vec3(0.05, 0.12, 0.04);
     float tr = pow(max(dot(rd, sun), 0.0), 3.0);
     vec3 l2 = mix(leafDark, leafLit + vec3(0.4, 0.4, 0.1) * tr, 0.35 + 0.5 * (1.0 - c2));
     vec3 l1 = mix(leafDark * 0.8, leafLit * 0.9 + vec3(0.3, 0.3, 0.08) * tr, 0.25 + 0.5 * (1.0 - c1));
+    // leaves, not felt: clusters and single leaves catching the light
+    l1 *= 0.65 + 0.6 * vn(p1 * 2.3) * vn(p1 * 7.0 + 3.0);
+    l2 *= 0.7 + 0.5 * vn(p2 * 1.7 + 9.0);
     col = mix(sky, l2, c2);
     col = mix(col, l1, c1);
-    col = mix(col, vec3(0.6, 0.72, 0.62), 1.0 - exp(-t1 * 0.006));
+    col = mix(col, vec3(0.32, 0.42, 0.3), 1.0 - exp(-t1 * 0.006));
   } else if (t >= 1e8) {
     col = sky;
   } else {
@@ -169,8 +172,8 @@ vec3 forest(vec3 rd) {
       vec3 base = mix(vec3(0.03, 0.024, 0.02), vec3(0.17, 0.14, 0.1), bark * bark); // old bark, deep furrows
       base = mix(base, vec3(0.12, 0.2, 0.06), smoothstep(1.2, 0.0, p.y) * 0.6 + smoothstep(0.55, 0.8, vn(vec2(ang * 3.0, p.y * 0.5))) * 0.4); // moss
       float lam = max(dot(n, sun), 0.0);
-      col = base * (0.08 + 1.15 * lam * light);
-      col += vec3(0.04, 0.08, 0.03) * max(-n.y + 0.5, 0.0); // green bounce from the floor
+      col = base * (0.22 + 1.15 * lam * light);
+      col += vec3(0.015, 0.03, 0.01) * max(-n.y + 0.5, 0.0); // green bounce from the floor
       col *= 0.85 + 0.15 * smoothstep(0.0, 1.5, p.y);
       // high up, the trunk disappears into the leaves
       if (p.y > C1 - 3.0 && rd.y > 0.0) {
@@ -416,11 +419,12 @@ float cloudTopLo(vec2 p) {
 }
 vec3 duskSky(vec3 rd, vec3 sun) {
   float h = rd.y;
-  vec3 c = mix(vec3(1.0, 0.45, 0.16), vec3(0.98, 0.55, 0.45), smoothstep(-0.05, 0.1, h));
-  c = mix(c, vec3(0.42, 0.32, 0.6), smoothstep(0.08, 0.35, h));
-  c = mix(c, vec3(0.05, 0.08, 0.22), smoothstep(0.35, 0.95, h));
+  // (linear values: the tone mapping lifts them, so it is painted darker than it looks)
+  vec3 c = mix(vec3(0.95, 0.34, 0.08), vec3(0.8, 0.34, 0.22), smoothstep(-0.05, 0.1, h));
+  c = mix(c, vec3(0.3, 0.17, 0.36), smoothstep(0.08, 0.35, h));
+  c = mix(c, vec3(0.025, 0.04, 0.12), smoothstep(0.35, 0.95, h));
   float a = max(dot(rd, sun), 0.0);
-  c += vec3(1.0, 0.7, 0.4) * (pow(a, 600.0) * 6.0 + pow(a, 12.0) * 0.6 + pow(a, 3.0) * 0.18);
+  c += vec3(1.0, 0.62, 0.3) * (pow(a, 600.0) * 6.0 + pow(a, 12.0) * 0.55 + pow(a, 3.0) * 0.14);
   return c;
 }
 vec3 clouds(vec3 rd) {
@@ -428,7 +432,7 @@ vec3 clouds(vec3 rd) {
   vec3 sun = normalize(vec3(0.05, 0.06, -1.0));
   vec3 col = duskSky(rd, sun);
   gSky = smoothstep(0.5, 0.9, rd.y); // the first stars come out at the top
-  if (rd.y < 0.12) {
+  if (rd.y < 0.3) { // (high enough that no tower has its head cut off flat)
     float tt = 1.0;
     float t = 1e9;
     for (int i = 0; i < 90 * uOne; i++) {
@@ -445,23 +449,23 @@ vec3 clouds(vec3 rd) {
       vec2 e = vec2(4.0, 0.0);
       vec3 n = normalize(vec3(cloudTop(p.xz - e.xy) - cloudTop(p.xz + e.xy), 2.0 * e.x, cloudTop(p.xz - e.yx) - cloudTop(p.xz + e.yx)));
       // soft, scattering light: wrap the sun round the puffs, glow at the edges
-      float lit = clamp(dot(n, sun) * 0.5 + 0.55, 0.0, 1.0);
+      float lit = clamp(dot(n, sun) * 0.6 + 0.4, 0.0, 1.0);
       float rim = pow(max(1.0 - max(dot(n, -rd), 0.0), 0.0), 3.0) * pow(max(dot(rd, sun), 0.0), 2.0);
       float ao = smoothstep(-40.0, 160.0, p.y);
-      vec3 cc = mix(vec3(0.28, 0.24, 0.4), vec3(1.0, 0.74, 0.52), lit) * (0.55 + 0.45 * ao);
-      cc = mix(cc, vec3(0.55, 0.5, 0.62), smoothstep(0.7, 1.0, n.y) * 0.4);
+      vec3 cc = mix(vec3(0.06, 0.05, 0.13), vec3(0.95, 0.52, 0.28), lit * lit) * (0.45 + 0.55 * ao);
+      cc = mix(cc, vec3(0.32, 0.24, 0.38), smoothstep(0.7, 1.0, n.y) * 0.4);
       // billows: the sunlit faces are lumpy, the creases darker
       cc *= 0.78 + 0.4 * fbm(p.xz * 0.022 + vec2(p.y * 0.018, -p.y * 0.012), 3);
-      cc += vec3(1.0, 0.7, 0.45) * rim * 1.6;
-      cc = mix(cc, duskSky(rd, sun) * 0.9, pow(max(1.0 - max(dot(n, -rd), 0.0), 0.0), 4.0) * 0.5); // soft edges
-      col = mix(cc, duskSky(normalize(vec3(rd.x, 0.02, rd.z)), sun), 1.0 - exp(-t * 0.00032));
+      cc += vec3(1.0, 0.62, 0.35) * rim * 0.9;
+      cc = mix(cc, duskSky(rd, sun) * 0.9, pow(max(1.0 - max(dot(n, -rd), 0.0), 0.0), 4.0) * 0.3); // soft edges
+      col = mix(cc, duskSky(normalize(vec3(rd.x, 0.02, rd.z)), sun), 1.0 - exp(-t * 0.00016));
     }
   } else {
     // high cirrus above
     float tc = (1600.0 - ro.y) / rd.y;
     vec2 p = (ro + rd * tc).xz;
     float ci = fbm(vec2(p.x * 0.0008, p.y * 0.0025) + 4.0, 5);
-    col = mix(col, vec3(1.0, 0.72, 0.62), smoothstep(0.55, 0.8, ci) * 0.45 * smoothstep(0.12, 0.3, rd.y));
+    col = mix(col, vec3(0.95, 0.5, 0.36), smoothstep(0.55, 0.8, ci) * 0.5 * smoothstep(0.3, 0.45, rd.y));
   }
   return col;
 }
