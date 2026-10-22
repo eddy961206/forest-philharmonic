@@ -152,11 +152,11 @@ export function seatList() {
       } else {
         let num = 1;
         // spaced so the next seat toward the stage is out of your sightline,
-        // and close to the edge: near the stage you look down under the rail,
-        // across the hall you look over it
+        // close to the edge and up on the gallery's step (hallplan.js): you
+        // look over the rail, and it runs below the orchestra, not through it
         for (let z = B.sideZ0 + 0.5; z < zEnd; z += 0.9) {
           const x = side * (B.sideX + 0.45);
-          list.push({ x, y: B.y0, z, yaw: towardStage(x, z, 1, -4), type: 'theater', color: tierColor[bi], level: B.name, row: 'SIDE', side: side < 0 ? 'L' : 'R', num: num++ });
+          list.push({ x, y: B.y0 + B.step, z, yaw: towardStage(x, z, 1, -4), type: 'theater', color: tierColor[bi], level: B.name, row: 'SIDE', side: side < 0 ? 'L' : 'R', num: num++ });
         }
       }
     }

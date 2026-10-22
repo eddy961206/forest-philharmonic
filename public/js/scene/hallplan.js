@@ -186,6 +186,13 @@ export function stageStairsY(x, z) {
 // Rear tiers bowed toward the stage, plus side galleries along the walls.
 // Seats sit on rows; aisles have half-height steps.
 const bow = (x, c) => -c * (1 - (x / HALL.halfW) ** 2);
+// The 3층/4층 side galleries look down across their own front at the
+// stage. Seated on the gallery floor, the brass rail ran straight through
+// the orchestra; raised on a step, you look over it and the rail drops
+// below the players (the higher tier, looking down more steeply, gets the
+// higher step). By level; the 2층 boxes have their own dais at the back.
+export const SIDE_STEP_H = [0, 0, 0.36, 0.44];
+export const SIDE_STEP_W = 0.95; // from the gallery front, under the seats
 export const BALCONIES = [
   { level: 1, name: '2층', zFront: 23.2, rows: 7, depth: 0.95, rise: 0.36, sideX: 12.6, sideZ0: 5.0, bow: 1.3 },
   { level: 2, name: '3층', zFront: 25.1, rows: 5, depth: 0.95, rise: 0.46, sideX: 13.0, sideZ0: 6.5, bow: 1.0 },
@@ -194,7 +201,11 @@ export const BALCONIES = [
   const top = LEVELS[B.level];
   const y0 = top - B.rows * B.rise;
   const zRows0 = B.zFront + 0.35;
-  return { ...B, top, y0, zRows0, zAisle: zRows0 + B.rows * B.depth };
+  // the side seats of the upper tiers stand on a carpeted step along the
+  // front (SIDE_STEP_W wide), as far as where the rows begin
+  const step = SIDE_STEP_H[B.level] || 0;
+  const stepZ1 = zRows0 + bow(B.sideX, B.bow);
+  return { ...B, top, y0, zRows0, zAisle: zRows0 + B.rows * B.depth, step, stepZ1 };
 });
 export const BALCONY_AISLES = [-7.1, 7.1]; // in line with the doors
 // the second row in the 2층 boxes sits on a low dais
@@ -222,7 +233,10 @@ function balconyY(B, x, z) {
     return B.y0 + Math.floor(s / B.depth) * B.rise;
   }
   // in front of the rows: the side gallery, or nothing (the parapet / void)
-  if (ax >= B.sideX && z >= B.sideZ0) return B.y0 + (B.level === 1 && ax >= BOX_DAIS_X ? BOX_DAIS_H : 0);
+  if (ax >= B.sideX && z >= B.sideZ0) {
+    if (ax < B.sideX + SIDE_STEP_W && z < B.stepZ1) return B.y0 + B.step;
+    return B.y0 + (B.level === 1 && ax >= BOX_DAIS_X ? BOX_DAIS_H : 0);
+  }
   return null;
 }
 

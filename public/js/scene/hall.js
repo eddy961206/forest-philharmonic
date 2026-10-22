@@ -12,7 +12,7 @@ import { STAGE_Y, PODIUM } from '../layout.js';
 import {
   HALL, rakeY, lipZ, SHELL, shellPoint, DOORS, RISERS, PODIUM_R, PODIUM_H, STAGE_STAIRS, PROS_COLUMNS,
   BALCONIES, BALCONY_AISLES, AISLE_HALF, balconyZ, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, BOX_DAIS_X, BOX_DAIS_H,
-  rowFloorY, treadStart,
+  SIDE_STEP_W, rowFloorY, treadStart,
 } from './hallplan.js';
 import { seatList, buildSeats } from './seats.js';
 import { buildFoyer } from './foyer.js';
@@ -1037,6 +1037,16 @@ function buildBalconies(group, halo) {
       slab.translate(sx * (H.halfW + B.sideX) / 2, B.y0 - 0.275, B.sideZ0 + len / 2);
       walnut.push(slab);
       steps.push(worldUV(new THREE.PlaneGeometry(H.halfW - B.sideX, len).rotateX(-Math.PI / 2).translate(sx * (H.halfW + B.sideX) / 2, B.y0 + 0.01, B.sideZ0 + len / 2), 'xz', 2));
+      // 3층/4층: the carpeted step the side seats stand on (hallplan.js),
+      // walnut faced, with a gilt nosing along the walkway behind it
+      if (B.step > 0) {
+        const sl = B.stepZ1 - B.sideZ0;
+        const sc = sx * (B.sideX + SIDE_STEP_W / 2);
+        walnut.push(new THREE.BoxGeometry(SIDE_STEP_W, B.step, sl).translate(sc, B.y0 + B.step / 2, B.sideZ0 + sl / 2));
+        steps.push(worldUV(new THREE.PlaneGeometry(SIDE_STEP_W, sl).rotateX(-Math.PI / 2).translate(sc, B.y0 + B.step + 0.01, B.sideZ0 + sl / 2), 'xz', 2));
+        giltG.push(new THREE.BoxGeometry(0.04, 0.03, sl).translate(sx * (B.sideX + SIDE_STEP_W), B.y0 + B.step, B.sideZ0 + sl / 2));
+        giltG.push(new THREE.BoxGeometry(SIDE_STEP_W, 0.03, 0.04).translate(sc, B.y0 + B.step, B.stepZ1));
+      }
       // carved corbels under the gallery front
       for (let z = B.sideZ0 + 1.2; z < B.sideZ0 + len - 0.5; z += 3) {
         const c = new THREE.BoxGeometry(0.22, 0.8, 0.22).translate(sx * (B.sideX + 0.25), B.y0 - 0.95, z);
