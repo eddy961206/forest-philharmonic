@@ -5,6 +5,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { appURL, choice, config, diagnosticsFailed, openPage, save, sha256, sourceHashes, viewport } from './browser.mjs';
 import { fixedAudienceMain } from './loading-proxy.mjs';
+import { installAudioNoteAuditFactory, summarizeAudioNoteAudit } from './audio-note-audit.mjs';
 
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
@@ -30,6 +31,9 @@ FIXED_AUDIENCE_SEED=417: 선택 옵션. solo 관객 rand 한 곳만 별도 seede
 앉은 실제 seat.index가 선택한 좌석과 같은지 검사해. 다르면 FAIL로 보존해.
 값은 0..4294967295 정수야. 이 QA main 응답과 라우팅 조건은 실제 로딩 성능 측정이 아니야.
 재개 판정은 기존과 동일한 2초: running && playing && time > seekTime + 0.05.
+신규 예약음과 유지음 재개는 원래 메서드의 호출 출처로 구분해. 유지음은 원래 악보,
+skip·남은 길이·시작시각·velocity와 요청 누락/추가까지 별도로 검사해.
+유지음 API가 없는 구형은 미지원으로 명시하고 신규 예약음 검사를 그대로 적용해.
 실패해도 다음 실제 WebGL 프레임과 400ms 관찰까지 진단하고 원래 FAIL을 유지해.
 자동 resume/오디오 재시작/시계 치환/수동 스케줄링은 하지 않아.
 공통 환경: BASE_URL, REVISION, OUTPUT_DIR, PLAYWRIGHT_MODULE, CHROME_EXECUTABLE,
@@ -67,6 +71,7 @@ const report = {
   revision: cfg.revision, measuredAt: new Date().toISOString(), url: appURL(cfg.baseURL, venue),
   fixtureSourceSha256: sha256(await fs.readFile(new URL(import.meta.url))),
   helperSourceSha256: sha256(await fs.readFile(new URL('./browser.mjs', import.meta.url))),
+  noteAuditSourceSha256: sha256(await fs.readFile(new URL('./audio-note-audit.mjs', import.meta.url))),
   options: { frameMode, quality, readback, liveWindowMs, preludeFrames, prePauseMs, seekSeconds, fixedAudienceSeed, expectedPiece: process.env.PIECE_ID || null },
   audienceFixture: {
     enabled: fixedAudienceSeed !== null, seed: fixedAudienceSeed, servedRequests: 0,
@@ -86,6 +91,7 @@ const report = {
   limitations: [
     'A stalled running AudioContext can be observed here, but its underlying browser/audio-device/GPU/graph cause is not established by timing correlation alone.',
     'No physical output capture, underrun counter or audible fidelity measurement. Note requests and native clock progress do not prove glitch-free audio.',
+    'voices and voiceCreated count the engine\'s logical voice records, not all AudioNodes, live source nodes, render quanta, graph CPU cost or the output device\'s underruns.',
     'Mobile is Chromium viewport/touch emulation, not a physical smartphone or Safari.',
     'readPixels deliberately synchronizes WebGL and can perturb execution; READBACK=0 is a separately labelled diagnostic condition.',
     'Runtime note hashes exclude humanization and absolute timestamps; different observation durations or seek positions may produce different hashes. Per-event score matching is checked separately.',
@@ -144,27 +150,14 @@ function installProbe() {
     if (renderScene === scene && renderCamera === camera) mainSceneRenders++;
     return originalRender.apply(this, arguments);
   };
-  const originalNote = engine.playNote;
-  engine.playNote = function (args) {
-    const index = perf.schedIdx - 1, offset = index * 5;
-    const track = perf.piece?.tracks[perf.ev?.[offset]];
-    const actual = [args.section, args.inst, args.midi, args.dur, args.gain ?? 1, args.layer ?? null];
-    const expected = track ? [track.section, track.inst, perf.ev[offset + 3], perf.ev[offset + 2], track.gain ?? 1, track.layer ?? null] : null;
-    const note = {
-      phase, performanceNowMs: performance.now(), audioNow: this.ctx.currentTime,
-      pieceId: perf.piece?.id ?? null,
-      when: args.when, leadMs: (args.when - this.ctx.currentTime) * 1000,
-      scoreIndex: index, startPos: perf.startPos, startCtx: perf.startCtx, playing: perf.playing,
-      actual, expected, scoreMatch: expected !== null && actual.every((value, i) => value === expected[i]),
-    };
+  const noteAudit = window.__createAudioNoteAudit(engine, perf, note => {
+    note.phase = phase;
     noteCount++;
     if (note.leadMs < 0) lateCount++;
-    if (perf.playing && !note.scoreMatch) scoreMismatches++;
-    const before = this.voices.size;
-    try { return originalNote.call(this, args); }
-    catch (error) { note.error = error.message; noteErrors++; throw error; }
-    finally { note.voiceCreated = this.voices.size > before; append(notes, note, 'notes'); }
-  };
+    if (note.playing && note.scoreMatch !== true) scoreMismatches++;
+    if (note.error) noteErrors++;
+    append(notes, note, 'notes');
+  });
   const offTick = engine.onTick(() => {
     const now = performance.now();
     if (lastTick !== null) maxTickGapMs = Math.max(maxTickGapMs, now - lastTick);
@@ -300,10 +293,10 @@ function installProbe() {
         mark('final'); stopped = true; clearInterval(timer); offTick();
         ctx.removeEventListener('statechange', observeEvent);
         document.removeEventListener('visibilitychange', observeEvent);
-        engine.playNote = originalNote;
+        noteAudit.stop();
         renderer.render = originalRender;
       }
-      return { samples, events, notes, dropped, limits, liveWindow: live, samplePeriodMs: 100, lateDefinition: 'playNote requested when < native currentTime (leadMs < 0)' };
+      return { samples, events, notes, dropped, limits, noteAudit: noteAudit.snapshot(), liveWindow: live, samplePeriodMs: 100, lateDefinition: 'playNote requested when < native currentTime (leadMs < 0)' };
     },
   };
   mark('observer-installed');
@@ -402,6 +395,7 @@ try {
   if (fixedAudienceSeed !== null) assert.ok(report.audienceFixture.servedRequests > 0, 'Isolated solo-audience main.js fixture served');
   await activate(page.getByRole('button', { name: '혼자 보기', exact: true }));
   await page.waitForFunction(() => !document.getElementById('splash') && window.__fp.director.active && window.__fp.engine.ctx?.state === 'running', null, { polling: 100 });
+  await page.evaluate(installAudioNoteAuditFactory);
   await page.evaluate(installProbe);
   report.piece = await page.evaluate(() => ({ id: window.__fp.perf.piece?.id, duration: window.__fp.perf.duration, serialized: JSON.stringify(window.__fp.perf.piece) }));
   report.piece.sha256 = sha256(report.piece.serialized);
@@ -551,24 +545,9 @@ try {
     const { notes, samples, dropped } = report.observation;
     if (report.observation.liveWindow) report.liveWindow ??= report.observation.liveWindow;
     delete report.observation.liveWindow;
-    const scheduled = notes.filter(note => note.playing);
-    const segments = {};
-    for (const note of scheduled) {
-      const key = `${note.startPos}@${note.startCtx}`;
-      (segments[key] ||= []).push(note);
-    }
-    report.noteSummary = {
-      recordedRequests: notes.length, scheduledRequests: scheduled.length,
-      lateRequests: notes.filter(note => note.leadMs < 0).length,
-      thrownErrors: notes.filter(note => note.error).length,
-      requestedScoreOrderSha256: sha256(JSON.stringify(scheduled.map(note => [note.scoreIndex, ...note.actual]))),
-      scoreMismatches: scheduled.filter(note => !note.scoreMatch).length,
-      segments: Object.entries(segments).map(([key, rows]) => ({
-        startPosAndContext: key, count: rows.length, firstScoreIndex: rows[0].scoreIndex, lastScoreIndex: rows.at(-1).scoreIndex,
-        consecutiveScoreIndices: rows.every((row, i) => i === 0 || row.scoreIndex === rows[i - 1].scoreIndex + 1),
-        sequenceSha256: sha256(JSON.stringify(rows.map(note => [note.scoreIndex, ...note.actual]))),
-      })),
-    };
+    const noteResult = summarizeAudioNoteAudit(notes, report.observation.noteAudit, sha256);
+    report.noteSummary = noteResult.summary;
+    Object.assign(report.checks, noteResult.checks);
     let maxSampleGapMs = 0, longestPlateauMs = 0, lastAdvanceMs = samples[0]?.performanceNowMs;
     for (let i = 1; i < samples.length; i++) {
       const previous = samples[i - 1], current = samples[i];
@@ -578,9 +557,6 @@ try {
     }
     report.traceSummary = { samples: samples.length, maxSampleGapMs, longestObservedAudioClockPlateauMs: longestPlateauMs, dropped };
     report.checks.observationsNotTruncated = Object.values(dropped).every(count => count === 0);
-    report.checks.scheduledRequestsMatchScore = report.noteSummary.scoreMismatches === 0;
-    report.checks.scheduledIndicesConsecutiveWithinTransportSegment = report.noteSummary.segments.every(segment => segment.consecutiveScoreIndices);
-    report.checks.noObservedNoteErrors = report.noteSummary.thrownErrors === 0;
     if (report.liveWindow) {
       const live = report.liveWindow;
       live.cadence = summarizeFrameStarts(live.frameStartTimesMs);
@@ -592,6 +568,9 @@ try {
       const musicNotes = liveNotes.filter(note => note.playing);
       live.noteSummary = {
         phase: 'live-window', recordedRequests: liveNotes.length, recordedMusicRequests: musicNotes.length,
+        schedulerRequests: liveNotes.filter(note => note.origin === 'scheduler').length,
+        heldRequests: liveNotes.filter(note => note.origin === 'held').length,
+        unattributedMusicRequests: liveNotes.filter(note => note.origin === 'other' && note.playing).length,
         requestedNotesDelta: live.end.scheduledNotes - live.start.scheduledNotes,
         lateNotesDelta: live.end.lateNotes - live.start.lateNotes,
         lateRecordedMusicRequests: musicNotes.filter(note => note.leadMs < 0).length,

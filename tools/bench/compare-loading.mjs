@@ -80,7 +80,7 @@ try {
   for (const field of ['browserVersion', 'platform', 'architecture', 'chromeArgs', 'softwareRequested', 'headless'])
     equal(`pair:environment:${field}`, before.environment[field], after.environment[field]);
 
-  const stateFields = ['viewport', 'devicePixelRatio', 'rendererPixelRatio', 'renderer', 'quality', 'lite', 'sampleRate', 'sampleCount', 'samplePcmBytes', 'applausePcmBytes', 'piece', 'pieceDuration', 'notes', 'audience', 'audienceFingerprint'];
+  const stateFields = ['viewport', 'devicePixelRatio', 'rendererPixelRatio', 'renderer', 'quality', 'lite', 'sampleRate', 'sampleCount', 'samplePcmBytes', 'applausePcmBytes', 'applause', 'piece', 'pieceDuration', 'notes', 'audience', 'audienceFingerprint'];
   for (const name of ['cold', 'warm']) {
     const left = before.runs[name], right = after.runs[name];
     for (const field of stateFields) equal(`pair:${name}:${field}`, left.state[field], right.state[field]);

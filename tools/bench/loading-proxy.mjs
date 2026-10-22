@@ -241,10 +241,18 @@ export async function browserState(page, { audienceFingerprint = false } = {}) {
     let sampleCount = 0, samplePcmBytes = 0;
     for (const instrument of Object.values(engine.samples)) for (const buffer of instrument.buf.values()) { sampleCount++; samplePcmBytes += buffer.length * buffer.numberOfChannels * 4; }
     const crowd = engine._crowd;
-    const crowdBuffers = crowd ? [crowd.welcome, ...crowd.normal, crowd.finale]
-      .flatMap(profile => profile?.close && profile?.wash ? [profile.close, profile.wash] : [profile]) : [];
+    const profileEntries = crowd ? [['welcome', crowd.welcome], ...crowd.normal.map((profile, index) => ['normal' + index, profile]), ['finale', crowd.finale]] : [];
+    const crowdBuffers = profileEntries.map(([, profile]) => profile)
+      .flatMap(profile => profile?.close && profile?.wash ? [profile.close, profile.wash] : [profile]);
     if (crowdBuffers.some(buffer => !Number.isInteger(buffer?.length) || !Number.isInteger(buffer?.numberOfChannels)))
       throw new Error('Unknown applause PCM layout; refusing an invalid memory observation');
+    const applauseProfiles = profileEntries.map(([name, profile]) => ({ name,
+      layers: (profile?.close && profile?.wash ? [['close', profile.close], ['wash', profile.wash]] : [['mix', profile]])
+        .map(([layer, buffer]) => ({ layer, sampleRate: buffer.sampleRate, length: buffer.length, channels: buffer.numberOfChannels })),
+    }));
+    const applauseLayout = applauseProfiles.length === 4 && applauseProfiles.every(profile => profile.layers.length === 1) ? 'single-stereo'
+      : applauseProfiles.length === 4 && applauseProfiles.every(profile => profile.layers.length === 2)
+        && profileEntries.every(([, profile]) => Object.keys(profile).sort().join(',') === 'close,wash') ? 'close-wash-stereo' : 'unknown';
     return {
       userAgent: navigator.userAgent, hardwareConcurrency: navigator.hardwareConcurrency,
       viewport: [innerWidth, innerHeight], devicePixelRatio, rendererPixelRatio: renderer.getPixelRatio(),
@@ -252,6 +260,7 @@ export async function browserState(page, { audienceFingerprint = false } = {}) {
       quality: settings.quality, lite: engine.lite, sampleRate: engine.ctx.sampleRate,
       audioState: engine.ctx.state, baseLatency: engine.ctx.baseLatency, outputLatency: engine.ctx.outputLatency,
       sampleCount, samplePcmBytes, applausePcmBytes: crowdBuffers.reduce((sum, buffer) => sum + buffer.length * buffer.numberOfChannels * 4, 0),
+      applause: { layout: applauseLayout, bufferCount: crowdBuffers.length, profiles: applauseProfiles },
       piece: perf.piece?.id, pieceDuration: perf.duration, notes: perf.evCount,
       audience: audience?.count, seat: director.seat?.index, mode: director.mode,
       geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures,
@@ -272,4 +281,48 @@ export async function browserState(page, { audienceFingerprint = false } = {}) {
     };
   }
   return state;
+}
+
+// Explicit reference contracts, not a tolerance around the observed total.
+// The old renderer synthesizes four 44.1 kHz stereo mixes for every device.
+// e741 separates close/wash and uses 24 kHz desktop or 16 kHz Lite buffers.
+// People/seed are reference synthesis inputs; AudioBuffer metadata cannot
+// measure them. The separate audio-worker suite checks actual PCM equality.
+export function auditApplausePcm(state) {
+  const observed = state.applause, mismatches = [];
+  const known = observed && ['single-stereo', 'close-wash-stereo'].includes(observed.layout) && typeof state.lite === 'boolean';
+  const result = { passed: false, observed: observed ?? null, observedPcmBytes: state.applausePcmBytes ?? null,
+    expected: null, mismatches,
+    meaning: 'Exact reference buffer contract. People and seed are declared synthesis inputs, not measured from PCM metadata. No audio or quality setting is changed by this expectation.',
+  };
+  if (!known) { mismatches.push({ field: 'layout/lite', observed: [observed?.layout ?? null, state.lite ?? null], expected: 'a supported layout and boolean Lite policy' }); return result; }
+  const paired = observed.layout === 'close-wash-stereo';
+  const sampleRate = paired ? (state.lite ? 16000 : 24000) : 44100;
+  const layerNames = paired ? ['close', 'wash'] : ['mix'];
+  const profiles = [
+    { name: 'welcome', seconds: 5.5, people: paired ? (state.lite ? 200 : 320) : 120, seed: 11, rhythmic: false },
+    { name: 'normal0', seconds: 10, people: paired ? (state.lite ? 200 : 320) : 170, seed: 21, rhythmic: false },
+    { name: 'normal1', seconds: 10, people: paired ? (state.lite ? 200 : 320) : 170, seed: 22, rhythmic: false },
+    { name: 'finale', seconds: 15, people: paired ? (state.lite ? 200 : 320) : 240, seed: 31, rhythmic: true },
+  ].map(profile => ({ ...profile, layers: layerNames.map(layer => ({ layer, sampleRate,
+    length: Math.floor(profile.seconds * sampleRate), channels: 2 })) }));
+  const expectedPcmBytes = profiles.reduce((sum, profile) => sum + profile.layers.reduce((bytes, buffer) => bytes + buffer.length * buffer.channels * 4, 0), 0);
+  result.expected = { reference: paired ? 'e741-close-wash' : 'legacy-single-mix', layout: observed.layout,
+    lite: state.lite, sampleRate, channelsPerBuffer: 2, bytesPerSample: 4,
+    bufferCount: profiles.length * layerNames.length, profiles, pcmBytes: expectedPcmBytes };
+  const compare = (field, actual, expected) => { if (actual !== expected) mismatches.push({ field, observed: actual ?? null, expected }); };
+  compare('bufferCount', observed.bufferCount, result.expected.bufferCount);
+  compare('profileCount', observed.profiles?.length, profiles.length);
+  for (let i = 0; i < profiles.length; i++) {
+    const expected = profiles[i], actual = observed.profiles?.[i];
+    compare(`profiles[${i}].name`, actual?.name, expected.name);
+    compare(`profiles[${i}].layerCount`, actual?.layers?.length, expected.layers.length);
+    expected.layers.forEach((buffer, index) => {
+      for (const field of ['layer', 'sampleRate', 'length', 'channels'])
+        compare(`profiles[${i}].layers[${index}].${field}`, actual?.layers?.[index]?.[field], buffer[field]);
+    });
+  }
+  compare('applausePcmBytes', state.applausePcmBytes, expectedPcmBytes);
+  result.passed = mismatches.length === 0;
+  return result;
 }

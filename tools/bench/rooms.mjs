@@ -38,7 +38,7 @@ async function makePage(label) {
   await page.addInitScript(() => {
     let seed = 417;
     Math.random = () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296; };
-    localStorage.setItem('fp-settings', JSON.stringify({ quality: 'low', volume: 0, audience: false, fx: false, lasers: false, screen: false, notes: false }));
+    localStorage.setItem('fp-settings', JSON.stringify({ quality: 'low', volume: 0, audience: false, crowdHall: 0, crowdSphere: 0, fx: false, lasers: false, screen: false, notes: false }));
     const native = requestAnimationFrame.bind(window);
     window.requestAnimationFrame = fn => fn.name === 'frame' ? (window.__benchFrame = fn, 0) : native(fn);
   });
@@ -132,6 +132,23 @@ try {
   await entered(guest);
   await host.waitForFunction(() => window.__fp.room.members.size === 2, null, { polling: 100 });
   assert.equal(await guest.evaluate(() => window.__fp.room.seed), room.seed);
+  result.checks.crowdFixture = {};
+  for (const { page, label } of pages) {
+    const crowd = await page.evaluate(() => {
+      const { settings, audience } = window.__fp;
+      return {
+        crowdHall: settings.crowdHall, crowdSphere: settings.crowdSphere,
+        legacyAudience: settings.audience ?? null,
+        reserved: audience?.count ?? 0, drawn: audience?.drawn ?? audience?.count ?? 0,
+      };
+    });
+    assert.equal(crowd.crowdHall, 0);
+    assert.equal(crowd.crowdSphere, 0);
+    // Online rooms may reserve the default house's seats even when this tab
+    // draws no audience. Logical occupancy must remain shared across peers.
+    assert.equal(crowd.drawn, 0, `${label} crowd fixture draws no audience`);
+    result.checks.crowdFixture[label] = crowd;
+  }
   const hostBefore = await controls(host);
   const guestBefore = await controls(guest);
   assert.equal(hostBefore.isHost, true);

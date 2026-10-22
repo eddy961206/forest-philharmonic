@@ -1,0 +1,112 @@
+{
+  "recordedAt": "2026-10-22T00:33:32.274080+00:00",
+  "baseline": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+  "candidate": "6c7817218814f00631089eb2c6f150d68190980f",
+  "files": {
+    "e741811-engine.js": {
+      "sha256": "dc4576c7c55e84ada7e1bde10de8eb77abca0d7c03257d472a1c91234ae0b849",
+      "bytes": 42492
+    },
+    "e741811-performance.js": {
+      "sha256": "7ffdf51dab3a029b863350bd3598ce12889d90b623219a39087ddce065052f14",
+      "bytes": 14535
+    },
+    "e741811-crowd.js": {
+      "sha256": "e7f23633ad2a55afb3985382ccd69a4bdd61b1b98fa4c917de6e79fdf0c7875b",
+      "bytes": 13316
+    },
+    "6c78172-engine.js": {
+      "sha256": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0",
+      "bytes": 44653
+    },
+    "6c78172-performance.js": {
+      "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b",
+      "bytes": 15057
+    },
+    "6c78172-crowd.js": {
+      "sha256": "e7f23633ad2a55afb3985382ccd69a4bdd61b1b98fa4c917de6e79fdf0c7875b",
+      "bytes": 13316
+    },
+    "tools/bench/audio-note-audit.mjs": {
+      "sha256": "2a9c68048e5fbb0e98c4e0e7fbb5d90c515face0ed98f1f39f324d11a8718f60",
+      "bytes": 11142
+    },
+    "tools/bench/audio-resume.mjs": {
+      "sha256": "6167885b69a3f2457a9edb5edd926b20c1b0a4d88edd47a60693ef06361105b5",
+      "bytes": 45463
+    },
+    "tests/audio-note-audit.test.mjs": {
+      "sha256": "800ecb82b474943ca6d3065be11938620aacc9f186a6ca0a2d94f03568420110",
+      "bytes": 9838
+    },
+    "tests/performance.test.mjs": {
+      "sha256": "8030f499130beb0f518e250d6aa7cb12abf5ca036c52baf76c94d85305535bdf",
+      "bytes": 8509
+    }
+  },
+  "exactRegionComparisons": [
+    {
+      "name": "Full crowd synthesis (including close/wash and murmur)",
+      "equal": true,
+      "baselineSha256": "e7f23633ad2a55afb3985382ccd69a4bdd61b1b98fa4c917de6e79fdf0c7875b",
+      "candidateSha256": "e7f23633ad2a55afb3985382ccd69a4bdd61b1b98fa4c917de6e79fdf0c7875b",
+      "start": null,
+      "end": null
+    },
+    {
+      "name": "Entire transport, score loading/shaping/levelling, play/pause/seek/held and scheduler before visual methods",
+      "equal": true,
+      "baselineSha256": "5c83f01b689a8787fc1515061ea37b05f0c36c13e15703afda94b9da71f1f509",
+      "candidateSha256": "5c83f01b689a8787fc1515061ea37b05f0c36c13e15703afda94b9da71f1f509",
+      "start": "// Transport:",
+      "end": "  // ---------------------------------------------------------------- visuals"
+    },
+    {
+      "name": "Instrument family/envelopes and room constants",
+      "equal": true,
+      "baselineSha256": "66f03ce8e98746d4fcff5310b4916e312de55a3b5fc58466c04426656e07f83c",
+      "candidateSha256": "66f03ce8e98746d4fcff5310b4916e312de55a3b5fc58466c04426656e07f83c",
+      "start": "const FAMILY =",
+      "end": "export class AudioEngine"
+    },
+    {
+      "name": "Original AudioContext rate and full init graph",
+      "equal": true,
+      "baselineSha256": "5e197b4f4c739b5c7374c935e75f5548fddcbb6c2e25db0601d44754d22f0ad2",
+      "candidateSha256": "5e197b4f4c739b5c7374c935e75f5548fddcbb6c2e25db0601d44754d22f0ad2",
+      "start": "    this.ac = {",
+      "end": "  // ------------------------------------------------------------ samples"
+    },
+    {
+      "name": "Sample loading/decoding/selection",
+      "equal": true,
+      "baselineSha256": "4dd2099b87bbdd21dcab9119bbdfe6719d342f54d6fe9a88cd3148c20e39819c",
+      "candidateSha256": "4dd2099b87bbdd21dcab9119bbdfe6719d342f54d6fe9a88cd3148c20e39819c",
+      "start": "  async loadSamples(",
+      "end": "  _initListener("
+    },
+    {
+      "name": "Worker scheduler, native time, note sources, sustain and stop/chime",
+      "equal": true,
+      "baselineSha256": "b3fb8f00eba2a93b3834244b5a67224e55d20c2b2f8eb0b60afa8a2c512bab7b",
+      "candidateSha256": "b3fb8f00eba2a93b3834244b5a67224e55d20c2b2f8eb0b60afa8a2c512bab7b",
+      "start": "  // ------------------------------------------------------------ timer",
+      "end": "  // ------------------------------------------------------------ applause"
+    },
+    {
+      "name": "Applause playback, murmur and impulse generation",
+      "equal": true,
+      "baselineSha256": "a898509915712d2bbde2555216422c7ce5594c13de7e59bd7648a1d874953a1e",
+      "candidateSha256": "a898509915712d2bbde2555216422c7ce5594c13de7e59bd7648a1d874953a1e",
+      "start": "  applause(when, intensity = 1, people = null) {",
+      "end": null
+    }
+  ],
+  "originalTwoSecondGate": {
+    "equal": true,
+    "sha256": "48e8c5cbcc1e1d3e96ac403135a7b05fe5c26f4f74a5dfee84bdb9f41d43cb41",
+    "start": "  await mark('before-resume-click');",
+    "end": "  if (liveWindowMs > 0) {"
+  },
+  "browserLaunched": false
+}

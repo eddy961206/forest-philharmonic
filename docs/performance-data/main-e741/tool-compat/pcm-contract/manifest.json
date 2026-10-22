@@ -1,0 +1,86 @@
+{
+  "recordedAt": "2026-10-22T00:39:48.911621+00:00",
+  "browserLaunched": false,
+  "files": {
+    "tools/bench/loading-proxy.mjs": {
+      "sha256": "0c4182265fc424fdddd75eff649926f7c63fac228dd32866c88271576a9f7eff",
+      "bytes": 20820
+    },
+    "tools/bench/loading.mjs": {
+      "sha256": "a4f1a84a11b0631c91e95de5d65f9a5b3ce268785cc2775ac0beb54b4515035e",
+      "bytes": 18447
+    },
+    "tools/bench/audio-stability.mjs": {
+      "sha256": "b0a3ce2685e5765edaf79c8e7943a229e39f30169ffe71592ff4ea3ba17768bb",
+      "bytes": 22227
+    },
+    "tools/bench/compare-loading.mjs": {
+      "sha256": "a012e19937a878f8606fa27cd4f2c7b58617e2ad19656ac373879dc91c8f264b",
+      "bytes": 8552
+    },
+    "tests/applause-contract.test.mjs": {
+      "sha256": "4c306a23f8900c313c2480ff61f492ff376f613a769a9bc83867606a027017a9",
+      "bytes": 5359
+    }
+  },
+  "pastFailureArtifactsReadOnly": [
+    {
+      "source": "/workspace/scratch/25707ad85ea4/verification/runtime-core/raw/loading-baseline-hall-desktop.json",
+      "sha256": "658676ddc40c16e6b284b6a5be0047e321d36fa9db65347e12644c817c469e27",
+      "revision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "passed": false,
+      "error": {
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 15552000\n- 14288400\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 15552000\n- 14288400\n\n    at file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/loading.mjs:195:12",
+        "code": "ERR_ASSERTION"
+      },
+      "observedColdApplausePcmBytes": 15552000,
+      "lite": false
+    },
+    {
+      "source": "/workspace/scratch/25707ad85ea4/verification/runtime-core/raw/loading-baseline-sphere-desktop.json",
+      "sha256": "7eeb2fcb977c69a7141eb71ce0613e3cdf21af3fd952dd13533a3632557ee75e",
+      "revision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "passed": false,
+      "error": {
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 15552000\n- 14288400\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 15552000\n- 14288400\n\n    at file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/loading.mjs:195:12",
+        "code": "ERR_ASSERTION"
+      },
+      "observedColdApplausePcmBytes": 15552000,
+      "lite": false
+    },
+    {
+      "source": "/workspace/scratch/25707ad85ea4/verification/runtime-core/raw/loading-candidate-hall-desktop.json",
+      "sha256": "6350213902dd8025a2040d486d123662d30e9c17dabc3cf3571d90d9dea16358",
+      "revision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "passed": false,
+      "error": {
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 15552000\n- 14288400\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 15552000\n- 14288400\n\n    at file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/loading.mjs:195:12\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:502:9)",
+        "code": "ERR_ASSERTION"
+      },
+      "observedColdApplausePcmBytes": 15552000,
+      "lite": false
+    },
+    {
+      "source": "/workspace/scratch/25707ad85ea4/verification/runtime-core/raw/loading-candidate-sphere-desktop.json",
+      "sha256": "f8801f79596ca9e47eb2f010f29b99b3edba03ef28d04bd63ef36bb7aed976e3",
+      "revision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "passed": false,
+      "error": {
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 15552000\n- 14288400\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 15552000\n- 14288400\n\n    at file:///workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/loading.mjs:195:12",
+        "code": "ERR_ASSERTION"
+      },
+      "observedColdApplausePcmBytes": 15552000,
+      "lite": false
+    }
+  ],
+  "expectedPcmBytes": {
+    "legacyDesktop": 14288400,
+    "legacyLite": 14288400,
+    "e741Desktop": 15552000,
+    "e741Lite": 10368000
+  }
+}

@@ -1,0 +1,15 @@
+✔ actual Performance keeps identical audio requests and transport state with the observer attached (7.804115ms)
+✔ legacy scheduler without _resumeHeld is supported explicitly and original arguments/returns survive (0.596129ms)
+✔ held and fresh notes retain separate original indices and all continuation arguments (0.828292ms)
+✔ wrong held skip, remaining duration, pitch, gain, start time or velocity remains an explicit mismatch (0.99071ms)
+✔ missing, extra, duplicated and reordered held requests are not silently ignored (1.088835ms)
+✔ scheduler index advancement without a request and foreign music requests fail separately (0.476622ms)
+✔ native exceptions retain identity and observer callback errors cannot change product return values (0.923922ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18.220519

@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { appURL, config, launchBrowser, sha256 } from './browser.mjs';
-import { browserOptions, localAppProxy, installRuntimeProbe, waitReady, networkCollector, networkSummary, category, browserState } from './loading-proxy.mjs';
+import { browserOptions, localAppProxy, installRuntimeProbe, waitReady, networkCollector, networkSummary, category, browserState, auditApplausePcm } from './loading-proxy.mjs';
 
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
@@ -15,6 +15,8 @@ if (args.includes('--help')) {
 전역 Math.random/UUID와 나머지 자원은 그대로야. main 응답은 identity와
 별도 QA ETag/no-cache를 쓰므로 controlledMainFixture 바이트를 원본 전송량으로 쓰지 마.
 관객 수와 정렬 점유 좌석 hash가 cold/warm에서 같아야 통과해.
+박수는 구형 44.1kHz 단일 mix와 최신 desktop 24kHz/Lite 16kHz close/wash의
+명시적 profile 계약으로 길이·채널·개수·PCM 바이트를 검사해. 미지원 구조는 FAIL이야.
 기존 readyMs는 입장 버튼의 MutationObserver 시점이야. Sphere에서는 그 직후
 dome.mesh.visible===true 관찰을 따로 시작하고 대기 전/후 상태와 시점을 기록해.
 기존 전송량 snapshot은 추가 대기와 분리해. visible은 compile 성공이나 첫 실제
@@ -184,7 +186,8 @@ try {
     const summary = networkSummary(requests, { controlledMain: true });
     const externalRequests = requests.filter(entry => entry.url?.startsWith('http') && !entry.url.startsWith(proxy.origin + '/'));
     const failedRequests = requests.filter(entry => entry.failed && !entry.canceled);
-    result.runs[name] = { ...metrics, observedReadyWallMs, state, mainFixture, summary, resourceSummary, requests, externalRequests, failedRequests,
+    const applausePolicy = auditApplausePcm(state);
+    result.runs[name] = { ...metrics, observedReadyWallMs, state, applausePolicy, mainFixture, summary, resourceSummary, requests, externalRequests, failedRequests,
       proxyTransactions: structuredClone(proxy.transactions.slice(proxyStart)), domeVisibility };
     domeVisibility.startupMetricsCapturedAtMs = metrics.collectedAtMs;
     const domeError = await pendingDomeObservation;
@@ -192,7 +195,7 @@ try {
     if (domeError) throw domeError;
     assert.equal(state.capturedMainFrame, true);
     assert.equal(state.sampleCount, device === 'mobile' ? 207 : 389);
-    assert.equal(state.applausePcmBytes, 14288400);
+    assert.equal(applausePolicy.passed, true, 'Applause PCM must match its exact supported synthesis profile; inspect applausePolicy mismatches');
     assert.ok(state.audienceFingerprint.count > 0 && state.audienceFingerprint.occupiedCount > 0, 'The fixed crowd remains enabled');
     assert.equal(metrics.fontStatus, 'loaded');
     assert.ok(metrics.readyMs > 0);

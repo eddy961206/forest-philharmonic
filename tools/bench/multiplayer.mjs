@@ -21,7 +21,33 @@ const result = {
   method: 'Functional tests of real server.js/server/rooms.js/server/ws.js and real browser RoomClient using Node WebSocket. Temporary rooms and messages exist only in a new process bound to 127.0.0.1 on an OS-assigned port. No production host, existing server or real users are contacted. This is protocol/static-serving QA, not rendered UI, audio-device synchronization or load/performance benchmarking.',
   cases: [], sources: {},
 };
-for (const file of ['server.js', 'server/rooms.js', 'server/ws.js', 'public/js/net/room.js', 'public/js/audio/crowd-loader.js', 'public/js/audio/crowd-worker.js']) result.sources[file] = sha(await fs.readFile(path.join(repo, file)));
+const sourceText = {};
+const optionalModules = new Set(['public/js/audio/crowd-loader.js', 'public/js/audio/crowd-worker.js']);
+for (const file of ['server.js', 'server/rooms.js', 'server/ws.js', 'public/js/net/room.js', 'public/js/audio/engine.js', 'public/js/audio/crowd.js', ...optionalModules]) {
+  try {
+    const bytes = await fs.readFile(path.join(repo, file));
+    result.sources[file] = sha(bytes);
+    sourceText[file] = bytes.toString('utf8');
+  } catch (error) {
+    if (error.code !== 'ENOENT' || !optionalModules.has(file)) throw error;
+    result.sources[file] = null;
+  }
+}
+// Old versions closed empty rooms immediately; newer versions intentionally
+// retain the code for ROOM_GRACE. Pick the contract from the recorded source,
+// never from whichever response happens to make the test pass.
+const roomGraceMatch = sourceText['server/rooms.js'].match(/\bconst\s+ROOM_GRACE\s*=\s*(\d+)\s*;/);
+assert.ok(roomGraceMatch || !sourceText['server/rooms.js'].includes('ROOM_GRACE'), 'Unrecognized empty-room retention contract');
+const roomGraceMs = roomGraceMatch ? Number(roomGraceMatch[1]) : 0;
+const backGraceMatch = sourceText['server/rooms.js'].match(/\bconst\s+BACK_GRACE\s*=\s*(\d+)\s*;/);
+assert.ok(backGraceMatch || !sourceText['server/rooms.js'].includes('BACK_GRACE'), 'Unrecognized member reconnect contract');
+const backGraceMs = backGraceMatch ? Number(backGraceMatch[1]) : 0;
+const keepsIdentity = backGraceMs > 0;
+result.protocolContract = {
+  emptyRoomGraceMs: roomGraceMs, memberGraceMs: backGraceMs,
+  reconnectIdentity: keepsIdentity ? 'preserved-id-and-seniority' : 'legacy-new-id',
+  tabStorage: 'independent per emulated RoomClient tab',
+};
 
 const originalFetch = globalThis.fetch;
 const originalLocation = globalThis.location;
@@ -42,7 +68,30 @@ async function check(name, fn) {
 }
 function client(label) {
   const peer = new RoomClient();
-  peer.qa = { label, messages: [], joinedFirst: [], listeners: new Set() };
+  peer.qa = { label, messages: [], sent: [], joinedFirst: [], listeners: new Set() };
+  // Node has no independent browser tabs. Without this fixture every peer
+  // falls back to the module-global tabId.mem and incorrectly shares one cid.
+  // enter() reads sessionStorage synchronously before its first await, so the
+  // real client builds its own original wire payload while storage is scoped.
+  const storage = new Map();
+  const enter = peer.enter.bind(peer);
+  peer.enter = (...args) => {
+    const previous = Object.getOwnPropertyDescriptor(globalThis, 'sessionStorage');
+    Object.defineProperty(globalThis, 'sessionStorage', { configurable: true, value: {
+      getItem: key => storage.get(key) ?? null,
+      setItem: (key, value) => storage.set(key, String(value)),
+    } });
+    try { return enter(...args); }
+    finally {
+      if (previous) Object.defineProperty(globalThis, 'sessionStorage', previous);
+      else delete globalThis.sessionStorage;
+    }
+  };
+  const send = peer._send.bind(peer);
+  peer._send = message => {
+    if (peer.connected) peer.qa.sent.push(JSON.parse(JSON.stringify(message)));
+    return send(message);
+  };
   peer.on('joined', (_message, first) => peer.qa.joinedFirst.push(first));
   const original = peer._message.bind(peer);
   peer._message = message => {
@@ -102,21 +151,34 @@ try {
   globalThis.location = new URL(origin);
   globalThis.fetch = (input, options) => originalFetch(new URL(input, origin), options);
 
-  await check('worker, loader and original synthesis modules retain correct JavaScript MIME, contents and revalidation', async () => {
+  await check('audio module responses match the recorded version, including absent legacy worker modules, MIME and revalidation', async () => {
+    result.audioModuleResponses = [];
     for (const file of ['crowd-worker.js', 'crowd-loader.js', 'crowd.js']) {
       const url = `js/audio/${file}`;
       const response = await fetch(url, { headers: { 'Accept-Encoding': 'identity' } });
+      const expected = result.sources[`public/${url}`];
+      if (expected === null) {
+        // Absence is only valid when the recorded product does not refer to it.
+        assert.equal(sourceText['public/js/audio/engine.js'].includes(file), false, `Engine refers to missing ${file}`);
+        assert.equal((sourceText['public/js/audio/crowd-loader.js'] || '').includes(file), false, `Loader refers to missing ${file}`);
+        assert.equal(response.status, 404, `Absent legacy module ${file}`);
+        await response.arrayBuffer();
+        result.audioModuleResponses.push({ file, expected: 'absent', httpStatus: 404 });
+        continue;
+      }
       assert.equal(response.status, 200);
       assert.match(response.headers.get('content-type'), /^text\/javascript/);
       assert.equal(response.headers.get('cache-control'), 'no-cache');
-      assert.equal(sha(Buffer.from(await response.arrayBuffer())), sha(await fs.readFile(path.join(repo, 'public', url))));
+      assert.equal(sha(Buffer.from(await response.arrayBuffer())), expected);
       const cached = await fetch(url, { headers: { 'If-None-Match': response.headers.get('etag') } });
       assert.equal(cached.status, 304);
       assert.equal((await cached.arrayBuffer()).byteLength, 0);
+      result.audioModuleResponses.push({ file, expectedSha256: expected, httpStatus: 200, revalidation: 304 });
     }
-    const gz = await fetch('js/audio/crowd-worker.js', { headers: { 'Accept-Encoding': 'gzip' } });
+    const gzipFile = result.sources['public/js/audio/crowd-worker.js'] === null ? 'crowd.js' : 'crowd-worker.js';
+    const gz = await fetch(`js/audio/${gzipFile}`, { headers: { 'Accept-Encoding': 'gzip' } });
     assert.equal(gz.headers.get('content-encoding'), 'gzip');
-    assert.equal(sha(Buffer.from(await gz.arrayBuffer())), sha(await fs.readFile(path.join(repo, 'public/js/audio/crowd-worker.js'))));
+    assert.equal(sha(Buffer.from(await gz.arrayBuffer())), result.sources[`public/js/audio/${gzipFile}`]);
   });
 
   await check('sample caching and byte ranges preserve exact encoded audio bytes', async () => {
@@ -269,20 +331,135 @@ try {
 
   await check('RoomClient automatically rejoins after a local socket drop with preserved seed and snapshot', async () => {
     const oldId = late.id;
+    const oldMember = structuredClone(late.members.get(oldId));
+    const oldRoom = structuredClone(late.room);
+    const initialJoin = late.qa.sent.find(message => message.t === 'join');
+    assert.ok(initialJoin, 'Original join payload was captured');
+    assert.equal(Object.hasOwn(initialJoin, 'cid'), keepsIdentity, 'Client identity payload matches the recorded server contract');
+    if (keepsIdentity) {
+      const cids = [host, guest, late].map(peer => peer.qa.sent.find(message => message.t === 'create' || message.t === 'join').cid);
+      for (const cid of cids) assert.match(cid, /^[A-Za-z0-9_-]{8,40}$/);
+      assert.equal(new Set(cids).size, 3, 'Different emulated tabs must have different reconnect tokens');
+    }
     let resolveReconnected;
     const reconnected = new Promise(resolve => { resolveReconnected = resolve; });
     late.on('reconnected', resolveReconnected);
     const after = late.qa.messages.length;
+    const hostAfter = host.qa.messages.length;
+    const sentAfter = late.qa.sent.length;
     late.ws.close(4000, 'LOCAL QA disconnect');
     await within(reconnected, 8000, 'RoomClient did not reconnect');
     const joined = await late.wait(message => message.t === 'joined', after);
-    assert.notEqual(late.id, oldId);
+    const resumedJoin = late.qa.sent.slice(sentAfter).find(message => message.t === 'join');
+    assert.ok(resumedJoin, 'Automatic reconnect sent a new join payload');
+    assert.equal(resumedJoin.code, oldRoom.code);
+    assert.equal(resumedJoin.venue, oldRoom.venue);
+    assert.equal(resumedJoin.name, initialJoin.name);
+    assert.equal(resumedJoin.avatar, initialJoin.avatar);
+    if (keepsIdentity) {
+      assert.equal(resumedJoin.cid, initialJoin.cid, 'Reconnect uses the same tab token');
+      assert.equal(resumedJoin.resume, true, 'Reconnect explicitly requests resume');
+      assert.equal(late.id, oldId, 'Current protocol preserves member ID');
+      assert.equal(joined.members.find(member => member.id === oldId)?.since, oldMember.since, 'Current protocol preserves seniority');
+    } else {
+      assert.equal(Object.hasOwn(resumedJoin, 'cid'), false);
+      assert.notEqual(late.id, oldId, 'Legacy protocol allocates a new member ID');
+    }
+    assert.equal(joined.you, late.id);
+    assert.deepEqual(joined.room, oldRoom);
     assert.equal(late.seed, host.seed);
+    assert.equal(joined.seed, host.seed);
     assert.deepEqual(joined.state, snapshot);
     assert.deepEqual(late.qa.joinedFirst, [true, false]);
-    await host.wait(message => message.t === 'member' && message.m.id === late.id);
-    assert.equal(host.members.has(oldId), false);
+    await host.wait(message => message.t === 'left' && message.id === oldId, hostAfter);
+    await host.wait(message => message.t === 'member' && message.m.id === late.id, hostAfter);
+    assert.equal(host.members.has(oldId), keepsIdentity);
     assert.equal(host.members.has(late.id), true);
+    assert.equal(host.members.size, 2);
+    assert.equal(joined.members.length, 2);
+    assert.equal(new Set(joined.members.map(member => member.id)).size, 2);
+    assert.equal(late.host, host.id);
+    assert.equal(joined.host, host.id);
+    assert.equal(late.isHost, false);
+    assert.equal(host.isHost, true);
+    const authorityAfter = host.qa.messages.length;
+    const lateAfter = late.qa.messages.length;
+    late._send({ t: 'state', s: { title: 'RECONNECTED GUEST FORGED' } });
+    late._send({ t: 'cmd', c: { forgedReconnect: true } });
+    late._send({ t: 'handoff', id: late.id });
+    await barrier(late);
+    snapshot = { ...snapshot, qa: 'post-reconnect-host-authority' };
+    host.state(snapshot);
+    await late.wait(message => message.t === 'state' && message.s.qa === snapshot.qa, lateAfter);
+    assert.equal(host.qa.messages.slice(authorityAfter).some(message => ['state', 'cmd', 'host'].includes(message.t)), false);
+    assert.equal(late.host, host.id);
+    result.guestReconnect = { oldId, newId: late.id, initialJoin, resumedJoin, joined, preservedHost: host.id };
+  });
+
+  await check('host socket reconnect follows the recorded identity contract and preserves authorized playback state', async () => {
+    const oldId = host.id;
+    const oldSeed = host.seed;
+    const oldRoom = structuredClone(host.room);
+    const oldMember = structuredClone(host.members.get(oldId));
+    const initial = host.qa.sent.find(message => message.t === 'create');
+    assert.ok(initial, 'Original host creation payload was captured');
+    assert.equal(Object.hasOwn(initial, 'cid'), keepsIdentity);
+    const sentAfter = host.qa.sent.length;
+    const after = host.qa.messages.length;
+    const lateAfter = late.qa.messages.length;
+    let resolveReconnected;
+    const reconnected = new Promise(resolve => { resolveReconnected = resolve; });
+    host.on('reconnected', resolveReconnected);
+    host.ws.close(4000, 'LOCAL QA host disconnect');
+    await within(reconnected, 8000, 'Host RoomClient did not reconnect');
+    const joined = await host.wait(message => message.t === 'joined', after);
+    const request = host.qa.sent.slice(sentAfter).find(message => message.t === 'join');
+    assert.ok(request);
+    assert.equal(request.code, oldRoom.code);
+    assert.equal(request.venue, oldRoom.venue);
+    assert.equal(request.name, initial.name);
+    assert.equal(request.avatar, initial.avatar);
+    assert.equal(host.seed, oldSeed);
+    assert.equal(joined.seed, oldSeed);
+    assert.equal(joined.you, host.id);
+    assert.deepEqual(joined.room, oldRoom);
+    assert.deepEqual(joined.state, snapshot);
+    assert.deepEqual(host.qa.joinedFirst, [true, false]);
+    assert.equal(joined.members.length, 2);
+    assert.equal(new Set(joined.members.map(member => member.id)).size, 2);
+    await late.wait(message => message.t === 'left' && message.id === oldId, lateAfter);
+    await late.wait(message => message.t === 'member' && message.m.id === host.id, lateAfter);
+    if (keepsIdentity) {
+      assert.equal(request.cid, initial.cid);
+      assert.equal(request.resume, true);
+      assert.equal(host.id, oldId);
+      assert.equal(joined.members.find(member => member.id === oldId)?.since, oldMember.since);
+      assert.equal(joined.host, oldId);
+      assert.equal(host.isHost, true);
+      assert.equal(late.host, oldId);
+      assert.equal(late.isHost, false);
+    } else {
+      assert.equal(Object.hasOwn(request, 'cid'), false);
+      assert.notEqual(host.id, oldId);
+      assert.equal(joined.host, late.id);
+      assert.equal(host.isHost, false);
+      assert.equal(late.isHost, true);
+      const hostAfter = host.qa.messages.length;
+      const guestAfter = late.qa.messages.length;
+      late.handoff(host.id);
+      await host.wait(message => message.t === 'host' && message.id === host.id, hostAfter);
+      await late.wait(message => message.t === 'host' && message.id === host.id, guestAfter);
+    }
+    assert.equal(late.members.has(oldId), keepsIdentity);
+    assert.equal(late.members.has(host.id), true);
+    assert.equal(late.members.size, 2);
+    const stateAfter = late.qa.messages.length;
+    snapshot = { ...snapshot, qa: 'host-authority-after-socket-reconnect' };
+    host.state(snapshot);
+    assert.deepEqual((await late.wait(message => message.t === 'state' && message.s.qa === snapshot.qa, stateAfter)).s, snapshot);
+    assert.equal(host.isHost, true);
+    assert.equal(late.isHost, false);
+    result.hostReconnect = { oldId, newId: host.id, request, joined, finalHost: host.id };
   });
 
   const sphere = client('private-sphere-host');
@@ -305,18 +482,35 @@ try {
     await leave(wrong);
   });
 
-  await check('empty rooms disappear and their codes cannot be rejoined', async () => {
+  await check('empty rooms leave public listings and obey the recorded immediate-close or retained-code contract', async () => {
     const removedHall = host.room.code;
     const removedSphere = sphere.room.code;
+    const seeds = new Map([[removedHall, host.seed], [removedSphere, sphere.seed]]);
+    const memberships = [];
     await leave(late);
     await leave(host);
     await leave(sphere);
     assert.deepEqual(await listRooms(), []);
     const absent = client('deleted-rooms');
     for (const [code, venue] of [[removedHall, 'hall'], [removedSphere, 'sphere']]) {
-      await assert.rejects(absent.enter({ name: 'QA ABSENT', avatar: 'bear', venue, code }), error => error.code === 'notfound');
+      if (roomGraceMs > 0) {
+        const joined = await absent.enter({ name: 'QA RETURN', avatar: 'bear', venue, code });
+        assert.equal(joined.room.code, code);
+        assert.equal(joined.room.venue, venue);
+        assert.equal(joined.seed, seeds.get(code));
+        assert.equal(joined.state, null, 'An empty retained room starts a fresh show');
+        assert.equal(joined.members.length, 1);
+        assert.equal(joined.host, joined.you);
+        assert.equal(absent.isHost, true);
+        memberships.push(joined);
+        await leave(absent);
+        assert.deepEqual(await listRooms(), []);
+      } else {
+        await assert.rejects(absent.enter({ name: 'QA ABSENT', avatar: 'bear', venue, code }), error => error.code === 'notfound');
+      }
     }
     await leave(absent);
+    result.emptyRooms = { graceMs: roomGraceMs, retainedRejoins: memberships, expiryAfterGraceMeasured: false };
   });
 } catch (error) {
   exitCode = 1;
@@ -332,7 +526,7 @@ try {
     catch { child.kill('SIGKILL'); }
   }
   result.serverErrors = serverErrors;
-  result.messages = clients.map(peer => ({ label: peer.qa.label, joinedFirst: peer.qa.joinedFirst, messages: peer.qa.messages }));
+  result.messages = clients.map(peer => ({ label: peer.qa.label, joinedFirst: peer.qa.joinedFirst, sent: peer.qa.sent, messages: peer.qa.messages }));
   result.passed = exitCode === 0;
   await fs.writeFile(output, JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify({ output, passed: result.passed, cases: result.cases, error: result.error, serverErrors }, null, 2));

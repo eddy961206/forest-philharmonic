@@ -1,0 +1,65 @@
+{
+  "recordedAt": "2026-10-22T00:26:31.647443+00:00",
+  "suite": "tool-compat-e741",
+  "purpose": "Re-run and archive the original 21 offline tool-compatibility cases; no browser launched.",
+  "baseline": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+  "candidate": "6c7817218814f00631089eb2c6f150d68190980f",
+  "sourceCopies": [
+    {
+      "path": "snapshots/browser.mjs",
+      "origin": "tools/bench/browser.mjs",
+      "sha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "bytes": 9075
+    },
+    {
+      "path": "snapshots/loading-proxy.mjs",
+      "origin": "tools/bench/loading-proxy.mjs",
+      "sha256": "0f0ec59e9b1b90b797dcf071a2466e652cf28994bbb9d737e522b5e58c81159a",
+      "bytes": 16501
+    },
+    {
+      "path": "snapshots/audio-resume.mjs",
+      "origin": "tools/bench/audio-resume.mjs",
+      "sha256": "089678a0b0afcc9be77ae11d7bc160fffce2239e29afc64b78f7fdf6e8a154d7",
+      "bytes": 46559
+    },
+    {
+      "path": "snapshots/loading.mjs",
+      "origin": "tools/bench/loading.mjs",
+      "sha256": "fb6eed28c22263ff05038cd09bf4d8375be75d59a25bf7b4df1de3f66fdc50ac",
+      "bytes": 18066
+    },
+    {
+      "path": "snapshots/functional.mjs",
+      "origin": "tools/bench/functional.mjs",
+      "sha256": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+      "bytes": 61593
+    },
+    {
+      "path": "snapshots/rituals.mjs",
+      "origin": "tools/bench/rituals.mjs",
+      "sha256": "744ad7a96a1df5a335c5a42531f18969945dc30e7800a1f0837e182c4573c26a",
+      "bytes": 57383
+    },
+    {
+      "path": "sources/legacy-main.mjs",
+      "origin": "git 8729cdd:public/js/main.js",
+      "sha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea",
+      "bytes": 88281
+    },
+    {
+      "path": "sources/current-main.mjs",
+      "origin": "git e741811:public/js/main.js",
+      "sha256": "c9b46ec483536dbbf617547a7544993f1a08e985ff27d8549499223023253001",
+      "bytes": 98770
+    },
+    {
+      "path": "sources/candidate-main.mjs",
+      "origin": "git 6c78172:public/js/main.js",
+      "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c",
+      "bytes": 102701
+    }
+  ],
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "originalAttemptLimitation": "The first inline Node attempt could not use execFileSync under the environment sandbox (spawnSync EPERM); sources were extracted with shell git show and the identical checks then passed. This archive reruns those checks from the saved source bytes."
+}

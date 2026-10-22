@@ -6,7 +6,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { appURL, config, launchBrowser } from './browser.mjs';
-import { browserOptions, localAppProxy, installRuntimeProbe, waitReady, networkCollector, networkSummary, browserState } from './loading-proxy.mjs';
+import { browserOptions, localAppProxy, installRuntimeProbe, waitReady, networkCollector, networkSummary, browserState, auditApplausePcm } from './loading-proxy.mjs';
 
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
@@ -19,6 +19,8 @@ seconds는 61..68이며 실제 곡 길이보다 최소 5초 짧아야 해.
 6a 기본 기대 곡: hall=beethoven-ode-to-joy, sphere=bach-wachet-auf.
 EXPECTED_PIECE=곡_ID로 기대값만 선택할 수 있어. 실제 곡을 바꾸거나 seek하지 않아.
 desktop/high는 389개, mobile/low는 기존 Lite 정책의 207개 샘플을 확인해.
+박수 PCM은 구형 단일 mix/44.1kHz 또는 최신 close/wash·desktop 24kHz/Lite
+16kHz의 명시적 profile 계약과 정확히 일치해야 해. 미지원 구조는 FAIL로 남겨.
 관객 seed와 실제 착석 위치는 고정하지 않아. 선택/실제 좌석 및 리스너 위치를 기록하지만
 동일 조건 성능 비교가 아니야. 모바일은 viewport/touch/UA 에뮬레이션이야.
 음표 순서·voice 생성·source.start·비제로 analyser 신호·late=0·마지막 pause를 검사해.
@@ -49,6 +51,7 @@ const errors = [], warnings = [];
 const result = {
   measuredAt: new Date().toISOString(), label, baseURL: cfg.baseURL, revision: cfg.revision, venue, device, quality, duration, fontMode: cfg.fontMode,
   collectorSourceSha256: createHash('sha256').update(await fs.readFile(new URL(import.meta.url))).digest('hex'),
+  proxySourceSha256: createHash('sha256').update(await fs.readFile(new URL('./loading-proxy.mjs', import.meta.url))).digest('hex'),
   expectedPiece, expectedPieceSource: process.env.EXPECTED_PIECE === undefined ? '6a-venue-default' : 'EXPECTED_PIECE',
   minimumFinaleMarginSeconds,
   method: 'Actual local app, original assets and default audio settings. Click the real solo-entry control, place the visitor beside a real available seat, update the existing Director once, use the real sit key/button, then click the real start-show control. The current score roster is snapped onstage to skip the entrance/change animation; older builds without snapRoster retain their original all-player snap. The chosen fixture and exact player keys are recorded. The native main scene rAF is captured; there are no repeated WebGL renders during the measured interval. Performance.updateVisual runs at 5 Hz with the actual Performance.time, while the original 25ms audio worker timer, scheduler, lookahead, playback speed, notes, Web Audio graph and output remain unchanged. engine.playNote and AudioBufferSourceNode.start are transparent observation wrappers. Recording lasts until at least the requested real audio performance time, over 60 seconds. Pause uses the real transport button. This isolates low visual-update frequency from GPU/main-thread overload; it does not validate playback under sustained rendering stalls.',
@@ -81,6 +84,7 @@ try {
   await page.goto(appURL(proxy.origin, venue), { waitUntil: 'domcontentloaded' });
   await waitReady(page, cfg.timeoutMs);
   result.boot = await browserState(page);
+  result.applausePolicy = auditApplausePcm(result.boot);
   result.samplePolicy = { expectedLite, observedLite: result.boot.lite, expectedSampleCount,
     observedSampleCount: result.boot.sampleCount, observedSampleRate: result.boot.sampleRate };
   result.pieceFixture = { expected: expectedPiece, actual: result.boot.piece,
@@ -89,7 +93,7 @@ try {
   assert.equal(result.boot.quality, quality, 'Requested quality preset must be active');
   assert.equal(result.boot.lite, expectedLite, 'Actual audio sample policy must match the requested device/preset');
   assert.equal(result.boot.sampleCount, expectedSampleCount);
-  assert.equal(result.boot.applausePcmBytes, 14288400);
+  assert.equal(result.applausePolicy.passed, true, 'Applause PCM must match its exact supported synthesis profile; inspect applausePolicy mismatches');
   assert.equal(result.boot.piece, expectedPiece, 'Default program piece differs from the expectation; the collector does not switch tracks');
   assert.ok(Number.isFinite(result.boot.pieceDuration) && duration <= result.boot.pieceDuration - minimumFinaleMarginSeconds,
     'Requested stop time must be at least 5 seconds before the actual score ends');
