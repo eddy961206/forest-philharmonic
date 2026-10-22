@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "tests": 14,
+  "testLog": "prepare-plans-test.log",
+  "testScript": "test_prepare_plans.py",
+  "fixtureScope": "Synthetic source/collector files and mocked Git responses; actual recorded plan JSON inputs.",
+  "plans": {
+    "high-plan.json": 8,
+    "matrix-plan.json": 20,
+    "special-plan.json": 4,
+    "runtime-core-plan.json": 6,
+    "runtime-app-plan.json": 16,
+    "cadence-plan.json": 12
+  },
+  "originalCollectorFilesChecked": 25,
+  "originalCollectorFilesChanged": [],
+  "browserRun": false,
+  "networkRun": false,
+  "gitRun": false,
+  "notes": [
+    "Initial fixture assertion used rotation instead of recorded rotate; fixed the test expectation, not the original plan or converter.",
+    "Python AST passed for both converters; bash -n passed 10 rendering and 8 runtime guide blocks; PowerShell not executed."
+  ]
+}

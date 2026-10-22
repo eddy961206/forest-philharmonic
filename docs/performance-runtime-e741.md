@@ -1,6 +1,6 @@
 # e741 기준: 실제 PC의 재생·기능·방·로딩 검증 재현
 
-이 문서는 **실행 절차와 해석 방법**이야. 아래 명령을 작성했다고 실행에 성공한 것은 아니고, 통과 결과나 PC 성능 수치를 포함하지 않아. 문서 작성 때는 도구의 코드와 브라우저를 열지 않는 `--help`만 확인했어. 실제 PC·Windows·스피커 청음은 별도 실행이 필요해.
+이 문서는 **실행 절차와 해석 방법**이야. 아래 명령을 작성했다고 실행에 성공한 것은 아니고, 통과 결과나 PC 성능 수치를 포함하지 않아. 문서 작성 때는 코드·`--help`·브라우저를 열지 않는 계획 변환 fixture와 Bash 구문을 확인했어. Git 상태는 변환기 fixture에서 mock했고 PowerShell을 실행하지 않았어. 실제 PC·Windows·스피커 청음은 별도 실행이 필요해.
 
 먼저 [같은 PC의 렌더 A/B 재현 안내](performance-reproduce-e741.md)의 준비 절차로 `forest-perf-e741` 아래에 제품 서버 두 개와 Playwright를 준비해. 같은 제품 worktree와 포트를 그대로 사용하되, **이번 런타임 수집 도구는 다른 커밋**이야.
 
@@ -53,96 +53,42 @@ python3 --version
 
 계획의 `env`가 shell 환경변수를 덮어써. 따라서 shell에서 `SOFTWARE_RENDERER=0`만 설정해도 원본 계획의 SwiftShader 설정은 해제되지 않아. 아래 변환기는 **각 job의 env**에서 클라우드 경로와 소프트웨어 렌더러 요청을 바꿔. 실제 하드웨어 GPU 사용 여부는 raw의 renderer 문자열과 브라우저 GPU 정보를 확인해야 해.
 
-다음을 `forest-perf-e741/prepare-runtime-plan.py`로 저장해. 제품·도구 폴더의 커밋과 변경 여부를 확인하고, 원본 계획·도구 해시를 기록하면서 PC용 계획을 만들어. 실제 브라우저나 서버를 시작하는 코드는 아니야.
+최신 `source`의 [`tools/bench/prepare-runtime-plan.py`](../tools/bench/prepare-runtime-plan.py)를 사용해. 제품·도구 worktree의 고정 커밋과 변경 여부를 읽기 전용 Git 명령으로 확인하고, 원본 계획·도구·변환기 해시를 기록하면서 PC 계획을 만들어. 실제 수집 도구는 `collector-runtime`의 `7b07e15`를 그대로 사용해. 변환기는 제품·수집기를 수정하거나 브라우저·서버를 시작하지 않아.
 
-```python
-from pathlib import Path
-import argparse, hashlib, json, subprocess
+원본 계획을 복사하는 PowerShell 예시야. 새 폴더에 한 번만 복사해.
 
-p = argparse.ArgumentParser()
-p.add_argument('--root', type=Path, required=True)
-p.add_argument('--input', type=Path, required=True)
-p.add_argument('--output', type=Path, required=True)
-p.add_argument('--chrome', type=Path)
-a = p.parse_args()
-root, source, output = a.root.resolve(), a.input.resolve(), a.output.resolve()
-refs = {
-    'reference': 'e741811d1d7a040afcdd3a8230465980c64f82fc',
-    'candidate': '6c7817218814f00631089eb2c6f150d68190980f',
-    'collector-runtime': '7b07e15',
+```powershell
+$runtimeEvidence = Join-Path $benchRoot "evidence-runtime"
+New-Item -ItemType Directory -Path $runtimeEvidence | Out-Null
+foreach ($name in @("runtime-core-plan.json", "runtime-app-plan.json", "cadence-plan.json")) {
+    Copy-Item -LiteralPath (Join-Path $benchRoot "source/docs/performance-data/main-e741/$name") -Destination (Join-Path $runtimeEvidence $name)
 }
-def git(tree, *args):
-    return subprocess.check_output(['git', '-C', str(tree), *args], text=True).strip()
-def sha(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-heads = {}
-for tree, ref in refs.items():
-    folder = root / tree
-    expected = git(root / 'source', 'rev-parse', ref + '^{commit}')
-    heads[tree] = git(folder, 'rev-parse', 'HEAD')
-    assert heads[tree] == expected, (tree, 'wrong commit')
-    assert not git(folder, 'status', '--porcelain'), (tree, 'worktree is not clean')
-playwright = root / 'tools-runtime/node_modules/playwright'
-assert (playwright / 'package.json').is_file(), 'Playwright installation is missing'
-assert json.loads((playwright / 'package.json').read_text())['version'] == '1.62.1'
-if a.chrome:
-    assert a.chrome.is_file(), 'Chrome/Edge executable not found'
-collector = root / 'collector-runtime/tools/bench'
-tool_hashes = {p.name: sha(p) for p in sorted(collector.iterdir())
-               if p.is_file() and p.suffix in {'.js', '.mjs', '.py'}}
-plans, inputs = {}, {}
-for name in ['runtime-core-plan.json', 'runtime-app-plan.json', 'cadence-plan.json']:
-    original = source / name
-    jobs = json.loads(original.read_text(encoding='utf-8-sig'))
-    inputs[name] = {'file': str(original), 'sha256': sha(original), 'jobs': len(jobs)}
-    for job in jobs:
-        env = job['env']
-        revision = env['REVISION']
-        assert revision in [refs['reference'], refs['candidate']], job['id']
-        side = 'reference' if revision == refs['reference'] else 'candidate'
-        assert job['script'].startswith('tools/bench/') and '..' not in Path(job['script']).parts
-        assert (root / 'collector-runtime' / job['script']).is_file(), job['script']
-        for key in ['FONT_ROOT', 'CHROME_EXECUTABLE', 'OUTPUT_DIR', 'REPO_DIR']:
-            env.pop(key, None)
-        env.update({
-            'PLAYWRIGHT_MODULE': str(playwright), 'SOFTWARE_RENDERER': '0',
-            'CHROME_ARGS': '[]', 'HEADLESS': '0', 'FONT_MODE': 'system',
-            'BASE_URL': 'http://127.0.0.1:' + ('8381' if side == 'reference' else '8382'),
-        })
-        if a.chrome:
-            env['CHROME_EXECUTABLE'] = str(a.chrome.resolve())
-        if job['script'].endswith('/multiplayer.mjs'):
-            # The collector starts a separate server and imports RoomClient.
-            # Read product code from the pinned product, not the tool worktree.
-            env['REPO_DIR'] = str(root / side)
-        if job['script'].endswith('/functional.mjs'):
-            env['SCOPE'] = 'full'
-    plans[name] = jobs
-output.mkdir(parents=True, exist_ok=False)
-for name, jobs in plans.items():
-    (output / name).write_text(json.dumps(jobs, indent=2) + '\n', encoding='utf-8')
-record = {'heads': heads, 'inputs': inputs, 'collectorSha256': tool_hashes,
-          'environment': {'headed': True, 'fontMode': 'system', 'softwareRequested': False},
-          'plans': {name: sha(output / name) for name in plans}}
-(output / 'local-runtime-manifest.json').write_text(
-    json.dumps(record, indent=2) + '\n', encoding='utf-8')
-print(json.dumps({'output': str(output), 'heads': heads, 'plans': inputs}, indent=2))
 ```
 
+Bash 예시:
+
+```bash
+mkdir "$bench_root/evidence-runtime"
+for name in runtime-core-plan.json runtime-app-plan.json cadence-plan.json; do
+  cp "$bench_root/source/docs/performance-data/main-e741/$name" "$bench_root/evidence-runtime/$name"
+done
+```
+
+변환 명령은 다음과 같아. `--help`는 Git 검사·파일 생성·브라우저 실행 없이 인자만 보여 줘.
 PowerShell:
 
 ```powershell
-py -3 (Join-Path $benchRoot "prepare-runtime-plan.py") --root $benchRoot --input (Join-Path $benchRoot "evidence-runtime") --output (Join-Path $benchRoot "runtime-pc-r1")
+py -3 (Join-Path $benchRoot "source/tools/bench/prepare-runtime-plan.py") --root $benchRoot --input (Join-Path $benchRoot "evidence-runtime") --output (Join-Path $benchRoot "runtime-pc-r1")
 if ($LASTEXITCODE -ne 0) { throw "계획 변환 실패" }
 ```
 
 Bash:
 
 ```bash
-python3 "$bench_root/prepare-runtime-plan.py" --root "$bench_root" --input "$bench_root/evidence-runtime" --output "$bench_root/runtime-pc-r1"
+python3 "$bench_root/source/tools/bench/prepare-runtime-plan.py" --root "$bench_root" --input "$bench_root/evidence-runtime" --output "$bench_root/runtime-pc-r1"
 ```
 
-기본값은 앞선 안내에서 설치한 Playwright Chromium이야. 시스템 Chrome/Edge를 쓰려면 변환 명령에 `--chrome "실제 실행 파일의 절대 경로"`를 추가하고 양쪽에서 같은 바이너리를 사용해. `FONT_MODE=system`은 외부 Google Fonts CSS 대신 빈 CSS와 시스템 글꼴을 쓰는 조건이야. 시스템 글꼴은 OS에 따라 달라질 수 있어.
+기본값은 앞선 안내에서 설치한 Playwright Chromium이야. `--chrome`을 생략하면 각 job에 `CHROME_EXECUTABLE=""`를 명시하므로 shell의 이전 브라우저 경로를 상속하지 않아. 시스템 Chrome/Edge를 쓰려면 변환 명령에 `--chrome "실제 실행 파일의 절대 경로"`를 추가하고 양쪽에서 같은 바이너리를 사용해. `FONT_MODE=system`은 외부 Google Fonts CSS 대신 빈 CSS와 시스템 글꼴을 쓰는 조건이야. 시스템 글꼴은 OS에 따라 달라질 수 있어.
 
 ## 3. 한 번에 한 계획만 실행해
 
@@ -236,6 +182,8 @@ node "$bench_root/collector-runtime/tools/bench/compare-loading.mjs" "$bench_roo
 Sphere는 위 세 파일명의 `hall`을 `sphere`로 바꿔. 도구는 관객 시드·수·점유 좌석 hash, 샘플·화면·폰트·브라우저 조건을 비교해. 쌍이 유효해도 cold/warm 각각 한 번의 관측은 안정적인 개선율 증명이 아니야. A/B/B/A 등 순서를 바꾼 독립 반복은 새 결과 폴더로 실행하고, 실패 반복도 함께 남겨.
 
 ## 6. PC에서 따로 판단할 항목
+
+공개 PNG의 다운로드·해시 확인·원본 재비교 절차는 [PNG 다운로드·시각 비교 재현 안내](performance-screenshots-e741.md)에 있어. 이 문서의 방·재생·기능 PNG도 개별 job·실행 조건을 대조해서 사용해. 마지막에 덮어쓴 공통 functional 요약 하나를 여러 공연장·기기의 합계로 읽지 말고 각 job raw와 종료 wrapper를 확인해.
 
 30초 native 관찰의 rAF FPS는 원래 main callback 시작 간격이야. 화면에 실제 표시된 FPS나 순수 GPU 시간과 같지 않아. 100개 미만의 유효 간격이면 1% Low가 `null`일 수 있고 이를 0 FPS로 바꾸지 않아. `readPixels` 완료 시간·controlled dome 진단 시간·기능 검사 경과 시간을 FPS로 환산하지 않아.
 

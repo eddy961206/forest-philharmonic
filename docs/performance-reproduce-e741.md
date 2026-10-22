@@ -54,11 +54,11 @@ $ErrorActionPreference = "Stop"
 $benchRoot = Join-Path $env:USERPROFILE "forest-perf-e741"
 New-Item -ItemType Directory -Path $benchRoot | Out-Null
 Set-Location $benchRoot
-git clone --branch perf/261021-venue-rendering https://github.com/eddy961206/forest-philharmonic.git source
+git -c core.autocrlf=false clone --branch perf/261021-venue-rendering https://github.com/eddy961206/forest-philharmonic.git source
 if ($LASTEXITCODE -ne 0) { throw "clone 실패" }
 git -C source fetch origin main perf/261021-venue-rendering
 if ($LASTEXITCODE -ne 0) { throw "fetch 실패" }
-# Windows 줄바꿈 변환이 제품/도구 SHA를 바꾸지 않도록 새 worktree 전에 설정해.
+# clone 첫 checkout부터 줄바꿈을 보존했고, 뒤의 worktree에도 같은 설정을 유지해.
 git -C source config core.autocrlf false
 if ($LASTEXITCODE -ne 0) { throw "Git 줄바꿈 설정 실패" }
 $baselineRef = "e741811d1d7a040afcdd3a8230465980c64f82fc"
@@ -85,7 +85,7 @@ set -e
 bench_root="$HOME/forest-perf-e741"
 mkdir "$bench_root"
 cd "$bench_root"
-git clone --branch perf/261021-venue-rendering https://github.com/eddy961206/forest-philharmonic.git source
+git -c core.autocrlf=false clone --branch perf/261021-venue-rendering https://github.com/eddy961206/forest-philharmonic.git source
 git -C source fetch origin main perf/261021-venue-rendering
 git -C source config core.autocrlf false
 baseline_ref=e741811d1d7a040afcdd3a8230465980c64f82fc
@@ -100,7 +100,7 @@ node --version
 python3 --version
 ```
 
-공통으로 세 worktree의 `git rev-parse HEAD`를 확인하고 `git status --short`가 비어 있는지 확인해. `source`는 공개된 증거 파일을 가져오는 PR 브랜치이고 실제 측정 제품은 위 SHA로 분리한 `reference`와 `candidate`야. 의존성은 저장소 밖 `tools-runtime`에 설치했으므로 제품 파일을 변경하지 않아. 생성된 package-lock도 환경 기록과 함께 보존해. 시스템 Chrome/Edge 실행 파일을 지정할 경우 번들 Chromium 설치를 생략할 수 있지만, A/B는 같은 브라우저 바이너리를 사용해야 해.
+공통으로 세 worktree의 `git rev-parse HEAD`를 확인하고 `git status --short`가 비어 있는지 확인해. `source`는 공개된 증거 파일과 최신 계획 변환기를 가져오는 PR 브랜치이고 실제 측정 제품은 위 SHA로 분리한 `reference`와 `candidate`야. 의존성은 저장소 밖 `tools-runtime`에 설치했으므로 제품 파일을 변경하지 않아. 생성된 package-lock도 환경 기록과 함께 보존해. 시스템 Chrome/Edge 실행 파일을 지정할 경우 번들 Chromium 설치를 생략할 수 있지만, A/B는 같은 브라우저 바이너리를 사용해야 해.
 
 ### 저장소의 계획·manifest를 복사해
 
@@ -158,7 +158,7 @@ cd "$HOME/forest-perf-e741/candidate"
 HOST=127.0.0.1 PORT=8382 node server.js
 ```
 
-서버 두 개를 켜 두되 렌더 측정 브라우저는 한 번에 하나만 실행해. 측정 중 worktree를 pull하거나 파일을 고치지 않아. 세 번째 터미널에서 모든 수집 명령을 `collector` 기준으로 실행해. 첫 화면은 광장이고 렌더 fixture는 `?venue=hall&lobby=` 또는 `?venue=sphere&lobby=`의 직접 진입 경로를 사용해. 광장 발권 경로를 이 렌더 suite로 검증했다고 표현하지 않아.
+서버 두 개를 켜 두되 렌더 측정 브라우저는 한 번에 하나만 실행해. 측정 중 worktree를 pull하거나 파일을 고치지 않아. 세 번째 터미널에서 실제 수집·집계 명령은 `collector` 기준으로 실행해. 다음 계획 변환기만 최신 `source/tools/bench`에서 읽어. 첫 화면은 광장이고 렌더 fixture는 `?venue=hall&lobby=` 또는 `?venue=sphere&lobby=`의 직접 진입 경로를 사용해. 광장 발권 경로를 이 렌더 suite로 검증했다고 표현하지 않아.
 
 ## 4. manifest를 집계기 형식으로 변환하고 PC 계획을 만들어
 
@@ -180,92 +180,16 @@ HOST=127.0.0.1 PORT=8382 node server.js
 
 위 JSON은 구조 설명용이며 그대로 실행할 입력이 아니야. 양쪽 경로의 합집합을 쓰고, 특정 버전에 없는 파일은 `null`을 넣어야 해. 집계기는 `null`에 대해 실제 HTTP 404를 기대해. `candidateParent`는 후보 제품 SHA의 다른 이름이 아니므로 확인 없이 채우지 않아.
 
-아래 코드를 저장소 밖 `forest-perf-e741/prepare-local-plan.py`로 저장해. 원본 3파일과 로컬 두 제품·고정 도구 해시를 검증한 뒤 새 폴더에만 변환본을 생성해. 원본 계획이나 원시 결과는 수정하지 않아.
+최신 PR 브랜치의 [`tools/bench/prepare-local-plan.py`](../tools/bench/prepare-local-plan.py)를 사용해. 변환기는 `source`에 있고, 실제 수집 도구는 고정한 `collector`에 있어. 변환기는 원본 manifest·환경 기록과 로컬 제품·고정 수집 도구의 해시를 확인한 뒤 새 폴더에만 계획과 `files[]` manifest를 만들어. 원본 계획·원시 결과·제품·수집기 파일을 바꾸거나 브라우저를 실행하지 않아. 변환기 자체의 SHA도 출력 manifest의 `preparerSha256`에 남겨.
 
-```python
-from pathlib import Path
-import argparse, hashlib, json, math, re
+`--plan`을 생략하면 `evidence/high-plan.json`을 사용해. `--plan`에 matrix 또는 special JSON의 경로를 주면 그 계획의 순서·장면·프리셋·기기 구분을 유지해. `--width`, `--height`, `--dpr`, `--warmup`을 생략하면 **각 job의 원본 값**을 유지하므로 혼합 계획의 mobile 390×844가 desktop 640×360으로 바뀌지 않아. sync의 `--samples` 기본값도 원본을 유지하고, `--mode cadence`로 바꿀 때는 생략 시 120표본을 사용해.
 
-p = argparse.ArgumentParser()
-p.add_argument('--root', type=Path, required=True)
-p.add_argument('--output', type=Path, required=True)
-p.add_argument('--chrome', type=Path)
-p.add_argument('--mode', choices=['sync', 'cadence'], default='sync')
-p.add_argument('--samples', type=int)
-p.add_argument('--warmup', type=int, default=2)
-p.add_argument('--width', type=int, default=640)
-p.add_argument('--height', type=int, default=360)
-p.add_argument('--dpr', type=float, default=1)
-a = p.parse_args()
-root = a.root.resolve()
-evidence = root / 'evidence'
-manifest_path = evidence / 'measurement-manifest.json'
-manifest = json.loads(manifest_path.read_text(encoding='utf-8-sig'))
-plan_path = evidence / 'high-plan.json'
-plan = json.loads(plan_path.read_text(encoding='utf-8-sig'))
-# Read the recorded launch specification too; do not apply its software flags to a PC.
-json.loads((evidence / 'chromium.json').read_text(encoding='utf-8-sig'))
-expected = {
-    'baseline': 'e741811d1d7a040afcdd3a8230465980c64f82fc',
-    'candidate': '6c7817218814f00631089eb2c6f150d68190980f',
-}
-sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
-for side, revision in expected.items():
-    assert manifest[side] == revision, (side, 'wrong revision')
-for name, expected_sha in manifest['collectors'].items():
-    assert sha(root / 'collector/tools/bench' / name) == expected_sha, name
-paths = sorted(set(manifest['source']['baseline']) | set(manifest['source']['candidate']))
-files = []
-for name in paths:
-    assert name.startswith('public/') and '..' not in Path(name).parts, name
-    row = {'path': name}
-    for side, tree in [('baseline', 'reference'), ('candidate', 'candidate')]:
-        value = manifest['source'][side].get(name)
-        local = root / tree / name
-        if value is None:
-            assert not local.exists(), (side, name, 'expected absent')
-        else:
-            assert re.fullmatch('[a-f0-9]{64}', value), (side, name)
-            assert sha(local) == value, (side, name, 'source differs')
-        row[side + 'Sha256'] = value
-    files.append(row)
-samples = a.samples if a.samples is not None else (120 if a.mode == 'cadence' else 4)
-assert samples > 0 and a.warmup > 0 and a.width > 0 and a.height > 0 and math.isfinite(a.dpr) and a.dpr > 0
-if a.chrome is not None:
-    assert a.chrome.is_file(), 'Chrome/Edge executable not found'
-for job in plan:
-    side = job['args'][0].split('-', 1)[0]
-    assert side in expected
-    assert job['env']['REVISION'] == expected[side], (job['id'], 'revision differs')
-    job['id'] = 'pc-' + a.mode + '-' + job['id']
-    job['timeoutSeconds'] = 360 if a.mode == 'sync' else 600
-    job['env'].update({
-        'PLAYWRIGHT_MODULE': str(root / 'tools-runtime/node_modules/playwright'),
-        'CHROME_EXECUTABLE': str(a.chrome.resolve()) if a.chrome else '',
-        'CHROME_ARGS': '[]', 'SOFTWARE_RENDERER': '0', 'HEADLESS': '0',
-        'FONT_MODE': 'system', 'FONT_ROOT': '', 'MODE': a.mode,
-        'WIDTH': str(a.width), 'HEIGHT': str(a.height), 'DPR': str(a.dpr),
-        'SAMPLES': str(samples), 'WARMUP': str(a.warmup), 'SCREENSHOTS': '1',
-        'TIMEOUT_MS': '180000',
-        'BASE_URL': 'http://127.0.0.1:' + ('8381' if side == 'baseline' else '8382'),
-    })
-source_manifest = {
-    'baseline': expected['baseline'], 'candidate': expected['candidate'], 'files': files,
-    'originManifestSha256': sha(manifest_path), 'originPlanSha256': sha(plan_path),
-    'note': 'PC plan derived from the recorded e741/6c comparison; not a new product revision',
-}
-out = a.output.resolve()
-out.mkdir(parents=True, exist_ok=False)
-for name, value in [('plan.json', plan), ('source-manifest.json', source_manifest)]:
-    (out / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-print(out)
-```
-
+`--help`는 파일 변환이나 브라우저 실행 없이 인자를 보여 줘. 기존 출력 폴더는 덮어쓰지 않아.
 PowerShell에서 실행하는 예시:
 
 ```powershell
 $benchRoot = Join-Path $env:USERPROFILE "forest-perf-e741"
-py -3 (Join-Path $benchRoot "prepare-local-plan.py") --root $benchRoot --output (Join-Path $benchRoot "pc-high-sync")
+py -3 (Join-Path $benchRoot "source/tools/bench/prepare-local-plan.py") --root $benchRoot --output (Join-Path $benchRoot "pc-high-sync")
 if ($LASTEXITCODE -ne 0) { throw "소스/계획 검증 실패" }
 ```
 
@@ -273,8 +197,34 @@ Bash 예시:
 
 ```bash
 bench_root="$HOME/forest-perf-e741"
-python3 "$bench_root/prepare-local-plan.py" --root "$bench_root" --output "$bench_root/pc-high-sync"
+python3 "$bench_root/source/tools/bench/prepare-local-plan.py" --root "$bench_root" --output "$bench_root/pc-high-sync"
 ```
+
+### matrix·special 계획도 같은 변환기를 사용해
+
+high 계획의 생성·수집·집계를 먼저 확인한 다음 필요한 계획만 추가해. `matrix-plan.json`은 medium/low와 mobile high 조건을, `special-plan.json`은 이동·효과 장면을 담고 있어. 둘 다 저장소의 원본을 읽고 새 출력 폴더를 만들기 때문에 `evidence`의 high 계획을 바꿀 필요가 없어.
+
+PowerShell:
+
+```powershell
+$preparer = Join-Path $benchRoot "source/tools/bench/prepare-local-plan.py"
+$recorded = Join-Path $benchRoot "source/docs/performance-data/main-e741"
+py -3 $preparer --root $benchRoot --plan (Join-Path $recorded "matrix-plan.json") --output (Join-Path $benchRoot "pc-matrix-sync")
+if ($LASTEXITCODE -ne 0) { throw "matrix 계획 변환 실패" }
+py -3 $preparer --root $benchRoot --plan (Join-Path $recorded "special-plan.json") --output (Join-Path $benchRoot "pc-special-sync")
+if ($LASTEXITCODE -ne 0) { throw "special 계획 변환 실패" }
+```
+
+Bash:
+
+```bash
+preparer="$bench_root/source/tools/bench/prepare-local-plan.py"
+recorded="$bench_root/source/docs/performance-data/main-e741"
+python3 "$preparer" --root "$bench_root" --plan "$recorded/matrix-plan.json" --output "$bench_root/pc-matrix-sync"
+python3 "$preparer" --root "$bench_root" --plan "$recorded/special-plan.json" --output "$bench_root/pc-special-sync"
+```
+
+§5·§6 명령의 `pc-high-sync`를 각각 `pc-matrix-sync` 또는 `pc-special-sync`로 바꿔 별도로 수집·집계해. 계획당 job 수는 high 8개, matrix 20개, special 4개야. 각 폴더의 변환 계획과 manifest를 짝지어 사용하고, 동시에 두 계획을 실행하지 않아.
 
 시스템 Chrome/Edge를 사용할 때는 `--chrome`에 실제 존재하는 실행 파일 경로를 추가해. 위 생성기는 `CHROME_ARGS=[]`와 `SOFTWARE_RENDERER=0`을 **각 job.env에** 기록해. 터미널 환경변수만 바꿔도 원본 계획의 `job.env`가 다시 덮어쓰기 때문에 이 단계가 필요해.
 
@@ -341,7 +291,7 @@ node tools/bench/collect-plan.mjs --plan "$bench_root/pc-high-sync/plan.json" --
 | `quality=auto` + cadence | 자동 프리셋·renderScale 변화를 허용 | 실제 품질·scale의 변화와 FPS를 함께 보고하고 동일 화질 개선율과 분리해. |
 | GPU timer query | 선택적 `EXT_disjoint_timer_query_webgl2` 구간 | 드라이버 시간. 미지원·disjoint·invalid는 SKIP/null, software 값은 물리 GPU 시간으로 쓰지 않아. |
 
-cadence를 실행하려면 위 생성기에 `--mode cadence --samples 600 --warmup 20 --output`의 새 폴더를 지정해. 기본 640×360 조건을 유지하면 cloud fixed 구도와 비교하기 쉽고, 네 PC의 체감 확인에는 `--width 1280 --height 720 --dpr 1` 등 실제 사용 조건을 별도 계획에 기록해. 두 해상도의 결과는 한 전후 쌍으로 비교하지 않아. 낮은 성능에서 600표본이 job 상한을 넘으면 실패를 보존하고 표본 수나 상한을 바꾼 **새 계획**으로 A/B를 함께 실행해.
+cadence를 실행하려면 위 생성기에 `--mode cadence --samples 600 --warmup 20 --output`의 새 폴더를 지정해. high 원본의 640×360 조건을 유지하면 cloud fixed 구도와 비교하기 쉽고, 네 PC의 체감 확인에는 `--width 1280 --height 720 --dpr 1` 등 실제 사용 조건을 별도 계획에 기록해. 두 해상도의 결과는 한 전후 쌍으로 비교하지 않아. 낮은 성능에서 600표본이 job 상한을 넘으면 실패를 보존하고 표본 수나 상한을 바꾼 **새 계획**으로 A/B를 함께 실행해.
 
 1% Low는 표본 100개 이상에서만 가장 긴 `ceil(n×0.01)` 간격의 평균을 FPS로 환산해. 표본이 적으면 null로 두고 임의 값을 채우지 않아. CDP TaskDuration은 동기 대기·도구 구간을 포함할 수 있어 CPU 사용률이 아니고, texture/geometry 개수와 JS heap도 VRAM 바이트가 아니야.
 
@@ -369,6 +319,8 @@ node tools/bench/dome-motion.mjs --help
 node tools/bench/gpu-timer.mjs --help
 ```
 
+공개 PNG ZIP을 내려받아 해시를 검증하고 원본 화면을 다시 비교하는 전체 절차는 [PNG 다운로드·시각 비교 재현 안내](performance-screenshots-e741.md)에 있어. 계획·manifest는 이 저장소를 사용하고 PNG만 별도 ZIP에서 받아. 네 PC에서 새로 찍은 PNG는 같은 PC의 A/B끼리 비교하고, 클라우드 PNG와 다른 GPU·OS·폰트의 픽셀 차이를 제품 회귀로 합산하지 않아.
+
 이미지 비교 예시는 아래와 같아. Pillow·NumPy는 제품과 분리한 Python 가상환경에 설치해. `--crop`은 문제 위치 분석에만 사용하고 전체 이미지 결과도 유지해.
 
 ```bash
@@ -381,4 +333,4 @@ python3 tools/bench/compare-images.py before.png after.png --output image-compar
 
 장면별 전후 표에는 제품 전체 SHA, 도구 SHA, plan/manifest SHA, 하드웨어·OS·드라이버·실제 renderer/browserVersion, CSS viewport·DPR·실제 pixelRatio, 프리셋·scale, 곡·시각·관객·카메라, 실행 순서·반복 수·표본 수, raw·로그·PNG 경로를 연결해. 고정 품질 성능, 적응형 품질, 이미지 변화, 오디오·기능 결과를 따로 판정해. 악화·FAIL·TIMEOUT·SKIP·미측정도 그대로 남겨.
 
-이번 문서 작성에서 로컬 도구 코드, `full-frame.mjs --help`와 `collect-plan.mjs --help`의 종료 0, 현재 원본 manifest의 schema 차이를 확인했어. Python 예시는 AST parse, Bash 예시 9개는 `bash -n`으로 구문을 확인했어. 원본 manifest의 도구 24개 SHA가 `6c78172`의 파일과 같고, 변환할 제품 경로 43개·기준에 없는 경로 5개·계획 8개의 양쪽 revision을 파일만 읽어 대조했어. PowerShell·설치·서버 기동·PC 계획 실행은 이 문서 검토에서 실행하지 않았어. 이 안내 자체에는 미실행 PC 측정의 성공이나 최종 main 상태를 기재하지 않았어.
+이번 문서 검토는 파일 읽기와 작은 변환기 fixture 검사 범위야. 도구 코드·도움말·manifest schema를 확인하고 Python 구문과 Bash 예시의 구문을 검사했어. 변환기의 high 기본값·matrix의 기기별 크기 보존·제품/도구 해시 불일치 거부·기존 출력 보호를 별도로 확인했어. 원본 manifest의 도구 24개 SHA가 `6c78172`의 파일과 같고, 변환할 제품 경로 43개·기준에 없는 경로 5개·high 계획 8개의 양쪽 revision을 파일만 읽어 대조했어. PowerShell·설치·서버 기동·PC 계획 실행은 이 문서 검토에서 실행하지 않았어. 이 안내 자체에는 미실행 PC 측정의 성공이나 최종 main 상태를 기재하지 않았어.

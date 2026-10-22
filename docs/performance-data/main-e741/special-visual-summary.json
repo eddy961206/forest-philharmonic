@@ -1,0 +1,2158 @@
+{
+  "schema": 1,
+  "scope": "2026-10-22 special only; latest main e741 vs candidate product 6c; excludes high/matrix 63 pairs and historical 1f/dea",
+  "provenance": {
+    "inputDirectory": "/workspace/scratch/25707ad85ea4/verification/special/render",
+    "baselineRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+    "candidateRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+    "method": "tools/bench/compare-images.py imported once; unmodified main() with default threshold=0 and full-frame comparison for all 10 pairs; CPU only",
+    "toolsSha256": {
+      "tools/bench/compare-images.py": "328a65ef13b105dc593181c2a049401413374a09a8b4d54aa2100fa569e66eb4",
+      "tools/bench/full-frame-fixture.js": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "tools/bench/full-frame.mjs": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+      "tools/bench/browser.mjs": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9"
+    },
+    "manifest": {
+      "path": "/workspace/scratch/25707ad85ea4/verification/source-manifest.json",
+      "sha256": "504b7dccaa999e723a740d2171e9a347bb663cd985f1debb0f56d7704ac898a9"
+    },
+    "sourceVerificationScope": "The 12 HTTP source entries recorded in each raw JSON matched the supplied source manifest and stayed stable; this is not a fresh Git audit or proof of the complete executed source tree. Baseline quality.js 404 is expected."
+  },
+  "metadataValidation": {
+    "status": "PASS",
+    "failures": [],
+    "runPairs": [
+      {
+        "venue": "hall",
+        "baseline": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync.json",
+        "candidate": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync.json",
+        "checks": {
+          "sameMetadata": {
+            "schema": true,
+            "suite": true,
+            "mode": true,
+            "venue": true,
+            "quality": true,
+            "device": true,
+            "viewport": true,
+            "devicePixelRatio": true,
+            "samplesPerScenario": true,
+            "warmupFrames": true,
+            "scenarioOrder": true,
+            "fixtureSourceSha256": true,
+            "collectorSourceSha256": true,
+            "helperSourceSha256": true,
+            "screenshots": true,
+            "fixturePolicy": true,
+            "fixture": true,
+            "meta": true,
+            "environment": true,
+            "initialReadiness": true
+          },
+          "sameScenario": {
+            "foyer": true,
+            "rotate": true,
+            "effects-show": true
+          },
+          "expectedScenarioOrder": true,
+          "expectedRecordedRevisions": true,
+          "diagnosticStatusPass": true,
+          "noPageConsoleRequestErrors": true,
+          "sourceHashesStable": true,
+          "collectorHashesMatchCurrentFiles": true,
+          "fourCompletedVisibleMediumScale1SamplesPerScenario": true,
+          "sourceMatchesRecordedManifest": {
+            "baseline": {
+              "js/boot.js": true,
+              "js/main.js": true,
+              "js/quality.js": true,
+              "js/scene/hall.js": true,
+              "js/scene/seats.js": true,
+              "js/scene/audience.js": true,
+              "js/scene/screen.js": true,
+              "js/scene/sphere.js": true,
+              "js/scene/dome3d.js": true,
+              "js/scene/domeshow.js": true,
+              "js/audio/engine.js": true,
+              "js/audio/performance.js": true
+            },
+            "candidate": {
+              "js/boot.js": true,
+              "js/main.js": true,
+              "js/quality.js": true,
+              "js/scene/hall.js": true,
+              "js/scene/seats.js": true,
+              "js/scene/audience.js": true,
+              "js/scene/screen.js": true,
+              "js/scene/sphere.js": true,
+              "js/scene/dome3d.js": true,
+              "js/scene/domeshow.js": true,
+              "js/audio/engine.js": true,
+              "js/audio/performance.js": true
+            }
+          }
+        },
+        "commonMetadata": {
+          "schema": 2,
+          "suite": "whole-frame-controlled",
+          "mode": "synchronous-completion",
+          "venue": "hall",
+          "quality": "medium",
+          "device": "desktop",
+          "viewport": [
+            640,
+            360
+          ],
+          "devicePixelRatio": 1,
+          "samplesPerScenario": 4,
+          "warmupFrames": 2,
+          "scenarioOrder": [
+            "foyer",
+            "rotate",
+            "effects-show"
+          ],
+          "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+          "collectorSourceSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+          "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+          "screenshots": true,
+          "fixturePolicy": {
+            "piece": "beethoven-ode-to-joy",
+            "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+            "crowdFill": 0.8,
+            "crowdSeed": 417,
+            "randomSeed": 417,
+            "uuidSeed": 874,
+            "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+            "stage": "snapOnstage + snapConductor",
+            "mainAnimation": "real frame function with controlled camera/time",
+            "ui": "hidden",
+            "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+            "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+            "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+            "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+          },
+          "fixture": {
+            "crowd": 1503,
+            "seats": 1885,
+            "eligibleAudienceSeats": 1879,
+            "recitalSeats": 6,
+            "lite": false,
+            "piece": "beethoven-ode-to-joy",
+            "sceneState": {
+              "phase": "playing",
+              "asleep": false,
+              "interval": false,
+              "recital": false,
+              "practice": false,
+              "hush": 0,
+              "sleepy": false,
+              "seatGroupVisible": true,
+              "audienceVisible": true
+            }
+          },
+          "meta": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+            "gpuTimer": true,
+            "pixelRatio": 0.85,
+            "viewport": [
+              640,
+              360
+            ],
+            "quality": "medium",
+            "renderScale": 1,
+            "hardwareConcurrency": 9,
+            "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+          },
+          "environment": {
+            "browserVersion": "153.0.8010.0",
+            "playwrightVersion": "1.62.1",
+            "platform": "linux",
+            "architecture": "x64",
+            "softwareRequested": true,
+            "chromeArgs": [
+              "--no-sandbox",
+              "--disable-dev-shm-usage",
+              "--use-gl=angle",
+              "--use-angle=swiftshader",
+              "--enable-unsafe-swiftshader",
+              "--use-gl=angle",
+              "--use-angle=swiftshader",
+              "--enable-unsafe-swiftshader"
+            ],
+            "fontMode": "system",
+            "headless": true
+          },
+          "initialReadiness": {
+            "status": "READY",
+            "policy": "existing UI readiness plus visible Sphere dome; no forced visibility",
+            "uiReady": true,
+            "dome": {
+              "status": "NOT_APPLICABLE"
+            },
+            "interpretation": "UI and visibility gate only; actual draw and program evidence is checked after each scenario warmup."
+          }
+        },
+        "sources": {
+          "baseline": {
+            "recordedRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+            "baseURL": "http://127.0.0.1:8381/",
+            "sourceHashes": {
+              "js/boot.js": {
+                "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+              },
+              "js/main.js": {
+                "sha256": "c9b46ec483536dbbf617547a7544993f1a08e985ff27d8549499223023253001"
+              },
+              "js/quality.js": {
+                "httpStatus": 404
+              },
+              "js/scene/hall.js": {
+                "sha256": "55231c403abbee5b60909a3e29f7d1399b1be7b498e3d4bc58af2cc6ff49be22"
+              },
+              "js/scene/seats.js": {
+                "sha256": "8523f36ab014a970f1993afe7531d372eb41bf8ee3ab3c9af28c1c25a14acf97"
+              },
+              "js/scene/audience.js": {
+                "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+              },
+              "js/scene/screen.js": {
+                "sha256": "ac9416e68341a353e6894000023c9187e09879ba942de019ed613a5c302642a9"
+              },
+              "js/scene/sphere.js": {
+                "sha256": "be50db7a9f9947ee9880f0b2f76409f1c20d4311cd4c1b593e457c18e0e0e7f1"
+              },
+              "js/scene/dome3d.js": {
+                "sha256": "5b18d62d9a3be650864ca4b243be127c1585daa8f43fe481da111028475a515b"
+              },
+              "js/scene/domeshow.js": {
+                "sha256": "2ba72984b2afeefaf84e7274dd949ee4b2495e3209b90e8a0a13b2e682f90285"
+              },
+              "js/audio/engine.js": {
+                "sha256": "dc4576c7c55e84ada7e1bde10de8eb77abca0d7c03257d472a1c91234ae0b849"
+              },
+              "js/audio/performance.js": {
+                "sha256": "7ffdf51dab3a029b863350bd3598ce12889d90b623219a39087ddce065052f14"
+              }
+            },
+            "warnings": [
+              "[.WebGL-0x2114001a2200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x2114001a2200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x2114001a2200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x2114001a2200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+            ]
+          },
+          "candidate": {
+            "recordedRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+            "baseURL": "http://127.0.0.1:8382/",
+            "sourceHashes": {
+              "js/boot.js": {
+                "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+              },
+              "js/main.js": {
+                "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+              },
+              "js/quality.js": {
+                "sha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559"
+              },
+              "js/scene/hall.js": {
+                "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+              },
+              "js/scene/seats.js": {
+                "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+              },
+              "js/scene/audience.js": {
+                "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+              },
+              "js/scene/screen.js": {
+                "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+              },
+              "js/scene/sphere.js": {
+                "sha256": "4e91bc31172a92214b3e5cc8e9ddaad5b469ca597d324ad6c90e0dc3e1aaa695"
+              },
+              "js/scene/dome3d.js": {
+                "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+              },
+              "js/scene/domeshow.js": {
+                "sha256": "30f55dd9b210c95815b6049030e3aecb05c10a730dc1d6f0f26b9e19dbb5e769"
+              },
+              "js/audio/engine.js": {
+                "sha256": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0"
+              },
+              "js/audio/performance.js": {
+                "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+              }
+            },
+            "warnings": [
+              "[.WebGL-0x21ec001a5400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x21ec001a5400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x21ec001a5400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x21ec001a5400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+            ]
+          }
+        }
+      },
+      {
+        "venue": "sphere",
+        "baseline": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync.json",
+        "candidate": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync.json",
+        "checks": {
+          "sameMetadata": {
+            "schema": true,
+            "suite": true,
+            "mode": true,
+            "venue": true,
+            "quality": true,
+            "device": true,
+            "viewport": true,
+            "devicePixelRatio": true,
+            "samplesPerScenario": true,
+            "warmupFrames": true,
+            "scenarioOrder": true,
+            "fixtureSourceSha256": true,
+            "collectorSourceSha256": true,
+            "helperSourceSha256": true,
+            "screenshots": true,
+            "fixturePolicy": true,
+            "fixture": true,
+            "meta": true,
+            "environment": true,
+            "initialReadiness": true
+          },
+          "sameScenario": {
+            "dome": true,
+            "peaks": true,
+            "ocean": true,
+            "clouds": true,
+            "reveal": true,
+            "rotate": true,
+            "effects-show": true
+          },
+          "expectedScenarioOrder": true,
+          "expectedRecordedRevisions": true,
+          "diagnosticStatusPass": true,
+          "noPageConsoleRequestErrors": true,
+          "sourceHashesStable": true,
+          "collectorHashesMatchCurrentFiles": true,
+          "fourCompletedVisibleMediumScale1SamplesPerScenario": true,
+          "sourceMatchesRecordedManifest": {
+            "baseline": {
+              "js/boot.js": true,
+              "js/main.js": true,
+              "js/quality.js": true,
+              "js/scene/hall.js": true,
+              "js/scene/seats.js": true,
+              "js/scene/audience.js": true,
+              "js/scene/screen.js": true,
+              "js/scene/sphere.js": true,
+              "js/scene/dome3d.js": true,
+              "js/scene/domeshow.js": true,
+              "js/audio/engine.js": true,
+              "js/audio/performance.js": true
+            },
+            "candidate": {
+              "js/boot.js": true,
+              "js/main.js": true,
+              "js/quality.js": true,
+              "js/scene/hall.js": true,
+              "js/scene/seats.js": true,
+              "js/scene/audience.js": true,
+              "js/scene/screen.js": true,
+              "js/scene/sphere.js": true,
+              "js/scene/dome3d.js": true,
+              "js/scene/domeshow.js": true,
+              "js/audio/engine.js": true,
+              "js/audio/performance.js": true
+            }
+          }
+        },
+        "commonMetadata": {
+          "schema": 2,
+          "suite": "whole-frame-controlled",
+          "mode": "synchronous-completion",
+          "venue": "sphere",
+          "quality": "medium",
+          "device": "desktop",
+          "viewport": [
+            640,
+            360
+          ],
+          "devicePixelRatio": 1,
+          "samplesPerScenario": 4,
+          "warmupFrames": 2,
+          "scenarioOrder": [
+            "dome",
+            "peaks",
+            "ocean",
+            "clouds",
+            "reveal",
+            "rotate",
+            "effects-show"
+          ],
+          "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+          "collectorSourceSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+          "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+          "screenshots": true,
+          "fixturePolicy": {
+            "piece": "beethoven-ode-to-joy",
+            "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+            "crowdFill": 0.8,
+            "crowdSeed": 417,
+            "randomSeed": 417,
+            "uuidSeed": 874,
+            "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+            "stage": "snapOnstage + snapConductor",
+            "mainAnimation": "real frame function with controlled camera/time",
+            "ui": "hidden",
+            "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+            "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+            "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+            "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+          },
+          "fixture": {
+            "crowd": 11076,
+            "seats": 13851,
+            "eligibleAudienceSeats": 13845,
+            "recitalSeats": 6,
+            "lite": false,
+            "piece": "beethoven-ode-to-joy",
+            "sceneState": {
+              "phase": "playing",
+              "asleep": false,
+              "interval": false,
+              "recital": false,
+              "practice": false,
+              "hush": 0,
+              "sleepy": false,
+              "seatGroupVisible": null,
+              "audienceVisible": true
+            }
+          },
+          "meta": {
+            "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+            "gpuTimer": true,
+            "pixelRatio": 0.85,
+            "viewport": [
+              640,
+              360
+            ],
+            "quality": "medium",
+            "renderScale": 1,
+            "hardwareConcurrency": 9,
+            "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+          },
+          "environment": {
+            "browserVersion": "153.0.8010.0",
+            "playwrightVersion": "1.62.1",
+            "platform": "linux",
+            "architecture": "x64",
+            "softwareRequested": true,
+            "chromeArgs": [
+              "--no-sandbox",
+              "--disable-dev-shm-usage",
+              "--use-gl=angle",
+              "--use-angle=swiftshader",
+              "--enable-unsafe-swiftshader",
+              "--use-gl=angle",
+              "--use-angle=swiftshader",
+              "--enable-unsafe-swiftshader"
+            ],
+            "fontMode": "system",
+            "headless": true
+          },
+          "initialReadiness": {
+            "status": "READY",
+            "policy": "existing UI readiness plus visible Sphere dome; no forced visibility",
+            "uiReady": true,
+            "dome": {
+              "visible": true
+            },
+            "interpretation": "UI and visibility gate only; actual draw and program evidence is checked after each scenario warmup."
+          }
+        },
+        "sources": {
+          "baseline": {
+            "recordedRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+            "baseURL": "http://127.0.0.1:8381/",
+            "sourceHashes": {
+              "js/boot.js": {
+                "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+              },
+              "js/main.js": {
+                "sha256": "c9b46ec483536dbbf617547a7544993f1a08e985ff27d8549499223023253001"
+              },
+              "js/quality.js": {
+                "httpStatus": 404
+              },
+              "js/scene/hall.js": {
+                "sha256": "55231c403abbee5b60909a3e29f7d1399b1be7b498e3d4bc58af2cc6ff49be22"
+              },
+              "js/scene/seats.js": {
+                "sha256": "8523f36ab014a970f1993afe7531d372eb41bf8ee3ab3c9af28c1c25a14acf97"
+              },
+              "js/scene/audience.js": {
+                "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+              },
+              "js/scene/screen.js": {
+                "sha256": "ac9416e68341a353e6894000023c9187e09879ba942de019ed613a5c302642a9"
+              },
+              "js/scene/sphere.js": {
+                "sha256": "be50db7a9f9947ee9880f0b2f76409f1c20d4311cd4c1b593e457c18e0e0e7f1"
+              },
+              "js/scene/dome3d.js": {
+                "sha256": "5b18d62d9a3be650864ca4b243be127c1585daa8f43fe481da111028475a515b"
+              },
+              "js/scene/domeshow.js": {
+                "sha256": "2ba72984b2afeefaf84e7274dd949ee4b2495e3209b90e8a0a13b2e682f90285"
+              },
+              "js/audio/engine.js": {
+                "sha256": "dc4576c7c55e84ada7e1bde10de8eb77abca0d7c03257d472a1c91234ae0b849"
+              },
+              "js/audio/performance.js": {
+                "sha256": "7ffdf51dab3a029b863350bd3598ce12889d90b623219a39087ddce065052f14"
+              }
+            },
+            "warnings": [
+              "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.",
+              "[.WebGL-0x380c00176000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x380c00176000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x380c00176000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x380c00176000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+            ]
+          },
+          "candidate": {
+            "recordedRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+            "baseURL": "http://127.0.0.1:8382/",
+            "sourceHashes": {
+              "js/boot.js": {
+                "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+              },
+              "js/main.js": {
+                "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+              },
+              "js/quality.js": {
+                "sha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559"
+              },
+              "js/scene/hall.js": {
+                "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+              },
+              "js/scene/seats.js": {
+                "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+              },
+              "js/scene/audience.js": {
+                "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+              },
+              "js/scene/screen.js": {
+                "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+              },
+              "js/scene/sphere.js": {
+                "sha256": "4e91bc31172a92214b3e5cc8e9ddaad5b469ca597d324ad6c90e0dc3e1aaa695"
+              },
+              "js/scene/dome3d.js": {
+                "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+              },
+              "js/scene/domeshow.js": {
+                "sha256": "30f55dd9b210c95815b6049030e3aecb05c10a730dc1d6f0f26b9e19dbb5e769"
+              },
+              "js/audio/engine.js": {
+                "sha256": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0"
+              },
+              "js/audio/performance.js": {
+                "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+              }
+            },
+            "warnings": [
+              "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.",
+              "[.WebGL-0x4dc001a6000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x4dc001a6000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x4dc001a6000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+              "[.WebGL-0x4dc001a6000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "summary": {
+    "runPairs": 2,
+    "rawJsonCount": 4,
+    "pngCount": 20,
+    "imagePairs": 10,
+    "byteIdenticalPairs": 7,
+    "pixelIdenticalPairs": 7,
+    "changedPairs": 3,
+    "minimumSSIM": 0.9994764713096945,
+    "maximumMAE": 0.11650318287037037,
+    "maximumRMSE": 0.6744650229104765,
+    "maximumChangedPixelPercent": 15.217447916666666,
+    "pixelComparisonWallSeconds": 0.8642920519996551
+  },
+  "inputs": [
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync.json",
+      "name": "baseline-special-full-hall-medium-desktop-sync.json",
+      "sha256": "0035ccf68f9f782b4fc1761519ed44c705b46e8d4af3b22e1df6dd2abf420176",
+      "bytes": 40934
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync.json",
+      "name": "candidate-special-full-hall-medium-desktop-sync.json",
+      "sha256": "f4ae3fa3e10e3a1c178daca062dfed9e253812027b02a2a7f2f819bd6e3464d8",
+      "bytes": 41135
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync-foyer.png",
+      "name": "baseline-special-full-hall-medium-desktop-sync-foyer.png",
+      "sha256": "2a968a6dd89f6e6f3cd3d372513cb6d7606f781fb25ec9a0b2e1b9d68c3a3ffa",
+      "bytes": 134588
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync-foyer.png",
+      "name": "candidate-special-full-hall-medium-desktop-sync-foyer.png",
+      "sha256": "2a968a6dd89f6e6f3cd3d372513cb6d7606f781fb25ec9a0b2e1b9d68c3a3ffa",
+      "bytes": 134588
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync-rotate.png",
+      "name": "baseline-special-full-hall-medium-desktop-sync-rotate.png",
+      "sha256": "1c64a23cbd7b261b32638aa2cadffbe113d929e4438182ace85a379c4d7e66f9",
+      "bytes": 244466
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync-rotate.png",
+      "name": "candidate-special-full-hall-medium-desktop-sync-rotate.png",
+      "sha256": "1c64a23cbd7b261b32638aa2cadffbe113d929e4438182ace85a379c4d7e66f9",
+      "bytes": 244466
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync-effects-show.png",
+      "name": "baseline-special-full-hall-medium-desktop-sync-effects-show.png",
+      "sha256": "a777802a5fed8d5bf8ccfd9dd8493d7ccf3113c1cedfa3d4d5d52f2bef21eb3d",
+      "bytes": 219782
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync-effects-show.png",
+      "name": "candidate-special-full-hall-medium-desktop-sync-effects-show.png",
+      "sha256": "a777802a5fed8d5bf8ccfd9dd8493d7ccf3113c1cedfa3d4d5d52f2bef21eb3d",
+      "bytes": 219782
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync.json",
+      "name": "baseline-special-full-sphere-medium-desktop-sync.json",
+      "sha256": "ba85245a45c0e8afb4bd10b06149995f758591441ee3163e6598d95ca32f30df",
+      "bytes": 97110
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync.json",
+      "name": "candidate-special-full-sphere-medium-desktop-sync.json",
+      "sha256": "f63ac4fbedaa9bf731ad0000b4ef93562f5a279412f8b2517d24ad97b08e72b7",
+      "bytes": 97073
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-dome.png",
+      "name": "baseline-special-full-sphere-medium-desktop-sync-dome.png",
+      "sha256": "b4b1eb5edf5c65c27573b2cd3234d171c1459498f27df84a272bee071be501b1",
+      "bytes": 194304
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-dome.png",
+      "name": "candidate-special-full-sphere-medium-desktop-sync-dome.png",
+      "sha256": "b4b1eb5edf5c65c27573b2cd3234d171c1459498f27df84a272bee071be501b1",
+      "bytes": 194304
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-peaks.png",
+      "name": "baseline-special-full-sphere-medium-desktop-sync-peaks.png",
+      "sha256": "2a7ae4212ff7fecf976a9e43941f5a5eba425667cb334358f436092cc3c8a2d7",
+      "bytes": 302079
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-peaks.png",
+      "name": "candidate-special-full-sphere-medium-desktop-sync-peaks.png",
+      "sha256": "019a385e5852cbe008a065a7a195866fb29c7eeda64fe5391f98ffb66aa3b279",
+      "bytes": 302147
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-ocean.png",
+      "name": "baseline-special-full-sphere-medium-desktop-sync-ocean.png",
+      "sha256": "d190a41d8717ea4bf0c0994a87f4b21443ef48ad8c04e7fb47ed9ec0b37534a8",
+      "bytes": 268089
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-ocean.png",
+      "name": "candidate-special-full-sphere-medium-desktop-sync-ocean.png",
+      "sha256": "e816b0820bc703e356a02174c38bdb914feed3580e91ebf2601b3db9d1315412",
+      "bytes": 268069
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-clouds.png",
+      "name": "baseline-special-full-sphere-medium-desktop-sync-clouds.png",
+      "sha256": "2d680fe5ef40a040b4a799b30a2c8f5ae600982bf2c1efe97b4e12d07dc8ec08",
+      "bytes": 261359
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-clouds.png",
+      "name": "candidate-special-full-sphere-medium-desktop-sync-clouds.png",
+      "sha256": "8666f63380aa0277a1959dbfa26a4b4ce696dd59b806b34633555f1c99d122e3",
+      "bytes": 261328
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-reveal.png",
+      "name": "baseline-special-full-sphere-medium-desktop-sync-reveal.png",
+      "sha256": "74cca3468aca3caf7c15f4e5f0072e0980dc6ce8fee61218846b266060b7000b",
+      "bytes": 224964
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-reveal.png",
+      "name": "candidate-special-full-sphere-medium-desktop-sync-reveal.png",
+      "sha256": "74cca3468aca3caf7c15f4e5f0072e0980dc6ce8fee61218846b266060b7000b",
+      "bytes": 224964
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-rotate.png",
+      "name": "baseline-special-full-sphere-medium-desktop-sync-rotate.png",
+      "sha256": "a879d86cc77587a9f356d0b5d37403bb773686598ca9b99e47ba97e7ee6d30bf",
+      "bytes": 223618
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-rotate.png",
+      "name": "candidate-special-full-sphere-medium-desktop-sync-rotate.png",
+      "sha256": "a879d86cc77587a9f356d0b5d37403bb773686598ca9b99e47ba97e7ee6d30bf",
+      "bytes": 223618
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-effects-show.png",
+      "name": "baseline-special-full-sphere-medium-desktop-sync-effects-show.png",
+      "sha256": "377b420e8f7fb77de30446fce54bfc6d3e7421d8fc7952bab5046fa30eabfdea",
+      "bytes": 231211
+    },
+    {
+      "path": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-effects-show.png",
+      "name": "candidate-special-full-sphere-medium-desktop-sync-effects-show.png",
+      "sha256": "377b420e8f7fb77de30446fce54bfc6d3e7421d8fc7952bab5046fa30eabfdea",
+      "bytes": 231211
+    }
+  ],
+  "pairs": [
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync-foyer.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync-foyer.png",
+      "sha256": [
+        "2a968a6dd89f6e6f3cd3d372513cb6d7606f781fb25ec9a0b2e1b9d68c3a3ffa",
+        "2a968a6dd89f6e6f3cd3d372513cb6d7606f781fb25ec9a0b2e1b9d68c3a3ffa"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.0,
+      "rmse": 0.0,
+      "maxChannelDifference": 0.0,
+      "changedPixelPercent": 0.0,
+      "changedPixelCount": 0,
+      "changedThreshold": 0,
+      "ssimUniform7": 1.0,
+      "ssimChannels": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "hall",
+      "scenarioName": "foyer",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            6,
+            40.4
+          ],
+          "target": [
+            0,
+            6,
+            30
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "byteIdentical": true,
+      "pixelIdentical": true,
+      "domeReadiness": {
+        "baseline": {
+          "status": "NOT_APPLICABLE",
+          "reason": "This venue has no dome."
+        },
+        "candidate": {
+          "status": "NOT_APPLICABLE",
+          "reason": "This venue has no dome."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-hall-medium-desktop-sync.json",
+        "candidate-special-full-hall-medium-desktop-sync.json"
+      ]
+    },
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync-rotate.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync-rotate.png",
+      "sha256": [
+        "1c64a23cbd7b261b32638aa2cadffbe113d929e4438182ace85a379c4d7e66f9",
+        "1c64a23cbd7b261b32638aa2cadffbe113d929e4438182ace85a379c4d7e66f9"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.0,
+      "rmse": 0.0,
+      "maxChannelDifference": 0.0,
+      "changedPixelPercent": 0.0,
+      "changedPixelCount": 0,
+      "changedThreshold": 0,
+      "ssimUniform7": 1.0,
+      "ssimChannels": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "hall",
+      "scenarioName": "rotate",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "byteIdentical": true,
+      "pixelIdentical": true,
+      "domeReadiness": {
+        "baseline": {
+          "status": "NOT_APPLICABLE",
+          "reason": "This venue has no dome."
+        },
+        "candidate": {
+          "status": "NOT_APPLICABLE",
+          "reason": "This venue has no dome."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-hall-medium-desktop-sync.json",
+        "candidate-special-full-hall-medium-desktop-sync.json"
+      ]
+    },
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync-effects-show.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync-effects-show.png",
+      "sha256": [
+        "a777802a5fed8d5bf8ccfd9dd8493d7ccf3113c1cedfa3d4d5d52f2bef21eb3d",
+        "a777802a5fed8d5bf8ccfd9dd8493d7ccf3113c1cedfa3d4d5d52f2bef21eb3d"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.0,
+      "rmse": 0.0,
+      "maxChannelDifference": 0.0,
+      "changedPixelPercent": 0.0,
+      "changedPixelCount": 0,
+      "changedThreshold": 0,
+      "ssimUniform7": 1.0,
+      "ssimChannels": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "hall",
+      "scenarioName": "effects-show",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": true
+      },
+      "byteIdentical": true,
+      "pixelIdentical": true,
+      "domeReadiness": {
+        "baseline": {
+          "status": "NOT_APPLICABLE",
+          "reason": "This venue has no dome."
+        },
+        "candidate": {
+          "status": "NOT_APPLICABLE",
+          "reason": "This venue has no dome."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-hall-medium-desktop-sync.json",
+        "candidate-special-full-hall-medium-desktop-sync.json"
+      ]
+    },
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-dome.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-dome.png",
+      "sha256": [
+        "b4b1eb5edf5c65c27573b2cd3234d171c1459498f27df84a272bee071be501b1",
+        "b4b1eb5edf5c65c27573b2cd3234d171c1459498f27df84a272bee071be501b1"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.0,
+      "rmse": 0.0,
+      "maxChannelDifference": 0.0,
+      "changedPixelPercent": 0.0,
+      "changedPixelCount": 0,
+      "changedThreshold": 0,
+      "ssimUniform7": 1.0,
+      "ssimChannels": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "sphere",
+      "scenarioName": "dome",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            65,
+            -15
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "AURORA",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "byteIdentical": true,
+      "pixelIdentical": true,
+      "domeReadiness": {
+        "baseline": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 42,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "AURORA",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        },
+        "candidate": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 55,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "AURORA",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-sphere-medium-desktop-sync.json",
+        "candidate-special-full-sphere-medium-desktop-sync.json"
+      ]
+    },
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-peaks.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-peaks.png",
+      "sha256": [
+        "2a7ae4212ff7fecf976a9e43941f5a5eba425667cb334358f436092cc3c8a2d7",
+        "019a385e5852cbe008a065a7a195866fb29c7eeda64fe5391f98ffb66aa3b279"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.11650318287037037,
+      "rmse": 0.6744650229104765,
+      "maxChannelDifference": 48.0,
+      "changedPixelPercent": 15.217447916666666,
+      "changedPixelCount": 35061,
+      "changedThreshold": 0,
+      "ssimUniform7": 0.9994764713096945,
+      "ssimChannels": [
+        0.9994952475128029,
+        0.9994631080303013,
+        0.999471058385984
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "sphere",
+      "scenarioName": "peaks",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "PEAKS3D",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "byteIdentical": false,
+      "pixelIdentical": false,
+      "domeReadiness": {
+        "baseline": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 42,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "PEAKS3D",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        },
+        "candidate": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 55,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "PEAKS3D",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-sphere-medium-desktop-sync.json",
+        "candidate-special-full-sphere-medium-desktop-sync.json"
+      ]
+    },
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-ocean.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-ocean.png",
+      "sha256": [
+        "d190a41d8717ea4bf0c0994a87f4b21443ef48ad8c04e7fb47ed9ec0b37534a8",
+        "e816b0820bc703e356a02174c38bdb914feed3580e91ebf2601b3db9d1315412"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.025464409722222223,
+      "rmse": 0.3506834431717797,
+      "maxChannelDifference": 41.0,
+      "changedPixelPercent": 3.5859375,
+      "changedPixelCount": 8262,
+      "changedThreshold": 0,
+      "ssimUniform7": 0.9995483069007285,
+      "ssimChannels": [
+        0.9992461849935452,
+        0.9997273349357696,
+        0.9996714007728719
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "sphere",
+      "scenarioName": "ocean",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "OCEAN3D",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "byteIdentical": false,
+      "pixelIdentical": false,
+      "domeReadiness": {
+        "baseline": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 42,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "OCEAN3D",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        },
+        "candidate": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 55,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "OCEAN3D",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-sphere-medium-desktop-sync.json",
+        "candidate-special-full-sphere-medium-desktop-sync.json"
+      ]
+    },
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-clouds.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-clouds.png",
+      "sha256": [
+        "2d680fe5ef40a040b4a799b30a2c8f5ae600982bf2c1efe97b4e12d07dc8ec08",
+        "8666f63380aa0277a1959dbfa26a4b4ce696dd59b806b34633555f1c99d122e3"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.02122685185185185,
+      "rmse": 0.18637005203705959,
+      "maxChannelDifference": 27.0,
+      "changedPixelPercent": 4.839409722222222,
+      "changedPixelCount": 11150,
+      "changedThreshold": 0,
+      "ssimUniform7": 0.9997322328659096,
+      "ssimChannels": [
+        0.9997653686261717,
+        0.9997367769549295,
+        0.9996945530166222
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "sphere",
+      "scenarioName": "clouds",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "CLOUDS3D",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "byteIdentical": false,
+      "pixelIdentical": false,
+      "domeReadiness": {
+        "baseline": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 42,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "CLOUDS3D",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        },
+        "candidate": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 55,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "CLOUDS3D",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-sphere-medium-desktop-sync.json",
+        "candidate-special-full-sphere-medium-desktop-sync.json"
+      ]
+    },
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-reveal.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-reveal.png",
+      "sha256": [
+        "74cca3468aca3caf7c15f4e5f0072e0980dc6ce8fee61218846b266060b7000b",
+        "74cca3468aca3caf7c15f4e5f0072e0980dc6ce8fee61218846b266060b7000b"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.0,
+      "rmse": 0.0,
+      "maxChannelDifference": 0.0,
+      "changedPixelPercent": 0.0,
+      "changedPixelCount": 0,
+      "changedThreshold": 0,
+      "ssimUniform7": 1.0,
+      "ssimChannels": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "sphere",
+      "scenarioName": "reveal",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "FOREST3D",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "byteIdentical": true,
+      "pixelIdentical": true,
+      "domeReadiness": {
+        "baseline": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 42,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 42,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0.5011104938271602,
+          "reveal": 1,
+          "world": "FOREST3D",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        },
+        "candidate": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 55,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 55,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0.5011104938271602,
+          "reveal": 1,
+          "world": "FOREST3D",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-sphere-medium-desktop-sync.json",
+        "candidate-special-full-sphere-medium-desktop-sync.json"
+      ]
+    },
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-rotate.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-rotate.png",
+      "sha256": [
+        "a879d86cc77587a9f356d0b5d37403bb773686598ca9b99e47ba97e7ee6d30bf",
+        "a879d86cc77587a9f356d0b5d37403bb773686598ca9b99e47ba97e7ee6d30bf"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.0,
+      "rmse": 0.0,
+      "maxChannelDifference": 0.0,
+      "changedPixelPercent": 0.0,
+      "changedPixelCount": 0,
+      "changedThreshold": 0,
+      "ssimUniform7": 1.0,
+      "ssimChannels": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "sphere",
+      "scenarioName": "rotate",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "byteIdentical": true,
+      "pixelIdentical": true,
+      "domeReadiness": {
+        "baseline": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 42,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "ARCH",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        },
+        "candidate": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 55,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "ARCH",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-sphere-medium-desktop-sync.json",
+        "candidate-special-full-sphere-medium-desktop-sync.json"
+      ]
+    },
+    {
+      "before": "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-effects-show.png",
+      "after": "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-effects-show.png",
+      "sha256": [
+        "377b420e8f7fb77de30446fce54bfc6d3e7421d8fc7952bab5046fa30eabfdea",
+        "377b420e8f7fb77de30446fce54bfc6d3e7421d8fc7952bab5046fa30eabfdea"
+      ],
+      "sourceSize": [
+        640,
+        360
+      ],
+      "comparedSize": [
+        640,
+        360
+      ],
+      "crop": null,
+      "colorPolicy": "8-bit encoded RGB; alpha composited over black; no linear-light conversion, resizing or alignment",
+      "mae": 0.0,
+      "rmse": 0.0,
+      "maxChannelDifference": 0.0,
+      "changedPixelPercent": 0.0,
+      "changedPixelCount": 0,
+      "changedThreshold": 0,
+      "ssimUniform7": 1.0,
+      "ssimChannels": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "ssimDefinition": {
+        "window": [
+          7,
+          7
+        ],
+        "weights": "uniform",
+        "dataRange": 255,
+        "K1": 0.01,
+        "K2": 0.03,
+        "covariance": "sample 49/48",
+        "border": "valid windows; exclude outer 3 pixels",
+        "channels": "mean of RGB channel SSIM"
+      },
+      "interpretation": "수치는 픽셀 차이의 크기야. 음악 시각·카메라·노출·프리셋·DPR·폰트·시나리오 순서·프레임 수를 맞추고 두 이미지를 직접 봐. SSIM 하나로 품질 통과/실패를 판정하지 않아.",
+      "venue": "sphere",
+      "scenarioName": "effects-show",
+      "quality": "medium",
+      "device": "desktop",
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            19,
+            34
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": true
+      },
+      "byteIdentical": true,
+      "pixelIdentical": true,
+      "domeReadiness": {
+        "baseline": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 42,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "ARCH",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        },
+        "candidate": {
+          "status": "VERIFIED",
+          "failures": [],
+          "roles": [
+            {
+              "role": "base",
+              "draws": 2,
+              "mainCameraDraws": 2,
+              "visible": true,
+              "required": true,
+              "program": {
+                "status": "VERIFIED",
+                "id": 55,
+                "ready": true,
+                "linked": true,
+                "diagnosticsRunnable": null
+              }
+            },
+            {
+              "role": "overlay",
+              "draws": 0,
+              "mainCameraDraws": 0,
+              "visible": false,
+              "required": false,
+              "program": {
+                "status": "NOT_USED_IN_WARMUP",
+                "ready": null,
+                "linked": null
+              }
+            }
+          ],
+          "path": "two-pass",
+          "overlay": "present",
+          "mix": 0,
+          "reveal": 0,
+          "world": "ARCH",
+          "contextLost": false,
+          "parallelShaderCompile": false,
+          "interpretation": "Warmup onAfterRender counts prove draw submission, not visible pixels. Program checks run after hooks are restored, outside all measured samples."
+        }
+      },
+      "inputJson": [
+        "baseline-special-full-sphere-medium-desktop-sync.json",
+        "candidate-special-full-sphere-medium-desktop-sync.json"
+      ]
+    }
+  ],
+  "visualInspection": {
+    "status": "COMPLETED",
+    "method": "tools.view_image with original PNGs; 640x360; no composite, crop, resizing, denoising or image editing performed by the reviewer",
+    "reviewedPairs": 6,
+    "reviewedOriginals": 12,
+    "observations": [
+      {
+        "venue": "hall",
+        "scenario": "foyer",
+        "files": [
+          "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync-foyer.png",
+          "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync-foyer.png"
+        ],
+        "observation": "검은 대리석 기둥·금색 장식·격자 바닥·붉은 카펫·달/숲 벽화·양쪽 출입구 구성이 같아. 이 쌍은 PNG 바이트까지 같아."
+      },
+      {
+        "venue": "hall",
+        "scenario": "effects-show",
+        "files": [
+          "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-hall-medium-desktop-sync-effects-show.png",
+          "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-hall-medium-desktop-sync-effects-show.png"
+        ],
+        "observation": "관객·악기·연주자·무대 배치와 조명 광선, 색종이, 세 곳의 폭죽 모양/위치가 같아. 효과를 끄거나 생략한 모습은 없고 PNG 바이트까지 같아."
+      },
+      {
+        "venue": "sphere",
+        "scenario": "effects-show",
+        "files": [
+          "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-effects-show.png",
+          "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-effects-show.png"
+        ],
+        "observation": "돔 건축 장면과 대규모 곡선 객석, 중앙 무대·조명 광선·색종이/폭죽이 같아. 이 쌍도 PNG 바이트까지 같아."
+      },
+      {
+        "venue": "sphere",
+        "scenario": "peaks",
+        "files": [
+          "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-peaks.png",
+          "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-peaks.png"
+        ],
+        "observation": "이 집합에서 SSIM·MAE·RMSE·변경 픽셀 비율 모두 차이가 가장 큰 쌍이야. 산 능선·눈 표면·청록 오로라·돔 경계·무대/객석이 같은 구성을 유지해. 원본 640×360을 나란히 보았을 때 큰 구조 소실·검은 면·확연한 선명도 저하는 관찰되지 않았어. 픽셀은 완전히 같지 않아."
+      },
+      {
+        "venue": "sphere",
+        "scenario": "ocean",
+        "files": [
+          "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-ocean.png",
+          "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-ocean.png"
+        ],
+        "observation": "해초 기둥·수중 깊이감·해저 굴곡/빛 무늬와 무대·객석이 같은 구성을 유지해. 이 한 시점에서 큰 구조 차이는 관찰되지 않았어. 픽셀은 완전히 같지 않으며 고래 움직임 등 보이지 않는 시각 요소는 이 사진으로 평가하지 않았어."
+      },
+      {
+        "venue": "sphere",
+        "scenario": "clouds",
+        "files": [
+          "/workspace/scratch/25707ad85ea4/verification/special/render/baseline-special-full-sphere-medium-desktop-sync-clouds.png",
+          "/workspace/scratch/25707ad85ea4/verification/special/render/candidate-special-full-sphere-medium-desktop-sync-clouds.png"
+        ],
+        "observation": "밝은 태양·구름/산 능선·수평선과 객석에 비치는 밝기의 전체 구성이 유지돼. 이 한 시점에서 큰 구조 차이는 관찰되지 않았어. 픽셀은 완전히 같지 않아."
+      }
+    ],
+    "assessment": "검토한 원본에서 큰 시각 구조/효과 소실은 발견하지 못했어. 7쌍은 바이트 동일하고 3개 3D 세계는 작은 픽셀 차이가 있어. 연속 동작·전환 전 구간·실기기 품질의 무회귀를 증명하는 결과는 아니야.",
+    "differenceAttribution": "시간·시드·카메라·fixture 설정을 맞췄으므로 서로 다른 음악 시점이라고 설명하지 않았어. 3D 세계의 미세 차이가 ray proxy/보간/렌더 순서/부동소수점 중 무엇 때문인지 단일 변수로 분리하지 않았고, 자연스러운 애니메이션 차이라고 단정하지 않았어."
+  },
+  "limitations": [
+    "Only one screenshot per scenario after two warmup and four controlled frames; no continuous motion quality or long-session proof.",
+    "Chromium 153.0.8010.0 Linux x64 headless ANGLE SwiftShader at 640x360 CSS pixels, device DPR 1, renderer pixelRatio 0.85, renderScale 1, medium; no real device or hardware GPU result.",
+    "Fixed random/crowd/UUID seeds, synthetic music clock, unchanged fixture and scenario sequence; note scheduler disabled. This does not verify audible sound, latency or audiovisual synchronization.",
+    "Encoded RGB SSIM/MAE/RMSE quantify pixel differences and do not independently establish subjective visual quality.",
+    "This file contains visual comparisons only, not FPS, GPU time or performance improvement claims.",
+    "The rotate scenario uses the same deterministic moving/turning camera formula and six total controlled steps; raw scenario metadata describes its starting pose, not a captured final camera matrix. The compared PNG is only the final step, not a motion sequence.",
+    "effects-show warms laser/wash for 480 controlled steps, spawns 2 immediate confetti and 3 immediate fireworks bursts, then 10 settling updates; delayed finale timers and a full live finale are outside this fixture."
+  ]
+}
