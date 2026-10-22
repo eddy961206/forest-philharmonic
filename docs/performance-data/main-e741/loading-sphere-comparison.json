@@ -1,0 +1,1097 @@
+{
+  "schema": 1,
+  "suite": "loading-fixed-audience-comparison",
+  "recordedAt": "2026-10-22T00:56:18.569Z",
+  "passed": true,
+  "inputs": {
+    "before": {
+      "file": "/workspace/scratch/25707ad85ea4/verification/runtime-core-v2/raw/loading-baseline-sphere-desktop.json",
+      "sha256": "32bbe7ca46cd8be0e694efe86b9bcc6eae30d7c81a65a0c20662de1a7261f90a",
+      "revision": "e741811d1d7a040afcdd3a8230465980c64f82fc"
+    },
+    "after": {
+      "file": "/workspace/scratch/25707ad85ea4/verification/runtime-core-v2/raw/loading-candidate-sphere-desktop.json",
+      "sha256": "1643524cfe846d2d2cdf196b4a6ccc0d32d3dc4284e333769b2ae6cdb53a7d17",
+      "revision": "6c7817218814f00631089eb2c6f150d68190980f"
+    }
+  },
+  "method": "File-only equality checks on two completed fixed-audience loading observations. Cold/warm and baseline/candidate must share audience seed/count/sorted occupied-seat fingerprint. The same sample, viewport, preset, font and browser conditions are required. Main fixture identity bytes and hashes remain separate from original asset transfers.",
+  "limitations": [
+    "One cold and one warm observation per revision. Timing deltas are observations, not a statistically established causal improvement or a physical-device FPS claim.",
+    "Only solo-audience RNG is isolated. Global procedural randomness and generated impulse-response samples are not made byte-identical.",
+    "controlledMainFixture reports a rewritten, identity-encoded QA response; it is not the original main.js response transfer size.",
+    "Cold means a fresh browser HTTP cache. Upstream Node/OS caches may be warm. Main rAF is held, so this is controlled startup rather than normal interactive readiness."
+  ],
+  "checks": [
+    {
+      "name": "before:completed",
+      "passed": true
+    },
+    {
+      "name": "before:audience-seed",
+      "passed": true
+    },
+    {
+      "name": "before:collector-provenance",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:sampleCountsEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:samplePcmBytesEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:scoreEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:audienceCountEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:occupiedCountEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:occupiedSortedFingerprintEqual",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:mainFixtureStable",
+      "passed": true
+    },
+    {
+      "name": "before:cold-warm:audience",
+      "passed": true,
+      "before": {
+        "count": 3461,
+        "occupiedCount": 3461,
+        "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "after": {
+        "count": 3461,
+        "occupiedCount": 3461,
+        "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      }
+    },
+    {
+      "name": "before:warm-mp3-cache",
+      "passed": true
+    },
+    {
+      "name": "before:cold:fixed-main",
+      "passed": true
+    },
+    {
+      "name": "before:cold:main-hashes",
+      "passed": true
+    },
+    {
+      "name": "before:cold:audience-enabled",
+      "passed": true
+    },
+    {
+      "name": "before:cold:fixture-transfer-separated",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:readyMs",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:bootLongTaskCount",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:bootLongTaskTotalMs",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:bootLongTaskMaxMs",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:sampleResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "before:cold:finite-nonnegative:controlledMainFixtureResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "before:warm:fixed-main",
+      "passed": true
+    },
+    {
+      "name": "before:warm:main-hashes",
+      "passed": true
+    },
+    {
+      "name": "before:warm:audience-enabled",
+      "passed": true
+    },
+    {
+      "name": "before:warm:fixture-transfer-separated",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:readyMs",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:bootLongTaskCount",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:bootLongTaskTotalMs",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:bootLongTaskMaxMs",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:sampleResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "before:warm:finite-nonnegative:controlledMainFixtureResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "after:completed",
+      "passed": true
+    },
+    {
+      "name": "after:audience-seed",
+      "passed": true
+    },
+    {
+      "name": "after:collector-provenance",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:sampleCountsEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:samplePcmBytesEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:scoreEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:audienceCountEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:occupiedCountEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:occupiedSortedFingerprintEqual",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:mainFixtureStable",
+      "passed": true
+    },
+    {
+      "name": "after:cold-warm:audience",
+      "passed": true,
+      "before": {
+        "count": 3461,
+        "occupiedCount": 3461,
+        "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "after": {
+        "count": 3461,
+        "occupiedCount": 3461,
+        "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      }
+    },
+    {
+      "name": "after:warm-mp3-cache",
+      "passed": true
+    },
+    {
+      "name": "after:cold:fixed-main",
+      "passed": true
+    },
+    {
+      "name": "after:cold:main-hashes",
+      "passed": true
+    },
+    {
+      "name": "after:cold:audience-enabled",
+      "passed": true
+    },
+    {
+      "name": "after:cold:fixture-transfer-separated",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:readyMs",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:bootLongTaskCount",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:bootLongTaskTotalMs",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:bootLongTaskMaxMs",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:sampleResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "after:cold:finite-nonnegative:controlledMainFixtureResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "after:warm:fixed-main",
+      "passed": true
+    },
+    {
+      "name": "after:warm:main-hashes",
+      "passed": true
+    },
+    {
+      "name": "after:warm:audience-enabled",
+      "passed": true
+    },
+    {
+      "name": "after:warm:fixture-transfer-separated",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:readyMs",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:bootLongTaskCount",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:bootLongTaskTotalMs",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:bootLongTaskMaxMs",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:sampleResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "after:warm:finite-nonnegative:controlledMainFixtureResponseEncodedBytes",
+      "passed": true
+    },
+    {
+      "name": "pair:venue",
+      "passed": true,
+      "before": "sphere",
+      "after": "sphere"
+    },
+    {
+      "name": "pair:device",
+      "passed": true,
+      "before": "desktop",
+      "after": "desktop"
+    },
+    {
+      "name": "pair:quality",
+      "passed": true,
+      "before": "high",
+      "after": "high"
+    },
+    {
+      "name": "pair:fontMode",
+      "passed": true,
+      "before": "system",
+      "after": "system"
+    },
+    {
+      "name": "pair:audience-seed",
+      "passed": true,
+      "before": 417,
+      "after": 417
+    },
+    {
+      "name": "pair:collector-sha",
+      "passed": true,
+      "before": "a4f1a84a11b0631c91e95de5d65f9a5b3ce268785cc2775ac0beb54b4515035e",
+      "after": "a4f1a84a11b0631c91e95de5d65f9a5b3ce268785cc2775ac0beb54b4515035e"
+    },
+    {
+      "name": "pair:proxy-sha",
+      "passed": true,
+      "before": "0c4182265fc424fdddd75eff649926f7c63fac228dd32866c88271576a9f7eff",
+      "after": "0c4182265fc424fdddd75eff649926f7c63fac228dd32866c88271576a9f7eff"
+    },
+    {
+      "name": "pair:browser-helper-sha",
+      "passed": true,
+      "before": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "after": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9"
+    },
+    {
+      "name": "pair:font-css-sha",
+      "passed": true,
+      "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "pair:environment:browserVersion",
+      "passed": true,
+      "before": "153.0.8010.0",
+      "after": "153.0.8010.0"
+    },
+    {
+      "name": "pair:environment:platform",
+      "passed": true,
+      "before": "linux",
+      "after": "linux"
+    },
+    {
+      "name": "pair:environment:architecture",
+      "passed": true,
+      "before": "x64",
+      "after": "x64"
+    },
+    {
+      "name": "pair:environment:chromeArgs",
+      "passed": true,
+      "before": [
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader"
+      ],
+      "after": [
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader"
+      ]
+    },
+    {
+      "name": "pair:environment:softwareRequested",
+      "passed": true,
+      "before": true,
+      "after": true
+    },
+    {
+      "name": "pair:environment:headless",
+      "passed": true,
+      "before": true,
+      "after": true
+    },
+    {
+      "name": "pair:cold:viewport",
+      "passed": true,
+      "before": [
+        640,
+        360
+      ],
+      "after": [
+        640,
+        360
+      ]
+    },
+    {
+      "name": "pair:cold:devicePixelRatio",
+      "passed": true,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "name": "pair:cold:rendererPixelRatio",
+      "passed": true,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "name": "pair:cold:renderer",
+      "passed": true,
+      "before": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "after": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "name": "pair:cold:quality",
+      "passed": true,
+      "before": "high",
+      "after": "high"
+    },
+    {
+      "name": "pair:cold:lite",
+      "passed": true,
+      "before": false,
+      "after": false
+    },
+    {
+      "name": "pair:cold:sampleRate",
+      "passed": true,
+      "before": 48000,
+      "after": 48000
+    },
+    {
+      "name": "pair:cold:sampleCount",
+      "passed": true,
+      "before": 389,
+      "after": 389
+    },
+    {
+      "name": "pair:cold:samplePcmBytes",
+      "passed": true,
+      "before": 296771776,
+      "after": 296771776
+    },
+    {
+      "name": "pair:cold:applausePcmBytes",
+      "passed": true,
+      "before": 15552000,
+      "after": 15552000
+    },
+    {
+      "name": "pair:cold:applause",
+      "passed": true,
+      "before": {
+        "layout": "close-wash-stereo",
+        "bufferCount": 8,
+        "profiles": [
+          {
+            "name": "welcome",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 132000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 132000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "normal0",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "normal1",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "finale",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 360000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 360000,
+                "channels": 2
+              }
+            ]
+          }
+        ]
+      },
+      "after": {
+        "layout": "close-wash-stereo",
+        "bufferCount": 8,
+        "profiles": [
+          {
+            "name": "welcome",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 132000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 132000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "normal0",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "normal1",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "finale",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 360000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 360000,
+                "channels": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "pair:cold:piece",
+      "passed": true,
+      "before": "bach-wachet-auf",
+      "after": "bach-wachet-auf"
+    },
+    {
+      "name": "pair:cold:pieceDuration",
+      "passed": true,
+      "before": 92.66,
+      "after": 92.66
+    },
+    {
+      "name": "pair:cold:notes",
+      "passed": true,
+      "before": 1193,
+      "after": 1193
+    },
+    {
+      "name": "pair:cold:audience",
+      "passed": true,
+      "before": 3461,
+      "after": 3461
+    },
+    {
+      "name": "pair:cold:audienceFingerprint",
+      "passed": true,
+      "before": {
+        "count": 3461,
+        "occupiedCount": 3461,
+        "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "after": {
+        "count": 3461,
+        "occupiedCount": 3461,
+        "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      }
+    },
+    {
+      "name": "pair:warm:viewport",
+      "passed": true,
+      "before": [
+        640,
+        360
+      ],
+      "after": [
+        640,
+        360
+      ]
+    },
+    {
+      "name": "pair:warm:devicePixelRatio",
+      "passed": true,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "name": "pair:warm:rendererPixelRatio",
+      "passed": true,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "name": "pair:warm:renderer",
+      "passed": true,
+      "before": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "after": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "name": "pair:warm:quality",
+      "passed": true,
+      "before": "high",
+      "after": "high"
+    },
+    {
+      "name": "pair:warm:lite",
+      "passed": true,
+      "before": false,
+      "after": false
+    },
+    {
+      "name": "pair:warm:sampleRate",
+      "passed": true,
+      "before": 48000,
+      "after": 48000
+    },
+    {
+      "name": "pair:warm:sampleCount",
+      "passed": true,
+      "before": 389,
+      "after": 389
+    },
+    {
+      "name": "pair:warm:samplePcmBytes",
+      "passed": true,
+      "before": 296771776,
+      "after": 296771776
+    },
+    {
+      "name": "pair:warm:applausePcmBytes",
+      "passed": true,
+      "before": 15552000,
+      "after": 15552000
+    },
+    {
+      "name": "pair:warm:applause",
+      "passed": true,
+      "before": {
+        "layout": "close-wash-stereo",
+        "bufferCount": 8,
+        "profiles": [
+          {
+            "name": "welcome",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 132000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 132000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "normal0",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "normal1",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "finale",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 360000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 360000,
+                "channels": 2
+              }
+            ]
+          }
+        ]
+      },
+      "after": {
+        "layout": "close-wash-stereo",
+        "bufferCount": 8,
+        "profiles": [
+          {
+            "name": "welcome",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 132000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 132000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "normal0",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "normal1",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 240000,
+                "channels": 2
+              }
+            ]
+          },
+          {
+            "name": "finale",
+            "layers": [
+              {
+                "layer": "close",
+                "sampleRate": 24000,
+                "length": 360000,
+                "channels": 2
+              },
+              {
+                "layer": "wash",
+                "sampleRate": 24000,
+                "length": 360000,
+                "channels": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "pair:warm:piece",
+      "passed": true,
+      "before": "bach-wachet-auf",
+      "after": "bach-wachet-auf"
+    },
+    {
+      "name": "pair:warm:pieceDuration",
+      "passed": true,
+      "before": 92.66,
+      "after": 92.66
+    },
+    {
+      "name": "pair:warm:notes",
+      "passed": true,
+      "before": 1193,
+      "after": 1193
+    },
+    {
+      "name": "pair:warm:audience",
+      "passed": true,
+      "before": 3461,
+      "after": 3461
+    },
+    {
+      "name": "pair:warm:audienceFingerprint",
+      "passed": true,
+      "before": {
+        "count": 3461,
+        "occupiedCount": 3461,
+        "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      },
+      "after": {
+        "count": 3461,
+        "occupiedCount": 3461,
+        "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+        "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+      }
+    }
+  ],
+  "observations": {
+    "cold": {
+      "readyMs": {
+        "before": 8116.300000000279,
+        "after": 7687.699999999721,
+        "delta": -428.6000000005588,
+        "percent": -5.280731367748161
+      },
+      "bootLongTaskCount": {
+        "before": 3,
+        "after": 5,
+        "delta": 2,
+        "percent": 66.66666666666666
+      },
+      "bootLongTaskTotalMs": {
+        "before": 2325,
+        "after": 2100,
+        "delta": -225,
+        "percent": -9.67741935483871
+      },
+      "bootLongTaskMaxMs": {
+        "before": 1395,
+        "after": 1674,
+        "delta": 279,
+        "percent": 20
+      },
+      "sampleResponseEncodedBytes": {
+        "before": 10666245,
+        "after": 10666245,
+        "delta": 0,
+        "percent": 0
+      },
+      "controlledMainFixtureResponseEncodedBytes": {
+        "before": 99044,
+        "after": 102976,
+        "delta": 3932,
+        "percent": 3.969952748273495
+      },
+      "audience": {
+        "before": {
+          "count": 3461,
+          "occupiedCount": 3461,
+          "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+          "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+        },
+        "after": {
+          "count": 3461,
+          "occupiedCount": 3461,
+          "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+          "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+        }
+      },
+      "mainFixture": {
+        "before": {
+          "path": "/js/main.js",
+          "audienceSeed": 417,
+          "replacements": 1,
+          "anchorKind": "planned-house",
+          "originalSha256": "c9b46ec483536dbbf617547a7544993f1a08e985ff27d8549499223023253001",
+          "servedSha256": "fd9ed33062343dc8aac084153b512e2301b5875a89a3377b2ad39f27b87a6173",
+          "originalIdentityBytes": 98770,
+          "servedIdentityBytes": 98770,
+          "contentEncoding": "identity",
+          "cacheControl": "no-cache",
+          "etag": "\"qa-fd9ed33062343dc8aac084153b512e2301b5875a89a3377b2ad39f27b87a6173\"",
+          "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+        },
+        "after": {
+          "path": "/js/main.js",
+          "audienceSeed": 417,
+          "replacements": 1,
+          "anchorKind": "planned-house",
+          "originalSha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c",
+          "servedSha256": "59aafe4f85ee90b4a82d9d4b33ef60e9d25317cda3b15a8bb5c207f33ccc64bd",
+          "originalIdentityBytes": 102701,
+          "servedIdentityBytes": 102701,
+          "contentEncoding": "identity",
+          "cacheControl": "no-cache",
+          "etag": "\"qa-59aafe4f85ee90b4a82d9d4b33ef60e9d25317cda3b15a8bb5c207f33ccc64bd\"",
+          "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+        }
+      }
+    },
+    "warm": {
+      "readyMs": {
+        "before": 7212.5,
+        "after": 6825.5,
+        "delta": -387,
+        "percent": -5.365684575389948
+      },
+      "bootLongTaskCount": {
+        "before": 3,
+        "after": 4,
+        "delta": 1,
+        "percent": 33.33333333333333
+      },
+      "bootLongTaskTotalMs": {
+        "before": 1502,
+        "after": 1170,
+        "delta": -332,
+        "percent": -22.103861517976032
+      },
+      "bootLongTaskMaxMs": {
+        "before": 831,
+        "after": 847,
+        "delta": 16,
+        "percent": 1.9253910950661854
+      },
+      "sampleResponseEncodedBytes": {
+        "before": 0,
+        "after": 0,
+        "delta": 0,
+        "percent": null
+      },
+      "controlledMainFixtureResponseEncodedBytes": {
+        "before": 261,
+        "after": 261,
+        "delta": 0,
+        "percent": 0
+      },
+      "audience": {
+        "before": {
+          "count": 3461,
+          "occupiedCount": 3461,
+          "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+          "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+        },
+        "after": {
+          "count": 3461,
+          "occupiedCount": 3461,
+          "occupiedSortedSha256": "524030898ec6201abe17e245a6e4ecb3f597619a32a352b012d1c3fe1ff70a54",
+          "method": "SHA-256 of UTF-8 JSON.stringify of numeric ascending director.occupied seat indices; captured after ready, with no local viewer seat or room participants."
+        }
+      },
+      "mainFixture": {
+        "before": {
+          "path": "/js/main.js",
+          "audienceSeed": 417,
+          "replacements": 1,
+          "anchorKind": "planned-house",
+          "originalSha256": "c9b46ec483536dbbf617547a7544993f1a08e985ff27d8549499223023253001",
+          "servedSha256": "fd9ed33062343dc8aac084153b512e2301b5875a89a3377b2ad39f27b87a6173",
+          "originalIdentityBytes": 98770,
+          "servedIdentityBytes": 98770,
+          "contentEncoding": "identity",
+          "cacheControl": "no-cache",
+          "etag": "\"qa-fd9ed33062343dc8aac084153b512e2301b5875a89a3377b2ad39f27b87a6173\"",
+          "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+        },
+        "after": {
+          "path": "/js/main.js",
+          "audienceSeed": 417,
+          "replacements": 1,
+          "anchorKind": "planned-house",
+          "originalSha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c",
+          "servedSha256": "59aafe4f85ee90b4a82d9d4b33ef60e9d25317cda3b15a8bb5c207f33ccc64bd",
+          "originalIdentityBytes": 102701,
+          "servedIdentityBytes": 102701,
+          "contentEncoding": "identity",
+          "cacheControl": "no-cache",
+          "etag": "\"qa-59aafe4f85ee90b4a82d9d4b33ef60e9d25317cda3b15a8bb5c207f33ccc64bd\"",
+          "meaning": "This main response is a QA fixture with one isolated solo-audience seed. Its transfer bytes are not the original main.js transfer bytes. Other JavaScript, vendor, music and MP3 responses remain pass-through."
+        }
+      }
+    }
+  }
+}

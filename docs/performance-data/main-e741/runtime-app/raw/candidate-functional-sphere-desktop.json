@@ -1,0 +1,5964 @@
+{
+  "schema": 2,
+  "suite": "functional-controlled",
+  "scope": "full",
+  "venue": "sphere",
+  "device": "desktop",
+  "status": "PASS",
+  "url": "http://127.0.0.1:8382/?venue=sphere&lobby=",
+  "label": "candidate-functional",
+  "revision": "6c7817218814f00631089eb2c6f150d68190980f",
+  "fixtureSourceSha256": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+  "diagnosticOptions": {
+    "continueOnTransportFail": true,
+    "expectedAutoOverride": null
+  },
+  "viewport": [
+    960,
+    540
+  ],
+  "devicePixelRatio": 1,
+  "timeoutMs": 60000,
+  "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+  "fixtures": [
+    "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+    "Google Fonts CSS is replaced with an empty response and browser system fallback fonts are used; font fidelity is outside this check.",
+    "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+    "Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.",
+    "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+    "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+    "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active.",
+    "For the selected Bach programme item, snapConductor(false) completes only the conductor exit animation; the programme selection and music start use real controls.",
+    "After the UI selects the world and seeks past the title, dome.update(8) advances the existing dome controller, including shader time and lighting, past the maximum 7-second startPiece reveal and live fade-out. It does not select a world, replace the shader, write transition uniforms directly or manually advance the audio clock."
+  ],
+  "unchecked": [],
+  "checks": {
+    "domeVisibility": {
+      "status": "OBSERVED_VISIBLE",
+      "applicable": true,
+      "before": {
+        "performanceNowMs": 8159.0999999996275,
+        "wallTimeMs": 1792630903965,
+        "timeOriginMs": 1792630895806.3,
+        "fpAvailable": true,
+        "domeAvailable": true,
+        "meshAvailable": true,
+        "meshVisible": true,
+        "entryButtonPresent": true,
+        "entryButtonEnabled": true,
+        "capturedMainFrame": true,
+        "visibility": "visible"
+      },
+      "after": {
+        "performanceNowMs": 8175.199999999255,
+        "wallTimeMs": 1792630903981,
+        "timeOriginMs": 1792630895806.3,
+        "fpAvailable": true,
+        "domeAvailable": true,
+        "meshAvailable": true,
+        "meshVisible": true,
+        "entryButtonPresent": true,
+        "entryButtonEnabled": true,
+        "capturedMainFrame": true,
+        "visibility": "visible"
+      },
+      "observedVisibleAtMs": 8175.199999999255,
+      "additionalWaitWallMs": 21.35562899999968,
+      "timeoutMs": 60000,
+      "pollingMs": 100,
+      "method": "Read-only mesh.visible===true observation after the existing entry-button-ready wait and before first UI entry or requested main render. The UI-ready condition remains separate. No visibility assignment, compile call, render frame or audio mutation. This does not prove compile success or first-pixel readiness.",
+      "startedAt": "2026-10-22T01:01:43.958Z",
+      "alreadyVisibleAtStart": true,
+      "elapsedWallMs": 34.8926019999999,
+      "finishedAt": "2026-10-22T01:01:43.993Z"
+    },
+    "device": {
+      "maxTouchPoints": 0,
+      "finePointer": true,
+      "viewport": [
+        960,
+        540
+      ],
+      "dpr": 1,
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+    },
+    "identity": {
+      "stored": {
+        "avatar": "squirrel",
+        "name": "꿈꾸는 다람쥐",
+        "outfit": "tail"
+      },
+      "animalLabel": "🐿️ 다람쥐",
+      "avatarSelectors": 0
+    },
+    "entry": {
+      "mode": "walk",
+      "active": true,
+      "seat": null,
+      "nearSeat": null,
+      "position": [
+        14.841398536069429,
+        23.94,
+        50.172438877919085
+      ],
+      "camera": [
+        14.841398536069429,
+        23.94,
+        50.172438877919085
+      ],
+      "forward": [
+        -0.2907148540492399,
+        -0.31223437348459915,
+        -0.9044305222900259
+      ],
+      "up": [
+        -0.09554808707402908,
+        0.9500051031519146,
+        -0.29725555847084495
+      ],
+      "yaw": 0.31100333466067825,
+      "pitch": -0.3175440857192913,
+      "joy": {
+        "x": 0,
+        "y": 0
+      },
+      "keys": [],
+      "listener": {
+        "position": [
+          14.841398536069429,
+          23.94,
+          50.172438877919085
+        ],
+        "forward": [
+          -0.2907148540492399,
+          -0.31223437348459915,
+          -0.9044305222900259
+        ],
+        "up": [
+          -0.09554808707402908,
+          0.9500051031519146,
+          -0.29725555847084495
+        ]
+      },
+      "listenerObservation": "engine-target-cache",
+      "audio": "running",
+      "playing": false,
+      "time": 0,
+      "duration": 92.66,
+      "piece": "bach-wachet-auf",
+      "audioClock": {
+        "wallTimeMs": 1792630916584,
+        "performanceNowMs": 20778.5,
+        "audioNow": 19.136,
+        "pausedPosition": 0,
+        "outputLatency": 0.08533333333333333,
+        "sampleRate": 48000,
+        "voices": 0,
+        "eventCount": 1193,
+        "visibility": "visible"
+      },
+      "phase": "lobby",
+      "audience": 3461,
+      "occupied": 3461,
+      "settings": {
+        "quality": "high",
+        "audience": true,
+        "audienceSetting": "crowdSphere",
+        "crowdPercent": 25,
+        "screen": true,
+        "fixedEar": true
+      },
+      "render": {
+        "quality": "high",
+        "scale": 1,
+        "pixelRatio": 1,
+        "shadows": true,
+        "statisticsAvailable": true
+      },
+      "dome": {
+        "current": "ARCH",
+        "live": false,
+        "liveMix": 0,
+        "mix": 0,
+        "reveal": 0,
+        "currentId": 0,
+        "cubeA": {
+          "id": -1,
+          "sizes": []
+        },
+        "cubeB": {
+          "id": -1,
+          "sizes": []
+        }
+      }
+    },
+    "movement": {
+      "input": "W key",
+      "before": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          14.841398536069429,
+          23.94,
+          50.172438877919085
+        ],
+        "camera": [
+          14.841398536069429,
+          23.94,
+          50.172438877919085
+        ],
+        "forward": [
+          -0.2907148540492399,
+          -0.31223437348459915,
+          -0.9044305222900259
+        ],
+        "up": [
+          -0.09554808707402908,
+          0.9500051031519146,
+          -0.29725555847084495
+        ],
+        "yaw": 0.31100333466067825,
+        "pitch": -0.3175440857192913,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            14.841398536069429,
+            23.94,
+            50.172438877919085
+          ],
+          "forward": [
+            -0.2907148540492399,
+            -0.31223437348459915,
+            -0.9044305222900259
+          ],
+          "up": [
+            -0.09554808707402908,
+            0.9500051031519146,
+            -0.29725555847084495
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630916589,
+          "performanceNowMs": 20783.299999999814,
+          "audioNow": 19.154666666666667,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "after": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          14.810014050149654,
+          23.94,
+          50.07479994892436
+        ],
+        "camera": [
+          14.810014050149654,
+          23.94649544622781,
+          50.07479994892436
+        ],
+        "forward": [
+          -0.2907148540492399,
+          -0.31223437348459915,
+          -0.9044305222900259
+        ],
+        "up": [
+          -0.09554808707402908,
+          0.9500051031519146,
+          -0.29725555847084495
+        ],
+        "yaw": 0.31100333466067825,
+        "pitch": -0.3175440857192913,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [
+          "KeyW"
+        ],
+        "listener": {
+          "position": [
+            14.810014050149654,
+            23.94649544622781,
+            50.07479994892436
+          ],
+          "forward": [
+            -0.2907148540492399,
+            -0.31223437348459915,
+            -0.9044305222900259
+          ],
+          "up": [
+            -0.09554808707402908,
+            0.9500051031519146,
+            -0.29725555847084495
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630922196,
+          "performanceNowMs": 26390.299999999814,
+          "audioNow": 24.704,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      }
+    },
+    "look": {
+      "input": "mouse drag",
+      "before": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          14.810014050149654,
+          23.94,
+          50.07479994892436
+        ],
+        "camera": [
+          14.810014050149654,
+          23.94649544622781,
+          50.07479994892436
+        ],
+        "forward": [
+          -0.2907148540492399,
+          -0.31223437348459915,
+          -0.9044305222900259
+        ],
+        "up": [
+          -0.09554808707402908,
+          0.9500051031519146,
+          -0.29725555847084495
+        ],
+        "yaw": 0.31100333466067825,
+        "pitch": -0.3175440857192913,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            14.810014050149654,
+            23.94649544622781,
+            50.07479994892436
+          ],
+          "forward": [
+            -0.2907148540492399,
+            -0.31223437348459915,
+            -0.9044305222900259
+          ],
+          "up": [
+            -0.09554808707402908,
+            0.9500051031519146,
+            -0.29725555847084495
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630922201,
+          "performanceNowMs": 26395.299999999814,
+          "audioNow": 24.72533333333333,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "after": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          14.798281458408471,
+          23.94,
+          50.03829918562144
+        ],
+        "camera": [
+          14.798281458408471,
+          23.94501860916942,
+          50.03829918562144
+        ],
+        "forward": [
+          0.003624203704845591,
+          -0.42154106401415814,
+          -0.9068020712908177
+        ],
+        "up": [
+          0.0016847540744479488,
+          0.906809313665123,
+          -0.42153769731056934
+        ],
+        "yaw": -0.00399666533932172,
+        "pitch": -0.43514408571929125,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            14.798281458408471,
+            23.94501860916942,
+            50.03829918562144
+          ],
+          "forward": [
+            0.003624203704845591,
+            -0.42154106401415814,
+            -0.9068020712908177
+          ],
+          "up": [
+            0.0016847540744479488,
+            0.906809313665123,
+            -0.42153769731056934
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630924471,
+          "performanceNowMs": 28665.599999999627,
+          "audioNow": 26.986666666666668,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      }
+    },
+    "listenerAudioParams": {
+      "position": [
+        14.7982816696167,
+        23.945018768310547,
+        50.038299560546875
+      ],
+      "forward": [
+        0.0036242036148905754,
+        -0.4215410649776459,
+        -0.9068020582199097
+      ]
+    },
+    "seatFixture": {
+      "candidate": 29,
+      "label": "플로어 FL · 1열 30번"
+    },
+    "sitStand": {
+      "input": "E -> E",
+      "seated": {
+        "mode": "seat",
+        "active": true,
+        "seat": 29,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          5.1
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          5.1
+        ],
+        "forward": [
+          0,
+          -0.3819889769350002,
+          -0.9241668796814523
+        ],
+        "up": [
+          0,
+          0.9241668796814523,
+          -0.3819889769350002
+        ],
+        "yaw": 0,
+        "pitch": -0.3919475254685127,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            5.1
+          ],
+          "forward": [
+            0,
+            -0.3819889769350002,
+            -0.9241668796814523
+          ],
+          "up": [
+            0,
+            0.9241668796814523,
+            -0.3819889769350002
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630925456,
+          "performanceNowMs": 29650.39999999944,
+          "audioNow": 27.968,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "standing": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630927098,
+          "performanceNowMs": 31292.099999999627,
+          "audioNow": 29.610666666666667,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      }
+    },
+    "roster": {
+      "initial": {
+        "piece": "bach-wachet-auf",
+        "supported": true,
+        "required": [
+          "bn:0",
+          "cb:0",
+          "choir:0",
+          "choir:1",
+          "choir:10",
+          "choir:11",
+          "choir:2",
+          "choir:3",
+          "choir:4",
+          "choir:5",
+          "choir:6",
+          "choir:7",
+          "choir:8",
+          "choir:9",
+          "ob:0",
+          "tp:0",
+          "va:0",
+          "va:1",
+          "vc:0",
+          "vc:1",
+          "vn1:0",
+          "vn1:1",
+          "vn1:2",
+          "vn2:0",
+          "vn2:1",
+          "vn2:2"
+        ],
+        "active": [
+          "bn:0",
+          "cb:0",
+          "choir:0",
+          "choir:1",
+          "choir:10",
+          "choir:11",
+          "choir:2",
+          "choir:3",
+          "choir:4",
+          "choir:5",
+          "choir:6",
+          "choir:7",
+          "choir:8",
+          "choir:9",
+          "ob:0",
+          "tp:0",
+          "va:0",
+          "va:1",
+          "vc:0",
+          "vc:1",
+          "vn1:0",
+          "vn1:1",
+          "vn1:2",
+          "vn2:0",
+          "vn2:1",
+          "vn2:2"
+        ],
+        "settled": true,
+        "conductorOn": true
+      },
+      "selected": {
+        "piece": "bach-prelude-c",
+        "supported": true,
+        "required": [
+          "harp:0",
+          "vc:0"
+        ],
+        "active": [
+          "harp:0",
+          "vc:0"
+        ],
+        "settled": true,
+        "conductorOn": false
+      }
+    },
+    "seek": {
+      "input": "mouse pointer",
+      "target": 22,
+      "actual": 22.000002252521842
+    },
+    "resumeClock": {
+      "startPos": 22.000002252521842,
+      "startCtx": 40.46133333333333,
+      "audioNow": 40.34133333333333,
+      "outputLatency": 0.08533333333333333,
+      "time": 21.79466891918851
+    },
+    "resumeTrace": {
+      "method": "Passive 100ms wall-clock samples; audio state/visibility listeners; one read-only engine.onTick observer. No manual frames or clock/audio mutations during the resume wait.",
+      "samplePeriodMs": 100,
+      "maxSamples": 64,
+      "thresholdTime": 22.050002252521843,
+      "outcome": "passed",
+      "samples": [
+        {
+          "cause": "before-resume-click",
+          "wallTimeMs": 1792630937794,
+          "elapsedMs": 0,
+          "performanceNowMs": 41988.299999999814,
+          "audioState": "running",
+          "audioNow": 40.30133333333333,
+          "outputTimestamp": {
+            "contextTime": 40.236565666666664,
+            "performanceTime": 41987.5
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": false,
+          "time": 22.000002252521842,
+          "startPos": 0,
+          "startCtx": 35.704,
+          "pausedPosition": 22.000002252521842,
+          "phase": "playing",
+          "voices": 0,
+          "scheduledEventIndex": 79,
+          "eventCount": 1193,
+          "ticks": 0,
+          "lastTickMs": null,
+          "msSinceLastTick": null,
+          "visibility": "visible"
+        },
+        {
+          "cause": "after-resume-click",
+          "wallTimeMs": 1792630937834,
+          "elapsedMs": 40.299999999813735,
+          "performanceNowMs": 42028.59999999963,
+          "audioState": "running",
+          "audioNow": 40.34133333333333,
+          "outputTimestamp": {
+            "contextTime": 40.27733433333333,
+            "performanceTime": 42028.299999999814
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.79466891918851,
+          "startPos": 22.000002252521842,
+          "startCtx": 40.46133333333333,
+          "pausedPosition": 22.000002252521842,
+          "phase": "playing",
+          "voices": 12,
+          "scheduledEventIndex": 283,
+          "eventCount": 1193,
+          "ticks": 1,
+          "lastTickMs": 42003.59999999963,
+          "msSinceLastTick": 25,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792630937896,
+          "elapsedMs": 101.70000000018626,
+          "performanceNowMs": 42090,
+          "audioState": "running",
+          "audioNow": 40.40533333333333,
+          "outputTimestamp": {
+            "contextTime": 40.328005999999995,
+            "performanceTime": 42079
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.85866891918851,
+          "startPos": 22.000002252521842,
+          "startCtx": 40.46133333333333,
+          "pausedPosition": 22.000002252521842,
+          "phase": "playing",
+          "voices": 12,
+          "scheduledEventIndex": 283,
+          "eventCount": 1193,
+          "ticks": 4,
+          "lastTickMs": 42078.59999999963,
+          "msSinceLastTick": 11.400000000372529,
+          "visibility": "visible"
+        },
+        {
+          "cause": "interval",
+          "wallTimeMs": 1792630937996,
+          "elapsedMs": 202.29999999981374,
+          "performanceNowMs": 42190.59999999963,
+          "audioState": "running",
+          "audioNow": 40.512,
+          "outputTimestamp": {
+            "contextTime": 40.44869566666667,
+            "performanceTime": 42199.699999999255
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 21.96533558585518,
+          "startPos": 22.000002252521842,
+          "startCtx": 40.46133333333333,
+          "pausedPosition": 22.000002252521842,
+          "phase": "playing",
+          "voices": 16,
+          "scheduledEventIndex": 287,
+          "eventCount": 1193,
+          "ticks": 8,
+          "lastTickMs": 42179.09999999963,
+          "msSinceLastTick": 11.5,
+          "visibility": "visible"
+        },
+        {
+          "cause": "final",
+          "wallTimeMs": 1792630938081,
+          "elapsedMs": 286.79999999981374,
+          "performanceNowMs": 42275.09999999963,
+          "audioState": "running",
+          "audioNow": 40.59733333333333,
+          "outputTimestamp": {
+            "contextTime": 40.53266,
+            "performanceTime": 42283.699999999255
+          },
+          "outputLatency": 0.08533333333333333,
+          "baseLatency": 0.021333333333333333,
+          "deviceOutputLatency": 0.064,
+          "sampleRate": 48000,
+          "playing": true,
+          "time": 22.05066891918851,
+          "startPos": 22.000002252521842,
+          "startCtx": 40.46133333333333,
+          "pausedPosition": 22.000002252521842,
+          "phase": "playing",
+          "voices": 16,
+          "scheduledEventIndex": 287,
+          "eventCount": 1193,
+          "ticks": 11,
+          "lastTickMs": 42253.59999999963,
+          "msSinceLastTick": 21.5,
+          "visibility": "visible"
+        }
+      ],
+      "events": [],
+      "nodeElapsedMs": 285.62245399999665,
+      "conditionTimeoutMs": 2000
+    },
+    "playback": {
+      "start": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": true,
+        "time": 4.274666666666666,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630937551,
+          "performanceNowMs": 41745.299999999814,
+          "audioNow": 40.064,
+          "startCtx": 35.704,
+          "startPos": 0,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 67,
+          "scheduledEventIndex": 79,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "CATHEDRAL",
+          "live": true,
+          "liveMix": 0.06,
+          "mix": 0.00010204081632653063,
+          "reveal": 1,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "paused": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 4.338666666666666,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630937614,
+          "performanceNowMs": 41808.39999999944,
+          "audioNow": 40.128,
+          "startCtx": 35.704,
+          "startPos": 0,
+          "pausedPosition": 4.338666666666666,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "scheduledEventIndex": 79,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "CATHEDRAL",
+          "live": true,
+          "liveMix": 0.06,
+          "mix": 0.00010204081632653063,
+          "reveal": 1,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "resumed": true,
+      "pausedAgain": true
+    },
+    "worldSeek": {
+      "input": "mouse pointer",
+      "target": 24,
+      "actual": 24.00000055954364
+    },
+    "dome": {
+      "expected": {
+        "name": "FOREST3D",
+        "id": 16
+      },
+      "world": {
+        "current": "FOREST3D",
+        "live": false,
+        "liveMix": 0,
+        "mix": 0,
+        "reveal": 0,
+        "currentId": 16,
+        "cubeA": {
+          "id": 16,
+          "sizes": [
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ]
+          ]
+        },
+        "cubeB": {
+          "id": -1,
+          "sizes": []
+        }
+      },
+      "restored": {
+        "current": "FOREST3D",
+        "live": true,
+        "liveMix": 0.06,
+        "mix": 0,
+        "reveal": 0,
+        "currentId": 16,
+        "cubeA": {
+          "id": 16,
+          "sizes": [
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ],
+            [
+              640,
+              640
+            ]
+          ]
+        },
+        "cubeB": {
+          "id": -1,
+          "sizes": []
+        }
+      },
+      "input": "programme button -> seek pointer -> play/pause button"
+    },
+    "quality": [
+      {
+        "requested": "medium",
+        "actual": {
+          "quality": "medium",
+          "scale": 1,
+          "pixelRatio": 0.85,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.11639999999999999,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        },
+        "worldPasses": [
+          {
+            "kind": "world",
+            "target": [
+              512,
+              512
+            ]
+          },
+          {
+            "kind": "world",
+            "target": [
+              512,
+              512
+            ]
+          },
+          {
+            "kind": "world",
+            "target": [
+              512,
+              512
+            ]
+          },
+          {
+            "kind": "world",
+            "target": [
+              512,
+              512
+            ]
+          }
+        ]
+      },
+      {
+        "requested": "low",
+        "actual": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": false,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.16941599999999998,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        },
+        "worldPasses": [
+          {
+            "kind": "world",
+            "target": [
+              384,
+              384
+            ]
+          },
+          {
+            "kind": "world",
+            "target": [
+              384,
+              384
+            ]
+          },
+          {
+            "kind": "world",
+            "target": [
+              384,
+              384
+            ]
+          },
+          {
+            "kind": "world",
+            "target": [
+              384,
+              384
+            ]
+          }
+        ]
+      },
+      {
+        "requested": "high",
+        "actual": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.21925103999999998,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        },
+        "worldPasses": [
+          {
+            "kind": "world",
+            "target": [
+              640,
+              640
+            ]
+          },
+          {
+            "kind": "world",
+            "target": [
+              640,
+              640
+            ]
+          },
+          {
+            "kind": "world",
+            "target": [
+              640,
+              640
+            ]
+          },
+          {
+            "kind": "world",
+            "target": [
+              640,
+              640
+            ]
+          }
+        ]
+      }
+    ],
+    "audienceControl": {
+      "kind": "percentage-slider",
+      "input": "native Home/ArrowRight keyboard",
+      "originalPercent": 25,
+      "requestedPercent": 25,
+      "settingKey": "crowdSphere",
+      "limitation": "The crowd slider itself is checked with keyboard events, including mobile emulation; joystick, view and seek touch checks remain separate."
+    },
+    "audience": {
+      "off": null,
+      "on": 3461,
+      "occupied": 3461
+    },
+    "broadcastToggle": {
+      "off": [
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "on": [
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ]
+    },
+    "automatic": {
+      "requested": "auto",
+      "initialPreset": "medium",
+      "expectedPreset": "medium",
+      "scale": 1,
+      "expectationSource": "explicit-SwiftShader",
+      "note": "Only the setting/reset path is checked here. Without an exact expectedPreset, desktop GPU classification is not independently checked. Adaptation and recovery are not demonstrated by synthetic functional cadence."
+    },
+    "layout": {
+      "width": 960,
+      "scrollWidth": 960,
+      "joystick": false,
+      "jump": false
+    }
+  },
+  "frames": [
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          14.841398536069429,
+          23.94,
+          50.172438877919085
+        ],
+        "camera": [
+          14.841398536069429,
+          23.94,
+          50.172438877919085
+        ],
+        "forward": [
+          -0.2907148540492399,
+          -0.31223437348459915,
+          -0.9044305222900259
+        ],
+        "up": [
+          -0.09554808707402908,
+          0.9500051031519146,
+          -0.29725555847084495
+        ],
+        "yaw": 0.31100333466067825,
+        "pitch": -0.3175440857192913,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            14.841398536069429,
+            23.94,
+            50.172438877919085
+          ],
+          "forward": [
+            -0.2907148540492399,
+            -0.31223437348459915,
+            -0.9044305222900259
+          ],
+          "up": [
+            -0.09554808707402908,
+            0.9500051031519146,
+            -0.29725555847084495
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630916584,
+          "performanceNowMs": 20778.5,
+          "audioNow": 19.136,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "entered"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          14.829357823713782,
+          23.94,
+          50.13497953377867
+        ],
+        "camera": [
+          14.829357823713782,
+          23.941664395616332,
+          50.13497953377867
+        ],
+        "forward": [
+          -0.2907148540492399,
+          -0.31223437348459915,
+          -0.9044305222900259
+        ],
+        "up": [
+          -0.09554808707402908,
+          0.9500051031519146,
+          -0.29725555847084495
+        ],
+        "yaw": 0.31100333466067825,
+        "pitch": -0.3175440857192913,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [
+          "KeyW"
+        ],
+        "listener": {
+          "position": [
+            14.829357823713782,
+            23.941664395616332,
+            50.13497953377867
+          ],
+          "forward": [
+            -0.2907148540492399,
+            -0.31223437348459915,
+            -0.9044305222900259
+          ],
+          "up": [
+            -0.09554808707402908,
+            0.9500051031519146,
+            -0.29725555847084495
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630919523,
+          "performanceNowMs": 23717.299999999814,
+          "audioNow": 22.08,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "movement-1"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          14.810014050149654,
+          23.94,
+          50.07479994892436
+        ],
+        "camera": [
+          14.810014050149654,
+          23.94649544622781,
+          50.07479994892436
+        ],
+        "forward": [
+          -0.2907148540492399,
+          -0.31223437348459915,
+          -0.9044305222900259
+        ],
+        "up": [
+          -0.09554808707402908,
+          0.9500051031519146,
+          -0.29725555847084495
+        ],
+        "yaw": 0.31100333466067825,
+        "pitch": -0.3175440857192913,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [
+          "KeyW"
+        ],
+        "listener": {
+          "position": [
+            14.810014050149654,
+            23.94649544622781,
+            50.07479994892436
+          ],
+          "forward": [
+            -0.2907148540492399,
+            -0.31223437348459915,
+            -0.9044305222900259
+          ],
+          "up": [
+            -0.09554808707402908,
+            0.9500051031519146,
+            -0.29725555847084495
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630922196,
+          "performanceNowMs": 26390.299999999814,
+          "audioNow": 24.704,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "movement-2"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": null,
+        "position": [
+          14.798281458408471,
+          23.94,
+          50.03829918562144
+        ],
+        "camera": [
+          14.798281458408471,
+          23.94501860916942,
+          50.03829918562144
+        ],
+        "forward": [
+          0.003624203704845591,
+          -0.42154106401415814,
+          -0.9068020712908177
+        ],
+        "up": [
+          0.0016847540744479488,
+          0.906809313665123,
+          -0.42153769731056934
+        ],
+        "yaw": -0.00399666533932172,
+        "pitch": -0.43514408571929125,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            14.798281458408471,
+            23.94501860916942,
+            50.03829918562144
+          ],
+          "forward": [
+            0.003624203704845591,
+            -0.42154106401415814,
+            -0.9068020712908177
+          ],
+          "up": [
+            0.0016847540744479488,
+            0.906809313665123,
+            -0.42153769731056934
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630924471,
+          "performanceNowMs": 28665.599999999627,
+          "audioNow": 26.986666666666668,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "look-drag"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          5.1
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          5.1
+        ],
+        "forward": [
+          0,
+          -0.3819889769350002,
+          -0.9241668796814523
+        ],
+        "up": [
+          0,
+          0.9241668796814523,
+          -0.3819889769350002
+        ],
+        "yaw": 0,
+        "pitch": -0.3919475254685127,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            5.1
+          ],
+          "forward": [
+            0,
+            -0.3819889769350002,
+            -0.9241668796814523
+          ],
+          "up": [
+            0,
+            0.9241668796814523,
+            -0.3819889769350002
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630925452,
+          "performanceNowMs": 29646,
+          "audioNow": 27.968,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "near-seat"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "seat",
+        "active": true,
+        "seat": 29,
+        "nearSeat": null,
+        "position": [
+          -1.2608279527355168,
+          1.2,
+          4.619982855007925
+        ],
+        "camera": [
+          -1.2608279527355168,
+          1.2,
+          4.619982855007925
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2608279527355168,
+            1.2,
+            4.619982855007925
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630926235,
+          "performanceNowMs": 30429.799999999814,
+          "audioNow": 28.75733333333333,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "seated"
+    },
+    {
+      "passes": [
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 0,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630927098,
+          "performanceNowMs": 31292.099999999627,
+          "audioNow": 29.610666666666667,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "lobby",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "ARCH",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "stood-up"
+    },
+    {
+      "passes": [
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": true,
+        "time": 4.274666666666666,
+        "duration": 92.66,
+        "piece": "bach-wachet-auf",
+        "audioClock": {
+          "wallTimeMs": 1792630937551,
+          "performanceNowMs": 41745.299999999814,
+          "audioNow": 40.064,
+          "startCtx": 35.704,
+          "startPos": 0,
+          "pausedPosition": 0,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 67,
+          "scheduledEventIndex": 79,
+          "eventCount": 1193,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "CATHEDRAL",
+          "live": true,
+          "liveMix": 0.06,
+          "mix": 0.00010204081632653063,
+          "reveal": 1,
+          "currentId": 0,
+          "cubeA": {
+            "id": -1,
+            "sizes": []
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "show-started"
+    },
+    {
+      "passes": [
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": true,
+        "time": 25.474667226210315,
+        "duration": 150.42,
+        "piece": "bach-prelude-c",
+        "audioClock": {
+          "wallTimeMs": 1792630941455,
+          "performanceNowMs": 45649.699999999255,
+          "audioNow": 43.968,
+          "startCtx": 42.407999999999994,
+          "startPos": 24.00000055954364,
+          "pausedPosition": 24.00000055954364,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 10,
+          "scheduledEventIndex": 114,
+          "eventCount": 602,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.0564,
+          "mix": 0.00010204081632653063,
+          "reveal": 1,
+          "currentId": 7,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "world-transition"
+    },
+    {
+      "passes": [
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": true,
+        "time": 26.69066722621031,
+        "duration": 150.42,
+        "piece": "bach-prelude-c",
+        "audioClock": {
+          "wallTimeMs": 1792630942665,
+          "performanceNowMs": 46859.799999999814,
+          "audioNow": 45.184,
+          "startCtx": 42.407999999999994,
+          "startPos": 24.00000055954364,
+          "pausedPosition": 24.00000055954364,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 15,
+          "scheduledEventIndex": 120,
+          "eventCount": 602,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": false,
+          "liveMix": 0,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "world-visible"
+    },
+    {
+      "passes": [
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 26.712000559543647,
+        "duration": 150.42,
+        "piece": "bach-prelude-c",
+        "audioClock": {
+          "wallTimeMs": 1792630945288,
+          "performanceNowMs": 49482.5,
+          "audioNow": 47.808,
+          "startCtx": 42.407999999999994,
+          "startPos": 24.00000055954364,
+          "pausedPosition": 26.712000559543647,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "scheduledEventIndex": 120,
+          "eventCount": 602,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.06,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "paused-live-restored"
+    },
+    {
+      "passes": [
+        {
+          "kind": "world",
+          "target": [
+            512,
+            512
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            512,
+            512
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            512,
+            512
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            512,
+            512
+          ]
+        },
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            816,
+            459
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            408,
+            230
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            408,
+            230
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            408,
+            230
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            204,
+            115
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            204,
+            115
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            102,
+            58
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            102,
+            58
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            51,
+            29
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            51,
+            29
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            26,
+            15
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            26,
+            15
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            408,
+            230
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            816,
+            459
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 26.712000559543647,
+        "duration": 150.42,
+        "piece": "bach-prelude-c",
+        "audioClock": {
+          "wallTimeMs": 1792630947849,
+          "performanceNowMs": 52043.299999999814,
+          "audioNow": 50.368,
+          "startCtx": 42.407999999999994,
+          "startPos": 24.00000055954364,
+          "pausedPosition": 26.712000559543647,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "scheduledEventIndex": 120,
+          "eventCount": 602,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "medium",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "medium",
+          "scale": 1,
+          "pixelRatio": 0.85,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.11639999999999999,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "quality-medium"
+    },
+    {
+      "passes": [
+        {
+          "kind": "world",
+          "target": [
+            384,
+            384
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            384,
+            384
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            384,
+            384
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            384,
+            384
+          ]
+        },
+        {
+          "kind": "main",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 26.712000559543647,
+        "duration": 150.42,
+        "piece": "bach-prelude-c",
+        "audioClock": {
+          "wallTimeMs": 1792630951249,
+          "performanceNowMs": 55443,
+          "audioNow": 53.76,
+          "startCtx": 42.407999999999994,
+          "startPos": 24.00000055954364,
+          "pausedPosition": 26.712000559543647,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "scheduledEventIndex": 120,
+          "eventCount": 602,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "low",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "low",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": false,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.16941599999999998,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "quality-low"
+    },
+    {
+      "passes": [
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 26.712000559543647,
+        "duration": 150.42,
+        "piece": "bach-prelude-c",
+        "audioClock": {
+          "wallTimeMs": 1792630954159,
+          "performanceNowMs": 58353.199999999255,
+          "audioNow": 56.68266666666667,
+          "startCtx": 42.407999999999994,
+          "startPos": 24.00000055954364,
+          "pausedPosition": 26.712000559543647,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "scheduledEventIndex": 120,
+          "eventCount": 602,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.21925103999999998,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "quality-high"
+    },
+    {
+      "passes": [
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 26.712000559543647,
+        "duration": 150.42,
+        "piece": "bach-prelude-c",
+        "audioClock": {
+          "wallTimeMs": 1792630955603,
+          "performanceNowMs": 59797.699999999255,
+          "audioNow": 58.112,
+          "startCtx": 42.407999999999994,
+          "startPos": 24.00000055954364,
+          "pausedPosition": 26.712000559543647,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "scheduledEventIndex": 120,
+          "eventCount": 602,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": null,
+        "occupied": 0,
+        "settings": {
+          "quality": "high",
+          "audience": false,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 0,
+          "screen": false,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.20609597759999998,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "audience-and-screen-off"
+    },
+    {
+      "passes": [
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            640,
+            640
+          ]
+        },
+        {
+          "kind": "broadcast",
+          "target": [
+            1024,
+            576
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            240,
+            135
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            120,
+            68
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            60,
+            34
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            30,
+            17
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            480,
+            270
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            960,
+            540
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 26.712000559543647,
+        "duration": 150.42,
+        "piece": "bach-prelude-c",
+        "audioClock": {
+          "wallTimeMs": 1792630960306,
+          "performanceNowMs": 64500,
+          "audioNow": 62.82666666666667,
+          "startCtx": 42.407999999999994,
+          "startPos": 24.00000055954364,
+          "pausedPosition": 26.712000559543647,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "scheduledEventIndex": 120,
+          "eventCount": 602,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "high",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "high",
+          "scale": 1,
+          "pixelRatio": 1,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.253730218944,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "audience-and-screen-restored"
+    },
+    {
+      "passes": [
+        {
+          "kind": "world",
+          "target": [
+            512,
+            512
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            512,
+            512
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            512,
+            512
+          ]
+        },
+        {
+          "kind": "world",
+          "target": [
+            512,
+            512
+          ]
+        },
+        {
+          "kind": "main",
+          "target": [
+            816,
+            459
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            408,
+            230
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            408,
+            230
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            408,
+            230
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            204,
+            115
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            204,
+            115
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            102,
+            58
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            102,
+            58
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            51,
+            29
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            51,
+            29
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            26,
+            15
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            26,
+            15
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            408,
+            230
+          ]
+        },
+        {
+          "kind": "post",
+          "target": [
+            816,
+            459
+          ]
+        },
+        {
+          "kind": "post",
+          "target": null
+        }
+      ],
+      "glErrors": [],
+      "contextLost": false,
+      "state": {
+        "mode": "walk",
+        "active": true,
+        "seat": null,
+        "nearSeat": 29,
+        "position": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "camera": [
+          -1.2600000000000149,
+          1.62,
+          4.18
+        ],
+        "forward": [
+          0.0413459865531485,
+          0.04993761694389225,
+          -0.997896158831124
+        ],
+        "up": [
+          -0.0020672993276574254,
+          0.9987523388778446,
+          0.04989480794155623
+        ],
+        "yaw": -0.04140947020212173,
+        "pitch": 0.04995839572194277,
+        "joy": {
+          "x": 0,
+          "y": 0
+        },
+        "keys": [],
+        "listener": {
+          "position": [
+            -1.2600000000000149,
+            1.62,
+            4.18
+          ],
+          "forward": [
+            0.0413459865531485,
+            0.04993761694389225,
+            -0.997896158831124
+          ],
+          "up": [
+            -0.0020672993276574254,
+            0.9987523388778446,
+            0.04989480794155623
+          ]
+        },
+        "listenerObservation": "engine-target-cache",
+        "audio": "running",
+        "playing": false,
+        "time": 26.712000559543647,
+        "duration": 150.42,
+        "piece": "bach-prelude-c",
+        "audioClock": {
+          "wallTimeMs": 1792630961778,
+          "performanceNowMs": 65972,
+          "audioNow": 64.29866666666666,
+          "startCtx": 42.407999999999994,
+          "startPos": 24.00000055954364,
+          "pausedPosition": 26.712000559543647,
+          "outputLatency": 0.08533333333333333,
+          "sampleRate": 48000,
+          "voices": 0,
+          "scheduledEventIndex": 120,
+          "eventCount": 602,
+          "visibility": "visible"
+        },
+        "phase": "playing",
+        "audience": 3461,
+        "occupied": 3461,
+        "settings": {
+          "quality": "auto",
+          "audience": true,
+          "audienceSetting": "crowdSphere",
+          "crowdPercent": 25,
+          "screen": true,
+          "fixedEar": true
+        },
+        "render": {
+          "quality": "medium",
+          "scale": 1,
+          "pixelRatio": 0.85,
+          "shadows": true,
+          "statisticsAvailable": true
+        },
+        "dome": {
+          "current": "FOREST3D",
+          "live": true,
+          "liveMix": 0.29850640580736,
+          "mix": 0,
+          "reveal": 0,
+          "currentId": 16,
+          "cubeA": {
+            "id": 16,
+            "sizes": [
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ],
+              [
+                640,
+                640
+              ]
+            ]
+          },
+          "cubeB": {
+            "id": -1,
+            "sizes": []
+          }
+        }
+      },
+      "label": "automatic-setting"
+    }
+  ],
+  "failures": [],
+  "errors": [],
+  "warnings": [
+    "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.",
+    "[.WebGL-0x36a400191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x36a400191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x36a400191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x36a400191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "failedRequests": [],
+  "environment": {
+    "browserVersion": "153.0.8010.0",
+    "playwrightVersion": "1.62.1",
+    "platform": "linux",
+    "architecture": "x64",
+    "softwareRequested": true,
+    "chromeArgs": [
+      "--no-sandbox",
+      "--disable-dev-shm-usage",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader"
+    ],
+    "fontMode": "system",
+    "headless": true
+  },
+  "diagnostics": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "warnings": [
+      "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.",
+      "[.WebGL-0x36a400191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0x36a400191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0x36a400191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+      "[.WebGL-0x36a400191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    ],
+    "failedRequests": []
+  },
+  "sourceHashes": {
+    "js/boot.js": {
+      "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+    },
+    "js/main.js": {
+      "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+    },
+    "js/quality.js": {
+      "sha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559"
+    },
+    "js/scene/hall.js": {
+      "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+    },
+    "js/scene/seats.js": {
+      "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+    },
+    "js/scene/audience.js": {
+      "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+    },
+    "js/scene/screen.js": {
+      "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+    },
+    "js/scene/sphere.js": {
+      "sha256": "4e91bc31172a92214b3e5cc8e9ddaad5b469ca597d324ad6c90e0dc3e1aaa695"
+    },
+    "js/scene/dome3d.js": {
+      "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+    },
+    "js/scene/domeshow.js": {
+      "sha256": "30f55dd9b210c95815b6049030e3aecb05c10a730dc1d6f0f26b9e19dbb5e769"
+    },
+    "js/audio/engine.js": {
+      "sha256": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0"
+    },
+    "js/audio/performance.js": {
+      "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+    }
+  },
+  "contextLosses": []
+}

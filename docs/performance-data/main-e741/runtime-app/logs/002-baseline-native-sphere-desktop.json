@@ -1,0 +1,55 @@
+{
+  "index": 2,
+  "job": {
+    "id": "baseline-native-sphere-desktop",
+    "script": "tools/bench/audio-resume.mjs",
+    "args": [
+      "baseline-native",
+      "sphere",
+      "desktop"
+    ],
+    "env": {
+      "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+      "CHROME_EXECUTABLE": "/tmp/chromium",
+      "CHROME_ARGS": "[\"--no-sandbox\", \"--disable-dev-shm-usage\", \"--use-gl=angle\", \"--use-angle=swiftshader\", \"--enable-unsafe-swiftshader\"]",
+      "SOFTWARE_RENDERER": "1",
+      "FONT_MODE": "system",
+      "TIMEOUT_MS": "60000",
+      "WIDTH": "640",
+      "HEIGHT": "360",
+      "DPR": "1",
+      "SAMPLES": "4",
+      "WARMUP": "2",
+      "SCREENSHOTS": "1",
+      "BASE_URL": "http://127.0.0.1:8381",
+      "REVISION": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "FRAME_MODE": "native",
+      "READBACK": "0",
+      "QUALITY": "low",
+      "FIXED_AUDIENCE_SEED": "417",
+      "LIVE_WINDOW_MS": "30000",
+      "PRELUDE_FRAMES": "2"
+    },
+    "directory": "raw",
+    "timeoutSeconds": 240
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/audio-resume.mjs",
+    "baseline-native",
+    "sphere",
+    "desktop"
+  ],
+  "startedAt": "2026-10-22T00:53:15.951333+00:00",
+  "planSha256": "1bc3e99ca2b2b7889b7b097a5d19667dd97f95c395bec26890071ac63c7d61f0",
+  "collectorSha256": "6167885b69a3f2457a9edb5edd926b20c1b0a4d88edd47a60693ef06361105b5",
+  "runnerSha256": "2699605c709470533cdb7c7892b8ea7ca8a77fbce94ae64f9b01e86be17a77f8",
+  "timeoutSeconds": 240.0,
+  "status": "PASS",
+  "lastHeartbeatAt": "2026-10-22T00:53:55.957280+00:00",
+  "elapsedSeconds": 40.004,
+  "pid": 15849,
+  "exitCode": 0,
+  "finishedAt": "2026-10-22T00:54:15.939581+00:00",
+  "logSha256": "11388611d7e729294879235a2545d56cf03f79add1f1051ff287d8d1d6dab3b0"
+}

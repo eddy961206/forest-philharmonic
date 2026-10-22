@@ -1,0 +1,22 @@
+{
+  "schema": 2,
+  "label": "candidate-functional",
+  "revision": "6c7817218814f00631089eb2c6f150d68190980f",
+  "scope": "full",
+  "fixtureSourceSha256": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+  "diagnosticOptions": {
+    "continueOnTransportFail": true
+  },
+  "method": "Functional checks only; sequential explicit rendering, not an FPS benchmark.",
+  "results": [
+    {
+      "venue": "sphere",
+      "device": "mobile",
+      "scope": "full",
+      "status": "PASS",
+      "failureCount": 0,
+      "continuedAfterTransportFailure": false,
+      "file": "candidate-functional-sphere-mobile.json"
+    }
+  ]
+}
