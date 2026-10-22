@@ -1,0 +1,40 @@
+{
+  "index": 9,
+  "job": {
+    "id": "candidate-a-hall-low-desktop",
+    "script": "tools/bench/full-frame.mjs",
+    "args": [
+      "candidate-a",
+      "hall",
+      "low",
+      "desktop",
+      "front,wide,foyer,rotate,broadcast,broadcast-hidden,broadcast-return,effects-show"
+    ],
+    "directory": "render",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18084/",
+      "REVISION": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "SAMPLES": 8,
+      "WARMUP": 4,
+      "SCREENSHOTS": 1,
+      "MODE": "sync",
+      "TIMEOUT_MS": "240000"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/full-frame.mjs",
+    "candidate-a",
+    "hall",
+    "low",
+    "desktop",
+    "front,wide,foyer,rotate,broadcast,broadcast-hidden,broadcast-return,effects-show"
+  ],
+  "startedAt": "2026-10-21T13:16:54.589121+00:00",
+  "planSha256": "6259727537dbd446e56ef3e5fa23b41c847fecd3c17a2a0cc28aa79ff40d8dc1",
+  "collectorSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T13:17:38.800109+00:00",
+  "logSha256": "1d9e0cdd6abc9e5d45feb4344d2cfebf226ab9edcf5b96e3627589d361ac02e2"
+}

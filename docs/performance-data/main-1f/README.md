@@ -17,7 +17,9 @@
 
 `gpu-plan.json`의 WebGL2 timer query는 이 실행 환경에서는 SwiftShader 소프트웨어 질의야. 물리 GPU 시간이나 VRAM으로 표현하지 않아.
 
-**계획 파일이 있다는 것은 완료했다는 뜻이 아니야.** 현재 광장 4개와 candidate 모바일 기능 2개는 PASS야. desktop 기능 2개는 오디오 재개 시계 정지와 구형 수동/자동 preset 기대값으로 FAIL이며 원본을 보존했어. 제품을 바꾸지 않고 수집기의 기대값만 최신 main에 맞췄고 desktop은 별도 재검사할 예정이야. 고정 품질 재측정은 실행 중이야. 최종 상태와 원본은 후속 커밋으로 추가해. FAIL·미실행·제외 결과를 삭제하거나 PASS로 바꾸지 않아.
+**계획 파일이 있다는 것은 완료했다는 뜻이 아니야.** 2026-10-21 14:12 UTC 기준 고정 품질 28실행은 모두 닫혔고, [완료 집계](fixed-complete-checkpoint/analysis/summary.md)는 14쌍·140행, 조건 불일치 제외 0개야. 수집·조건 검증 PASS가 모든 장면의 성능 개선을 뜻하지 않아. 평균 완료 시간과 메인 스레드 시간이 증가한 행도 그대로 포함해. high desktop의 역순 반복과 최초 결과를 합쳐 독립 표본 수나 성공률을 부풀리지 않아.
+
+광장 4개와 candidate 모바일 기능 2개는 PASS야. desktop 기능 2개는 오디오 재개 시계 정지와 구형 수동/자동 preset 기대값으로 FAIL이며 원본을 보존했어. 제품을 바꾸지 않고 수집기의 기대값만 최신 main에 맞췄고 desktop은 별도 재검사할 예정이야. cadence·나머지 runtime·GPU·추가 low/mobile 역순·실제 3D 회전/전환 검사는 진행 중이거나 대기 중이야. 최종 상태와 원본은 후속 커밋으로 추가해. FAIL·미실행·제외 결과를 삭제하거나 PASS로 바꾸지 않아.
 
 ## 계측 변경
 
@@ -25,6 +27,10 @@
 
 광장 수집기는 UI 발권·부스 inert/Escape·표·복귀·무표 차단을 검사하고 CSS 포함 소스를 전후 대조해. 각 호출의 LABEL은 고유해야 해.
 
-소프트웨어 렌더러, viewport/UA/touch 에뮬레이션, 직접-entry 로비와 광장 UI 경로, synthetic 시각 clock과 실제 오디오 검증을 구분해. 실제 PC 재현 가이드는 후속 문서에서 고정 도구 커밋과 함께 제공해.
+소프트웨어 렌더러, viewport/UA/touch 에뮬레이션, 직접-entry 로비와 광장 UI 경로, synthetic 시각 clock과 실제 오디오 검증을 구분해. [PC 재현 가이드](../../performance-reproduce-1f.md)와 [추가 역순·3D 검사 가이드](../../performance-supplement-1f.md)에 제품·도구 버전과 명령을 정리했어.
 
 수집기 기대값 수정은 `functional-*-expectation-correction.json`과 원본 snapshot에 기록했어. `collector-manifest-683cd2e.json`은 수정 전 공개 도구, `collector-manifest.json`은 현재 도구의 해시야. 각 raw가 기록한 실제 collector 해시를 우선해. `functional-preset-recheck-plan.json`은 원래 FAIL 결과를 덮어쓰지 않는 별도 desktop 재검사 계획이야.
+
+## 많은 원본 파일을 검토하는 방법
+
+`.gitattributes`는 `docs/performance-data` 아래 JSON·log·TAP만 `linguist-generated`로 표시해. [GitHub가 제공하는 기본 diff 표시 설정](https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github)을 사용해 제품 변경과 설명 문서를 먼저 읽기 쉽게 한 거야. 원본 파일·실패·불리한 수치는 삭제하지 않고, 해당 파일을 열거나 내려받아 그대로 확인할 수 있어. Markdown 보고서와 제품·검증 도구 코드는 이 설정 대상이 아니야.

@@ -1,0 +1,40 @@
+{
+  "index": 18,
+  "job": {
+    "id": "baseline-a-sphere-medium-mobile",
+    "script": "tools/bench/full-frame.mjs",
+    "args": [
+      "baseline-a",
+      "sphere",
+      "medium",
+      "mobile",
+      "front,wide,rotate,dome,forest,peaks,ocean,clouds,crossfade,reveal,broadcast,effects-show"
+    ],
+    "directory": "render",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18083/",
+      "REVISION": "1f8e5f16f1eee03140e13ba1ee66832841559604",
+      "SAMPLES": 8,
+      "WARMUP": 4,
+      "SCREENSHOTS": 1,
+      "MODE": "sync",
+      "TIMEOUT_MS": "240000"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/full-frame.mjs",
+    "baseline-a",
+    "sphere",
+    "medium",
+    "mobile",
+    "front,wide,rotate,dome,forest,peaks,ocean,clouds,crossfade,reveal,broadcast,effects-show"
+  ],
+  "startedAt": "2026-10-21T13:32:05.148786+00:00",
+  "planSha256": "6259727537dbd446e56ef3e5fa23b41c847fecd3c17a2a0cc28aa79ff40d8dc1",
+  "collectorSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T13:34:00.466747+00:00",
+  "logSha256": "5e51825f457a9092f07038c047756111b194f9d9837a8561fe2b84dad8d8ef59"
+}

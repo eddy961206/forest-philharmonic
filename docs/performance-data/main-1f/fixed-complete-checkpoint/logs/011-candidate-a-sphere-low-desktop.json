@@ -1,0 +1,40 @@
+{
+  "index": 11,
+  "job": {
+    "id": "candidate-a-sphere-low-desktop",
+    "script": "tools/bench/full-frame.mjs",
+    "args": [
+      "candidate-a",
+      "sphere",
+      "low",
+      "desktop",
+      "front,wide,rotate,dome,forest,peaks,ocean,clouds,crossfade,reveal,broadcast,effects-show"
+    ],
+    "directory": "render",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18084/",
+      "REVISION": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "SAMPLES": 8,
+      "WARMUP": 4,
+      "SCREENSHOTS": 1,
+      "MODE": "sync",
+      "TIMEOUT_MS": "240000"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/full-frame.mjs",
+    "candidate-a",
+    "sphere",
+    "low",
+    "desktop",
+    "front,wide,rotate,dome,forest,peaks,ocean,clouds,crossfade,reveal,broadcast,effects-show"
+  ],
+  "startedAt": "2026-10-21T13:18:31.350532+00:00",
+  "planSha256": "6259727537dbd446e56ef3e5fa23b41c847fecd3c17a2a0cc28aa79ff40d8dc1",
+  "collectorSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T13:19:28.681644+00:00",
+  "logSha256": "4175317f62c9f4239bc5fe41f6535adff223912308fcd148bc2f8f2db49b9632"
+}

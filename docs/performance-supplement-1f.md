@@ -86,6 +86,20 @@ OUTPUT_DIR=../results/motion-high-r2 BASE_URL=http://127.0.0.1:18084/ REVISION=d
 
 이 도구의 `completeMs`에는 상태 조회와 renderer probe 비용이 포함돼. **성능 개선율·FPS 표에 합치지 않아.** 면 검사도 제품과 같은 11×9 추정 규칙에 대한 갱신 요청 관측이야. `renderer.render()`가 정상 반환했다는 것만으로 실제 world proxy draw·program 준비·큐브 픽셀 신선도·가시 픽셀 범위·face mask 최소성을 증명하지 않아. 이를 보완하는 PNG 비교와 직접 관찰은 따로 기록해.
 
+## 3D 진단 원본의 파일 검증
+
+네 실행이 닫힌 뒤 다음 비교기를 실행해. 브라우저나 이미지 디코더를 실행하지 않고, 계획·로그·수집기·HTTP 소스 해시와 요청 품질, 카메라·음악·돔 시각, 28/20/20 표본, 실제 관측한 렌더 상태 복원을 대조해. 큐브 타깃 ID는 한 실행 안의 슬롯 관계를 확인하는 값이므로 서로 다른 브라우저의 UUID 문자열이 같아야 한다고 요구하지 않아.
+
+```bash
+python3 tools/bench/compare-dome-motion.py --plan docs/performance-data/main-1f/supplementary-plans/dome-motion-plan.json --root ../results/dome-motion-r1 --manifest docs/performance-data/main-1f/supplementary-plans/dome-motion-source-manifest.json --output ../results/dome-motion-summary-r1
+```
+
+manifest는 **새 51파일 버전**을 명시해. 기존 49파일 manifest에는 이 진단이 추가 관측하는 Three.js core/module 경로가 없어. 비교기는 실제 HTTP 관측이 기록된 15개 경로만 직접 검증해. 51개 파일 전부를 브라우저에서 확인했다고 표현하지 않아.
+
+출력은 `summary.json`, `summary.md`, `image-pairs.json`이야. 마지막 파일에는 high와 medium 각각 15개 PNG 쌍의 경로·해시·입력 조건이 들어 있어. 종료 코드는 0=기록된 조건 검증 PASS, 1=FAIL, 2=누락·진행 중·부분 기록 INCOMPLETE야. 출력 폴더가 이미 존재하면 덮어쓰지 않아. 도구 해시가 다른 경우 임의로 검증을 풀지 말고 수집에 쓴 도구 버전을 별도 worktree에서 준비해.
+
+비교기가 PASS여도 큐브 내부 program·픽셀의 신선도나 영상 품질이 입증되는 것은 아니야. 시간 계측값은 이 도구에서도 집계하지 않으며, 실제 연속 전환과 오디오 동기화는 별도 검사가 필요해.
+
 ## 이미지 비교와 원본 해석
 
 PNG는 각 label·품질·회전 index·전환 종류·비율이 같은 파일끼리 비교해. 서로 다른 품질이나 다른 pass를 섞지 않아. 기존 `compare-images.py`에 두 PNG를 넘겨 SSIM·MAE·변경 픽셀 수를 구하고, 실제 장면을 함께 열어 검은 면·이음새·geometry 손실·그림자·자막 차이를 확인해. 전체 변화율 하나만으로 시각 품질 PASS를 선언하지 않아.

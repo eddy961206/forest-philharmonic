@@ -1,0 +1,4964 @@
+{
+  "schema": 2,
+  "suite": "whole-frame-controlled",
+  "mode": "synchronous-completion",
+  "label": "candidate-a",
+  "revision": "dea7997c6278f10ff467815ab96b370362549b0c",
+  "baseURL": "http://127.0.0.1:18084/",
+  "venue": "hall",
+  "quality": "high",
+  "device": "mobile",
+  "viewport": [
+    390,
+    844
+  ],
+  "devicePixelRatio": 2,
+  "samplesPerScenario": 8,
+  "warmupFrames": 4,
+  "scenarioOrder": [
+    "front",
+    "wide",
+    "foyer",
+    "rotate",
+    "broadcast",
+    "broadcast-hidden",
+    "broadcast-return",
+    "effects-show"
+  ],
+  "fixtureSourceSha256": "262b5f126c6214d1875010056da4327117af2c764dab8d04854dc4b709871d98",
+  "collectorSourceSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+  "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+  "screenshots": true,
+  "fixturePolicy": {
+    "piece": "beethoven-ode-to-joy",
+    "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+    "crowdFill": 0.8,
+    "crowdSeed": 417,
+    "randomSeed": 417,
+    "uuidSeed": 874,
+    "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+    "stage": "snapOnstage + snapConductor",
+    "mainAnimation": "real frame function with controlled camera/time",
+    "ui": "hidden",
+    "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+    "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+    "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+    "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+  },
+  "measurement": "전체 frame() + readPixels 완료 시간. 앱 FPS나 순수 GPU 시간이 아니야.",
+  "scenarios": {
+    "front": {
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            1.75,
+            5
+          ],
+          "target": [
+            0,
+            2,
+            -7
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "domeReadiness": {
+        "status": "NOT_APPLICABLE",
+        "reason": "This venue has no dome."
+      },
+      "samples": [
+        {
+          "completeMs": 797.7999999970198,
+          "submitMs": 9.299999997019768,
+          "completionWaitMs": 788.5,
+          "completed": true,
+          "calls": 540,
+          "triangles": 591812,
+          "times": {
+            "hall": 0.09999999403953552,
+            "visual": 0,
+            "orchestra": 0.8999999985098839,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.10000000149011612,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 6.999999992549419
+          },
+          "geometries": 355,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 764.2000000029802,
+          "submitMs": 6.700000002980232,
+          "completionWaitMs": 757.5,
+          "completed": true,
+          "calls": 540,
+          "triangles": 591812,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.9000000059604645,
+            "stage": 0.19999999552965164,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.7000000029802322,
+            "renderSubmit": 4.600000001490116
+          },
+          "geometries": 355,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 736.8999999985099,
+          "submitMs": 7.700000002980232,
+          "completionWaitMs": 729.1999999955297,
+          "completed": true,
+          "calls": 540,
+          "triangles": 591812,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.7999999970197678,
+            "stage": 0.20000000298023224,
+            "effects": 0.10000000149011612,
+            "director": 0,
+            "listener": 0,
+            "audioRoom": 0.10000000149011612,
+            "fx": 0,
+            "syncLite": 0.5999999940395355,
+            "renderSubmit": 5.700000002980232
+          },
+          "geometries": 355,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 750.3999999985099,
+          "submitMs": 7.199999995529652,
+          "completionWaitMs": 743.2000000029802,
+          "completed": true,
+          "calls": 540,
+          "triangles": 591812,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.8000000044703484,
+            "stage": 0.19999999552965164,
+            "effects": 0,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 5.200000002980232
+          },
+          "geometries": 355,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 767.7999999970198,
+          "submitMs": 7.899999998509884,
+          "completionWaitMs": 759.8999999985099,
+          "completed": true,
+          "calls": 540,
+          "triangles": 591756,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.8999999985098839,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.09999999403953552,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.10000000149011612,
+            "syncLite": 0.8000000044703484,
+            "renderSubmit": 5.5
+          },
+          "geometries": 356,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 942.5,
+          "submitMs": 11,
+          "completionWaitMs": 931.5,
+          "completed": true,
+          "calls": 540,
+          "triangles": 591700,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 1.2000000029802322,
+            "stage": 0.29999999701976776,
+            "effects": 0,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.8999999985098839,
+            "renderSubmit": 7.699999995529652
+          },
+          "geometries": 357,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 902.4000000059605,
+          "submitMs": 10.400000005960464,
+          "completionWaitMs": 892,
+          "completed": true,
+          "calls": 540,
+          "triangles": 591700,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0.10000000149011612,
+            "orchestra": 1,
+            "stage": 0.20000000298023224,
+            "effects": 0,
+            "director": 0.09999999403953552,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 7.899999998509884
+          },
+          "geometries": 357,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 813.6000000014901,
+          "submitMs": 15.399999998509884,
+          "completionWaitMs": 798.2000000029802,
+          "completed": true,
+          "calls": 547,
+          "triangles": 591714,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0.29999999701976776,
+            "orchestra": 1.5,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.10000000149011612,
+            "syncLite": 0.5,
+            "renderSubmit": 12.600000001490116
+          },
+          "geometries": 358,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        }
+      ],
+      "timing": {
+        "metric": "completeMs",
+        "meanMs": 809.4500000001863,
+        "p50Ms": 767.7999999970198,
+        "p95Ms": 942.5,
+        "p99Ms": 942.5
+      },
+      "meanCalls": 540.875,
+      "meanTriangles": 591764.75,
+      "phaseMeanMs": {
+        "hall": 0.049999999813735485,
+        "visual": 0.07500000018626451,
+        "orchestra": 1.0000000009313226,
+        "stage": 0.17499999981373549,
+        "effects": 0.012500000186264515,
+        "director": 0.11249999981373549,
+        "listener": 0,
+        "audioRoom": 0.012500000186264515,
+        "fx": 0.037500000558793545,
+        "syncLite": 0.650000000372529,
+        "renderSubmit": 7.0249999994412065
+      },
+      "cdpMetricsBefore": [
+        {
+          "name": "Timestamp",
+          "value": 42161.445521
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 154
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1231
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 5
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3586
+        },
+        {
+          "name": "LayoutCount",
+          "value": 161
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 169
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106802
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.047087
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 7.74534
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.48942
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 18.100091
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.711314
+        },
+        {
+          "name": "ThreadTime",
+          "value": 2.413881
+        },
+        {
+          "name": "ProcessTime",
+          "value": 8.95
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17034152
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 52760576
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 0
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpMetricsSnapshot": [
+        {
+          "name": "Timestamp",
+          "value": 42167.966645
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 154
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1231
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 5
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3595
+        },
+        {
+          "name": "LayoutCount",
+          "value": 161
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 177
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106802
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.047576
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 14.227674
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.491054
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 24.589555
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.716321
+        },
+        {
+          "name": "ThreadTime",
+          "value": 2.502512
+        },
+        {
+          "name": "ProcessTime",
+          "value": 9.28
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 21534180
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 52760576
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 0
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpDurationDeltaMs": {
+        "TaskDuration": 6489.464000000002,
+        "ScriptDuration": 1.6340000000001353,
+        "LayoutDuration": 0,
+        "RecalcStyleDuration": 0.4890000000000033
+      },
+      "cdpInterpretation": "Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time."
+    },
+    "wide": {
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            22,
+            30
+          ],
+          "target": [
+            0,
+            4,
+            -4
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "domeReadiness": {
+        "status": "NOT_APPLICABLE",
+        "reason": "This venue has no dome."
+      },
+      "samples": [
+        {
+          "completeMs": 1239.5999999940395,
+          "submitMs": 15.399999998509884,
+          "completionWaitMs": 1224.1999999955297,
+          "completed": true,
+          "calls": 707,
+          "triangles": 864825,
+          "times": {
+            "hall": 0.19999999552965164,
+            "visual": 0.09999999403953552,
+            "orchestra": 2.8000000044703484,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.30000000447034836,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 2.899999998509884,
+            "renderSubmit": 8.899999998509884
+          },
+          "geometries": 427,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1281.5999999940395,
+          "submitMs": 7.399999998509884,
+          "completionWaitMs": 1274.1999999955297,
+          "completed": true,
+          "calls": 707,
+          "triangles": 864881,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.5,
+            "stage": 0.09999999403953552,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.20000000298023224,
+            "renderSubmit": 6.100000001490116
+          },
+          "geometries": 428,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1271.6999999955297,
+          "submitMs": 8.399999998509884,
+          "completionWaitMs": 1263.2999999970198,
+          "completed": true,
+          "calls": 707,
+          "triangles": 864881,
+          "times": {
+            "hall": 0,
+            "visual": 0.19999999552965164,
+            "orchestra": 0.9000000059604645,
+            "stage": 0.29999999701976776,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6999999955296516,
+            "renderSubmit": 6.100000001490116
+          },
+          "geometries": 428,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1236.8999999985099,
+          "submitMs": 9.099999994039536,
+          "completionWaitMs": 1227.8000000044703,
+          "completed": true,
+          "calls": 707,
+          "triangles": 864881,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.7999999970197678,
+            "stage": 0.20000000298023224,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 7.199999995529652
+          },
+          "geometries": 428,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1316.7000000029802,
+          "submitMs": 11.100000001490116,
+          "completionWaitMs": 1305.6000000014901,
+          "completed": true,
+          "calls": 707,
+          "triangles": 864937,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.7000000029802322,
+            "stage": 0.20000000298023224,
+            "effects": 0,
+            "director": 0.09999999403953552,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 9.199999995529652
+          },
+          "geometries": 429,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1230.3999999985099,
+          "submitMs": 9.599999994039536,
+          "completionWaitMs": 1220.8000000044703,
+          "completed": true,
+          "calls": 707,
+          "triangles": 864937,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 1.1999999955296516,
+            "stage": 0,
+            "effects": 0.10000000149011612,
+            "director": 0,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.7999999970197678,
+            "renderSubmit": 7.399999998509884
+          },
+          "geometries": 429,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1390.5,
+          "submitMs": 10.199999995529652,
+          "completionWaitMs": 1380.3000000044703,
+          "completed": true,
+          "calls": 707,
+          "triangles": 864993,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.6999999955296516,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.30000000447034836,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5999999940395355,
+            "renderSubmit": 8.399999998509884
+          },
+          "geometries": 430,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1229.6000000014901,
+          "submitMs": 10.200000002980232,
+          "completionWaitMs": 1219.3999999985099,
+          "completed": true,
+          "calls": 712,
+          "triangles": 865003,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.8999999985098839,
+            "stage": 0,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 8.200000002980232
+          },
+          "geometries": 430,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        }
+      ],
+      "timing": {
+        "metric": "completeMs",
+        "meanMs": 1274.6249999981374,
+        "p50Ms": 1239.5999999940395,
+        "p95Ms": 1390.5,
+        "p99Ms": 1390.5
+      },
+      "meanCalls": 707.625,
+      "meanTriangles": 864917.25,
+      "phaseMeanMs": {
+        "hall": 0.03749999962747097,
+        "visual": 0.04999999888241291,
+        "orchestra": 1.0625,
+        "stage": 0.125,
+        "effects": 0.012500000186264515,
+        "director": 0.1375000011175871,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0.8374999985098839,
+        "renderSubmit": 7.687499999068677
+      },
+      "cdpMetricsBefore": [
+        {
+          "name": "Timestamp",
+          "value": 42173.662623
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1235
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3611
+        },
+        {
+          "name": "LayoutCount",
+          "value": 161
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 183
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106802
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.04793
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 19.642683
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.493814
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 30.044668
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.753311
+        },
+        {
+          "name": "ThreadTime",
+          "value": 2.610597
+        },
+        {
+          "name": "ProcessTime",
+          "value": 9.66
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 16502312
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 20324352
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 0
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpMetricsSnapshot": [
+        {
+          "name": "Timestamp",
+          "value": 42183.898232
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1235
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3603
+        },
+        {
+          "name": "LayoutCount",
+          "value": 161
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 191
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106802
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.048488
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 29.849335
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.496189
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 40.27341
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.772468
+        },
+        {
+          "name": "ThreadTime",
+          "value": 2.721939
+        },
+        {
+          "name": "ProcessTime",
+          "value": 10.19
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17089120
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 18489344
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 0
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpDurationDeltaMs": {
+        "TaskDuration": 10228.741999999997,
+        "ScriptDuration": 2.375000000000238,
+        "LayoutDuration": 0,
+        "RecalcStyleDuration": 0.5580000000000029
+      },
+      "cdpInterpretation": "Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time."
+    },
+    "foyer": {
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            6,
+            40.4
+          ],
+          "target": [
+            0,
+            6,
+            30
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "domeReadiness": {
+        "status": "NOT_APPLICABLE",
+        "reason": "This venue has no dome."
+      },
+      "samples": [
+        {
+          "completeMs": 1040.7999999970198,
+          "submitMs": 9.599999994039536,
+          "completionWaitMs": 1031.2000000029802,
+          "completed": true,
+          "calls": 650,
+          "triangles": 546885,
+          "times": {
+            "hall": 0,
+            "visual": 0.09999999403953552,
+            "orchestra": 0.8000000044703484,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.29999999701976776,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.7000000029802322,
+            "renderSubmit": 7.5999999940395355
+          },
+          "geometries": 435,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1063.7999999970198,
+          "submitMs": 7,
+          "completionWaitMs": 1056.7999999970198,
+          "completed": true,
+          "calls": 650,
+          "triangles": 546885,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6999999955296516,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5999999940395355,
+            "renderSubmit": 5.200000002980232
+          },
+          "geometries": 435,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1132.5,
+          "submitMs": 10.200000002980232,
+          "completionWaitMs": 1122.2999999970198,
+          "completed": true,
+          "calls": 650,
+          "triangles": 546829,
+          "times": {
+            "hall": 0.09999999403953552,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.7000000029802322,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.7000000029802322,
+            "renderSubmit": 8.299999997019768
+          },
+          "geometries": 435,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1291.7999999970198,
+          "submitMs": 8.299999997019768,
+          "completionWaitMs": 1283.5,
+          "completed": true,
+          "calls": 650,
+          "triangles": 546829,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.6999999955296516,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5999999940395355,
+            "renderSubmit": 6.600000001490116
+          },
+          "geometries": 435,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1380.9000000059605,
+          "submitMs": 8.300000004470348,
+          "completionWaitMs": 1372.6000000014901,
+          "completed": true,
+          "calls": 650,
+          "triangles": 546829,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 1,
+            "stage": 0.3999999985098839,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 5.899999998509884
+          },
+          "geometries": 435,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1356.6000000014901,
+          "submitMs": 8.199999995529652,
+          "completionWaitMs": 1348.4000000059605,
+          "completed": true,
+          "calls": 650,
+          "triangles": 546829,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.7999999970197678,
+            "stage": 0,
+            "effects": 0,
+            "director": 0,
+            "listener": 0.09999999403953552,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 6.299999997019768
+          },
+          "geometries": 435,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1423.2000000029802,
+          "submitMs": 8.799999997019768,
+          "completionWaitMs": 1414.4000000059605,
+          "completed": true,
+          "calls": 650,
+          "triangles": 546829,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.7999999970197678,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 7.0999999940395355
+          },
+          "geometries": 435,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1091.7999999970198,
+          "submitMs": 9.399999998509884,
+          "completionWaitMs": 1082.3999999985099,
+          "completed": true,
+          "calls": 653,
+          "triangles": 546835,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 1.0999999940395355,
+            "stage": 0.20000000298023224,
+            "effects": 0,
+            "director": 0.29999999701976776,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 1,
+            "renderSubmit": 6.700000002980232
+          },
+          "geometries": 435,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        }
+      ],
+      "timing": {
+        "metric": "completeMs",
+        "meanMs": 1222.6749999998137,
+        "p50Ms": 1132.5,
+        "p95Ms": 1423.2000000029802,
+        "p99Ms": 1423.2000000029802
+      },
+      "meanCalls": 650.375,
+      "meanTriangles": 546843.75,
+      "phaseMeanMs": {
+        "hall": 0.024999999441206455,
+        "visual": 0.0625,
+        "orchestra": 0.8249999983236194,
+        "stage": 0.1375000011175871,
+        "effects": 0,
+        "director": 0.15000000037252903,
+        "listener": 0.01249999925494194,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0.662499999627471,
+        "renderSubmit": 6.712499998509884
+      },
+      "cdpMetricsBefore": [
+        {
+          "name": "Timestamp",
+          "value": 42188.749652
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1235
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3613
+        },
+        {
+          "name": "LayoutCount",
+          "value": 161
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 197
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106802
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.048887
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 34.290148
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.500943
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 44.728731
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.781823
+        },
+        {
+          "name": "ThreadTime",
+          "value": 2.785164
+        },
+        {
+          "name": "ProcessTime",
+          "value": 10.46
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17259596
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 18751488
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpMetricsSnapshot": [
+        {
+          "name": "Timestamp",
+          "value": 42198.559557
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1235
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3621
+        },
+        {
+          "name": "LayoutCount",
+          "value": 161
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 205
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106802
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.049539
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 44.082967
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.502712
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 54.532126
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.789978
+        },
+        {
+          "name": "ThreadTime",
+          "value": 2.874618
+        },
+        {
+          "name": "ProcessTime",
+          "value": 10.98
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17377052
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 18489344
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpDurationDeltaMs": {
+        "TaskDuration": 9803.394999999995,
+        "ScriptDuration": 1.7689999999999095,
+        "LayoutDuration": 0,
+        "RecalcStyleDuration": 0.6519999999999998
+      },
+      "cdpInterpretation": "Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time."
+    },
+    "rotate": {
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "domeReadiness": {
+        "status": "NOT_APPLICABLE",
+        "reason": "This venue has no dome."
+      },
+      "samples": [
+        {
+          "completeMs": 831.6999999955297,
+          "submitMs": 5.399999998509884,
+          "completionWaitMs": 826.2999999970198,
+          "completed": true,
+          "calls": 320,
+          "triangles": 563664,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.5999999940395355,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0,
+            "listener": 0.10000000149011612,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 3.600000001490116
+          },
+          "geometries": 438,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 816.1000000014901,
+          "submitMs": 5.399999998509884,
+          "completionWaitMs": 810.7000000029802,
+          "completed": true,
+          "calls": 308,
+          "triangles": 464028,
+          "times": {
+            "hall": 0.20000000298023224,
+            "visual": 0,
+            "orchestra": 0.6999999955296516,
+            "stage": 0,
+            "effects": 0,
+            "director": 0,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 3.600000001490116
+          },
+          "geometries": 438,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 669.7000000029802,
+          "submitMs": 6.5,
+          "completionWaitMs": 663.2000000029802,
+          "completed": true,
+          "calls": 312,
+          "triangles": 474240,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.7000000029802322,
+            "stage": 0.19999999552965164,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 4.699999995529652
+          },
+          "geometries": 438,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 717.3999999985099,
+          "submitMs": 5.899999998509884,
+          "completionWaitMs": 711.5,
+          "completed": true,
+          "calls": 308,
+          "triangles": 555916,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.09999999403953552,
+            "effects": 0.10000000149011612,
+            "director": 0,
+            "listener": 0.20000000298023224,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 4.100000001490116
+          },
+          "geometries": 438,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 833,
+          "submitMs": 4.899999998509884,
+          "completionWaitMs": 828.1000000014901,
+          "completed": true,
+          "calls": 312,
+          "triangles": 570855,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.7999999970197678,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5999999940395355,
+            "renderSubmit": 3.2000000029802322
+          },
+          "geometries": 438,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 983.7000000029802,
+          "submitMs": 6.800000004470348,
+          "completionWaitMs": 976.8999999985099,
+          "completed": true,
+          "calls": 321,
+          "triangles": 576055,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 1,
+            "stage": 0.20000000298023224,
+            "effects": 0.10000000149011612,
+            "director": 0.19999999552965164,
+            "listener": 0.10000000149011612,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.8999999985098839,
+            "renderSubmit": 4.300000004470348
+          },
+          "geometries": 438,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1207.8999999985099,
+          "submitMs": 8,
+          "completionWaitMs": 1199.8999999985099,
+          "completed": true,
+          "calls": 338,
+          "triangles": 597599,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6999999955296516,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0.10000000149011612,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5999999940395355,
+            "renderSubmit": 6
+          },
+          "geometries": 449,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1376.7999999970198,
+          "submitMs": 7.5,
+          "completionWaitMs": 1369.2999999970198,
+          "completed": true,
+          "calls": 338,
+          "triangles": 595997,
+          "times": {
+            "hall": 0,
+            "visual": 0.19999999552965164,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.20000000298023224,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0.09999999403953552,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 5.399999998509884
+          },
+          "geometries": 455,
+          "textures": 91,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        }
+      ],
+      "timing": {
+        "metric": "completeMs",
+        "meanMs": 929.5374999996275,
+        "p50Ms": 831.6999999955297,
+        "p95Ms": 1376.7999999970198,
+        "p99Ms": 1376.7999999970198
+      },
+      "meanCalls": 319.625,
+      "meanTriangles": 549794.25,
+      "phaseMeanMs": {
+        "hall": 0.037500000558793545,
+        "visual": 0.07500000018626451,
+        "orchestra": 0.7124999985098839,
+        "stage": 0.125,
+        "effects": 0.02500000037252903,
+        "director": 0.07500000018626451,
+        "listener": 0.07500000018626451,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0.5999999986961484,
+        "renderSubmit": 4.362500000745058
+      },
+      "cdpMetricsBefore": [
+        {
+          "name": "Timestamp",
+          "value": 42202.790491
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1235
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3625
+        },
+        {
+          "name": "LayoutCount",
+          "value": 161
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 211
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106802
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.049899
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 48.04294
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.505273
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 58.507333
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.802291
+        },
+        {
+          "name": "ThreadTime",
+          "value": 2.932611
+        },
+        {
+          "name": "ProcessTime",
+          "value": 11.2
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17050844
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 18227200
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpMetricsSnapshot": [
+        {
+          "name": "Timestamp",
+          "value": 42210.264177
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1235
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3678
+        },
+        {
+          "name": "LayoutCount",
+          "value": 161
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 219
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106802
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.050307
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 55.491194
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.506983
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 65.967158
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.811744
+        },
+        {
+          "name": "ThreadTime",
+          "value": 3.000441
+        },
+        {
+          "name": "ProcessTime",
+          "value": 11.56
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17643976
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 18489344
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpDurationDeltaMs": {
+        "TaskDuration": 7459.824999999995,
+        "ScriptDuration": 1.7100000000001003,
+        "LayoutDuration": 0,
+        "RecalcStyleDuration": 0.40799999999999864
+      },
+      "cdpInterpretation": "Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time."
+    },
+    "broadcast": {
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 5,
+        "world": null,
+        "broadcast": true,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "domeReadiness": {
+        "status": "NOT_APPLICABLE",
+        "reason": "This venue has no dome."
+      },
+      "samples": [
+        {
+          "completeMs": 1048,
+          "submitMs": 14.700000002980232,
+          "completionWaitMs": 1033.2999999970198,
+          "completed": true,
+          "calls": 651,
+          "triangles": 649456,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0,
+            "orchestra": 0.7000000029802322,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.09999999403953552,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 13,
+            "broadcast": 0.10000000149011612
+          },
+          "geometries": 471,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1254.7999999970198,
+          "submitMs": 16.799999997019768,
+          "completionWaitMs": 1238,
+          "completed": true,
+          "calls": 837,
+          "triangles": 1222599,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 1,
+            "stage": 0.20000000298023224,
+            "effects": 0,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6999999955296516,
+            "renderSubmit": 13.299999997019768,
+            "broadcast": 6.5
+          },
+          "geometries": 471,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1045.6999999955297,
+          "submitMs": 8.299999997019768,
+          "completionWaitMs": 1037.3999999985099,
+          "completed": true,
+          "calls": 651,
+          "triangles": 649512,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.5999999940395355,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 6.5999999940395355,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1217.3000000044703,
+          "submitMs": 10.800000004470348,
+          "completionWaitMs": 1206.5,
+          "completed": true,
+          "calls": 837,
+          "triangles": 1222655,
+          "times": {
+            "hall": 0.09999999403953552,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 8.899999998509884,
+            "broadcast": 4.899999998509884
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1042.3000000044703,
+          "submitMs": 7.200000002980232,
+          "completionWaitMs": 1035.1000000014901,
+          "completed": true,
+          "calls": 651,
+          "triangles": 649512,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 5.5,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1228.7999999970198,
+          "submitMs": 10,
+          "completionWaitMs": 1218.7999999970198,
+          "completed": true,
+          "calls": 837,
+          "triangles": 1222599,
+          "times": {
+            "hall": 0,
+            "visual": 0.19999999552965164,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 8.300000004470348,
+            "broadcast": 4.600000001490116
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1017.8999999985099,
+          "submitMs": 9,
+          "completionWaitMs": 1008.8999999985099,
+          "completed": true,
+          "calls": 651,
+          "triangles": 649456,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.6999999955296516,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.30000000447034836,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5999999940395355,
+            "renderSubmit": 7.300000004470348,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1254.9000000059605,
+          "submitMs": 15.600000001490116,
+          "completionWaitMs": 1239.3000000044703,
+          "completed": true,
+          "calls": 836,
+          "triangles": 1217839,
+          "times": {
+            "hall": 0.09999999403953552,
+            "visual": 0,
+            "orchestra": 0.7000000029802322,
+            "stage": 0.20000000298023224,
+            "effects": 0,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 1,
+            "renderSubmit": 13.100000001490116,
+            "broadcast": 5.899999998509884
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        }
+      ],
+      "timing": {
+        "metric": "completeMs",
+        "meanMs": 1138.7125000003725,
+        "p50Ms": 1048,
+        "p95Ms": 1254.9000000059605,
+        "p99Ms": 1254.9000000059605
+      },
+      "meanCalls": 743.875,
+      "meanTriangles": 935453.5,
+      "phaseMeanMs": {
+        "hall": 0.037499998696148396,
+        "visual": 0.0625,
+        "orchestra": 0.6875,
+        "stage": 0.12500000186264515,
+        "effects": 0,
+        "director": 0.1500000013038516,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0,
+        "syncLite": 0.6124999988824129,
+        "renderSubmit": 9.5,
+        "broadcast": 2.75
+      },
+      "cdpMetricsBefore": [
+        {
+          "name": "Timestamp",
+          "value": 42216.33442
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1236
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3706
+        },
+        {
+          "name": "LayoutCount",
+          "value": 162
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 225
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106852
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.05093
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 61.299212
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.509116
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 71.786222
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.819984
+        },
+        {
+          "name": "ThreadTime",
+          "value": 3.07416
+        },
+        {
+          "name": "ProcessTime",
+          "value": 11.85
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17620880
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 19800064
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpMetricsSnapshot": [
+        {
+          "name": "Timestamp",
+          "value": 42225.470691
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1236
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3714
+        },
+        {
+          "name": "LayoutCount",
+          "value": 162
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 233
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106852
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.051382
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 70.416618
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.510539
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 80.917153
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.831634
+        },
+        {
+          "name": "ThreadTime",
+          "value": 3.179331
+        },
+        {
+          "name": "ProcessTime",
+          "value": 12.28
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17686888
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 19537920
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpDurationDeltaMs": {
+        "TaskDuration": 9130.931000000004,
+        "ScriptDuration": 1.422999999999952,
+        "LayoutDuration": 0,
+        "RecalcStyleDuration": 0.4519999999999941
+      },
+      "cdpInterpretation": "Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time."
+    },
+    "broadcast-hidden": {
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            6,
+            40.4
+          ],
+          "target": [
+            0,
+            6,
+            48
+          ],
+          "fov": 64
+        },
+        "musicTime": 5,
+        "world": null,
+        "broadcast": true,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "domeReadiness": {
+        "status": "NOT_APPLICABLE",
+        "reason": "This venue has no dome."
+      },
+      "samples": [
+        {
+          "completeMs": 448,
+          "submitMs": 5.100000001490116,
+          "completionWaitMs": 442.8999999985099,
+          "completed": true,
+          "calls": 261,
+          "triangles": 273751,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.5999999940395355,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 3.600000001490116,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 462.70000000298023,
+          "submitMs": 4.899999998509884,
+          "completionWaitMs": 457.80000000447035,
+          "completed": true,
+          "calls": 261,
+          "triangles": 273751,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 3.2000000029802322,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 470,
+          "submitMs": 5.899999998509884,
+          "completionWaitMs": 464.1000000014901,
+          "completed": true,
+          "calls": 261,
+          "triangles": 273751,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 1.0999999940395355,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6999999955296516,
+            "renderSubmit": 3.7000000029802322,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 475.8999999985099,
+          "submitMs": 5.200000002980232,
+          "completionWaitMs": 470.69999999552965,
+          "completed": true,
+          "calls": 261,
+          "triangles": 273751,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.19999999552965164,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 3.4000000059604645,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 458.5,
+          "submitMs": 5.300000004470348,
+          "completionWaitMs": 453.19999999552965,
+          "completed": true,
+          "calls": 261,
+          "triangles": 273751,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 1,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 3.100000001490116,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 466.80000000447035,
+          "submitMs": 5.200000002980232,
+          "completionWaitMs": 461.6000000014901,
+          "completed": true,
+          "calls": 261,
+          "triangles": 273751,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 1.1000000014901161,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.7000000029802322,
+            "renderSubmit": 2.899999998509884,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 500.5,
+          "submitMs": 6.799999997019768,
+          "completionWaitMs": 493.70000000298023,
+          "completed": true,
+          "calls": 261,
+          "triangles": 273751,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.7999999970197678,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.10000000149011612,
+            "syncLite": 0.5999999940395355,
+            "renderSubmit": 4.799999997019768,
+            "broadcast": 0
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 482.29999999701977,
+          "submitMs": 5.100000001490116,
+          "completionWaitMs": 477.19999999552965,
+          "completed": true,
+          "calls": 261,
+          "triangles": 273751,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.09999999403953552,
+            "effects": 0,
+            "director": 0,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.7000000029802322,
+            "renderSubmit": 3.2000000029802322,
+            "broadcast": 0.19999999552965164
+          },
+          "geometries": 472,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        }
+      ],
+      "timing": {
+        "metric": "completeMs",
+        "meanMs": 470.58750000037253,
+        "p50Ms": 466.80000000447035,
+        "p95Ms": 500.5,
+        "p99Ms": 500.5
+      },
+      "meanCalls": 261,
+      "meanTriangles": 273751,
+      "phaseMeanMs": {
+        "hall": 0.012500000186264515,
+        "visual": 0.07500000111758709,
+        "orchestra": 0.7999999988824129,
+        "stage": 0.11249999981373549,
+        "effects": 0,
+        "director": 0.06250000093132257,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0.012500000186264515,
+        "syncLite": 0.6124999998137355,
+        "renderSubmit": 3.4875000016763806,
+        "broadcast": 0.024999999441206455
+      },
+      "cdpMetricsBefore": [
+        {
+          "name": "Timestamp",
+          "value": 42227.580278
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1236
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3718
+        },
+        {
+          "name": "LayoutCount",
+          "value": 162
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 239
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106852
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.051727
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 72.24789
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.515368
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 82.760521
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.838556
+        },
+        {
+          "name": "ThreadTime",
+          "value": 3.215873
+        },
+        {
+          "name": "ProcessTime",
+          "value": 12.38
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17735540
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 19537920
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpMetricsSnapshot": [
+        {
+          "name": "Timestamp",
+          "value": 42231.37371
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1236
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3726
+        },
+        {
+          "name": "LayoutCount",
+          "value": 162
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 247
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106852
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.052189
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 76.021873
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.516714
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 86.543228
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.845472
+        },
+        {
+          "name": "ThreadTime",
+          "value": 3.272486
+        },
+        {
+          "name": "ProcessTime",
+          "value": 12.57
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17814552
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 19537920
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpDurationDeltaMs": {
+        "TaskDuration": 3782.707000000002,
+        "ScriptDuration": 1.3459999999998473,
+        "LayoutDuration": 0,
+        "RecalcStyleDuration": 0.46199999999999714
+      },
+      "cdpInterpretation": "Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time."
+    },
+    "broadcast-return": {
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 5,
+        "world": null,
+        "broadcast": true,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "domeReadiness": {
+        "status": "NOT_APPLICABLE",
+        "reason": "This venue has no dome."
+      },
+      "samples": [
+        {
+          "completeMs": 1071.8000000044703,
+          "submitMs": 7.5,
+          "completionWaitMs": 1064.3000000044703,
+          "completed": true,
+          "calls": 651,
+          "triangles": 649456,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.7000000029802322,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.09999999403953552,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 6,
+            "broadcast": 0
+          },
+          "geometries": 474,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1315,
+          "submitMs": 10,
+          "completionWaitMs": 1305,
+          "completed": true,
+          "calls": 837,
+          "triangles": 1217531,
+          "times": {
+            "hall": 0.09999999403953552,
+            "visual": 0,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5,
+            "renderSubmit": 8.00000000745058,
+            "broadcast": 4.100000001490116
+          },
+          "geometries": 474,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1081.9000000059605,
+          "submitMs": 8.300000004470348,
+          "completionWaitMs": 1073.6000000014901,
+          "completed": true,
+          "calls": 651,
+          "triangles": 649456,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.7000000029802322,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.19999999552965164,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 6.5,
+            "broadcast": 0
+          },
+          "geometries": 474,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1319.3000000044703,
+          "submitMs": 12.800000004470348,
+          "completionWaitMs": 1306.5,
+          "completed": true,
+          "calls": 837,
+          "triangles": 1217531,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.7000000029802322,
+            "stage": 0.09999999403953552,
+            "effects": 0.10000000149011612,
+            "director": 0.3999999985098839,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.10000000149011612,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 10.600000001490116,
+            "broadcast": 5.600000001490116
+          },
+          "geometries": 474,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1070.1000000014901,
+          "submitMs": 19.899999998509884,
+          "completionWaitMs": 1050.2000000029802,
+          "completed": true,
+          "calls": 651,
+          "triangles": 649400,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.6999999955296516,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.5999999940395355,
+            "renderSubmit": 18,
+            "broadcast": 0
+          },
+          "geometries": 474,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1232.6000000014901,
+          "submitMs": 8.400000005960464,
+          "completionWaitMs": 1224.1999999955297,
+          "completed": true,
+          "calls": 837,
+          "triangles": 1217475,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.5,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0.09999999403953552,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.4000000059604645,
+            "renderSubmit": 6.800000004470348,
+            "broadcast": 4
+          },
+          "geometries": 474,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1056.5,
+          "submitMs": 8,
+          "completionWaitMs": 1048.5,
+          "completed": true,
+          "calls": 651,
+          "triangles": 649344,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.09999999403953552,
+            "effects": 0,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 6.300000004470348,
+            "broadcast": 0
+          },
+          "geometries": 474,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1279.8999999985099,
+          "submitMs": 12.399999998509884,
+          "completionWaitMs": 1267.5,
+          "completed": true,
+          "calls": 837,
+          "triangles": 1217419,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0,
+            "orchestra": 0.7999999970197678,
+            "stage": 0,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0,
+            "syncLite": 0.6999999955296516,
+            "renderSubmit": 10.399999998509884,
+            "broadcast": 5.5
+          },
+          "geometries": 474,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        }
+      ],
+      "timing": {
+        "metric": "completeMs",
+        "meanMs": 1178.387500002049,
+        "p50Ms": 1081.9000000059605,
+        "p95Ms": 1319.3000000044703,
+        "p99Ms": 1319.3000000044703
+      },
+      "meanCalls": 744,
+      "meanTriangles": 933451.5,
+      "phaseMeanMs": {
+        "hall": 0.03749999962747097,
+        "visual": 0.037500000558793545,
+        "orchestra": 0.6625000005587935,
+        "stage": 0.08749999944120646,
+        "effects": 0.012500000186264515,
+        "director": 0.17499999981373549,
+        "listener": 0.01249999925494194,
+        "audioRoom": 0,
+        "fx": 0.012500000186264515,
+        "syncLite": 0.5625,
+        "renderSubmit": 9.07500000204891,
+        "broadcast": 2.400000000372529
+      },
+      "cdpMetricsBefore": [
+        {
+          "name": "Timestamp",
+          "value": 42236.565051
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1236
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3730
+        },
+        {
+          "name": "LayoutCount",
+          "value": 162
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 253
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106852
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.052589
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 81.078679
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.518357
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 91.612116
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.855511
+        },
+        {
+          "name": "ThreadTime",
+          "value": 3.334005
+        },
+        {
+          "name": "ProcessTime",
+          "value": 12.83
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 17857368
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 19537920
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpMetricsSnapshot": [
+        {
+          "name": "Timestamp",
+          "value": 42246.02023
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1236
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3738
+        },
+        {
+          "name": "LayoutCount",
+          "value": 162
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 261
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106852
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.053039
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 90.515333
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.519688
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 101.060122
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.865082
+        },
+        {
+          "name": "ThreadTime",
+          "value": 3.438531
+        },
+        {
+          "name": "ProcessTime",
+          "value": 13.31
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 18030548
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 19537920
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpDurationDeltaMs": {
+        "TaskDuration": 9448.006000000007,
+        "ScriptDuration": 1.330999999999971,
+        "LayoutDuration": 0,
+        "RecalcStyleDuration": 0.45000000000000595
+      },
+      "cdpInterpretation": "Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time."
+    },
+    "effects-show": {
+      "scenario": {
+        "camera": {
+          "position": [
+            0,
+            4,
+            16
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": true
+      },
+      "domeReadiness": {
+        "status": "NOT_APPLICABLE",
+        "reason": "This venue has no dome."
+      },
+      "samples": [
+        {
+          "completeMs": 1253.3000000044703,
+          "submitMs": 8.400000005960464,
+          "completionWaitMs": 1244.8999999985099,
+          "completed": true,
+          "calls": 659,
+          "triangles": 653708,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 1.1000000014901161,
+            "stage": 0,
+            "effects": 0.10000000149011612,
+            "director": 0,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.5,
+            "syncLite": 0.5,
+            "renderSubmit": 5.9000000059604645,
+            "broadcast": 0
+          },
+          "geometries": 489,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 3225.4000000059605,
+          "submitMs": 1132.5,
+          "completionWaitMs": 2092.9000000059605,
+          "completed": true,
+          "calls": 659,
+          "triangles": 653764,
+          "times": {
+            "hall": 0,
+            "visual": 0.10000000149011612,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.20000000298023224,
+            "effects": 0.09999999403953552,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.29999999701976776,
+            "syncLite": 0.5,
+            "renderSubmit": 1130.2999999970198,
+            "broadcast": 0
+          },
+          "geometries": 490,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1066.7000000029802,
+          "submitMs": 7.200000002980232,
+          "completionWaitMs": 1059.5,
+          "completed": true,
+          "calls": 659,
+          "triangles": 653764,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.10000000149011612,
+            "effects": 0.10000000149011612,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.3999999985098839,
+            "syncLite": 0.5,
+            "renderSubmit": 5.299999997019768,
+            "broadcast": 0
+          },
+          "geometries": 490,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1113.8999999985099,
+          "submitMs": 8.699999995529652,
+          "completionWaitMs": 1105.2000000029802,
+          "completed": true,
+          "calls": 659,
+          "triangles": 653764,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0,
+            "orchestra": 0.6999999955296516,
+            "stage": 0,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.3999999985098839,
+            "syncLite": 0.5,
+            "renderSubmit": 6.799999997019768,
+            "broadcast": 0
+          },
+          "geometries": 490,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1069.8999999985099,
+          "submitMs": 8.600000001490116,
+          "completionWaitMs": 1061.2999999970198,
+          "completed": true,
+          "calls": 659,
+          "triangles": 653764,
+          "times": {
+            "hall": 0,
+            "visual": 0,
+            "orchestra": 0.7000000029802322,
+            "stage": 0.19999999552965164,
+            "effects": 0,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.5,
+            "syncLite": 0.6999999955296516,
+            "renderSubmit": 6.200000002980232,
+            "broadcast": 0
+          },
+          "geometries": 490,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1080.5999999940395,
+          "submitMs": 10.299999997019768,
+          "completionWaitMs": 1070.2999999970198,
+          "completed": true,
+          "calls": 659,
+          "triangles": 653764,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0,
+            "orchestra": 0.5999999940395355,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.29999999701976776,
+            "syncLite": 0.5,
+            "renderSubmit": 8.399999998509884,
+            "broadcast": 0
+          },
+          "geometries": 490,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1251.3999999985099,
+          "submitMs": 12.199999995529652,
+          "completionWaitMs": 1239.2000000029802,
+          "completed": true,
+          "calls": 659,
+          "triangles": 653764,
+          "times": {
+            "hall": 0.10000000149011612,
+            "visual": 0,
+            "orchestra": 0.6000000014901161,
+            "stage": 0.09999999403953552,
+            "effects": 0,
+            "director": 0.10000000149011612,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.5,
+            "syncLite": 0.6000000014901161,
+            "renderSubmit": 10.099999994039536,
+            "broadcast": 0
+          },
+          "geometries": 490,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        },
+        {
+          "completeMs": 1211.1999999955297,
+          "submitMs": 9.599999994039536,
+          "completionWaitMs": 1201.6000000014901,
+          "completed": true,
+          "calls": 659,
+          "triangles": 653764,
+          "times": {
+            "hall": 0,
+            "visual": 0.09999999403953552,
+            "orchestra": 3,
+            "stage": 0.10000000149011612,
+            "effects": 0,
+            "director": 0.20000000298023224,
+            "listener": 0,
+            "audioRoom": 0,
+            "fx": 0.3999999985098839,
+            "syncLite": 0.5,
+            "renderSubmit": 5.199999995529652,
+            "broadcast": 0
+          },
+          "geometries": 490,
+          "textures": 92,
+          "heap": 139000000,
+          "quality": "high",
+          "renderScale": 1,
+          "visibility": "visible",
+          "asleep": false,
+          "glError": 0,
+          "contextLost": false
+        }
+      ],
+      "timing": {
+        "metric": "completeMs",
+        "meanMs": 1409.0499999998137,
+        "p50Ms": 1113.8999999985099,
+        "p95Ms": 3225.4000000059605,
+        "p99Ms": 3225.4000000059605
+      },
+      "meanCalls": 659,
+      "meanTriangles": 653757,
+      "phaseMeanMs": {
+        "hall": 0.037500000558793545,
+        "visual": 0.03749999962747097,
+        "orchestra": 0.9874999998137355,
+        "stage": 0.09999999962747097,
+        "effects": 0.03749999962747097,
+        "director": 0.12500000186264515,
+        "listener": 0,
+        "audioRoom": 0,
+        "fx": 0.4124999986961484,
+        "syncLite": 0.537499999627471,
+        "renderSubmit": 147.27499999850988,
+        "broadcast": 0
+      },
+      "cdpMetricsBefore": [
+        {
+          "name": "Timestamp",
+          "value": 42253.169601
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1237
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3746
+        },
+        {
+          "name": "LayoutCount",
+          "value": 162
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 267
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106852
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.053415
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 97.357603
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.522628
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 107.91553
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.874904
+        },
+        {
+          "name": "ThreadTime",
+          "value": 3.547074
+        },
+        {
+          "name": "ProcessTime",
+          "value": 13.68
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 20653024
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 29237248
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpMetricsSnapshot": [
+        {
+          "name": "Timestamp",
+          "value": 42264.475465
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 90
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 167
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 5
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 1237
+        },
+        {
+          "name": "Resources",
+          "value": 960
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 6
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 1
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 2
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 3754
+        },
+        {
+          "name": "LayoutCount",
+          "value": 162
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 275
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.106852
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.053908
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 108.643421
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 3.524458
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000128
+        },
+        {
+          "name": "TaskDuration",
+          "value": 119.213574
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 6.884807
+        },
+        {
+          "name": "ThreadTime",
+          "value": 3.674588
+        },
+        {
+          "name": "ProcessTime",
+          "value": 14.19
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 23111360
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 30285824
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 42151.571838
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 42142.578349
+        },
+        {
+          "name": "NavigationStart",
+          "value": 42142.546338
+        }
+      ],
+      "cdpDurationDeltaMs": {
+        "TaskDuration": 11298.04399999999,
+        "ScriptDuration": 1.8299999999999983,
+        "LayoutDuration": 0,
+        "RecalcStyleDuration": 0.4930000000000004
+      },
+      "cdpInterpretation": "Main-thread task/script duration over the controlled collection window, including QA overhead and synchronous waits; not CPU utilization or pure GPU time."
+    }
+  },
+  "status": "PASS",
+  "environment": {
+    "browserVersion": "153.0.8010.0",
+    "playwrightVersion": "1.64.1",
+    "platform": "linux",
+    "architecture": "x64",
+    "softwareRequested": true,
+    "chromeArgs": [
+      "--ash-no-nudges",
+      "--disable-domain-reliability",
+      "--disable-print-preview",
+      "--disk-cache-size=33554432",
+      "--no-default-browser-check",
+      "--no-pings",
+      "--font-render-hinting=none",
+      "--disable-features=IsolateOrigins,site-per-process",
+      "--enable-features=SharedArrayBuffer",
+      "--ignore-gpu-blocklist",
+      "--allow-running-insecure-content",
+      "--disable-setuid-sandbox",
+      "--disable-site-isolation-trials",
+      "--disable-web-security",
+      "--headless='shell'",
+      "--no-sandbox",
+      "--no-zygote",
+      "--use-gl=angle",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader"
+    ],
+    "fontMode": "local",
+    "headless": true
+  },
+  "diagnostics": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "warnings": [],
+    "failedRequests": []
+  },
+  "sourceHashes": {
+    "js/boot.js": {
+      "sha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4"
+    },
+    "js/main.js": {
+      "sha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea"
+    },
+    "js/quality.js": {
+      "sha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559"
+    },
+    "js/scene/hall.js": {
+      "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+    },
+    "js/scene/seats.js": {
+      "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+    },
+    "js/scene/audience.js": {
+      "sha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85"
+    },
+    "js/scene/screen.js": {
+      "sha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade"
+    },
+    "js/scene/sphere.js": {
+      "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc"
+    },
+    "js/scene/dome3d.js": {
+      "sha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f"
+    },
+    "js/scene/domeshow.js": {
+      "sha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5"
+    },
+    "js/audio/engine.js": {
+      "sha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a"
+    },
+    "js/audio/performance.js": {
+      "sha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13"
+    }
+  },
+  "initialReadiness": {
+    "status": "READY",
+    "policy": "existing UI readiness plus visible Sphere dome; no forced visibility",
+    "uiReady": true,
+    "dome": {
+      "status": "NOT_APPLICABLE"
+    },
+    "interpretation": "UI and visibility gate only; actual draw and program evidence is checked after each scenario warmup."
+  },
+  "fixture": {
+    "crowd": 200,
+    "seats": 1885,
+    "eligibleAudienceSeats": 1879,
+    "recitalSeats": 6,
+    "lite": true,
+    "piece": "beethoven-ode-to-joy",
+    "sceneState": {
+      "phase": "playing",
+      "asleep": false,
+      "interval": false,
+      "recital": false,
+      "practice": false,
+      "hush": 0,
+      "sleepy": false,
+      "seatGroupVisible": true,
+      "audienceVisible": true
+    }
+  },
+  "meta": {
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "gpuTimer": true,
+    "pixelRatio": 1.5,
+    "viewport": [
+      390,
+      844
+    ],
+    "quality": "high",
+    "renderScale": 1,
+    "hardwareConcurrency": 9,
+    "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+  },
+  "longTasks": [
+    {
+      "start": 235.40000000596046,
+      "duration": 3450
+    },
+    {
+      "start": 10987.10000000149,
+      "duration": 70
+    }
+  ],
+  "sourceHashesAfter": {
+    "js/boot.js": {
+      "sha256": "45148c4e173fe40768eefcc1f1b7bd36d62584a4811c14d402afa3cda7ef8ab4"
+    },
+    "js/main.js": {
+      "sha256": "93476c41f7815c4984840553a412d4fe4dc3eb7abd5dfb8130c6aee6f5f1f5ea"
+    },
+    "js/quality.js": {
+      "sha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559"
+    },
+    "js/scene/hall.js": {
+      "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+    },
+    "js/scene/seats.js": {
+      "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+    },
+    "js/scene/audience.js": {
+      "sha256": "cd71b73692330b1a4b69665b5339de94af70faa393373c99bd58d0a884d3ce85"
+    },
+    "js/scene/screen.js": {
+      "sha256": "c336b5dc4ba9cc52c9c42d288a2f6d4f171cf3348380350d7a9ae6f66a014ade"
+    },
+    "js/scene/sphere.js": {
+      "sha256": "55f3c0ec16ff3cb092f98f449d7ea7774fb72f9f92cf586bc9e1c0f8793fa6dc"
+    },
+    "js/scene/dome3d.js": {
+      "sha256": "0fd2b8a6df487f670f7a000bdd15e004efd3427f26dad7af2e0c07a07bd9e06f"
+    },
+    "js/scene/domeshow.js": {
+      "sha256": "96b51cb6889adf652b6c9657a54203c333508e7f423c8420b23d58eb93bc53b5"
+    },
+    "js/audio/engine.js": {
+      "sha256": "c194f89992a132a1729475791ba9953536bde616f357876c9dcbc2c584bbe57a"
+    },
+    "js/audio/performance.js": {
+      "sha256": "a7b48b3c333ee100d86fe7990ff82bf116d660059f65203e3666bdb86d5ddb13"
+    }
+  }
+}
