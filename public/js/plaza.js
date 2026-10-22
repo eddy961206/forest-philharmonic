@@ -13,6 +13,7 @@ import { identity, setName, issueTicket, heldTicket, lastTicket, ticketElement, 
 import { SETLISTS } from './programs.js';
 import { listRooms } from './net/room.js';
 import { thumbStick, tapButton } from './joystick.js';
+import { watchRenderContext } from './render-status.js';
 
 const $ = (id) => document.getElementById(id);
 const GATE_IDS = Object.keys(PLAZA.gates);
@@ -942,8 +943,19 @@ let skip = 0;
 // (on a phone the booth stands on a plain dark veil: the square behind it is
 // drawn once and left - nothing there moves while you buy)
 let still = false;
+let pendingFrame = null;
+let graphicsUnavailable = false;
+function requestFrame() {
+  if (pendingFrame === null && !document.hidden && !graphicsUnavailable) pendingFrame = requestAnimationFrame(frame);
+}
+function cancelFrame() {
+  if (pendingFrame !== null) cancelAnimationFrame(pendingFrame);
+  pendingFrame = null;
+}
 function frame() {
-  requestAnimationFrame(frame);
+  pendingFrame = null;
+  if (document.hidden || graphicsUnavailable) return;
+  requestFrame();
   const now = performance.now();
   if (still && boothOpen) { lastT = now; return; }
   // (behind the booth's blurred glass, every other frame is plenty)
@@ -955,6 +967,20 @@ function frame() {
   renderer.render(scene, camera);
   still = boothOpen && isTouch;
 }
+document.addEventListener('visibilitychange', () => {
+  lastT = performance.now();
+  if (document.hidden) cancelFrame();
+  else requestFrame();
+});
+watchRenderContext(renderer.domElement, {
+  lost() { graphicsUnavailable = true; cancelFrame(); },
+  restored() {
+    still = false;
+    lastT = performance.now();
+    graphicsUnavailable = false;
+    requestFrame();
+  },
+});
 
 // one moment of the square (without drawing it)
 function step(dt, now = performance.now()) {
@@ -1003,7 +1029,7 @@ window.addEventListener('resize', () => {
 setTimeout(() => $('pzLoading').classList.add('done'), 2500);
 renderer.compile(scene, camera);
 requestAnimationFrame(() => {
-  frame();
+  requestFrame();
   setTimeout(() => $('pzLoading').classList.add('done'), 120);
   // (back from a building: not the first-time welcome again)
   // (a building's address without a ticket sent you here: say why)

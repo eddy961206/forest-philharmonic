@@ -591,16 +591,18 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
     },
     get every() { return every; },
     set every(v) { every = v; },
-    setSize(nextSize) {
-      if (nextSize === size) return;
-      size = nextSize;
+    invalidate() {
       for (const slot of slots) {
-        slot.rt.setSize(size, size);
-        // Resizing discards every face. An offscreen face must be treated as
-        // stale when a viewer later turns toward it, even on a skipped frame.
         slot.faceWorld = [];
         slot.fresh = true;
       }
+    },
+    setSize(nextSize) {
+      if (nextSize === size) return;
+      size = nextSize;
+      for (const slot of slots) slot.rt.setSize(size, size);
+      // Both resize and context restoration discard cached GPU pixels.
+      api.invalidate();
     },
     // keep `want` (world names, up to two) rendered; returns the slot of each.
     // mask: the cube faces anyone can see right now (all by default)

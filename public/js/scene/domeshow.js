@@ -859,6 +859,7 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
       worlds.every = profile.every;
       worlds.setSize(profile.size);
     },
+    invalidate() { worlds?.invalidate(); },
     update(dt, { time = 0, level = 0, beat = 0, down = 0, playing = false } = {}) {
       uniforms.uTime.value += dt;
       uniforms.uLevel.value += (Math.min(1, level * 5) - uniforms.uLevel.value) * Math.min(1, dt * 4);

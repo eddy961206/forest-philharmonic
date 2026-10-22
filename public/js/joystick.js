@@ -9,21 +9,35 @@
 // the browser makes no click of a tap while another finger is down (the
 // left thumb on the stick). The mouse and the keyboard keep the plain click
 // (and the click that follows a lone finger's tap is not counted twice).
-export function tapButton(el, fn) {
+export function tapButton(el, fn, { onDown = false } = {}) {
   if (!el) return;
   let finger = null;
-  let tapped = 0;
-  el.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' && !el.disabled) finger = e.pointerId; });
+  let tapped = -Infinity;
+  const fire = (e) => { tapped = performance.now(); fn(e); };
+  el.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' || el.disabled || finger !== null) return;
+    finger = e.pointerId;
+    // Opening a card on pointerup changes what is under the finger. Suppress
+    // compatibility mousedown so it cannot blur the card's newly focused control.
+    e.preventDefault();
+    if (onDown) fire(e);
+  });
   el.addEventListener('pointerup', (e) => {
     if (e.pointerId !== finger) return;
     finger = null;
+    if (onDown || el.disabled) return;
     const r = el.getBoundingClientRect();
     if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
-    tapped = performance.now();
-    fn(e);
+    fire(e);
   });
-  el.addEventListener('pointercancel', () => { finger = null; });
-  el.addEventListener('click', (e) => { if (performance.now() - tapped >= 800) fn(e); });
+  const cancel = (e) => { if (e.pointerId === finger) finger = null; };
+  el.addEventListener('pointercancel', cancel);
+  el.addEventListener('lostpointercapture', cancel);
+  el.addEventListener('click', (e) => {
+    // Only the compatibility click from a pointer is a duplicate. Keyboard
+    // and assistive-technology clicks (detail=0) must still work immediately.
+    if (!el.disabled && (e.detail === 0 || performance.now() - tapped >= 800)) fn(e);
+  });
 }
 
 export function thumbStick({ base, knob, zone, radius = 46 }) {
@@ -36,10 +50,9 @@ export function thumbStick({ base, knob, zone, radius = 46 }) {
   const start = (e) => {
     if (id !== null) return;
     id = e.pointerId;
-    if (!rest) {
-      // (offsets ignore the transform: right even while it is gliding home)
-      rest = { x: base.offsetLeft + base.offsetWidth / 2, y: base.offsetTop + base.offsetHeight / 2, half: base.offsetWidth / 2 };
-    }
+    // A wrapped dock can move the resting place without a window resize.
+    // Offsets ignore the transform, including a still-running glide home.
+    rest = { x: base.offsetLeft + base.offsetWidth / 2, y: base.offsetTop + base.offsetHeight / 2, half: base.offsetWidth / 2 };
     // under the thumb (kept wholly on the screen)
     cx = Math.min(window.innerWidth - rest.half - 4, Math.max(rest.half + 4, e.clientX));
     cy = Math.min(window.innerHeight - rest.half - 4, Math.max(rest.half + 4, e.clientY));
@@ -62,8 +75,7 @@ export function thumbStick({ base, knob, zone, radius = 46 }) {
     out.x = (dx / radius) * k;
     out.y = (dy / radius) * k;
   };
-  const end = (e) => {
-    if (e.pointerId !== id) return;
+  const reset = () => {
     id = null;
     out.active = false;
     out.x = 0;
@@ -72,6 +84,8 @@ export function thumbStick({ base, knob, zone, radius = 46 }) {
     base.classList.remove('active');
     base.style.transform = ''; // glides home (see .joystick's transition)
   };
+  const end = (e) => { if (e.pointerId === id) reset(); };
+  out.reset = reset;
   for (const el of [zone, base]) {
     if (!el) continue;
     el.addEventListener('pointerdown', start);
@@ -90,5 +104,7 @@ export function thumbStick({ base, knob, zone, radius = 46 }) {
     cy = Math.min(window.innerHeight - rest.half - 4, Math.max(rest.half + 4, cy));
     base.style.transform = `translate(${cx - rest.x}px, ${cy - rest.y}px)`;
   });
+  window.addEventListener('blur', reset);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) reset(); });
   return out;
 }
