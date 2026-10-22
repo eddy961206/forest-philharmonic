@@ -224,15 +224,41 @@ vec3 sSTARS(vec3 d0, float az, float el) {
 }
 
 vec3 sNEBULA(vec3 d, float az, float el) {
+  // Inside a star-forming nebula: glowing clouds of hydrogen (rose) and
+  // oxygen (teal) folded into pillars and filaments, dark lanes of dust
+  // in front of them, a cluster of young blue-white stars at the heart
+  // lighting it all, each bright one with its glow and spikes.
   vec3 q = d * 1.6 + vec3(0.0, 0.0, uTime * 0.01);
   float a = fbm(q + fbm(q * 1.7 + 3.0));
   float b = fbm(q * 2.3 - 5.0 + uTime * 0.008);
-  vec3 col = vec3(0.01, 0.0, 0.03);
-  col += vec3(0.55, 0.12, 0.45) * pow(a, 3.0) * 1.6;
-  col += vec3(0.1, 0.35, 0.65) * pow(b, 3.0) * 1.4;
+  vec3 hc = normalize(vec3(0.25, 0.55, -0.8)); // the cluster
+  float ca = acos(clamp(dot(d, hc), -1.0, 1.0));
+  float lit = 0.55 + 0.9 * exp(-ca * 2.2); // the clouds lit from the cluster
+  vec3 col = vec3(0.006, 0.0, 0.016);
+  col += vec3(0.6, 0.1, 0.28) * pow(a, 3.0) * 1.6 * lit;
+  col += vec3(0.04, 0.42, 0.5) * pow(b, 2.6) * 2.0 * lit;
+  float edge = smoothstep(0.07, 0.0, abs(a - 0.62)); // bright rims where the clouds face the stars
+  col += vec3(1.0, 0.55, 0.45) * edge * pow(a, 2.0) * 0.28 * lit;
   col += vec3(1.0, 0.75, 0.45) * pow(a * b, 4.0) * 3.0;
+  // dust in front: dark lanes eating into the glow
+  float dust = smoothstep(0.5, 0.68, fbm(q * 2.8 + 11.0));
+  col *= 1.0 - dust * 0.8;
   col *= 0.8 + 0.6 * uLevel;
-  return col + starfield(d, 0.8, 1.6) * (1.0 - a * 0.6);
+  col += starfield(d, 0.8, 1.6) * (1.0 - a * 0.6) * (1.0 - dust * 0.7);
+  // the young stars at the heart
+  for (int i = 0; i < 7 * uOne; i++) {
+    float fi = float(i);
+    vec2 o = (hash22(vec2(fi, 3.0)) - 0.5) * 0.35;
+    vec3 sd = normalize(hc + vec3(o.x, o.y, o.x * o.y));
+    float sa = acos(clamp(dot(d, sd), -1.0, 1.0));
+    float br = 0.4 + 0.8 * hash2(vec2(fi, 9.0));
+    vec3 rgt = normalize(cross(sd, vec3(0.0, 1.0, 0.0)));
+    vec3 upv = cross(rgt, sd);
+    vec2 pl = vec2(dot(d - sd, rgt), dot(d - sd, upv));
+    float spikes = (exp(-abs(pl.x) * 900.0) + exp(-abs(pl.y) * 900.0)) * exp(-sa * 40.0);
+    col += vec3(0.8, 0.88, 1.0) * br * (exp(-sa * sa * 90000.0) * 3.0 + exp(-sa * 60.0) * 0.12 + spikes * 0.6);
+  }
+  return col;
 }
 
 vec3 sAURORA(vec3 d, float az, float el) {
@@ -968,6 +994,32 @@ vec3 sVOYAGE(vec3 d, float az, float el) {
   float a = fbm(q + fbm(q * 1.6 + 2.0));
   c += vec3(0.32, 0.1, 0.42) * pow(a, 3.0) * 1.2 + vec3(0.06, 0.2, 0.42) * pow(fbm(q * 2.1 - 4.0), 3.0) * 1.1;
   c += milkyway(d) * 0.7 + starfield(d, 0.6, 1.0) * 0.6;
+  // a ringed giant far off, its night side toward us, slowly turning past
+  {
+    float pa = 0.9 - uTime * 0.004;
+    vec3 pd = normalize(vec3(sin(pa), 0.42, -cos(pa)));
+    float R = 0.16;
+    float sa = acos(clamp(dot(d, pd), -1.0, 1.0));
+    vec3 rgt = normalize(cross(pd, vec3(0.0, 1.0, 0.0)));
+    vec3 upv = cross(rgt, pd);
+    vec2 pl = vec2(dot(d, rgt), dot(d, upv));
+    vec3 sunDir = normalize(vec3(0.8, 0.2, 0.3));
+    vec3 nrm = normalize(d - pd * cos(sa) + pd * sqrt(max(R * R - sa * sa, 0.0)) * 0.0);
+    float disc = smoothstep(R, R - 0.004, sa);
+    float lat = pl.y / R;
+    float bands = 0.82 + 0.12 * sin(lat * 15.0 + 3.0 * fbm(vec3(pl * 18.0, 1.0))) + 0.06 * sin(lat * 47.0);
+    float lit = smoothstep(-0.2, 0.6, dot(normalize(vec3(pl / R, sqrt(max(1.0 - dot(pl / R, pl / R), 0.0)))), normalize(vec3(-0.85, 0.3, 0.2))));
+    vec3 planet = mix(vec3(0.42, 0.3, 0.2), vec3(0.5, 0.42, 0.32), smoothstep(-0.3, 0.3, lat)) * bands * (0.015 + 0.6 * lit);
+    // the rings: an ellipse through the planet's centre, hidden behind it on the far half
+    vec2 rp = vec2(pl.x, pl.y / 0.22 + pl.x * 0.6);
+    float rr = length(rp) / R;
+    float ring = smoothstep(1.35, 1.4, rr) * smoothstep(2.25, 2.2, rr) * (0.6 + 0.4 * noise(vec3(rr * 30.0, 0.0, 2.0))) * step(rr, 2.3);
+    ring *= 1.0 - smoothstep(1.75, 1.8, rr) * smoothstep(1.9, 1.85, rr) * 0.8; // a gap
+    float front = step(0.0, -pl.y / 0.22 - pl.x * 0.6 + 0.0) ; // the near half crosses in front
+    c = mix(c, planet, disc * (1.0 - ring * front * 0.9));
+    c += vec3(0.5, 0.42, 0.33) * ring * 0.22 * (1.0 - disc * (1.0 - front));
+    c += vec3(0.5, 0.45, 0.6) * exp(-max(sa - R, 0.0) * 120.0) * step(R, sa) * 0.08; // its thin air lit at the limb
+  }
   vec3 ro = vec3(0.0, 0.0, -uTime * 5.0);
   const float CELL = 7.0;
   for (int i = 0; i < 12 * uOne; i++) {
