@@ -1,0 +1,53 @@
+{
+  "index": 17,
+  "job": {
+    "id": "candidate-matrix-hall-low-mobile",
+    "script": "tools/bench/full-frame.mjs",
+    "args": [
+      "candidate-matrix",
+      "hall",
+      "low",
+      "mobile",
+      "front,wide,broadcast-hidden,broadcast-return"
+    ],
+    "env": {
+      "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+      "CHROME_EXECUTABLE": "/tmp/chromium",
+      "CHROME_ARGS": "[\"--no-sandbox\", \"--disable-dev-shm-usage\", \"--use-gl=angle\", \"--use-angle=swiftshader\", \"--enable-unsafe-swiftshader\"]",
+      "SOFTWARE_RENDERER": "1",
+      "FONT_MODE": "system",
+      "TIMEOUT_MS": "60000",
+      "WIDTH": "390",
+      "HEIGHT": "844",
+      "DPR": "1",
+      "SAMPLES": "4",
+      "WARMUP": "2",
+      "SCREENSHOTS": "1",
+      "BASE_URL": "http://127.0.0.1:8382",
+      "REVISION": "6c7817218814f00631089eb2c6f150d68190980f"
+    },
+    "timeoutSeconds": 360,
+    "directory": "render"
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/full-frame.mjs",
+    "candidate-matrix",
+    "hall",
+    "low",
+    "mobile",
+    "front,wide,broadcast-hidden,broadcast-return"
+  ],
+  "startedAt": "2026-10-22T00:45:24.206441+00:00",
+  "planSha256": "e9ed652ec45046ad1bc22ec7690cb66bcc0210c33fc34cf9fd23b8015aab13c9",
+  "collectorSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+  "runnerSha256": "2699605c709470533cdb7c7892b8ea7ca8a77fbce94ae64f9b01e86be17a77f8",
+  "timeoutSeconds": 360.0,
+  "status": "PASS",
+  "lastHeartbeatAt": "2026-10-22T00:45:44.208359+00:00",
+  "elapsedSeconds": 20.0,
+  "pid": 14153,
+  "exitCode": 0,
+  "finishedAt": "2026-10-22T00:45:45.640693+00:00",
+  "logSha256": "ec1dd0ab1866741d166354b87dc9e31bb2832884dc10ed749c0be39c5c0c3e1c"
+}

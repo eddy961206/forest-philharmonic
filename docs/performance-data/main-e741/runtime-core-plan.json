@@ -1,0 +1,160 @@
+[
+  {
+    "id": "audio-worker",
+    "script": "tools/bench/audio-worker.mjs",
+    "args": [
+      "candidate"
+    ],
+    "env": {
+      "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+      "CHROME_EXECUTABLE": "/tmp/chromium",
+      "CHROME_ARGS": "[\"--no-sandbox\", \"--disable-dev-shm-usage\", \"--use-gl=angle\", \"--use-angle=swiftshader\", \"--enable-unsafe-swiftshader\"]",
+      "SOFTWARE_RENDERER": "1",
+      "FONT_MODE": "system",
+      "TIMEOUT_MS": "60000",
+      "WIDTH": "640",
+      "HEIGHT": "360",
+      "DPR": "1",
+      "SAMPLES": "4",
+      "WARMUP": "2",
+      "SCREENSHOTS": "1",
+      "BASE_URL": "http://127.0.0.1:8382",
+      "REVISION": "6c7817218814f00631089eb2c6f150d68190980f"
+    },
+    "timeoutSeconds": 240,
+    "directory": "raw"
+  },
+  {
+    "id": "multiplayer",
+    "script": "tools/bench/multiplayer.mjs",
+    "args": [
+      "candidate"
+    ],
+    "env": {
+      "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+      "CHROME_EXECUTABLE": "/tmp/chromium",
+      "CHROME_ARGS": "[\"--no-sandbox\", \"--disable-dev-shm-usage\", \"--use-gl=angle\", \"--use-angle=swiftshader\", \"--enable-unsafe-swiftshader\"]",
+      "SOFTWARE_RENDERER": "1",
+      "FONT_MODE": "system",
+      "TIMEOUT_MS": "60000",
+      "WIDTH": "640",
+      "HEIGHT": "360",
+      "DPR": "1",
+      "SAMPLES": "4",
+      "WARMUP": "2",
+      "SCREENSHOTS": "1",
+      "BASE_URL": "http://127.0.0.1:8382",
+      "REVISION": "6c7817218814f00631089eb2c6f150d68190980f"
+    },
+    "timeoutSeconds": 60,
+    "directory": "raw"
+  },
+  {
+    "id": "baseline-loading-hall",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline",
+      "hall",
+      "desktop"
+    ],
+    "env": {
+      "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+      "CHROME_EXECUTABLE": "/tmp/chromium",
+      "CHROME_ARGS": "[\"--no-sandbox\", \"--disable-dev-shm-usage\", \"--use-gl=angle\", \"--use-angle=swiftshader\", \"--enable-unsafe-swiftshader\"]",
+      "SOFTWARE_RENDERER": "1",
+      "FONT_MODE": "system",
+      "TIMEOUT_MS": "60000",
+      "WIDTH": "640",
+      "HEIGHT": "360",
+      "DPR": "1",
+      "SAMPLES": "4",
+      "WARMUP": "2",
+      "SCREENSHOTS": "1",
+      "BASE_URL": "http://127.0.0.1:8381",
+      "REVISION": "e741811d1d7a040afcdd3a8230465980c64f82fc"
+    },
+    "timeoutSeconds": 240,
+    "directory": "raw"
+  },
+  {
+    "id": "candidate-loading-hall",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "candidate",
+      "hall",
+      "desktop"
+    ],
+    "env": {
+      "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+      "CHROME_EXECUTABLE": "/tmp/chromium",
+      "CHROME_ARGS": "[\"--no-sandbox\", \"--disable-dev-shm-usage\", \"--use-gl=angle\", \"--use-angle=swiftshader\", \"--enable-unsafe-swiftshader\"]",
+      "SOFTWARE_RENDERER": "1",
+      "FONT_MODE": "system",
+      "TIMEOUT_MS": "60000",
+      "WIDTH": "640",
+      "HEIGHT": "360",
+      "DPR": "1",
+      "SAMPLES": "4",
+      "WARMUP": "2",
+      "SCREENSHOTS": "1",
+      "BASE_URL": "http://127.0.0.1:8382",
+      "REVISION": "6c7817218814f00631089eb2c6f150d68190980f"
+    },
+    "timeoutSeconds": 240,
+    "directory": "raw"
+  },
+  {
+    "id": "baseline-loading-sphere",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "baseline",
+      "sphere",
+      "desktop"
+    ],
+    "env": {
+      "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+      "CHROME_EXECUTABLE": "/tmp/chromium",
+      "CHROME_ARGS": "[\"--no-sandbox\", \"--disable-dev-shm-usage\", \"--use-gl=angle\", \"--use-angle=swiftshader\", \"--enable-unsafe-swiftshader\"]",
+      "SOFTWARE_RENDERER": "1",
+      "FONT_MODE": "system",
+      "TIMEOUT_MS": "60000",
+      "WIDTH": "640",
+      "HEIGHT": "360",
+      "DPR": "1",
+      "SAMPLES": "4",
+      "WARMUP": "2",
+      "SCREENSHOTS": "1",
+      "BASE_URL": "http://127.0.0.1:8381",
+      "REVISION": "e741811d1d7a040afcdd3a8230465980c64f82fc"
+    },
+    "timeoutSeconds": 240,
+    "directory": "raw"
+  },
+  {
+    "id": "candidate-loading-sphere",
+    "script": "tools/bench/loading.mjs",
+    "args": [
+      "candidate",
+      "sphere",
+      "desktop"
+    ],
+    "env": {
+      "PLAYWRIGHT_MODULE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+      "CHROME_EXECUTABLE": "/tmp/chromium",
+      "CHROME_ARGS": "[\"--no-sandbox\", \"--disable-dev-shm-usage\", \"--use-gl=angle\", \"--use-angle=swiftshader\", \"--enable-unsafe-swiftshader\"]",
+      "SOFTWARE_RENDERER": "1",
+      "FONT_MODE": "system",
+      "TIMEOUT_MS": "60000",
+      "WIDTH": "640",
+      "HEIGHT": "360",
+      "DPR": "1",
+      "SAMPLES": "4",
+      "WARMUP": "2",
+      "SCREENSHOTS": "1",
+      "BASE_URL": "http://127.0.0.1:8382",
+      "REVISION": "6c7817218814f00631089eb2c6f150d68190980f"
+    },
+    "timeoutSeconds": 240,
+    "directory": "raw"
+  }
+]

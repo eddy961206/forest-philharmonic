@@ -18,7 +18,7 @@
 
 ## 2. 원본 계획과 환경의 범위
 
-최종 결과 보고서에서 연결한 증거 묶음의 `high-plan.json`, `measurement-manifest.json`, `chromium.json`을 한 폴더에 내려받아. 아래 예시에서는 그 폴더를 `forest-perf-e741/evidence`라고 불러. 작성 시 실제 원본 위치는 `/workspace/scratch/25707ad85ea4/verification/`였고, 네 PC에서 그 클라우드 절대 경로를 사용할 필요는 없어.
+원본 계획·manifest·환경 기록은 저장소의 [docs/performance-data/main-e741](performance-data/main-e741/)에 있어. 여기서 `high-plan.json`, `measurement-manifest.json`, `source-manifest.json`, `chromium.json`을 저장소 밖 `forest-perf-e741/evidence`로 복사해. 아래 §3의 준비와 복사 명령을 그대로 사용하면 돼. 별도 ZIP은 PNG 화면 이미지용이고, 계획이나 manifest를 ZIP에서 꺼내는 절차는 필요 없어. 작성 시 원본 실행 위치는 `/workspace/scratch/25707ad85ea4/verification/`였고, 네 PC에서 그 클라우드 절대 경로를 사용할 필요는 없어.
 
 원본 high 계획은 다음 조건이야.
 
@@ -54,7 +54,7 @@ $ErrorActionPreference = "Stop"
 $benchRoot = Join-Path $env:USERPROFILE "forest-perf-e741"
 New-Item -ItemType Directory -Path $benchRoot | Out-Null
 Set-Location $benchRoot
-git clone https://github.com/eddy961206/forest-philharmonic.git source
+git clone --branch perf/261021-venue-rendering https://github.com/eddy961206/forest-philharmonic.git source
 if ($LASTEXITCODE -ne 0) { throw "clone 실패" }
 git -C source fetch origin main perf/261021-venue-rendering
 if ($LASTEXITCODE -ne 0) { throw "fetch 실패" }
@@ -85,7 +85,7 @@ set -e
 bench_root="$HOME/forest-perf-e741"
 mkdir "$bench_root"
 cd "$bench_root"
-git clone https://github.com/eddy961206/forest-philharmonic.git source
+git clone --branch perf/261021-venue-rendering https://github.com/eddy961206/forest-philharmonic.git source
 git -C source fetch origin main perf/261021-venue-rendering
 git -C source config core.autocrlf false
 baseline_ref=e741811d1d7a040afcdd3a8230465980c64f82fc
@@ -100,7 +100,31 @@ node --version
 python3 --version
 ```
 
-공통으로 세 worktree의 `git rev-parse HEAD`를 확인하고 `git status --short`가 비어 있는지 확인해. 의존성은 저장소 밖 `tools-runtime`에 설치했으므로 제품 파일을 변경하지 않아. 생성된 package-lock도 환경 기록과 함께 보존해. 시스템 Chrome/Edge 실행 파일을 지정할 경우 번들 Chromium 설치를 생략할 수 있지만, A/B는 같은 브라우저 바이너리를 사용해야 해.
+공통으로 세 worktree의 `git rev-parse HEAD`를 확인하고 `git status --short`가 비어 있는지 확인해. `source`는 공개된 증거 파일을 가져오는 PR 브랜치이고 실제 측정 제품은 위 SHA로 분리한 `reference`와 `candidate`야. 의존성은 저장소 밖 `tools-runtime`에 설치했으므로 제품 파일을 변경하지 않아. 생성된 package-lock도 환경 기록과 함께 보존해. 시스템 Chrome/Edge 실행 파일을 지정할 경우 번들 Chromium 설치를 생략할 수 있지만, A/B는 같은 브라우저 바이너리를 사용해야 해.
+
+### 저장소의 계획·manifest를 복사해
+
+다음은 `evidence` 폴더를 처음 만들 때 한 번 실행해. 이미 원본 네 파일을 보존했다면 덮어쓰지 말고 그 폴더를 사용해. `source-manifest.json`은 공개 원본 집계용이고, 다음 §4에서는 로컬 계획의 출처를 기록하는 별도 manifest를 새로 만들어.
+
+PowerShell:
+
+```powershell
+$evidenceFrom = Join-Path $benchRoot "source/docs/performance-data/main-e741"
+$evidenceTo = Join-Path $benchRoot "evidence"
+New-Item -ItemType Directory -Path $evidenceTo | Out-Null
+foreach ($name in @("high-plan.json", "measurement-manifest.json", "source-manifest.json", "chromium.json")) {
+    Copy-Item -LiteralPath (Join-Path $evidenceFrom $name) -Destination (Join-Path $evidenceTo $name)
+}
+```
+
+Bash:
+
+```bash
+mkdir "$bench_root/evidence"
+for name in high-plan.json measurement-manifest.json source-manifest.json chromium.json; do
+  cp "$bench_root/source/docs/performance-data/main-e741/$name" "$bench_root/evidence/$name"
+done
+```
 
 ### 서버 A·B를 각각 별도 터미널에서 실행해
 
@@ -357,4 +381,4 @@ python3 tools/bench/compare-images.py before.png after.png --output image-compar
 
 장면별 전후 표에는 제품 전체 SHA, 도구 SHA, plan/manifest SHA, 하드웨어·OS·드라이버·실제 renderer/browserVersion, CSS viewport·DPR·실제 pixelRatio, 프리셋·scale, 곡·시각·관객·카메라, 실행 순서·반복 수·표본 수, raw·로그·PNG 경로를 연결해. 고정 품질 성능, 적응형 품질, 이미지 변화, 오디오·기능 결과를 따로 판정해. 악화·FAIL·TIMEOUT·SKIP·미측정도 그대로 남겨.
 
-이번 문서 작성에서 로컬 도구 코드, `full-frame.mjs --help`와 `collect-plan.mjs --help`의 종료 0, 현재 원본 manifest의 schema 차이를 확인했어. Python 예시는 AST parse, Bash 예시 8개는 `bash -n`으로 구문을 확인했어. 원본 manifest의 도구 24개 SHA가 `6c78172`의 파일과 같고, 변환할 제품 경로 43개·기준에 없는 경로 5개·계획 8개의 양쪽 revision을 파일만 읽어 대조했어. PowerShell·설치·서버 기동·PC 계획 실행은 이 문서 검토에서 실행하지 않았어. 이 안내 자체에는 미실행 PC 측정의 성공이나 최종 main 상태를 기재하지 않았어.
+이번 문서 작성에서 로컬 도구 코드, `full-frame.mjs --help`와 `collect-plan.mjs --help`의 종료 0, 현재 원본 manifest의 schema 차이를 확인했어. Python 예시는 AST parse, Bash 예시 9개는 `bash -n`으로 구문을 확인했어. 원본 manifest의 도구 24개 SHA가 `6c78172`의 파일과 같고, 변환할 제품 경로 43개·기준에 없는 경로 5개·계획 8개의 양쪽 revision을 파일만 읽어 대조했어. PowerShell·설치·서버 기동·PC 계획 실행은 이 문서 검토에서 실행하지 않았어. 이 안내 자체에는 미실행 PC 측정의 성공이나 최종 main 상태를 기재하지 않았어.

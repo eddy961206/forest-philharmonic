@@ -1,0 +1,9 @@
+{"label":"baseline-matrix","suite":"whole-frame-controlled","venue":"hall","quality":"medium","device":"desktop","stage":"ready","fixture":{"crowd":1503,"seats":1885,"eligibleAudienceSeats":1879,"recitalSeats":6,"lite":false,"piece":"beethoven-ode-to-joy","sceneState":{"phase":"playing","asleep":false,"interval":false,"recital":false,"practice":false,"hush":0,"sleepy":false,"seatGroupVisible":true,"audienceVisible":true}},"meta":{"renderer":"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)","gpuTimer":true,"pixelRatio":0.85,"viewport":[640,360],"quality":"medium","renderScale":1,"hardwareConcurrency":9,"userAgent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"}}
+{"label":"baseline-matrix","name":"front","stage":"warmup"}
+{"label":"baseline-matrix","name":"front","metric":"completeMs","meanMs":2281.92499999993,"p50Ms":2300.6999999997206,"p95Ms":2374.600000000093,"p99Ms":2374.600000000093,"calls":1714,"triangles":11561430}
+{"label":"baseline-matrix","name":"wide","stage":"warmup"}
+{"label":"baseline-matrix","name":"wide","metric":"completeMs","meanMs":6540.275000000023,"p50Ms":6490.700000000186,"p95Ms":6603.899999999907,"p99Ms":6603.899999999907,"calls":1813.5,"triangles":11720233}
+{"label":"baseline-matrix","name":"broadcast-hidden","stage":"warmup"}
+{"label":"baseline-matrix","name":"broadcast-hidden","metric":"completeMs","meanMs":163.875,"p50Ms":162.8000000002794,"p95Ms":166.29999999981374,"p99Ms":166.29999999981374,"calls":600,"triangles":382877}
+{"label":"baseline-matrix","name":"broadcast-return","stage":"warmup"}
+{"label":"baseline-matrix","name":"broadcast-return","metric":"completeMs","meanMs":5817.625,"p50Ms":4407.399999999907,"p95Ms":8125.799999999814,"p99Ms":8125.799999999814,"calls":2106.25,"triangles":17252521.5}
