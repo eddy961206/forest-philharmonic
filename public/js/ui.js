@@ -536,6 +536,25 @@ export class UI {
     }, ms);
   }
 
+  // Something that one press puts right (a piece to try again, the sound to
+  // turn back on): a line and a button that stay until it is put right.
+  // kind says what it is for (the 'offer' event); no text: away again - only
+  // if it is still that kind's
+  offer(kind, text = null, label = '') {
+    const el = $('offer');
+    if (!el) return;
+    if (!text) {
+      if (this._offer !== kind) return;
+      this._offer = null;
+      el.hidden = true;
+      return;
+    }
+    this._offer = kind;
+    $('offerText').textContent = text;
+    $('offerBtn').textContent = label;
+    el.hidden = false;
+  }
+
   // The three venue dialogs share focus and background isolation. Automatic
   // end-of-evening cards can replace help without leaving two modals open.
   _showDialog(id, on, { restoreFocus = true } = {}) {
@@ -808,6 +827,7 @@ export class UI {
     click('intervalNews', () => this.emit('news'));
     click('intervalGo', () => this.emit('secondHalf'));
     click('actBtn', () => this.emit('act'));
+    click('offerBtn', () => this.emit('offer', this._offer));
     click('newsClose', () => this._showDialog('news', false));
     // (the click a finger's tap leaves behind lands on the backdrop of the dialog
     // it just opened: not a click outside the card, so it does not close it)

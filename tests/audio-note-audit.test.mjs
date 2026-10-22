@@ -46,7 +46,7 @@ test('actual Performance keeps identical audio requests and transport state with
   browserGlobals(t);
   const piece = { id: 'actual-transport', duration: 5, tracks: [{ section: 'vn1', inst: 'violin',
     notes: [0, 4, 60, 80, 0.5, 3, 64, 90, 1.5, 2.5, 67, 70, 3, 1, 69, 85] }] };
-  globalThis.fetch = async () => ({ json: async () => structuredClone(piece) });
+  globalThis.fetch = async () => ({ ok: true, json: async () => structuredClone(piece) });
   const run = async observed => {
     const calls = [], notes = [], stops = [];
     const engine = { ctx: { state: 'running', currentTime: 0 }, voices: new Set(), outputLatency: 0.03,
