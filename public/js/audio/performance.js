@@ -29,6 +29,7 @@ export class Performance {
     this.playing = false;
     this.pos = 0; // seconds into the piece while paused
     this.onEnd = null;
+    this.wake = null; // asks for the sound back when the audio context is not running (resume.js)
     this._ended = false;
     this.speed = 1;
     engine.onTick(() => this._schedule());
@@ -104,12 +105,17 @@ export class Performance {
   play() {
     if (!this.piece || this.playing) return;
     const e = this.engine;
-    if (e.ctx.state !== 'running') e.ctx.resume();
     this.startCtx = e.now + 0.12;
     this.startPos = this.pos;
     this.schedIdx = this._indexAt(this.pos);
     this.playing = true;
     this._ended = false;
+    // (a context the browser stopped: the one request for it back, shared
+    // with the page's - see resume.js)
+    if (e.ctx.state !== 'running') {
+      if (this.wake) this.wake();
+      else Promise.resolve(e.ctx.resume()).catch(() => {});
+    }
     this._resumeHeld(this.pos);
     this._schedule();
   }

@@ -18,6 +18,7 @@ import { AudioEngine } from './audio/engine.js';
 import { Performance, fetchPiece } from './audio/performance.js';
 import { PieceChooser, transportState } from './pieces.js';
 import { Follower } from './follow.js';
+import { SoundRecovery, wantsSound } from './audio/resume.js';
 import { buildHall } from './scene/hall.js';
 import { buildOrchestra } from './scene/orchestra.js';
 import { buildAudience, planHouse, animateAudience } from './scene/audience.js';
@@ -330,6 +331,8 @@ async function boot() {
   }
   engine.setVolume(settings.volume);
   engine.setReverb(settings.reverb);
+  // (the browser taking the sound away, or giving it back: see sound)
+  engine.ctx.addEventListener?.('statechange', () => sound.changed());
   fx = buildFX(scene, engine);
   // each building plays its own half of the pieces (see programs.js)
   const all = await (await fetch('music/index.json')).json();
@@ -905,6 +908,7 @@ function togglePlay() {
     perf.pause();
     ui.setPlaying(false);
     hall.setHouseLights(0.4);
+    sound.check(); // (paused: no "sound back" button that would bring no music)
   } else {
     if (perf.pos >= perf.duration - 0.1) perf.seek(0);
     perf.play();
@@ -918,6 +922,7 @@ ui.on('toggle', togglePlay);
 // the button that fixes something with one press (see ui.offer)
 ui.on('offer', (kind) => {
   if (kind === 'retry') retryPiece();
+  else if (kind === 'sound') sound.check({ gesture: true });
 });
 const showOn = () => { if (!showStarted) { showStarted = true; ui.showStarted(); } };
 // (before the show ⏮ / ⏭ open the evening as ▶ does - from its first piece,
@@ -1469,7 +1474,8 @@ function wake() {
   screenActive = false;
   requestFrame();
 }
-for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => { if (asleep) wake(); }, true);
+// (a touch or a key is also what a browser waits for to give the sound back)
+for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => { if (asleep) wake(); else sound.check({ gesture: true }); }, true);
 
 director.on((type, data) => {
   if (type === 'mode') ui.setMode(data);
@@ -1636,7 +1642,9 @@ function snapshot() {
   const t = transportState({ chosen: program[current], loaded: perf.piece, phase, playing: perf.playing, time: perf.time });
   return {
     started: showStarted, i: current, title: program[current]?.titleKo || '', phase: t.phase, loading: t.loading,
-    playing: t.playing, pos: t.pos, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
+    // (the host's sound taken away by its browser: its music stands still,
+    // and the room waits there with it - not pulled back to it every few seconds)
+    playing: t.playing && !sound.lost, pos: t.pos, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
     on: [...stage.onstageKeys()],
     iu: intervalState?.until, inext: intervalState?.next,
     ev: encore ? { c: encore.cands, n: encoreCounts(), u: encore.until } : undefined,
@@ -2108,12 +2116,29 @@ function updateMediaSession(piece) {
   if (!('mediaSession' in navigator)) return;
   try {
     navigator.mediaSession.metadata = new MediaMetadata({ title: piece.titleKo, artist: `${piece.composerKo} · 숲속 필하모닉`, album: piece.ensembleKo });
-    navigator.mediaSession.setActionHandler('play', () => { if (!perf.playing) togglePlay(); });
+    // (playing, but the sound taken away: ▶ on the lock screen gives it back)
+    navigator.mediaSession.setActionHandler('play', () => { if (!perf.playing) togglePlay(); else sound.check({ gesture: true }); });
     navigator.mediaSession.setActionHandler('pause', () => { if (perf.playing) togglePlay(); });
     navigator.mediaSession.setActionHandler('nexttrack', () => { if (!hostOnly()) runConcert(current + 1, { quick: true }); });
     navigator.mediaSession.setActionHandler('previoustrack', () => { if (!hostOnly()) runConcert(current - 1, { quick: true }); });
   } catch { /* unsupported handler */ }
 }
+
+// A phone takes the sound away from a page in the background and may not
+// give it back: wanted (the music on, not paused, not asleep) is asked for
+// again by one way when we are back, at the context's own change, a touch,
+// the media keys - or a button, when the browser waits for a touch
+const sound = new SoundRecovery({
+  ctx: () => engine.ctx,
+  wanted: (gesture) => wantsSound({ inside: concertStarted, asleep, playing: perf.playing, between: showStarted && phase !== 'playing' }, gesture),
+  asleep: () => asleep,
+  blocked: (on) => ui.offer('sound', on ? '다른 곳에 다녀온 사이 소리가 멈췄어요.' : null, '🔊 소리 다시 켜기'),
+  recovered() {
+    // (in step again: a guest on the host's clock; a host tells the room where it is)
+    if (guest()) { if (hostState) followHost(hostState); } else publish();
+  },
+});
+perf.wake = () => { sound.check(); };
 
 async function requestWakeLock() {
   if (asleep || document.hidden || !concertStarted || wakeLockPending) return;
@@ -2139,6 +2164,7 @@ document.addEventListener('visibilitychange', () => {
   else if (!asleep) {
     requestFrame();
     requestWakeLock();
+    sound.check({ fresh: true }); // (the sound back, if the browser took it while we were away)
   }
 });
 
