@@ -323,7 +323,7 @@ export class UI {
     document.body.classList.toggle('touch', !!touch);
     $('splash').classList.add('leaving');
     setTimeout(() => $('splash')?.remove(), 1300);
-    $('nowPlaying').hidden = false;
+    // (the piece's title waits for the show itself: see showStarted)
     $('transport').hidden = false;
     $('startWrap').hidden = false;
     if (touch) {
@@ -354,6 +354,11 @@ export class UI {
 
   // the musicians have been called on stage
   showStarted() {
+    // the programme's title appears with the show - not on walking in
+    // (every way the show begins comes through here: the button, K, ▶,
+    // choosing a piece, a host's command, joining a room mid-evening)
+    const np = $('nowPlaying');
+    if (np.hidden) { np.hidden = false; np.classList.add('arriving'); setTimeout(() => np.classList.remove('arriving'), 900); }
     const w = $('startWrap');
     w.classList.add('leaving');
     setTimeout(() => { w.hidden = true; }, 600);

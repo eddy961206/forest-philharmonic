@@ -807,10 +807,15 @@ body.touch .plaza .toast { bottom: calc(max(64px, 12vh) + 136px); }
   .ticket .t-foil { animation: none; }
   .ticket.torn, .ticket.torn .t-stub, .coins span { animation-duration: 0.01s; }
 }
-/* the title over a bright dome (clouds, sunrise): a soft shade behind it */
-.now { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55), 0 1px 14px rgba(0, 0, 0, 0.75); }
-.now::before { content: ""; position: absolute; inset: -40px -90px -34px -60px; z-index: -1; pointer-events: none;
-  background: radial-gradient(closest-side, rgba(4, 6, 10, 0.5), rgba(4, 6, 10, 0.22) 60%, transparent); }
+/* the title over a bright dome or a cream wall: a fine dark edge that hugs
+   each letter - no cloud of shadow behind the block (it read as smoke) */
+.now, .now-composer, .now-meta { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55); }
+/* (an outline painted under each letter: crisp on clouds and sunrises) */
+.now-title { -webkit-text-stroke: 3px rgba(12, 10, 8, 0.62); paint-order: stroke fill; }
+.now-composer, .now-meta { -webkit-text-stroke: 2.5px rgba(12, 10, 8, 0.7); paint-order: stroke fill; }
+.now.arriving { animation: nowIn 0.9s ease both; }
+@keyframes nowIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .now.arriving { animation: none; } }
 
 /* =========================================================================
    ---- venue HUD layout pass: phones (portrait and landscape), tablets, big
@@ -841,10 +846,9 @@ body:has(#focusChip:not([hidden])) { --r-focus: 58px; }
 .now { left: max(var(--gutter), env(safe-area-inset-left)); max-width: min(560px, calc(100vw - 2 * var(--gutter))); transition: opacity 0.6s, top 0.35s ease; }
 @media (max-width: 1700px) { .now { top: calc(var(--gutter) + var(--r-room) + var(--r-chip) + var(--r-focus)); } }
 .now-title { text-wrap: balance; }
-/* legible over the bright foyer: a tight dark edge on the small lines, a
-   fuller shade behind the block, the start hint on a dark pill */
-.now-composer, .now-meta { text-shadow: 0 1px 2px #000, 0 0 8px rgba(0, 0, 0, 0.9), 0 0 18px rgba(0, 0, 0, 0.6); }
-.now::before { inset: -56px -130px -50px -90px; background: radial-gradient(closest-side at 42% 46%, rgba(4, 6, 10, 0.78), rgba(4, 6, 10, 0.62) 50%, rgba(4, 6, 10, 0.3) 78%, transparent); }
+/* legible over the bright foyer: the small lines a touch heavier; the
+   start hint on a dark pill */
+.now-composer, .now-meta { font-weight: 500; }
 .now-composer { color: #f2d597; }
 .start-hint { color: var(--paper); background: rgba(10, 12, 10, 0.6); padding: 4px 12px; border-radius: 999px; text-align: center; backdrop-filter: blur(6px); }
 .start-hint kbd { background: rgba(0, 0, 0, 0.35); border-color: rgba(230, 192, 123, 0.4); }
