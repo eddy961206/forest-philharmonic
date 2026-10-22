@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+root=${OUTPUT_DIR:-/tmp/sphere-evidence/depth-video}
+ffmpeg -y -framerate 12 -i "$root/before/%03d.png" -framerate 12 -i "$root/after/%03d.png" -filter_complex "[0:v]pad=640:420:0:38:black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='BEFORE - main 5078d15':x=16:y=9:fontsize=20:fontcolor=white[a];[1:v]pad=640:420:0:38:black,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='AFTER - finite-depth scenery':x=16:y=9:fontsize=20:fontcolor=white[b];[a][b]hstack,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='Same camera path / synthetic music-level input / 12 fps capture - NOT app FPS':x=16:y=397:fontsize=17:fontcolor=white[v]" -map '[v]' -c:v libx264 -crf 22 -pix_fmt yuv420p -movflags +faststart "$root/depth-comparison.mp4" >/tmp/sphere-encode.log 2>&1
