@@ -239,12 +239,14 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
     // (the bowl's side walls and the tunnels are seen from both sides here
     // and there - at row ends and beside the tunnel mouths)
     concrete: new THREE.MeshStandardMaterial({ color: '#17181c', roughness: 0.82, side: THREE.DoubleSide }),
-    tread: new THREE.MeshStandardMaterial({ color: '#1a1b20', roughness: 0.9 }),
-    aisle: new THREE.MeshStandardMaterial({ color: '#202127', roughness: 0.75 }),
+    tread: new THREE.MeshStandardMaterial({ color: '#1e1f24', roughness: 0.9 }),
+    // (the aisles and cross-aisles glow faintly, as if from the step lights'
+    // spill: in the dark of a piece they read as paths between the rows)
+    aisle: new THREE.MeshStandardMaterial({ color: '#26272d', roughness: 0.75, emissive: '#6b5a44', emissiveIntensity: 0.3 }),
     riser: new THREE.MeshStandardMaterial({ color: '#0f1013', roughness: 0.85 }),
     soffit: new THREE.MeshStandardMaterial({ color: '#0b0b0e', roughness: 0.95, side: THREE.DoubleSide }),
     fascia: new THREE.MeshStandardMaterial({ color: '#0d0e11', roughness: 0.4, metalness: 0.4 }),
-    wall: new THREE.MeshStandardMaterial({ color: '#121317', roughness: 0.88 }),
+    wall: new THREE.MeshStandardMaterial({ color: '#1a1b20', roughness: 0.88 }),
     floor: lite ? new THREE.MeshStandardMaterial({ color: '#0f1013', roughness: 0.5 }) : phys({ color: '#0e0f12', roughness: 0.42, metalness: 0.0, clearcoat: 0.35, clearcoatRoughness: 0.3 }),
     steel: new THREE.MeshStandardMaterial({ color: '#9aa0aa', roughness: 0.3, metalness: 0.92 }),
     glass: new THREE.MeshPhysicalMaterial({ color: '#cfe3ff', roughness: 0.05, metalness: 0, transparent: true, opacity: 0.14, depthWrite: false, side: THREE.DoubleSide }),
@@ -405,7 +407,7 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
     // (A.side is drawn both ways: from the cross-aisle you see its inside)
     for (const s of [-1, 1]) radialWall(A.side, s * thW, T.rEnd, T.rBack + 0.01, bW, top, bW, top, s);
     // a ribbon of light along the foot of the back wall
-    arcWall(A.led, T.rBack - 0.01, -thW, thW, T.aisleY + 0.05, T.aisleY + 0.08);
+    arcWall(A.led, T.rBack - 0.01, -thW, thW, T.aisleY + 0.05, T.aisleY + 0.13);
     for (const V of myVoms) buildVom(V);
   }
 
@@ -546,7 +548,7 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
   // moonlit sky would - enough to see the rows, the aisles and the stage,
   // still dark enough that the dome is the show. Brighter worlds are above
   // this anyway. The aisle lights stay on low, as they do in a real house.
-  const GLOW_MIN = 0.36;
+  const GLOW_MIN = 0.42;
   const AISLE_MIN = 0.32;
   update.push((dt, t) => {
     houseLevel += (houseTarget - houseLevel) * Math.min(1, dt * 0.8);
@@ -559,15 +561,16 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
     const g = dome.update(dt, { time: live.time, level: lv, beat: live.beat, down: live.down, playing: live.playing });
     const room = Math.max(g.intensity, GLOW_MIN);
     glowCol.copy(g.color);
-    lights.hemi.color.copy(glowCol).lerp(white, 0.25);
+    lights.hemi.color.copy(glowCol).lerp(white, 0.45); // (a deep blue world must not turn the floor to ink)
     lights.hemi.intensity = 0.25 + room * 1.6 + 0.25 * houseLevel;
     domeLight.color.copy(glowCol);
     domeLight.intensity = 0.15 + room * 1.1;
     // the LED ribbons follow the screen
     mat.led.emissive.copy(ledBase).lerp(glowCol, 0.75);
-    mat.led.emissiveIntensity = 0.6 + 1.6 * g.intensity + 0.6 * live.down;
+    mat.led.emissiveIntensity = 0.9 + 1.6 * g.intensity + 0.6 * live.down;
     const aisle = Math.max(houseLevel, AISLE_MIN);
     mat.step.emissiveIntensity = 0.5 + 0.9 * aisle;
+    mat.aisle.emissiveIntensity = 0.1 + 0.3 * aisle;
     mat.down.emissiveIntensity = 0.15 + 1.6 * aisle;
     mat.tunnelLight.emissiveIntensity = 0.9 + 0.6 * houseLevel;
     fix.update(dt, t, { level: lv, down: live.down, on: live.playing && live.lively && live.beams, color: glowCol, house: houseLevel });
