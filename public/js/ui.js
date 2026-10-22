@@ -923,6 +923,16 @@ export class UI {
       });
     });
 
+    const domeField = $('domeProjectionField');
+    if (domeField) domeField.hidden = !IS_SPHERE;
+    document.querySelectorAll('#domeProjectionSeg button').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.projection === this.settings.domeProjection));
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#domeProjectionSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        this.onSetting('domeProjection', b.dataset.projection);
+      });
+    });
+
     // keyboard (by physical key, so it works with a Korean IME too)
     window.addEventListener('keydown', (e) => {
       if (e.altKey || e.ctrlKey || e.metaKey) return;

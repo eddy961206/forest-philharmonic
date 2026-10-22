@@ -534,7 +534,8 @@ void main() {
 }`;
 
 // A cube render target per slot (the current world and, during a
-// crossfade, the next one); the -y face is never on the screen and skipped.
+// crossfade, the next one). The legacy default omits -Y; immersive upper
+// tier views can request it explicitly through the visibility mask.
 export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
   const scene = new THREE.Scene();
   const uniforms = { uT: { value: 0 }, uTime: { value: 0 }, uLevel: { value: 0 }, uWorld: { value: 0 }, uOne: { value: 1 } };
@@ -565,7 +566,6 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
     renderer.xr.enabled = false;
     try {
       for (let i = 0; i < 6; i++) {
-        if (i === 3) continue; // -y: under the floor
         const stale = slot.faceWorld[i] !== slot.world;
         if (!(mask & (1 << i)) || (!due && !stale)) continue;
         renderer.setRenderTarget(slot.rt, i);
@@ -609,8 +609,8 @@ export function makeWorldRenderer(renderer, { size = 512, every = 1 } = {}) {
       api.invalidate();
     },
     // keep `want` (world names, up to two) rendered; returns the slot of each.
-    // mask: the cube faces anyone can see right now (all by default)
-    update(want, time, level, mask = 0x3f) {
+    // mask: the cube faces anyone can see right now (five venue faces by default; -Y can be requested)
+    update(want, time, level, mask = 0x37) {
       frame++;
       for (const s of slots) if (s.world && !want.includes(s.world)) s.world = null;
       for (const w of want) {

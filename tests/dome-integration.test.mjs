@@ -74,7 +74,7 @@ test('failed world warm-up releases its temporary slot and restores the caller s
 
 test('the two-pass dome shares resized cube uniforms and keeps both flights during a crossfade', () => {
   const f = fixture();
-  const dome = buildDome({ renderer: f.renderer, quality: 'high' });
+  const dome = buildDome({ renderer: f.renderer, quality: 'high', projection: 'venue' });
   const overlay = dome.mesh.children[0];
   assert.equal(dome.mesh.renderOrder, 10);
   assert.equal(dome.mesh.material.blending, THREE.NoBlending);
@@ -158,7 +158,7 @@ test('Lite warm-up keeps cube rendering disabled and the painted transition comp
 
 test('a stationary dome viewer reuses only visibility while every world frame stays current', (t) => {
   const f = fixture();
-  const dome = buildDome({ renderer: f.renderer, quality: 'high' });
+  const dome = buildDome({ renderer: f.renderer, quality: 'high', projection: 'venue' });
   const camera = new THREE.PerspectiveCamera(64, 16 / 9, 0.1, 260);
   camera.position.set(0, 1.6, 45);
   camera.lookAt(0, 8, -20);
@@ -182,9 +182,9 @@ test('a stationary dome viewer reuses only visibility while every world frame st
   f.restored();
 });
 
-test('dome visibility invalidates for movement, rotation, FOV, aspect and view offset', (t) => {
+test('venue projection visibility invalidates for movement, rotation, FOV, aspect and view offset', (t) => {
   const f = fixture();
-  const dome = buildDome({ renderer: f.renderer, quality: 'high' });
+  const dome = buildDome({ renderer: f.renderer, quality: 'high', projection: 'venue' });
   const camera = new THREE.PerspectiveCamera(64, 16 / 9, 0.1, 260);
   dome.setViewers([{ cam: camera }]);
   dome.go('FOREST3D', { dur: 0.01 });
@@ -221,7 +221,7 @@ test('dome visibility invalidates for movement, rotation, FOV, aspect and view o
 
 test('cached dome cameras remain independent and viewer activation is checked every frame', (t) => {
   const f = fixture();
-  const dome = buildDome({ renderer: f.renderer, quality: 'high' });
+  const dome = buildDome({ renderer: f.renderer, quality: 'high', projection: 'venue' });
   const first = new THREE.PerspectiveCamera(64, 16 / 9, 0.1, 260);
   first.position.set(0, 1.6, 45);
   first.lookAt(0, 8, -20);
@@ -257,5 +257,27 @@ test('cached dome cameras remain independent and viewer activation is checked ev
   dome.drawWorlds();
   assert.equal(rays.mock.callCount(), 297, 'parent transforms must invalidate the camera cache');
   assert.notDeepEqual(f.draws.map((draw) => draw.face), [0, 1, 5]);
+  f.restored();
+});
+
+test('immersive cube visibility follows viewer rays and mode switches invalidate the stationary cache', (t) => {
+  const f = fixture();
+  const dome = buildDome({renderer:f.renderer, quality:'high', projection:'venue'});
+  const cam = new THREE.PerspectiveCamera(64,16/9,0.1,260);
+  cam.position.set(0,30,50); cam.lookAt(45,20,50); // (a tier seat, above the lifted eye: see immersiveEye)
+  dome.setViewers([{cam}]); dome.go('FOREST3D',{dur:0.01}); dome.update(1);
+  const orig = THREE.Vector3.prototype.unproject;
+  const rays = t.mock.method(THREE.Vector3.prototype,'unproject',function(c){return orig.call(this,c);});
+  dome.drawWorlds();
+  assert.deepEqual(f.draws.map(d=>d.face),[0,4,5]);
+  f.draws.length=0; dome.setProjection('immersive'); dome.drawWorlds();
+  assert.deepEqual(f.draws.map(d=>d.face),[0,5]);
+  assert.equal(rays.mock.callCount(),198);
+  f.draws.length=0; dome.drawWorlds();
+  assert.deepEqual(f.draws.map(d=>d.face),[0,5]);
+  assert.equal(rays.mock.callCount(),198);
+  f.draws.length=0; dome.setProjection('venue'); dome.drawWorlds();
+  assert.deepEqual(f.draws.map(d=>d.face),[0,4,5]);
+  assert.equal(rays.mock.callCount(),297);
   f.restored();
 });

@@ -36,6 +36,7 @@ import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf, josa } from './even
 import { Practice, SeatThief, noticeLines, buildNoticeBoard } from './scene/lobby.js';
 import { buildRecital } from './scene/recital.js';
 import { Avatars, AVATARS } from './scene/avatars.js';
+import { normalizeDomeProjection } from './scene/dome-projection.js';
 import { AdaptiveQuality } from './quality.js';
 import { watchRenderContext, showRenderStatus } from './render-status.js';
 
@@ -43,7 +44,7 @@ import { watchRenderContext, showRenderStatus } from './render-status.js';
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
   fixedEar: true, applause: true, gap: 7, notes: true, glow: true, fireflies: true,
-  fx: true, lasers: true, screen: true, interval: 3,
+  fx: true, lasers: true, screen: true, interval: 3, domeProjection: 'immersive',
   // how full the house is, in per cent, for each venue: the Sphere seats
   // nearly fourteen thousand - a quarter of that is already a big crowd
   crowdHall: 45, crowdSphere: 25,
@@ -53,6 +54,7 @@ try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || 
 // (the old on/off switch for the audience: off is an empty house)
 if (settings.audience === false) { settings.crowdHall = 0; settings.crowdSphere = 0; }
 delete settings.audience;
+settings.domeProjection = normalizeDomeProjection(settings.domeProjection);
 const CROWD = IS_SPHERE ? 'crowdSphere' : 'crowdHall'; // this venue's audience setting
 const save = () => { try { localStorage.setItem('fp-settings', JSON.stringify(settings)); } catch { /* ignore */ } };
 
@@ -180,6 +182,7 @@ scene.onBeforeRender = (_renderer, _scene, view) => hall.prepareRender?.(view);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
 const spot = new Spotlight(hall.lights, scene); // a recital: the key light gathers on the soloist
+hall.dome?.setProjection(settings.domeProjection);
 hall.setBeams?.(settings.lasers !== false); // (the Sphere's moving heads follow '조명 연출')
 const thief = new SeatThief(stage, 'va:0'); // the interval: someone may take the seat you leave
 // a recital: chairs on the stage and a page turner's seat (added to the seat list, put away)
@@ -1499,6 +1502,7 @@ director.on((type, data) => {
 });
 
 function onSetting(key, value) {
+  if (key === 'domeProjection') value = normalizeDomeProjection(value);
   settings[key] = value;
   save();
   if (key === 'volume') { muted = false; ui.setMuted(false); engine.setVolume(value); }
@@ -1509,6 +1513,7 @@ function onSetting(key, value) {
     adaptiveQuality.reset(quality, renderScale, performance.now());
     applyQuality();
   }
+  if (key === 'domeProjection') hall.dome?.setProjection(value);
   if (key === 'fireflies') effects.setCounts(value);
   if (key === 'screen') screen.setEnabled(value);
   if (key === 'lasers' && !value && fx) { fx.lasers.set(false); fx.wash.set(false); }

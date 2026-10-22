@@ -216,3 +216,11 @@ test('live video is needed immediately on request and through the complete visib
   dome.showLive(true);
   assert.equal(dome.liveActive, true);
 });
+
+test('explicit downward cube rays render -Y for immersive upper-tier views', () => {
+  const f = fixture();
+  const worlds = makeWorldRenderer(f.renderer);
+  worlds.update(['OCEAN3D'], 1, 0, 1 << 3);
+  assert.deepEqual(f.renders.map(r=>r.face),[3]);
+  assertRestored(f);
+});
