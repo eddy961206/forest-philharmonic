@@ -138,13 +138,37 @@ vec3 starfield(vec3 d, float dens, float tw) {
   return c;
 }
 
+// the galaxy seen edge-on: a soft wide band with a brighter spine, warmer
+// toward its centre, broken by dark dust lanes - quiet, no movement of its own
+const vec3 GAL_N = vec3(0.3632, -0.6815, -0.6353); // across the sky above the stage, low left to high right
+float galLat(vec3 d) { return dot(d, GAL_N); }
 vec3 milkyway(vec3 d) {
-  vec3 n = normalize(vec3(0.35, 0.55, -0.75));
-  float band = 1.0 - abs(dot(d, n));
-  float m = pow(band, 9.0);
+  float lat = galLat(d);
+  float band = exp(-lat * lat * 14.0);
+  float spine = exp(-lat * lat * 70.0);
+  vec3 cdir = normalize(cross(GAL_N, vec3(0.0, 1.0, 0.0)));
+  float toward = 0.5 + 0.5 * dot(d, cdir); // brighter toward the galactic centre
   float f = fbm(d * 3.0 + 4.0);
-  vec3 col = mix(vec3(0.25, 0.18, 0.45), vec3(0.55, 0.6, 0.8), f);
-  return col * m * (0.4 + 0.8 * f) * 0.6;
+  float dust = fbm(d * 7.0 - 2.0);
+  vec3 col = mix(vec3(0.2, 0.16, 0.38), vec3(0.6, 0.64, 0.84), f);
+  col = mix(col, vec3(0.95, 0.8, 0.6), spine * toward * 0.55);
+  float lanes = smoothstep(0.42, 0.72, dust) * spine;
+  float glow = band * (0.3 + 0.9 * f) * (0.5 + 0.7 * toward) * (1.0 - 0.75 * lanes);
+  return col * glow * 0.6;
+}
+// two small open clusters, like the Pleiades: a knot of stars, not a flash
+vec3 clusters(vec3 d) {
+  float g1 = smoothstep(0.11, 0.0, acos(clamp(dot(d, normalize(vec3(-0.55, 0.62, -0.56))), -1.0, 1.0)));
+  float g2 = smoothstep(0.08, 0.0, acos(clamp(dot(d, normalize(vec3(0.62, 0.48, -0.62))), -1.0, 1.0)));
+  float g = max(g1, g2);
+  if (g <= 0.0) return vec3(0.0);
+  return starfield(d * 1.6, 6.0, 0.5) * g * 0.9 + vec3(0.35, 0.42, 0.7) * g * g * 0.05;
+}
+// the whole sky turning, very slowly - alive, never moving enough to notice
+vec3 skyTurn(vec3 d) {
+  float a = uTime * 0.0035;
+  float c = cos(a), s = sin(a);
+  return vec3(c * d.x - s * d.z, d.y, s * d.x + c * d.z);
 }
 
 vec3 sARCH(vec3 d, float az, float el) {
@@ -175,12 +199,15 @@ vec3 sARCH(vec3 d, float az, float el) {
   return col;
 }
 
-vec3 sSTARS(vec3 d, float az, float el) {
+vec3 sSTARS(vec3 d0, float az, float el) {
+  vec3 d = skyTurn(d0);
   vec3 sky = mix(vec3(0.02, 0.035, 0.08), vec3(0.0, 0.005, 0.02), smoothstep(-0.2, 1.2, el));
   sky += vec3(0.05, 0.06, 0.12) * exp(-max(el + 0.25, 0.0) * 3.0);
-  vec3 c = sky + milkyway(d) + starfield(d, 1.0, 1.0);
-  // a shooting star now and then
-  float t = uTime * 0.13;
+  // (more, finer stars along the band, as the eye finds them there)
+  float lat = galLat(d);
+  vec3 c = sky + milkyway(d) + starfield(d, 1.0 + 2.2 * exp(-lat * lat * 20.0), 1.0) + clusters(d);
+  // a shooting star, rarely (about one in 20 s) - a grace note, not a show
+  float t = uTime * 0.05;
   float k = floor(t);
   float f = fract(t);
   vec2 h = hash22(vec2(k, 3.0));
@@ -191,7 +218,7 @@ vec3 sSTARS(vec3 d, float az, float el) {
   vec2 rel = p - head;
   float along = dot(rel, -dir);
   float across = abs(dot(rel, vec2(-dir.y, dir.x)));
-  float trail = step(0.0, along) * exp(-along * 9.0) * exp(-across * across * 40000.0) * smoothstep(0.0, 0.1, f) * smoothstep(0.6, 0.3, f);
+  float trail = step(0.0, along) * exp(-along * 9.0) * exp(-across * across * 40000.0) * smoothstep(0.0, 0.1, f) * smoothstep(0.6, 0.3, f) * step(0.45, h.x);
   c += vec3(0.9, 0.95, 1.0) * trail * 3.0;
   return c;
 }
@@ -241,8 +268,11 @@ vec3 sMOON(vec3 d, float az, float el) {
   float crat = fbm(d * 60.0);
   vec3 moon = vec3(0.98, 0.95, 0.85) * (0.75 + 0.35 * crat) * disc * 1.6;
   vec3 halo = vec3(0.55, 0.65, 0.95) * (exp(-a * 9.0) * 0.6 + exp(-a * 2.5) * 0.12);
-  vec3 c = sky + starfield(d, 0.5, 1.0) * (1.0 - disc) + halo + moon;
-  vec3 cl = clouds(d, el, vec3(0.42, 0.45, 0.55) + halo * 0.8, vec3(0.03, 0.04, 0.07), 0.42, 0.012);
+  // the galaxy and the stars behind, washed out near the moon as they are
+  vec3 sd = skyTurn(d);
+  float wash = 1.0 - exp(-a * 2.2);
+  vec3 c = sky + (milkyway(sd) * 0.55 + starfield(sd, 0.75, 1.0) + clusters(sd) * 0.8) * wash * (1.0 - disc) + halo + moon;
+  vec3 cl = clouds(d, el, vec3(0.42, 0.45, 0.55) + halo * 0.8, vec3(0.03, 0.04, 0.07), 0.3, 0.008);
   float cm = max(max(cl.r, cl.g), cl.b) > 0.0 ? 1.0 : 0.0;
   c = mix(c, cl, clamp(length(cl) * 4.0, 0.0, 0.9) * step(-0.15, el));
   return c;

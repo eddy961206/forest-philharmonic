@@ -66,14 +66,27 @@ function fixture(t, options = {}) {
   };
 }
 
-test('low quality draws its first live frame immediately, then uses the existing cadence', (t) => {
+test('low quality draws its first live frame immediately, then films in real time', (t) => {
   const f = fixture(t, { lite: true, headless: true });
-  f.tick(1 / 60, 90);
-  assert.equal(f.renders.length, 1);
-  for (let frame = 2; frame < 90; frame++) f.tick(1 / 60, 90);
-  assert.equal(f.renders.length, 1);
-  f.tick(1 / 60, 90);
-  assert.equal(f.renders.length, 2);
+  f.tick(1 / 60, 8);
+  assert.equal(f.renders.length, 1, 'the first live frame is not delayed');
+  for (let frame = 2; frame <= 8; frame++) f.tick(1 / 60, 8); // 7/60 s < 1/8 s
+  assert.equal(f.renders.length, 1, 'nothing more before 1/8 s has passed');
+  f.tick(1 / 60, 8);
+  assert.equal(f.renders.length, 2, 'the next picture comes 1/8 s later (8/60 s)');
+  // the cadence is time, not frames: a slow device (20 fps) still gets ~8 pictures a second
+  const before = f.renders.length;
+  for (let frame = 0; frame < 20; frame++) f.tick(1 / 20, 8);
+  assert.ok(f.renders.length - before >= 7 && f.renders.length - before <= 9, `${f.renders.length - before} pictures in a second at 20 fps`);
+});
+
+test('a long stall is not caught up with a burst of renders', (t) => {
+  const f = fixture(t, { lite: true, headless: true });
+  f.tick(1 / 60, 8);
+  f.tick(3, 8); // a three-second hitch
+  assert.equal(f.renders.length, 2, 'one picture after the stall, not 24');
+  f.tick(1 / 60, 8);
+  assert.equal(f.renders.length, 2, 'and the beat starts again from there');
 });
 
 test('a zero cadence suppresses initial and invalidated renders, then resumes immediately', (t) => {
@@ -86,9 +99,9 @@ test('a zero cadence suppresses initial and invalidated renders, then resumes im
   assert.deepEqual(f.screen.cam.position, initialPosition);
   assert.equal(f.renderer.getRenderTarget(), f.previousTarget);
 
-  f.tick(1 / 60, 90); // Frame 3 is not a periodic broadcast frame.
+  f.tick(1 / 60, 8);
   assert.equal(f.renders.length, 1, 'enabling the feed keeps its pending initial refresh');
-  f.tick(1 / 60, 90);
+  f.tick(1 / 60, 8);
   assert.equal(f.renders.length, 1);
 
   const renderedPosition = f.screen.cam.position.clone();
@@ -100,25 +113,25 @@ test('a zero cadence suppresses initial and invalidated renders, then resumes im
   assert.deepEqual(f.screen.cam.position, renderedPosition);
   assert.equal(f.renderer.getRenderTarget(), f.previousTarget);
 
-  f.tick(1 / 60, 90); // Frame 7 must consume the refresh without waiting until frame 90.
+  f.tick(1 / 60, 8); // the pending refresh is consumed at once, without waiting for the beat
   assert.equal(f.renders.length, 2);
   assert.deepEqual(f.hooks, ['before', 'after', 'before', 'after']);
-  f.tick(1 / 60, 90);
+  f.tick(1 / 60, 8);
   assert.equal(f.renders.length, 2, 'the refresh is consumed once');
 });
 
 test('reactivating the live feed refreshes its texture before the next periodic frame', (t) => {
   const f = fixture(t, { lite: true, headless: true });
-  f.tick(1 / 60, 90);
-  f.tick(1 / 60, 90);
+  f.tick(1 / 60, 8);
+  f.tick(1 / 60, 8);
   assert.equal(f.renders.length, 1);
   f.setTime(40); // No broadcast updates while a Sphere world covers the dome.
   f.screen.invalidate();
-  f.tick(1 / 60, 90);
+  f.tick(1 / 60, 8);
   assert.equal(f.renders.length, 2);
-  f.tick(1 / 60, 90);
+  f.tick(1 / 60, 8);
   assert.equal(f.renders.length, 2);
-});
+})
 
 test('successful rendering restores the previous target and visibility', (t) => {
   const f = fixture(t);
@@ -144,17 +157,17 @@ for (const failure of ['before', 'render', 'after']) {
 
 test('shot time advances on skipped frames while camera matrices update only when rendered', (t) => {
   const f = fixture(t);
-  f.tick(0.5, 4); // The initial shot starts at t=0.
+  f.tick(0.5, 1 / 1.5); // The initial shot starts at t=0 (filmed at once).
   const start = f.screen.cam.position.clone();
-  f.tick(0.5, 4);
-  f.tick(0.5, 4);
+  f.tick(0.5, 1 / 1.5);
+  f.tick(0.5, 1 / 1.5);
   assert.deepEqual(f.screen.cam.position, start);
-  f.tick(0.5, 4);
+  f.tick(0.5, 1 / 1.5); // 1.5 s after the first picture: due
   assert.equal(f.renders.length, 2);
   const expected = new THREE.Vector3(0, 5.2, 16).addScaledVector(new THREE.Vector3(0, -0.3, -2.5), 1.5 / 7);
   assert.ok(f.renders[1].position.distanceTo(expected) < 1e-12);
   assert.equal(f.renders[1].fov, 38);
-  for (let frame = 5; frame <= 16; frame++) f.tick(0.5, 4);
+  for (let frame = 5; frame <= 16; frame++) f.tick(0.5, 1 / 1.5);
   assert.ok(f.renders.at(-1).position.distanceTo(start) < 1e-12, 'the next shot still starts at the original seven-second boundary');
 });
 

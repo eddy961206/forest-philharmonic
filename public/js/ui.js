@@ -323,7 +323,7 @@ export class UI {
     document.body.classList.toggle('touch', !!touch);
     $('splash').classList.add('leaving');
     setTimeout(() => $('splash')?.remove(), 1300);
-    $('nowPlaying').hidden = false;
+    // (the piece's title waits for the show itself: see showStarted)
     $('transport').hidden = false;
     $('startWrap').hidden = false;
     if (touch) {
@@ -350,10 +350,44 @@ export class UI {
     }
     window.addEventListener('resize', sync);
     sync();
+    this._initDim();
+  }
+
+  // Watching UI that fades back while nobody touches anything: after 4 s
+  // without input it settles to about 40% (never invisible), and any move,
+  // touch, key, wheel or focus brings it back at once. Only opacity changes
+  // (one animated property on <body>): nothing moves, nothing is hidden,
+  // and the first tap still does what it lands on. It stays bright while
+  // something is being used - a panel, the chat, help, a drag, the stick -
+  // and before the show begins (the start button is the call to action).
+  _initDim() {
+    let last = performance.now();
+    let held = 0; // pointers pressed down right now (drags, long presses)
+    const body = document.body;
+    const wake = () => { last = performance.now(); if (body.classList.contains('ui-dim')) body.classList.remove('ui-dim'); };
+    for (const ev of ['pointermove', 'wheel', 'keydown', 'focusin', 'input', 'touchmove']) window.addEventListener(ev, wake, { capture: true, passive: true });
+    window.addEventListener('pointerdown', () => { held++; wake(); }, { capture: true, passive: true });
+    const up = () => { held = Math.max(0, held - 1); last = performance.now(); };
+    for (const ev of ['pointerup', 'pointercancel']) window.addEventListener(ev, up, { capture: true, passive: true });
+    window.addEventListener('blur', () => { held = 0; });
+    const busy = () => held > 0 || this.joy?.active
+      || !$('startWrap').hidden || !$('panel').hidden || !$('help').hidden || !$('leaf').hidden || !$('news').hidden
+      || !$('encorePanel').hidden || !$('chatForm').hidden
+      || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
+    setInterval(() => {
+      if (body.classList.contains('ui-dim')) return;
+      if (busy()) { last = performance.now(); return; }
+      if (performance.now() - last > 4000) body.classList.add('ui-dim');
+    }, 500);
   }
 
   // the musicians have been called on stage
   showStarted() {
+    // the programme's title appears with the show - not on walking in
+    // (every way the show begins comes through here: the button, K, ▶,
+    // choosing a piece, a host's command, joining a room mid-evening)
+    const np = $('nowPlaying');
+    if (np.hidden) { np.hidden = false; np.classList.add('arriving'); setTimeout(() => np.classList.remove('arriving'), 900); }
     const w = $('startWrap');
     w.classList.add('leaving');
     setTimeout(() => { w.hidden = true; }, 600);
