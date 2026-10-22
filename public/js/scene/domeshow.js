@@ -279,52 +279,62 @@ vec3 sMOON(vec3 d, float az, float el) {
 }
 
 vec3 sFOREST(vec3 d, float az, float el) {
-  // standing in a clearing in an old forest: a hazy tree line all round,
-  // tall trunks rising past you and converging overhead into a canopy
-  // that opens on a bright morning sky; sun shafts through the leaves
-  float up = clamp(d.y, -0.2, 1.0);
-  vec3 sky = mix(vec3(0.62, 0.8, 0.95), vec3(0.95, 0.96, 0.9), smoothstep(0.75, 1.0, up));
-  vec3 c = sky;
-  // distant tree lines, three layers of bumpy crowns fading into the haze
-  for (int l = 0; l < 3 * uOne; l++) {
-    float fl = float(l);
-    float h = 0.035 + fl * 0.04 + 0.035 * fbm(vec3(az * (3.0 + fl * 2.0), fl * 4.0, 1.0)) + 0.02 * abs(sin(az * (90.0 - fl * 25.0) + fl)) ;
-    float m = smoothstep(h + 0.003, h - 0.003, el);
-    vec3 tree = mix(vec3(0.05, 0.12, 0.07), vec3(0.3, 0.42, 0.4), 1.0 - fl / 2.5);
-    tree = mix(tree, sky, 0.5 - fl * 0.2);
-    c = mix(c, tree * (0.8 + 0.25 * noise(vec3(az * 80.0, el * 80.0, fl))), m);
-  }
-  // the canopy overhead, with gaps of sky; sunlit edges
-  vec2 pp = d.xz / max(d.y + 0.15, 0.05);
-  float sway = sin(uTime * 0.3) * 0.04;
-  float leaves = fbm(vec3(pp * 2.2 + sway, uTime * 0.015)) * 0.75 + 0.25 * noise(vec3(pp * 14.0, 3.0));
-  float cover = smoothstep(0.25, 0.6, el) * (1.0 - smoothstep(0.92, 1.0, up) * 0.6);
-  float canopy = smoothstep(0.62, 0.42, leaves + (1.0 - cover) * 0.5);
-  vec3 leafCol = mix(vec3(0.04, 0.12, 0.04), vec3(0.28, 0.5, 0.14), fbm(vec3(pp * 5.0, 1.0)));
-  leafCol += vec3(0.75, 0.7, 0.25) * smoothstep(0.05, 0.0, abs(leaves - 0.5)) * 0.45;
-  c = mix(c, leafCol, canopy * cover);
-  // trunks: dark columns rising from the tree line into the canopy
-  float N = 34.0;
-  float u = (az + PI) / (2.0 * PI) * N + 0.2 * noise(vec3(az * 3.0, 0.0, 2.0));
-  float idx = floor(u);
-  float on = step(0.35, hash2(vec2(idx, 7.0)));
-  float w = mix(0.2, 0.05, smoothstep(0.0, 0.8, el)) * (0.55 + 0.6 * hash2(vec2(idx, 1.0)));
-  float cxu = fract(u) - 0.5;
-  float trunk = smoothstep(w, w - 0.015, abs(cxu)) * smoothstep(-0.02, 0.06, el) * (1.0 - smoothstep(0.5, 0.8, el)) * on;
-  float barkLines = noise(vec3(u * 40.0, el * 6.0, idx));
-  vec3 bark = vec3(0.1, 0.07, 0.05) * (0.6 + 0.7 * barkLines);
-  bark += vec3(0.55, 0.45, 0.25) * smoothstep(0.0, w, cxu) * 0.35; // the sunlit side
-  c = mix(c, bark, trunk);
-  // light shafts from the sun high in front
+  // Standing among the trunks of an old beech wood in the morning: columns
+  // of grey bark at every depth fading into the green haze, rising straight
+  // up past you (a trunk keeps its width in azimuth all the way up, so it
+  // narrows toward the top of the sky as a real one would) into a high
+  // canopy with small bright gaps, leaves lit gold at their edges, and the
+  // sun coming down through it in shafts. (The phones' version of FOREST3D.)
   vec3 sd = normalize(vec3(0.15, 0.75, -0.65));
-  float ray = pow(max(dot(d, sd), 0.0), 5.0) * (0.45 + 0.55 * noise(vec3(az * 26.0, uTime * 0.2, 0.0)));
-  c += vec3(1.0, 0.92, 0.65) * ray * 0.4;
-  // pollen and fireflies drifting low
-  vec2 g = vec2(az * 30.0, el * 30.0 + uTime * 0.2);
+  float sun = max(dot(d, sd), 0.0);
+  vec3 haze = mix(vec3(0.17, 0.22, 0.13), vec3(0.3, 0.34, 0.22), smoothstep(-0.05, 0.4, el)) * (0.8 + 0.5 * sun);
+  vec3 c = haze;
+  // the floor: moss and old leaves, lighter in the distance
+  float fl0 = fbm(vec3(az * 8.0, el * 30.0, 2.0));
+  vec3 floorCol = mix(vec3(0.06, 0.055, 0.025), vec3(0.11, 0.13, 0.05), fl0);
+  c = mix(c, mix(floorCol, haze, smoothstep(-0.12, 0.0, el) * 0.6), smoothstep(0.0, -0.01, el));
+  // trunks in three depths, far ones thin and hazy
+  for (int l = 0; l < 3 * uOne; l++) {
+    float fl = float(l); // 0 far .. 2 near
+    float N = 90.0 - fl * 32.0;
+    float u = (az + PI) / (2.0 * PI) * N + fl * 0.37;
+    float ui = floor(u);
+    float h = hash2(vec2(ui, fl + 3.0));
+    float w = (0.1 + 0.12 * h) * (0.8 + fl * 0.35) * (1.0 - 0.15 * smoothstep(0.0, 1.0, el)); // a slight taper
+    float x = fract(u) - 0.5 - (hash2(vec2(ui, fl + 8.0)) - 0.5) * 0.4;
+    float base = -0.02 - fl * 0.03 + 0.012 * h;
+    float top = 0.45 + 0.25 * hash2(vec2(ui, fl + 5.0)) + fl * 0.1;
+    float on = step(0.45 - fl * 0.12, hash2(vec2(ui, fl + 11.0)));
+    float trunk = smoothstep(w, w - 0.02 - fl * 0.01, abs(x)) * step(base, el) * smoothstep(top + 0.08, top - 0.05, el) * on;
+    float side = clamp(x / w, -1.0, 1.0);
+    vec3 bark = vec3(0.16, 0.155, 0.14) * (0.7 + 0.45 * noise(vec3(u * 30.0, el * 25.0, ui)));
+    bark *= 0.55 + 0.45 * smoothstep(-0.9, 0.7, side); // round: lit from the sun's side
+    bark = mix(bark, vec3(0.06, 0.1, 0.035), smoothstep(0.3, 0.9, noise(vec3(u * 12.0, el * 8.0, ui + 4.0))) * smoothstep(0.15, 0.0, el) * 0.6); // moss low down
+    bark = mix(bark, haze, (0.65 - fl * 0.3) * (1.0 - smoothstep(0.0, 0.6, el) * 0.5));
+    c = mix(c, bark, trunk);
+  }
+  // the canopy
+  vec2 pp = d.xz / max(d.y + 0.15, 0.05);
+  float sway = sin(uTime * 0.3) * 0.03;
+  float leaves = fbm(vec3(pp * 3.2 + sway, uTime * 0.012)) * 0.6 + 0.4 * fbm(vec3(pp * 14.0 + sway * 2.0, 3.0));
+  float cover = smoothstep(0.32, 0.7, el);
+  float gap = smoothstep(0.7, 0.76, leaves) * (1.0 - smoothstep(0.92, 1.0, d.y) * 0.3);
+  float leafT = fbm(vec3(pp * 6.0, 1.0));
+  vec3 leafCol = mix(vec3(0.025, 0.06, 0.02), vec3(0.13, 0.22, 0.05), leafT) * (0.6 + 0.6 * smoothstep(0.3, 0.6, leaves));
+  leafCol = mix(leafCol, vec3(0.38, 0.5, 0.1), smoothstep(0.6, 0.7, leaves) * 0.7); // light through the thin leaves
+  leafCol += vec3(0.7, 0.62, 0.2) * smoothstep(0.025, 0.0, abs(leaves - 0.69)) * 0.25 * (0.4 + sun); // gold edges at the gaps
+  vec3 gapCol = vec3(0.75, 0.8, 0.65) * (0.8 + sun);
+  vec3 can = mix(leafCol, gapCol, gap);
+  c = mix(c, can, cover);
+  // shafts of sun down through it
+  float ray = pow(sun, 4.0) * (0.35 + 0.65 * noise(vec3(az * 30.0, uTime * 0.15, 0.0)));
+  c += vec3(1.0, 0.92, 0.6) * ray * 0.22 * (1.0 - cover * 0.85);
+  // motes drifting in the light
+  vec2 g = vec2(az * 30.0, el * 30.0 + uTime * 0.12);
   vec2 gi = floor(g);
   vec2 off = hash22(gi) - 0.5;
-  float ff = exp(-dot(fract(g) - 0.5 - off * 0.6, fract(g) - 0.5 - off * 0.6) * 260.0) * step(0.88, hash2(gi + 9.0)) * smoothstep(0.4, 0.0, el);
-  c += vec3(1.0, 0.92, 0.5) * ff * (0.6 + 0.4 * sin(uTime * 3.0 + gi.x)) * 1.2;
+  float ff = exp(-dot(fract(g) - 0.5 - off * 0.6, fract(g) - 0.5 - off * 0.6) * 300.0) * step(0.9, hash2(gi + 9.0)) * smoothstep(0.45, 0.05, el);
+  c += vec3(1.0, 0.95, 0.7) * ff * (0.5 + 0.5 * sin(uTime * 2.0 + gi.x)) * 0.8;
   return c * (0.85 + 0.2 * uLevel);
 }
 
