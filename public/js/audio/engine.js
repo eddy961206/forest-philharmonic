@@ -17,7 +17,7 @@
 // choir has a width and the shimmer of many players.
 
 import { SECTIONS, sectionCenter, sectionFacing, PODIUM } from '../layout.js';
-import { renderMurmur, renderNoise } from './crowd.js';
+import { renderHouse } from './crowd.js';
 import { prepareCrowd } from './crowd-loader.js';
 
 const FAMILY = {
@@ -69,6 +69,7 @@ export class AudioEngine {
     this._spatialDirty = false;
     this._crowd = null;
     this._crowdPreparation = null;
+    this._house = null;
     this.failed = [];
   }
 
@@ -78,6 +79,8 @@ export class AudioEngine {
     this._crowdPreparation?.cancel();
     this._crowdPreparation = null;
     this._crowd = null;
+    this._house?.dispose();
+    this._house = null;
     this.lite = lite;
     this._lp = null;
     this._listenerPose = null;
@@ -219,9 +222,16 @@ export class AudioEngine {
     const out = this.ctx.createBuffer(1, keep, sr);
     const o = out.getChannelData(0);
     const n = buf.numberOfChannels;
-    for (let c = 0; c < n; c++) {
-      const d = buf.getChannelData(c);
-      for (let i = 0; i < keep; i++) o[i] += d[i] / n;
+    if (n === 2) {
+      const left = buf.getChannelData(0), right = buf.getChannelData(1);
+      // Preserve the old channel-by-channel Float32 rounding, including +0.
+      // One pass avoids loading/storing the output again for the second channel.
+      for (let i = 0; i < keep; i++) o[i] = Math.fround(0 + left[i] / 2) + right[i] / 2;
+    } else {
+      for (let c = 0; c < n; c++) {
+        const d = buf.getChannelData(c);
+        for (let i = 0; i < keep; i++) o[i] += d[i] / n;
+      }
     }
     if (keep < buf.length) {
       const f = Math.floor(0.25 * sr);
@@ -765,20 +775,27 @@ export class AudioEngine {
     this.prepareApplause();
     // Direct callers keep the old synchronous guarantee even if preparation
     // has not finished. Stop the worker before completing any missing profiles.
-    this._crowd = this._crowdPreparation.finishSync();
+    const crowd = this._crowdPreparation.finishSync();
+    this._prepareMurmur(crowd.house);
+    this._crowd = crowd;
   }
 
   // Start alongside sample loading; await before enabling the concert UI.
   // Concurrent and subsequent calls share one promise per AudioContext.
   prepareApplause() {
     if (!this._crowdPreparation) {
-      // The house's murmur is ready before entry, as in the venue's sound
-      // design. Only the heavier applause synthesis runs in the worker.
-      this._prepareMurmur();
-      const preparation = this._crowdPreparation = prepareCrowd(this.ctx, { lite: this.lite });
-      preparation.promise.then(crowd => {
-        if (this._crowdPreparation === preparation && crowd) this._crowd = crowd;
-      }, () => { /* awaiting callers handle preparation errors */ });
+      const house = this._house && { bed: this._house.source.buffer, shots: this._house.shots };
+      const preparation = this._crowdPreparation = prepareCrowd(this.ctx, { lite: this.lite, house });
+      // UI readiness awaits this promise: both applause and the house PCM are
+      // complete before entry. Only Web Audio graph wiring stays on this thread.
+      preparation.promise = preparation.promise.then(crowd => {
+        if (this._crowdPreparation === preparation && crowd) {
+          this._prepareMurmur(crowd.house);
+          this._crowd = crowd;
+        }
+        return crowd;
+      });
+      preparation.promise.catch(() => { /* awaiting callers handle preparation errors */ });
     }
     return this._crowdPreparation.promise;
   }
@@ -833,13 +850,10 @@ export class AudioEngine {
   // comes on, silent while the music plays); people: how many are in.
   // Through the master (volume, mute) and the room's reverb; it bypasses the
   // hall's walls (the foyer talks too).
-  _prepareMurmur() {
+  _prepareMurmur(prepared = null) {
     if (this._house) return;
     const ctx = this.ctx;
-    const sr = 16000;
-    const bed = renderMurmur(ctx, { seconds: 9, talkers: this.lite ? 18 : 30, seed: 5, sr });
-    const shots = [];
-    ['cough', 'cough', 'cough', 'creak', 'creak', 'rustle', 'rustle', 'rustle'].forEach((k, i) => shots.push({ kind: k, buf: renderNoise(ctx, k, { seed: 40 + i, sr }) }));
+    const { bed, shots } = prepared || this._crowdPreparation?.finishHouseSync() || renderHouse(ctx, { lite: this.lite });
     const out = ctx.createGain();
     out.gain.value = 0;
     const dry = new GainNode(ctx, { gain: 0.55 });
@@ -854,14 +868,21 @@ export class AudioEngine {
     const bedG = new GainNode(ctx, { gain: 1 });
     src.connect(bedG).connect(out);
     src.start(ctx.currentTime + 0.05, Math.random() * 8);
-    this._house = { out, shots, level: 0, people: 0, target: -1 };
-    this.onTick(() => this._houseTick());
+    const house = this._house = { out, shots, source: src, level: 0, people: 0, target: -1 };
+    const untick = this.onTick(() => this._houseTick());
     // a background tab draws no frames (nobody calls setMurmur): fade it here
-    document.addEventListener('visibilitychange', () => {
-      const H = this._house;
-      if (document.hidden) H.out.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3);
-      H.target = -1; // re-applied on the next frame
-    });
+    const onVisibility = () => {
+      if (this._house !== house) return;
+      if (document.hidden) house.out.gain.setTargetAtTime(0, ctx.currentTime, 0.3);
+      house.target = -1; // re-applied on the next frame
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    house.dispose = () => {
+      untick();
+      document.removeEventListener('visibilitychange', onVisibility);
+      try { src.stop(); } catch { /* the context may already be closed */ }
+      for (const node of [src, bedG, out, hp, dry, wet]) node.disconnect();
+    };
   }
 
   setMurmur(level, people = 0) {
