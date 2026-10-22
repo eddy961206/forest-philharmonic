@@ -232,13 +232,18 @@
     </div>
 
     <div class="panel-body" data-body="program">
-      <ol id="programList" class="program"></ol>
-      <div class="row-opts">
-        <label class="check"><input type="checkbox" id="optShuffle"> 무작위 순서</label>
-        <label class="check"><input type="checkbox" id="optRepeatOne"> 한 곡 반복</label>
+      <!-- (first, where they are seen: the list below can be long) -->
+      <div class="prog-tools">
+        <div class="row-opts">
+          <label class="check"><input type="checkbox" id="optShuffle"> 무작위 순서</label>
+          <label class="check"><input type="checkbox" id="optRepeatOne"> 한 곡 반복</label>
+        </div>
+        <div class="prog-links">
+          <button class="btn-plain leaf-open" id="leafBtn" type="button">🍃 잎사귀 프로그램</button>
+          <button class="btn-plain leaf-open" id="plazaBtn" type="button">🎟 광장으로 나가기</button>
+        </div>
       </div>
-      <button class="btn-plain leaf-open" id="leafBtn" type="button">🍃 오늘 밤의 잎사귀 프로그램</button>
-      <button class="btn-plain leaf-open" id="plazaBtn" type="button">🎟 숲속 광장으로 나가기</button>
+      <ol id="programList" class="program"></ol>
     </div>
 
     <div class="panel-body" data-body="room" hidden>
@@ -271,7 +276,7 @@
         <legend>소리</legend>
         <label class="slider">홀 잔향 <input type="range" id="reverb" min="0" max="1" step="0.01" value="0.45"></label>
         <label class="check"><input type="checkbox" id="optFixedEar" checked> 편하게 보기 중에는 1층 중앙 자리에서 듣기</label>
-        <label class="check"><input type="checkbox" id="optApplause" checked> 박수 소리</label>
+        <label class="slider">박수 소리 <input type="range" id="applauseVol" min="0" max="1" step="0.05" value="0.7"><output id="applauseOut">70%</output></label>
         <label class="slider">곡 사이 쉬는 시간 <input type="range" id="gap" min="2" max="20" step="1" value="7"><output id="gapOut">7초</output></label>
       </fieldset>
       <fieldset class="field">

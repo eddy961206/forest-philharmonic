@@ -857,6 +857,13 @@ export class AudioEngine {
   // clapping; otherwise the ordinary applause after a piece.
   // people: how many are in the house (the wash grows with the crowd, the
   // neighbours you can pick out depend on how full it is around you)
+  // how loud the applause is (the setting, 0..1): the one playing follows at once
+  setApplause(v) {
+    this._applauseVol = clamp(Number(v) || 0, 0, 1);
+    const a = this._lastApplause;
+    if (a && this.ctx) a.g.gain.setTargetAtTime(a.base * this._applauseVol, this.ctx.currentTime, 0.08);
+  }
+
   applause(when, intensity = 1, people = null) {
     this._prepareCrowd();
     const ctx = this.ctx;
@@ -868,7 +875,8 @@ export class AudioEngine {
     const rate = 0.98 + Math.random() * 0.04;
     // the whole crowd: one gain (stopApplause fades it)
     const g = ctx.createGain();
-    g.gain.value = 0.085 * Math.min(1.2, intensity) / this.ac.level;
+    const base = 0.085 * Math.min(1.2, intensity) / this.ac.level;
+    g.gain.value = base * (this._applauseVol ?? 0.7);
     const dry = ctx.createGain();
     dry.gain.value = 0.62;
     g.connect(dry).connect(this.dryBus);
@@ -892,7 +900,7 @@ export class AudioEngine {
     layer(pair.close, closeG, 170, 8500);
     if (washG > 0) layer(pair.wash, washG, 140, 5200);
     const src = { stop: (t) => { for (const s of srcs) try { s.stop(t); } catch { /* not started */ } } };
-    this._lastApplause = { src, g };
+    this._lastApplause = { src, g, base };
     return srcs[0];
   }
 

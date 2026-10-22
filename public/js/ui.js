@@ -193,7 +193,8 @@ export class UI {
     this.room = info;
     $('roomChip').hidden = !info;
     $('chat').hidden = !info;
-    $('chatBtn').hidden = !info || !this.touch;
+    this.unread = 0;
+    this._chatButton();
     if (!info) { this.setHostControls(true); return; }
     $('roomChipTitle').textContent = info.title;
     $('roomTitle').textContent = info.title;
@@ -274,17 +275,32 @@ export class UI {
     li.appendChild(document.createTextNode(text));
     ol.appendChild(li);
     while (ol.children.length > 40) ol.firstChild.remove();
-    // the latest few stay visible; older ones fade until the chat is opened
-    const visible = this.touch ? 4 : 7;
-    [...ol.children].forEach((x, i) => x.classList.toggle('old', i < ol.children.length - visible));
-    clearTimeout(li._t);
-    setTimeout(() => li.classList.add('old'), 14000);
+    // Closed, the chat shows nothing over the show: what came meanwhile is
+    // counted on its button (a phone's, or on a desktop one that appears
+    // for it); open, the log scrolls to the newest line.
+    if ($('chat').classList.contains('open')) ol.scrollTop = ol.scrollHeight;
+    else if (!sys) { this.unread = (this.unread || 0) + 1; this._chatButton(); }
+  }
+
+  // the chat button: always on a touch screen; on a desktop (Enter opens the
+  // chat) only while there are lines nobody has read
+  _chatButton() {
+    const btn = $('chatBtn');
+    const n = this.room ? this.unread || 0 : 0;
+    btn.hidden = !this.room || (!this.touch && n === 0);
+    if (n > 0) btn.dataset.unread = n > 9 ? '9+' : String(n);
+    else delete btn.dataset.unread;
+    btn.setAttribute('aria-label', n > 0 ? `채팅 (새 메시지 ${n}개)` : '채팅');
   }
 
   openChat() {
     if (!this.room) return;
     $('chat').classList.add('open');
     $('chatForm').hidden = false;
+    const ol = $('chatLog');
+    ol.scrollTop = ol.scrollHeight;
+    this.unread = 0;
+    this._chatButton();
     $('chatInput').focus();
     this.emit('chatOpen');
   }
@@ -293,6 +309,7 @@ export class UI {
     $('chat').classList.remove('open');
     $('chatForm').hidden = true;
     $('chatInput').blur();
+    this._chatButton();
   }
 
   // ---------------------------------------------------------------- loading
@@ -885,7 +902,7 @@ export class UI {
       el.checked = !!this.settings[key];
       el.addEventListener('change', () => this.onSetting(key, el.checked));
     };
-    for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optApplause', 'applause'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen']]) bindCheck(id, key);
+    for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen']]) bindCheck(id, key);
     // the audience: how full this venue's house is (each venue keeps its own)
     const crowd = $('crowd');
     const crowdKey = IS_SPHERE ? 'crowdSphere' : 'crowdHall';
@@ -902,6 +919,15 @@ export class UI {
     const rev = $('reverb');
     rev.value = String(this.settings.reverb);
     rev.addEventListener('input', () => this.onSetting('reverb', Number(rev.value)));
+    // (the applause: how loud; at 0 there is none)
+    const app = $('applauseVol');
+    const appText = (v) => (v > 0 ? `${Math.round(v * 100)}%` : '끔');
+    app.value = String(this.settings.applauseVol);
+    $('applauseOut').textContent = appText(this.settings.applauseVol);
+    app.addEventListener('input', () => {
+      $('applauseOut').textContent = appText(Number(app.value));
+      this.onSetting('applauseVol', Number(app.value));
+    });
     const gap = $('gap');
     gap.value = String(this.settings.gap);
     $('gapOut').textContent = `${this.settings.gap}초`;

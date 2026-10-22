@@ -172,8 +172,14 @@ button { font: inherit; color: inherit; }
 }
 .chat-log li b { color: var(--brass); font-weight: 600; margin-right: 6px; }
 .chat-log li.sys { color: var(--paper-dim); font-size: 12.5px; background: rgba(10, 14, 12, 0.4); }
-.chat-log li.old { opacity: 0; }
-.chat.open .chat-log li.old { opacity: 0.85; }
+/* closed, nothing of it over the show (new lines are counted on the chat
+   button); open, a short log that scrolls, never down over the dock */
+.chat:not(.open) .chat-log { display: none; }
+.chat.open .chat-log { max-height: min(40vh, 360px); overflow-y: auto; overscroll-behavior: contain; pointer-events: auto; scrollbar-width: thin; scrollbar-color: var(--brass-dim) transparent; }
+.chat-btn[data-unread]::after {
+  content: attr(data-unread); position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box;
+  border-radius: 10px; background: var(--brass); color: var(--moss); font: 700 11.5px/20px var(--sans); text-align: center;
+}
 .chat-form { margin-top: 6px; pointer-events: auto; }
 .chat-form input {
   width: 100%; box-sizing: border-box; font: 14px var(--sans); color: var(--paper); background: rgba(10, 14, 12, 0.82);
@@ -391,8 +397,10 @@ body.locked .transport, body.aim .transport { opacity: 0.6; }
 .joystick.active { opacity: 0.85; transition: opacity 0.15s ease; }
 .joy-base { position: absolute; inset: 0; border-radius: 50%; background: rgba(15, 29, 23, 0.28); border: 1px solid rgba(242, 237, 225, 0.22); }
 .joy-knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(242, 237, 225, 0.62); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
-.joy-zone { position: fixed; z-index: 11; left: 0; bottom: 118px; width: min(48vw, 340px); height: min(46vh, 420px); touch-action: none; }
-.joy-zone.pz { bottom: 0; height: min(58vh, 520px); }
+/* (the zone reaches a little past the stick: a thumb stretched further up or
+   across turns the view instead of dragging the stick there) */
+.joy-zone { position: fixed; z-index: 11; left: 0; bottom: 118px; width: max(170px, min(40vw, 280px)); height: min(34vh, 300px); touch-action: none; }
+.joy-zone.pz { bottom: 0; height: min(44vh, 400px); }
 .plaza .joystick { bottom: max(64px, 12vh); }
 /* Keep the venue's invisible movement zone behind a wrapped transport. */
 #joyZone { z-index: 9; }
@@ -484,6 +492,11 @@ body.ui-hidden .transport { transform: translate(-50%, 20px); }
 
 /* the leaf programme */
 .leaf-open { margin-top: 14px; width: 100%; font-family: var(--serif); }
+/* the programme's options and ways out, above its list */
+.prog-tools { padding-bottom: 10px; margin-bottom: 6px; border-bottom: 1px solid rgba(242, 237, 225, 0.1); }
+.prog-tools .row-opts { margin-top: 2px; gap: 4px 18px; }
+.prog-links { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.prog-links .leaf-open { margin-top: 0; padding: 7px 10px; font-size: 14px; white-space: nowrap; }
 .leaf { position: fixed; inset: 0; z-index: 41; display: grid; place-items: center; background: rgba(5, 9, 7, 0.55); backdrop-filter: blur(3px); padding: 16px; }
 .leaf-card { position: relative; overflow: hidden; width: min(420px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; padding: 26px 28px 22px; border-radius: 22px 22px 22px 4px;
   background: radial-gradient(120% 90% at 20% 0%, #2c4a33 0%, #1b3123 55%, #13241a 100%); border: 1px solid rgba(230, 192, 123, 0.28); box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45); }
@@ -956,7 +969,7 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
   .btn-start { padding: 10px 32px; font-size: 19px; }
   #joystick { width: 104px; height: 104px; left: max(14px, env(safe-area-inset-left)); bottom: calc(var(--dock, 84px) + 10px); }
   #joyKnob { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
-  #joyZone { bottom: calc(var(--dock, 84px) + 6px); width: min(36vw, 300px); height: max(120px, calc(100dvh - var(--dock, 84px) - 116px)); }
+  #joyZone { bottom: calc(var(--dock, 84px) + 6px); width: min(30vw, 250px); height: max(120px, min(62dvh, calc(100dvh - var(--dock, 84px) - 116px))); }
   .sit-btn { right: max(16px, env(safe-area-inset-right)); bottom: calc(var(--dock, 84px) + 10px); width: 72px; height: 72px; font-size: 16px; }
   .jump-btn { right: calc(max(16px, env(safe-area-inset-right)) + 84px); bottom: calc(var(--dock, 84px) + 14px); width: 56px; height: 56px; }
   .chat-btn { right: max(16px, env(safe-area-inset-right)); bottom: calc(var(--dock, 84px) + 92px); width: 48px; height: 48px; }
@@ -1054,6 +1067,30 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
   body:has(#encorePanel:not([hidden])) .now { visibility: hidden; }
   body:has(#encorePanel:not([hidden])) .chat { top: 52px; }
   body:has(#encorePanel:not([hidden])) .chat-log li:not(:nth-last-child(-n+2)) { display: none; }
+}
+
+/* ---- a portrait phone: a two-row dock (play and the way of watching; the
+   rest), the open chat a short strip under the room chip - the screen is
+   the show. Landscape keeps its one-row dock. */
+@media (max-width: 760px) and (min-height: 501px) {
+  .transport { padding: 0 8px 4px; }
+  .transport-row { flex-wrap: wrap; row-gap: 0; justify-content: space-between; }
+  .t-left { order: 0; }
+  .t-mid { order: 1; width: auto; margin-left: auto; }
+  .t-right { order: 2; width: 100%; justify-content: space-between; }
+  .time { min-width: 0; margin: 0 2px 0 4px; }
+  .vol input[type='range'] { width: 64px; }
+  html.touch .ib { width: 40px; height: 40px; }
+  html.touch .ib-main { width: 44px; height: 44px; }
+  html.touch .mode, html.touch .tab-btn { min-height: 40px; padding: 4px 9px; }
+  .chat.open { top: calc(var(--gutter) + var(--r-room) + 4px); left: max(var(--gutter), env(safe-area-inset-left)); right: max(var(--gutter), env(safe-area-inset-right)); width: auto; }
+  .chat.open .chat-log { max-height: 24dvh; }
+  body:has(#chat.open) .now { visibility: hidden; }
+}
+/* (the narrowest phones: the way of watching as two short words) */
+@media (max-width: 370px) and (min-height: 501px) {
+  html.touch .mode, html.touch .tab-btn { padding: 4px 6px; }
+  .time { font-size: 11px; }
 }
 
 /* Keep these overrides after the responsive HUD rules, which also set motion. */

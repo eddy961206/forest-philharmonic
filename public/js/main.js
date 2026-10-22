@@ -43,7 +43,7 @@ import { watchRenderContext, showRenderStatus } from './render-status.js';
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
-  fixedEar: true, applause: true, gap: 7, notes: true, glow: true, fireflies: true,
+  fixedEar: true, applauseVol: 0.7, gap: 7, notes: true, glow: true, fireflies: true,
   fx: true, lasers: true, screen: true, interval: 3, domeProjection: 'immersive',
   // how full the house is, in per cent, for each venue: the Sphere seats
   // nearly fourteen thousand - a quarter of that is already a big crowd
@@ -54,6 +54,9 @@ try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || 
 // (the old on/off switch for the audience: off is an empty house)
 if (settings.audience === false) { settings.crowdHall = 0; settings.crowdSphere = 0; }
 delete settings.audience;
+// (the old on/off switch for the applause: off is none at all)
+if (settings.applause === false) settings.applauseVol = 0;
+delete settings.applause;
 settings.domeProjection = normalizeDomeProjection(settings.domeProjection);
 const CROWD = IS_SPHERE ? 'crowdSphere' : 'crowdHall'; // this venue's audience setting
 const save = () => { try { localStorage.setItem('fp-settings', JSON.stringify(settings)); } catch { /* ignore */ } };
@@ -334,6 +337,7 @@ async function boot() {
   }
   engine.setVolume(settings.volume);
   engine.setReverb(settings.reverb);
+  engine.setApplause(settings.applauseVol);
   // (the browser taking the sound away, or giving it back: see sound)
   engine.ctx.addEventListener?.('statechange', () => sound.changed());
   fx = buildFX(scene, engine);
@@ -635,7 +639,7 @@ async function runConcert(i, { quick = false, remote = false, late = null } = {}
       } else if (soloists) {
         // ... is welcomed with applause, bows, and sits down to play
         setPhase('announce');
-        if (settings.applause) { engine.applause(engine.now + 0.05, 0.5, audience ? audience.count : 0); clapUntil = performance.now() + 2800; }
+        if (settings.applauseVol > 0) { engine.applause(engine.now + 0.05, 0.5, audience ? audience.count : 0); clapUntil = performance.now() + 2800; }
         stage.greet(enters, true);
         if (!(await wait(1400, tok))) return;
         stage.greet(enters, false);
@@ -664,7 +668,7 @@ async function runConcert(i, { quick = false, remote = false, late = null } = {}
       stage.conductorEnter();
       if (!(await until(() => stage.conductorReady, tok, 30000))) return;
       // greets the audience, a short welcome applause, turns to the orchestra
-      if (settings.applause) { engine.applause(engine.now + 0.05, 0.6, audience ? audience.count : 0); clapUntil = performance.now() + 3200; }
+      if (settings.applauseVol > 0) { engine.applause(engine.now + 0.05, 0.6, audience ? audience.count : 0); clapUntil = performance.now() + 3200; }
       stage.conductorBow(true);
       if (!(await wait(1400, tok))) return;
       stage.conductorBow(false);
@@ -772,7 +776,7 @@ async function endOfPiece() {
   setPhase('applause');
   hall.setHouseLights(sleepy ? 0.04 : kind === 'solo' ? 0.3 : 0.5); // (nodding off: they stay down)
   if (big) hall.show?.('finale');
-  if (settings.applause) {
+  if (settings.applauseVol > 0) {
     engine.applause(engine.now + 0.35, big ? 1.3 : 1, audience ? audience.count : 0);
     clapUntil = performance.now() + (big ? 12500 : 7600);
   }
@@ -1507,6 +1511,7 @@ function onSetting(key, value) {
   save();
   if (key === 'volume') { muted = false; ui.setMuted(false); engine.setVolume(value); }
   if (key === 'reverb') engine.setReverb(value);
+  if (key === 'applauseVol') engine.setApplause(value);
   if (key === 'quality') {
     quality = value === 'auto' ? (LITE ? 'low' : autoStart()) : value;
     renderScale = 1;
@@ -2523,7 +2528,7 @@ boot().catch((e) => {
 });
 
 window.__fp = {
-  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, stats: frameStats, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
+  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, ui, stats: frameStats, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
   // (tests) the automatic quality, fed a frame rate by hand
