@@ -236,19 +236,42 @@ vec3 sNEBULA(vec3 d, float az, float el) {
 }
 
 vec3 sAURORA(vec3 d, float az, float el) {
+  // An arctic night: curtains of aurora folding and rippling across the sky,
+  // green at their hems, violet higher up, their rays shimmering; snowy
+  // peaks black round the horizon with the aurora's light on their snow,
+  // and a frozen lake below catching a smear of it. (Also the phones'
+  // version of PEAKS3D.)
   vec3 c = sSTARS(d, az, el) * 0.6;
   float t = uTime * 0.05;
+  vec3 glow = vec3(0.0);
   for (int i = 0; i < 3 * uOne; i++) {
     float fi = float(i);
     float base = 0.18 + fi * 0.12 + 0.12 * sin(az * (1.3 + fi * 0.4) + t * (1.0 + fi * 0.3) + fi * 2.0) + 0.06 * (fbm(vec3(az * 2.0, t, fi)) - 0.5);
     float h = el - base;
     float curtain = smoothstep(-0.03, 0.02, h) * exp(-max(h, 0.0) * (5.0 - fi));
-    float streak = 0.55 + 0.45 * noise(vec3(az * 70.0, t * 4.0, fi * 9.0));
+    // rays along the curtain, shimmering; fading out where the azimuths crowd together overhead
+    float streak = mix(1.0, 0.45 + 0.55 * noise(vec3(az * 70.0, t * 4.0, fi * 9.0)), smoothstep(1.15, 0.7, el));
+    float fold = 0.6 + 0.4 * smoothstep(0.3, 0.7, noise(vec3(az * 6.0 - t * 2.0, fi, 2.0))); // brighter where it folds
     vec3 col = mix(vec3(0.1, 1.0, 0.55), vec3(0.65, 0.25, 1.0), smoothstep(0.0, 0.35, h));
-    c += col * curtain * streak * (0.45 + 0.6 * uLevel) * (0.7 - fi * 0.15);
+    col = mix(col, vec3(1.0, 0.3, 0.45), smoothstep(-0.03, -0.01, -h) * smoothstep(0.02, 0.0, h) * 0.3 * fold); // a pink fringe at the hem
+    vec3 a = col * curtain * streak * fold * (0.45 + 0.6 * uLevel) * (0.7 - fi * 0.15);
+    c += a;
+    glow += col * (0.7 - fi * 0.15) * fold;
   }
-  // snow horizon glow
-  c += vec3(0.08, 0.12, 0.16) * exp(-max(el + 0.25, 0.0) * 6.0);
+  glow *= 0.33;
+  // snowy peaks round the horizon
+  float rn = 1.0 - abs(noise(vec3(az * 5.0, 1.0, 4.0)) * 2.0 - 1.0); // ridged: sharp summits
+  float ridge = 0.02 + 0.13 * rn * rn * (0.5 + 0.5 * noise(vec3(az * 1.5, 3.0, 2.0))) + 0.012 * noise(vec3(az * 40.0, 2.0, 1.0));
+  float mtn = smoothstep(ridge + 0.002, ridge - 0.002, el) * step(-0.004, el);
+  float face = noise(vec3(az * 160.0 + el * 60.0, el * 18.0, 3.0)) * 0.7 + 0.3 * noise(vec3(az * 20.0, el * 20.0, 6.0)); // snow in gullies down the faces
+  vec3 rock = vec3(0.004, 0.006, 0.012) + (glow * 0.12 + vec3(0.02, 0.025, 0.035)) * smoothstep(0.45, 0.62, face) * smoothstep(ridge - 0.09, ridge - 0.004, el);
+  c = mix(c, rock, mtn);
+  // the frozen lake
+  float lake = step(el, -0.004);
+  float sheen = 0.6 + 0.4 * noise(vec3(az * 12.0, el * 80.0, 5.0));
+  c = mix(c, vec3(0.006, 0.01, 0.02) + glow * 0.035 * sheen * smoothstep(-0.25, 0.0, el), lake);
+  // the snow-light along the horizon
+  c += vec3(0.04, 0.08, 0.07) * exp(-abs(el) * 30.0) * (1.0 - mtn);
   return c;
 }
 
