@@ -17,7 +17,7 @@ const score = {
 async function fixture(t, piece = score) {
   const previous = { document: globalThis.document, fetch: globalThis.fetch };
   globalThis.document = { hidden: false, addEventListener() {} };
-  globalThis.fetch = async () => ({ json: async () => structuredClone(piece) });
+  globalThis.fetch = async () => ({ ok: true, json: async () => structuredClone(piece) });
   t.after(() => {
     if (previous.document === undefined) delete globalThis.document; else globalThis.document = previous.document;
     if (previous.fetch === undefined) delete globalThis.fetch; else globalThis.fetch = previous.fetch;

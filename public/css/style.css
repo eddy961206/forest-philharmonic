@@ -507,6 +507,15 @@ body.ui-hidden .transport { transform: translate(-50%, 20px); }
 .leaf-past button[aria-current="true"] { border-color: var(--brass); color: var(--brass); }
 .leaf-card .btn-plain { display: block; margin: 0 auto; }
 
+/* a fix one press away (a piece to try again, the sound turned back on):
+   in the middle of the screen, where it is seen at once, until it is done */
+.offer { position: fixed; z-index: 26; left: 50%; top: 38%; transform: translateX(-50%); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px;
+  width: max-content; max-width: calc(100vw - 2 * var(--gutter)); box-sizing: border-box; padding: 10px 10px 10px 18px; text-align: center; font-size: 14px;
+  background: var(--glass); border: 1px solid var(--glass-line); border-radius: 24px; backdrop-filter: blur(10px); }
+.offer[hidden] { display: none; }
+.offer .chip-btn { padding: 8px 16px; font-size: 14px; color: var(--moss); background: var(--brass); }
+.offer .chip-btn:hover { background: var(--paper); }
+
 /* the interval */
 .interval-chip { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 12; display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 16px;
   background: var(--glass); border: 1px solid var(--glass-line); border-radius: 999px; backdrop-filter: blur(8px); white-space: nowrap; max-width: calc(100vw - 32px); }

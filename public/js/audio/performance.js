@@ -11,6 +11,16 @@ const LEVEL_REF = 3;
 
 const SECTION_LAG = { vn1: -0.004, vn2: 0.002, va: 0.004, vc: 0.006, cb: 0.012, fl: 0, ob: 0, cl: 0.002, bn: 0.006, hn: 0.01, tp: 0.004, timp: 0.003, harp: 0, piano: 0 };
 
+// A piece's score from the server. A failed answer (offline, a 503, a page
+// that is not a score) is an error, never half a piece.
+export async function fetchPiece(id) {
+  const r = await fetch(`music/${id}.json`);
+  if (!r.ok) throw new Error(`music/${id}.json: HTTP ${r.status}`);
+  const p = await r.json();
+  if (!p || !Array.isArray(p.tracks) || !(p.duration > 0)) throw new Error(`music/${id}.json: not a score`);
+  return p;
+}
+
 export class Performance {
   constructor(engine) {
     this.engine = engine;
@@ -19,6 +29,7 @@ export class Performance {
     this.playing = false;
     this.pos = 0; // seconds into the piece while paused
     this.onEnd = null;
+    this._ended = false;
     this.speed = 1;
     engine.onTick(() => this._schedule());
     document.addEventListener('visibilitychange', () => this._schedule());
@@ -26,10 +37,15 @@ export class Performance {
 
   async load(id) {
     const req = ++this._req;
-    const p = await (await fetch(`music/${id}.json`)).json();
+    const prep = this.prepare(await fetchPiece(id));
     if (req !== (this._req || 0)) return null; // a newer load superseded this one
-    if (this.playing) this.stop();
-    this.piece = p;
+    return this.use(prep);
+  }
+
+  // A score made ready to play - its events in time order, its dynamics,
+  // its level - without touching what is playing now (see use(): a piece
+  // asked for and no longer wanted by the time it arrives changes nothing)
+  prepare(p) {
     const events = [];
     p.tracks.forEach((tr, ti) => {
       const n = tr.notes;
@@ -41,17 +57,34 @@ export class Performance {
     // sort flat event list by time
     const count = events.length / 5;
     const order = Array.from({ length: count }, (_, i) => i).sort((a, b) => events[a * 5 + 1] - events[b * 5 + 1]);
-    this.ev = new Float32Array(count * 5);
+    const ev = new Float32Array(count * 5);
     order.forEach((src, dst) => {
-      for (let k = 0; k < 5; k++) this.ev[dst * 5 + k] = events[src * 5 + k];
+      for (let k = 0; k < 5; k++) ev[dst * 5 + k] = events[src * 5 + k];
     });
-    this.evCount = count;
-    this.maxDur = 0;
-    for (let i = 0; i < count; i++) this.maxDur = Math.max(this.maxDur, this.ev[i * 5 + 2]);
-    this._shape(p);
-    this._level(p);
-    this.playingSections = new Set(p.tracks.map((t) => t.section));
-    this._buildActivity();
+    let maxDur = 0;
+    for (let i = 0; i < count; i++) maxDur = Math.max(maxDur, ev[i * 5 + 2]);
+    this._shape(p, ev, count);
+    return {
+      piece: p, ev, evCount: count, maxDur, level: this._level(p, ev, count),
+      playingSections: new Set(p.tracks.map((t) => t.section)), activity: this._activity(p),
+    };
+  }
+
+  // the prepared piece is the one to play now (stopped, at its start)
+  use(prep) {
+    if (this.playing) this.stop();
+    const p = prep.piece;
+    this.piece = p;
+    this.ev = prep.ev;
+    this.evCount = prep.evCount;
+    this.maxDur = prep.maxDur;
+    if (prep.level) {
+      this.levelDb = prep.level.db;
+      this.engine.setTrim(prep.level.trim, 1.2);
+    }
+    this.playingSections = prep.playingSections;
+    this.activity = prep.activity;
+    this._ended = false;
     this.pos = 0;
     this._resetVisual(0);
     return p;
@@ -105,7 +138,7 @@ export class Performance {
   // into a big entry, a swell over each phrase, a broadening last chord for
   // the grand pieces and a dying-away ending for the calm ones. Parts that
   // already have their own dynamics (the piano scores) are left alone.
-  _shape(p) {
+  _shape(p, ev, count) {
     const B = 0.5;
     const nb = Math.ceil(p.duration / B) + 8;
     const tex = new Float32Array(nb);
@@ -173,8 +206,7 @@ export class Performance {
       for (let i = 3; i < n.length; i += 4) { mn = Math.min(mn, n[i]); mx = Math.max(mx, n[i]); }
       return mx - mn < 3;
     });
-    const ev = this.ev;
-    for (let i = 0; i < this.evCount; i++) {
+    for (let i = 0; i < count; i++) {
       const k = i * 5;
       if (!flat[ev[k]]) continue;
       ev[k + 4] = Math.min(122, Math.max(24, ev[k + 4] * at(ev[k + 1])));
@@ -184,14 +216,14 @@ export class Performance {
   // Each piece is levelled from its score (as the engine will play it), so
   // the programme keeps one loudness: a piano rag is not louder than the
   // orchestra's finale. A little of the difference stays, by character.
-  _level(p) {
+  // (what use() then sets: { db, trim }, or null)
+  _level(p, ev, count) {
     const e = this.engine;
-    if (!e.noteEnergy || !e.setTrim) return;
+    if (!e.noteEnergy || !e.setTrim) return null;
     const nb = Math.ceil(p.duration) + 2;
     const bins = new Float64Array(nb);
-    const ev = this.ev;
     const tracks = p.tracks;
-    for (let i = 0; i < this.evCount; i++) {
+    for (let i = 0; i < count; i++) {
       const k = i * 5;
       const tr = tracks[ev[k]];
       const en = e.noteEnergy(tr.section, tr.inst, ev[k + 3], ev[k + 4], ev[k + 2], tr.gain ?? 1, tr.layer);
@@ -201,7 +233,7 @@ export class Performance {
       for (let j = a; j <= b; j++) bins[j] += en / (b - a + 1);
     }
     const act = Array.from(bins).filter((v) => v > 0).sort((a, b) => b - a);
-    if (!act.length) return;
+    if (!act.length) return null;
     const top = act.slice(0, Math.max(1, Math.ceil(act.length * 0.6)));
     const L = 10 * Math.log10(top.reduce((s, v) => s + v, 0) / top.length);
     // (a piano alone sits a little under the orchestra; an orchestral finale
@@ -210,8 +242,7 @@ export class Performance {
     let mood = (p.mood === 'grand' ? 1 : p.mood === 'calm' ? -1 : 0) + (p.finale ? 1 : 0) - (solo ? 1.5 : 0);
     let trim = 0.9 * (LEVEL_REF - L) + mood;
     if (p.finale && !solo) trim = Math.max(trim, 1);
-    this.levelDb = L;
-    e.setTrim(Math.min(6, Math.max(-9, trim)), 1.2);
+    return { db: L, trim: Math.min(6, Math.max(-9, trim)) };
   }
 
   pause() {
@@ -359,12 +390,11 @@ export class Performance {
 
   // Activity per section in 1-second bins (sum of velocity x duration), used
   // by the camera director to follow the musical foreground.
-  _buildActivity() {
-    const p = this.piece;
+  _activity(p) {
     const bins = Math.ceil(p.duration) + 1;
-    this.activity = {};
+    const activity = {};
     for (const tr of p.tracks) {
-      const arr = this.activity[tr.section] || (this.activity[tr.section] = new Float32Array(bins));
+      const arr = activity[tr.section] || (activity[tr.section] = new Float32Array(bins));
       const n = tr.notes;
       const w = (tr.gain ?? 1) * (tr.section === 'cb' ? 0.5 : 1);
       for (let i = 0; i < n.length; i += 4) {
@@ -375,6 +405,7 @@ export class Performance {
         for (let k = a; k <= b; k++) arr[k] += (n[i + 3] / 127) * w * 0.25;
       }
     }
+    return activity;
   }
 
   // Which section carries the music in [t, t+span]? Melody-ish = high & active.

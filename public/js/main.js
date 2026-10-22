@@ -15,7 +15,8 @@ import { SETLISTS } from './programs.js';
 import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement, ticketQuery, EMOJI } from './tickets.js';
 
 import { AudioEngine } from './audio/engine.js';
-import { Performance } from './audio/performance.js';
+import { Performance, fetchPiece } from './audio/performance.js';
+import { PieceChooser, transportState } from './pieces.js';
 import { buildHall } from './scene/hall.js';
 import { buildOrchestra } from './scene/orchestra.js';
 import { buildAudience, planHouse, animateAudience } from './scene/audience.js';
@@ -278,6 +279,24 @@ headPositions.push(orchestra.conductor.home.clone().add(new THREE.Vector3(0, 1.3
 // ------------------------------------------------------------------ audio
 const engine = new AudioEngine();
 const perf = new Performance(engine);
+// the piece to play: a choice made while another is on its way wins, and
+// only what is loaded is what the page shows (see pieces.js)
+const pieces = new PieceChooser({
+  fetch: fetchPiece,
+  prepare: (score) => perf.prepare(score),
+  apply(prep) {
+    const piece = perf.use(prep);
+    if (program[current]?.id !== piece.id) current = Math.max(0, program.findIndex((p) => p.id === piece.id));
+    nextPiece = program[current];
+    ui.setCurrent(current, piece);
+    ui.setTime(0, piece.duration);
+    ui.offer('retry', null); // (a piece has come: whatever failed before is out of date)
+    return piece;
+  },
+  loaded: () => perf.piece,
+});
+// the piece chosen is still on its way: what is loaded is the one before it
+const loadingPiece = () => !!program[current] && perf.piece?.id !== program[current].id;
 let fx = null;
 let program = [];
 let eveningLen = 0; // the evening's programme (this building's half of the pieces)
@@ -328,8 +347,7 @@ async function boot() {
   await new Promise((r) => setTimeout(r, 30));
   await applauseReady;
   current = 0;
-  const piece = await perf.load(program[0].id);
-  ui.setCurrent(0, piece);
+  await pieces.choose(program[0].id);
   // every material the evening will need, compiled now (the players, the
   // recital's chairs, ...) rather than with a hitch the first time they appear
   recital.show(true);
@@ -536,13 +554,23 @@ async function runConcert(i, { quick = false, remote = false, late = null } = {}
   stage.greet(stage.walkers.filter((w) => w.bowTarget || w.faceYaw !== null || (w.atHome && !w.standingRole && !w.sitTarget)), false);
   const idx = (i + program.length) % program.length;
   // (skipping away from the encore: the evening goes on from the piece picked)
-  if (quick && idx !== current) encoreActive = false;
+  const away = quick && idx !== current;
   current = idx;
   const meta = program[current];
   nextPiece = meta;
+  // (the guests start fetching it now; the snapshot that goes with it says
+  // it is on its way, not playing: see snapshot)
   if (!remote) sendCmd({ c: 'run', i: current, quick, ritual: ritualNext && !quick });
-  const piece = perf.piece?.id === meta.id ? perf.piece : await perf.load(meta.id);
-  if (tok !== seq || !piece) return;
+  let piece;
+  try {
+    piece = await pieces.choose(meta.id);
+  } catch (e) {
+    pieceFailed(idx, e, tok);
+    return;
+  }
+  if (!piece) return; // (another piece was chosen meanwhile: that one goes on)
+  if (away) encoreActive = false;
+  if (tok !== seq) return;
   perf.seek(0);
   ui.setCurrent(current, piece);
   ui.setTime(0, piece.duration);
@@ -681,6 +709,40 @@ async function runConcert(i, { quick = false, remote = false, late = null } = {}
   ui.setPlaying(true);
   sendCmd(playMsg());
   fxFor(piece);
+}
+
+// The piece chosen could not be loaded (offline, a failed answer): the one
+// loaded stays the current one - its number, its title, where it was - and
+// a press tries again, without a reload (a failed download is not kept).
+// Only the latest choice gets here (pieces.js); tok: its run of the show
+let retryIndex = -1;
+function pieceFailed(i, e, tok) {
+  console.warn('piece not loaded', program[i]?.id, e);
+  const title = program[i]?.titleKo;
+  current = Math.max(0, program.findIndex((p) => p.id === perf.piece?.id));
+  nextPiece = program[current];
+  ui.setCurrent(current, perf.piece);
+  ui.setTime(perf.time, perf.duration);
+  if (tok === seq) {
+    ceremony = false;
+    ui.setPlaying(perf.playing);
+    // (between pieces it stays between pieces: ▶ goes on from there)
+    if (phase !== 'playing') setPhase('intermission');
+  }
+  retryIndex = i;
+  ui.offer('retry', `「${title || '다음 곡'}」 악보를 불러오지 못했어요. 연결을 확인하고 다시 시도해 주세요.`, '다시 시도');
+  // the room: the host stays where it is - said at once, so nobody plays on
+  // the piece that did not come (see 'stay')
+  if (room?.isHost) sendCmd({ c: 'stay', i: current });
+}
+function retryPiece() {
+  ui.offer('retry', null);
+  if (!concertStarted) return;
+  // (a guest: the host's piece, from the host's latest state)
+  if (guest()) { if (hostState) followHost(hostState, { joining: true }); return; }
+  if (retryIndex < 0) return;
+  showOn();
+  runConcert(retryIndex, { quick: true });
 }
 
 perf.onEnd = () => endOfPiece();
@@ -828,6 +890,9 @@ function nextIndex() {
 function togglePlay() {
   if (!concertStarted || hostOnly()) return;
   if (!showStarted) { startShow(); return; }
+  // (the piece chosen is on its way: nothing to play or pause yet - not the
+  // one before it either)
+  if (loadingPiece()) { ui.toast('곡을 불러오는 중이에요. 곧 시작해요.', 1600); return; }
   if (phase === 'interval' && intervalState) { secondHalf(); return; }
   if (phase === 'encore' && encore) { encore.until = clockNow(); return; }
   if (phase !== 'playing') {
@@ -849,6 +914,10 @@ function togglePlay() {
 }
 
 ui.on('toggle', togglePlay);
+// the button that fixes something with one press (see ui.offer)
+ui.on('offer', (kind) => {
+  if (kind === 'retry') retryPiece();
+});
 const showOn = () => { if (!showStarted) { showStarted = true; ui.showStarted(); } };
 // (before the show ⏮ / ⏭ open the evening as ▶ does - from its first piece,
 // not from its last)
@@ -856,19 +925,19 @@ ui.on('next', () => { if (!concertStarted || hostOnly()) return; if (!showStarte
 ui.on('prev', () => {
   if (!concertStarted || hostOnly()) return;
   if (!showStarted) { startShow(); return; }
-  if (phase === 'playing' && perf.time > 5) { perf.seek(0); sendCmd(playMsg()); return; }
+  if (phase === 'playing' && perf.time > 5 && !loadingPiece()) { perf.seek(0); sendCmd(playMsg()); return; }
   showOn();
   runConcert(current - 1, { quick: true });
 });
 ui.on('select', (i) => { if (!concertStarted || hostOnly()) return; showOn(); runConcert(i, { quick: true }); });
 ui.on('seek', (t) => {
-  if (!concertStarted || phase !== 'playing' || hostOnly()) return;
+  if (!concertStarted || phase !== 'playing' || loadingPiece() || hostOnly()) return;
   perf.seek(t);
   sendCmd(playMsg());
 });
 ui.on('seekKey', (d, e) => {
   // (walking, ← → turn you - except on the focused position slider itself)
-  if (!concertStarted || phase !== 'playing' || (director.mode === 'walk' && e.target?.id !== 'seek')) return;
+  if (!concertStarted || phase !== 'playing' || loadingPiece() || (director.mode === 'walk' && e.target?.id !== 'seek')) return;
   e.preventDefault();
   if (hostOnly()) return;
   perf.seek(perf.time + d);
@@ -1563,9 +1632,11 @@ function hostOnly() {
 }
 
 function snapshot() {
+  // (a piece on its way: its number, at its start, not the time of the one before)
+  const t = transportState({ chosen: program[current], loaded: perf.piece, phase, playing: perf.playing, time: perf.time });
   return {
-    started: showStarted, i: current, title: program[current]?.titleKo || '', phase,
-    playing: perf.playing, pos: perf.time, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
+    started: showStarted, i: current, title: program[current]?.titleKo || '', phase: t.phase, loading: t.loading,
+    playing: t.playing, pos: t.pos, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
     on: [...stage.onstageKeys()],
     iu: intervalState?.until, inext: intervalState?.next,
     ev: encore ? { c: encore.cands, n: encoreCounts(), u: encore.until } : undefined,
@@ -1583,17 +1654,23 @@ function fxFor(piece) {
   fx.wash.set(lively);
 }
 
-// make piece i the current one (guests follow the host there)
+// make piece i the current one (guests follow the host there). The host's
+// state every few seconds asks for the same piece again while it is on its
+// way: that is the one download, the latest ask applying it (pieces.js)
 async function ensurePiece(i) {
-  if (current === i && perf.piece?.id === program[i]?.id) return true;
   if (!program[i]) return false;
+  const fresh = perf.piece?.id !== program[i].id;
   current = i;
   nextPiece = program[i];
-  const piece = await perf.load(program[i].id);
+  let piece;
+  try {
+    piece = await pieces.choose(program[i].id);
+  } catch (e) {
+    pieceFailed(i, e, null); // (the host's next state tries again)
+    return false;
+  }
   if (!piece || current !== i) return false;
-  ui.setCurrent(i, piece);
-  ui.setTime(0, piece.duration);
-  updateMediaSession(piece);
+  if (fresh) updateMediaSession(piece);
   return true;
 }
 
@@ -1643,9 +1720,11 @@ async function applyPlayback(s) {
 // a snapshot from the host (on joining, then every few seconds). Joining,
 // it comes true once we are in step with the show (see room.ready)
 let hostState = null; // the host's latest snapshot
+let rejoin = false; // the next snapshot is taken as on coming in (see 'stay')
 async function followHost(s, { joining = false } = {}) {
   if (s) hostState = s;
   if (!s || !room || room.isHost || !concertStarted || !s.started) return true;
+  if (rejoin) { rejoin = false; joining = true; }
   showOn();
   if (s.phase === 'encore' && s.ev && !joining) { guestEncore(s.ev); return true; }
   let over = false;
@@ -1687,6 +1766,14 @@ function onHostCmd(c) {
   } else if (c.c === 'play' || c.c === 'pause') {
     showOn();
     applyPlayback({ i: c.i, playing: c.c === 'play', pos: c.pos, at: c.at });
+  } else if (c.c === 'stay') {
+    // the piece the host asked for did not come to the host: it stays where
+    // it is, and so do we - the state that follows says where, and is taken
+    // as on coming in (whatever we set up for that piece is let go)
+    seq++;
+    playTok++;
+    ceremony = false;
+    rejoin = true;
   } else if (c.c === 'encore') {
     seq++;
     ceremony = false;
