@@ -807,6 +807,14 @@ body.touch .plaza .toast { bottom: calc(max(64px, 12vh) + 136px); }
   .ticket .t-foil { animation: none; }
   .ticket.torn, .ticket.torn .t-stub, .coins span { animation-duration: 0.01s; }
 }
+/* Watching UI fades back when idle (see UI._initDim): one animated number
+   on <body>, multiplied into each element's own opacity by a filter.
+   Fades over 0.8 s; any input brings it straight back. */
+@property --dim { syntax: '<number>'; inherits: true; initial-value: 1; }
+body.ui-dim { --dim: 0.42; transition: --dim 0.8s ease-in-out; }
+body.ui-dim :is(.now, .transport, .jump-btn, .sit-btn, .act-btn, .chat-btn, .focus-chip, .room-chip, .interval-chip, .lift-panel, .chat-log) { filter: opacity(var(--dim)); }
+@media (prefers-reduced-motion: reduce) { body.ui-dim { transition: none; } }
+
 /* the title over a bright dome or a cream wall: a fine dark edge that hugs
    each letter - no cloud of shadow behind the block (it read as smoke) */
 .now, .now-composer, .now-meta { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55); }
