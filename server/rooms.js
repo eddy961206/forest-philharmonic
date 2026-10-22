@@ -219,12 +219,19 @@ function onMessage(m, msg) {
       } else {
         const room = rooms.get(clean(msg.code, 8).toUpperCase());
         if (!room) { m.sock.send({ t: 'error', code: 'notfound', msg: '그 방을 찾지 못했어요. 방이 닫혔거나 코드가 달라요.' }); return; }
+        // Validate the destination before retiring a tab's previous connection.
+        if ((VENUES.has(msg.venue) ? msg.venue : 'hall') !== room.venue) { m.sock.send({ t: 'error', code: 'venue', venue: room.venue, msg: '다른 공연장의 방이에요. 그 공연장으로 옮겨 갈게요.' }); return; }
+        // A radio switch can open the replacement before TCP notices the old
+        // connection died. The same tab keeps one member and its reserved seat.
+        if (m.cid) for (const old of room.members.values()) {
+          // A duplicated browser tab inherits sessionStorage too. Tell the old
+          // tab to stop reconnecting, rather than having both tabs evict each other.
+          if (old.cid === m.cid) { old.sock.close(4001); break; }
+        }
         // (someone coming back has their place kept, even in a full room)
         const back = m.cid && room.back.get(m.cid);
         const kept = !!(back && now - back.at < BACK_GRACE && !room.members.has(back.id));
         if (room.members.size + held(room, now) - (kept ? 1 : 0) >= room.cap) { m.sock.send({ t: 'error', code: 'full', msg: `방이 가득 찼어요 (${room.cap}명).` }); return; }
-        // the room is in the other building: the client reloads there and joins again
-        if ((VENUES.has(msg.venue) ? msg.venue : 'hall') !== room.venue) { m.sock.send({ t: 'error', code: 'venue', venue: room.venue, msg: '다른 공연장의 방이에요. 그 공연장으로 옮겨 갈게요.' }); return; }
         enter(m, room, msg.resume === true);
       }
       return;
@@ -301,12 +308,13 @@ function onMessage(m, msg) {
 
 // attach to an http.Server: WebSocket at /ws
 export function attachRooms(server) {
-  server.on('upgrade', (req, sock) => {
-    const url = new URL(req.url, 'http://x');
+  server.on('upgrade', (req, sock, head) => {
+    let url;
+    try { url = new URL(req.url, 'http://x'); } catch { sock.destroy(); return; }
     if (url.pathname !== '/ws') { sock.destroy(); return; }
     // behind a reverse proxy (TRUST_PROXY=1) everyone comes from the proxy:
     // count the address it passes on instead
-    const fwd = process.env.TRUST_PROXY ? String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() : '';
+    const fwd = process.env.TRUST_PROXY === '1' ? String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() : '';
     const ip = fwd || req.socket.remoteAddress || '?';
     if ((perIp.get(ip) || 0) >= PER_IP) { sock.end('HTTP/1.1 429 Too Many Requests\r\n\r\n'); return; }
     const ws = accept(req, sock);
@@ -321,14 +329,25 @@ export function attachRooms(server) {
       if (n <= 0) perIp.delete(ip); else perIp.set(ip, n);
       leave(m);
     };
+    // Node may already have read the first frame together with the upgrade.
+    if (head.length) ws._data(head);
   });
-  heartbeat(() => sockets);
+  const pingTimer = heartbeat(() => sockets);
   // empty rooms nobody came back to close; old places are forgotten
-  setInterval(() => {
+  const sweepTimer = setInterval(() => {
     const now = Date.now();
     for (const r of rooms.values()) {
       if (r.emptyAt && now - r.emptyAt > ROOM_GRACE) { rooms.delete(r.code); continue; }
       for (const [cid, b] of r.back) if (now - b.at > BACK_GRACE) r.back.delete(cid);
     }
   }, 10000).unref();
+  const dispose = () => {
+    clearInterval(pingTimer);
+    clearInterval(sweepTimer);
+    for (const ws of sockets) ws.close(1001);
+    for (const room of rooms.values()) clearTimeout(room.awayT);
+    rooms.clear();
+  };
+  server.once('close', dispose);
+  return dispose;
 }

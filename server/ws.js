@@ -5,12 +5,16 @@ import crypto from 'node:crypto';
 
 const GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 const MAX_MESSAGE = 64 * 1024;
+const MAX_BACKLOG = 256 * 1024;
+const utf8 = new TextDecoder('utf-8', { fatal: true });
 
 export class Socket {
   constructor(sock) {
     this.sock = sock;
     this.buf = Buffer.alloc(0);
     this.parts = [];
+    this.partBytes = 0;
+    this.fragmented = false;
     this.open = true;
     this.alive = true;
     this.onmessage = null;
@@ -33,13 +37,21 @@ export class Socket {
     b.writeUInt16BE(code);
     this._frame(0x8, b);
     this.sock.end();
-    this._closed();
+    this._closed(false);
+    // Give the close frame a chance to drain, but never keep a dead peer alive.
+    const timer = setTimeout(() => this.sock.destroy(), 1000);
+    timer.unref();
+    this.sock.once('close', () => clearTimeout(timer));
   }
 
   ping() { if (this.open) this._frame(0x9, Buffer.alloc(0)); }
 
   _frame(op, data) {
+    if (!this.open) return;
     const n = data.length;
+    // A phone on a stalled radio must not accumulate every other member's
+    // pose forever. Rejoining gives it a fresh snapshot once it can read again.
+    if (this.sock.writableLength + n + 10 > MAX_BACKLOG) { this._closed(); return; }
     let head;
     if (n < 126) { head = Buffer.alloc(2); head[1] = n; }
     else if (n < 65536) { head = Buffer.alloc(4); head[1] = 126; head.writeUInt16BE(n, 2); }
@@ -49,6 +61,7 @@ export class Socket {
   }
 
   _data(d) {
+    if (!this.open) return;
     this.alive = true;
     this.buf = this.buf.length ? Buffer.concat([this.buf, d]) : d;
     for (;;) {
@@ -58,6 +71,7 @@ export class Socket {
       const fin = (b0 & 0x80) !== 0;
       const op = b0 & 0x0f;
       const masked = (b1 & 0x80) !== 0;
+      if ((b0 & 0x70) || ![0x0, 0x1, 0x2, 0x8, 0x9, 0xa].includes(op)) { this.close(1002); return; }
       let len = b1 & 0x7f;
       let off = 2;
       if (len === 126) {
@@ -72,6 +86,7 @@ export class Socket {
         off = 10;
       }
       if (len > MAX_MESSAGE) { this.close(1009); return; }
+      if (op >= 0x8 && (!fin || len > 125)) { this.close(1002); return; }
       // browsers must mask what they send
       if (!masked) { this.close(1002); return; }
       if (this.buf.length < off + 4 + len) return;
@@ -80,19 +95,25 @@ export class Socket {
       for (let i = 0; i < len; i++) payload[i] ^= mask[i & 3];
       this.buf = this.buf.subarray(off + 4 + len);
 
-      if (op === 0x8) { this.close(); return; }
+      if (op === 0x8) { this.close(len === 1 ? 1002 : 1000); return; }
       if (op === 0x9) { this._frame(0xa, payload); continue; }
       if (op === 0xa) { this.alive = true; continue; }
       if (op === 0x1 || op === 0x0) {
+        if ((op === 0x0) !== this.fragmented) { this.close(1002); return; }
         this.parts.push(payload);
-        const total = this.parts.reduce((a, p) => a + p.length, 0);
-        if (total > MAX_MESSAGE) { this.close(1009); return; }
+        this.partBytes += payload.length;
+        if (this.partBytes > MAX_MESSAGE) { this.close(1009); return; }
+        this.fragmented = !fin;
         if (!fin) continue;
-        const text = Buffer.concat(this.parts).toString('utf8');
+        let text;
+        try { text = utf8.decode(Buffer.concat(this.parts, this.partBytes)); }
+        catch { this.close(1007); return; }
         this.parts = [];
+        this.partBytes = 0;
         let msg;
         try { msg = JSON.parse(text); } catch { continue; }
         if (msg && typeof msg === 'object' && this.onmessage) this.onmessage(msg);
+        if (!this.open) return;
         continue;
       }
       // binary frames are not used
@@ -101,10 +122,13 @@ export class Socket {
     }
   }
 
-  _closed() {
+  _closed(destroy = true) {
     if (!this.open) return;
     this.open = false;
-    try { this.sock.destroy(); } catch { /* already gone */ }
+    this.buf = Buffer.alloc(0);
+    this.parts = [];
+    this.partBytes = 0;
+    if (destroy) try { this.sock.destroy(); } catch { /* already gone */ }
     if (this.onclose) this.onclose();
   }
 }
@@ -112,7 +136,10 @@ export class Socket {
 // Answer the HTTP upgrade; returns a Socket or null
 export function accept(req, sock) {
   const key = req.headers['sec-websocket-key'];
-  if (!key || (req.headers.upgrade || '').toLowerCase() !== 'websocket') {
+  const connection = String(req.headers.connection || '').toLowerCase().split(',').map(x => x.trim());
+  if (req.method !== 'GET' || req.headers['sec-websocket-version'] !== '13' ||
+      typeof key !== 'string' || !/^[A-Za-z0-9+/]{22}==$/.test(key) || Buffer.from(key, 'base64').length !== 16 ||
+      (req.headers.upgrade || '').toLowerCase() !== 'websocket' || !connection.includes('upgrade')) {
     sock.end('HTTP/1.1 400 Bad Request\r\n\r\n');
     return null;
   }
@@ -129,11 +156,13 @@ export function accept(req, sock) {
 
 // drop connections that stop answering pings
 export function heartbeat(list, ms = 25000) {
-  return setInterval(() => {
+  const timer = setInterval(() => {
     for (const s of list()) {
       if (!s.alive) { s.close(1001); continue; }
       s.alive = false;
       s.ping();
     }
   }, ms);
+  timer.unref();
+  return timer;
 }

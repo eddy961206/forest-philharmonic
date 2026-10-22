@@ -18,9 +18,15 @@ function tabId() {
 const ENTER_WAIT = 10000;
 
 export async function listRooms() {
-  const r = await fetch('api/rooms', { cache: 'no-store' });
-  if (!r.ok) throw new Error('no server');
-  return r.json();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
+  try {
+    const r = await fetch('api/rooms', { cache: 'no-store', signal: controller.signal });
+    if (!r.ok) throw new Error('no server');
+    const rooms = await r.json();
+    if (!Array.isArray(rooms)) throw new Error('invalid room list');
+    return rooms;
+  } finally { clearTimeout(timer); }
 }
 
 export class RoomClient {
@@ -35,6 +41,8 @@ export class RoomClient {
     this.handlers = {};
     this.closedByUs = false;
     this._pingT = null;
+    this._quickPings = new Set();
+    this._epoch = 0;
   }
 
   on(t, fn) { (this.handlers[t] ||= []).push(fn); }
@@ -45,19 +53,22 @@ export class RoomClient {
   // the server's clock, in seconds
   now() { return (Date.now() + this.offset) / 1000; }
 
-  _open() {
+  _open(entry) {
     return new Promise((resolve, reject) => {
       const url = new URL('ws', location.href);
       url.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
       const ws = new WebSocket(url);
+      entry.ws = ws;
       const fail = () => reject(new Error('연결할 수 없어요'));
       ws.onerror = fail;
       ws.onclose = fail; // (closed before it opened)
       ws.onopen = () => {
+        if (this._entry !== entry || this.closedByUs) { this._closeLine(ws); fail(); return; }
         ws.onerror = null;
         this.ws = ws;
+        this._opening = null;
         ws.onmessage = (e) => { try { this._message(JSON.parse(e.data)); } catch (err) { console.error(err); } };
-        ws.onclose = () => { if (this.ws === ws || !this.ws) this._closed(); }; // (an old line closing late is not news)
+        ws.onclose = (event) => { if (this.ws === ws) this._closed(event?.code); }; // (an old line closing late is not news)
         resolve();
       };
       this._opening = ws;
@@ -67,41 +78,92 @@ export class RoomClient {
   // create: { title, cap, pub }  or  join: { code }
   // resume: back from a dropped line on the same page (the show still runs here)
   async enter({ name, avatar, create = null, code = null, venue = 'hall', resume = false }) {
+    this._cancelEntry(new Error('입장이 취소됐어요.'));
+    if (!resume) { this._epoch++; clearTimeout(this._retryT); }
     this.me = { name, avatar, venue };
     this.closedByUs = false;
     const cid = tabId();
     // never wait for ever: no line, or a server that does not answer, is an error
-    let timer;
+    const entry = this._entry = { ws: this.ws };
     const late = new Promise((_, reject) => {
-      timer = setTimeout(() => {
-        reject(new Error('방이 대답하지 않아요. 잠시 뒤에 다시 해 주세요.'));
-        try { (this.ws || this._opening)?.close(); } catch { /* gone */ } // (and the line with it)
-      }, ENTER_WAIT);
+      entry.reject = reject;
+      entry.timer = setTimeout(() => this._cancelEntry(new Error('방이 대답하지 않아요. 잠시 뒤에 다시 해 주세요.')), ENTER_WAIT);
     });
     try {
-      if (!this.connected) await Promise.race([this._open(), late]);
+      if (!this.connected) await Promise.race([this._open(entry), late]);
+      if (this._entry !== entry || this.closedByUs) throw new Error('입장이 취소됐어요.');
       return await Promise.race([late, new Promise((resolve, reject) => {
-        this._pending = { resolve, reject };
+        this._pending = { resolve, reject, entry };
         if (create) this._send({ t: 'create', name, avatar, venue, cid, title: create.title, cap: create.cap, pub: create.pub });
         else this._send({ t: 'join', name, avatar, venue, cid, code, resume });
       })]);
-    } finally { clearTimeout(timer); }
+    } catch (error) {
+      if (this._entry === entry) this._cancelEntry(error);
+      throw error;
+    } finally {
+      clearTimeout(entry.timer);
+      if (this._entry === entry) this._entry = null;
+      if (this._pending?.entry === entry) this._pending = null;
+    }
+  }
+
+  _closeLine(ws) {
+    if (!ws) return;
+    ws.onopen = ws.onerror = ws.onclose = ws.onmessage = null;
+    try { ws.close(); } catch { /* gone */ }
+  }
+
+  _cancelEntry(error) {
+    const entry = this._entry;
+    if (!entry) return;
+    this._entry = null;
+    clearTimeout(entry.timer);
+    entry.reject(error);
+    if (this._pending?.entry === entry) { this._pending.reject(error); this._pending = null; }
+    if (this.ws === entry.ws) this.ws = null;
+    if (this._opening === entry.ws) this._opening = null;
+    this._closeLine(entry.ws);
+  }
+
+  _stopPings() {
+    clearInterval(this._pingT);
+    for (const timer of this._quickPings) clearTimeout(timer);
+    this._quickPings.clear();
   }
 
   leave() {
     this.closedByUs = true;
-    clearInterval(this._pingT);
+    this._epoch++;
+    clearTimeout(this._retryT);
+    this._stopPings();
     clearTimeout(this._chatT);
+    this._chatT = null;
+    this._chatQ = [];
     this._send({ t: 'bye' }); // (on purpose: the show passes on at once)
-    try { this.ws?.close(); } catch { /* gone */ }
+    this._cancelEntry(new Error('입장이 취소됐어요.'));
+    this._closeLine(this.ws);
+    this._closeLine(this._opening);
     this.ws = null;
+    this._opening = null;
     this.room = null;
     this.members.clear();
     this.id = 0;
   }
 
-  _send(o) { if (this.connected) this.ws.send(JSON.stringify(o)); }
-  pose(p) { this._send({ t: 'pose', p }); }
+  _send(o, volatile = false) {
+    if (!this.connected) return false;
+    // Old poses have no value after a radio stall. Critical messages get a
+    // little more room, then reconnect for a fresh state instead of piling up.
+    if (this.ws.bufferedAmount > 256 * 1024) {
+      this._closeLine(this.ws);
+      this._closed();
+      return false;
+    }
+    if (volatile && this.ws.bufferedAmount > 32 * 1024) return false;
+    try { this.ws.send(JSON.stringify(o)); return true; }
+    catch { this._closeLine(this.ws); this._closed(); return false; }
+  }
+  pose(p) { this._send({ t: 'pose', p }, true); }
   state(s) { if (this.isHost) this._send({ t: 'state', s }); }
   cmd(c) { if (this.isHost) this._send({ t: 'cmd', c }); }
   // the server takes a line every 0.8 s: a quicker one waits its turn here
@@ -144,12 +206,16 @@ export class RoomClient {
         this.host = m.host;
         this.room = m.room;
         this.seed = m.seed;
+        this.bestRtt = Infinity;
         this.offset = m.now - Date.now();
         this.members.clear();
         for (const mm of m.members) this.members.set(mm.id, mm);
         // a few quick pings settle the clock, then one every 10 s
-        clearInterval(this._pingT);
-        for (let i = 0; i < 5; i++) setTimeout(() => this._ping(), 50 + i * 250);
+        this._stopPings();
+        for (let i = 0; i < 5; i++) {
+          const timer = setTimeout(() => { this._quickPings.delete(timer); this._ping(); }, 50 + i * 250);
+          this._quickPings.add(timer);
+        }
         this._pingT = setInterval(() => this._ping(), 10000);
         const first = !this._joinedOnce;
         this._joinedOnce = true;
@@ -190,26 +256,43 @@ export class RoomClient {
   }
 
   // a dropped connection: come back into the same room
-  _closed() {
-    clearInterval(this._pingT);
+  _closed(closeCode) {
+    this._stopPings();
+    clearTimeout(this._chatT);
+    this._chatT = null;
+    this._chatQ = [];
     this.ws = null;
+    const error = closeCode === 4001
+      ? Object.assign(new Error('다른 탭에서 연결되어 이 탭의 연결을 종료했어요.'), { code: 'replaced' })
+      : new Error('연결이 끊겼어요. 다시 해 주세요.');
     // entering when the line went: that entrance fails (the caller decides)
-    if (this._pending) { this._pending.reject(new Error('연결이 끊겼어요. 다시 해 주세요.')); this._pending = null; return; }
+    if (this._pending) { this._pending.reject(error); this._pending = null; return; }
     if (this.closedByUs || !this.room) return;
+    if (closeCode === 4001) {
+      this._epoch++;
+      clearTimeout(this._retryT);
+      this.room = null;
+      this._emit('lost', error);
+      return;
+    }
     this._emit('disconnected');
     const code = this.room.code;
+    const epoch = this._epoch;
     let tries = 0;
     const retry = async () => {
-      if (this.closedByUs) return;
+      if (this.closedByUs || this._epoch !== epoch) return;
       tries++;
       try {
         await this.enter({ ...this.me, code, resume: true });
+        if (this.closedByUs || this._epoch !== epoch) return;
         this._emit('reconnected');
       } catch (e) {
+        if (this.closedByUs || this._epoch !== epoch) return;
         if (e.code === 'notfound' || e.code === 'full' || tries > 20) { this.room = null; this._emit('lost', e); return; }
-        setTimeout(retry, Math.min(8000, 800 * tries));
+        this._retryT = setTimeout(retry, Math.min(8000, 800 * tries));
       }
     };
-    setTimeout(retry, 600);
+    clearTimeout(this._retryT);
+    this._retryT = setTimeout(retry, 600);
   }
 }
