@@ -2,10 +2,13 @@
 // video files), a live camera feed ("IMAG") above the stage, and the house
 // look - the screen pretending to be the building's own steel and concrete -
 // that the roof "lifts off" from when a piece begins. Everything is mapped
-// from the sweet spot in the middle of the bowl, the way Sphere content is.
+// from either the venue sweet spot (architecture/IMAG) or the current
+// render camera (distant natural worlds). See dome-projection.js.
 // The dome also lights the room: its average colour drives the bowl's light.
 import * as THREE from 'three';
 import { SP } from './sphereplan.js';
+import { DOME_PROJECTION_GLSL, normalizeDomeProjection } from './dome-projection.js';
+import { DOME_DEPTH_GLSL, smoothPhrase } from './dome-depth.js';
 import { WORLDS3D, makeWorldRenderer } from './dome3d.js';
 
 export const SCENES = ['ARCH', 'STARS', 'AURORA', 'MOON', 'FOREST', 'OCEAN', 'SUNSET', 'CATHEDRAL', 'GOLD', 'FIREWORKS', 'RAIN', 'SNOW', 'SPRING', 'DECO', 'NEBULA', 'VOYAGE', ...WORLDS3D];
@@ -91,11 +94,14 @@ const S_PEAKS = 16 + WORLDS3D.indexOf('PEAKS3D');
 const FRAG = (lite) => /* glsl */`
 precision highp float;
 varying vec3 vWorld;
+uniform float uPhrase;
 uniform float uTime, uLevel, uBeat, uDown, uMix, uReveal, uLive, uHouse, uBright;
 uniform int uA, uB;
 uniform float uOverlay;        // 0: the world on screen; 1: the next one, laid over it
 uniform int uOne;              // always 1: loops run to n * uOne (kept loops, not unrolled - see dome3d.js)
 uniform vec3 uView;
+uniform float uImmersive, uCalibration;
+${DOME_PROJECTION_GLSL}
 uniform vec2 uEdge;          // screen where y - k z > d
 uniform sampler2D uLiveTex, uCapTex;
 uniform samplerCube uCubeA, uCubeB; // the ray-traced worlds (dome3d.js)
@@ -308,6 +314,40 @@ vec3 clouds(vec3 d, float el, vec3 lit, vec3 shade, float cover, float speed) {
   return mix(shade, lit, smoothstep(0.35, 0.75, n)) * m;
 }
 
+// A quiet landscape outside the auditorium, not a pattern on the shell.
+// Integer azimuth frequencies close exactly at +/-PI; no scrolling horizon.
+// Three distance layers use aerial perspective (far = pale, near = dark).
+${DOME_DEPTH_GLSL}
+vec3 nightLandscape(vec3 sky, vec3 d, float az, float el) {
+  // Three stationary world-space cylinders: their silhouettes occlude one
+  // another, and near ones shift more than far ones during translation.
+  vec3 farD = layerDirection(d, 1000.0);
+  vec3 midD = layerDirection(d, 400.0);
+  vec3 nearD = layerDirection(d, 160.0);
+  float farAz = atan(farD.x, -farD.z), farEl = asin(clamp(farD.y, -1.0, 1.0));
+  float midAz = atan(midD.x, -midD.z), midEl = asin(clamp(midD.y, -1.0, 1.0));
+  float nearAz = atan(nearD.x, -nearD.z), nearEl = asin(clamp(nearD.y, -1.0, 1.0));
+  float farRidge = 0.105 + 0.055 * sin(farAz * 3.0 + 0.7)
+    + 0.032 * sin(farAz * 7.0 - 1.3) + 0.012 * sin(farAz * 17.0);
+  float midRidge = 0.025 + 0.035 * sin(midAz * 4.0 - 0.5)
+    + 0.018 * sin(midAz * 11.0 + 1.7) + 0.007 * sin(midAz * 23.0);
+  float nearRidge = -0.065 + 0.022 * sin(nearAz * 5.0 + 2.1)
+    + 0.012 * sin(nearAz * 13.0 - 0.4);
+  float aa = max(fwidth(el) * 1.5, 0.0015);
+  vec3 haze = vec3(0.055, 0.083, 0.135);
+  vec3 c = sky + haze * exp(-abs(el - 0.045) * 12.0) * 0.22;
+  float farMask = 1.0 - smoothstep(farRidge - aa, farRidge + aa, farEl);
+  float midMask = 1.0 - smoothstep(midRidge - aa, midRidge + aa, midEl);
+  float nearMask = 1.0 - smoothstep(nearRidge - aa, nearRidge + aa, nearEl);
+  c = mix(c, vec3(0.042, 0.063, 0.106), farMask);
+  c = mix(c, vec3(0.014, 0.027, 0.049), midMask);
+  c = mix(c, vec3(0.005, 0.012, 0.021), nearMask);
+  // Moonlit mist sits between the ridges, not over the seat/UI layer.
+  float mist = exp(-pow((midEl + 0.032) * 29.0, 2.0));
+  c += vec3(0.025, 0.039, 0.061) * (0.85 + 0.3 * uPhrase) * mist * (1.0 - nearMask) * midMask;
+  return c;
+}
+
 vec3 sMOON(vec3 d, float az, float el) {
   vec3 sky = mix(vec3(0.03, 0.06, 0.14), vec3(0.005, 0.01, 0.035), smoothstep(-0.2, 1.0, el));
   vec3 md = normalize(vec3(0.18, 0.52, -0.83));
@@ -315,16 +355,22 @@ vec3 sMOON(vec3 d, float az, float el) {
   float R = 0.075;
   float disc = smoothstep(R, R - 0.004, a);
   float crat = fbm(d * 60.0);
-  vec3 moon = vec3(0.98, 0.95, 0.85) * (0.75 + 0.35 * crat) * disc * 1.6;
+  // Keep the lunar surface below the old blown-white disc: a spherical
+  // limb and broad maria provide form without adding a flashing effect.
+  float limb = sqrt(max(0.0, 1.0 - (a / R) * (a / R)));
+  float maria = smoothstep(0.35, 0.67, fbm(d * 28.0 + 4.0));
+  vec3 moon = vec3(0.82, 0.84, 0.8) * (0.5 + 0.5 * limb)
+    * (0.8 + 0.25 * crat - 0.26 * maria) * disc;
   vec3 halo = vec3(0.55, 0.65, 0.95) * (exp(-a * 9.0) * 0.6 + exp(-a * 2.5) * 0.12);
   // the galaxy and the stars behind, washed out near the moon as they are
   vec3 sd = skyTurn(d);
   float wash = 1.0 - exp(-a * 2.2);
   vec3 c = sky + (milkyway(sd) * 0.55 + starfield(sd, 0.75, 1.0) + clusters(sd) * 0.8) * wash * (1.0 - disc) + halo + moon;
-  vec3 cl = clouds(d, el, vec3(0.42, 0.45, 0.55) + halo * 0.8, vec3(0.03, 0.04, 0.07), 0.3, 0.008);
+  vec3 cloudD = layerDirection(d, 240.0);
+  vec3 cl = clouds(cloudD, asin(clamp(cloudD.y, -1.0, 1.0)), vec3(0.42, 0.45, 0.55) + halo * 0.8, vec3(0.03, 0.04, 0.07), 0.3, 0.008);
   float cm = max(max(cl.r, cl.g), cl.b) > 0.0 ? 1.0 : 0.0;
   c = mix(c, cl, clamp(length(cl) * 4.0, 0.0, 0.9) * step(-0.15, el));
-  return c;
+  return nightLandscape(c, d, az, el);
 }
 
 vec3 sFOREST(vec3 d, float az, float el) {
@@ -345,25 +391,29 @@ vec3 sFOREST(vec3 d, float az, float el) {
   // trunks in three depths, far ones thin and hazy
   for (int l = 0; l < 3 * uOne; l++) {
     float fl = float(l); // 0 far .. 2 near
+    vec3 layerD = layerDirection(d, l == 0 ? 500.0 : (l == 1 ? 220.0 : 100.0));
+    float layerAz = atan(layerD.x, -layerD.z);
+    float layerEl = asin(clamp(layerD.y, -1.0, 1.0));
     float N = 90.0 - fl * 32.0;
-    float u = (az + PI) / (2.0 * PI) * N + fl * 0.37;
+    float u = (layerAz + PI) / (2.0 * PI) * N + fl * 0.37;
     float ui = floor(u);
     float h = hash2(vec2(ui, fl + 3.0));
-    float w = (0.1 + 0.12 * h) * (0.8 + fl * 0.35) * (1.0 - 0.15 * smoothstep(0.0, 1.0, el)); // a slight taper
+    float w = (0.1 + 0.12 * h) * (0.8 + fl * 0.35) * (1.0 - 0.15 * smoothstep(0.0, 1.0, layerEl)); // a slight taper
     float x = fract(u) - 0.5 - (hash2(vec2(ui, fl + 8.0)) - 0.5) * 0.4;
     float base = -0.02 - fl * 0.03 + 0.012 * h;
     float top = 0.45 + 0.25 * hash2(vec2(ui, fl + 5.0)) + fl * 0.1;
     float on = step(0.45 - fl * 0.12, hash2(vec2(ui, fl + 11.0)));
-    float trunk = smoothstep(w, w - 0.02 - fl * 0.01, abs(x)) * step(base, el) * smoothstep(top + 0.08, top - 0.05, el) * on;
+    float trunk = smoothstep(w, w - 0.02 - fl * 0.01, abs(x)) * step(base, layerEl) * smoothstep(top + 0.08, top - 0.05, layerEl) * on;
     float side = clamp(x / w, -1.0, 1.0);
-    vec3 bark = vec3(0.16, 0.155, 0.14) * (0.7 + 0.45 * noise(vec3(u * 30.0, el * 25.0, ui)));
+    vec3 bark = vec3(0.16, 0.155, 0.14) * (0.7 + 0.45 * noise(vec3(u * 30.0, layerEl * 25.0, ui)));
     bark *= 0.55 + 0.45 * smoothstep(-0.9, 0.7, side); // round: lit from the sun's side
-    bark = mix(bark, vec3(0.06, 0.1, 0.035), smoothstep(0.3, 0.9, noise(vec3(u * 12.0, el * 8.0, ui + 4.0))) * smoothstep(0.15, 0.0, el) * 0.6); // moss low down
-    bark = mix(bark, haze, (0.65 - fl * 0.3) * (1.0 - smoothstep(0.0, 0.6, el) * 0.5));
+    bark = mix(bark, vec3(0.06, 0.1, 0.035), smoothstep(0.3, 0.9, noise(vec3(u * 12.0, layerEl * 8.0, ui + 4.0))) * smoothstep(0.15, 0.0, layerEl) * 0.6); // moss low down
+    bark = mix(bark, haze, (0.65 - fl * 0.3) * (1.0 - smoothstep(0.0, 0.6, layerEl) * 0.5));
     c = mix(c, bark, trunk);
   }
   // the canopy
-  vec2 pp = d.xz / max(d.y + 0.15, 0.05);
+  vec3 canopyD = layerDirection(d, 130.0);
+  vec2 pp = canopyD.xz / max(canopyD.y + 0.15, 0.05);
   float sway = sin(uTime * 0.3) * 0.03;
   float leaves = fbm(vec3(pp * 3.2 + sway, uTime * 0.012)) * 0.6 + 0.4 * fbm(vec3(pp * 14.0 + sway * 2.0, 3.0));
   float cover = smoothstep(0.32, 0.7, el);
@@ -377,7 +427,7 @@ vec3 sFOREST(vec3 d, float az, float el) {
   c = mix(c, can, cover);
   // shafts of sun down through it
   float ray = pow(sun, 4.0) * (0.35 + 0.65 * noise(vec3(az * 30.0, uTime * 0.15, 0.0)));
-  c += vec3(1.0, 0.92, 0.6) * ray * 0.22 * (1.0 - cover * 0.85);
+  c += vec3(1.0, 0.92, 0.6) * ray * (0.19 + 0.06 * uPhrase) * (1.0 - cover * 0.85);
   // motes drifting in the light
   vec2 g = vec2(az * 30.0, el * 30.0 + uTime * 0.12);
   vec2 gi = floor(g);
@@ -911,7 +961,8 @@ vec3 sSPRING(vec3 d, float az, float el) {
   vec3 sd = normalize(vec3(-0.3, 0.8, -0.5));
   float sun = max(dot(d, sd), 0.0);
   c += vec3(1.0, 0.92, 0.75) * (pow(sun, 300.0) * 1.0 + pow(sun, 24.0) * 0.08);
-  vec3 cl = clouds(d, el, vec3(0.95, 0.93, 0.9), vec3(0.5, 0.55, 0.68), 0.28, 0.006);
+  vec3 cloudD = layerDirection(d, 240.0);
+  vec3 cl = clouds(cloudD, asin(clamp(cloudD.y, -1.0, 1.0)), vec3(0.95, 0.93, 0.9), vec3(0.5, 0.55, 0.68), 0.28, 0.006);
   c = mix(c, cl, clamp(length(cl) * 0.9, 0.0, 0.85) * step(0.0, el));
   // the trees: limbs as tapering segments, blossom heaped along the outer ones
   // (cd: distance to the nearest clump of blossom, < 0 inside one)
@@ -1051,7 +1102,7 @@ vec3 worldStars(int id, vec3 d) {
 
 vec3 scene(int id, vec3 d, float az, float el) {
   if (id == 0) return sARCH(d, az, el);
-  if (id == 1) return sSTARS(d, az, el);
+  if (id == 1) return nightLandscape(sSTARS(d, az, el), d, az, el);
   if (id == 2) return sAURORA(d, az, el);
   if (id == 3) return sMOON(d, az, el);
   if (id == 4) return sFOREST(d, az, el);
@@ -1085,22 +1136,47 @@ void main() {
     #include <colorspace_fragment>
     return;
   }
-  vec3 d = normalize(w - uView);
+  // Physical screen coordinates remain fixed for the building, reveal and
+  // broadcast. Only distant worlds use a per-render-camera direction.
+  vec3 screenDir = normalize(w - uView);
+  float screenAz = atan(screenDir.x, -screenDir.z);
+  float screenEl = asin(clamp(screenDir.y, -1.0, 1.0));
+  int sceneId = uOverlay > 0.5 ? uB : uA;
+  vec3 d = domeDirection(sceneId, w, cameraPosition, uView, uImmersive);
   float az = atan(d.x, -d.z);
   float el = asin(clamp(d.y, -1.0, 1.0));
+  if (uCalibration > 0.5) {
+    if (uOverlay > 0.5) discard;
+    // Angular latitude/longitude, not surface UVs: inspect pole/seam and
+    // horizon from floor, side galleries and upper tiers before authoring.
+    vec2 angle = vec2(az, el) / (PI / 12.0);
+    vec2 edge = abs(fract(angle + 0.5) - 0.5);
+    vec2 aa = max(fwidth(angle), vec2(0.001));
+    float grid = 1.0 - min(smoothstep(aa.x, aa.x * 2.0, edge.x), smoothstep(aa.y, aa.y * 2.0, edge.y));
+    float horizon = 1.0 - smoothstep(0.005, 0.012, abs(el));
+    vec3 color = mix(vec3(0.012, 0.022, 0.04), vec3(0.14, 0.38, 0.55), grid);
+    color = mix(color, vec3(0.95, 0.5, 0.12), horizon);
+    // 8.6-degree circular target at the same direction as the moon.
+    float a = acos(clamp(dot(d, normalize(vec3(0.18, 0.52, -0.83))), -1.0, 1.0));
+    color += vec3(0.7) * (1.0 - smoothstep(0.003, 0.008, abs(a - 0.075)));
+    gl_FragColor = vec4(color, 1.0);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+    return;
+  }
   // One world per pass, through ONE call of scene(). (Two calls - this
   // world and the next, mixed - had every world compiled twice over: on
   // Windows that kept the page frozen for half a minute on a first visit.)
   // A crossfade draws the dome a second time, the next world laid over the
   // first with the mix as its alpha (see buildDome).
-  vec3 col = scene(uOverlay > 0.5 ? uB : uA, d, az, el);
+  vec3 col = scene(sceneId, d, az, el);
   float alpha = 1.0;
   vec3 seam = vec3(0.0);
   if (uOverlay > 0.5) {
     if (uReveal > 0.5) {
       // the roof lifts off: the new world opens from the crown outward,
       // with a bright seam running ahead of it
-      float zen = acos(clamp(dot(d, normalize(vec3(0.0, 1.0, 0.35))), -1.0, 1.0));
+      float zen = acos(clamp(dot(screenDir, normalize(vec3(0.0, 1.0, 0.35))), -1.0, 1.0));
       float front = uMix * 2.9 - 0.2;
       alpha = smoothstep(front + 0.06, front - 0.06, zen);
       seam = vec3(1.0, 0.9, 0.75) * exp(-abs(zen - front) * 40.0) * 1.2 * (1.0 - uMix);
@@ -1109,7 +1185,7 @@ void main() {
   col *= uBright;
   // IMAG: the live picture above the stage, with the captions over it
   if (uLive > 0.001) {
-    vec2 uv = vec2((az - uLiveRect.x) / (uLiveRect.y - uLiveRect.x), (el - uLiveRect.z) / (uLiveRect.w - uLiveRect.z));
+    vec2 uv = vec2((screenAz - uLiveRect.x) / (uLiveRect.y - uLiveRect.x), (screenEl - uLiveRect.z) / (uLiveRect.w - uLiveRect.z));
     vec2 q = abs(uv - 0.5) - 0.5 + 0.03;
     float box = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 0.03;
     float inside = smoothstep(0.004, -0.004, box);
@@ -1138,14 +1214,17 @@ const WORLD_QUALITY = {
   medium: { size: 512, every: 2 },
   low: { size: 384, every: 2 },
 };
-export function buildDome({ lite = false, renderer = null, quality = 'high' } = {}) {
+export function buildDome({ lite = false, renderer = null, quality = 'high', projection = 'venue' } = {}) {
   const worlds = renderer && !lite ? makeWorldRenderer(renderer, WORLD_QUALITY[quality] || WORLD_QUALITY.high) : null;
   const pick = (name) => (!worlds && LITE_FALLBACK[name]) || name;
   const uniforms = {
+    uPhrase: { value: 0 },
     uTime: { value: 0 }, uLevel: { value: 0 }, uBeat: { value: 0 }, uDown: { value: 0 },
     uMix: { value: 0 }, uReveal: { value: 0 }, uLive: { value: 0 }, uHouse: { value: 1 }, uBright: { value: 1 },
     uA: { value: S.ARCH }, uB: { value: S.ARCH }, uOverlay: { value: 0 }, uOne: { value: 1 },
     uView: { value: new THREE.Vector3(SP.VIEW.x, SP.VIEW.y, SP.VIEW.z) },
+    uImmersive: { value: normalizeDomeProjection(projection) === 'immersive' ? 1 : 0 },
+    uCalibration: { value: 0 },
     uEdge: { value: new THREE.Vector2(SP.EDGE.k, SP.EDGE.d) },
     uLiveTex: { value: null }, uCapTex: { value: null },
     uLiveRect: { value: new THREE.Vector4(-0.34, 0.34, -0.12, 0.26) }, // 16:9, over the shell
@@ -1194,7 +1273,7 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
     // reuse its visibility mask when every ray input is exactly unchanged;
     // the worlds themselves still render at their normal animated cadence.
     if (cached && cached.world.equals(cam.matrixWorld) && cached.projection.equals(cam.projectionMatrixInverse)
-        && cached.radius === SP.R && cached.edgeK === SP.EDGE.k && cached.edgeD === SP.EDGE.d) return cached.mask;
+        && cached.immersive === uniforms.uImmersive.value && cached.radius === SP.R && cached.edgeK === SP.EDGE.k && cached.edgeD === SP.EDGE.d) return cached.mask;
     let mask = 0;
     _o.setFromMatrixPosition(cam.matrixWorld);
     const ox = _o.x - C.x;
@@ -1211,7 +1290,9 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
         if (t <= 0) continue;
         _p.copy(_o).addScaledVector(_d, t);
         if (_p.y - SP.EDGE.k * _p.z - SP.EDGE.d < -0.5) continue; // the wall below the screen
-        _p.sub(VIEW);
+        // All cube-map worlds are distant: match their fragment rays.
+        // Using the old sweet-spot mask can leave newly sampled faces black.
+        _p.sub(uniforms.uImmersive.value > 0.5 ? _o : VIEW);
         const ax = Math.abs(_p.x);
         const ay = Math.abs(_p.y);
         const az = Math.abs(_p.z);
@@ -1227,6 +1308,7 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
     }
     cached.world.copy(cam.matrixWorld);
     cached.projection.copy(cam.projectionMatrixInverse);
+    cached.immersive = uniforms.uImmersive.value;
     cached.radius = SP.R;
     cached.edgeK = SP.EDGE.k;
     cached.edgeD = SP.EDGE.d;
@@ -1234,7 +1316,7 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
     return mask;
   }
   function faceMask() {
-    if (!viewers.length) return 0x3f;
+    if (!viewers.length) return uniforms.uImmersive.value > 0.5 ? 0x3f : 0x37;
     let m = 0;
     for (const v of viewers) {
       if (v.when && !v.when()) continue;
@@ -1263,6 +1345,16 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
   }
   const api = {
     mesh, uniforms,
+    get projection() { return uniforms.uImmersive.value > 0.5 ? 'immersive' : 'venue'; },
+    setProjection(value) {
+      const mode = normalizeDomeProjection(value);
+      uniforms.uImmersive.value = mode === 'immersive' ? 1 : 0;
+      // Invalidates lazy cubemap faces; does not reset time or audio.
+      worlds?.invalidate();
+      return mode;
+    },
+    // Authoring aid only; no UI clutter and no extra render target/pass.
+    setCalibration(enabled) { uniforms.uCalibration.value = enabled ? 1 : 0; },
     get current() { return st.next || st.cur; },
     setLive(tex, cap) { uniforms.uLiveTex.value = tex; uniforms.uCapTex.value = cap; },
     warm() { worlds?.warm(); },
@@ -1310,6 +1402,7 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
     invalidate() { worlds?.invalidate(); },
     update(dt, { time = 0, level = 0, beat = 0, down = 0, playing = false } = {}) {
       uniforms.uTime.value += dt;
+      uniforms.uPhrase.value = smoothPhrase(uniforms.uPhrase.value, playing ? level : 0, dt);
       uniforms.uLevel.value += (Math.min(1, level * 5) - uniforms.uLevel.value) * Math.min(1, dt * 4);
       uniforms.uBeat.value = beat;
       uniforms.uDown.value = down;

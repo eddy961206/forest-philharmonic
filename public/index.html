@@ -260,6 +260,13 @@
         </div>
         <p class="hint" id="fpsText"></p>
       </fieldset>
+      <fieldset class="field" id="domeProjectionField" hidden>
+        <legend>스피어 공간 표현</legend>
+        <div class="seg" id="domeProjectionSeg">
+          <button type="button" data-projection="immersive">공간 몰입</button><button type="button" data-projection="venue">공연장 투영</button>
+        </div>
+        <p class="hint">공간 몰입은 자연 풍경을 내 시점에 맞춰 멀리 펼쳐요. 공연장 투영은 중앙 기준의 실제 돔 스크린처럼 보여요. 무대 중계와 건물은 두 방식 모두 제자리에 있어요.</p>
+      </fieldset>
       <fieldset class="field">
         <legend>소리</legend>
         <label class="slider">홀 잔향 <input type="range" id="reverb" min="0" max="1" step="0.01" value="0.45"></label>

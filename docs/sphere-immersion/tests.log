@@ -1,0 +1,270 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> forest-philharmonic@1.0.0 test
+> node tools/test.mjs
+
+(node:33) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ legacy and e741 desktop/Lite contracts retain exact rates, people, seeds, durations and PCM totals (17.018066ms)
+✔ a matching aggregate cannot hide wrong per-profile rate, length, channel count, name or layer (1.961512ms)
+✔ missing/extra buffers, unsupported layout/Lite policy and incorrect total fail closed (1.733741ms)
+✔ browserState exposes actual old/new AudioBuffer metadata and rejects mixed or unexpected pair shape (31.069011ms)
+(node:39) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ increasing the audience share keeps existing guests in the same seats and colours (862.132359ms)
+✔ a capped Lite audience keeps room reservations and full-house applause count (477.64558ms)
+(node:40) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ calls before audio init do not establish a stale cached pose (127.03018ms)
+✔ 600 identical frames keep the initial targets and schedule no duplicates (69.017561ms)
+✔ turning updates orientation without changing distance filters (160.319024ms)
+✔ section desks follow head turns while unchanged distance and pose targets are reused (69.253267ms)
+✔ moving retains every spatial target and air absorption value (29.55953ms)
+✔ the exact cache preserves tiny movements and mutable vector inputs (12.22461ms)
+✔ listener initialization invalidates a pose sent during async setup (23.441817ms)
+✔ reinitialization binds a new audio listener and resends unchanged targets (17.795117ms)
+✔ legacy listeners keep separate position/orientation updates (11.675135ms)
+✔ adding a foyer source refreshes distance and air for a stationary listener only once (99.665959ms)
+✔ moving a foyer source refreshes a stationary legacy ear without duplicate pose writes (30.665961ms)
+✔ audio initialization resets source dirtiness before asynchronous setup (75.866452ms)
+(node:51) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ actual Performance keeps identical audio requests and transport state with the observer attached (63.29342ms)
+✔ legacy scheduler without _resumeHeld is supported explicitly and original arguments/returns survive (7.08113ms)
+✔ held and fresh notes retain separate original indices and all continuation arguments (5.569352ms)
+✔ wrong held skip, remaining duration, pitch, gain, start time or velocity remains an explicit mismatch (5.372865ms)
+✔ missing, extra, duplicated and reordered held requests are not silently ignored (6.144045ms)
+✔ scheduler index advancement without a request and foreign music requests fail separately (1.617282ms)
+✔ native exceptions retain identity and observer callback errors cannot change product return values (8.672517ms)
+(node:52) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a stalled scheduler discards ended notes before allocating any audio nodes (20.915538ms)
+✔ a tone with less than one re-entry swell left is not extended past its score ending (1.224562ms)
+✔ late sustained notes continue at their score position and keep the original end time (57.326604ms)
+✔ late held-note continuation advances its existing skip and optional layer equally (0.54321ms)
+✔ late struck notes are not re-attacked, while normal jitter and future notes retain their envelopes (0.957923ms)
+✔ a successful worker clock releases its Blob URL and reinitialization stops the previous clock (45.217717ms)
+✔ worker constructor failure starts one tracked fallback and ignores stale callbacks (14.356035ms)
+✔ worker postMessage failure starts one tracked fallback and ignores stale callbacks (7.053754ms)
+✔ worker error failure starts one tracked fallback and ignores stale callbacks (8.962748ms)
+✔ worker messageerror failure starts one tracked fallback and ignores stale callbacks (15.160232ms)
+✔ audio reinitialization stops a pending worker even if the new context fails (55.91789ms)
+✔ reinitializing a fallback clock clears its interval and accepts ticks from only the replacement (19.345695ms)
+(node:65) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ hardware gate rejects software and unknown renderers (9.382217ms)
+✔ full source contract catches non-core asset and local server drift (622.030389ms)
+(node:66) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:66) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the actual module worker preserves all 17 audio buffers bit for bit (desktop) (31045.355747ms)
+(node:66) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the actual module worker preserves all 17 audio buffers bit for bit (Lite) (5025.673975ms)
+✔ one shared preparation requests the next profile only after copying the previous one (78.786954ms)
+✔ browsers without Worker complete through the unchanged synchronous synthesizer (1149.000706ms)
+✔ a worker failure keeps completed buffers and synthesizes only the missing profile (409.258665ms)
+✔ malformed worker messages fall back and late decode errors are ignored (538.225762ms)
+✔ direct applause remains synchronous while an unfinished worker is terminated (814.370836ms)
+✔ audio initialization cancels an old generation after 0 transfers and ignores late responses (325.225583ms)
+✔ audio initialization cancels an old generation after 1 transfers and ignores late responses (240.191481ms)
+✔ reinitialization after the last transfer prevents a queued old graph from being installed (162.182317ms)
+✔ a stalled worker is stopped and missing PCM is completed before resolving (1834.271235ms)
+✔ constructor restrictions fall back, and synthesis errors reject without leaking a worker (2660.785807ms)
+✔ an incomplete house result falls back before allocating a partial house (2635.529812ms)
+✔ direct murmur keeps one house and one graph (before-preparation) (476.66824ms)
+✔ direct murmur keeps one house and one graph (worker-pending) (857.095126ms)
+✔ direct murmur keeps one house and one graph (house-transferred) (20.687254ms)
+✔ a pending house malformed retains the direct murmur buffers during fallback (1249.409172ms)
+✔ a pending house error retains the direct murmur buffers during fallback (1424.727427ms)
+✔ a pending house timeout retains the direct murmur buffers during fallback (2567.743571ms)
+✔ direct house allocation failure stops the worker and rejects the shared readiness promise (755.562358ms)
+✔ ready includes the real house graph, hidden fade and generation-scoped cleanup (124.630066ms)
+✔ house graph failures reject readiness before the concert can enter (66.200916ms)
+(node:67) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ world warm-up draws one face through the box and leaves the first flight fresh (137.241642ms)
+✔ failed world warm-up releases its temporary slot and restores the caller state (21.65128ms)
+✔ the two-pass dome shares resized cube uniforms and keeps both flights during a crossfade (391.479578ms)
+✔ Lite warm-up keeps cube rendering disabled and the painted transition completes in two passes (37.36981ms)
+✔ a stationary dome viewer reuses only visibility while every world frame stays current (144.50202ms)
+✔ venue projection visibility invalidates for movement, rotation, FOV, aspect and view offset (224.57516ms)
+✔ cached dome cameras remain independent and viewer activation is checked every frame (72.32535ms)
+✔ immersive cube visibility follows viewer rays and mode switches invalidate the stationary cache (95.711576ms)
+(node:108) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ distant scenery keeps the same direction across floor, sides and upper tiers (15.32448ms)
+✔ sweet-spot image matches and physical architectural scenes stay locked in both modes (58.821665ms)
+✔ natural 2D, mobile fallbacks and all cube worlds use viewer rays (1.354598ms)
+✔ projection/calibration changes share uniforms across passes without resetting the show (59.327983ms)
+(node:116) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ context recovery redraws lost cube faces without restarting the world flight (72.421429ms)
+✔ cube rendering updates only the five visible faces and restores caller render state (5.970406ms)
+✔ a failed cube face restores render state and retries the fresh world on the next update (7.684795ms)
+✔ face masks skip hidden faces and resizing invalidates even the previously cached offscreen faces (11.026058ms)
+✔ drawWorlds combines only enabled viewers after camera movement (1650.010915ms)
+✔ the simplified cube proxy preserves ray directions on every face, including edges (371.452891ms)
+✔ quality changes resize active cube targets immediately and preserve the worlds and cadence (147.037621ms)
+✔ live video is needed immediately on request and through the complete visible fade-out (59.062201ms)
+✔ explicit downward cube rays render -Y for immersive upper-tier views (2.279432ms)
+(node:124) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a firework burst after an idle or exhausted show becomes visible again (1263.440431ms)
+✔ expired confetti clears its instance immediately while other confetti lives (165.676443ms)
+(node:137) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ indexing preserves every triangle attribute, hard normal and UV seam exactly (184.535927ms)
+✔ lite colour baking retains indexed geometry and leaves a shared source intact (436.137895ms)
+✔ rigid mesh merging preserves triangles and a kept animated descendant in world space (768.851537ms)
+(node:146) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ batched picking returns the original global IDs and all raw raycast intersections (49.40569ms)
+✔ parent movement, rotation and nonuniform scale preserve picking and edge hits (30.338389ms)
+✔ misses and near/far limits behave like the original mesh without changing existing hits (7.847147ms)
+✔ a ray only inspects instances in intersected spatial bounds (7.742674ms)
+(node:152) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ leaving during connect cancels entry and ignores a late open (14.229676ms)
+✔ entry timeout clears its pending response and socket (11.246429ms)
+✔ leaving during automatic reconnect cancels retries and queued chat (11.344315ms)
+✔ a late close from an old socket does not start another retry loop (1.882368ms)
+✔ a connection replaced by a duplicate tab stops reconnecting (2.774311ms)
+✔ stale poses are dropped under backpressure and a stuck queue reconnects (2.882078ms)
+✔ room list timeout aborts the underlying request (2.407272ms)
+(node:160) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ gzip negotiation and conditional requests keep representation validators distinct (690.913358ms)
+✔ cold concurrent gzip requests agree with an identity download (191.643044ms)
+✔ byte ranges preserve offsets, support If-Range, and reject empty suffixes (76.292756ms)
+✔ HEAD and malformed paths complete without bodies or a server crash (28.527921ms)
+✔ a frame sent with the upgrade is not lost (25.139704ms)
+✔ replacing a lingering host connection preserves a full room and show (92.356166ms)
+✔ venue mismatch does not evict the tab that is still in the correct venue (18.456161ms)
+(node:173) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ fragmented JSON survives an interleaved ping and split TCP reads (16.264359ms)
+▶ invalid fragments and control frames close before reaching room state
+  ✔ orphan continuation (2.574735ms)
+  ✔ fragmented ping (3.431329ms)
+  ✔ oversized ping (1.051476ms)
+  ✔ reserved bits (0.740579ms)
+  ✔ invalid close payload (1.666842ms)
+✔ invalid fragments and control frames close before reaching room state (20.963783ms)
+✔ a new text message cannot interrupt an unfinished fragment (7.602403ms)
+✔ invalid UTF-8 and oversized fragmented messages are rejected (51.378313ms)
+✔ slow receivers are disconnected before their queued output grows (10.829493ms)
+✔ upgrade validates the WebSocket version and 16-byte nonce (11.985297ms)
+(node:174) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ visual updates before loading and retained note-on lists keep independent results (12.16772ms)
+✔ in-place expiry preserves polyphonic order, timing, peak velocity and event lists (19.28226ms)
+✔ 600 frames and time discontinuities exactly match the original visual states and events (394.30716ms)
+✔ seek, rewind, stop and loading a new score rebuild the cached chair references (10.94136ms)
+✔ frame updates reuse active arrays without filter, map or Object.values allocations (43.588601ms)
+✔ audio scheduling is identical with frequent, 5 FPS or absent visual updates (39.120096ms)
+(node:191) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 진입·한 번의 끊김은 화질을 내리지 않아 (16.661233ms)
+✔ 지속 부하에서는 해상도부터 내리고 바닥을 넘지 않아 (43.018211ms)
+✔ 안정적으로 회복되면 해상도와 화질을 한 단계씩 복구해 (20.80437ms)
+✔ 큰 지연은 프리셋을 내리되 DPR를 늘리지 않아 (10.025772ms)
+✔ 소수 DPR에서 프리셋을 내려도 반올림으로 해상도가 늘지 않아 (1.021309ms)
+✔ 실제 프리셋의 medium 0.6에서 low로 내려도 픽셀 수가 늘거나 바닥에서 재할당하지 않아 (9.722244ms)
+✔ 모바일 low에서 회복한 뒤 다시 느려지는 실제 경로도 매번 DPR를 유지하거나 줄여 (29.362911ms)
+✔ 실제 high와 medium의 기존 바닥을 유지하고 양방향 프리셋 변경에서 DPR를 올리지 않아 (41.028028ms)
+✔ 새 low 바닥에서도 곡 사이 회복과 수동 초기화는 범위와 Lite 상한을 지켜 (56.586724ms)
+✔ 다음 프리셋 바닥이 현재 DPR보다 높으면 회복으로 큰 렌더 타깃을 만들지 않아 (7.096261ms)
+✔ 경계 근처의 부하는 설정을 왕복하지 않아 (2.885526ms)
+✔ 숨긴 탭에서 돌아오거나 수동 선택하면 이전 부하 기록을 버려 (0.789199ms)
+✔ 가벼운 자동 모드의 회복 상한과 잘못된 입력을 지켜 (1.854069ms)
+✔ 입장이나 전환 유예는 이전 느린 관측을 버리고 새 관측부터 판단해 (3.460249ms)
+✔ 긴 방해 뒤 유예 끝을 가로지른 프레임은 부하로 누적하지 않아 (0.375938ms)
+✔ 곡 중에는 해상도를 먼저 조절하고 보통 부하로 프리셋을 바꾸지 않아 (8.66693ms)
+✔ 곡 중에도 심한 지속 부하는 프리셋을 내리고 0.6 바닥을 지켜 (1.035349ms)
+✔ 해상도와 프리셋 복구는 곡 사이에만 하고 Lite 상한을 넘지 않아 (10.555469ms)
+✔ 실패한 복구는 전환·숨김 유예 뒤에도 재시도하지 않고 수동 선택으로 초기화해 (16.823742ms)
+✔ 일반 모드의 자동 품질은 심한 부하에도 보통 재질을 유지해 (3.18612ms)
+✔ 일반 모드도 안정적인 곡 사이에는 해상도와 높음 프리셋을 복구해 (18.380985ms)
+(node:193) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ stereo compact retains intermediate Float32 rounding and positive zero (85.51364ms)
+✔ compact preserves Float32 boundary values, signed zero and exceptional values (2.868645ms)
+✔ compact preserves mono/multichannel fallback and Lite truncation/fade (1631.19124ms)
+(node:208) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ low quality draws its first live frame immediately, then films in real time (61.263341ms)
+✔ a long stall is not caught up with a burst of renders (10.771381ms)
+✔ a zero cadence suppresses initial and invalidated renders, then resumes immediately (8.936974ms)
+✔ reactivating the live feed refreshes its texture before the next periodic frame (10.327642ms)
+✔ successful rendering restores the previous target and visibility (6.068644ms)
+✔ before errors restore the render target and screen visibility (7.263349ms)
+✔ render errors restore the render target and screen visibility (3.083748ms)
+✔ after errors restore the render target and screen visibility (4.58786ms)
+✔ shot time advances on skipped frames while camera matrices update only when rendered (6.531148ms)
+✔ 600 empty-caption frames clear and dirty the canvas texture only once (12.427108ms)
+✔ settled captions stop uploading, repaint when fonts load, and change for the next piece (6.207149ms)
+✔ a title still animates in, fades out, and clears before caching the empty caption (9.276161ms)
+(node:210) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ fine/coarse seats share geometry and part matrices while preserving every seat transform and colour (189.934093ms)
+✔ broadcast and main cameras can alternate coarse/fine selection without reusing the other camera state (46.267767ms)
+✔ per-camera selection never submits more triangles, including parent transforms and a view away from the hall (26.904643ms)
+✔ seat picking keeps the same global IDs and hit distances after each render-camera switch (76.335685ms)
+(node:240) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ Sphere seat representations retain one transform and colour buffer per section (368.251222ms)
+✔ Sphere LOD changes preserve seat picking IDs, distances and static buffer versions (21.169129ms)
+(node:252) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///workspace/scratch/5725b4a2ace9/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ touch activation deduplicates only its compatibility click, never a keyboard click (14.176024ms)
+✔ a second finger cannot steal a tap and disabling a held button cancels activation (1.811587ms)
+✔ jump activates on touch down once and remains keyboard accessible (1.230823ms)
+✔ the joystick resets on app switching and remeasures after the dock moves (2.223366ms)
+✔ scrubbing belongs to one finger and commits only that finger release (7.566979ms)
+✔ scrubbing cancelled by pointercancel never seeks (5.882756ms)
+✔ scrubbing cancelled by lostpointercapture never seeks (1.563265ms)
+✔ scrubbing cancelled by blur never seeks (1.982356ms)
+✔ scrubbing cancelled by visibilitychange never seeks (0.559679ms)
+✔ seek supports Home/End and vertical arrows while guest and empty states cannot seek (3.083862ms)
+✔ dialogs isolate the background, preserve recovery, and restore prior inert/focus state (3.513878ms)
+✔ a new card replaces the modal and Tab cycles through all card controls (0.72557ms)
+ℹ tests 176
+ℹ suites 0
+ℹ pass 176
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59996.70406
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
