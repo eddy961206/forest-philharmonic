@@ -76,6 +76,7 @@ export class AudioEngine {
   // lite: phones - a lower sample rate, shorter samples, cheaper panning
   // acoustics: the room (a venue other than the hall passes its own)
   async init({ lite = false, acoustics = null } = {}) {
+    this._stopTimer();
     this._crowdPreparation?.cancel();
     this._crowdPreparation = null;
     this._crowd = null;
@@ -546,16 +547,56 @@ export class AudioEngine {
   }
 
   // ------------------------------------------------------------ timer
+  _stopTimer() {
+    const clock = this._timerClock;
+    if (!clock) return;
+    clock.active = false;
+    clock.stopWorker();
+    if (clock.interval !== null) clearInterval(clock.interval);
+    this._timerClock = null;
+  }
+
   _initTimer() {
+    this._stopTimer();
+    const clock = this._timerClock = { active: true, worker: null, interval: null, url: null };
+    const releaseURL = () => {
+      if (clock.url === null) return;
+      URL.revokeObjectURL(clock.url);
+      clock.url = null;
+    };
+    clock.stopWorker = () => {
+      if (clock.worker) {
+        clock.worker.onmessage = clock.worker.onerror = clock.worker.onmessageerror = null;
+        clock.worker.terminate();
+        clock.worker = null;
+      }
+      this.timer = null;
+      releaseURL();
+    };
+    const fallback = (event) => {
+      if (!clock.active || clock.interval !== null) return;
+      event?.preventDefault?.();
+      clock.stopWorker();
+      clock.interval = setInterval(() => { if (clock.active) this._tick(); }, 25);
+    };
     // A worker clock keeps scheduling alive when the tab is in the background
     // (main-thread timers get throttled to once a second or worse).
     const src = 'let id=null;onmessage=e=>{clearInterval(id);id=setInterval(()=>postMessage(0),e.data)}';
     try {
-      this.timer = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
-      this.timer.onmessage = () => this._tick();
+      clock.url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+      this.timer = clock.worker = new Worker(clock.url);
+      this.timer.onmessage = () => {
+        if (!clock.active || clock.interval !== null) return;
+        // The first tick confirms that the worker has read the Blob script.
+        releaseURL();
+        this._tick();
+      };
+      // Some browsers create the Worker successfully but fail to load it
+      // asynchronously (for example, when a policy rejects Blob scripts).
+      this.timer.onerror = this.timer.onmessageerror = fallback;
       this.timer.postMessage(25);
     } catch {
-      setInterval(() => this._tick(), 25);
+      fallback();
     }
   }
 
@@ -587,11 +628,23 @@ export class AudioEngine {
     const main = this._nearest(inst, midi);
     if (!sec || !main) return;
     const fam = ENV[FAMILY[inst]] || ENV.winds;
+    const now = ctx.currentTime;
+    const earliest = now + 0.005;
+    const late = earliest - when;
+    // A stalled mobile frame can outlast the scheduler's lookahead. Do not
+    // replay the missed attacks as one chord or extend them beyond the score.
+    // Keep the old tolerance for small jitter; held tones resume in place.
+    if (when < now - 0.1) {
+      // Leave enough time for the 80 ms re-entry swell and its 20 ms hold.
+      if (!fam.sustain || dur - late <= 0.1) return;
+      skip += late;
+      dur -= late;
+    }
     if (skip > 0 && !fam.sustain) return; // a struck note is not struck again
     const v = Math.min(1, Math.max(0.05, vel / 127));
     const amp = fam.level * gain * 0.2 * (0.12 + 0.88 * Math.pow(v, 1.7)) * Math.min(4, main.meta.g);
     const atk = skip > 0 ? 0.08 : fam.atk[0] + (fam.atk[1] - fam.atk[0]) * v;
-    when = Math.max(when, ctx.currentTime + 0.005);
+    when = Math.max(when, earliest);
 
     // Timbre: louder = brighter (the main thing that makes dynamics sound real)
     const filter = ctx.createBiquadFilter();
