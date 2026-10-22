@@ -15,7 +15,7 @@ const SPECIES = {
   cat: { ears: 'pointed', snout: 0.22, muzzle: '#fff8ef', nose: '#e88a9a', earInner: '#f6c2cb', whiskers: true },
   fox: { ears: 'tall', snout: 0.55, muzzle: '#fff6ea', nose: '#1d1412', earTip: '#2b1d16', pointy: true },
   dog: { ears: 'pointed', snout: 0.42, muzzle: '#fff4e2', nose: '#21160f', earInner: '#f0c9a0' },
-  raccoon: { ears: 'pointed', snout: 0.35, muzzle: '#f2efe9', nose: '#1a1a1a', mask: '#3b3634' },
+  raccoon: { ears: 'pointed', snout: 0.35, muzzle: '#f2efe9', nose: '#1a1a1a', mask: '#3b3634', earInner: '#e9e4de' },
   deer: { ears: 'side', snout: 0.4, muzzle: '#f4e6d4', nose: '#2a1a12', spots: true },
   sheep: { ears: 'side', snout: 0.25, muzzle: '#e8dccb', nose: '#6b4d3e', wool: true, face: '#e8dccb' },
   mouse: { ears: 'big', snout: 0.3, muzzle: '#f2eee9', nose: '#f29aa8', earInner: '#f6c2cb', whiskers: true },
@@ -204,8 +204,13 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     }
   }
   if (sp.mask) {
-    const mk = add(head, sphereG(0.26, 24, 12, 0, Math.PI * 2, Math.PI * 0.42, Math.PI * 0.16), plainMaterial(sp.mask), V(0, 0, 0), { cast: false });
-    mk.scale.set(1.08, 0.98, 1.0);
+    // The bandit mask across the eyes: the front half of a band of the
+    // skull itself - its segments (rings 10-14 of 24, the half from ear to
+    // ear) lifted 1.2% off it, so it lies just outside every facet of the
+    // head, also on phones. (A smaller sphere with its own tessellation sat
+    // partly inside the head: the surfaces crossed in a jagged stair pattern.)
+    const mk = add(head, sphereG(headR * 1.012, 16, 4, Math.PI, Math.PI, Math.PI * (10 / 24), Math.PI * (4 / 24)), plainMaterial(sp.mask, { polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }), V(0, 0, 0), { cast: false });
+    mk.scale.copy(skull.scale);
   }
 
   // eyes (open) + closed arcs for blinking / blissful moments
@@ -272,11 +277,13 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
       case 'tall':
       case 'tufted': {
         const h = sp.ears === 'tall' ? 0.2 : 0.14;
-        const e = add(head, new THREE.ConeGeometry(0.075, h, 4), earMat, V(sx * 0.15, 0.24, 0.02));
+        // (eight sides, flattened: a soft ear, not a four-sided spike that
+        // flashed like metal under the stage lights)
+        const e = add(head, new THREE.ConeGeometry(0.075, h, 8), earMat, V(sx * 0.15, 0.24, 0.02));
         e.rotation.z = -sx * 0.32;
         e.rotation.y = Math.PI / 4;
         e.scale.set(1, 1, 0.55);
-        const i = add(head, new THREE.ConeGeometry(0.045, h * 0.7, 4), innerMat, V(sx * 0.148, 0.23, -0.012), { cast: false });
+        const i = add(head, new THREE.ConeGeometry(0.045, h * 0.7, 8), innerMat, V(sx * 0.148, 0.23, -0.012), { cast: false });
         i.rotation.copy(e.rotation);
         i.scale.set(1, 1, 0.3);
         if (sp.earTip) add(head, new THREE.ConeGeometry(0.035, 0.06, 4), plainMaterial(sp.earTip), V(sx * (0.15 + 0.038), 0.24 + h * 0.36, 0.02), { cast: false }).rotation.z = -sx * 0.32;
