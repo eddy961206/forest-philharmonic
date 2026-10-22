@@ -543,24 +543,67 @@ vec3 sGOLD(vec3 d, float az, float el) {
 }
 
 vec3 sDECO(vec3 d, float az, float el) {
-  // art deco sunburst: gilt rays from the stage, stepped arcs, black lacquer
+  // An art deco picture palace: round the stage, rings of gilded sunburst
+  // arches stepping outward like the crown of a skyscraper, each arch's peak
+  // set with a marquee bulb that chases round with the music; behind and
+  // overhead, black lacquer worked with gold fans; a gilded sun at the heart.
+  vec3 gold = vec3(1.0, 0.64, 0.18);
   vec3 cc = normalize(vec3(0.0, -0.15, -1.0));
   float a = acos(clamp(dot(d, cc), -1.0, 1.0));
   vec3 rx = normalize(cross(cc, vec3(0.0, 1.0, 0.0)));
   vec3 ry = cross(rx, cc);
   float ang = atan(dot(d, ry), dot(d, rx));
-  float rays = step(0.5, fract(ang / (2.0 * PI) * 36.0 + uTime * 0.01));
-  float arcs = smoothstep(0.0, 0.03, abs(fract(a * 6.0 - uTime * 0.08) - 0.5) - 0.46);
-  vec3 c = mix(vec3(0.02, 0.02, 0.03), vec3(0.06, 0.05, 0.03), rays);
-  vec3 gold = vec3(0.95, 0.72, 0.35);
-  c += gold * arcs * (0.5 + 0.5 * uBeat);
-  float edge = smoothstep(0.0, 0.012, abs(fract(ang / (2.0 * PI) * 36.0 + uTime * 0.01) - 0.5) - 0.488);
-  c += gold * edge * 0.6 * smoothstep(0.1, 0.3, a);
-  // chevrons around the horizon
-  float ch = smoothstep(0.0, 0.02, abs(fract(az * 6.0 + abs(el + 0.05) * 8.0) - 0.5) - 0.46) * smoothstep(0.25, 0.05, abs(el + 0.05));
-  c += gold * ch * 0.5;
-  c += gold * smoothstep(0.14, 0.0, a) * (1.0 + uBeat);
-  return c * (0.85 + 0.35 * uLevel);
+  vec3 c = vec3(0.006, 0.012, 0.014); // black lacquer with teal in it
+  float bw = 0.13;
+  float b = floor(a / bw);
+  float u = fract(a / bw);
+  if (b < 9.0 && b > 0.0) {
+    float N = 12.0 + b * 8.0;
+    float x = ang / (2.0 * PI) * N + b * 0.5;
+    float f = fract(x);
+    float arch = 0.8 + 0.17 * sin(f * PI); // each cell an arch, peak in the middle
+    float g = u / arch;
+    float inside = step(u, arch);
+    // the sunburst inside the arch: alternating rays, brighter toward the rim
+    float sub = fract(f * 4.0);
+    float stripe = smoothstep(0.38, 0.46, abs(sub - 0.5)); // pinstripes between the rays
+    vec3 fill = mix(vec3(0.02, 0.01, 0.004), gold * 0.3, pow(g, 1.8)) * mix(1.0, 0.6, step(0.5, sub)) + gold * stripe * 0.12 * g;
+    // every other ring lacquer, worked only with gold lines
+    vec3 lacq = vec3(0.008, 0.026, 0.028) * (0.7 + 0.5 * g) + gold * stripe * 0.2 * g;
+    fill = mix(fill, lacq, step(0.5, mod(b, 2.0)));
+    fill *= 0.8 + 0.25 * sin(b * 1.7 + uTime * 0.4 + ang * 2.0) * 0.5;
+    c = mix(c, fill, inside);
+    // the gilt moulding round each arch
+    float rim = smoothstep(0.035, 0.0, abs(u - arch));
+    c += gold * rim * 0.55;
+    // the marquee bulb at each arch's peak, chasing round
+    vec2 q = vec2((f - 0.5) * (2.0 * PI / N) * sin(max(a, 0.05)), (u - 0.995) * bw);
+    float bulb = exp(-dot(q, q) / 0.00006);
+    float on = 0.25 + 0.75 * step(0.55, fract((floor(x) + b * 2.0) / 5.0 - uTime * (0.6 + 0.8 * uLevel)));
+    c += vec3(1.0, 0.82, 0.55) * bulb * on * (1.4 + 1.2 * uBeat);
+  } else if (b >= 9.0) {
+    // gold fans on black, in rows like scales
+    vec2 g = vec2(az * 9.0 / PI, el * 7.0);
+    float row = floor(g.y);
+    g.x += 0.5 * mod(row, 2.0);
+    vec2 cell = vec2(fract(g.x) - 0.5, fract(g.y));
+    float r = length(cell);
+    float fa = atan(cell.x, cell.y);
+    float fan = step(r, 0.52) * step(0.0, cell.y);
+    float rings = smoothstep(0.4, 0.47, abs(fract(r * 5.0) - 0.5));
+    float spokes = smoothstep(0.42, 0.48, abs(fract(fa / PI * 8.0 + 0.5) - 0.5)) * step(0.18, r);
+    vec3 lac = mix(vec3(0.006, 0.012, 0.014), vec3(0.012, 0.03, 0.032), step(0.5, mod(row + floor(g.x), 2.0)));
+    c = lac + gold * fan * max(rings, spokes) * 0.3;
+    c += gold * smoothstep(0.025, 0.0, abs(r - 0.52)) * step(0.0, cell.y) * 0.45; // each fan's gilt edge
+    c *= 0.75 + 0.35 * smoothstep(1.6, 1.2, a);
+  }
+  // the gilded sun at the heart, with the beat
+  float core = smoothstep(bw, bw * 0.85, a);
+  vec3 sunC = gold * (0.9 + 0.6 * uBeat) * (1.0 - 0.5 * smoothstep(0.0, bw, a));
+  sunC += vec3(1.0, 0.85, 0.6) * smoothstep(0.035, 0.0, a) * 1.5;
+  c = mix(c, sunC, core);
+  c += gold * smoothstep(0.02, 0.0, abs(a - bw)) * 0.9;
+  return c * (0.85 + 0.3 * uLevel);
 }
 
 vec3 burst(vec2 p, float seed, float tt, vec3 col) {
