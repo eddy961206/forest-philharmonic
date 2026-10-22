@@ -259,8 +259,25 @@ export class Performance {
       this.engine.stopAll(0.06);
     }
     this.pos = Math.min(Math.max(0, t), Math.max(0, this.duration - 0.05));
+    this._ended = false; // (somewhere in the piece again: it can end again)
     this._resetVisual(this.pos);
     if (was) this.play();
+  }
+
+  // The end, now - the host's piece has ended (see follow.js): as if it had
+  // played out here, stopped at its end, and onEnd. Once for a run of the
+  // piece (until it is played, sought or loaded again): an end told twice
+  // changes nothing. False if it had ended already.
+  finish() {
+    if (!this.piece || this._ended) return false;
+    // (past its last notes, what still rings rings out, as at a natural end)
+    const sounding = this.playing && this.time < this.duration;
+    this._ended = true;
+    this.playing = false;
+    if (sounding) this.engine.stopAll();
+    this.pos = this.duration;
+    if (this.onEnd) this.onEnd();
+    return true;
   }
 
   stop() {

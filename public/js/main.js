@@ -17,6 +17,7 @@ import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement,
 import { AudioEngine } from './audio/engine.js';
 import { Performance, fetchPiece } from './audio/performance.js';
 import { PieceChooser, transportState } from './pieces.js';
+import { Follower } from './follow.js';
 import { buildHall } from './scene/hall.js';
 import { buildOrchestra } from './scene/orchestra.js';
 import { buildAudience, planHouse, animateAudience } from './scene/audience.js';
@@ -696,7 +697,7 @@ async function runConcert(i, { quick = false, remote = false, late = null } = {}
   hall.setHouseLights(G.house);
   setPhase('playing');
   if (remote || guest()) {
-    // the host starts the music; we join on its clock (see applyPlayback).
+    // the host starts the music; we join on its clock (see follower).
     // If the host leaves first and we take over, we start it ourselves.
     ceremony = false;
     if (!(await until(() => perf.playing || !guest(), tok, 1e9))) return;
@@ -1001,7 +1002,7 @@ function intervalDue(i) {
 
 function beginInterval(endsAt, next) {
   endInterval();
-  playTok++; // (a playback sync still on its way is out of date now)
+  follower.cancel(); // (a playback sync still on its way is out of date now)
   if (perf.playing) { perf.pause(); ui.setPlaying(false); }
   closeRecital();
   intervalState = { until: endsAt, next, bear: 'wait', bells: 0 };
@@ -1295,7 +1296,7 @@ async function finishEncore(tok) {
 // a guest: the host's vote, as the host counts it (from the snapshots)
 function guestEncore(ev, fresh = false) {
   if (!encore || fresh || encore.cands.join() !== ev.c.join()) {
-    playTok++;
+    follower.cancel();
     closeRecital();
     encore = { cands: ev.c, candMeta: ev.c.map((i) => program[i]), until: ev.u, votes: null, mine: -1, counts: ev.n };
     director.releaseLock();
@@ -1621,7 +1622,6 @@ renderer.domElement.addEventListener('pointerleave', () => ui.tooltip(null));
 // bows here and starts the music on the host's clock, so the whole room
 // hears the same bar together. Graphics and sound settings stay personal.
 let ceremony = false; // a piece's walk-on / greeting is running here
-let playTok = 0;
 let pendingJoin = undefined; // the room's state, applied once we are inside
 const guest = () => !!room && !room.isHost;
 
@@ -1674,48 +1674,33 @@ async function ensurePiece(i) {
   return true;
 }
 
-// the host's playback: { i, playing, pos, at }. True once we are in step
-// ('over': the host's piece has already ended by now; false: overtaken)
-async function applyPlayback(s) {
-  const tok = ++playTok;
-  if (!(await ensurePiece(s.i)) || tok !== playTok) return false;
-  const piece = perf.piece;
-  const want = s.on ? new Set(s.on) : rosterOf(piece);
-  const here = stage.onstageKeys();
-  const rosterOff = [...rosterOf(piece)].some((k) => !here.has(k));
-  if (ceremony || phase !== 'playing' || rosterOff || (!!piece.conducted !== stage.conductorOn)) {
-    // late, or still walking on: skip to where the show is
-    seq++;
-    ceremony = false;
-    stage.snapRoster(want);
-    stage.snapConductor(!!piece.conducted);
-    engine.stopApplause();
-    clapUntil = 0;
-    setPhase('playing');
-  }
-  const kind = ensembleOf(piece, rosterOf(piece));
-  spot.set(kind === 'solo' ? rosterCentre(rosterOf(piece)) : null);
-  if (kind === 'solo' && rosterOf(piece).has('piano:0')) { if (!recital.on) recital.open(true, piece); } else closeRecital();
-  hall.setHouseLights(s.playing ? GRAMMAR[kind].house : 0.4);
-  if (s.playing) {
-    // what the host hears right now; a little ahead, since starting takes a moment
-    const want = s.pos + Math.max(0, room.now() - s.at);
-    if (want >= perf.duration - 0.2) return 'over';
-    if (!perf.playing) {
-      perf.seek(want + 0.12);
-      perf.play();
-      fxFor(piece);
-    } else if (Math.abs(perf.time - want) > 0.35) {
-      perf.seek(want + 0.12);
+// The host's playback ({ i, playing, pos, at }) ours, and the end of its
+// piece too - from a play/pause command and from a snapshot alike (see
+// follow.js). The stage first, as the host has it:
+const follower = new Follower({
+  perf, ensurePiece, now: () => room.now(),
+  stage(piece, s) {
+    const want = s.on ? new Set(s.on) : rosterOf(piece);
+    const here = stage.onstageKeys();
+    const rosterOff = [...rosterOf(piece)].some((k) => !here.has(k));
+    if (ceremony || phase !== 'playing' || rosterOff || (!!piece.conducted !== stage.conductorOn)) {
+      // late, or still walking on: skip to where the show is
+      seq++;
+      ceremony = false;
+      stage.snapRoster(want);
+      stage.snapConductor(!!piece.conducted);
+      engine.stopApplause();
+      clapUntil = 0;
+      setPhase('playing');
     }
-    ui.setPlaying(true);
-  } else {
-    if (perf.playing) perf.pause();
-    if (Math.abs(perf.pos - s.pos) > 0.05) perf.seek(s.pos);
-    ui.setPlaying(false);
-  }
-  return true;
-}
+    const kind = ensembleOf(piece, rosterOf(piece));
+    spot.set(kind === 'solo' ? rosterCentre(rosterOf(piece)) : null);
+    if (kind === 'solo' && rosterOf(piece).has('piano:0')) { if (!recital.on) recital.open(true, piece); } else closeRecital();
+    hall.setHouseLights(s.playing ? GRAMMAR[kind].house : 0.4);
+  },
+  started: (piece) => fxFor(piece),
+  playing: (on) => ui.setPlaying(on),
+});
 
 // a snapshot from the host (on joining, then every few seconds). Joining,
 // it comes true once we are in step with the show (see room.ready)
@@ -1727,15 +1712,21 @@ async function followHost(s, { joining = false } = {}) {
   if (rejoin) { rejoin = false; joining = true; }
   showOn();
   if (s.phase === 'encore' && s.ev && !joining) { guestEncore(s.ev); return true; }
+  if (!joining) {
+    // in step with the show: the host's playback, and the end of its piece -
+    // its position run out, or the host past it already (the bows, the gap)
+    if (s.phase === 'playing') return (await follower.playback(s)) === true;
+    follower.between(s, { index: current, ceremony });
+    return true;
+  }
   let over = false;
   if (s.phase === 'playing') {
-    const now = await applyPlayback(s);
+    const now = await follower.apply(s);
     // (in after the piece ended, with nobody running the show meanwhile - the
     // host's page reloading: it is between pieces, the conductor gone after the bows)
-    if (now !== 'over' || !joining) return now === true;
+    if (now !== 'over') return now === true;
     over = true;
   }
-  if (!joining) return true;
   if (['changing', 'entering', 'tuning', 'announce', 'hush'].includes(s.phase)) {
     // the orchestra is walking on right now: in a little late, to the stage as
     // it is (the rest of the walk-on goes with the host's)
@@ -1765,13 +1756,13 @@ function onHostCmd(c) {
     runConcert(c.i, { quick: !!c.quick, remote: true });
   } else if (c.c === 'play' || c.c === 'pause') {
     showOn();
-    applyPlayback({ i: c.i, playing: c.c === 'play', pos: c.pos, at: c.at });
+    follower.playback({ i: c.i, playing: c.c === 'play', pos: c.pos, at: c.at });
   } else if (c.c === 'stay') {
     // the piece the host asked for did not come to the host: it stays where
     // it is, and so do we - the state that follows says where, and is taken
     // as on coming in (whatever we set up for that piece is let go)
     seq++;
-    playTok++;
+    follower.cancel();
     ceremony = false;
     rejoin = true;
   } else if (c.c === 'encore') {
@@ -1792,7 +1783,7 @@ function onHostCmd(c) {
     } else if (!c.on && awayTold) { awayTold = false; ui.toast('방장이 돌아왔어요.', 1600); }
   } else if (c.c === 'exit') {
     seq++;
-    playTok++;
+    follower.cancel();
     closeRecital();
     ceremony = false;
     hall.setHouseLights(1);
