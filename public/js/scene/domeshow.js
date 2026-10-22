@@ -339,36 +339,72 @@ vec3 sFOREST(vec3 d, float az, float el) {
 }
 
 vec3 sOCEAN(vec3 d, float az, float el) {
-  // under the sea: the surface overhead, caustics, light shafts, bubbles
-  float up = clamp(d.y, -0.3, 1.0);
-  vec3 deep = vec3(0.0, 0.05, 0.12);
-  vec3 shallow = vec3(0.05, 0.45, 0.62);
-  vec3 c = mix(deep, shallow, smoothstep(-0.3, 1.0, up));
-  vec2 p = d.xz / max(d.y + 0.2, 0.05) * 1.3;
-  float t = uTime * 0.35;
-  float ca = 0.0;
+  // Twenty metres down in clear water: overhead the bright window onto the
+  // sky that water allows (Snell's window, 49 degrees round the zenith),
+  // rippling and edged with light; outside it the surface is a dark mirror;
+  // rays fan down through the blue, a school of fish turns slowly against
+  // the light, motes drift, and now and then a humpback glides over.
+  float zen = acos(clamp(d.y, -1.0, 1.0));
+  vec3 c = mix(vec3(0.0, 0.012, 0.035), vec3(0.0, 0.09, 0.16), smoothstep(-0.4, 0.75, el));
+  // the window: the sky through a moving surface
+  vec2 p = d.xz / max(d.y, 0.05);
+  float t = uTime * 0.3;
+  float wv = 0.0;
   for (int i = 0; i < 3 * uOne; i++) {
     float fi = float(i);
-    vec2 q = p * (1.5 + fi * 0.7) + vec2(t * (0.6 + fi * 0.2), -t * 0.4);
-    ca += pow(abs(sin(q.x + sin(q.y * 1.3 + t)) * sin(q.y + sin(q.x * 1.1 - t))), 6.0);
+    vec2 q = p * (2.2 + fi * 1.3) + vec2(t * (0.7 + fi * 0.3), -t * 0.5);
+    wv += abs(sin(q.x + sin(q.y * 1.3 + t)) * sin(q.y + sin(q.x * 1.1 - t)));
   }
-  c += vec3(0.55, 0.9, 1.0) * ca * smoothstep(0.2, 0.9, up) * 0.45;
-  float shaft = pow(noise(vec3(az * 14.0, uTime * 0.12, 0.0)), 3.0) * smoothstep(-0.1, 0.8, up);
-  c += vec3(0.4, 0.8, 0.9) * shaft * 0.35;
-  // bubbles
-  vec2 g = vec2(az * 22.0, el * 22.0 - uTime * 0.6);
+  wv /= 3.0;
+  float W = 0.85; // the window's radius (radians)
+  float zw = zen + (wv - 0.5) * 0.06; // its edge wobbles with the waves
+  float win = smoothstep(W + 0.03, W - 0.03, zw);
+  vec3 sky = mix(vec3(0.22, 0.45, 0.55), vec3(0.1, 0.3, 0.45), zen / W) * (0.55 + 1.1 * pow(wv, 4.0));
+  sky += vec3(1.0, 0.98, 0.9) * exp(-zen * zen * 60.0) * 0.7 * (0.6 + 0.8 * wv); // the sun, high, broken by the waves
+  float n = noise(vec3(p * 13.0 + vec2(t * 1.6, -t), t * 1.2)) * 0.6 + 0.4 * noise(vec3(p * 29.0 - vec2(t, t * 1.4), t));
+  sky += vec3(0.45, 0.75, 0.8) * (smoothstep(0.465, 0.5, n) - smoothstep(0.5, 0.535, n)) * 0.45; // the caustic net of the waves
+  c = mix(c, sky, win);
+  c += vec3(0.5, 0.85, 0.95) * exp(-abs(zw - W) * 40.0) * 0.35; // the bright rim
+  c += vec3(0.0, 0.05, 0.08) * pow(wv, 4.0) * (1.0 - win) * smoothstep(0.3, 1.0, el); // the mirror outside, faintly rippled
+  // rays fanning down from the window
+  float ray = pow(noise(vec3(az * 16.0, uTime * 0.1, 0.0)), 3.0) * smoothstep(-0.25, 0.6, el) * (1.0 - win);
+  c += vec3(0.25, 0.6, 0.7) * ray * 0.3;
+  // a school of fish drifting across against the light
+  {
+    vec2 sc = vec2(0.7 * sin(uTime * 0.04), 0.95 + 0.15 * sin(uTime * 0.06));
+    vec2 rel = vec2(az, el) - sc;
+    float school = smoothstep(0.32, 0.12, length(rel * vec2(0.6, 1.4)) + 0.12 * fbm(vec3(rel * 6.0, uTime * 0.05)));
+    vec2 g = vec2(az * 22.0 - uTime * 0.25, el * 22.0);
+    vec2 gi = floor(g);
+    vec2 f = fract(g) - 0.5 - (hash22(gi) - 0.5) * 0.5;
+    f.y += 0.04 * sin(uTime * 3.0 + gi.x); // each one's own wriggle
+    float fish = max(smoothstep(1.0, 0.6, length(f / vec2(0.22, 0.08))), smoothstep(1.0, 0.4, length((f - vec2(0.24, 0.0)) / vec2(0.05, 0.09))));
+    c = mix(c, vec3(0.0, 0.03, 0.05), fish * step(0.35, hash2(gi + 2.0)) * school * 0.85);
+  }
+  // marine snow drifting, and a few bubbles rising
+  vec2 g = vec2(az * 40.0, el * 40.0 + uTime * 0.05);
   vec2 gi = floor(g);
-  vec2 f = fract(g) - 0.5 - (hash22(gi) - 0.5) * 0.5;
-  float r = 0.08 + 0.1 * hash2(gi);
-  float ring = smoothstep(r, r - 0.02, length(f)) - smoothstep(r - 0.03, r - 0.05, length(f));
-  c += vec3(0.75, 0.95, 1.0) * ring * step(0.82, hash2(gi + 3.0)) * 0.8;
-  // a whale gliding past
-  float wx = fract(uTime * 0.012) * 4.0 - 2.0;
-  vec2 rel = vec2(az - wx, el - 0.35);
-  float body = smoothstep(1.0, 0.85, length(rel / vec2(0.32, 0.055)));
-  float tail = smoothstep(1.0, 0.8, length((rel + vec2(0.36, 0.0)) / vec2(0.05, 0.08 * (0.7 + 0.3 * sin(uTime * 1.2)))));
-  float fin = smoothstep(1.0, 0.8, length((rel + vec2(-0.05, 0.06)) / vec2(0.09, 0.025)));
-  c = mix(c, vec3(0.0, 0.03, 0.06), clamp(body + tail + fin, 0.0, 1.0) * 0.85);
+  vec2 f = fract(g) - 0.5 - (hash22(gi) - 0.5) * 0.7;
+  c += vec3(0.5, 0.7, 0.75) * exp(-dot(f, f) * 400.0) * step(0.7, hash2(gi + 1.0)) * 0.25;
+  vec2 bg = vec2(az * 18.0, el * 18.0 - uTime * 0.5);
+  vec2 bi = floor(bg);
+  vec2 bf = fract(bg) - 0.5 - (hash22(bi) - 0.5) * 0.5;
+  float br = 0.06 + 0.08 * hash2(bi);
+  float ring = smoothstep(br, br - 0.02, length(bf)) - smoothstep(br - 0.03, br - 0.05, length(bf));
+  c += vec3(0.7, 0.9, 1.0) * ring * step(0.93, hash2(bi + 3.0)) * 0.5;
+  // a humpback gliding over: long body, knobbled head, long white flippers
+  float wx = fract(uTime * 0.01) * 5.0 - 2.5;
+  vec2 rel = vec2(az - wx, el - 0.62);
+  float bx = clamp(rel.x / 0.42, -1.0, 1.0);
+  float hw = 0.06 * sqrt(max(1.0 - bx * bx, 0.0)) * (1.0 - 0.45 * smoothstep(-0.2, -1.0, bx)) + 0.004;
+  float body = smoothstep(hw + 0.004, hw - 0.004, abs(rel.y + 0.01 * bx)) * step(abs(rel.x), 0.42);
+  vec2 tp = rel + vec2(0.44, 0.0);
+  float flap = 0.04 * sin(uTime * 0.9);
+  float fluke = smoothstep(0.012, 0.0, abs(tp.y - flap - abs(tp.x) * 0.0) - 0.07 * smoothstep(0.06, 0.0, abs(tp.x))) * step(abs(tp.x), 0.05);
+  vec2 fp = rel - vec2(0.12, -0.03);
+  float flip = smoothstep(0.012, 0.0, abs(fp.y + fp.x * 0.9) - 0.012) * step(-0.2, fp.x) * step(fp.x, 0.0);
+  float whale = clamp(body + fluke + flip, 0.0, 1.0);
+  c = mix(c, vec3(0.0, 0.02, 0.04) + vec3(0.05, 0.1, 0.12) * flip, whale * 0.9);
   return c * (0.85 + 0.25 * uLevel);
 }
 
