@@ -363,17 +363,45 @@ vec3 sOCEAN(vec3 d, float az, float el) {
 }
 
 vec3 sSUNSET(vec3 d, float az, float el) {
-  float h = el;
-  vec3 c = mix(vec3(1.0, 0.45, 0.2), vec3(0.95, 0.5, 0.55), smoothstep(-0.1, 0.25, h));
-  c = mix(c, vec3(0.35, 0.25, 0.55), smoothstep(0.2, 0.7, h));
-  c = mix(c, vec3(0.05, 0.08, 0.25), smoothstep(0.6, 1.4, h));
-  vec3 sd = normalize(vec3(0.0, 0.03, -1.0));
-  float a = acos(clamp(dot(d, sd), -1.0, 1.0));
-  c += vec3(1.0, 0.75, 0.4) * (smoothstep(0.06, 0.05, a) * 2.5 + exp(-a * 5.0) * 0.6 + exp(-a * 1.5) * 0.15);
-  vec3 cl = clouds(d, el, vec3(1.0, 0.55, 0.45), vec3(0.25, 0.12, 0.25), 0.5, 0.008);
-  c = mix(c, cl, clamp(length(cl) * 1.3, 0.0, 0.85) * smoothstep(-0.05, 0.1, el));
-  c += starfield(d, 0.6, 1.0) * smoothstep(0.9, 1.4, el);
-  return c * (0.8 + 0.2 * uLevel);
+  // The sun setting beyond the stage: a sky in layers from fire at the
+  // horizon through rose and mauve to deep blue overhead, long cirrus
+  // streaks lit pink and gold from below on the sun's side and violet
+  // away from it, a dark bank of cloud on the horizon with a burning rim,
+  // and the first stars at the top. (Linear values: the tone mapping
+  // lifts them, so the sky is painted darker than it looks.)
+  vec3 sd = normalize(vec3(0.0, 0.06, -1.0));
+  float sa = acos(clamp(dot(d, sd), -1.0, 1.0));
+  float facing = 0.5 - 0.5 * normalize(vec3(d.x, 0.0, d.z) + vec3(0.0, 0.0, 1e-4)).z; // 1 toward the sun
+  float h = max(el, -0.2);
+  vec3 c = mix(vec3(0.95, 0.32, 0.07), vec3(0.85, 0.36, 0.2), smoothstep(-0.05, 0.14, h));
+  c = mix(c, vec3(0.42, 0.17, 0.3), smoothstep(0.1, 0.4, h));
+  c = mix(c, vec3(0.12, 0.08, 0.26), smoothstep(0.34, 0.85, h));
+  c = mix(c, vec3(0.012, 0.018, 0.07), smoothstep(0.8, 1.45, h));
+  c *= mix(0.5, 1.0, facing); // the far side of the sky already dimmer
+  // the sun half down, and its glow in the haze
+  float disc = smoothstep(0.055, 0.05, sa) * smoothstep(-0.02, 0.01, el);
+  c += vec3(1.0, 0.75, 0.4) * disc * 3.0;
+  c += vec3(1.0, 0.45, 0.15) * (exp(-sa * 7.0) * 0.8 + exp(-sa * 1.8) * 0.25);
+  // cirrus: long thin streaks across the sky, lit from below
+  vec2 p = d.xz / max(d.y + 0.3, 0.06);
+  float t = uTime * 0.006;
+  float n = fbm(vec3(p.x * 0.45 + p.y * 0.12 + t, p.y * 2.6, 3.0));
+  float streak = smoothstep(0.5, 0.72, n) * smoothstep(-0.02, 0.1, el) * smoothstep(1.35, 0.5, el);
+  float under = smoothstep(0.72, 0.5, n); // the thin edges catch the most light
+  vec3 lit = mix(vec3(0.3, 0.12, 0.3), vec3(1.0, 0.42, 0.22), facing) * mix(1.4, 0.55, smoothstep(0.08, 0.9, el));
+  lit += vec3(1.0, 0.6, 0.3) * under * facing * 0.35 * smoothstep(0.7, 0.1, el);
+  c = mix(c, lit, streak * 0.85);
+  // the cloud bank on the horizon, its rim burning
+  float bank = fbm(vec3(az * 5.0, 0.0, 7.0));
+  float bh = -0.01 + 0.1 * bank + 0.025 * noise(vec3(az * 26.0, 1.0, 3.0));
+  float inBank = smoothstep(bh + 0.004, bh - 0.008, el);
+  float rim = smoothstep(0.018, 0.0, abs(el - bh)) * facing * (0.4 + 1.6 * exp(-sa * 3.0));
+  vec3 bankCol = mix(vec3(0.16, 0.05, 0.07), vec3(0.04, 0.02, 0.04), smoothstep(bh, bh - 0.12, el));
+  c = mix(c, bankCol, inBank);
+  c += vec3(1.0, 0.5, 0.2) * rim * 0.6;
+  // the first stars
+  c += starfield(d, 0.45, 0.8) * smoothstep(0.9, 1.4, el);
+  return c * (0.85 + 0.2 * uLevel);
 }
 
 vec3 sCATHEDRAL(vec3 d, float az, float el) {
@@ -568,40 +596,62 @@ vec3 sFIREWORKS(vec3 d, float az, float el) {
 }
 
 vec3 sRAIN(vec3 d, float az, float el) {
-  // a night storm overhead: low clouds racing, rain falling past the
-  // horizon, now and then lightning lighting the clouds from inside
-  vec3 c = mix(vec3(0.07, 0.085, 0.11), vec3(0.015, 0.02, 0.03), smoothstep(-0.2, 1.0, el));
-  float bolt = 0.0;
+  // Rain on a glass roof at dusk: a low ceiling of grey-blue cloud drifting
+  // over, rain falling out of it straight at you (looking up, the streaks
+  // spread out from the top of the sky), veils of rain on the horizon,
+  // drops beading on the glass, the lights of a town low down; a rare
+  // flash far off inside the clouds.
+  float zen = acos(clamp(d.y, -1.0, 1.0));
+  vec3 c = mix(vec3(0.075, 0.09, 0.115), vec3(0.03, 0.038, 0.055), smoothstep(-0.1, 1.1, el));
+  // cloud: two decks moving at different speeds, lighter where thinner
+  vec2 p = d.xz / max(d.y + 0.35, 0.08);
+  float n1 = fbm(vec3(p * 0.7 + vec2(uTime * 0.012, uTime * 0.004), 1.0));
+  float n2 = fbm(vec3(p * 1.6 + vec2(uTime * 0.03, -uTime * 0.006), 5.0));
+  float thin = smoothstep(0.35, 0.75, n1 * 0.65 + n2 * 0.35);
+  c = mix(c * 0.6, vec3(0.16, 0.18, 0.225), thin * 0.85 * smoothstep(-0.05, 0.25, el));
+  c *= 0.8 + 0.4 * smoothstep(0.3, 0.7, n2); // the folds of the cloud base
+  c += vec3(0.05, 0.055, 0.07) * smoothstep(0.55, 0.8, n2) * smoothstep(0.0, 0.4, el); // ragged scud below
+  // a flash, far off, lighting a patch of the clouds from inside
   {
-    float t = uTime * 0.18;
+    float t = uTime * 0.07;
     float k = floor(t);
-    float f = fract(t);
-    float on = step(0.55, hash2(vec2(k, 2.0)));
-    bolt = on * (exp(-f * 40.0) + 0.6 * exp(-abs(f - 0.06) * 60.0));
+    float f = fract(t) * 14.3; // (a few seconds into each 14 s window)
+    float on = step(0.6, hash2(vec2(k, 2.0)));
+    float fl = on * (exp(-max(f - 0.5, 0.0) * 9.0) * step(0.5, f) + 0.5 * exp(-abs(f - 0.75) * 30.0));
+    float fa = (hash2(vec2(k, 5.0)) - 0.5) * 4.0;
+    vec3 fd = normalize(vec3(sin(fa), 0.25, -cos(fa)));
+    float near = exp(-acos(clamp(dot(d, fd), -1.0, 1.0)) * 2.6);
+    c += vec3(0.55, 0.6, 0.8) * fl * near * (0.3 + 0.7 * thin) * 0.7;
   }
-  vec3 cl = clouds(d, el, vec3(0.2, 0.22, 0.27) + bolt * vec3(0.6, 0.65, 0.8), vec3(0.035, 0.04, 0.055), 0.8, 0.025);
-  c += cl * 0.9;
-  // rain: fine streaks falling past the lower dome
+  // veils of rain hanging below the clouds on the horizon
+  float veil = noise(vec3(az * 9.0 + uTime * 0.04, el * 3.0, 4.0)) * (0.6 + 0.4 * noise(vec3(az * 30.0 + el * 20.0, uTime * 0.3, 6.0)));
+  c = mix(c, vec3(0.1, 0.115, 0.14), smoothstep(0.32, 0.0, el) * (0.35 + 0.5 * veil));
+  c += vec3(0.16, 0.09, 0.04) * exp(-max(el, 0.0) * 11.0) * (0.7 + 0.3 * veil); // the lights of a town, through the rain
+  // the rain: streaks coming at you, spreading from the zenith
+  float lz = log(max(zen, 0.02));
   for (int l = 0; l < 2 * uOne; l++) {
     float fl = float(l);
-    vec2 g = vec2(az * (90.0 + fl * 70.0), el * (6.0 + fl * 3.0) + uTime * (3.0 + fl * 1.3));
+    float N = 260.0 + fl * 220.0;
+    vec2 g = vec2((az + PI) / (2.0 * PI) * N, lz * (7.0 + fl * 4.0) - uTime * (3.2 + fl * 1.4));
     vec2 gi = floor(g);
-    float h = hash2(gi + fl * 7.0);
-    float x = abs(fract(g.x) - 0.5 - (h - 0.5) * 0.6);
-    float y = fract(g.y + h);
-    float streak = smoothstep(0.08, 0.0, x) * smoothstep(0.0, 0.25, y) * smoothstep(1.0, 0.55, y) * step(0.5, h);
-    c += vec3(0.5, 0.56, 0.66) * streak * 0.3 * smoothstep(0.75, 0.1, el);
+    float h = hash2(gi + fl * 17.0);
+    float x = abs(fract(g.x) - 0.5 - (h - 0.5) * 0.5);
+    float y = fract(g.y + h * 3.0);
+    float streak = smoothstep(0.12, 0.0, x) * smoothstep(0.0, 0.3, y) * smoothstep(0.55, 0.35, y) * step(0.86, h);
+    c += vec3(0.42, 0.47, 0.56) * streak * (0.2 - fl * 0.06) * smoothstep(0.25, 0.8, zen);
   }
-  // drops on the glass, catching the light
-  vec2 g = vec2(az * 16.0, el * 16.0);
+  // drops beaded on the glass, each a tiny lens showing the bright sky upside down
+  vec2 g = vec2(az * 22.0, el * 22.0);
   vec2 gi = floor(g);
   vec2 o = hash22(gi) * 0.6 + 0.2;
   vec2 f = fract(g) - o;
-  float r = 0.05 + 0.09 * hash2(gi + 2.0);
-  float drop = smoothstep(r, r * 0.65, length(f * vec2(1.0, 0.8))) * step(0.35, hash2(gi + 5.0));
-  c = c * (1.0 - drop * 0.3) + vec3(0.35, 0.4, 0.5) * drop * 0.25 + vec3(0.9) * drop * smoothstep(r * 0.45, 0.0, length(f + vec2(r * 0.3, -r * 0.3))) * 0.35;
-  c += vec3(0.75, 0.8, 1.0) * bolt * 0.06;
-  return c;
+  float r = 0.04 + 0.1 * hash2(gi + 2.0);
+  float drop = smoothstep(r, r * 0.75, length(f * vec2(1.0, 0.85))) * step(0.45, hash2(gi + 5.0));
+  vec3 lens = vec3(0.17, 0.19, 0.24) * (0.7 + 0.6 * smoothstep(r, -r, f.y));
+  c = mix(c, lens, drop * 0.75);
+  c += vec3(0.8, 0.85, 0.95) * drop * smoothstep(r * 0.4, 0.0, length(f + vec2(r * 0.35, -r * 0.35))) * 0.45;
+  c *= 1.0 - smoothstep(r * 1.25, r, length(f * vec2(1.0, 0.85))) * (1.0 - drop) * step(0.45, hash2(gi + 5.0)) * 0.25; // its shadow ring
+  return c * (0.9 + 0.2 * uLevel);
 }
 
 vec3 sSNOW(vec3 d, float az, float el) {
