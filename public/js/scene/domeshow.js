@@ -7,7 +7,7 @@
 // The dome also lights the room: its average colour drives the bowl's light.
 import * as THREE from 'three';
 import { SP } from './sphereplan.js';
-import { DOME_PROJECTION_GLSL, normalizeDomeProjection } from './dome-projection.js';
+import { DOME_PROJECTION_GLSL, normalizeDomeProjection, IMMERSIVE_MIN_EYE } from './dome-projection.js';
 import { DOME_DEPTH_GLSL, smoothPhrase } from './dome-depth.js';
 import { WORLDS3D, makeWorldRenderer } from './dome3d.js';
 
@@ -1292,7 +1292,8 @@ export function buildDome({ lite = false, renderer = null, quality = 'high', pro
         if (_p.y - SP.EDGE.k * _p.z - SP.EDGE.d < -0.5) continue; // the wall below the screen
         // All cube-map worlds are distant: match their fragment rays.
         // Using the old sweet-spot mask can leave newly sampled faces black.
-        _p.sub(uniforms.uImmersive.value > 0.5 ? _o : VIEW);
+        if (uniforms.uImmersive.value > 0.5) _p.set(_p.x - _o.x, _p.y - Math.max(_o.y, IMMERSIVE_MIN_EYE), _p.z - _o.z);
+        else _p.sub(VIEW);
         const ax = Math.abs(_p.x);
         const ay = Math.abs(_p.y);
         const az = Math.abs(_p.z);

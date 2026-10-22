@@ -15,7 +15,7 @@ export function layerDirection(direction, origin, radius) {
 }
 export const DOME_DEPTH_GLSL = /* glsl */`
 vec3 layerDirection(vec3 d, float radius) {
-  vec3 origin = uImmersive > 0.5 ? cameraPosition - uView : vec3(0.0);
+  vec3 origin = uImmersive > 0.5 ? immersiveEye(cameraPosition) - uView : vec3(0.0);
   float a = dot(d.xz, d.xz);
   if (a < 0.000001) return d;
   float b = dot(origin.xz, d.xz);

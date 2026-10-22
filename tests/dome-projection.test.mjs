@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { SP } from '../public/js/scene/sphereplan.js';
 import { buildDome, SCENES } from '../public/js/scene/domeshow.js';
-import { domeDirection, usesViewerDirection, normalizeDomeProjection, SCREEN_LOCKED_SCENES } from '../public/js/scene/dome-projection.js';
+import { domeDirection, usesViewerDirection, normalizeDomeProjection, SCREEN_LOCKED_SCENES, immersiveEye, IMMERSIVE_MIN_EYE } from '../public/js/scene/dome-projection.js';
 
 const length = v => Math.hypot(v.x, v.y, v.z);
 const error = (a, b) => Math.hypot(a.x-b.x, a.y-b.y, a.z-b.z);
@@ -18,13 +18,24 @@ const viewpoints = [SP.VIEW, {x:0,y:1.7,z:20}, {x:32,y:28,z:42}, {x:-32,y:28,z:4
 test('distant scenery keeps the same direction across floor, sides and upper tiers', () => {
   const ray = new THREE.Vector3(0.18,0.52,-0.83).normalize();
   for (const viewer of viewpoints) {
-    const point = screenPoint(viewer, ray);
+    // (drawn for the eye, lifted from the floor: see immersiveEye)
+    const point = screenPoint(immersiveEye(viewer), ray);
     const actual = domeDirection(SCENES.indexOf('MOON'), point, viewer, SP.VIEW, 'immersive');
     assert.ok(error(actual, ray) < 1e-12);
     assert.ok(Math.abs(length(actual)-1) < 1e-12);
   }
   const side = viewpoints[2], point = screenPoint(side, ray);
   assert.ok(error(domeDirection(3, point, side, SP.VIEW, 'venue'), ray) > 0.1, 'off-axis baseline distortion is real');
+});
+test('the floor and the front rows see the distant worlds from a lifted eye; the tiers from their own', () => {
+  const ray = new THREE.Vector3(0.0, 0.02, -1.0).normalize(); // just over the horizon, toward the stage
+  const floor = {x:0,y:1.7,z:20};
+  assert.deepEqual(immersiveEye(floor), {x:0,y:IMMERSIVE_MIN_EYE,z:20});
+  const point = screenPoint(floor, ray);
+  const seen = domeDirection(SCENES.indexOf('SUNSET'), point, floor, SP.VIEW, 'immersive');
+  assert.ok(seen.y < ray.y, 'what is ahead at eye level is a little below the lifted horizon');
+  const tier = {x:0,y:28,z:42};
+  assert.deepEqual(immersiveEye(tier), tier);
 });
 test('sweet-spot image matches and physical architectural scenes stay locked in both modes', () => {
   assert.deepEqual(SCREEN_LOCKED_SCENES.map(i=>SCENES[i]), ['ARCH','CATHEDRAL','GOLD','DECO']);

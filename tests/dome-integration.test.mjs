@@ -264,20 +264,20 @@ test('immersive cube visibility follows viewer rays and mode switches invalidate
   const f = fixture();
   const dome = buildDome({renderer:f.renderer, quality:'high', projection:'venue'});
   const cam = new THREE.PerspectiveCamera(64,16/9,0.1,260);
-  cam.position.set(0,1.6,45); cam.lookAt(45,30,45);
+  cam.position.set(0,30,50); cam.lookAt(45,20,50); // (a tier seat, above the lifted eye: see immersiveEye)
   dome.setViewers([{cam}]); dome.go('FOREST3D',{dur:0.01}); dome.update(1);
   const orig = THREE.Vector3.prototype.unproject;
   const rays = t.mock.method(THREE.Vector3.prototype,'unproject',function(c){return orig.call(this,c);});
   dome.drawWorlds();
-  assert.deepEqual(f.draws.map(d=>d.face),[0,2,4,5]);
+  assert.deepEqual(f.draws.map(d=>d.face),[0,4,5]);
   f.draws.length=0; dome.setProjection('immersive'); dome.drawWorlds();
-  assert.deepEqual(f.draws.map(d=>d.face),[0,2,5]);
+  assert.deepEqual(f.draws.map(d=>d.face),[0,5]);
   assert.equal(rays.mock.callCount(),198);
   f.draws.length=0; dome.drawWorlds();
-  assert.deepEqual(f.draws.map(d=>d.face),[0,2,5]);
+  assert.deepEqual(f.draws.map(d=>d.face),[0,5]);
   assert.equal(rays.mock.callCount(),198);
   f.draws.length=0; dome.setProjection('venue'); dome.drawWorlds();
-  assert.deepEqual(f.draws.map(d=>d.face),[0,2,4,5]);
+  assert.deepEqual(f.draws.map(d=>d.face),[0,4,5]);
   assert.equal(rays.mock.callCount(),297);
   f.restored();
 });
