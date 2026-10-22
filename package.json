@@ -9,7 +9,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --experimental-loader ./tests/helpers/three-loader.mjs --test",
+    "test": "node tools/test.mjs",
     "start": "node server.js",
     "dev": "node --watch server.js",
     "build:music": "python3 tools/build_music.py --fetch",

@@ -1,0 +1,663 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-22T05:24:19.566141+00:00",
+  "scope": "Merge-preparation changes; no real-hardware GPU comparison or automatic merge approval.",
+  "comparisonBase": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+  "previousBranchHead": "ed3a5db17a53cd84b75e33a25352831f148f9431",
+  "nodeVersion": "v24.19.0",
+  "pythonVersion": "3.12.14",
+  "regressionTests": {
+    "node": {
+      "command": "npm test",
+      "status": "PASS",
+      "testFiles": 15,
+      "failures": 0
+    },
+    "python": {
+      "command": "python -m unittest discover -s tools/bench/tests -p \"test_*.py\"",
+      "status": "PASS",
+      "cases": 5,
+      "failures": 0
+    }
+  },
+  "planIntegration": {
+    "status": "PASS",
+    "jobs": 16,
+    "warmupFrames": 60,
+    "samplesPerScenario": 600,
+    "blocks": 2,
+    "note": "Created from a temporary local Git snapshot with the final product and collector bytes. This is setup verification, not execution of the hardware plan."
+  },
+  "sourceContractIntegration": {
+    "kind": "full-source-contract-integration",
+    "status": "PASS",
+    "results": [
+      {
+        "side": "baseline",
+        "status": "PASS",
+        "productFiles": 509,
+        "publicPaths": 505,
+        "collectorFiles": 31,
+        "expectedMissingPaths": [
+          "js/audio/crowd-loader.js",
+          "js/audio/crowd-worker.js",
+          "js/quality.js",
+          "js/scene/geometry.js",
+          "js/scene/instance-batches.js"
+        ]
+      },
+      {
+        "side": "candidate",
+        "status": "PASS",
+        "productFiles": 509,
+        "publicPaths": 505,
+        "collectorFiles": 31,
+        "expectedMissingPaths": []
+      }
+    ],
+    "limitation": "HTTP and local-byte verification only. No hardware-GPU performance measurement."
+  },
+  "functional": [
+    {
+      "venue": "sphere",
+      "device": "desktop",
+      "status": "PASS",
+      "scope": "full",
+      "suite": "functional-controlled",
+      "viewport": [
+        640,
+        360
+      ],
+      "devicePixelRatio": 1,
+      "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+      "fixtures": [
+        "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+        "Google Fonts CSS is replaced with an empty response and browser system fallback fonts are used; font fidelity is outside this check.",
+        "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+        "Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.",
+        "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+        "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+        "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active.",
+        "For the selected Bach programme item, snapConductor(false) completes only the conductor exit animation; the programme selection and music start use real controls.",
+        "After the UI selects the world and seeks past the title, dome.update(8) advances the existing dome controller, including shader time and lighting, past the maximum 7-second startPiece reveal and live fade-out. It does not select a world, replace the shader, write transition uniforms directly or manually advance the audio clock."
+      ],
+      "fixtureSourceSha256": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "playwrightVersion": "1.62.1",
+        "platform": "linux",
+        "architecture": "x64",
+        "softwareRequested": true,
+        "chromeArgs": [
+          "--no-sandbox",
+          "--disable-dev-shm-usage",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "fontMode": "system",
+        "headless": true
+      },
+      "sourceHashes": {
+        "js/boot.js": {
+          "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+        },
+        "js/main.js": {
+          "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+        },
+        "js/quality.js": {
+          "sha256": "3be39f32cbada41743f0ecb168de8a31599af1374db940ca7c9bfaae6c96336e"
+        },
+        "js/scene/hall.js": {
+          "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+        },
+        "js/scene/seats.js": {
+          "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+        },
+        "js/scene/audience.js": {
+          "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+        },
+        "js/scene/screen.js": {
+          "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+        },
+        "js/scene/sphere.js": {
+          "sha256": "6cfa58b0cda059640888c1db7a9e509cce6e6bcab8fc1557c6d6ff20da47ee55"
+        },
+        "js/scene/dome3d.js": {
+          "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+        },
+        "js/scene/domeshow.js": {
+          "sha256": "15900b22108ee66b04212725b18b2b0d131227e1044ef64f04393adde52b86b9"
+        },
+        "js/audio/engine.js": {
+          "sha256": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0"
+        },
+        "js/audio/performance.js": {
+          "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+        }
+      },
+      "failures": [],
+      "unchecked": [],
+      "errors": [],
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [
+          "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.",
+          "[.WebGL-0x186c0019f200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "[.WebGL-0x186c0019f200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "[.WebGL-0x186c0019f200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+          "[.WebGL-0x186c0019f200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+        ],
+        "failedRequests": []
+      },
+      "contextLosses": [],
+      "checkNames": [
+        "domeVisibility",
+        "device",
+        "identity",
+        "entry",
+        "movement",
+        "look",
+        "listenerAudioParams",
+        "seatFixture",
+        "sitStand",
+        "roster",
+        "seek",
+        "resumeClock",
+        "resumeTrace",
+        "playback",
+        "worldSeek",
+        "dome",
+        "quality",
+        "audienceControl",
+        "audience",
+        "broadcastToggle",
+        "automatic",
+        "layout"
+      ],
+      "renderedFrames": [
+        "entered",
+        "movement-1",
+        "movement-2",
+        "look-drag",
+        "near-seat",
+        "seated",
+        "stood-up",
+        "show-started",
+        "world-transition",
+        "world-visible",
+        "paused-live-restored",
+        "quality-medium",
+        "quality-low",
+        "quality-high",
+        "audience-and-screen-off",
+        "audience-and-screen-restored",
+        "automatic-setting"
+      ],
+      "resumeOutcome": "passed",
+      "seek": {
+        "input": "mouse pointer",
+        "target": 22,
+        "actual": 21.999999039951454
+      },
+      "fullRawSha256": "31b1550b01a62c27ab35af1b2dedccc9b0af529bf69d47063513822eb6a042cd",
+      "rawCoverage": "This file preserves selected fields, not the complete browser state dump or screenshots."
+    },
+    {
+      "venue": "hall",
+      "device": "mobile",
+      "status": "PASS",
+      "scope": "full",
+      "suite": "functional-controlled",
+      "viewport": [
+        390,
+        844
+      ],
+      "devicePixelRatio": 2,
+      "method": "Real UI, keyboard and CDP touch input; captured main rAF with explicit complete WebGL frames. Functional assertions only; no FPS or performance claim.",
+      "fixtures": [
+        "Fresh browser context, deterministic Math.random seed 417, initial manual quality and audience enabled in localStorage.",
+        "Google Fonts CSS is replaced with an empty response and browser system fallback fonts are used; font fidelity is outside this check.",
+        "The app main rAF is captured; other rAF callbacks, the UI and audio clock remain native. Each requested main frame really renders and readPixels completes its WebGL work.",
+        "Listener assertions compare the intended target pose. A baseline without the target cache records the original setListener inputs after calling it unchanged; interpolated AudioParam values are not treated as immediate targets.",
+        "Seat reachability: director.placeAt places the walker beside a real unoccupied seat, avoiding a long venue walk. Seat selection itself uses E or the touch sit button; standing uses E or the real walk button.",
+        "After the real sit input, director.update(2.5) finishes only the existing camera tween; the seated frame still renders normally.",
+        "Before the real 공연 시작 click, snapRoster places only the current score track/chair roster and snapConductor completes its conductor entrance. This avoids pending exits of unrelated players while main rAF is captured; the real runConcert waits, audio start and controls remain active."
+      ],
+      "fixtureSourceSha256": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "playwrightVersion": "1.62.1",
+        "platform": "linux",
+        "architecture": "x64",
+        "softwareRequested": true,
+        "chromeArgs": [
+          "--no-sandbox",
+          "--disable-dev-shm-usage",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "fontMode": "system",
+        "headless": true
+      },
+      "sourceHashes": {
+        "js/boot.js": {
+          "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+        },
+        "js/main.js": {
+          "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+        },
+        "js/quality.js": {
+          "sha256": "3be39f32cbada41743f0ecb168de8a31599af1374db940ca7c9bfaae6c96336e"
+        },
+        "js/scene/hall.js": {
+          "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+        },
+        "js/scene/seats.js": {
+          "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+        },
+        "js/scene/audience.js": {
+          "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+        },
+        "js/scene/screen.js": {
+          "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+        },
+        "js/scene/sphere.js": {
+          "sha256": "6cfa58b0cda059640888c1db7a9e509cce6e6bcab8fc1557c6d6ff20da47ee55"
+        },
+        "js/scene/dome3d.js": {
+          "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+        },
+        "js/scene/domeshow.js": {
+          "sha256": "15900b22108ee66b04212725b18b2b0d131227e1044ef64f04393adde52b86b9"
+        },
+        "js/audio/engine.js": {
+          "sha256": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0"
+        },
+        "js/audio/performance.js": {
+          "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+        }
+      },
+      "failures": [],
+      "unchecked": [],
+      "errors": [],
+      "diagnostics": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "warnings": [],
+        "failedRequests": []
+      },
+      "contextLosses": [],
+      "checkNames": [
+        "domeVisibility",
+        "device",
+        "identity",
+        "entry",
+        "movement",
+        "look",
+        "listenerAudioParams",
+        "seatFixture",
+        "sitStand",
+        "roster",
+        "seek",
+        "resumeClock",
+        "resumeTrace",
+        "playback",
+        "quality",
+        "audienceControl",
+        "audience",
+        "broadcastToggle",
+        "automatic",
+        "layout"
+      ],
+      "renderedFrames": [
+        "entered",
+        "movement-1",
+        "movement-2",
+        "look-drag",
+        "near-seat",
+        "seated",
+        "stood-up",
+        "show-started",
+        "quality-medium",
+        "quality-low",
+        "quality-high",
+        "audience-and-screen-off",
+        "audience-and-screen-restored",
+        "automatic-setting"
+      ],
+      "resumeOutcome": "passed",
+      "seek": {
+        "input": "CDP touch",
+        "target": 22,
+        "actual": 21.99999851785055,
+        "firstReadActual": 21.99999851785055,
+        "firstReadPassed": true,
+        "waitPassed": true,
+        "conditionTimeoutMs": 2000,
+        "diagnosticIndex": 0
+      },
+      "fullRawSha256": "1d1806775345d8d8dd3986346e63124380b277086bb5d9670fc475811010cf15",
+      "rawCoverage": "This file preserves selected fields, not the complete browser state dump or screenshots."
+    }
+  ],
+  "collectorSmokes": [
+    {
+      "status": "PASS",
+      "suite": "whole-frame-controlled",
+      "mode": "raf-cadence",
+      "venue": "sphere",
+      "quality": "low",
+      "device": "desktop",
+      "viewport": [
+        320,
+        180
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 4,
+      "warmupFrames": 2,
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "playwrightVersion": "1.62.1",
+        "platform": "linux",
+        "architecture": "x64",
+        "softwareRequested": true,
+        "chromeArgs": [
+          "--no-sandbox",
+          "--disable-dev-shm-usage",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "fontMode": "system",
+        "headless": true
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "collectorSourceSha256": "2c508026f14dd3a96329f16f5a580fab0e9ca5bbf639bdf2195ba6c6c34b0d0f",
+      "helperSourceSha256": "e663a1664d599c1277a87af566e45c854921dabb3ce92adfb5fbaad556dacd5a",
+      "purpose": "Collector execution smoke only; excluded from performance claims.",
+      "hardwareGate": null,
+      "failure": null,
+      "exitCode": 0,
+      "fullRawSha256": "d576778788ce93dba037ebb3708cf42cd90f893cf64fb6902b0ba328b52bd43b"
+    },
+    {
+      "status": "FAIL",
+      "suite": "whole-frame-controlled",
+      "mode": "raf-cadence",
+      "venue": "sphere",
+      "quality": "low",
+      "device": "desktop",
+      "viewport": [
+        320,
+        180
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 4,
+      "warmupFrames": 2,
+      "environment": {
+        "browserVersion": "153.0.8010.0",
+        "playwrightVersion": "1.62.1",
+        "platform": "linux",
+        "architecture": "x64",
+        "softwareRequested": true,
+        "chromeArgs": [
+          "--no-sandbox",
+          "--disable-dev-shm-usage",
+          "--use-gl=angle",
+          "--use-angle=swiftshader",
+          "--enable-unsafe-swiftshader"
+        ],
+        "fontMode": "system",
+        "headless": true
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "collectorSourceSha256": "2c508026f14dd3a96329f16f5a580fab0e9ca5bbf639bdf2195ba6c6c34b0d0f",
+      "helperSourceSha256": "e663a1664d599c1277a87af566e45c854921dabb3ce92adfb5fbaad556dacd5a",
+      "purpose": "Negative hardware gate: software renderer must fail.",
+      "hardwareGate": {
+        "required": true,
+        "status": "FAIL",
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "issue": "소프트웨어 렌더러라 실제 GPU 병합 판단에 쓸 수 없어: ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "failure": {
+        "message": "소프트웨어 렌더러라 실제 GPU 병합 판단에 쓸 수 없어: ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "stack": "Error: 소프트웨어 렌더러라 실제 GPU 병합 판단에 쓸 수 없어: ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\n    at file:///workspace/scratch/8af21f624985/forest-philharmonic-review/tools/bench/full-frame.mjs:124:47"
+      },
+      "exitCode": 1,
+      "fullRawSha256": "2db43b0f0dffd8202c522bacdf89b225d94201d2b3403202164ad39c173e27f7"
+    }
+  ],
+  "domeVisibilityCpu": {
+    "kind": "cpu-only-mock-renderer",
+    "limitation": "Measures controller/visibility JS and a mock render call. No WebGL, GPU, pixel comparison, application FPS or real-device improvement is measured.",
+    "node": "24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "options": {
+      "iterations": 20000,
+      "rounds": 5,
+      "baselineRevision": "ed3a5db17a53cd84b75e33a25352831f148f9431",
+      "candidate": "Product sources identified by sourceSha256.candidate"
+    },
+    "sourceSha256": {
+      "baseline": {
+        "public/js/scene/domeshow.js": "30f55dd9b210c95815b6049030e3aecb05c10a730dc1d6f0f26b9e19dbb5e769",
+        "public/js/scene/dome3d.js": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991",
+        "public/js/scene/sphereplan.js": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585",
+        "public/js/scene/venue.js": "057ea255b155c26b2291a70898b8efbb12d5bec32a6a47b486b7c2caf29df999",
+        "public/js/scene/hallplan.js": "a9f13dcfe5bc1bd90ff4fad97246f0a5a2c5a0aaec8d66eaff8924fc1ad618ae",
+        "public/js/layout.js": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6",
+        "public/vendor/three/three.module.js": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea",
+        "public/vendor/three/three.core.js": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+      },
+      "candidate": {
+        "public/js/scene/domeshow.js": "15900b22108ee66b04212725b18b2b0d131227e1044ef64f04393adde52b86b9",
+        "public/js/scene/dome3d.js": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991",
+        "public/js/scene/sphereplan.js": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585",
+        "public/js/scene/venue.js": "057ea255b155c26b2291a70898b8efbb12d5bec32a6a47b486b7c2caf29df999",
+        "public/js/scene/hallplan.js": "a9f13dcfe5bc1bd90ff4fad97246f0a5a2c5a0aaec8d66eaff8924fc1ad618ae",
+        "public/js/layout.js": "7a2a053f55b37a667e39a63c982d47768bad1284afe0b5e70d00c41325945df6",
+        "public/vendor/three/three.module.js": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea",
+        "public/vendor/three/three.core.js": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+      }
+    },
+    "verifiedPerFrameMasks": 360,
+    "workloads": [
+      {
+        "mode": "stationary",
+        "rounds": [
+          {
+            "order": "baseline-candidate",
+            "baseline": {
+              "elapsedMs": 125.85693800000001,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            },
+            "candidate": {
+              "elapsedMs": 18.015556000000004,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            }
+          },
+          {
+            "order": "candidate-baseline",
+            "candidate": {
+              "elapsedMs": 8.101888999999971,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            },
+            "baseline": {
+              "elapsedMs": 131.62812200000002,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            }
+          },
+          {
+            "order": "baseline-candidate",
+            "baseline": {
+              "elapsedMs": 147.639427,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            },
+            "candidate": {
+              "elapsedMs": 6.884792999999945,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            }
+          },
+          {
+            "order": "candidate-baseline",
+            "candidate": {
+              "elapsedMs": 9.659256000000028,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            },
+            "baseline": {
+              "elapsedMs": 123.67582700000003,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            }
+          },
+          {
+            "order": "baseline-candidate",
+            "baseline": {
+              "elapsedMs": 113.60120500000005,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            },
+            "candidate": {
+              "elapsedMs": 6.8708729999999605,
+              "cubeFaceRequests": 60000,
+              "faceChecksum": 700000
+            }
+          }
+        ],
+        "medianBatchMs": {
+          "baseline": 125.85693800000001,
+          "candidate": 8.101888999999971
+        }
+      },
+      {
+        "mode": "moving",
+        "rounds": [
+          {
+            "order": "baseline-candidate",
+            "baseline": {
+              "elapsedMs": 121.49049100000002,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            },
+            "candidate": {
+              "elapsedMs": 136.02190799999994,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            }
+          },
+          {
+            "order": "candidate-baseline",
+            "candidate": {
+              "elapsedMs": 128.23750199999995,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            },
+            "baseline": {
+              "elapsedMs": 125.26501499999995,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            }
+          },
+          {
+            "order": "baseline-candidate",
+            "baseline": {
+              "elapsedMs": 123.93323699999996,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            },
+            "candidate": {
+              "elapsedMs": 118.82477700000004,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            }
+          },
+          {
+            "order": "candidate-baseline",
+            "candidate": {
+              "elapsedMs": 120.32119899999998,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            },
+            "baseline": {
+              "elapsedMs": 119.85485399999993,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            }
+          },
+          {
+            "order": "baseline-candidate",
+            "baseline": {
+              "elapsedMs": 118.53757500000006,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            },
+            "candidate": {
+              "elapsedMs": 119.94767000000002,
+              "cubeFaceRequests": 28907,
+              "faceChecksum": 378959
+            }
+          }
+        ],
+        "medianBatchMs": {
+          "baseline": 121.49049100000002,
+          "candidate": 120.32119899999998
+        }
+      }
+    ]
+  },
+  "seatBuffers": {
+    "fixedSeats": 13845,
+    "sections": 30,
+    "beforeRetainedTypedArrayBytes": 2990520,
+    "afterRetainedTypedArrayBytes": 1052220,
+    "savedBytes": 1938300,
+    "limitation": "Fixed Sphere seating transform/colour backing arrays only; excludes six recital seats, total JS heap, peak allocation, and GPU VRAM."
+  },
+  "reproductionToolSha256": {
+    "tools/test.mjs": "2e8ce48e75f983fe80644c81ef3dc8656e53f423297ac3683681f792fbb2cae2",
+    "tools/bench/assess-merge-check.py": "35ea988e24911afe217fb15da25658ddc807ca8970a551212e9bb0abedd9288e",
+    "tools/bench/audio-clock.mjs": "317812b859457fa3c70725ac8535dc252ba0d8ac2772a4bffd806c5b8cc22037",
+    "tools/bench/audio-note-audit.mjs": "2a9c68048e5fbb0e98c4e0e7fbb5d90c515face0ed98f1f39f324d11a8718f60",
+    "tools/bench/audio-resume.mjs": "6167885b69a3f2457a9edb5edd926b20c1b0a4d88edd47a60693ef06361105b5",
+    "tools/bench/audio-stability.mjs": "b0a3ce2685e5765edaf79c8e7943a229e39f30169ffe71592ff4ea3ba17768bb",
+    "tools/bench/audio-worker.mjs": "05f6e432cee46214e0d01fc6d4cfa607670d81ea3d9cc89aada6e7e45afeab46",
+    "tools/bench/browser.mjs": "e663a1664d599c1277a87af566e45c854921dabb3ce92adfb5fbaad556dacd5a",
+    "tools/bench/collect-plan.mjs": "c12ef73c0977b13b3ce509f3bbd450ad34c37c115a5221ac0d7cd222eba21072",
+    "tools/bench/compare-dome-motion.py": "348237fc3337bb20bda25943f219b443ba52d2ab976a16d8a18b10afa4b59b05",
+    "tools/bench/compare-images.py": "328a65ef13b105dc593181c2a049401413374a09a8b4d54aa2100fa569e66eb4",
+    "tools/bench/compare-loading.mjs": "a012e19937a878f8606fa27cd4f2c7b58617e2ad19656ac373879dc91c8f264b",
+    "tools/bench/compare.mjs": "30019d88fa0349e5eee8f4d91e3f04e0459b3f3d56055710c9d5398ca848b1f5",
+    "tools/bench/dome-motion.mjs": "953ec414c17d02328dd3deb56e1832aa28602bf51bde67dfd8538892432a5bc1",
+    "tools/bench/dome-visibility.mjs": "bf7280f53c1075adf029e7f218445ba901c23c6454dd9f7e2cef45fdac490bb8",
+    "tools/bench/full-frame-fixture.js": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+    "tools/bench/full-frame.mjs": "2c508026f14dd3a96329f16f5a580fab0e9ca5bbf639bdf2195ba6c6c34b0d0f",
+    "tools/bench/functional.mjs": "dbe222f3765e22973c95bca690ff84103da7390695a4576824f7ec07aa90b9bd",
+    "tools/bench/gpu-timer.mjs": "65f29bf49c379114d234473a985860c71d33de060dc28801d10862d6059b4665",
+    "tools/bench/loading-proxy.mjs": "0c4182265fc424fdddd75eff649926f7c63fac228dd32866c88271576a9f7eff",
+    "tools/bench/loading.mjs": "a4f1a84a11b0631c91e95de5d65f9a5b3ce268785cc2775ac0beb54b4515035e",
+    "tools/bench/multiplayer.mjs": "80929e1a2d8f6d5d0e98428e8e2e2ce1bf9e8833710b4fd044ed08223fc1967c",
+    "tools/bench/package-evidence.py": "cdacbf9ed002ba1f07a2b6c92f8d7395c36ce1de1ff1b0e4a5e6117aac3a9d9c",
+    "tools/bench/plaza.mjs": "08b9bc81034582c30ffcabd94c220ead66cf223fb8f1666a3d7466670b8e22ce",
+    "tools/bench/prepare-local-plan.py": "627cee5f1436a2545059e6858bd863a384a0cd8d1b56d7ee86a1a3ab0ed5648a",
+    "tools/bench/prepare-merge-check.py": "022f74abf3182c6e46014874fa724a143aff4f4c8dfc472379385585fbdb0094",
+    "tools/bench/prepare-runtime-plan.py": "20f91b20879c0baa8f3263a153fb034146b67dc58c1d93af3a0101e9e350d20d",
+    "tools/bench/rituals.mjs": "744ad7a96a1df5a335c5a42531f18969945dc30e7800a1f0837e182c4573c26a",
+    "tools/bench/rooms.mjs": "a4387a67b7a5f76e62c2cba37b1b49796f546d0eeacce3a1a833942b54b94c71",
+    "tools/bench/run-plan.py": "f7161a95f2b28abd3b97289d8c14d42f6c575b2faf360d0b433c28a5f839f593",
+    "tools/bench/venue.mjs": "3a22e98807173b999befbb05c47b117a7e910294cfbb2fe7ed9e75e17ef5b888",
+    "tools/bench/verify-evidence.py": "287e9603ebd6c78b33f95dfcf6f9b9d229a2ebe055b43a8ed2f4b97c1c38ccbd"
+  },
+  "requiredLocalFollowup": "Read LOCAL_AGENT_HANDOFF.md; verify actual UI/music and real GPU ABBA plus a measurable benefit before merging."
+}

@@ -129,7 +129,7 @@ function seatGeometry() {
   return { fabric, frame };
 }
 
-function buildSeatMeshes(list, lite) {
+export function buildSphereSeatMeshes(list, lite) {
   const group = new THREE.Group();
   group.name = 'seats';
   const G = seatGeometry();
@@ -173,19 +173,24 @@ function buildSeatMeshes(list, lite) {
   for (const idx of bySection.values()) {
     const n = idx.length;
     const near = new THREE.InstancedMesh(nearGeo, mat, n);
-    const far = new THREE.InstancedMesh(farGeo, mat, n);
-    const pick = new THREE.InstancedMesh(pickGeo, hidden, n);
+    const far = new THREE.InstancedMesh(farGeo, mat, 0);
+    const pick = new THREE.InstancedMesh(pickGeo, hidden, 0);
+    // The three representations never move independently. Share the static
+    // transforms instead of retaining and uploading separate equal arrays.
+    // Bounds and counts remain per mesh because their geometries differ.
+    for (const im of [far, pick]) {
+      im.instanceMatrix = near.instanceMatrix;
+      im.count = n;
+    }
     idx.forEach((si, j) => {
       const s = list[si];
       q.setFromAxisAngle(Y, s.yaw);
       m.compose(pos.set(s.x, s.y, s.z), q, one);
       near.setMatrixAt(j, m);
-      far.setMatrixAt(j, m);
-      pick.setMatrixAt(j, m);
       c.set(tone[s.level] || tone.플로어).multiplyScalar(0.92 + ((si * 7919) % 17) / 100);
       near.setColorAt(j, c);
-      far.setColorAt(j, c);
     });
+    far.instanceColor = near.instanceColor;
     for (const im of [near, far, pick]) im.computeBoundingSphere();
     near.receiveShadow = !lite;
     pick.userData.seatIdx = idx;
@@ -482,7 +487,7 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
 
   // ---------------------------------------------------------------- seats
   const seats = sphereSeatList();
-  const seatData = buildSeatMeshes(seats, lite);
+  const seatData = buildSphereSeatMeshes(seats, lite);
   group.add(seatData.group);
 
   // --------------------------------------------------------------- lights

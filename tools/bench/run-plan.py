@@ -138,7 +138,7 @@ def main():
     output = args.output.resolve()
     (output / 'logs').mkdir(parents=True, exist_ok=True)
     progress_path = output / 'progress.json'
-    progress = json.loads(progress_path.read_text()) if progress_path.exists() else {'schema': 1, 'planSha256': plan_sha, 'jobs': {}}
+    progress = json.loads(progress_path.read_text(encoding='utf-8')) if progress_path.exists() else {'schema': 1, 'planSha256': plan_sha, 'jobs': {}}
     if progress.get('planSha256') != plan_sha:
         raise ValueError('Output belongs to a different plan; use a new output folder')
     progress['runnerSha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()

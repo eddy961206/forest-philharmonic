@@ -1,7 +1,7 @@
 // qa-v2/full-frame.mjs의 이동 가능한 전체 장면 측정기야.
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { appURL, choice, config, diagnosticsFailed, integer, openPage, save, sha256, sourceHashes, summarize, viewport } from './browser.mjs';
+import { appURL, choice, config, diagnosticsFailed, hardwareRendererIssue, integer, openPage, save, sha256, sourceHashes, summarize, verifySourceTree, viewport } from './browser.mjs';
 
 if (process.argv.includes('--help')) {
   console.log('node tools/bench/full-frame.mjs [label] [hall|sphere] [high|medium|low|auto] [desktop|mobile] [front,wide,...]\n환경: BASE_URL, REVISION, PLAYWRIGHT_MODULE, CHROME_EXECUTABLE, OUTPUT_DIR, MODE=sync|cadence, SAMPLES, WARMUP, SOFTWARE_RENDERER=1, FONT_ROOT, WIDTH, HEIGHT, DPR, SCREENSHOTS=1, TIMEOUT_MS=180000\nTIMEOUT_MS는 브라우저 준비·조작 대기와 각 cadence 장면의 전체 표본 수집 제한이야. 준비 프레임과 sync 표본 수집 전체를 감싸는 제한은 아니야. cadence 시간 초과는 FAIL로 저장하고 브라우저를 닫아.\nSphere는 UI 준비와 dome.mesh.visible을 기다리고, 기존 WARMUP 프레임에서 실제 base/사용 중 overlay draw 및 프로그램 완료·링크를 확인해. 미확인 상태는 FAIL로 보존해. 카운터는 warmup 뒤 복원하고 프로그램 검사는 측정 구간 밖에서만 실행해. Hall의 돔 검사는 해당 없음으로 기록해.');
@@ -50,7 +50,13 @@ const result = {
 };
 const filename = `${label}-full-${venue}-${quality}-${device}-${mode}.json`;
 let session;
+async function bounded(promise, milliseconds, message) {
+  let timer;
+  try { return await Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), milliseconds); })]); }
+  finally { clearTimeout(timer); }
+}
 try {
+  result.localSourceHashes = await verifySourceTree();
   session = await openPage(cfg, device, size);
   const { page, cdp } = session;
   result.environment = session.environment;
@@ -112,6 +118,11 @@ try {
   result.fixture = await page.evaluate(() => window.__bench.setup());
   await page.addStyleTag({ content: 'body > :not(#stage) { visibility: hidden !important; }' });
   result.meta = await page.evaluate(() => window.__bench.meta());
+  if (process.env.REQUIRE_HARDWARE === '1') {
+    const issue = hardwareRendererIssue(result.meta.renderer);
+    result.hardwareGate = { required: true, status: issue ? 'FAIL' : 'PASS', renderer: result.meta.renderer, issue };
+    if (issue || cfg.softwareRequested) throw new Error(issue || '소프트웨어 렌더 옵션이 켜져 있어.');
+  }
   console.log(JSON.stringify({ label, suite: result.suite, venue, quality, device, stage: 'ready', fixture: result.fixture, meta: result.meta }));
   for (const name of names) {
     const scenario = await page.evaluate(name => window.__bench.scenario(name), name);
@@ -119,7 +130,20 @@ try {
     await page.evaluate(() => window.__bench.beginDomeWarmup());
     let domeReadiness;
     try {
-      for (let i = 0; i < warmupFrames; i++) await page.evaluate(() => window.__bench.step(true));
+      if (mode === 'cadence') {
+        await bounded(page.evaluate(n => new Promise((resolve, reject) => {
+          let count = 0;
+          function next() {
+            try {
+              window.__bench.step(false);
+              if (++count >= n) resolve(); else window.__nativeRAF(next);
+            } catch (error) { reject(error); }
+          }
+          window.__nativeRAF(next);
+        }), warmupFrames), cfg.timeoutMs, `${name}: cadence warmup 시간 초과`);
+      } else {
+        for (let i = 0; i < warmupFrames; i++) await page.evaluate(() => window.__bench.step(true));
+      }
     } finally {
       domeReadiness = await page.evaluate(() => window.__bench.endDomeWarmup());
       result.scenarios[name] = { scenario, domeReadiness };
@@ -175,6 +199,8 @@ try {
   }
   result.longTasks = await page.evaluate(() => window.__longTasks);
   result.sourceHashesAfter = await sourceHashes(page, cfg.baseURL);
+  result.localSourceHashesAfter = await verifySourceTree();
+  if (JSON.stringify(result.localSourceHashesAfter) !== JSON.stringify(result.localSourceHashes)) throw new Error('Local product/collector bytes changed during this benchmark.');
   if (JSON.stringify(result.sourceHashesAfter) !== JSON.stringify(result.sourceHashes)) throw new Error('Served source changed during this benchmark; exclude and rerun.');
   result.status = diagnosticsFailed(session.diagnostics) ? 'FAIL' : 'PASS';
 } catch (error) {
@@ -183,7 +209,10 @@ try {
   // Persist the failure before closing the browser with a pending evaluation.
   await save(cfg, filename, result);
 } finally {
-  if (session) await session.browser.close();
+  if (session) {
+    try { await bounded(session.browser.close(), 10000, '브라우저 종료 시간 초과'); }
+    catch (error) { result.status = 'FAIL'; result.closeFailure = error.message; }
+  }
   await save(cfg, filename, result);
 }
 if (result.status !== 'PASS') process.exitCode = 1;

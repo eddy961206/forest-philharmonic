@@ -1,6 +1,0 @@
-node tools/bench/compare-loading.mjs before.json after.json [output.json]
-고정 군중 loading 결과 한 쌍을 비교해. 전후/cold/warm의 seed·관객 수·점유 좌석
-hash와 샘플·화면·폰트·브라우저 조건을 확인하고, 불일치면 FAIL/exit 1을 남겨.
-시간은 조건당 한 번의 관측이야. 통과해도 반복 실험의 인과 개선율은 아니야.
-controlledMainFixture 바이트는 QA main 응답이며 원본 main.js 전송량이 아니야.
-브라우저·네트워크를 실행하지 않는 파일 비교 도구야.

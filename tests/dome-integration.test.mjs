@@ -155,3 +155,107 @@ test('Lite warm-up keeps cube rendering disabled and the painted transition comp
   assert.equal(dome.uniforms.uMix.value, 0);
   f.restored();
 });
+
+test('a stationary dome viewer reuses only visibility while every world frame stays current', (t) => {
+  const f = fixture();
+  const dome = buildDome({ renderer: f.renderer, quality: 'high' });
+  const camera = new THREE.PerspectiveCamera(64, 16 / 9, 0.1, 260);
+  camera.position.set(0, 1.6, 45);
+  camera.lookAt(0, 8, -20);
+  dome.setViewers([{ cam: camera }]);
+  dome.go('FOREST3D', { dur: 0.01 });
+  dome.update(1);
+  const unproject = THREE.Vector3.prototype.unproject;
+  const rays = t.mock.method(THREE.Vector3.prototype, 'unproject', function (cam) { return unproject.call(this, cam); });
+
+  dome.drawWorlds();
+  assert.deepEqual(f.draws.map((draw) => draw.face), [0, 1, 5]);
+  assert.equal(rays.mock.callCount(), 99);
+  for (let frame = 0; frame < 30; frame++) {
+    f.draws.length = 0;
+    dome.update(1 / 60);
+    dome.drawWorlds();
+    assert.deepEqual(f.draws.map((draw) => draw.face), [0, 1, 5]);
+    assert.ok(f.draws.every((draw) => draw.time === dome.uniforms.uTime.value && draw.flight > 0));
+  }
+  assert.equal(rays.mock.callCount(), 99, 'the unchanged camera does not repeat the 99-ray visibility search');
+  f.restored();
+});
+
+test('dome visibility invalidates for movement, rotation, FOV, aspect and view offset', (t) => {
+  const f = fixture();
+  const dome = buildDome({ renderer: f.renderer, quality: 'high' });
+  const camera = new THREE.PerspectiveCamera(64, 16 / 9, 0.1, 260);
+  dome.setViewers([{ cam: camera }]);
+  dome.go('FOREST3D', { dur: 0.01 });
+  dome.update(1);
+  const unproject = THREE.Vector3.prototype.unproject;
+  const rays = t.mock.method(THREE.Vector3.prototype, 'unproject', function (cam) { return unproject.call(this, cam); });
+  // These face lists were captured from the uncached 9 x 11 ray search.
+  // They include a zero-mask view and views on both sides of cube boundaries.
+  const cases = [
+    ['front', () => { camera.position.set(0, 1.6, 45); camera.lookAt(0, 8, -20); }, [0, 1, 5]],
+    ['right', () => camera.lookAt(45, 30, 45), [0, 2, 4, 5]],
+    ['back', () => camera.lookAt(0, 30, 85), [0, 1, 2, 4]],
+    ['ceiling', () => camera.lookAt(0, 80, 45), [0, 1, 2, 4]],
+    ['below the screen', () => camera.lookAt(0, -70, 45), []],
+    ['balcony', () => { camera.position.set(20, 34, 65); camera.lookAt(0, 8, -20); }, [0, 1, 2, 5]],
+    ['narrow FOV', () => { camera.fov = 24; camera.updateProjectionMatrix(); }, [5]],
+    ['wide FOV', () => { camera.fov = 110; camera.updateProjectionMatrix(); }, [0, 1, 2, 5]],
+    ['portrait aspect', () => { camera.aspect = 390 / 844; camera.updateProjectionMatrix(); }, [0, 1, 2, 5]],
+    ['view offset', () => camera.setViewOffset(800, 600, 400, 0, 400, 600), [0, 2, 5]],
+  ];
+  cases.forEach(([name, move, faces], index) => {
+    move();
+    f.draws.length = 0;
+    dome.drawWorlds();
+    assert.deepEqual(f.draws.map((draw) => draw.face), faces, name);
+    assert.equal(rays.mock.callCount(), 99 * (index + 1), `${name} must recalculate visibility`);
+    f.draws.length = 0;
+    dome.drawWorlds();
+    assert.deepEqual(f.draws.map((draw) => draw.face), faces, `${name} remains current on a cache hit`);
+    assert.equal(rays.mock.callCount(), 99 * (index + 1));
+  });
+  f.restored();
+});
+
+test('cached dome cameras remain independent and viewer activation is checked every frame', (t) => {
+  const f = fixture();
+  const dome = buildDome({ renderer: f.renderer, quality: 'high' });
+  const first = new THREE.PerspectiveCamera(64, 16 / 9, 0.1, 260);
+  first.position.set(0, 1.6, 45);
+  first.lookAt(0, 8, -20);
+  const second = first.clone();
+  second.lookAt(45, 30, 45);
+  let enabled = false;
+  dome.setViewers([{ cam: first }, { cam: second, when: () => enabled }]);
+  dome.go('FOREST3D', { dur: 0.01 });
+  dome.update(1);
+  const unproject = THREE.Vector3.prototype.unproject;
+  const rays = t.mock.method(THREE.Vector3.prototype, 'unproject', function (cam) { return unproject.call(this, cam); });
+  dome.drawWorlds();
+  assert.deepEqual(f.draws.map((draw) => draw.face), [0, 1, 5]);
+  assert.equal(rays.mock.callCount(), 99);
+
+  enabled = true;
+  f.draws.length = 0;
+  dome.drawWorlds();
+  assert.deepEqual(f.draws.map((draw) => draw.face), [0, 1, 2, 4, 5]);
+  assert.equal(rays.mock.callCount(), 198);
+  enabled = false;
+  f.draws.length = 0;
+  dome.drawWorlds();
+  assert.deepEqual(f.draws.map((draw) => draw.face), [0, 1, 5]);
+  assert.equal(rays.mock.callCount(), 198);
+
+  // matrixWorld can change through a camera's rig without changing its local pose.
+  const rig = new THREE.Group();
+  rig.add(first);
+  rig.rotation.y = Math.PI;
+  rig.updateMatrixWorld(true);
+  f.draws.length = 0;
+  dome.drawWorlds();
+  assert.equal(rays.mock.callCount(), 297, 'parent transforms must invalidate the camera cache');
+  assert.notDeepEqual(f.draws.map((draw) => draw.face), [0, 1, 5]);
+  f.restored();
+});

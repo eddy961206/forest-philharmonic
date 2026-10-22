@@ -3,9 +3,62 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 export const sha256 = value => createHash('sha256').update(value).digest('hex');
+
+export function hardwareRendererIssue(renderer) {
+  if (typeof renderer !== 'string' || !renderer.trim()) return '실제 renderer 문자열을 확인하지 못했어.';
+  if (/swiftshader|llvmpipe|softpipe|lavapipe|software|basic render|\bwarp\b/i.test(renderer))
+    return `소프트웨어 렌더러라 실제 GPU 병합 판단에 쓸 수 없어: ${renderer}`;
+  if (!/nvidia|geforce|quadro|radeon|\bamd\b|\bati\b|intel|apple|adreno|qualcomm|\bmali\b|\barm\b|powervr|imagination|broadcom/i.test(renderer))
+    return `물리 GPU 모델을 식별하지 못했어. 드라이버/렌더러를 확인해: ${renderer}`;
+  return null;
+}
+
+async function sourceContract() {
+  if (!process.env.SOURCE_MANIFEST) return null;
+  const bytes = await fs.readFile(process.env.SOURCE_MANIFEST);
+  const manifest = JSON.parse(bytes), side = choice(process.env.SOURCE_SIDE, ['baseline', 'candidate'], 'SOURCE_SIDE');
+  if (manifest[side] !== process.env.REVISION) throw new Error('manifest와 실행 REVISION이 달라.');
+  if (!Array.isArray(manifest.files) || !manifest.files.length) throw new Error('전체 제품 manifest가 비어 있어.');
+  const names = new Set();
+  for (const entry of manifest.files) {
+    const name = entry.path;
+    if (typeof name !== 'string' || !/^(public\/|server\/|server\.js$|package(?:-lock)?\.json$)/.test(name) ||
+        name.split('/').some(part => !part || part === '.' || part === '..') || name.includes('\\') || names.has(name))
+      throw new Error(`잘못되거나 중복된 제품 경로: ${name}`);
+    names.add(name);
+    const value = entry[side + 'Sha256'];
+    if (value !== null && !/^[a-f0-9]{64}$/.test(value || '')) throw new Error(`제품 SHA-256이 잘못됐어: ${name}`);
+  }
+  return { manifest, side, manifestSha256: sha256(bytes) };
+}
+
+export async function verifySourceTree() {
+  const contract = await sourceContract();
+  if (!contract) return null;
+  if (!process.env.SOURCE_TREE) throw new Error('SOURCE_TREE가 없어.');
+  const { manifest, side, manifestSha256 } = contract, files = {}, collectors = {};
+  for (const entry of manifest.files) {
+    const expected = entry[side + 'Sha256'];
+    let actual = null;
+    try { actual = sha256(await fs.readFile(path.join(process.env.SOURCE_TREE, entry.path))); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+    if (actual !== expected) throw new Error(`고정 ${side} worktree 바이트가 달라: ${entry.path}`);
+    files[entry.path] = actual;
+  }
+  const root = fileURLToPath(new URL('../../', import.meta.url));
+  for (const [name, expected] of Object.entries(manifest.collectors || {})) {
+    if (!/^tools\/bench\/[^/\\]+$/.test(name) || name.includes('..')) throw new Error(`잘못된 도구 경로: ${name}`);
+    const actual = sha256(await fs.readFile(path.join(root, name)));
+    if (actual !== expected) throw new Error(`고정 수집 도구가 달라: ${name}`);
+    collectors[name] = actual;
+  }
+  if (!Object.keys(collectors).length) throw new Error('고정 수집 도구 manifest가 비어 있어.');
+  return { manifestSha256, side, revision: manifest[side], files, collectors };
+}
 
 export function choice(value, allowed, name) {
   if (!allowed.includes(value)) throw new Error(`${name}: ${allowed.join(', ')} 중 하나를 골라 줘.`);
@@ -144,11 +197,24 @@ export async function openPage(cfg, device, size) {
 // REVISION is an operator-supplied label. These hashes separately record the
 // bytes actually served; requesting them does not alter either checkout.
 export async function sourceHashes(page, baseURL) {
-  const names = ['js/boot.js', 'js/main.js', 'js/quality.js', 'js/scene/hall.js', 'js/scene/seats.js', 'js/scene/audience.js', 'js/scene/screen.js', 'js/scene/sphere.js', 'js/scene/dome3d.js', 'js/scene/domeshow.js', 'js/audio/engine.js', 'js/audio/performance.js'];
-  return Object.fromEntries(await Promise.all(names.map(async name => {
-    const response = await page.request.get(new URL(name, baseURL).href);
-    return [name, response.ok() ? { sha256: sha256(await response.body()) } : { httpStatus: response.status() }];
+  const contract = await sourceContract();
+  const names = contract ? contract.manifest.files.filter(e => e.path.startsWith('public/')).map(e => e.path.slice(7))
+    : ['js/boot.js', 'js/main.js', 'js/quality.js', 'js/scene/hall.js', 'js/scene/seats.js', 'js/scene/audience.js', 'js/scene/screen.js', 'js/scene/sphere.js', 'js/scene/dome3d.js', 'js/scene/domeshow.js', 'js/audio/engine.js', 'js/audio/performance.js'];
+  const expected = contract && new Map(contract.manifest.files.filter(e => e.path.startsWith('public/')).map(e => [e.path.slice(7), e[contract.side + 'Sha256']]));
+  const rows = [];
+  // Full public assets include samples/vendor code. Hash outside the timed
+  // window, with bounded concurrency, and release APIResponse body storage.
+  for (let i = 0; i < names.length; i += 8) rows.push(...await Promise.all(names.slice(i, i + 8).map(async name => {
+    const response = await page.request.get(new URL(name.split('/').map(encodeURIComponent).join('/'), baseURL).href,
+      { timeout: 10000, headers: { 'Cache-Control': 'no-cache' } });
+    try {
+      const actual = response.ok() ? { sha256: sha256(await response.body()) } : { httpStatus: response.status() };
+      if (contract && (expected.get(name) === null ? actual.httpStatus !== 404 : actual.sha256 !== expected.get(name)))
+        throw new Error(`제공된 ${contract.side} HTTP 바이트가 manifest와 달라: ${name}`);
+      return [name, actual];
+    } finally { await response.dispose(); }
   })));
+  return Object.fromEntries(rows);
 }
 
 export function summarize(samples, metric) {

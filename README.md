@@ -76,43 +76,34 @@ docker run -d --restart unless-stopped -p 8080:8080 forest-philharmonic
 
 ### 성능 검증하기
 
-현재 공개 비교는 **기준 제품 `e741811` → 후보 제품 `6c78172`**로 고정했어. 이후 문서·검증 도구 커밋과 제품 버전을 구분하고, 같은 품질 성능·적응형 품질·화면 차이·재생 및 기능 검증을 각각 확인해.
+현재 최적화 브랜치는 **로컬 실제 GPU 검증을 거쳐 병합 여부를 판단할 후보**야. 먼저 [로컬 AI 에이전트 인계](docs/LOCAL_AGENT_HANDOFF.md)를 읽고, 기준 `main`과 후보를 별도 worktree에서 같은 조건으로 실행해.
 
 | 읽을 문서 | 내용 |
 |---|---|
-| [최신 성능·검증 보고서](docs/performance-e741.md) | 두 공연장의 전후 결과, 개선되지 않은 조건, 실패와 미측정 범위 |
-| [같은 PC의 렌더 A/B 재현](docs/performance-reproduce-e741.md) | 고정 worktree·포트·도구, Windows/Bash 실행, 동일 조건 측정과 이미지 비교 |
-| [재생·기능·방·로딩 재현](docs/performance-runtime-e741.md) | 실제 재생 30초 관찰과 controlled 검사의 구분, 로컬 방, timeout·heartbeat·이어하기 |
-| [원본 PNG 다운로드·재비교](docs/performance-screenshots-e741.md) | 최신 캡처 180장, ZIP·파일 SHA 검증과 실제 파일명으로 이미지 비교 |
-| [e741 원본 증거](docs/performance-data/main-e741/) | 계획·source/collector SHA·raw JSON·종료 기록·로그·화면 이미지 manifest |
+| [로컬 AI 에이전트 인계](docs/LOCAL_AGENT_HANDOFF.md) | 설치·실행·기능 확인·실제 GPU A/B/B/A 측정·병합 판단과 추가 실험 |
+| [이번 수정과 검증](docs/MERGE_PREPARATION.md) | 테스트 실행 범위, 자동 화질 보정, 추가 CPU·메모리 개선과 확인 범위 |
+| [이전 e741 → 6c 보고서](docs/performance-e741.md) | 당시 관찰한 개선·악화·제한. 현재 후보의 성능 수치와 구분 |
+| [이전 원본 보관·복구](docs/PERFORMANCE_ARCHIVE.md) | 고정 커밋의 원시 JSON·실패 기록·이미지 해시·재현 절차 |
 
-공개 브라우저 측정은 클라우드의 **ANGLE SwiftShader 소프트웨어 렌더러**에서 실행했어. `mobile`은 Chromium의 화면·터치·UA 에뮬레이션이고 실제 스마트폰 실측이 아니야. 동기 `frame() + readPixels` 완료 시간은 앱 FPS나 순수 GPU 시간으로 환산하지 않아. 이 자료가 두 공연장의 모든 기능 성공이나 실제 PC·휴대폰의 60/30FPS 달성을 뜻하지는 않아.
-
-추가 패키지 설치 없이 `npm test`로 현재 트리의 회귀 검증을 실행할 수 있어. [제품 회귀 원본 요약](docs/performance-data/main-e741/node-files/summary.json)은 **11개 파일을 각각 실행한 79개 case, 실패 0개**를 기록해. 지오메트리·관객·좌석·카메라별 배치, 돔·중계, 공간 음향, 박수 준비, 음표 스케줄링과 자동 화질 정책을 확인한 범위야. 현재 트리의 추가 QA 도구 테스트는 이 제품 회귀 79개에 합산하지 않았고, Node 검증을 실제 브라우저·음질 검증으로 대신하지 않아.
+추가 패키지 설치 없이 `npm test`로 현재 `tests/`의 제품·수집기 계약 검사를 실행할 수 있어. 테스트 실행기가 파일 목록을 직접 넘기므로 Windows와 POSIX에서 같고, `docs/`에 보관된 과거 테스트는 실행하지 않아. Node 검사는 실제 WebGL·스피커 출력·기기 FPS를 보증하지 않아.
 
 ```bash
 npm test
 ```
 
-실행 중인 브라우저의 개발자 도구 콘솔에서 한 프레임의 통계를 복사해 볼 수 있어.
-
-```js
-({ ...window.__fp.stats })
-```
+실행 중 개발자 도구 콘솔에서 `({ ...window.__fp.stats })`로 현재 앱 프레임의 통계를 볼 수 있어.
 
 | 항목 | 의미 |
 |---|---|
-| `calls`, `triangles` | 마지막 앱 프레임에서 실행한 전체 렌더 패스의 draw call·삼각형 합계. 메인 화면, 그림자, 중계 카메라, 돔 큐브맵, 후처리를 포함해. |
-| `frameMs` | 직전 `requestAnimationFrame` 콜백부터 지난 실제 시간(ms). |
-| `submitMs` | 프레임 함수 시작부터 렌더 제출까지의 경과 시간(ms). 드라이버 대기를 포함할 수 있고, 순수 CPU 시간이나 GPU 완료 시간은 아니야. |
-| `fps` | 약 3초마다 갱신하는 화면 프레임 콜백의 평균 빈도. 첫 집계 전에는 0이야. |
-| `quality`, `renderScale` | 현재 적용된 화질 단계와 추가 해상도 배율. |
+| `calls`, `triangles` | 본 화면·그림자·중계·돔 큐브맵·후처리를 합친 마지막 앱 프레임의 제출량 |
+| `frameMs` | 직전 requestAnimationFrame 콜백부터 지난 실제 시간(ms) |
+| `submitMs` | 프레임 함수 시작부터 제출까지의 시간. 드라이버 대기를 포함하고 순수 CPU/GPU 시간과 달라 |
+| `fps` | 약 3초 동안의 콜백 평균 빈도. 첫 집계 전에는 0 |
+| `quality`, `renderScale` | 현재 화질 단계와 추가 해상도 배율 |
 
-`fps`와 `frameMs`에는 모니터 주사율·브라우저 스케줄링도 영향을 줘. 실제 GPU 처리 시간과 구분해서 보고, 소프트웨어 렌더러의 벤치마크 결과도 실제 PC·휴대폰 GPU 성능으로 환산하지 않아.
+고정 화질 비교는 화면 크기·DPR·카메라·관객 시드·음악 시점·돔/중계 상태를 맞춰. 자동 품질은 별도 검사해. 콜백 빈도는 실제 디스플레이 표시 FPS와 다르고, SwiftShader 같은 소프트웨어 렌더러 결과를 실제 GPU 성과로 사용하지 않아.
 
-변경 전후를 비교할 때는 **화질을 같은 고정값으로 두고, 화면 크기·DPR·카메라 위치/FOV·관객 배치·곡의 시점·돔/중계 상태를 맞춰.** 현재 카운터는 프레임 시작 때 한 번 초기화한 누적값이라, 렌더 호출마다 초기화하던 이전 버전의 `renderer.info` 값과 그대로 비교하면 안 돼. 양쪽에 같은 프레임 누적 계측을 적용한 뒤 비교해야 해.
-
-이전 [a41 구조 조사](docs/architecture-audit.md), [1f 보완 기록](docs/performance-supplement-1f.md), [1f 재현 안내](docs/performance-reproduce-1f.md)는 당시 기준의 이력이야. 해당 수치나 명령을 최신 e741 비교에 섞지 않아. 벤치마크 도구는 개발 환경에서만 사용하고 앱의 런타임 의존성은 늘리지 않아.
+이전 보고서의 Hall 가까운 시점 개선과 Sphere 일부 장면의 악화 관측은 그대로 보관돼 있어. 새로운 후보를 실제 GPU에서 비교하기 전에는 과거 수치를 최신 성능으로 재사용하지 않아. 벤치마크 도구와 결과 파일은 개발용이고 앱 런타임 의존성을 늘리지 않아.
 
 ---
 

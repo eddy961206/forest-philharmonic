@@ -5,6 +5,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
+import { hardwareRendererIssue } from './browser.mjs';
 
 const help = `node tools/bench/collect-plan.mjs --plan PLAN.json --root RUN_DIR --output SUMMARY_DIR [--manifest FILE]
 run-plan.py의 출력 루트(RUN_DIR/logs, RUN_DIR/render)를 읽어 summary.json/summary.md를 만들어.
@@ -139,6 +140,11 @@ function validateRaw(data, spec, manifest, sourceFiles) {
   assert.ok(finite(data.meta?.pixelRatio) && data.meta.pixelRatio > 0, '실제 renderer pixelRatio 기록 없음');
   assert.ok(typeof data.meta.userAgent === 'string' && data.meta.userAgent, '실제 userAgent 기록 없음');
   assert.ok(data.meta.renderer === null || typeof data.meta.renderer === 'string', 'renderer 기록 없음');
+  if (env.REQUIRE_HARDWARE === '1') {
+    equal(hardwareRendererIssue(data.meta.renderer), null, '실제 GPU renderer 판정');
+    equal(data.hardwareGate?.status, 'PASS', '실제 GPU gate');
+    equal(data.environment?.softwareRequested, false, '소프트웨어 강제 실행');
+  }
   assert.equal(typeof data.meta.gpuTimer, 'boolean', 'GPU timer 지원 여부 기록 없음');
   for (const [key, actual] of [['WIDTH', data.viewport[0]], ['HEIGHT', data.viewport[1]], ['DPR', data.devicePixelRatio]])
     if (env[key] !== undefined) equal(actual, Number(env[key]), `계획 ${key}`);
@@ -156,6 +162,14 @@ function validateRaw(data, spec, manifest, sourceFiles) {
   equal(data.fixture.piece, data.fixturePolicy.piece, 'fixture 곡');
   assert.ok(data.sourceHashes && data.sourceHashesAfter, 'served source 전후 해시 기록이 없어.');
   equal(data.sourceHashes, data.sourceHashesAfter, '측정 전후 served source');
+  if (env.SOURCE_MANIFEST) {
+    equal(data.localSourceHashes, data.localSourceHashesAfter, '측정 전후 전체 제품/도구 바이트');
+    equal(data.localSourceHashes?.manifestSha256, inputs.get(options.manifest).sha256, '실행 manifest SHA');
+    equal(data.localSourceHashes?.revision, manifest[spec.side], '전체 제품 revision');
+    equal(data.localSourceHashes?.files, Object.fromEntries(manifest.files.map(e => [e.path, e[spec.side + 'Sha256']])), '전체 제품 파일 해시');
+    equal(data.localSourceHashes?.collectors, manifest.collectors, '전체 측정 도구 해시');
+    equal(Object.keys(data.sourceHashes).sort(), manifest.files.filter(e => e.path.startsWith('public/')).map(e => e.path.slice(7)).sort(), '전체 public HTTP 해시 범위');
+  }
   for (const file of requiredSources) assert.ok(Object.hasOwn(data.sourceHashes, file), `필수 served source 누락: ${file}`);
   for (const [file, actual] of Object.entries(data.sourceHashes)) {
     const record = sourceFiles.get(`public/${file}`);
@@ -223,7 +237,19 @@ async function inspectJob(spec, planHash, manifest, sourceFiles) {
     const data = await readJSON(spec.file);
     equal(data.collectorSourceSha256, record.collectorSha256, '실행기 SHA-256');
     validateRaw(data, spec, manifest, sourceFiles);
-    return { ...result, status: 'PASS', data, dependencies: [spec.file, spec.logRecord, spec.log],
+    const started = Date.parse(record.startedAt), finished = Date.parse(record.finishedAt);
+    assert.ok(Number.isFinite(started) && Number.isFinite(finished) && finished >= started, '실제 실행 시작/종료 시각 기록 오류');
+    const fullSources = Boolean(spec.job.env?.SOURCE_MANIFEST && data.localSourceHashes);
+    const hardware = spec.job.env?.REQUIRE_HARDWARE === '1' && data.hardwareGate?.status === 'PASS' &&
+      !data.environment.softwareRequested && hardwareRendererIssue(data.meta.renderer) === null;
+    return { ...result, status: 'PASS', data, startedAt: record.startedAt, finishedAt: record.finishedAt,
+      validationContract: {
+        schema: 'merge-check-v1', hardware, fullLocalSources: fullSources, fullPublicHttpSources: fullSources,
+        manifestSha256: data.localSourceHashes?.manifestSha256 ?? null,
+        productFileCount: fullSources ? Object.keys(data.localSourceHashes.files).length : 0,
+        publicFileCount: Object.keys(data.sourceHashes).length,
+        renderer: data.meta.renderer, softwareRequested: data.environment.softwareRequested,
+      }, dependencies: [spec.file, spec.logRecord, spec.log],
       sourceCoverage: { verified: Object.keys(data.sourceHashes),
         notServedHashed: [...sourceFiles.keys()].filter(file => !Object.hasOwn(data.sourceHashes, file.replace(/^public\//, ''))) },
       warnings: data.diagnostics.warnings || [] };
@@ -400,7 +426,8 @@ catch (error) {
     definitions, rows: [], adaptive: [], jobs: [], comparisons: [], inputs: [...inputs.values()],
     excluded: [{ phase: 'preflight', status: 'INVALID', reason: error.message }] };
 }
-await fs.mkdir(options.output, { recursive: true });
+await fs.mkdir(path.dirname(options.output), { recursive: true });
+await fs.mkdir(options.output); // A prior summary is evidence too; never replace it.
 for (const name of ['summary.json', 'summary.md'])
   assert.ok(!inputs.has(path.join(options.output, name)), `요약 출력으로 원본 입력을 덮어쓸 수 없어: ${name}`);
 await fs.writeFile(path.join(options.output, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');

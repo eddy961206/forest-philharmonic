@@ -1,0 +1,40 @@
+name: Regression tests
+
+on:
+  push:
+    branches: [main, 'perf/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: '${{ matrix.os }} / Node ${{ matrix.node }}'
+    runs-on: '${{ matrix.os }}'
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 18
+          - os: ubuntu-latest
+            node: 22
+          - os: windows-latest
+            node: 22
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '${{ matrix.node }}'
+      - name: Product and collector contract tests
+        run: npm test
+      - name: Local benchmark plan and assessment tests
+        run: python -m unittest discover -s tools/bench/tests -p "test_*.py"

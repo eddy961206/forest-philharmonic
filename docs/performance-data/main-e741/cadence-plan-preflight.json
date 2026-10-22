@@ -1,8 +1,0 @@
-{
-  "status": "PLAN_ONLY_BEFORE_FIRST_EXECUTION",
-  "plan": "cadence-plan.json",
-  "beforeSha256": "303ff2e3df34da448ff52746842d01dd7bd57ce3365a8edb22a0ad1d1ef590c9",
-  "afterSha256": "fca60f6c0519ee0d86d070a1637988bfee502ce54d47cf9a22c533922eeb3b92",
-  "change": "Each cadence scenario wall deadline 60000 → 120000ms; job cap remains 300s, heartbeat 20s, samples100 and warmup6 unchanged.",
-  "reason": "Historical software-rendered Sphere wide cadence near1.65Hz needs about61s for100intervals. Avoid a known-too-short60s scene deadline without changing the sample count. No latest cadence job had started and no result is replaced."
-}

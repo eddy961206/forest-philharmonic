@@ -1,19 +1,34 @@
 // Automatic quality uses real frame intervals, independently of the clamped
 // animation clock. Manual presets never call this controller.
 const LEVELS = ['low', 'medium', 'high'];
+const MIN_SCALE = 0.6;
+const SCALE_EPSILON = 1e-12;
 const round = (v) => Math.round(v * 100) / 100;
 
 export class AdaptiveQuality {
   constructor({ quality = 'high', scale = 1, minQuality = 'low', maxQuality = 'high', pixelRatios = {}, nowMs = 0 } = {}) {
     this.minLevel = LEVELS.indexOf(minQuality);
     this.maxLevel = LEVELS.indexOf(maxQuality);
-    this.pixelRatios = pixelRatios;
+    this.pixelRatios = Object.fromEntries(LEVELS.map(quality => {
+      const ratio = pixelRatios[quality];
+      return [quality, Number.isFinite(ratio) && ratio > 0 ? ratio : 1];
+    }));
+    // Preset DPRs need not increase with quality: low renders at a higher
+    // base DPR than medium. Carry the lowest permitted effective DPR from
+    // higher tiers into each lower tier, so a downgrade never adds pixels.
+    // With the venue's ratios, high/medium keep their 0.6 scale floor and
+    // low can reach 0.51: exactly medium's existing minimum resolution.
+    this.scaleFloors = Object.fromEntries(LEVELS.map((quality, level) => {
+      const upper = LEVELS.slice(level, Math.max(level, this.maxLevel) + 1);
+      const ratio = Math.min(...upper.map(name => this.pixelRatios[name]));
+      return [quality, MIN_SCALE * (ratio / this.pixelRatios[quality])];
+    }));
     this.reset(quality, scale, nowMs);
   }
 
   reset(quality = this.quality, scale = 1, nowMs = 0) {
     this.quality = quality;
-    this.scale = scale;
+    this.scale = Math.max(this.scaleFloors[quality], Math.min(1, Number.isFinite(scale) ? scale : 1));
     this.samples = [];
     this.clock = nowMs;
     this.raisedAt = -Infinity;
@@ -63,14 +78,15 @@ export class AdaptiveQuality {
     this.fast = cost < fastLimit ? Math.min(5, this.fast + 1) : 0;
     let level = LEVELS.indexOf(this.quality);
     let scale = this.scale;
+    const floor = this.scaleFloors[this.quality];
     let reason;
     if (this.slow >= 2) {
       reason = 'load';
       // In a piece prefer changing pixel work; a material/preset rebuild is
       // allowed only between pieces, or below the upstream emergency 26 FPS.
       const canDropPreset = allowPresetChange || cost > 1000 / 26;
-      if (level > this.minLevel && (cost > 80 || scale <= 0.6) && canDropPreset) level--;
-      else if (scale > 0.6) scale = Math.max(0.6, round(scale - (cost > 50 ? 0.2 : 0.1)));
+      if (level > this.minLevel && (cost > 80 || scale <= floor + SCALE_EPSILON) && canDropPreset) level--;
+      else if (scale > floor) scale = Math.max(floor, round(scale - (cost > 50 ? 0.2 : 0.1)));
     } else if (this.fast >= 5 && allowRecovery && !this.raiseBlocked) {
       reason = 'recovery';
       if (scale < 1) scale = Math.min(1, round(scale + 0.1));
@@ -79,13 +95,18 @@ export class AdaptiveQuality {
     const quality = LEVELS[level];
     if (quality === this.quality && scale === this.scale) return null;
     if (quality !== this.quality) {
-      const previousRatio = this.pixelRatios[this.quality] || 1;
-      const nextRatio = this.pixelRatios[quality] || 1;
+      const previousRatio = this.pixelRatios[this.quality];
+      const nextRatio = this.pixelRatios[quality];
       // Changing a preset must not unexpectedly increase pixel work during
       // a downgrade. Recovery probes one tier at a time at the current DPR.
       const rescaled = this.scale * previousRatio / nextRatio;
-      const quantized = reason === 'load' ? Math.floor(rescaled * 100) / 100 : round(rescaled);
-      scale = Math.max(0.6, Math.min(1, quantized));
+      const nextFloor = this.scaleFloors[quality];
+      // An unusually large DPR gap can make a recovery impossible within
+      // the next tier's bounds. Keep the current tier instead of reallocating
+      // a larger target at the same moment as the more expensive preset.
+      if (rescaled + SCALE_EPSILON < nextFloor) return null;
+      const quantized = Math.floor(rescaled * 100) / 100;
+      scale = Math.max(nextFloor, Math.min(1, quantized));
     }
     // A probe that cannot hold its resolution/preset should not keep trying
     // the same upgrade every quiet passage. A manual choice resets this lock.

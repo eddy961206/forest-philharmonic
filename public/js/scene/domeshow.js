@@ -738,9 +738,16 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
   const _p = new THREE.Vector3();
   const C = new THREE.Vector3(SP.C.x, SP.C.y, SP.C.z);
   const VIEW = new THREE.Vector3(SP.VIEW.x, SP.VIEW.y, SP.VIEW.z);
+  const faceCache = new WeakMap();
   function facesSeen(cam) {
-    let mask = 0;
     cam.updateMatrixWorld();
+    let cached = faceCache.get(cam);
+    // A seated viewer often keeps the same view for an entire piece. Only
+    // reuse its visibility mask when every ray input is exactly unchanged;
+    // the worlds themselves still render at their normal animated cadence.
+    if (cached && cached.world.equals(cam.matrixWorld) && cached.projection.equals(cam.projectionMatrixInverse)
+        && cached.radius === SP.R && cached.edgeK === SP.EDGE.k && cached.edgeD === SP.EDGE.d) return cached.mask;
+    let mask = 0;
     _o.setFromMatrixPosition(cam.matrixWorld);
     const ox = _o.x - C.x;
     const oy = _o.y - C.y;
@@ -766,6 +773,16 @@ export function buildDome({ lite = false, renderer = null, quality = 'high' } = 
         if (az >= lim) mask |= _p.z > 0 ? 16 : 32;
       }
     }
+    if (!cached) {
+      cached = { world: new THREE.Matrix4(), projection: new THREE.Matrix4() };
+      faceCache.set(cam, cached);
+    }
+    cached.world.copy(cam.matrixWorld);
+    cached.projection.copy(cam.projectionMatrixInverse);
+    cached.radius = SP.R;
+    cached.edgeK = SP.EDGE.k;
+    cached.edgeD = SP.EDGE.d;
+    cached.mask = mask;
     return mask;
   }
   function faceMask() {

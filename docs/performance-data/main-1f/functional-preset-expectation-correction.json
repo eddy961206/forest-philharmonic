@@ -1,8 +1,0 @@
-{
-  "time": "2026-10-21T10:50:57.438944+00:00",
-  "originalCollectorSha256": "4583ac3b0118412c2c86eaa52b252a03df9605f3ad039f9df38a70da6ac31921",
-  "reason": "Static follow-up found functional preset assertion still expects previous main high cap2/medium fullDPR. Latest main1f uses cap1.5/medium*.85. Correct only expected preset values; do not change product or render behavior.",
-  "runningBatch": "runtime jobs4..8",
-  "firstProcessAlreadyLoadedOriginal": true,
-  "preservation": "Keep first original collector, failure and recorded SHA; later processes use corrected collector and own recorded SHA. Rerun any failed old-expectation case in a new result folder."
-}
