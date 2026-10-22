@@ -17,7 +17,8 @@
 // choir has a width and the shimmer of many players.
 
 import { SECTIONS, sectionCenter, sectionFacing, PODIUM } from '../layout.js';
-import { renderApplause, renderMurmur, renderNoise } from './crowd.js';
+import { renderHouse } from './crowd.js';
+import { prepareCrowd } from './crowd-loader.js';
 
 const FAMILY = {
   violin: 'strings', viola: 'strings', cello: 'strings', contrabass: 'strings', strings: 'strings',
@@ -64,13 +65,26 @@ export class AudioEngine {
     this.tickHandlers = new Set();
     this.listenerMode = 'camera';
     this.volume = 0.8;
+    this._listenerPose = null;
+    this._spatialDirty = false;
+    this._crowd = null;
+    this._crowdPreparation = null;
+    this._house = null;
     this.failed = [];
   }
 
   // lite: phones - a lower sample rate, shorter samples, cheaper panning
   // acoustics: the room (a venue other than the hall passes its own)
   async init({ lite = false, acoustics = null } = {}) {
+    this._crowdPreparation?.cancel();
+    this._crowdPreparation = null;
+    this._crowd = null;
+    this._house?.dispose();
+    this._house = null;
     this.lite = lite;
+    this._lp = null;
+    this._listenerPose = null;
+    this._spatialDirty = false;
     this.ac = { rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15, airMin: 3800, airK: 0.055, reverb: 1, level: 1, model: 'inverse', er: 'hall', dark: 1, erLevel: 0.5, spread: 1, ...(acoustics || {}) };
     if (this.ac.room && ROOMS[this.ac.room]) Object.assign(this.ac, ROOMS[this.ac.room]);
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -208,9 +222,16 @@ export class AudioEngine {
     const out = this.ctx.createBuffer(1, keep, sr);
     const o = out.getChannelData(0);
     const n = buf.numberOfChannels;
-    for (let c = 0; c < n; c++) {
-      const d = buf.getChannelData(c);
-      for (let i = 0; i < keep; i++) o[i] += d[i] / n;
+    if (n === 2) {
+      const left = buf.getChannelData(0), right = buf.getChannelData(1);
+      // Preserve the old channel-by-channel Float32 rounding, including +0.
+      // One pass avoids loading/storing the output again for the second channel.
+      for (let i = 0; i < keep; i++) o[i] = Math.fround(0 + left[i] / 2) + right[i] / 2;
+    } else {
+      for (let c = 0; c < n; c++) {
+        const d = buf.getChannelData(c);
+        for (let i = 0; i < keep; i++) o[i] += d[i] / n;
+      }
     }
     if (keep < buf.length) {
       const f = Math.floor(0.25 * sr);
@@ -246,36 +267,57 @@ export class AudioEngine {
     this._lp = L.positionX
       ? { px: L.positionX, py: L.positionY, pz: L.positionZ, fx: L.forwardX, fy: L.forwardY, fz: L.forwardZ, ux: L.upX, uy: L.upY, uz: L.upZ }
       : null;
+    // init can yield while the room impulse is being built. Rebind and
+    // invalidate any pose sent before the section filters were created.
+    this._listenerPose = null;
+    this._spatialDirty = false;
   }
 
   // pos/forward/up are plain {x,y,z}
   setListener(pos, fwd, up) {
+    if (!this.ctx) return;
+    const last = this._listenerPose;
+    const moved = !last || pos.x !== last.px || pos.y !== last.py || pos.z !== last.pz;
+    const turned = !last || fwd.x !== last.fx || fwd.y !== last.fy || fwd.z !== last.fz
+      || up.x !== last.ux || up.y !== last.uy || up.z !== last.uz;
+    // A stationary ear already has the right automation targets. Let the
+    // existing curves finish instead of scheduling the same targets at 60 Hz.
+    // Exact equality preserves every real movement, however small.
+    if (!moved && !turned && !this._spatialDirty) return;
     const t = this.ctx.currentTime;
     const k = 0.04;
     if (this._lp) {
       const p = this._lp;
-      p.px.setTargetAtTime(pos.x, t, k); p.py.setTargetAtTime(pos.y, t, k); p.pz.setTargetAtTime(pos.z, t, k);
-      p.fx.setTargetAtTime(fwd.x, t, k); p.fy.setTargetAtTime(fwd.y, t, k); p.fz.setTargetAtTime(fwd.z, t, k);
-      p.ux.setTargetAtTime(up.x, t, k); p.uy.setTargetAtTime(up.y, t, k); p.uz.setTargetAtTime(up.z, t, k);
+      if (moved) {
+        p.px.setTargetAtTime(pos.x, t, k); p.py.setTargetAtTime(pos.y, t, k); p.pz.setTargetAtTime(pos.z, t, k);
+      }
+      if (turned) {
+        p.fx.setTargetAtTime(fwd.x, t, k); p.fy.setTargetAtTime(fwd.y, t, k); p.fz.setTargetAtTime(fwd.z, t, k);
+        p.ux.setTargetAtTime(up.x, t, k); p.uy.setTargetAtTime(up.y, t, k); p.uz.setTargetAtTime(up.z, t, k);
+      }
     } else {
-      this.ctx.listener.setPosition(pos.x, pos.y, pos.z);
-      this.ctx.listener.setOrientation(fwd.x, fwd.y, fwd.z, up.x, up.y, up.z);
+      if (moved) this.ctx.listener.setPosition(pos.x, pos.y, pos.z);
+      if (turned) this.ctx.listener.setOrientation(fwd.x, fwd.y, fwd.z, up.x, up.y, up.z);
     }
-    // Air absorption: high frequencies fall off with distance (~ ISO 9613 trend)
+    // Air absorption and desk gains depend on position; desk stereo pans
+    // also depend on head orientation. Keep the latter live on a pure turn.
+    // A foyer source can move while the listener stays seated.
+    const distancesChanged = moved || this._spatialDirty;
+    const rx = fwd.y * up.z - fwd.z * up.y;
+    const ry = fwd.z * up.x - fwd.x * up.z;
+    const rz = fwd.x * up.y - fwd.y * up.x;
+    const rl = Math.hypot(rx, ry, rz) || 1;
     for (const s of Object.values(this.sections)) {
-      const dx = s.pos.x - pos.x;
-      const dy = s.pos.y - pos.y;
-      const dz = s.pos.z - pos.z;
-      const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
-      s.distance = d;
-      const cutoff = Math.max(this.ac.airMin, 21000 / (1 + d * this.ac.airK));
-      s.air.frequency.setTargetAtTime(this._hz(cutoff), t, 0.08);
+      if (distancesChanged) {
+        const dx = s.pos.x - pos.x;
+        const dy = s.pos.y - pos.y;
+        const dz = s.pos.z - pos.z;
+        const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        s.distance = d;
+        const cutoff = Math.max(this.ac.airMin, 21000 / (1 + d * this.ac.airK));
+        s.air.frequency.setTargetAtTime(this._hz(cutoff), t, 0.08);
+      }
       if (s.desks?.length) {
-        // the listener's right: forward x up
-        const rx = fwd.y * up.z - fwd.z * up.y;
-        const ry = fwd.z * up.x - fwd.x * up.z;
-        const rz = fwd.x * up.y - fwd.y * up.x;
-        const rl = Math.hypot(rx, ry, rz) || 1;
         for (const dk of s.desks) {
           const vx = dk.pos.x - pos.x;
           const vy = dk.pos.y - pos.y;
@@ -283,10 +325,15 @@ export class AudioEngine {
           const dd = Math.hypot(vx, vy, vz) || 1;
           const side = (vx * rx + vy * ry + vz * rz) / (rl * dd);
           dk.pan.pan.setTargetAtTime(clamp(side * 1.1, -1, 1), t, 0.06);
-          dk.g.gain.setTargetAtTime(dk.level * this._distGain(dd), t, 0.06);
+          if (distancesChanged) dk.g.gain.setTargetAtTime(dk.level * this._distGain(dd), t, 0.06);
         }
       }
     }
+    this._spatialDirty = false;
+    const next = last || (this._listenerPose = {});
+    next.px = pos.x; next.py = pos.y; next.pz = pos.z;
+    next.fx = fwd.x; next.fy = fwd.y; next.fz = fwd.z;
+    next.ux = up.x; next.uy = up.y; next.uz = up.z;
   }
 
   // the panners' distance law, for the desks (see _panner)
@@ -398,13 +445,16 @@ export class AudioEngine {
     focus.connect(air).connect(panner).connect(lp).connect(g).connect(this.makeup);
     focus.connect(send).connect(this.reverbIn);
     this.sections[id] = { id, input, focus, air, panner, send, pos: { ...pos }, distance: 10, spot: { lp, g } };
+    this._spatialDirty = true;
     this._spotRoom(this.sections[id], this._open, 0);
   }
 
   moveSpot(id, pos) {
     const s = this.sections[id];
     if (!s) return;
+    if (s.pos.x === pos.x && s.pos.y === pos.y && s.pos.z === pos.z) return;
     s.pos = { ...pos };
+    this._spatialDirty = true;
     const t = this.ctx.currentTime;
     s.panner.positionX.setValueAtTime(pos.x, t);
     s.panner.positionY.setValueAtTime(pos.y, t);
@@ -722,20 +772,32 @@ export class AudioEngine {
   // ------------------------------------------------------------ applause
   _prepareCrowd() {
     if (this._crowd) return;
-    const ctx = this.ctx;
-    const sr = this.lite ? 16000 : 24000;
-    const wash = this.lite ? 200 : 320;
-    this._crowd = {
-      welcome: renderApplause(ctx, { seconds: 5.5, people: wash, seed: 11, sr }),
-      normal: [renderApplause(ctx, { seconds: 10, people: wash, seed: 21, sr }), renderApplause(ctx, { seconds: 10, people: wash, seed: 22, sr })],
-      finale: renderApplause(ctx, { seconds: 15, people: wash, seed: 31, rhythmic: true, sr }),
-    };
+    this.prepareApplause();
+    // Direct callers keep the old synchronous guarantee even if preparation
+    // has not finished. Stop the worker before completing any missing profiles.
+    const crowd = this._crowdPreparation.finishSync();
+    this._prepareMurmur(crowd.house);
+    this._crowd = crowd;
   }
 
-  // Pre-render the crowd once (a few hundred milliseconds at load)
+  // Start alongside sample loading; await before enabling the concert UI.
+  // Concurrent and subsequent calls share one promise per AudioContext.
   prepareApplause() {
-    this._prepareCrowd();
-    this._prepareMurmur();
+    if (!this._crowdPreparation) {
+      const house = this._house && { bed: this._house.source.buffer, shots: this._house.shots };
+      const preparation = this._crowdPreparation = prepareCrowd(this.ctx, { lite: this.lite, house });
+      // UI readiness awaits this promise: both applause and the house PCM are
+      // complete before entry. Only Web Audio graph wiring stays on this thread.
+      preparation.promise = preparation.promise.then(crowd => {
+        if (this._crowdPreparation === preparation && crowd) {
+          this._prepareMurmur(crowd.house);
+          this._crowd = crowd;
+        }
+        return crowd;
+      });
+      preparation.promise.catch(() => { /* awaiting callers handle preparation errors */ });
+    }
+    return this._crowdPreparation.promise;
   }
 
   // intensity < 0.8: a short welcome; >= 1.2: the finale with rhythmic
@@ -788,13 +850,10 @@ export class AudioEngine {
   // comes on, silent while the music plays); people: how many are in.
   // Through the master (volume, mute) and the room's reverb; it bypasses the
   // hall's walls (the foyer talks too).
-  _prepareMurmur() {
+  _prepareMurmur(prepared = null) {
     if (this._house) return;
     const ctx = this.ctx;
-    const sr = 16000;
-    const bed = renderMurmur(ctx, { seconds: 9, talkers: this.lite ? 18 : 30, seed: 5, sr });
-    const shots = [];
-    ['cough', 'cough', 'cough', 'creak', 'creak', 'rustle', 'rustle', 'rustle'].forEach((k, i) => shots.push({ kind: k, buf: renderNoise(ctx, k, { seed: 40 + i, sr }) }));
+    const { bed, shots } = prepared || this._crowdPreparation?.finishHouseSync() || renderHouse(ctx, { lite: this.lite });
     const out = ctx.createGain();
     out.gain.value = 0;
     const dry = new GainNode(ctx, { gain: 0.55 });
@@ -809,14 +868,21 @@ export class AudioEngine {
     const bedG = new GainNode(ctx, { gain: 1 });
     src.connect(bedG).connect(out);
     src.start(ctx.currentTime + 0.05, Math.random() * 8);
-    this._house = { out, shots, level: 0, people: 0, target: -1 };
-    this.onTick(() => this._houseTick());
+    const house = this._house = { out, shots, source: src, level: 0, people: 0, target: -1 };
+    const untick = this.onTick(() => this._houseTick());
     // a background tab draws no frames (nobody calls setMurmur): fade it here
-    document.addEventListener('visibilitychange', () => {
-      const H = this._house;
-      if (document.hidden) H.out.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3);
-      H.target = -1; // re-applied on the next frame
-    });
+    const onVisibility = () => {
+      if (this._house !== house) return;
+      if (document.hidden) house.out.gain.setTargetAtTime(0, ctx.currentTime, 0.3);
+      house.target = -1; // re-applied on the next frame
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    house.dispose = () => {
+      untick();
+      document.removeEventListener('visibilitychange', onVisibility);
+      try { src.stop(); } catch { /* the context may already be closed */ }
+      for (const node of [src, bedG, out, hp, dry, wet]) node.disconnect();
+    };
   }
 
   setMurmur(level, people = 0) {

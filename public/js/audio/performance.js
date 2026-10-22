@@ -285,6 +285,9 @@ export class Performance {
     for (const [id, s] of Object.entries(SECTIONS)) {
       this.chairs[id] = s.chairs.map(() => ({ active: [], strokes: 0, lastOn: -99, lastDur: 0, lastMidi: 60, lastVel: 64, nextOn: 99999, playing: false, energy: 0 }));
     }
+    // Rebuild only on load/seek. Frame updates can visit every chair without
+    // allocating another list of sections, including when no notes sound.
+    this._visualChairs = Object.values(this.chairs).flat();
     for (const tr of this.piece.tracks) {
       let lo = 0;
       let hi = tr.count;
@@ -331,15 +334,25 @@ export class Performance {
         if (st) st._next = Math.min(st._next ?? 99999, nextOn);
       }
     }
-    for (const list of Object.values(this.chairs)) {
-      for (const st of list) {
-        st.active = st.active.filter((a) => a.off > t);
-        st.playing = st.active.length > 0;
-        st.nextOn = st._next ?? 99999;
-        st._next = undefined;
-        const target = st.playing ? Math.max(...st.active.map((a) => a.vel)) / 127 : 0;
-        st.energy += (target - st.energy) * 0.12;
+    for (const st of this._visualChairs) {
+      // Compact in the original order so overlapping keys/harp strings and
+      // particle events keep their timing, without filter/map arrays each frame.
+      const active = st.active;
+      let count = 0;
+      let peak = -Infinity;
+      for (let i = 0; i < active.length; i++) {
+        const note = active[i];
+        if (note.off > t) {
+          active[count++] = note;
+          peak = Math.max(peak, note.vel);
+        }
       }
+      active.length = count;
+      st.playing = count > 0;
+      st.nextOn = st._next ?? 99999;
+      st._next = undefined;
+      const target = st.playing ? peak / 127 : 0;
+      st.energy += (target - st.energy) * 0.12;
     }
     return out;
   }

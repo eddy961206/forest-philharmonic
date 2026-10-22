@@ -325,3 +325,26 @@ export function renderNoise(ctx, kind, { seed = 1, sr = 16000 } = {}) {
   for (let i = 0; i < out.length; i++) o[i] = (out[i] / (pk || 1)) * 0.8;
   return buf;
 }
+
+// Fixed house preparation used by both the owning thread and its worker. The
+// synthesizers above stay unchanged: only their execution location differs.
+const HOUSE_RATE = 16000;
+const HOUSE_SHOTS = ['cough', 'cough', 'cough', 'creak', 'creak', 'rustle', 'rustle', 'rustle'];
+
+export function houseBufferLayout() {
+  return [
+    { numberOfChannels: 2, length: 9 * HOUSE_RATE, sampleRate: HOUSE_RATE },
+    ...HOUSE_SHOTS.map((kind, i) => {
+      // renderNoise consumes its first seeded value to choose these lengths.
+      const first = rng(40 + i)();
+      const seconds = kind === 'cough' ? 0.6 : kind === 'creak' ? 0.3 + first * 0.35 : 0.35 + first * 0.5;
+      return { kind, numberOfChannels: 1, length: Math.floor(seconds * HOUSE_RATE), sampleRate: HOUSE_RATE };
+    }),
+  ];
+}
+
+export function renderHouse(ctx, { lite = false } = {}) {
+  const bed = renderMurmur(ctx, { seconds: 9, talkers: lite ? 18 : 30, seed: 5, sr: HOUSE_RATE });
+  const shots = HOUSE_SHOTS.map((kind, i) => ({ kind, buf: renderNoise(ctx, kind, { seed: 40 + i, sr: HOUSE_RATE }) }));
+  return { bed, shots };
+}

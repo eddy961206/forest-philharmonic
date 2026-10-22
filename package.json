@@ -9,6 +9,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "test": "node tools/test.mjs",
     "start": "node server.js",
     "dev": "node --watch server.js",
     "build:music": "python3 tools/build_music.py --fetch",

@@ -24,7 +24,10 @@ const DEG = Math.PI / 180;
 
 // ----------------------------------------------------------------- helpers
 const clean = (g) => {
-  const n = g.index ? g.toNonIndexed() : g;
+  // Keep shared vertices on indexed primitives; expanding every triangle
+  // tripled static geometry uploads without changing the rendered surface.
+  const n = g;
+  if (!n.index) n.setIndex(Array.from({ length: n.attributes.position.count }, (_, i) => i));
   for (const k of Object.keys(n.attributes)) if (!['position', 'normal', 'uv'].includes(k)) n.deleteAttribute(k);
   if (!n.attributes.uv) n.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(n.attributes.position.count * 2), 2));
   return n;
@@ -266,6 +269,7 @@ export function buildHall({ quality = 'high', lite = false } = {}) {
     group,
     seats,
     seatMesh: seatData.pick,
+    prepareRender: seatData.prepareRender,
     seatGroup: seatData.group,
     lights,
     setHouseLights(v) { houseTarget = v; },

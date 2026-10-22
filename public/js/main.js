@@ -33,6 +33,7 @@ import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf, josa } from './even
 import { Practice, SeatThief, noticeLines, buildNoticeBoard } from './scene/lobby.js';
 import { buildRecital } from './scene/recital.js';
 import { Avatars, AVATARS } from './scene/avatars.js';
+import { AdaptiveQuality } from './quality.js';
 
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
@@ -62,6 +63,7 @@ const QUALITY = {
   // only every ~1.5 s at a small size
   low: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenEvery: 90, post: false },
 };
+if (settings.quality !== 'auto' && !Object.hasOwn(QUALITY, settings.quality)) settings.quality = 'auto';
 // A computer's built-in graphics (most laptops, and desktops without a card
 // in use): automatic quality starts one step down and climbs if it can
 const weakGPU = (() => {
@@ -79,13 +81,18 @@ let quality = settings.quality === 'auto' ? autoStart() : settings.quality;
 // fewer lights, plain materials, lighter audio. Decided once at load.
 const LITE = isMobile || quality === 'low';
 let renderScale = 1; // phones: lowered further while the frame rate is poor
-// automatic quality (see autoQuality)
-const AUTO_TOP = isMobile ? 'low' : 'high';
-let lowStreak = 0;
-let goodStreak = 0;
-let qualityHold = 0;
-let raisedAt = -1e9;
-let raiseBlocked = false;
+const adaptiveQuality = new AdaptiveQuality({
+  quality,
+  // The safe lightweight build can recover resolution and post effects.
+  // It does not rebuild thousands of models during an ongoing performance.
+  maxQuality: LITE ? 'medium' : 'high',
+  // A full build keeps its materials: an automatic medium-to-low rebuild
+  // can stall the same device that needs help. Low/Lite remains an entry path.
+  minQuality: LITE ? 'low' : 'medium',
+  pixelRatios: Object.fromEntries(Object.entries(QUALITY).map(([k, q]) => [k, q.pr])),
+  nowMs: performance.now(),
+});
+let qualityHold = 0; // real-time deadline, also respected by the FPS debug hook
 let interiorShown = true; // the house, seen from the foyer (see interiorCull)
 
 // --------------------------------------------------------------- render
@@ -95,6 +102,11 @@ renderer.setPixelRatio(QUALITY[quality].pr);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = QUALITY[quality].shadows;
 renderer.shadowMap.type = THREE.PCFShadowMap;
+// The broadcast and the viewer share the same lights and animated scene.
+// Refresh their shadow maps once per animation frame, not once per camera.
+renderer.shadowMap.autoUpdate = false;
+// Count the whole frame, including the dome, broadcast, shadows and post FX.
+renderer.info.autoReset = false;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -109,7 +121,10 @@ scene.fog = IS_SPHERE ? new THREE.FogExp2('#06070b', 0.0028) : new THREE.FogExp2
 const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, 0.1, 260); // near 0.1: better depth precision, no flicker
 
 const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+const environmentRoom = new RoomEnvironment();
+scene.environment = pmrem.fromScene(environmentRoom, 0.04).texture;
+environmentRoom.dispose();
+pmrem.dispose();
 // (the Sphere is a black room: the bright studio reflections would glow)
 scene.environmentIntensity = IS_SPHERE ? 0.05 : 0.2;
 
@@ -117,7 +132,7 @@ let composer;
 let bloomPass;
 function buildComposer() {
   const q = QUALITY[quality];
-  if (composer) { composer.passes.forEach((p) => p.dispose?.()); composer.renderTarget1?.dispose(); composer.renderTarget2?.dispose(); }
+  if (composer) { composer.passes.forEach((p) => p.dispose?.()); composer.dispose(); }
   if (!q.post) { composer = null; return; } // render straight to the screen
   const size = renderer.getDrawingBufferSize(new THREE.Vector2());
   const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: q.msaa });
@@ -146,6 +161,9 @@ ui.setLoading('공연장을 짓는 중', 0.03);
 
 const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE, renderer }) : buildHall({ quality, lite: LITE });
 scene.add(hall.group);
+// Both the broadcast and visitor cameras select batches after their world
+// matrices are current, before Three.js builds the render list.
+scene.onBeforeRender = (_renderer, _scene, view) => hall.prepareRender?.(view);
 const orchestra = buildOrchestra(scene);
 const stage = new StageManager(orchestra);
 const spot = new Spotlight(hall.lights, scene); // a recital: the key light gathers on the soloist
@@ -231,13 +249,12 @@ if (IS_SPHERE) {
   // the 3D worlds are drawn only where these cameras can see the dome
   // (the broadcast cuts between shots of the stage: its faces are fixed -
   // everything but behind the house and under the floor)
-  hall.dome.setViewers([{ cam: camera }, { faces: 1 | 2 | 4 | 32, when: () => hall.dome.liveActive }]);
+  hall.dome.setViewers([{ cam: camera }, { faces: 1 | 2 | 4 | 32, when: () => settings.screen && concertStarted && hall.dome.liveActive }]);
 }
 director = new Director(camera, renderer.domElement, hall);
 director.uiTop = () => ui.bottomUiTop();
 director.hoverLook = false; // look by dragging, or click to capture the mouse
 seatAudience();
-buildComposer();
 applyQuality();
 
 // where the ear sits while the camera roams (cinema): 1층 H열, or the
@@ -260,6 +277,7 @@ let showStarted = false; // the musicians have been called
 let muted = false;
 let focused = null;
 let wakeLock = null;
+let wakeLockPending = false;
 let phase = 'lobby'; // lobby | entering | tuning | announce | playing | applause | intermission | leaving
 let phaseUntil = 0;
 let nextPiece = null;
@@ -290,6 +308,7 @@ async function boot() {
   if (!program.length) program = all;
   eveningLen = program.length;
   ui.setProgram(program);
+  const applauseReady = engine.prepareApplause();
   await engine.loadSamples('samples', (done, total) => {
     ui.setLoading(`악기를 조율하는 중  ${done} / ${total}`, 0.08 + 0.85 * (done / total));
   }).then((r) => {
@@ -297,7 +316,7 @@ async function boot() {
   });
   ui.setLoading('객석을 채우는 중', 0.95);
   await new Promise((r) => setTimeout(r, 30));
-  engine.prepareApplause();
+  await applauseReady;
   current = 0;
   const piece = await perf.load(program[0].id);
   ui.setCurrent(0, piece);
@@ -1328,6 +1347,9 @@ setInterval(() => {
 function goToSleep(gen = sleepGen) {
   if (asleep || sleepAt || gen !== sleepGen) return;
   asleep = true;
+  cancelFrame();
+  holdQuality(6000);
+  screenActive = false;
   ui.sleep(true);
   try { engine.ctx.suspend(); } catch { /* fine */ }
   try { wakeLock?.release(); } catch { /* fine */ }
@@ -1344,7 +1366,10 @@ function wake() {
   requestWakeLock();
   holdQuality(6000);
   lastNow = performance.now();
-  requestAnimationFrame(frame);
+  fpsAcc = 0;
+  fpsFrames = 0;
+  screenActive = false;
+  requestFrame();
 }
 for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => { if (asleep) wake(); }, true);
 
@@ -1375,8 +1400,9 @@ function onSetting(key, value) {
   if (key === 'volume') { muted = false; ui.setMuted(false); engine.setVolume(value); }
   if (key === 'reverb') engine.setReverb(value);
   if (key === 'quality') {
-    quality = value === 'auto' ? autoStart() : value;
+    quality = value === 'auto' ? (LITE ? 'low' : autoStart()) : value;
     renderScale = 1;
+    adaptiveQuality.reset(quality, renderScale, performance.now());
     applyQuality();
   }
   if (key === 'fireflies') effects.setCounts(value);
@@ -1405,8 +1431,8 @@ function applyQuality() {
   hall.lights.key.shadow.mapSize.set(q.shadowSize, q.shadowSize);
   hall.dome?.setQuality(quality);
   scene.traverse((o) => { if (o.material) { const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach((m) => { m.needsUpdate = true; }); } });
-  onResize();
   buildComposer();
+  onResize();
   effects.setCounts(settings.fireflies);
 }
 
@@ -1949,12 +1975,30 @@ function updateMediaSession(piece) {
 }
 
 async function requestWakeLock() {
+  if (asleep || document.hidden || !concertStarted || wakeLockPending) return;
   try {
-    if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+    if ('wakeLock' in navigator && (!wakeLock || wakeLock.released)) {
+      wakeLockPending = true;
+      const lock = await navigator.wakeLock.request('screen');
+      // The request can settle after a sleep/visibility transition.
+      if (asleep || document.hidden) await lock.release();
+      else wakeLock = lock;
+    }
   } catch { /* denied or unsupported */ }
+  finally { wakeLockPending = false; }
 }
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && concertStarted && (!wakeLock || wakeLock.released)) requestWakeLock();
+  // Background-tab time is not a slow rendered frame. Audio keeps its own clock.
+  lastNow = performance.now();
+  fpsAcc = 0;
+  fpsFrames = 0;
+  holdQuality(6000);
+  screenActive = false;
+  if (document.hidden) cancelFrame();
+  else if (!asleep) {
+    requestFrame();
+    requestWakeLock();
+  }
 });
 
 // ------------------------------------------------------------- resize
@@ -2039,12 +2083,25 @@ let fpsFrames = 0;
 let levelSmoothed = 0;
 const levelBuf = new Uint8Array(512);
 let introT = 0;
+let screenActive = false;
+let pendingFrame = null;
+const frameStats = { frameMs: 0, submitMs: 0, fps: 0, calls: 0, triangles: 0, quality, renderScale };
 
+function requestFrame() {
+  if (pendingFrame === null && !asleep && !document.hidden) pendingFrame = requestAnimationFrame(frame);
+}
+function cancelFrame() {
+  if (pendingFrame !== null) cancelAnimationFrame(pendingFrame);
+  pendingFrame = null;
+}
 function frame() {
-  if (asleep) return; // (woken by a touch: see wake)
+  pendingFrame = null;
+  if (asleep || document.hidden) return; // wake/visibility resumes a single chain
   const nowMs = performance.now();
-  const dt = Math.min(window.__fpMaxDt || 0.05, (nowMs - lastNow) / 1000);
+  const elapsed = Math.max(0, (nowMs - lastNow) / 1000);
+  const dt = Math.min(window.__fpMaxDt || 0.05, elapsed);
   lastNow = nowMs;
+  renderer.info.reset();
   wallT += dt;
   const wall = wallT;
   const t = perf.time;
@@ -2104,30 +2161,45 @@ function frame() {
   if (fx) fx.update(dt, wall, levelSmoothed);
   if (!IS_SPHERE) interiorCull();
   audience?.updateLOD?.(camera.position);
-  hall.dome?.drawWorlds(); // (after the camera moved: only what it sees)
   hall.updateLOD?.(camera.position);
-  if (settings.screen && concertStarted) {
-    // (in the Sphere the picture is only filmed while it is on the dome)
-    // (the picture is filmed only while someone can see it: from the foyer
-    // it shows, at most, through a door)
-    const seen = IS_SPHERE ? hall.dome.liveActive : screenInView();
-    screen.update(dt, { perf, time: t, phase, nextPiece }, seen ? QUALITY[quality].screenEvery : 0);
-  }
-
+  hall.dome?.drawWorlds(); // after the camera moved: only what it sees
+  // Both cameras must see this frame's musician instance matrices.
   orchestra.syncLite();
+  renderer.shadowMap.needsUpdate = QUALITY[quality].shadows;
+  // Keep IMAG current through its fade-out, then stop rendering the unseen feed.
+  const wantsScreen = settings.screen && concertStarted && (IS_SPHERE ? hall.dome.liveActive : screenInView());
+  if (settings.screen && concertStarted) {
+    if (wantsScreen && !screenActive) screen.invalidate();
+    // Keep the broadcast shot clock in step while its picture is hidden.
+    // A zero cadence advances time without a scene render or camera update.
+    screen.update(dt, { perf, time: t, phase, nextPiece }, wantsScreen ? QUALITY[quality].screenEvery : 0);
+  }
+  screenActive = wantsScreen;
+
   if (composer) composer.render(dt);
   else renderer.render(scene, camera);
 
-  fpsAcc += dt;
+  frameStats.frameMs = elapsed * 1000;
+  // Wall time includes synchronous driver stalls; this is not CPU/GPU time.
+  frameStats.submitMs = performance.now() - nowMs;
+  frameStats.calls = renderer.info.render.calls;
+  frameStats.triangles = renderer.info.render.triangles;
+  frameStats.quality = quality;
+  frameStats.renderScale = renderScale;
+  if (settings.quality === 'auto' && concertStarted) {
+    sampleQuality(elapsed * 1000);
+  }
+  // Animation dt is clamped for stability; FPS must use real wall-clock time.
+  fpsAcc += elapsed;
   fpsFrames++;
   if (fpsAcc > 3) {
     const fps = fpsFrames / fpsAcc;
+    frameStats.fps = fps;
     ui.setFps(fps, quality);
-    if (settings.quality === 'auto' && concertStarted) autoQuality(fps);
     fpsAcc = 0;
     fpsFrames = 0;
   }
-  requestAnimationFrame(frame);
+  requestFrame();
 }
 
 // A background tab gets no frames, but the evening goes on (the music keeps
@@ -2149,45 +2221,58 @@ setInterval(() => {
 // on, the doors opening for the interval, new things to draw for the first
 // time) can stutter for a second or two: that is not judged (holdQuality).
 // A steady poor frame rate steps down; a long steady good one between pieces
-// steps back up again, once - if that one drops again, it stays down.
-function holdQuality(ms = 3500) { qualityHold = Math.max(qualityHold, performance.now() + ms); lowStreak = 0; goodStreak = 0; }
-function autoQuality(fps) {
+// steps back up - if a recovery fails, it stays down until a
+// manual choice. Even resolution recovery waits: target reallocations can hitch.
+function holdQuality(ms = 3500) {
+  if (!Number.isFinite(ms) || ms < 0) return;
   const now = performance.now();
-  if (now < qualityHold) { lowStreak = 0; goodStreak = 0; return; }
-  if (fps < 36) lowStreak++; else lowStreak = 0;
-  if (fps > 56) goodStreak++; else goodStreak = 0;
-  // Below 'high', fewer pixels rather than a lower setting: 'low' trades every
-  // material for a plainer one, and rebuilding them all freezes the picture
-  // for seconds on the very machine that is struggling. (Phones start low.)
-  if (quality !== 'high' && fps < 30 && renderScale > 0.6) {
-    renderScale *= 0.85;
+  qualityHold = Math.max(qualityHold, now + ms);
+  adaptiveQuality.hold(ms, now);
+}
+const walkingForQuality = (w) => w.state === 'queued' || w.state === 'walking';
+function sampleQuality(frameMs) {
+  if (settings.quality !== 'auto' || !concertStarted) return null;
+  // A long procession must not outlast a fixed 3.5 s grace period. Include
+  // interval departures and the conductor, even when the phase has settled.
+  if (hush > 0 || walkingForQuality(stage.conductor) || stage.walkers.some(walkingForQuality)) {
+    holdQuality();
+    return null;
+  }
+  const betweenPieces = phase !== 'playing' && !sleepy;
+  const change = adaptiveQuality.sample(frameMs, {
+    allowPresetChange: betweenPieces,
+    allowRecovery: betweenPieces,
+    nowMs: performance.now(),
+  });
+  if (!change) return null;
+  const presetChanged = quality !== change.quality;
+  quality = change.quality;
+  renderScale = change.scale;
+  if (presetChanged) applyQuality();
+  else {
     renderer.setPixelRatio(QUALITY[quality].pr * renderScale);
     onResize();
-    return;
   }
-  // (in the middle of a piece only when it is really poor; otherwise between pieces)
-  if (lowStreak >= 2 && quality === 'high' && (phase !== 'playing' || fps < 26)) {
-    if (now - raisedAt < 60000) raiseBlocked = true; // it could not hold the higher setting
-    quality = 'medium';
-    applyQuality();
-    ui.toast("부드럽게 보이도록 화질을 '보통'으로 낮췄어요.", 2600);
-    return;
-  }
-  // (steps up only between pieces: rebuilding the materials can hitch)
-  if (goodStreak < 5 || phase === 'playing' || raiseBlocked) return;
-  if (renderScale < 1) {
-    renderScale = Math.min(1, renderScale / 0.85);
-    renderer.setPixelRatio(QUALITY[quality].pr * renderScale);
-    onResize();
-    goodStreak = 0;
-  } else if (quality !== AUTO_TOP) {
-    quality = quality === 'low' ? 'medium' : 'high';
-    raisedAt = now;
-    applyQuality();
-  }
+  if (presetChanged) ui.toast(change.reason === 'recovery'
+    ? '여유가 생겨 화질을 한 단계 복구했어요.'
+    : '부드럽게 보이도록 화질을 조절했어요.', 2600);
+  return change;
+}
+// Debug hook retained from the evening flow: one FPS value represents a
+// three-second observation. Production feeds individual real frame intervals.
+function autoQuality(fps) {
+  if (!Number.isFinite(fps) || fps <= 0 || performance.now() < Math.max(qualityHold, adaptiveQuality.holdUntil)) return null;
+  const frameMs = 1000 / fps;
+  const frames = Math.ceil(3 * fps);
+  if (!Number.isSafeInteger(frames) || frames > 10000) return null;
+  let change = null;
+  for (let n = 0; n < frames; n++) change = sampleQuality(frameMs) || change;
+  return change;
 }
 
-// Is the big screen (the hall's) anywhere in the camera's view?
+// A feed hidden behind the visitor or the foyer wall needs no second scene
+// render. screenActive/invalidate refreshes it immediately on re-entry, even
+// at the low preset's 90-frame cadence. Never capture a foyer-culled house.
 const _screenBox = IS_SPHERE ? null : new THREE.Box3().setFromObject(screen.group);
 function screenInView() {
   if (!interiorShown) return false;
@@ -2222,7 +2307,7 @@ function interiorCull() {
   if (audience) audience.group.visible = show;
   if (hall.seatGroup) hall.seatGroup.visible = show;
 }
-requestAnimationFrame(frame);
+requestFrame();
 
 boot().catch((e) => {
   console.error(e);
@@ -2230,7 +2315,7 @@ boot().catch((e) => {
 });
 
 window.__fp = {
-  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
+  scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, stats: frameStats, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
   // (tests) the automatic quality, fed a frame rate by hand
@@ -2246,5 +2331,12 @@ window.__fp = {
     sendCmd({ c: 'interval', i: next, until: endsAt });
     until(() => !intervalState || clockNow() >= intervalState.until, tok, 1e9).then((ok) => { if (ok) { ritualNext = true; runConcert(next); } });
   },
-  get quality() { return quality; }, autoQuality, holdQuality, get qualityState() { return { lowStreak, goodStreak, raiseBlocked, renderScale, hold: Math.max(0, qualityHold - performance.now()) }; },
+  get quality() { return quality; }, autoQuality, holdQuality,
+  get qualityState() {
+    return {
+      lowStreak: adaptiveQuality.slow, goodStreak: adaptiveQuality.fast,
+      raiseBlocked: adaptiveQuality.raiseBlocked, renderScale,
+      hold: Math.max(0, Math.max(adaptiveQuality.holdUntil, qualityHold) - performance.now()),
+    };
+  },
 };

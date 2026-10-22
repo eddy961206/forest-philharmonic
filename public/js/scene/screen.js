@@ -57,9 +57,12 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
   const cam = new THREE.PerspectiveCamera(40, W / H, 0.1, 160);
   const state = { shot: null, t: 0, hold: 0, from: null, to: null, cutT: 0, lastKind: '' };
   let frame = 0;
+  let forceRender = true;
   let captionState = { text: null, since: -99, mode: 'none' };
   let lastCapKey = '';
-  let drawnKey = ''; // what the caption layer holds now (redrawn and re-sent only when that changes)
+  let lastCaptionDraw = null;
+  // A late web-font load still needs one repaint of an otherwise static title.
+  document.fonts?.addEventListener('loadingdone', () => { lastCaptionDraw = null; });
 
   function pickShot(ctx) {
     const { perf, time } = ctx;
@@ -119,13 +122,14 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
     const alpha = Math.min(1, age * 1.5) * (mode === 'title' ? Math.min(1, Math.max(0, (10 - ctx.time) / 1.2)) : 1);
     const slide = (1 - ease(Math.min(1, age * 1.4))) * 40;
     const blank = mode === 'none' || alpha <= 0;
-    const want = blank ? 'blank' : `${key}|${Math.round(alpha * 48)}|${Math.round(slide)}`;
-    if (want === drawnKey) return; // nothing new to show: no redraw, no upload
-    drawnKey = want;
-    cap.visible = !blank; // (an empty layer is not drawn at all)
+    // Keep fade and slide precision; only identical caption frames are cached.
+    const drawKey = blank ? '' : `${key}:${alpha}:${slide}`;
+    if (drawKey === lastCaptionDraw) return;
+    lastCaptionDraw = drawKey;
+    cap.visible = !blank;
     g.clearRect(0, 0, W, H);
-    // (sent once, cleared: the Sphere's dome reads this texture directly and
-    // would keep showing the last caption)
+    // The Sphere samples capTex directly, so hiding the hall mesh is not enough.
+    // Send the cleared texture once so the dome cannot retain a previous caption.
     if (blank) { capTex.needsUpdate = true; return; }
     g.globalAlpha = alpha;
     const vg = g.createLinearGradient(0, H * 0.62, 0, H);
@@ -166,9 +170,13 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
 
   return {
     group, cam, texture: rt.texture, capTex,
+    // A hidden feed may have been idle for an entire piece. Refresh before
+    // fading it back in instead of waiting up to 90 low-quality frames.
+    invalidate() { forceRender = true; },
     // every call advances the broadcast; renders every `every` frames
     update(dt, ctx, every = 2) {
       frame++;
+      const refresh = forceRender && every > 0;
       const now = performance.now() / 1000;
       state.t += dt;
       if (!state.shot || state.t > state.hold) {
@@ -182,29 +190,32 @@ export function buildScreen(scene, renderer, { lite = false, headless = false, b
         state.cutT = 0;
       }
       const s = state.shot;
-      const x = state.t / state.hold;
-      const pos = s.pos.clone().addScaledVector(s.drift, x);
-      if (!state.cut && state.from && state.t < 2.2) {
-        const k = ease(state.t / 2.2);
-        const fp = state.from.pos.clone().addScaledVector(state.from.drift, 1);
-        pos.lerpVectors(fp, pos, k);
-        cam.fov = state.from.fov + (s.fov - state.from.fov) * k;
-      } else cam.fov = s.fov;
-      cam.position.copy(pos);
-      cam.lookAt(s.look);
-      cam.updateProjectionMatrix();
-      // every 0: the picture is not shown anywhere - film nothing
-      if (every > 0 && frame % every === 0) {
+      if (every > 0 && (forceRender || frame % every === 0)) {
+        const x = state.t / state.hold;
+        const pos = s.pos.clone().addScaledVector(s.drift, x);
+        if (!state.cut && state.from && state.t < 2.2) {
+          const k = ease(state.t / 2.2);
+          const fp = state.from.pos.clone().addScaledVector(state.from.drift, 1);
+          pos.lerpVectors(fp, pos, k);
+          cam.fov = state.from.fov + (s.fov - state.from.fov) * k;
+        } else cam.fov = s.fov;
+        cam.position.copy(pos);
+        cam.lookAt(s.look);
+        cam.updateProjectionMatrix();
+        const wasVisible = group.visible;
         group.visible = false; // the screen must not film itself
-        before?.();
         const prevRT = renderer.getRenderTarget();
-        renderer.setRenderTarget(rt);
-        renderer.render(scene, cam);
-        renderer.setRenderTarget(prevRT);
-        after?.();
-        group.visible = true;
+        try {
+          before?.();
+          renderer.setRenderTarget(rt);
+          renderer.render(scene, cam);
+          forceRender = false;
+        } finally {
+          renderer.setRenderTarget(prevRT);
+          try { after?.(); } finally { group.visible = wasVisible; }
+        }
       }
-      if (frame % 3 === 0) drawCaption(ctx, now);
+      if (refresh || frame % 3 === 0) drawCaption(ctx, now);
     },
     setEnabled(on) { group.visible = on; },
   };

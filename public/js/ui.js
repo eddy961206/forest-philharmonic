@@ -705,7 +705,10 @@ export class UI {
   sleep(on) {
     $('sleepVeil').hidden = !on;
     this.asleep = on;
-    if (!on && this._drawString) requestAnimationFrame(this._drawString);
+    if (on) {
+      if (this._stringFrame !== null) cancelAnimationFrame(this._stringFrame);
+      this._stringFrame = null;
+    } else this._requestStringFrame?.();
   }
 
   // ---------------------------------------------------------------- binding
@@ -953,8 +956,14 @@ export class UI {
     const cv = $('stringCanvas');
     const ctx = cv.getContext('2d');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this._stringFrame = null;
     let phase = 0;
+    const requestDraw = () => {
+      if (this._stringFrame === null && !this.asleep) this._stringFrame = requestAnimationFrame(draw);
+    };
     const draw = () => {
+      this._stringFrame = null;
+      if (this.asleep) return;
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       const w = cv.clientWidth;
       const h = cv.clientHeight;
@@ -994,9 +1003,10 @@ export class UI {
       ctx.fillStyle = 'rgba(242,237,225,0.5)';
       ctx.fillRect(x0 - 1, y - 5, 2, 10);
       ctx.fillRect(x1 - 1, y - 5, 2, 10);
-      if (!this.asleep) requestAnimationFrame(draw); // (asleep: no drawing at all until woken)
+      requestDraw(); // asleep: no drawing at all until woken
     };
     this._drawString = draw;
-    requestAnimationFrame(draw);
+    this._requestStringFrame = requestDraw;
+    requestDraw();
   }
 }

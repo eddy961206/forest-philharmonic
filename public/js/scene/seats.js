@@ -3,10 +3,12 @@
 // "premium" seats in the centre stalls, gilt armchairs in the 2층 boxes,
 // and each balcony tier upholstered in its own colour.
 import * as THREE from 'three';
-import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { HALL, rakeY, BALCONIES, BALCONY_AISLES, AISLE_HALF, balconyZ, BOX_DAIS_X, BOX_DAIS_H } from './hallplan.js';
 import { M } from './materials.js';
+import { indexGeometry } from './geometry.js';
+import { accelerateInstancePicking } from './instance-batches.js';
 
 const RB = (w, h, d, r, seg = 2) => new RoundedBoxGeometry(w, h, d, seg, r);
 const strip = (g) => {
@@ -15,9 +17,8 @@ const strip = (g) => {
   for (const k of Object.keys(n.attributes)) if (!['position', 'normal', 'uv'].includes(k)) n.deleteAttribute(k);
   return n;
 };
-// (welded back into an indexed mesh: drawn a couple of thousand times over,
-// shared corners matter - a third of the vertex work)
-const merge = (list) => mergeVertices(mergeGeometries(list.map(strip)), 1e-4);
+// Reuse identical vertices without quantizing normals, UVs or positions.
+const merge = (list) => indexGeometry(mergeGeometries(list.map(strip)));
 
 // ------------------------------------------------------------- furniture
 // Local frame: origin on the floor under the seat, sitter faces -z.
@@ -199,27 +200,80 @@ export function buildSeats(list, { lite = false } = {}) {
   const one = new THREE.Vector3(1, 1, 1);
   const c = new THREE.Color();
   const Y = new THREE.Vector3(0, 1, 0);
-  for (const [type, geo] of Object.entries(kinds)) {
-    const mine = list.filter((s) => s.type === type);
-    if (!mine.length) continue;
-    const fabric = new THREE.InstancedMesh(geo.fabric, M.velvetTint(), mine.length);
-    const frame = new THREE.InstancedMesh(geo.frame, frameMat[type], mine.length);
-    const accent = new THREE.InstancedMesh(geo.accent, M.gilt(), mine.length);
-    mine.forEach((s, i) => {
+  // A venue-wide instance bound keeps every chair on the GPU even when the
+  // entire audience is behind the camera. Small spatial batches retain the
+  // exact furniture/materials while Three can cull unseen rows and levels.
+  const batches = new Map();
+  const families = new Map();
+  const cellWidth = lite ? 16 : 10;
+  const cellDepth = lite ? 12 : 10;
+  list.forEach((s, index) => {
+    const key = `${s.type}|${s.level}|${Math.floor((s.x + HALL.halfW) / cellWidth)}|${Math.floor(s.z / cellDepth)}`;
+    if (!batches.has(key)) batches.set(key, []);
+    if (!families.has(s.type)) families.set(s.type, { entries: [], fine: [], coarse: [] });
+    const entry = { seat: s, index };
+    batches.get(key).push(entry);
+    families.get(s.type).entries.push(entry);
+  });
+  const makeBatch = (key, entries) => {
+    const type = entries[0].seat.type;
+    const geo = kinds[type];
+    const fabric = new THREE.InstancedMesh(geo.fabric, M.velvetTint(), entries.length);
+    // All three parts have identical transforms. Share the actual attribute
+    // so both CPU arrays and GPU buffers are shared, not merely their values.
+    const frame = new THREE.InstancedMesh(geo.frame, frameMat[type], 0);
+    const accent = new THREE.InstancedMesh(geo.accent, M.gilt(), 0);
+    for (const im of [frame, accent]) {
+      im.instanceMatrix = fabric.instanceMatrix;
+      im.count = entries.length;
+    }
+    entries.forEach(({ seat: s }, i) => {
       q.setFromAxisAngle(Y, s.yaw);
       m.compose(new THREE.Vector3(s.x, s.y, s.z), q, one);
       fabric.setMatrixAt(i, m);
-      frame.setMatrixAt(i, m);
-      accent.setMatrixAt(i, m);
       fabric.setColorAt(i, c.set(s.color));
     });
-    for (const im of [fabric, frame, accent]) {
+    for (const [part, im] of [['fabric', fabric], ['frame', frame], ['accent', accent]]) {
+      im.name = `${key}|${part}`;
       im.receiveShadow = true;
       im.castShadow = false;
-      im.renderOrder = 1; // after the walls: what they hide is never shaded
+      im.renderOrder = 1; // draw opaque walls first, for fine and coarse batches
+      im.computeBoundingSphere();
     }
     group.add(fabric, frame, accent);
+    return [fabric, frame, accent];
+  };
+  const pickBatches = [];
+  for (const [key, entries] of batches) {
+    const meshes = makeBatch(key, entries);
+    families.get(entries[0].seat.type).fine.push(...meshes);
+    const fabric = meshes[0];
+    pickBatches.push({ mesh: fabric, indices: entries.map((entry) => entry.index) });
   }
+  for (const [type, family] of families) {
+    const entries = family.entries;
+    delete family.entries;
+    if (family.fine.length <= 3) continue;
+    family.coarse = makeBatch(`${type}|coarse`, entries);
+    for (const im of family.coarse) im.visible = false;
+  }
+  const frustum = new THREE.Frustum();
+  const viewProjection = new THREE.Matrix4();
+  // Called by scene.onBeforeRender, after world/camera matrices are current.
+  // Each render camera chooses independently, including the broadcast feed.
+  // Only combine a family when every fine draw would already submit all its
+  // instances. This saves calls without submitting any additional triangles.
+  const prepareRender = (camera) => {
+    viewProjection.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+    frustum.setFromProjectionMatrix(viewProjection, THREE.WebGLCoordinateSystem, camera.reversedDepth);
+    for (const family of families.values()) {
+      if (!family.coarse.length) continue;
+      const coarse = !camera.isArrayCamera && family.fine.every((im) => im.intersectsFrustum(frustum));
+      if (family.coarse[0].visible === coarse) continue;
+      for (const im of family.fine) im.visible = !coarse;
+      for (const im of family.coarse) im.visible = coarse;
+    }
+  };
   // aisle end standards in the stalls
   const ends = list.filter((s) => s.level === '1층' && (s.endL || s.endR));
   const E = aisleEnd();
@@ -244,6 +298,7 @@ export function buildSeats(list, { lite = false } = {}) {
     pick.setMatrixAt(i, m);
   });
   pick.computeBoundingSphere();
+  accelerateInstancePicking(pick, pickBatches);
   group.add(pick);
-  return { group, pick };
+  return { group, pick, prepareRender };
 }

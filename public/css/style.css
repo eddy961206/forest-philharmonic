@@ -383,6 +383,8 @@ body.locked .transport, body.aim .transport { opacity: 0.6; }
 .joy-zone { position: fixed; z-index: 11; left: 0; bottom: 118px; width: min(48vw, 340px); height: min(46vh, 420px); touch-action: none; }
 .joy-zone.pz { bottom: 0; height: min(58vh, 520px); }
 .plaza .joystick { bottom: max(64px, 12vh); }
+/* Keep the venue's invisible movement zone behind a wrapped transport. */
+#joyZone { z-index: 9; }
 .sit-btn {
   position: fixed; z-index: 12; right: 22px; bottom: 170px; width: 84px; height: 84px; border-radius: 50%;
   border: 1px solid var(--brass); background: rgba(230, 192, 123, 0.9); color: var(--moss); font: 600 17px var(--sans); cursor: pointer;

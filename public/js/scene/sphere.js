@@ -129,7 +129,7 @@ function seatGeometry() {
   return { fabric, frame };
 }
 
-function buildSeatMeshes(list, lite) {
+export function buildSphereSeatMeshes(list, lite) {
   const group = new THREE.Group();
   group.name = 'seats';
   const G = seatGeometry();
@@ -151,6 +151,7 @@ function buildSeatMeshes(list, lite) {
   const hidden = new THREE.MeshBasicMaterial({ visible: false });
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();
+  const pos = new THREE.Vector3();
   const one = V3(1, 1, 1);
   const Y = V3(0, 1, 0);
   const c = new THREE.Color();
@@ -172,19 +173,24 @@ function buildSeatMeshes(list, lite) {
   for (const idx of bySection.values()) {
     const n = idx.length;
     const near = new THREE.InstancedMesh(nearGeo, mat, n);
-    const far = new THREE.InstancedMesh(farGeo, mat, n);
-    const pick = new THREE.InstancedMesh(pickGeo, hidden, n);
+    const far = new THREE.InstancedMesh(farGeo, mat, 0);
+    const pick = new THREE.InstancedMesh(pickGeo, hidden, 0);
+    // The three representations never move independently. Share the static
+    // transforms instead of retaining and uploading separate equal arrays.
+    // Bounds and counts remain per mesh because their geometries differ.
+    for (const im of [far, pick]) {
+      im.instanceMatrix = near.instanceMatrix;
+      im.count = n;
+    }
     idx.forEach((si, j) => {
       const s = list[si];
       q.setFromAxisAngle(Y, s.yaw);
-      m.compose(V3(s.x, s.y, s.z), q, one);
+      m.compose(pos.set(s.x, s.y, s.z), q, one);
       near.setMatrixAt(j, m);
-      far.setMatrixAt(j, m);
-      pick.setMatrixAt(j, m);
       c.set(tone[s.level] || tone.플로어).multiplyScalar(0.92 + ((si * 7919) % 17) / 100);
       near.setColorAt(j, c);
-      far.setColorAt(j, c);
     });
+    far.instanceColor = near.instanceColor;
     for (const im of [near, far, pick]) im.computeBoundingSphere();
     near.receiveShadow = !lite;
     pick.userData.seatIdx = idx;
@@ -481,7 +487,7 @@ export function buildSphere({ quality = 'high', lite = false, renderer = null } 
 
   // ---------------------------------------------------------------- seats
   const seats = sphereSeatList();
-  const seatData = buildSeatMeshes(seats, lite);
+  const seatData = buildSphereSeatMeshes(seats, lite);
   group.add(seatData.group);
 
   // --------------------------------------------------------------- lights
@@ -636,13 +642,14 @@ function buildFixtures(group, list, lite) {
   const q = new THREE.Quaternion();
   const e = new THREE.Euler();
   const one = V3(1, 1, 1);
+  const white = new THREE.Color('#ffffff');
   const aim = (i, pan, tilt, pos) => {
     // pan about the vertical, tilt down toward the stage; local -z is the beam
     e.set(-tilt, pan, 0, 'YXZ');
     q.setFromEuler(e);
     M4.compose(pos, q, one);
   };
-  const base = list.map((p) => ({ pos: V3(p[0], p[1], p[2]), pan: p[3], seed: Math.random() * 10 }));
+  const base = list.map((p) => ({ pos: V3(p[0], p[1], p[2]), beamPos: V3(p[0], p[1] - 0.3, p[2]), pan: p[3], seed: Math.random() * 10 }));
   base.forEach((b, i) => {
     q.setFromAxisAngle(V3(0, 1, 0), b.pan);
     M4.compose(b.pos, q, one);
@@ -661,7 +668,7 @@ function buildFixtures(group, list, lite) {
       // (kept below the bloom threshold unless a beat lands: a lens seen
       // from a seat behind it must not turn into a white sun)
       lensMat.color.copy(color).multiplyScalar(0.25 + 0.6 * on + 0.35 * down * on + 0.15 * (1 - house));
-      beamMat.uniforms.uColor.value.copy(color).lerp(new THREE.Color('#ffffff'), 0.35);
+      beamMat.uniforms.uColor.value.copy(color).lerp(white, 0.35);
       beamMat.uniforms.uI.value = on * (0.45 + 0.6 * Math.min(1, level * 4) + 0.4 * down);
       beams.visible = on > 0.01;
       if (!beams.visible) return;
@@ -673,7 +680,7 @@ function buildFixtures(group, list, lite) {
         const pan = Math.atan2(-dx, -dz) + 0.35 * Math.sin(t * 0.45 + b.seed) * on;
         const dist = Math.hypot(dx, dz);
         const tilt = Math.atan2(b.pos.y - STAGE_Y - 2, dist) + 0.12 * Math.sin(t * 0.7 + b.seed * 1.7);
-        aim(k, pan, tilt, b.pos.clone().add(V3(0, -0.3, 0)));
+        aim(k, pan, tilt, b.beamPos);
         beams.setMatrixAt(k, M4);
       });
       beams.instanceMatrix.needsUpdate = true;

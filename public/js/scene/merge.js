@@ -41,7 +41,7 @@ export function bakeColor(mesh) {
   const col = m.color.clone();
   const tint = textureTint(m.map);
   if (tint) col.multiply(tint);
-  const g = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone();
+  const g = mesh.geometry.clone();
   const n = g.attributes.position.count;
   const a = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) { a[i * 3] = col.r; a[i * 3 + 1] = col.g; a[i * 3 + 2] = col.b; }
@@ -68,7 +68,7 @@ export function mergeChildren(parent, keep = []) {
         rel.multiplyMatrices(inv, child.matrixWorld);
         let g = child.geometry.clone();
         g.applyMatrix4(rel);
-        if (g.index) g = g.toNonIndexed();
+        if (!g.index) g.setIndex(Array.from({ length: g.attributes.position.count }, (_, i) => i));
         for (const name of Object.keys(g.attributes)) {
           if (!['position', 'normal', 'uv', 'color'].includes(name)) g.deleteAttribute(name);
         }
@@ -86,15 +86,16 @@ export function mergeChildren(parent, keep = []) {
     }
   };
   visit(parent);
-  if (victims.length < 2) return parent;
+  if (victims.length < 2) {
+    for (const b of buckets.values()) for (const g of b.geos) g.dispose();
+    return parent;
+  }
   // detach originals (keep any non-mesh descendants they might carry)
   for (const v of victims) {
-    const kids = [...v.children];
-    v.parent.remove(v);
-    for (const k of kids) {
-      k.applyMatrix4(v.matrix);
-      if (v.parent) v.parent.add(k);
-    }
+    // Preserve kept descendants in world space before detaching their mesh
+    // parent. remove() clears v.parent, so reattaching afterwards lost them.
+    for (const k of [...v.children]) parent.attach(k);
+    v.removeFromParent();
   }
   // remove groups left empty
   const prune = (obj) => {
@@ -106,6 +107,7 @@ export function mergeChildren(parent, keep = []) {
   prune(parent);
   for (const b of buckets.values()) {
     const geo = b.geos.length === 1 ? b.geos[0] : mergeGeometries(b.geos, false);
+    if (b.geos.length > 1) for (const g of b.geos) g.dispose();
     if (!geo) continue;
     geo.computeBoundingSphere();
     const m = new THREE.Mesh(geo, b.mat);
