@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""동결 dome-motion v2의 A/B high·medium 원본을 파일만 읽어 대조해.
+"""동결 dome-motion v2의 A/B 원본을 파일만 읽어 대조해.
 
 브라우저, 네트워크, 이미지 디코더를 사용하지 않아. 완료된 run-plan 로그,
 계획/도구/소스 해시, 28+20+20 표본 및 동일 입력 조건을 확인해. 호출·타깃·
 상태 복원·요청 품질을 표로 쓰고 15 PNG 쌍/품질의 파일과 조건을 따로 남겨.
 completeMs 등 시간은 집계하지 않아. FPS·성능 개선·픽셀 화질 판정이 아니야.
+
+기본은 high·medium A/B 4개 job 계획이야. --job-ids ID [ID ...]를 주면
+원본 계획에서 지정한 job만 선택해. 선택한 품질마다 A/B 둘 다 필요하며,
+원본 전체 계획의 SHA와 원래 로그 index를 검증해. 계획·로그는 바꾸지 않아.
 
 --output은 존재하지 않는 새 디렉터리여야 해. 원본은 변경하지 않아.
 출력: summary.json, summary.md, image-pairs.json. 종료 0=파일 검증 PASS,
@@ -20,6 +24,7 @@ import math
 from pathlib import Path
 import re
 import sys
+from urllib.parse import urlsplit
 
 
 PHASES = ("rotation", "reveal", "crossfade")
@@ -161,24 +166,54 @@ def tool_hashes(inputs):
     return hashes
 
 
-def read_plan(inputs, path, manifest):
+def run_side(label):
+    return next((side for side in ("baseline", "candidate")
+                 if label == side or label.startswith(side + "-")), None)
+
+
+def normalize_root_url(value):
+    # Browser URL serialization adds '/' to an empty root path. Do not trim
+    # non-root paths or change hosts, ports, queries or fragments.
+    parts = urlsplit(value)
+    return parts._replace(path=parts.path or "/").geturl()
+
+
+def read_plan(inputs, path, manifest, job_ids=None):
     plan = inputs.read_json(path)
-    require(isinstance(plan, list) and len(plan) == 4, "Exactly four A/B high/medium jobs are required")
+    require(isinstance(plan, list) and plan, "Expected a nonempty original job plan")
+    require(all(isinstance(job, dict) and isinstance(job.get("id"), str) for job in plan),
+            "Every original plan job needs an id")
+    original_ids = [job["id"] for job in plan]
+    require(len(set(original_ids)) == len(original_ids), "Duplicate job id in original plan")
+    if job_ids is None:
+        require(len(plan) == 4, "Exactly four A/B high/medium jobs are required")
+        selected = list(enumerate(plan))
+    else:
+        require(job_ids and len(set(job_ids)) == len(job_ids), "Empty or duplicate --job-ids selection")
+        missing = sorted(set(job_ids) - set(original_ids))
+        require(not missing, "Unknown selected job id: " + ", ".join(missing))
+        # Keep original ordering and indices: logs bind both the full plan SHA
+        # and each job's original index, even when only one quality is selected.
+        wanted = set(job_ids)
+        selected = [(index, job) for index, job in enumerate(plan) if job["id"] in wanted]
     seen = set()
-    for job in plan:
+    for _, job in selected:
         require(job["script"] == "tools/bench/dome-motion.mjs", "Unexpected collector in plan")
         require(len(job["args"]) == 2, "Expected [label, high|medium]")
         label, quality = job["args"]
         require(re.fullmatch(r"[A-Za-z0-9._-]+", label) is not None, "Unsafe run label")
         require(re.fullmatch(r"[A-Za-z0-9_-]+", job["id"]) is not None, "Unsafe job id")
         require(quality in ("high", "medium"), "Only high and medium are comparable here")
-        side = next((s for s in ("baseline", "candidate") if label.startswith(s + "-")), None)
-        require(side is not None, "Run label must start baseline- or candidate-")
+        side = run_side(label)
+        require(side is not None, "Run label must be baseline/candidate or start baseline-/candidate-")
         require((side, quality) not in seen, "Duplicate A/B quality job")
         require(job["env"]["REVISION"] == manifest[side], "Plan revision differs from manifest")
         require(job["env"].get("SCREENSHOTS", "1") == "1", "15 screenshots per run are required")
         seen.add((side, quality))
-    return plan
+    for quality in {quality for _, quality in seen}:
+        require({side for side, value in seen if value == quality} == {"baseline", "candidate"},
+                f"Selected {quality} requires both baseline and candidate jobs")
+    return selected
 
 
 def manifest_index(manifest):
@@ -259,7 +294,7 @@ def verify_closed(raw, log, job, side, manifest):
     require(raw["schema"] == 2 and raw["suite"] == "sphere-dome-motion-controlled", "Unexpected raw schema/suite")
     same([raw["label"], raw["quality"]], job["args"], "Raw label/quality")
     same(raw["revision"], manifest[side], "Raw revision")
-    same(raw["baseURL"], job["env"]["BASE_URL"], "Raw URL")
+    same(normalize_root_url(raw["baseURL"]), normalize_root_url(job["env"]["BASE_URL"]), "Raw URL")
     same([raw["venue"], raw["device"]], ["sphere", "desktop"], "Raw venue/device")
     require(raw["finishedAt"] and log["finishedAt"], "Missing completion timestamp")
     same(raw["timedOut"], False, "Timeout")
@@ -474,7 +509,7 @@ def verify_images(inputs, raw, directory, stem, images):
 
 def audit_run(inputs, root, index, job, manifest, by_path, tools, plan_sha):
     label, quality = job["args"]
-    side = "baseline" if label.startswith("baseline-") else "candidate"
+    side = run_side(label)
     stem = f"{label}-dome-motion-sphere-{quality}-desktop"
     directory = within(root, job["directory"])
     raw_path = directory / (stem + ".json")
@@ -558,9 +593,9 @@ def counts(raw):
                    "requestScope": "renderer.render normal return only; not pixels"} for name in PHASES}
 
 
-def make_pairs(reports, raws):
+def make_pairs(reports, raws, qualities=("high", "medium")):
     pairs, images = [], []
-    for quality in ("high", "medium"):
+    for quality in qualities:
         selected = {r["side"]: r for r in reports if r["quality"] == quality}
         pair = {"quality": quality, "checks": [], "eligible": False}
         a, b = selected.get("baseline"), selected.get("candidate")
@@ -586,6 +621,7 @@ def make_pairs(reports, raws):
 
 def markdown(summary):
     lines = ["# Sphere 돔 회전·전환 파일 대조", "", f"상태: **{summary['status']}**. 파일과 관측 기록의 검증 결과야.", "",
+             "선택한 품질: " + ", ".join(summary.get("selectedQualities", [])) + ". 원본 계획의 index와 전체 SHA를 사용했어.", "",
              "## 실행별 검증", "", "| 실행 | 원본/로그 | 종합 | 품질 | 호출/타깃 | 복원/GL | 돔 draw/program | PNG |",
              "|---|---|---|---|---|---|---|---|"]
     for run in summary["runs"]:
@@ -618,13 +654,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     for flag in ("plan", "root", "manifest", "output"):
         parser.add_argument("--" + flag, required=True, type=Path)
+    parser.add_argument("--job-ids", nargs="+", metavar="ID",
+                        help="원본 계획에서 선택할 job id. 각 품질의 baseline/candidate를 모두 지정해.")
     args = parser.parse_args()
     root, output = args.root.resolve(), args.output.resolve()
     if output.exists():
         parser.error("--output already exists; choose a new directory (no overwrite)")
     inputs = Inputs()
     summary = {"schema": 1, "suite": "sphere-dome-motion-file-comparison", "createdAt": datetime.now(timezone.utc).isoformat(),
-               "status": "INCOMPLETE", "checks": [], "runs": [], "pairs": [], "limitations": LIMITS,
+               "status": "INCOMPLETE", "checks": [], "runs": [], "pairs": [], "selectedQualities": [], "limitations": LIMITS,
                "ignoredTimingFields": ["completeMs", "submitMs", "completionWaitMs", "times"],
                "provenance": {"planPath": str(args.plan.resolve()), "rootPath": str(root), "manifestPath": str(args.manifest.resolve()),
                               "sourceVerification": "15 served paths against explicit manifest before/after", "runtimeRunnerSourceVerified": False}}
@@ -634,23 +672,30 @@ def main():
         manifest = inputs.read_json(args.manifest.resolve())
         by_path = manifest_index(manifest)
         tools = tool_hashes(inputs)
-        plan = read_plan(inputs, args.plan.resolve(), manifest)
+        selected = read_plan(inputs, args.plan.resolve(), manifest, args.job_ids)
         inputs.note(Path(__file__).resolve())
         summary["provenance"].update(toolSources=tools, revisions={s: manifest[s] for s in ("baseline", "candidate")},
             verifiedSourcePaths=["public/" + n for n in SOURCE_NAMES],
             manifestPathsNotServedHashed=sorted(set(by_path) - {"public/" + n for n in SOURCE_NAMES}))
-        return plan, manifest, by_path, tools
+        return selected, manifest, by_path, tools
     prepared = checked(checks, "planManifestAndLocalTools", prepare)
     if prepared:
-        plan, manifest, by_path, tools = prepared
+        selected, manifest, by_path, tools = prepared
         plan_sha = inputs.files[str(args.plan.resolve())]["sha256"]
-        for index, job in enumerate(plan):
+        summary["selectedQualities"] = [quality for quality in ("high", "medium")
+                                        if any(job["args"][1] == quality for _, job in selected)]
+        summary["provenance"]["planSelection"] = {
+            "mode": "job-ids" if args.job_ids is not None else "legacy-four-jobs",
+            "requestedJobIds": args.job_ids, "originalPlanSha256": plan_sha,
+            "selectedJobs": [{"index": index, "id": job["id"]} for index, job in selected],
+        }
+        for index, job in selected:
             result = checked(checks, "runAudit:" + job["id"], lambda: audit_run(inputs, root, index, job, manifest, by_path, tools, plan_sha))
             if result:
                 report, raw = result
                 summary["runs"].append(report)
                 raws[report["id"]] = raw
-        summary["pairs"], images = make_pairs(summary["runs"], raws)
+        summary["pairs"], images = make_pairs(summary["runs"], raws, summary["selectedQualities"])
     checked(checks, "closedInputHashesUnchanged", inputs.recheck)
     summary["status"] = status(checks + summary["runs"] + summary["pairs"])
     if status(checks) != "PASS":
@@ -664,6 +709,7 @@ def main():
             image["pairStatus"] = summary["status"]
     summary["provenance"]["files"] = list(inputs.files.values())
     image_output = {"schema": 1, "status": summary["status"], "pixelEvaluation": "NOT_PERFORMED",
+                    "selectedQualities": summary["selectedQualities"],
                     "expectedPairsPerQuality": 15, "comparisons": images, "limitations": LIMITS}
     output.mkdir(parents=True, exist_ok=False)
     for name, value in (("summary.json", summary), ("image-pairs.json", image_output)):

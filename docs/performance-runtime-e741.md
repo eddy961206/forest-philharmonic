@@ -221,7 +221,7 @@ $LASTEXITCODE
 | `functional`의 `scope`·`unchecked` | `transport`만 검사했다면 이후 프로그램·품질·관객·중계·모바일 배치는 미검사. `full`과 동일하게 표기하지 않음 |
 | `audio-resume`의 `liveWindow` | 완료 여부, raw frame 시작 시각, 음악·visibility·품질 변화에 따른 제외 사유와 실제 관측 구간 |
 
-`TIMEOUT_MS=60000`은 브라우저 준비/조작의 개별 제한이야. job 전체는 계획의 `timeoutSeconds`가 제한해. 원본은 종류별 60/240/300/360초를 사용하고, job 값이 runner의 `--job-timeout-seconds` 기본 600초보다 우선해. timeout은 wrapper에 `TIMEOUT`, exit 124로 남아. Ctrl+C/종료 신호는 `INTERRUPTED`, exit 130으로 남기며, 프로세스 시작 실패는 별도 오류야.
+`TIMEOUT_MS`는 브라우저 준비/조작의 개별 제한이야. 일반 원본 계획은 `60000`을 사용하며, 100간격 cadence 계획은 실행 전에 `120000`으로 정했어. 느린 SwiftShader의 100표본을 60초 안에 끝난다고 가정하지 않기 위한 설정이며, 실패한 실행의 제한을 나중에 고쳐 덮어쓴 것이 아니야. job 전체는 계획의 `timeoutSeconds`가 제한해. 원본은 종류별 60/240/300/360초를 사용하고, job 값이 runner의 `--job-timeout-seconds` 기본 600초보다 우선해. timeout은 wrapper에 `TIMEOUT`, exit 124로 남아. Ctrl+C/종료 신호는 `INTERRUPTED`, exit 130으로 남기며, 프로세스 시작 실패는 별도 오류야.
 
 runner는 POSIX에서 자식 process group에 TERM→KILL을 보내고, Windows에서는 해당 PID 트리에 `taskkill /T /F`를 사용해. 종료 실패가 있으면 `cleanupErrors`도 읽어. heartbeat는 runner가 살아 있다는 신호이고 브라우저나 GPU가 정상 진행 중이라는 증거는 아니야. job이 강제 종료되면 raw가 없거나 `RUNNING` 상태일 수 있어. 성공 수치로 채우지 말고 wrapper와 log를 남겨.
 

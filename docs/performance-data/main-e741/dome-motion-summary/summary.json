@@ -1,0 +1,5861 @@
+{
+  "schema": 1,
+  "suite": "sphere-dome-motion-file-comparison",
+  "createdAt": "2026-10-22T01:12:34.546851+00:00",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "planManifestAndLocalTools",
+      "status": "PASS"
+    },
+    {
+      "name": "runAudit:baseline-dome-motion",
+      "status": "PASS"
+    },
+    {
+      "name": "runAudit:candidate-dome-motion",
+      "status": "PASS"
+    },
+    {
+      "name": "closedInputHashesUnchanged",
+      "status": "PASS"
+    }
+  ],
+  "runs": [
+    {
+      "id": "baseline-dome-motion",
+      "index": 14,
+      "side": "baseline",
+      "quality": "medium",
+      "rawPath": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop.json",
+      "runPlanRecord": "/workspace/scratch/25707ad85ea4/verification/runtime-app/logs/014-baseline-dome-motion.json",
+      "logPath": "/workspace/scratch/25707ad85ea4/verification/runtime-app/logs/014-baseline-dome-motion.log",
+      "checks": [
+        {
+          "name": "runPlanRecord",
+          "status": "PASS"
+        },
+        {
+          "name": "rawJSON",
+          "status": "PASS"
+        },
+        {
+          "name": "planAndLogSHA",
+          "status": "PASS"
+        },
+        {
+          "name": "closedResult",
+          "status": "PASS"
+        },
+        {
+          "name": "sourceAndToolSHA",
+          "status": "PASS"
+        },
+        {
+          "name": "samplesAndEndpoints",
+          "status": "PASS"
+        },
+        {
+          "name": "requestedQuality",
+          "status": "PASS"
+        },
+        {
+          "name": "requestsAndTargets",
+          "status": "PASS"
+        },
+        {
+          "name": "restorationAndGL",
+          "status": "PASS"
+        },
+        {
+          "name": "domeDrawAndPrograms",
+          "status": "PASS"
+        },
+        {
+          "name": "pngFiles",
+          "status": "PASS"
+        }
+      ],
+      "images": {
+        "rotation-00": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-00.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-00",
+            "file": "baseline-dome-motion-sphere-medium-desktop-rotation-00.png",
+            "bytes": 187309,
+            "sha256": "3dcce3edaaa0c940a226792def6b9d14c6429194e874ea6550f4d7f025c958e2"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-00.png",
+            "bytes": 187309,
+            "sha256": "3dcce3edaaa0c940a226792def6b9d14c6429194e874ea6550f4d7f025c958e2",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 0,
+            "sampleIndex": 0,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25,
+              "wallTime": 20,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": []
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.016666666666666,
+              "live": 0,
+              "musicTime": 25.016666666666666,
+              "wallTime": 20.016666666666666,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 0,
+              "nominalYawRadians": 0,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "rotation-07": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-07.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-07",
+            "file": "baseline-dome-motion-sphere-medium-desktop-rotation-07.png",
+            "bytes": 274541,
+            "sha256": "bcfe478b28d7181c999f44396f9bec8c7723f9e2ec2643b9c6c0311f9e05e073"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-07.png",
+            "bytes": 274541,
+            "sha256": "bcfe478b28d7181c999f44396f9bec8c7723f9e2ec2643b9c6c0311f9e05e073",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 7,
+            "sampleIndex": 7,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.11666666666666,
+              "live": 0,
+              "musicTime": 25.11666666666666,
+              "wallTime": 20.11666666666666,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  1.969615506024416,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  0.10295680008773771,
+                  -0.6369556531209091,
+                  0.08639101298081366,
+                  0.7590941879300346
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.133333333333326,
+              "live": 0,
+              "musicTime": 25.133333333333326,
+              "wallTime": 20.133333333333326,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  1.9966163165425364,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  0.10055900798764016,
+                  -0.7195219041326704,
+                  0.10658632148889562,
+                  0.6788339056479897
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 7,
+              "nominalYawRadians": 1.6289739685280409,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "rotation-14": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-14.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-14",
+            "file": "baseline-dome-motion-sphere-medium-desktop-rotation-14.png",
+            "bytes": 200689,
+            "sha256": "5e1886ab571a2ea7d7ff344a603741c6f884671a5ba841c992e49a6f07a9bc74"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-14.png",
+            "bytes": 200689,
+            "sha256": "5e1886ab571a2ea7d7ff344a603741c6f884671a5ba841c992e49a6f07a9bc74",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 14,
+            "sampleIndex": 14,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.23333333333332,
+              "live": 0,
+              "musicTime": 25.23333333333332,
+              "wallTime": 20.23333333333332,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0.23218582825046072,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.00803825247983503,
+                  0.9887224152197454,
+                  -0.1380114651505626,
+                  -0.05758652295545318
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.249999999999986,
+              "live": 0,
+              "musicTime": 25.249999999999986,
+              "wallTime": 20.249999999999986,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -0.23218582825046025,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  0.007181335542375961,
+                  0.9906647224481023,
+                  -0.1232987695307449,
+                  0.05769964946909388
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 14,
+              "nominalYawRadians": 3.2579479370560818,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "rotation-21": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-21.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-21",
+            "file": "baseline-dome-motion-sphere-medium-desktop-rotation-21.png",
+            "bytes": 293025,
+            "sha256": "b256869a4cc57c90b9796adb2cee9ef714efc25911f651882ea590097cf93b63"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-21.png",
+            "bytes": 293025,
+            "sha256": "b256869a4cc57c90b9796adb2cee9ef714efc25911f651882ea590097cf93b63",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 21,
+            "sampleIndex": 21,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.34999999999998,
+              "live": 0,
+              "musicTime": 25.34999999999998,
+              "wallTime": 20.34999999999998,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -1.9966163165425364,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.01327051601583585,
+                  0.7272376256788352,
+                  0.014065925218368016,
+                  0.6861133134908804
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.366666666666646,
+              "live": 0,
+              "musicTime": 25.366666666666646,
+              "wallTime": 20.366666666666646,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -1.9696155060244163,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.03508094240161164,
+                  0.6421132370371403,
+                  0.029436405830543744,
+                  0.7652407570913089
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 21,
+              "nominalYawRadians": 4.886921905584123,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "rotation-27": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-27.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-27",
+            "file": "baseline-dome-motion-sphere-medium-desktop-rotation-27.png",
+            "bytes": 241705,
+            "sha256": "5c2c96452f08a22b449231e387a8ccfc54c9163364884be04a7f5931632ca0a3"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-27.png",
+            "bytes": 241705,
+            "sha256": "5c2c96452f08a22b449231e387a8ccfc54c9163364884be04a7f5931632ca0a3",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 27,
+            "sampleIndex": 27,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.449999999999974,
+              "live": 0,
+              "musicTime": 25.449999999999974,
+              "wallTime": 20.449999999999974,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -0.4612317414848809,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1424786623033214,
+                  0.11489225417911246,
+                  0.016653367218984017,
+                  0.9829660554048487
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.46666666666664,
+              "live": 0,
+              "musicTime": 25.46666666666664,
+              "wallTime": 20.46666666666664,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -4.898587196589413e-16,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1528961115463036,
+                  1.2102477295523725e-16,
+                  1.8724373360725734e-17,
+                  0.9882422673990524
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 27,
+              "nominalYawRadians": 6.283185307179586,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "reveal-0": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-0.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-0",
+            "file": "baseline-dome-motion-sphere-medium-desktop-reveal-0.png",
+            "bytes": 223588,
+            "sha256": "44a9f35b3e11dd9bb50fdf3a3a11ce2b516cdfcaa1fa3fd86cfbc2a7ce1d2ca5"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-0.png",
+            "bytes": 223588,
+            "sha256": "44a9f35b3e11dd9bb50fdf3a3a11ce2b516cdfcaa1fa3fd86cfbc2a7ce1d2ca5",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 31,
+            "sampleIndex": 3,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 0,
+              "b": 16,
+              "mix": 0,
+              "reveal": 1,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25,
+              "wallTime": 19.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 0,
+              "b": 16,
+              "mix": 0,
+              "reveal": 1,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25.016666666666666,
+              "wallTime": 20,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 0,
+              "duration": 4,
+              "fraction": 0
+            }
+          }
+        },
+        "reveal-25": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-25.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-25",
+            "file": "baseline-dome-motion-sphere-medium-desktop-reveal-25.png",
+            "bytes": 222240,
+            "sha256": "1e7d1f7a3d3f65422f0570146eb50809fdbb17bfdbf15f1857fc181afa0f6a95"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-25.png",
+            "bytes": 222240,
+            "sha256": "1e7d1f7a3d3f65422f0570146eb50809fdbb17bfdbf15f1857fc181afa0f6a95",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 35,
+            "sampleIndex": 7,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.125,
+              "reveal": 1,
+              "domeTime": 21,
+              "live": 0,
+              "musicTime": 26,
+              "wallTime": 20.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.125,
+              "reveal": 1,
+              "domeTime": 21,
+              "live": 0,
+              "musicTime": 26.016666666666666,
+              "wallTime": 21,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 1,
+              "duration": 4,
+              "fraction": 0.25
+            }
+          }
+        },
+        "reveal-50": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-50.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-50",
+            "file": "baseline-dome-motion-sphere-medium-desktop-reveal-50.png",
+            "bytes": 225422,
+            "sha256": "705ea1c57472bef81992888b0db197fcfdf64e402f5135592dabe4d0d214d902"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-50.png",
+            "bytes": 225422,
+            "sha256": "705ea1c57472bef81992888b0db197fcfdf64e402f5135592dabe4d0d214d902",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 39,
+            "sampleIndex": 11,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.5,
+              "reveal": 1,
+              "domeTime": 22,
+              "live": 0,
+              "musicTime": 27,
+              "wallTime": 21.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.5,
+              "reveal": 1,
+              "domeTime": 22,
+              "live": 0,
+              "musicTime": 27.016666666666666,
+              "wallTime": 22,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 2,
+              "duration": 4,
+              "fraction": 0.5
+            }
+          }
+        },
+        "reveal-75": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-75.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-75",
+            "file": "baseline-dome-motion-sphere-medium-desktop-reveal-75.png",
+            "bytes": 251156,
+            "sha256": "91d060c9215ae68945ab25b373fa9eca7cfc0521b132c27e2e3dd979f2ec62e9"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-75.png",
+            "bytes": 251156,
+            "sha256": "91d060c9215ae68945ab25b373fa9eca7cfc0521b132c27e2e3dd979f2ec62e9",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 43,
+            "sampleIndex": 15,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.875,
+              "reveal": 1,
+              "domeTime": 23,
+              "live": 0,
+              "musicTime": 28,
+              "wallTime": 22.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.875,
+              "reveal": 1,
+              "domeTime": 23,
+              "live": 0,
+              "musicTime": 28.016666666666666,
+              "wallTime": 23,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 3,
+              "duration": 4,
+              "fraction": 0.75
+            }
+          }
+        },
+        "reveal-100": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-100.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-100",
+            "file": "baseline-dome-motion-sphere-medium-desktop-reveal-100.png",
+            "bytes": 251673,
+            "sha256": "00304cef86f07f991f7ec2855593786b7571dc0ae2bd7e1c0267a4a08cd919d3"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-100.png",
+            "bytes": 251673,
+            "sha256": "00304cef86f07f991f7ec2855593786b7571dc0ae2bd7e1c0267a4a08cd919d3",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 47,
+            "sampleIndex": 19,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 24,
+              "live": 0,
+              "musicTime": 29,
+              "wallTime": 23.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 24,
+              "live": 0,
+              "musicTime": 29.016666666666666,
+              "wallTime": 24,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 4,
+              "duration": 4,
+              "fraction": 1
+            }
+          }
+        },
+        "crossfade-0": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-0.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-0",
+            "file": "baseline-dome-motion-sphere-medium-desktop-crossfade-0.png",
+            "bytes": 252159,
+            "sha256": "3ef5d599013bde0e895a9bcb3a261a9a2c539d84c08faa6f55b5fb8386755ced"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-0.png",
+            "bytes": 252159,
+            "sha256": "3ef5d599013bde0e895a9bcb3a261a9a2c539d84c08faa6f55b5fb8386755ced",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 51,
+            "sampleIndex": 3,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 19,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25,
+              "wallTime": 19.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 19,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25.016666666666666,
+              "wallTime": 20,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 0,
+              "duration": 4,
+              "fraction": 0
+            }
+          }
+        },
+        "crossfade-25": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-25.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-25",
+            "file": "baseline-dome-motion-sphere-medium-desktop-crossfade-25.png",
+            "bytes": 279651,
+            "sha256": "a515bbc45aee0b978a83cbe89bab9fac8e2b37449bc4b449fb5a6eada9abf832"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-25.png",
+            "bytes": 279651,
+            "sha256": "a515bbc45aee0b978a83cbe89bab9fac8e2b37449bc4b449fb5a6eada9abf832",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 55,
+            "sampleIndex": 7,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.125,
+              "reveal": 0,
+              "domeTime": 21,
+              "live": 0,
+              "musicTime": 26,
+              "wallTime": 20.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.125,
+              "reveal": 0,
+              "domeTime": 21,
+              "live": 0,
+              "musicTime": 26.016666666666666,
+              "wallTime": 21,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 1,
+              "duration": 4,
+              "fraction": 0.25
+            }
+          }
+        },
+        "crossfade-50": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-50.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-50",
+            "file": "baseline-dome-motion-sphere-medium-desktop-crossfade-50.png",
+            "bytes": 305640,
+            "sha256": "07cefc72feea33bf22cd1938ee5484c84481747cf325c09b7cb23227c09211b5"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-50.png",
+            "bytes": 305640,
+            "sha256": "07cefc72feea33bf22cd1938ee5484c84481747cf325c09b7cb23227c09211b5",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 59,
+            "sampleIndex": 11,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.5,
+              "reveal": 0,
+              "domeTime": 22,
+              "live": 0,
+              "musicTime": 27,
+              "wallTime": 21.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.5,
+              "reveal": 0,
+              "domeTime": 22,
+              "live": 0,
+              "musicTime": 27.016666666666666,
+              "wallTime": 22,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 2,
+              "duration": 4,
+              "fraction": 0.5
+            }
+          }
+        },
+        "crossfade-75": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-75.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-75",
+            "file": "baseline-dome-motion-sphere-medium-desktop-crossfade-75.png",
+            "bytes": 309718,
+            "sha256": "23108a4df285429d0e011812306fe964b77eafee3820abe22fb8f14279cb0ab4"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-75.png",
+            "bytes": 309718,
+            "sha256": "23108a4df285429d0e011812306fe964b77eafee3820abe22fb8f14279cb0ab4",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 63,
+            "sampleIndex": 15,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.875,
+              "reveal": 0,
+              "domeTime": 23,
+              "live": 0,
+              "musicTime": 28,
+              "wallTime": 22.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.875,
+              "reveal": 0,
+              "domeTime": 23,
+              "live": 0,
+              "musicTime": 28.016666666666666,
+              "wallTime": 23,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 3,
+              "duration": 4,
+              "fraction": 0.75
+            }
+          }
+        },
+        "crossfade-100": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-100.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-100",
+            "file": "baseline-dome-motion-sphere-medium-desktop-crossfade-100.png",
+            "bytes": 302275,
+            "sha256": "121be6075b8cee1eb891dda4fda05df889521be34f64028d1cb037843a61e866"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-100.png",
+            "bytes": 302275,
+            "sha256": "121be6075b8cee1eb891dda4fda05df889521be34f64028d1cb037843a61e866",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 67,
+            "sampleIndex": 19,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 19,
+              "b": 19,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 24,
+              "live": 0,
+              "musicTime": 29,
+              "wallTime": 23.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 19,
+              "b": 19,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 24,
+              "live": 0,
+              "musicTime": 29.016666666666666,
+              "wallTime": 24,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 4,
+              "duration": 4,
+              "fraction": 1
+            }
+          }
+        }
+      },
+      "reportedRawStatus": "PASS",
+      "reportedFailures": [],
+      "sourceEvidence": {
+        "sourceHashes": {
+          "js/boot.js": {
+            "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+          },
+          "js/main.js": {
+            "sha256": "c9b46ec483536dbbf617547a7544993f1a08e985ff27d8549499223023253001"
+          },
+          "js/quality.js": {
+            "httpStatus": 404
+          },
+          "js/scene/hall.js": {
+            "sha256": "55231c403abbee5b60909a3e29f7d1399b1be7b498e3d4bc58af2cc6ff49be22"
+          },
+          "js/scene/seats.js": {
+            "sha256": "8523f36ab014a970f1993afe7531d372eb41bf8ee3ab3c9af28c1c25a14acf97"
+          },
+          "js/scene/audience.js": {
+            "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+          },
+          "js/scene/screen.js": {
+            "sha256": "ac9416e68341a353e6894000023c9187e09879ba942de019ed613a5c302642a9"
+          },
+          "js/scene/sphere.js": {
+            "sha256": "be50db7a9f9947ee9880f0b2f76409f1c20d4311cd4c1b593e457c18e0e0e7f1"
+          },
+          "js/scene/dome3d.js": {
+            "sha256": "5b18d62d9a3be650864ca4b243be127c1585daa8f43fe481da111028475a515b"
+          },
+          "js/scene/domeshow.js": {
+            "sha256": "2ba72984b2afeefaf84e7274dd949ee4b2495e3209b90e8a0a13b2e682f90285"
+          },
+          "js/audio/engine.js": {
+            "sha256": "dc4576c7c55e84ada7e1bde10de8eb77abca0d7c03257d472a1c91234ae0b849"
+          },
+          "js/audio/performance.js": {
+            "sha256": "7ffdf51dab3a029b863350bd3598ce12889d90b623219a39087ddce065052f14"
+          },
+          "js/scene/sphereplan.js": {
+            "sha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585"
+          },
+          "vendor/three/three.core.js": {
+            "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+          },
+          "vendor/three/three.module.js": {
+            "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+          }
+        },
+        "sourceHashesAfter": {
+          "js/boot.js": {
+            "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+          },
+          "js/main.js": {
+            "sha256": "c9b46ec483536dbbf617547a7544993f1a08e985ff27d8549499223023253001"
+          },
+          "js/quality.js": {
+            "httpStatus": 404
+          },
+          "js/scene/hall.js": {
+            "sha256": "55231c403abbee5b60909a3e29f7d1399b1be7b498e3d4bc58af2cc6ff49be22"
+          },
+          "js/scene/seats.js": {
+            "sha256": "8523f36ab014a970f1993afe7531d372eb41bf8ee3ab3c9af28c1c25a14acf97"
+          },
+          "js/scene/audience.js": {
+            "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+          },
+          "js/scene/screen.js": {
+            "sha256": "ac9416e68341a353e6894000023c9187e09879ba942de019ed613a5c302642a9"
+          },
+          "js/scene/sphere.js": {
+            "sha256": "be50db7a9f9947ee9880f0b2f76409f1c20d4311cd4c1b593e457c18e0e0e7f1"
+          },
+          "js/scene/dome3d.js": {
+            "sha256": "5b18d62d9a3be650864ca4b243be127c1585daa8f43fe481da111028475a515b"
+          },
+          "js/scene/domeshow.js": {
+            "sha256": "2ba72984b2afeefaf84e7274dd949ee4b2495e3209b90e8a0a13b2e682f90285"
+          },
+          "js/audio/engine.js": {
+            "sha256": "dc4576c7c55e84ada7e1bde10de8eb77abca0d7c03257d472a1c91234ae0b849"
+          },
+          "js/audio/performance.js": {
+            "sha256": "7ffdf51dab3a029b863350bd3598ce12889d90b623219a39087ddce065052f14"
+          },
+          "js/scene/sphereplan.js": {
+            "sha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585"
+          },
+          "vendor/three/three.core.js": {
+            "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+          },
+          "vendor/three/three.module.js": {
+            "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+          }
+        },
+        "toolSources": {
+          "collector": "953ec414c17d02328dd3deb56e1832aa28602bf51bde67dfd8538892432a5bc1",
+          "fixture": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+          "helper": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+          "referenceFullFrame": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+          "suffix": "afc1638e985455a057718c080f13c284a445e4c0c5b05d9778f2b3cfc67ec6d6"
+        },
+        "toolSourcesAfter": {
+          "collector": "953ec414c17d02328dd3deb56e1832aa28602bf51bde67dfd8538892432a5bc1",
+          "fixture": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+          "helper": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+          "referenceFullFrame": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+          "suffix": "afc1638e985455a057718c080f13c284a445e4c0c5b05d9778f2b3cfc67ec6d6"
+        },
+        "injectedMain": {
+          "originalSha256": "c9b46ec483536dbbf617547a7544993f1a08e985ff27d8549499223023253001",
+          "fixtureSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+          "suffixSha256": "afc1638e985455a057718c080f13c284a445e4c0c5b05d9778f2b3cfc67ec6d6",
+          "combinedSha256": "8b5e62b582356749e306831f1568ed69104867b15a681edbd70e7ba6f0ff9a0d"
+        }
+      },
+      "warnings": [
+        "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.",
+        "[.WebGL-0x261400194a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x261400194a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x261400194a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x261400194a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+      ],
+      "observedSampleCounts": {
+        "rotation": 28,
+        "reveal": 20,
+        "crossfade": 20
+      },
+      "reportedLogStatus": "PASS",
+      "exitCode": 0,
+      "executionCollectorPath": "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/dome-motion.mjs",
+      "qualityEvidence": {
+        "observations": 210,
+        "expected": {
+          "quality": "medium",
+          "settingsQuality": "medium",
+          "renderScale": 1,
+          "pixelRatio": 0.85,
+          "cubeSize": 512
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "id": "candidate-dome-motion",
+      "index": 15,
+      "side": "candidate",
+      "quality": "medium",
+      "rawPath": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop.json",
+      "runPlanRecord": "/workspace/scratch/25707ad85ea4/verification/runtime-app/logs/015-candidate-dome-motion.json",
+      "logPath": "/workspace/scratch/25707ad85ea4/verification/runtime-app/logs/015-candidate-dome-motion.log",
+      "checks": [
+        {
+          "name": "runPlanRecord",
+          "status": "PASS"
+        },
+        {
+          "name": "rawJSON",
+          "status": "PASS"
+        },
+        {
+          "name": "planAndLogSHA",
+          "status": "PASS"
+        },
+        {
+          "name": "closedResult",
+          "status": "PASS"
+        },
+        {
+          "name": "sourceAndToolSHA",
+          "status": "PASS"
+        },
+        {
+          "name": "samplesAndEndpoints",
+          "status": "PASS"
+        },
+        {
+          "name": "requestedQuality",
+          "status": "PASS"
+        },
+        {
+          "name": "requestsAndTargets",
+          "status": "PASS"
+        },
+        {
+          "name": "restorationAndGL",
+          "status": "PASS"
+        },
+        {
+          "name": "domeDrawAndPrograms",
+          "status": "PASS"
+        },
+        {
+          "name": "pngFiles",
+          "status": "PASS"
+        }
+      ],
+      "images": {
+        "rotation-00": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-00.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-00",
+            "file": "candidate-dome-motion-sphere-medium-desktop-rotation-00.png",
+            "bytes": 187068,
+            "sha256": "86afb023d48451bf39cb22a8dcc9385b6302ecf77be14454cca97a8120a46a08"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-00.png",
+            "bytes": 187068,
+            "sha256": "86afb023d48451bf39cb22a8dcc9385b6302ecf77be14454cca97a8120a46a08",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 0,
+            "sampleIndex": 0,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25,
+              "wallTime": 20,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": []
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.016666666666666,
+              "live": 0,
+              "musicTime": 25.016666666666666,
+              "wallTime": 20.016666666666666,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 0,
+              "nominalYawRadians": 0,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "rotation-07": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-07.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-07",
+            "file": "candidate-dome-motion-sphere-medium-desktop-rotation-07.png",
+            "bytes": 274427,
+            "sha256": "17715beb9d5b113ea6afb93db9d09092741eeb5dd3bb43f9045a3f0a6886e851"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-07.png",
+            "bytes": 274427,
+            "sha256": "17715beb9d5b113ea6afb93db9d09092741eeb5dd3bb43f9045a3f0a6886e851",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 7,
+            "sampleIndex": 7,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.11666666666666,
+              "live": 0,
+              "musicTime": 25.11666666666666,
+              "wallTime": 20.11666666666666,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  1.969615506024416,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  0.10295680008773771,
+                  -0.6369556531209091,
+                  0.08639101298081366,
+                  0.7590941879300346
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.133333333333326,
+              "live": 0,
+              "musicTime": 25.133333333333326,
+              "wallTime": 20.133333333333326,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  1.9966163165425364,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  0.10055900798764016,
+                  -0.7195219041326704,
+                  0.10658632148889562,
+                  0.6788339056479897
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 7,
+              "nominalYawRadians": 1.6289739685280409,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "rotation-14": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-14.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-14",
+            "file": "candidate-dome-motion-sphere-medium-desktop-rotation-14.png",
+            "bytes": 200705,
+            "sha256": "843d4d8036c2e5bc5e5d77962c81d5243b767121f66c462e64cea9ba5a643f3b"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-14.png",
+            "bytes": 200705,
+            "sha256": "843d4d8036c2e5bc5e5d77962c81d5243b767121f66c462e64cea9ba5a643f3b",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 14,
+            "sampleIndex": 14,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.23333333333332,
+              "live": 0,
+              "musicTime": 25.23333333333332,
+              "wallTime": 20.23333333333332,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0.23218582825046072,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.00803825247983503,
+                  0.9887224152197454,
+                  -0.1380114651505626,
+                  -0.05758652295545318
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.249999999999986,
+              "live": 0,
+              "musicTime": 25.249999999999986,
+              "wallTime": 20.249999999999986,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -0.23218582825046025,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  0.007181335542375961,
+                  0.9906647224481023,
+                  -0.1232987695307449,
+                  0.05769964946909388
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 14,
+              "nominalYawRadians": 3.2579479370560818,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "rotation-21": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-21.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-21",
+            "file": "candidate-dome-motion-sphere-medium-desktop-rotation-21.png",
+            "bytes": 292985,
+            "sha256": "dc5583bdbea21721bf2ff361a5a4c243139dca5a24bb841105a67f8150fdf9a7"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-21.png",
+            "bytes": 292985,
+            "sha256": "dc5583bdbea21721bf2ff361a5a4c243139dca5a24bb841105a67f8150fdf9a7",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 21,
+            "sampleIndex": 21,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.34999999999998,
+              "live": 0,
+              "musicTime": 25.34999999999998,
+              "wallTime": 20.34999999999998,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -1.9966163165425364,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.01327051601583585,
+                  0.7272376256788352,
+                  0.014065925218368016,
+                  0.6861133134908804
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.366666666666646,
+              "live": 0,
+              "musicTime": 25.366666666666646,
+              "wallTime": 20.366666666666646,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -1.9696155060244163,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.03508094240161164,
+                  0.6421132370371403,
+                  0.029436405830543744,
+                  0.7652407570913089
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 21,
+              "nominalYawRadians": 4.886921905584123,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "rotation-27": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-27.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "rotation-27",
+            "file": "candidate-dome-motion-sphere-medium-desktop-rotation-27.png",
+            "bytes": 241759,
+            "sha256": "ce1a03c65cc68c34129bf35ecf2b4d81bbbb122174adf15190bbc5edf00c7920"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-27.png",
+            "bytes": 241759,
+            "sha256": "ce1a03c65cc68c34129bf35ecf2b4d81bbbb122174adf15190bbc5edf00c7920",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "rotation",
+            "serial": 27,
+            "sampleIndex": 27,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.449999999999974,
+              "live": 0,
+              "musicTime": 25.449999999999974,
+              "wallTime": 20.449999999999974,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -0.4612317414848809,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1424786623033214,
+                  0.11489225417911246,
+                  0.016653367218984017,
+                  0.9829660554048487
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20.46666666666664,
+              "live": 0,
+              "musicTime": 25.46666666666664,
+              "wallTime": 20.46666666666664,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  -4.898587196589413e-16,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1528961115463036,
+                  1.2102477295523725e-16,
+                  1.8724373360725734e-17,
+                  0.9882422673990524
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": null,
+            "rotation": {
+              "index": 27,
+              "nominalYawRadians": 6.283185307179586,
+              "fixedDt": 0.016666666666666666
+            },
+            "transition": null
+          }
+        },
+        "reveal-0": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-0.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-0",
+            "file": "candidate-dome-motion-sphere-medium-desktop-reveal-0.png",
+            "bytes": 223588,
+            "sha256": "44a9f35b3e11dd9bb50fdf3a3a11ce2b516cdfcaa1fa3fd86cfbc2a7ce1d2ca5"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-0.png",
+            "bytes": 223588,
+            "sha256": "44a9f35b3e11dd9bb50fdf3a3a11ce2b516cdfcaa1fa3fd86cfbc2a7ce1d2ca5",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 31,
+            "sampleIndex": 3,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 0,
+              "b": 16,
+              "mix": 0,
+              "reveal": 1,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25,
+              "wallTime": 19.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 0,
+              "b": 16,
+              "mix": 0,
+              "reveal": 1,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25.016666666666666,
+              "wallTime": 20,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 0,
+              "duration": 4,
+              "fraction": 0
+            }
+          }
+        },
+        "reveal-25": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-25.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-25",
+            "file": "candidate-dome-motion-sphere-medium-desktop-reveal-25.png",
+            "bytes": 222240,
+            "sha256": "1e7d1f7a3d3f65422f0570146eb50809fdbb17bfdbf15f1857fc181afa0f6a95"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-25.png",
+            "bytes": 222240,
+            "sha256": "1e7d1f7a3d3f65422f0570146eb50809fdbb17bfdbf15f1857fc181afa0f6a95",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 35,
+            "sampleIndex": 7,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.125,
+              "reveal": 1,
+              "domeTime": 21,
+              "live": 0,
+              "musicTime": 26,
+              "wallTime": 20.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.125,
+              "reveal": 1,
+              "domeTime": 21,
+              "live": 0,
+              "musicTime": 26.016666666666666,
+              "wallTime": 21,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 1,
+              "duration": 4,
+              "fraction": 0.25
+            }
+          }
+        },
+        "reveal-50": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-50.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-50",
+            "file": "candidate-dome-motion-sphere-medium-desktop-reveal-50.png",
+            "bytes": 225422,
+            "sha256": "705ea1c57472bef81992888b0db197fcfdf64e402f5135592dabe4d0d214d902"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-50.png",
+            "bytes": 225422,
+            "sha256": "705ea1c57472bef81992888b0db197fcfdf64e402f5135592dabe4d0d214d902",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 39,
+            "sampleIndex": 11,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.5,
+              "reveal": 1,
+              "domeTime": 22,
+              "live": 0,
+              "musicTime": 27,
+              "wallTime": 21.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.5,
+              "reveal": 1,
+              "domeTime": 22,
+              "live": 0,
+              "musicTime": 27.016666666666666,
+              "wallTime": 22,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 2,
+              "duration": 4,
+              "fraction": 0.5
+            }
+          }
+        },
+        "reveal-75": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-75.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-75",
+            "file": "candidate-dome-motion-sphere-medium-desktop-reveal-75.png",
+            "bytes": 251077,
+            "sha256": "4b7423b314772800398ea678871c42b2f36561760c46004bc19c6fe25a1ee306"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-75.png",
+            "bytes": 251077,
+            "sha256": "4b7423b314772800398ea678871c42b2f36561760c46004bc19c6fe25a1ee306",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 43,
+            "sampleIndex": 15,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.875,
+              "reveal": 1,
+              "domeTime": 23,
+              "live": 0,
+              "musicTime": 28,
+              "wallTime": 22.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 0,
+              "b": 16,
+              "mix": 0.875,
+              "reveal": 1,
+              "domeTime": 23,
+              "live": 0,
+              "musicTime": 28.016666666666666,
+              "wallTime": 23,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 3,
+              "duration": 4,
+              "fraction": 0.75
+            }
+          }
+        },
+        "reveal-100": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-100.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "reveal-100",
+            "file": "candidate-dome-motion-sphere-medium-desktop-reveal-100.png",
+            "bytes": 251655,
+            "sha256": "8fd04cb344b5c6930139f8cd96551ca6248802a9f40658ca28e9a759ac1a5b06"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-100.png",
+            "bytes": 251655,
+            "sha256": "8fd04cb344b5c6930139f8cd96551ca6248802a9f40658ca28e9a759ac1a5b06",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "reveal",
+            "serial": 47,
+            "sampleIndex": 19,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 24,
+              "live": 0,
+              "musicTime": 29,
+              "wallTime": 23.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "output": {
+              "current": "FOREST3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 16,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 24,
+              "live": 0,
+              "musicTime": 29.016666666666666,
+              "wallTime": 24,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "reveal",
+              "from": "ARCH",
+              "to": "FOREST3D",
+              "elapsed": 4,
+              "duration": 4,
+              "fraction": 1
+            }
+          }
+        },
+        "crossfade-0": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-0.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-0",
+            "file": "candidate-dome-motion-sphere-medium-desktop-crossfade-0.png",
+            "bytes": 251985,
+            "sha256": "188fc61c1a1e54bd460b19e27f763e627ca815ac263ad8e7f2d795ac17cdee67"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-0.png",
+            "bytes": 251985,
+            "sha256": "188fc61c1a1e54bd460b19e27f763e627ca815ac263ad8e7f2d795ac17cdee67",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 51,
+            "sampleIndex": 3,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 19,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25,
+              "wallTime": 19.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 16,
+              "b": 19,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 20,
+              "live": 0,
+              "musicTime": 25.016666666666666,
+              "wallTime": 20,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 0,
+              "duration": 4,
+              "fraction": 0
+            }
+          }
+        },
+        "crossfade-25": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-25.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-25",
+            "file": "candidate-dome-motion-sphere-medium-desktop-crossfade-25.png",
+            "bytes": 279265,
+            "sha256": "eccdac3edcd2fd3d9ee8621fc85b48d71c3e4547941f7adbc6bfc6bcbf1c06ec"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-25.png",
+            "bytes": 279265,
+            "sha256": "eccdac3edcd2fd3d9ee8621fc85b48d71c3e4547941f7adbc6bfc6bcbf1c06ec",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 55,
+            "sampleIndex": 7,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.125,
+              "reveal": 0,
+              "domeTime": 21,
+              "live": 0,
+              "musicTime": 26,
+              "wallTime": 20.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.125,
+              "reveal": 0,
+              "domeTime": 21,
+              "live": 0,
+              "musicTime": 26.016666666666666,
+              "wallTime": 21,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 1,
+              "duration": 4,
+              "fraction": 0.25
+            }
+          }
+        },
+        "crossfade-50": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-50.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-50",
+            "file": "candidate-dome-motion-sphere-medium-desktop-crossfade-50.png",
+            "bytes": 305343,
+            "sha256": "89daab236c2fc432d1a4b502ad0f7b8a53facb7b71434544f69edca8529a7f4f"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-50.png",
+            "bytes": 305343,
+            "sha256": "89daab236c2fc432d1a4b502ad0f7b8a53facb7b71434544f69edca8529a7f4f",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 59,
+            "sampleIndex": 11,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.5,
+              "reveal": 0,
+              "domeTime": 22,
+              "live": 0,
+              "musicTime": 27,
+              "wallTime": 21.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.5,
+              "reveal": 0,
+              "domeTime": 22,
+              "live": 0,
+              "musicTime": 27.016666666666666,
+              "wallTime": 22,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 2,
+              "duration": 4,
+              "fraction": 0.5
+            }
+          }
+        },
+        "crossfade-75": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-75.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-75",
+            "file": "candidate-dome-motion-sphere-medium-desktop-crossfade-75.png",
+            "bytes": 309709,
+            "sha256": "625e523e3f7ac73ec2a76340c7569ff28297388c4edd4c35d167deb99b65cd8d"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-75.png",
+            "bytes": 309709,
+            "sha256": "625e523e3f7ac73ec2a76340c7569ff28297388c4edd4c35d167deb99b65cd8d",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 63,
+            "sampleIndex": 15,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.875,
+              "reveal": 0,
+              "domeTime": 23,
+              "live": 0,
+              "musicTime": 28,
+              "wallTime": 22.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": true,
+              "a": 16,
+              "b": 19,
+              "mix": 0.875,
+              "reveal": 0,
+              "domeTime": 23,
+              "live": 0,
+              "musicTime": 28.016666666666666,
+              "wallTime": 23,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                16,
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 3,
+              "duration": 4,
+              "fraction": 0.75
+            }
+          }
+        },
+        "crossfade-100": {
+          "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-100.png",
+          "status": "PASS",
+          "recorded": {
+            "name": "crossfade-100",
+            "file": "candidate-dome-motion-sphere-medium-desktop-crossfade-100.png",
+            "bytes": 302205,
+            "sha256": "037f4a51a63235b7404ab2f7e2ea7dc2f2048f7e667e2d519388e01be7e6806f"
+          },
+          "file": {
+            "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-100.png",
+            "bytes": 302205,
+            "sha256": "037f4a51a63235b7404ab2f7e2ea7dc2f2048f7e667e2d519388e01be7e6806f",
+            "closedInput": true
+          },
+          "condition": {
+            "phase": "crossfade",
+            "serial": 67,
+            "sampleIndex": 19,
+            "viewport": [
+              640,
+              360
+            ],
+            "devicePixelRatio": 1,
+            "requestedQuality": {
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "cubeSize": 512
+            },
+            "piece": "beethoven-ode-to-joy",
+            "fixture": {
+              "crowd": 11076,
+              "seats": 13851,
+              "eligibleAudienceSeats": 13845,
+              "recitalSeats": 6,
+              "lite": false,
+              "piece": "beethoven-ode-to-joy",
+              "sceneState": {
+                "phase": "playing",
+                "asleep": false,
+                "interval": false,
+                "recital": false,
+                "practice": false,
+                "hush": 0,
+                "sleepy": false,
+                "seatGroupVisible": null,
+                "audienceVisible": true
+              }
+            },
+            "input": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 19,
+              "b": 19,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 24,
+              "live": 0,
+              "musicTime": 29,
+              "wallTime": 23.983333333333334,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                19
+              ]
+            },
+            "output": {
+              "current": "PEAKS3D",
+              "visible": true,
+              "overlayVisible": false,
+              "a": 19,
+              "b": 19,
+              "mix": 0,
+              "reveal": 0,
+              "domeTime": 24,
+              "live": 0,
+              "musicTime": 29.016666666666666,
+              "wallTime": 24,
+              "quality": "medium",
+              "settingsQuality": "medium",
+              "renderScale": 1,
+              "pixelRatio": 0.85,
+              "camera": {
+                "position": [
+                  0,
+                  19,
+                  34
+                ],
+                "quaternion": [
+                  -0.1891075211549513,
+                  0,
+                  0,
+                  0.9819563867314217
+                ],
+                "fov": 64,
+                "projectionMatrix": [
+                  0.900188172585591,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1.6003345290410504,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -1.0007695267410543,
+                  -1,
+                  0,
+                  0,
+                  -0.20007695267410544,
+                  0
+                ]
+              },
+              "activeCubeWorlds": [
+                19
+              ]
+            },
+            "checkpointPass": 3,
+            "rotation": null,
+            "transition": {
+              "kind": "crossfade",
+              "from": "FOREST3D",
+              "to": "PEAKS3D",
+              "elapsed": 4,
+              "duration": 4,
+              "fraction": 1
+            }
+          }
+        }
+      },
+      "reportedRawStatus": "PASS",
+      "reportedFailures": [],
+      "sourceEvidence": {
+        "sourceHashes": {
+          "js/boot.js": {
+            "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+          },
+          "js/main.js": {
+            "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+          },
+          "js/quality.js": {
+            "sha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559"
+          },
+          "js/scene/hall.js": {
+            "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+          },
+          "js/scene/seats.js": {
+            "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+          },
+          "js/scene/audience.js": {
+            "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+          },
+          "js/scene/screen.js": {
+            "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+          },
+          "js/scene/sphere.js": {
+            "sha256": "4e91bc31172a92214b3e5cc8e9ddaad5b469ca597d324ad6c90e0dc3e1aaa695"
+          },
+          "js/scene/dome3d.js": {
+            "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+          },
+          "js/scene/domeshow.js": {
+            "sha256": "30f55dd9b210c95815b6049030e3aecb05c10a730dc1d6f0f26b9e19dbb5e769"
+          },
+          "js/audio/engine.js": {
+            "sha256": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0"
+          },
+          "js/audio/performance.js": {
+            "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+          },
+          "js/scene/sphereplan.js": {
+            "sha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585"
+          },
+          "vendor/three/three.core.js": {
+            "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+          },
+          "vendor/three/three.module.js": {
+            "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+          }
+        },
+        "sourceHashesAfter": {
+          "js/boot.js": {
+            "sha256": "13d0c9f412b474a2fd68b7d22ae94afe8ab14143bcfe4475e088dd54700a1d9f"
+          },
+          "js/main.js": {
+            "sha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c"
+          },
+          "js/quality.js": {
+            "sha256": "609d2df9c24207c3d5116877d45b60efb4c484b7bfd3a9d20e36c8950bea2559"
+          },
+          "js/scene/hall.js": {
+            "sha256": "685c40234f8297120fdf030d4a9a13c51ce87f6c28ec04f46db4be31a520fccc"
+          },
+          "js/scene/seats.js": {
+            "sha256": "1f744213faa10a81d74610e5076326d473a613f9f35d40a6b4ef52012824c0ae"
+          },
+          "js/scene/audience.js": {
+            "sha256": "47e05942fa2b7afe2529e82637d13dce914609940077bf9d0d75bd4349c3abd6"
+          },
+          "js/scene/screen.js": {
+            "sha256": "219469f2e81d75eac69c25bbe0a39ff7e7b6febd46335c2a559ebf7bed3b7517"
+          },
+          "js/scene/sphere.js": {
+            "sha256": "4e91bc31172a92214b3e5cc8e9ddaad5b469ca597d324ad6c90e0dc3e1aaa695"
+          },
+          "js/scene/dome3d.js": {
+            "sha256": "61d31ae89aca52b3459b7409f4812c4eb031fc4981b46d60940a96bbd57e4991"
+          },
+          "js/scene/domeshow.js": {
+            "sha256": "30f55dd9b210c95815b6049030e3aecb05c10a730dc1d6f0f26b9e19dbb5e769"
+          },
+          "js/audio/engine.js": {
+            "sha256": "27a54d55c096dbf2e6e8c3c5882bf694331aac28d5015f1964d1acfed10dfbb0"
+          },
+          "js/audio/performance.js": {
+            "sha256": "560f941b89f83bf6a6426f3a9d0c94301710afaccc948447999bdc20a645717b"
+          },
+          "js/scene/sphereplan.js": {
+            "sha256": "8b30f5718d17fbcf0a4ffdb0c8e1a7ebb306f5a859bc3f138f768e7ae5cb7585"
+          },
+          "vendor/three/three.core.js": {
+            "sha256": "9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6"
+          },
+          "vendor/three/three.module.js": {
+            "sha256": "9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea"
+          }
+        },
+        "toolSources": {
+          "collector": "953ec414c17d02328dd3deb56e1832aa28602bf51bde67dfd8538892432a5bc1",
+          "fixture": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+          "helper": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+          "referenceFullFrame": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+          "suffix": "afc1638e985455a057718c080f13c284a445e4c0c5b05d9778f2b3cfc67ec6d6"
+        },
+        "toolSourcesAfter": {
+          "collector": "953ec414c17d02328dd3deb56e1832aa28602bf51bde67dfd8538892432a5bc1",
+          "fixture": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+          "helper": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+          "referenceFullFrame": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+          "suffix": "afc1638e985455a057718c080f13c284a445e4c0c5b05d9778f2b3cfc67ec6d6"
+        },
+        "injectedMain": {
+          "originalSha256": "bf94edf26ea2f905f5b6de7843a7f1952b17a79556402455786f30e16010309c",
+          "fixtureSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+          "suffixSha256": "afc1638e985455a057718c080f13c284a445e4c0c5b05d9778f2b3cfc67ec6d6",
+          "combinedSha256": "34a91888bb0475a6ec7e3c50ef3808b748889b11dc5605bdc5e1db6b4ce20373"
+        }
+      },
+      "warnings": [
+        "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported.",
+        "[.WebGL-0x37c00191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x37c00191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x37c00191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+        "[.WebGL-0x37c00191400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+      ],
+      "observedSampleCounts": {
+        "rotation": 28,
+        "reveal": 20,
+        "crossfade": 20
+      },
+      "reportedLogStatus": "PASS",
+      "exitCode": 0,
+      "executionCollectorPath": "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/dome-motion.mjs",
+      "qualityEvidence": {
+        "observations": 210,
+        "expected": {
+          "quality": "medium",
+          "settingsQuality": "medium",
+          "renderScale": 1,
+          "pixelRatio": 0.85,
+          "cubeSize": 512
+        }
+      },
+      "status": "PASS"
+    }
+  ],
+  "pairs": [
+    {
+      "quality": "medium",
+      "checks": [
+        {
+          "name": "identicalInputs",
+          "status": "PASS"
+        }
+      ],
+      "eligible": true,
+      "status": "PASS",
+      "operationCounts": {
+        "baseline": {
+          "rotation": {
+            "samples": 28,
+            "rendererCalls": 26274,
+            "rendererTriangles": 78962582,
+            "cubeUpdateRequests": 42,
+            "worldCalls": 28,
+            "observedTargets": 1,
+            "requestScope": "renderer.render normal return only; not pixels"
+          },
+          "reveal": {
+            "samples": 20,
+            "rendererCalls": 35810,
+            "rendererTriangles": 61450376,
+            "cubeUpdateRequests": 33,
+            "worldCalls": 20,
+            "observedTargets": 1,
+            "requestScope": "renderer.render normal return only; not pixels"
+          },
+          "crossfade": {
+            "samples": 20,
+            "rendererCalls": 36743,
+            "rendererTriangles": 61436976,
+            "cubeUpdateRequests": 33,
+            "worldCalls": 20,
+            "observedTargets": 2,
+            "requestScope": "renderer.render normal return only; not pixels"
+          }
+        },
+        "candidate": {
+          "rotation": {
+            "samples": 28,
+            "rendererCalls": 26274,
+            "rendererTriangles": 78870350,
+            "cubeUpdateRequests": 42,
+            "worldCalls": 28,
+            "observedTargets": 1,
+            "requestScope": "renderer.render normal return only; not pixels"
+          },
+          "reveal": {
+            "samples": 20,
+            "rendererCalls": 35810,
+            "rendererTriangles": 61377908,
+            "cubeUpdateRequests": 33,
+            "worldCalls": 20,
+            "observedTargets": 1,
+            "requestScope": "renderer.render normal return only; not pixels"
+          },
+          "crossfade": {
+            "samples": 20,
+            "rendererCalls": 36743,
+            "rendererTriangles": 61364508,
+            "cubeUpdateRequests": 33,
+            "worldCalls": 20,
+            "observedTargets": 2,
+            "requestScope": "renderer.render normal return only; not pixels"
+          }
+        }
+      }
+    }
+  ],
+  "selectedQualities": [
+    "medium"
+  ],
+  "limitations": [
+    "파일·기록 검증 PASS는 브라우저 재실행이나 실제 기기 성공을 뜻하지 않아.",
+    "28개의 고정 1/60초 회전 step과 전환 5개 시각×4회 렌더야. 연속 4초 시청 검사가 아니야.",
+    "음표 스케줄러가 꺼진 합성 음악 시계 fixture야. 오디오 품질·경합 검증이 아니야.",
+    "cubeUpdateRequests.returnedNormally는 renderer.render의 정상 반환 관측이야. proxy draw/world program/픽셀 신선도 증명이 아니야.",
+    "faceRequestCoverage는 제품과 같은 11×9 표본 규칙의 최초 사용 요청 검사야. 독립 가시 픽셀·최소 face mask 검증이 아니야.",
+    "domeReadiness는 주 화면 돔 base/overlay의 draw 제출·프로그램 상태야. 큐브 내부 proxy 프로그램 검증과 달라.",
+    "복원 검사는 실제로 만난 상태와 임시 wrapper에 한정돼. 강제 예외·비기본 XR/target 상태를 주입하지 않았어.",
+    "completeMs/submitMs/completionWaitMs/times는 전부 집계 제외야. 계측 포함 진단값을 FPS나 성능 개선으로 쓰지 않아.",
+    "PNG는 바이트 해시만 읽어. 디코딩·픽셀 지표·육안 검토·화질 판정은 하지 않아. viewport는 원본 선언값이야.",
+    "manifest 전체 중 수집기가 HTTP 해시를 남긴 15개 경로만 직접 대조해. 다른 파일과 실제 실행 runner 바이트는 이 기록만으로 입증하지 못해.",
+    "소스 SHA는 HTTP 원본의 해시야. 실행 main에는 fixture/suffix가 붙고 Three UUID 난수 경로도 분리돼. 원본 제품 그대로의 실행이라고 해석하지 않아.",
+    "injectedMain.combinedSha256은 기록 형식만 확인해. 원본 소스 바이트가 포함되지 않아 결합 본문을 재계산하지 않아."
+  ],
+  "ignoredTimingFields": [
+    "completeMs",
+    "submitMs",
+    "completionWaitMs",
+    "times"
+  ],
+  "provenance": {
+    "planPath": "/workspace/scratch/25707ad85ea4/verification/runtime-app-plan.json",
+    "rootPath": "/workspace/scratch/25707ad85ea4/verification/runtime-app",
+    "manifestPath": "/workspace/scratch/25707ad85ea4/verification/dome-motion-source-manifest.json",
+    "sourceVerification": "15 served paths against explicit manifest before/after",
+    "runtimeRunnerSourceVerified": false,
+    "toolSources": {
+      "collector": "953ec414c17d02328dd3deb56e1832aa28602bf51bde67dfd8538892432a5bc1",
+      "fixture": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "helper": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "referenceFullFrame": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+      "suffix": "afc1638e985455a057718c080f13c284a445e4c0c5b05d9778f2b3cfc67ec6d6"
+    },
+    "revisions": {
+      "baseline": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "candidate": "6c7817218814f00631089eb2c6f150d68190980f"
+    },
+    "verifiedSourcePaths": [
+      "public/js/boot.js",
+      "public/js/main.js",
+      "public/js/quality.js",
+      "public/js/scene/hall.js",
+      "public/js/scene/seats.js",
+      "public/js/scene/audience.js",
+      "public/js/scene/screen.js",
+      "public/js/scene/sphere.js",
+      "public/js/scene/dome3d.js",
+      "public/js/scene/domeshow.js",
+      "public/js/audio/engine.js",
+      "public/js/audio/performance.js",
+      "public/js/scene/sphereplan.js",
+      "public/vendor/three/three.core.js",
+      "public/vendor/three/three.module.js"
+    ],
+    "manifestPathsNotServedHashed": [
+      "public/js/audio/crowd-loader.js",
+      "public/js/audio/crowd-worker.js",
+      "public/js/audio/crowd.js",
+      "public/js/evening.js",
+      "public/js/joystick.js",
+      "public/js/layout.js",
+      "public/js/net/room.js",
+      "public/js/plaza.js",
+      "public/js/programs.js",
+      "public/js/scene/avatars.js",
+      "public/js/scene/characters.js",
+      "public/js/scene/director.js",
+      "public/js/scene/effects.js",
+      "public/js/scene/foyer.js",
+      "public/js/scene/fx.js",
+      "public/js/scene/geometry.js",
+      "public/js/scene/hallplan.js",
+      "public/js/scene/instance-batches.js",
+      "public/js/scene/instruments.js",
+      "public/js/scene/lobby.js",
+      "public/js/scene/materials.js",
+      "public/js/scene/merge.js",
+      "public/js/scene/navgrid.js",
+      "public/js/scene/orchestra.js",
+      "public/js/scene/plazaWorld.js",
+      "public/js/scene/recital.js",
+      "public/js/scene/stage.js",
+      "public/js/scene/venue.js",
+      "public/js/tickets.js",
+      "public/js/ui.js"
+    ],
+    "planSelection": {
+      "mode": "job-ids",
+      "requestedJobIds": [
+        "baseline-dome-motion",
+        "candidate-dome-motion"
+      ],
+      "originalPlanSha256": "1bc3e99ca2b2b7889b7b097a5d19667dd97f95c395bec26890071ac63c7d61f0",
+      "selectedJobs": [
+        {
+          "index": 14,
+          "id": "baseline-dome-motion"
+        },
+        {
+          "index": 15,
+          "id": "candidate-dome-motion"
+        }
+      ]
+    },
+    "files": [
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/dome-motion-source-manifest.json",
+        "bytes": 11054,
+        "sha256": "f22e48c5f107de16ea932876ca737e21083032d35c60d2d8912956bced78b35d",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/dome-motion.mjs",
+        "bytes": 33612,
+        "sha256": "953ec414c17d02328dd3deb56e1832aa28602bf51bde67dfd8538892432a5bc1",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/full-frame-fixture.js",
+        "bytes": 12259,
+        "sha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/browser.mjs",
+        "bytes": 9075,
+        "sha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/full-frame.mjs",
+        "bytes": 13760,
+        "sha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app-plan.json",
+        "bytes": 15648,
+        "sha256": "1bc3e99ca2b2b7889b7b097a5d19667dd97f95c395bec26890071ac63c7d61f0",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/forest-philharmonic/tools/bench/compare-dome-motion.py",
+        "bytes": 44584,
+        "sha256": "348237fc3337bb20bda25943f219b443ba52d2ab976a16d8a18b10afa4b59b05",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/logs/014-baseline-dome-motion.json",
+        "bytes": 1634,
+        "sha256": "75147fc50bbf829ed1c26b9a146a5aea8cfd63e349d16ce9e9a7275d965a3737",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop.json",
+        "bytes": 784257,
+        "sha256": "9a3a125242ae518d24b940d465c8135acb8da77cbf9aae336d44b703472fa34c",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/logs/014-baseline-dome-motion.log",
+        "bytes": 2610,
+        "sha256": "c41add06078a81400b59c6de2ad7c7774e0a494f7ebcf6098efe22fc9adc898c",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-00.png",
+        "bytes": 187309,
+        "sha256": "3dcce3edaaa0c940a226792def6b9d14c6429194e874ea6550f4d7f025c958e2",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-07.png",
+        "bytes": 274541,
+        "sha256": "bcfe478b28d7181c999f44396f9bec8c7723f9e2ec2643b9c6c0311f9e05e073",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-14.png",
+        "bytes": 200689,
+        "sha256": "5e1886ab571a2ea7d7ff344a603741c6f884671a5ba841c992e49a6f07a9bc74",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-21.png",
+        "bytes": 293025,
+        "sha256": "b256869a4cc57c90b9796adb2cee9ef714efc25911f651882ea590097cf93b63",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-rotation-27.png",
+        "bytes": 241705,
+        "sha256": "5c2c96452f08a22b449231e387a8ccfc54c9163364884be04a7f5931632ca0a3",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-0.png",
+        "bytes": 223588,
+        "sha256": "44a9f35b3e11dd9bb50fdf3a3a11ce2b516cdfcaa1fa3fd86cfbc2a7ce1d2ca5",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-25.png",
+        "bytes": 222240,
+        "sha256": "1e7d1f7a3d3f65422f0570146eb50809fdbb17bfdbf15f1857fc181afa0f6a95",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-50.png",
+        "bytes": 225422,
+        "sha256": "705ea1c57472bef81992888b0db197fcfdf64e402f5135592dabe4d0d214d902",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-75.png",
+        "bytes": 251156,
+        "sha256": "91d060c9215ae68945ab25b373fa9eca7cfc0521b132c27e2e3dd979f2ec62e9",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-reveal-100.png",
+        "bytes": 251673,
+        "sha256": "00304cef86f07f991f7ec2855593786b7571dc0ae2bd7e1c0267a4a08cd919d3",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-0.png",
+        "bytes": 252159,
+        "sha256": "3ef5d599013bde0e895a9bcb3a261a9a2c539d84c08faa6f55b5fb8386755ced",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-25.png",
+        "bytes": 279651,
+        "sha256": "a515bbc45aee0b978a83cbe89bab9fac8e2b37449bc4b449fb5a6eada9abf832",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-50.png",
+        "bytes": 305640,
+        "sha256": "07cefc72feea33bf22cd1938ee5484c84481747cf325c09b7cb23227c09211b5",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-75.png",
+        "bytes": 309718,
+        "sha256": "23108a4df285429d0e011812306fe964b77eafee3820abe22fb8f14279cb0ab4",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/baseline-dome-motion-sphere-medium-desktop-crossfade-100.png",
+        "bytes": 302275,
+        "sha256": "121be6075b8cee1eb891dda4fda05df889521be34f64028d1cb037843a61e866",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/logs/015-candidate-dome-motion.json",
+        "bytes": 1637,
+        "sha256": "f96199e2c10dec0a64d5bcb21e4de5c1751034af353beb6c039742dd806e01b5",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop.json",
+        "bytes": 783431,
+        "sha256": "9ee796da3619952a466c6cd36f32b298a43ee0e1140dea279177cd40e32d460b",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/logs/015-candidate-dome-motion.log",
+        "bytes": 2628,
+        "sha256": "0fefae9797eea3b66bf6a3f054869d36f60ffd35096c2cefc3d9fbb16af9268a",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-00.png",
+        "bytes": 187068,
+        "sha256": "86afb023d48451bf39cb22a8dcc9385b6302ecf77be14454cca97a8120a46a08",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-07.png",
+        "bytes": 274427,
+        "sha256": "17715beb9d5b113ea6afb93db9d09092741eeb5dd3bb43f9045a3f0a6886e851",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-14.png",
+        "bytes": 200705,
+        "sha256": "843d4d8036c2e5bc5e5d77962c81d5243b767121f66c462e64cea9ba5a643f3b",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-21.png",
+        "bytes": 292985,
+        "sha256": "dc5583bdbea21721bf2ff361a5a4c243139dca5a24bb841105a67f8150fdf9a7",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-rotation-27.png",
+        "bytes": 241759,
+        "sha256": "ce1a03c65cc68c34129bf35ecf2b4d81bbbb122174adf15190bbc5edf00c7920",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-0.png",
+        "bytes": 223588,
+        "sha256": "44a9f35b3e11dd9bb50fdf3a3a11ce2b516cdfcaa1fa3fd86cfbc2a7ce1d2ca5",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-25.png",
+        "bytes": 222240,
+        "sha256": "1e7d1f7a3d3f65422f0570146eb50809fdbb17bfdbf15f1857fc181afa0f6a95",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-50.png",
+        "bytes": 225422,
+        "sha256": "705ea1c57472bef81992888b0db197fcfdf64e402f5135592dabe4d0d214d902",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-75.png",
+        "bytes": 251077,
+        "sha256": "4b7423b314772800398ea678871c42b2f36561760c46004bc19c6fe25a1ee306",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-reveal-100.png",
+        "bytes": 251655,
+        "sha256": "8fd04cb344b5c6930139f8cd96551ca6248802a9f40658ca28e9a759ac1a5b06",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-0.png",
+        "bytes": 251985,
+        "sha256": "188fc61c1a1e54bd460b19e27f763e627ca815ac263ad8e7f2d795ac17cdee67",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-25.png",
+        "bytes": 279265,
+        "sha256": "eccdac3edcd2fd3d9ee8621fc85b48d71c3e4547941f7adbc6bfc6bcbf1c06ec",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-50.png",
+        "bytes": 305343,
+        "sha256": "89daab236c2fc432d1a4b502ad0f7b8a53facb7b71434544f69edca8529a7f4f",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-75.png",
+        "bytes": 309709,
+        "sha256": "625e523e3f7ac73ec2a76340c7569ff28297388c4edd4c35d167deb99b65cd8d",
+        "closedInput": true
+      },
+      {
+        "path": "/workspace/scratch/25707ad85ea4/verification/runtime-app/raw/candidate-dome-motion-sphere-medium-desktop-crossfade-100.png",
+        "bytes": 302205,
+        "sha256": "037f4a51a63235b7404ab2f7e2ea7dc2f2048f7e667e2d519388e01be7e6806f",
+        "closedInput": true
+      }
+    ]
+  }
+}

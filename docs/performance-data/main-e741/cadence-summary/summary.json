@@ -1,0 +1,5411 @@
+{
+  "schema": 1,
+  "suite": "render-plan-comparison",
+  "generatedAt": "2026-10-22T01:26:52.957Z",
+  "status": "PASS",
+  "expectedJobs": 12,
+  "expectedPairs": 6,
+  "completedPairs": 6,
+  "provenance": {
+    "plan": "/workspace/scratch/25707ad85ea4/verification/cadence-plan.json",
+    "root": "/workspace/scratch/25707ad85ea4/verification/cadence",
+    "manifest": "/workspace/scratch/25707ad85ea4/verification/source-manifest.json",
+    "planSha256": "fca60f6c0519ee0d86d070a1637988bfee502ce54d47cf9a22c533922eeb3b92",
+    "manifestSha256": "504b7dccaa999e723a740d2171e9a347bb663cd985f1debb0f56d7704ac898a9",
+    "collectorSha256": "9305ce824c4c7f3ff2af6d1bff5e50e70acbcc279bf6561b32e60a3f1eeb15e2",
+    "baseline": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+    "candidateParent": null,
+    "candidateChanges": null
+  },
+  "definitions": {
+    "sync": "전체 frame() + readPixels 완료 시간(ms). GPU 완료 대기·QA 오버헤드가 포함되며 실제 앱 FPS나 순수 GPU 시간이 아니야. sync에는 FPS 필드를 만들지 않아.",
+    "cadence": "통제된 native rAF callback 시작 간격. observedRafFps=1000/평균 간격. 1% Low는 n>=100일 때만 느린 상위 ceil(n*.01)개 간격 평균의 역수야.",
+    "fixture": "실제 음표 스케줄러가 꺼져 있고 음악 시각·카메라·관객 시드가 제어돼. 실제 오디오/입력 부하나 실기기 FPS를 증명하지 않아.",
+    "adaptive": "auto는 프리셋·scale이 변할 수 있는 별도 관찰. 같은 화질 성능 개선율에 포함하지 않아.",
+    "cpu": "CDP TaskDuration/ScriptDuration 등은 해당 장면 수집 창의 누적 카운터 차이(ms). TaskDuration은 동기 대기를 포함할 수 있어 CPU 점유율로 해석하지 않아. cadence는 N개 간격 수집에 N+1회 step을 실행해.",
+    "phases": "sample.times의 호출 경과 시간 평균. renderSubmit/worlds/broadcast 등은 서로 중첩될 수 있어 합계가 CPU 프레임 시간이 아니야. 미호출 프레임은 0, 어느 한 실행에 단계 자체가 없으면 변화율은 null이야.",
+    "memory": "performance.memory 표본과 CDP JSHeapUsedSize를 별도로 기록해. 서로 다른 JS heap 관찰값이며 GPU 메모리/오디오 버퍼 전체 사용량이 아니야. texture/geometry는 개수야.",
+    "gpu": "GPU 타이머 extension 지원 여부만으로 GPU 프레임 시간을 측정했다고 간주하지 않아. GPU 시간/VRAM 사용량은 null(미측정)이야.",
+    "sources": "manifest의 제공된 파일 SHA와 실제 served source 전후 SHA를 대조해. manifest에만 있고 served 해시가 없는 파일은 jobs.sourceCoverage.notServedHashed에 남겨. candidateParent는 후보 작업의 부모 커밋 표기이며 served 해시가 실제 측정 코드의 근거야.",
+    "quality": "동일 입력/프리셋/실제 scale/viewport/fixture 검증은 시각적 동등성의 필요조건이야. screenshot 육안/이미지 비교는 이 도구가 하지 않아.",
+    "repeat": "반복 a/b를 개별 행으로 보존해. 같은 실행의 장면/프레임을 독립 반복처럼 세거나 모든 행의 개선율을 평균하지 않아. 작은 n의 p95/p99는 최대 한 프레임에 좌우될 수 있어.",
+    "exclusions": "실패·진행 중·누락·조건 불일치 쌍은 제외 목록에 남겨. 악화된 유효 행은 숨기지 않아. 하나라도 제외되면 exit 1이며 완료된 유효 쌍의 부분 결과는 남겨.",
+    "missing": "미측정 값, 100표본 미만 1% Low, 0분모 변화율은 null/미측정으로 표시해. mobile은 브라우저 viewport/UA/touch 에뮬레이션이야."
+  },
+  "jobs": [
+    {
+      "id": "baseline-cadence-hall-desktop",
+      "index": 0,
+      "side": "baseline",
+      "file": "render/baseline-cadence-full-hall-low-desktop-cadence.json",
+      "log": "logs/000-baseline-cadence-hall-desktop.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "id": "candidate-cadence-hall-desktop",
+      "index": 1,
+      "side": "candidate",
+      "file": "render/candidate-cadence-full-hall-low-desktop-cadence.json",
+      "log": "logs/001-candidate-cadence-hall-desktop.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "id": "baseline-cadence-sphere-desktop",
+      "index": 2,
+      "side": "baseline",
+      "file": "render/baseline-cadence-full-sphere-low-desktop-cadence.json",
+      "log": "logs/002-baseline-cadence-sphere-desktop.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": [
+        "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+      ]
+    },
+    {
+      "id": "candidate-cadence-sphere-desktop",
+      "index": 3,
+      "side": "candidate",
+      "file": "render/candidate-cadence-full-sphere-low-desktop-cadence.json",
+      "log": "logs/003-candidate-cadence-sphere-desktop.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": [
+        "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+      ]
+    },
+    {
+      "id": "baseline-cadence-hall-mobile",
+      "index": 4,
+      "side": "baseline",
+      "file": "render/baseline-cadence-full-hall-low-mobile-cadence.json",
+      "log": "logs/004-baseline-cadence-hall-mobile.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "id": "candidate-cadence-hall-mobile",
+      "index": 5,
+      "side": "candidate",
+      "file": "render/candidate-cadence-full-hall-low-mobile-cadence.json",
+      "log": "logs/005-candidate-cadence-hall-mobile.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "id": "baseline-cadence-sphere-mobile",
+      "index": 6,
+      "side": "baseline",
+      "file": "render/baseline-cadence-full-sphere-low-mobile-cadence.json",
+      "log": "logs/006-baseline-cadence-sphere-mobile.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": [
+        "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+      ]
+    },
+    {
+      "id": "candidate-cadence-sphere-mobile",
+      "index": 7,
+      "side": "candidate",
+      "file": "render/candidate-cadence-full-sphere-low-mobile-cadence.json",
+      "log": "logs/007-candidate-cadence-sphere-mobile.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": [
+        "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+      ]
+    },
+    {
+      "id": "baseline-adaptive-hall",
+      "index": 8,
+      "side": "baseline",
+      "file": "render/baseline-adaptive-full-hall-auto-mobile-cadence.json",
+      "log": "logs/008-baseline-adaptive-hall.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "id": "candidate-adaptive-hall",
+      "index": 9,
+      "side": "candidate",
+      "file": "render/candidate-adaptive-full-hall-auto-mobile-cadence.json",
+      "log": "logs/009-candidate-adaptive-hall.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "id": "baseline-adaptive-sphere",
+      "index": 10,
+      "side": "baseline",
+      "file": "render/baseline-adaptive-full-sphere-auto-mobile-cadence.json",
+      "log": "logs/010-baseline-adaptive-sphere.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": [
+        "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+      ]
+    },
+    {
+      "id": "candidate-adaptive-sphere",
+      "index": 11,
+      "side": "candidate",
+      "file": "render/candidate-adaptive-full-sphere-auto-mobile-cadence.json",
+      "log": "logs/011-candidate-adaptive-sphere.json",
+      "status": "PASS",
+      "sourceCoverage": {
+        "verified": [
+          "js/boot.js",
+          "js/main.js",
+          "js/quality.js",
+          "js/scene/hall.js",
+          "js/scene/seats.js",
+          "js/scene/audience.js",
+          "js/scene/screen.js",
+          "js/scene/sphere.js",
+          "js/scene/dome3d.js",
+          "js/scene/domeshow.js",
+          "js/audio/engine.js",
+          "js/audio/performance.js"
+        ],
+        "notServedHashed": [
+          "public/js/audio/crowd-loader.js",
+          "public/js/audio/crowd-worker.js",
+          "public/js/audio/crowd.js",
+          "public/js/evening.js",
+          "public/js/joystick.js",
+          "public/js/layout.js",
+          "public/js/net/room.js",
+          "public/js/plaza.js",
+          "public/js/programs.js",
+          "public/js/scene/avatars.js",
+          "public/js/scene/characters.js",
+          "public/js/scene/director.js",
+          "public/js/scene/effects.js",
+          "public/js/scene/foyer.js",
+          "public/js/scene/fx.js",
+          "public/js/scene/geometry.js",
+          "public/js/scene/hallplan.js",
+          "public/js/scene/instance-batches.js",
+          "public/js/scene/instruments.js",
+          "public/js/scene/lobby.js",
+          "public/js/scene/materials.js",
+          "public/js/scene/merge.js",
+          "public/js/scene/navgrid.js",
+          "public/js/scene/orchestra.js",
+          "public/js/scene/plazaWorld.js",
+          "public/js/scene/recital.js",
+          "public/js/scene/sphereplan.js",
+          "public/js/scene/stage.js",
+          "public/js/scene/venue.js",
+          "public/js/tickets.js",
+          "public/js/ui.js"
+        ]
+      },
+      "warnings": [
+        "THREE.WebGLRenderer: KHR_parallel_shader_compile extension not supported."
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "pairKey": "-cadence/hall/low/desktop/cadence",
+      "beforeFile": "render/baseline-cadence-full-hall-low-desktop-cadence.json",
+      "afterFile": "render/candidate-cadence-full-hall-low-desktop-cadence.json",
+      "dependencies": [
+        "render/baseline-cadence-full-hall-low-desktop-cadence.json",
+        "logs/000-baseline-cadence-hall-desktop.json",
+        "logs/000-baseline-cadence-hall-desktop.log",
+        "render/candidate-cadence-full-hall-low-desktop-cadence.json",
+        "logs/001-candidate-cadence-hall-desktop.json",
+        "logs/001-candidate-cadence-hall-desktop.log"
+      ],
+      "sameQuality": true,
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "collectorSourceSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+      "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "conditions": {
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "viewport": [
+          640,
+          360
+        ],
+        "devicePixelRatio": 1,
+        "beforeMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            640,
+            360
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+        },
+        "afterMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            640,
+            360
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+        },
+        "fixture": {
+          "crowd": 1503,
+          "seats": 1885,
+          "eligibleAudienceSeats": 1879,
+          "recitalSeats": 6,
+          "lite": true,
+          "piece": "beethoven-ode-to-joy",
+          "sceneState": {
+            "phase": "playing",
+            "asleep": false,
+            "interval": false,
+            "recital": false,
+            "practice": false,
+            "hush": 0,
+            "sleepy": false,
+            "seatGroupVisible": true,
+            "audienceVisible": true
+          }
+        },
+        "fixturePolicy": {
+          "piece": "beethoven-ode-to-joy",
+          "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+          "crowdFill": 0.8,
+          "crowdSeed": 417,
+          "randomSeed": 417,
+          "uuidSeed": 874,
+          "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+          "stage": "snapOnstage + snapConductor",
+          "mainAnimation": "real frame function with controlled camera/time",
+          "ui": "hidden",
+          "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+          "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+          "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+          "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+        },
+        "measurement": "네이티브 rAF callback 시작 사이 간격. GPU 완료를 강제하지 않고, 실제 음악·입력·기기 FPS를 증명하지 않아."
+      }
+    },
+    {
+      "pairKey": "-cadence/sphere/low/desktop/cadence",
+      "beforeFile": "render/baseline-cadence-full-sphere-low-desktop-cadence.json",
+      "afterFile": "render/candidate-cadence-full-sphere-low-desktop-cadence.json",
+      "dependencies": [
+        "render/baseline-cadence-full-sphere-low-desktop-cadence.json",
+        "logs/002-baseline-cadence-sphere-desktop.json",
+        "logs/002-baseline-cadence-sphere-desktop.log",
+        "render/candidate-cadence-full-sphere-low-desktop-cadence.json",
+        "logs/003-candidate-cadence-sphere-desktop.json",
+        "logs/003-candidate-cadence-sphere-desktop.log"
+      ],
+      "sameQuality": true,
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "collectorSourceSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+      "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "conditions": {
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "viewport": [
+          640,
+          360
+        ],
+        "devicePixelRatio": 1,
+        "beforeMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            640,
+            360
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+        },
+        "afterMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            640,
+            360
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.0 Safari/537.36"
+        },
+        "fixture": {
+          "crowd": 11076,
+          "seats": 13851,
+          "eligibleAudienceSeats": 13845,
+          "recitalSeats": 6,
+          "lite": true,
+          "piece": "beethoven-ode-to-joy",
+          "sceneState": {
+            "phase": "playing",
+            "asleep": false,
+            "interval": false,
+            "recital": false,
+            "practice": false,
+            "hush": 0,
+            "sleepy": false,
+            "seatGroupVisible": null,
+            "audienceVisible": true
+          }
+        },
+        "fixturePolicy": {
+          "piece": "beethoven-ode-to-joy",
+          "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+          "crowdFill": 0.8,
+          "crowdSeed": 417,
+          "randomSeed": 417,
+          "uuidSeed": 874,
+          "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+          "stage": "snapOnstage + snapConductor",
+          "mainAnimation": "real frame function with controlled camera/time",
+          "ui": "hidden",
+          "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+          "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+          "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+          "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+        },
+        "measurement": "네이티브 rAF callback 시작 사이 간격. GPU 완료를 강제하지 않고, 실제 음악·입력·기기 FPS를 증명하지 않아."
+      }
+    },
+    {
+      "pairKey": "-cadence/hall/low/mobile/cadence",
+      "beforeFile": "render/baseline-cadence-full-hall-low-mobile-cadence.json",
+      "afterFile": "render/candidate-cadence-full-hall-low-mobile-cadence.json",
+      "dependencies": [
+        "render/baseline-cadence-full-hall-low-mobile-cadence.json",
+        "logs/004-baseline-cadence-hall-mobile.json",
+        "logs/004-baseline-cadence-hall-mobile.log",
+        "render/candidate-cadence-full-hall-low-mobile-cadence.json",
+        "logs/005-candidate-cadence-hall-mobile.json",
+        "logs/005-candidate-cadence-hall-mobile.log"
+      ],
+      "sameQuality": true,
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "collectorSourceSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+      "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "conditions": {
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "viewport": [
+          390,
+          844
+        ],
+        "devicePixelRatio": 1,
+        "beforeMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            390,
+            844
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+        },
+        "afterMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            390,
+            844
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+        },
+        "fixture": {
+          "crowd": 1503,
+          "seats": 1885,
+          "eligibleAudienceSeats": 1879,
+          "recitalSeats": 6,
+          "lite": true,
+          "piece": "beethoven-ode-to-joy",
+          "sceneState": {
+            "phase": "playing",
+            "asleep": false,
+            "interval": false,
+            "recital": false,
+            "practice": false,
+            "hush": 0,
+            "sleepy": false,
+            "seatGroupVisible": true,
+            "audienceVisible": true
+          }
+        },
+        "fixturePolicy": {
+          "piece": "beethoven-ode-to-joy",
+          "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+          "crowdFill": 0.8,
+          "crowdSeed": 417,
+          "randomSeed": 417,
+          "uuidSeed": 874,
+          "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+          "stage": "snapOnstage + snapConductor",
+          "mainAnimation": "real frame function with controlled camera/time",
+          "ui": "hidden",
+          "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+          "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+          "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+          "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+        },
+        "measurement": "네이티브 rAF callback 시작 사이 간격. GPU 완료를 강제하지 않고, 실제 음악·입력·기기 FPS를 증명하지 않아."
+      }
+    },
+    {
+      "pairKey": "-cadence/sphere/low/mobile/cadence",
+      "beforeFile": "render/baseline-cadence-full-sphere-low-mobile-cadence.json",
+      "afterFile": "render/candidate-cadence-full-sphere-low-mobile-cadence.json",
+      "dependencies": [
+        "render/baseline-cadence-full-sphere-low-mobile-cadence.json",
+        "logs/006-baseline-cadence-sphere-mobile.json",
+        "logs/006-baseline-cadence-sphere-mobile.log",
+        "render/candidate-cadence-full-sphere-low-mobile-cadence.json",
+        "logs/007-candidate-cadence-sphere-mobile.json",
+        "logs/007-candidate-cadence-sphere-mobile.log"
+      ],
+      "sameQuality": true,
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "collectorSourceSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+      "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "conditions": {
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "viewport": [
+          390,
+          844
+        ],
+        "devicePixelRatio": 1,
+        "beforeMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            390,
+            844
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+        },
+        "afterMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            390,
+            844
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+        },
+        "fixture": {
+          "crowd": 11076,
+          "seats": 13851,
+          "eligibleAudienceSeats": 13845,
+          "recitalSeats": 6,
+          "lite": true,
+          "piece": "beethoven-ode-to-joy",
+          "sceneState": {
+            "phase": "playing",
+            "asleep": false,
+            "interval": false,
+            "recital": false,
+            "practice": false,
+            "hush": 0,
+            "sleepy": false,
+            "seatGroupVisible": null,
+            "audienceVisible": true
+          }
+        },
+        "fixturePolicy": {
+          "piece": "beethoven-ode-to-joy",
+          "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+          "crowdFill": 0.8,
+          "crowdSeed": 417,
+          "randomSeed": 417,
+          "uuidSeed": 874,
+          "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+          "stage": "snapOnstage + snapConductor",
+          "mainAnimation": "real frame function with controlled camera/time",
+          "ui": "hidden",
+          "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+          "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+          "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+          "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+        },
+        "measurement": "네이티브 rAF callback 시작 사이 간격. GPU 완료를 강제하지 않고, 실제 음악·입력·기기 FPS를 증명하지 않아."
+      }
+    },
+    {
+      "pairKey": "-adaptive/hall/auto/mobile/cadence",
+      "beforeFile": "render/baseline-adaptive-full-hall-auto-mobile-cadence.json",
+      "afterFile": "render/candidate-adaptive-full-hall-auto-mobile-cadence.json",
+      "dependencies": [
+        "render/baseline-adaptive-full-hall-auto-mobile-cadence.json",
+        "logs/008-baseline-adaptive-hall.json",
+        "logs/008-baseline-adaptive-hall.log",
+        "render/candidate-adaptive-full-hall-auto-mobile-cadence.json",
+        "logs/009-candidate-adaptive-hall.json",
+        "logs/009-candidate-adaptive-hall.log"
+      ],
+      "sameQuality": false,
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "collectorSourceSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+      "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "conditions": {
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "viewport": [
+          390,
+          844
+        ],
+        "devicePixelRatio": 1,
+        "beforeMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            390,
+            844
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+        },
+        "afterMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            390,
+            844
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+        },
+        "fixture": {
+          "crowd": 1503,
+          "seats": 1885,
+          "eligibleAudienceSeats": 1879,
+          "recitalSeats": 6,
+          "lite": true,
+          "piece": "beethoven-ode-to-joy",
+          "sceneState": {
+            "phase": "playing",
+            "asleep": false,
+            "interval": false,
+            "recital": false,
+            "practice": false,
+            "hush": 0,
+            "sleepy": false,
+            "seatGroupVisible": true,
+            "audienceVisible": true
+          }
+        },
+        "fixturePolicy": {
+          "piece": "beethoven-ode-to-joy",
+          "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+          "crowdFill": 0.8,
+          "crowdSeed": 417,
+          "randomSeed": 417,
+          "uuidSeed": 874,
+          "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+          "stage": "snapOnstage + snapConductor",
+          "mainAnimation": "real frame function with controlled camera/time",
+          "animationDtCapSeconds": 0.05,
+          "automaticClock": "normal app dt cap; real elapsed interval; synthetic music clock remains controlled",
+          "ui": "hidden",
+          "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+          "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+          "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+          "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+        },
+        "measurement": "네이티브 rAF callback 시작 사이 간격. GPU 완료를 강제하지 않고, 실제 음악·입력·기기 FPS를 증명하지 않아."
+      }
+    },
+    {
+      "pairKey": "-adaptive/sphere/auto/mobile/cadence",
+      "beforeFile": "render/baseline-adaptive-full-sphere-auto-mobile-cadence.json",
+      "afterFile": "render/candidate-adaptive-full-sphere-auto-mobile-cadence.json",
+      "dependencies": [
+        "render/baseline-adaptive-full-sphere-auto-mobile-cadence.json",
+        "logs/010-baseline-adaptive-sphere.json",
+        "logs/010-baseline-adaptive-sphere.log",
+        "render/candidate-adaptive-full-sphere-auto-mobile-cadence.json",
+        "logs/011-candidate-adaptive-sphere.json",
+        "logs/011-candidate-adaptive-sphere.log"
+      ],
+      "sameQuality": false,
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "collectorSourceSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+      "helperSourceSha256": "90e571499532eb894d96ec8b015c9da08a3b0f62c59b5e51b5534258321255c9",
+      "conditions": {
+        "environment": {
+          "browserVersion": "153.0.8010.0",
+          "playwrightVersion": "1.62.1",
+          "platform": "linux",
+          "architecture": "x64",
+          "softwareRequested": true,
+          "chromeArgs": [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader"
+          ],
+          "fontMode": "system",
+          "headless": true
+        },
+        "viewport": [
+          390,
+          844
+        ],
+        "devicePixelRatio": 1,
+        "beforeMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            390,
+            844
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+        },
+        "afterMeta": {
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "gpuTimer": true,
+          "pixelRatio": 1,
+          "viewport": [
+            390,
+            844
+          ],
+          "quality": "low",
+          "renderScale": 1,
+          "hardwareConcurrency": 9,
+          "userAgent": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.0 Mobile Safari/537.36"
+        },
+        "fixture": {
+          "crowd": 11076,
+          "seats": 13851,
+          "eligibleAudienceSeats": 13845,
+          "recitalSeats": 6,
+          "lite": true,
+          "piece": "beethoven-ode-to-joy",
+          "sceneState": {
+            "phase": "playing",
+            "asleep": false,
+            "interval": false,
+            "recital": false,
+            "practice": false,
+            "hush": 0,
+            "sleepy": false,
+            "seatGroupVisible": null,
+            "audienceVisible": true
+          }
+        },
+        "fixturePolicy": {
+          "piece": "beethoven-ode-to-joy",
+          "musicTime": "25 s; broadcast 5 s; advances 1/60 s per measured step",
+          "crowdFill": 0.8,
+          "crowdSeed": 417,
+          "randomSeed": 417,
+          "uuidSeed": 874,
+          "audio": "real engine created, note scheduler disabled, synthetic performance clock",
+          "stage": "snapOnstage + snapConductor",
+          "mainAnimation": "real frame function with controlled camera/time",
+          "animationDtCapSeconds": 0.05,
+          "automaticClock": "normal app dt cap; real elapsed interval; synthetic music clock remains controlled",
+          "ui": "hidden",
+          "included": "musicians, audience, venue, selected effects/worlds, shadows, selected broadcast, post processing",
+          "effectsPeak": "two immediate confetti bursts, three immediate fireworks bursts, ten 1/60 s settling updates; lighting rig still entering; no delayed finale timers",
+          "effectsShow": "warm only lasers and wash for 480 x 1/60 s at t=12..20 before the same immediate bursts and ten settling updates; active beams",
+          "domeReadiness": "wait for existing UI readiness and visible dome; observe actual main-camera dome draws only during the unchanged warmup; restore hooks and check program readiness/link outside measured samples; hidden dome invalidates a step"
+        },
+        "measurement": "네이티브 rAF callback 시작 사이 간격. GPU 완료를 강제하지 않고, 실제 음악·입력·기기 FPS를 증명하지 않아."
+      }
+    }
+  ],
+  "rows": [
+    {
+      "pairKey": "-cadence/hall/low/desktop/cadence",
+      "repeat": "cadence",
+      "venue": "hall",
+      "quality": "low",
+      "device": "desktop",
+      "mode": "raf-cadence",
+      "scenario": "front",
+      "category": "same-quality",
+      "beforeFile": "render/baseline-cadence-full-hall-low-desktop-cadence.json",
+      "afterFile": "render/candidate-cadence-full-hall-low-desktop-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        640,
+        360
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            1.75,
+            5
+          ],
+          "target": [
+            0,
+            2,
+            -7
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 131.90600000000558,
+        "p50Ms": 165.3999999994412,
+        "p95Ms": 206.90000000037253,
+        "p99Ms": 328.3999999994412,
+        "calls": 429.53,
+        "triangles": 587723.52,
+        "submitMs": 8.547000000001862,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.018999999975785612,
+          "visual": 0.07699999996460974,
+          "orchestra": 0.7010000000055879,
+          "stage": 0.1439999999757856,
+          "effects": 0.015000000009313225,
+          "director": 0.09200000001117586,
+          "listener": 0.06299999996088446,
+          "audioRoom": 0.0010000000055879355,
+          "fx": 0.00800000000745058,
+          "syncLite": 0.5950000000186264,
+          "renderSubmit": 6.720000000037253
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 12987.837,
+          "ScriptDuration": 12883.769,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 24.313999999999997,
+          "ThreadTime": 765.218,
+          "ProcessTime": 1760.0000000000007
+        },
+        "cdpWindowMs": 13454.380000000128,
+        "sampleHeapMeanMiB": 159.26361083984375,
+        "sampleHeapLastMiB": 159.26361083984375,
+        "cdpHeapBeforeMiB": 16.703834533691406,
+        "cdpHeapAfterMiB": 16.544002532958984,
+        "textures": {
+          "first": 77,
+          "last": 77,
+          "mean": 77
+        },
+        "geometries": {
+          "first": 398,
+          "last": 435,
+          "mean": 427.23
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 7.581156277955193,
+        "onePercentLowRafFps": 2.7434842249657065,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 117.40800000000745,
+        "p50Ms": 144.6000000005588,
+        "p95Ms": 181.70000000018626,
+        "p99Ms": 325.20000000018626,
+        "calls": 430.53,
+        "triangles": 477179.52,
+        "submitMs": 8.891000000005588,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.02,
+          "visual": 0.05200000000186265,
+          "orchestra": 0.7480000000167638,
+          "stage": 0.13700000000186263,
+          "effects": 0.006000000005587936,
+          "director": 0.1489999999664724,
+          "listener": 0.00400000000372529,
+          "audioRoom": 0.002000000001862645,
+          "fx": 0.013999999975785613,
+          "syncLite": 0.6160000000149012,
+          "renderSubmit": 7.066000000061467
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 11593.042999999998,
+          "ScriptDuration": 11479.586000000001,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 25.154999999999998,
+          "ThreadTime": 806.4200000000002,
+          "ProcessTime": 1710
+        },
+        "cdpWindowMs": 11818.130999999994,
+        "sampleHeapMeanMiB": 124.93133544921875,
+        "sampleHeapLastMiB": 124.93133544921875,
+        "cdpHeapBeforeMiB": 18.986682891845703,
+        "cdpHeapAfterMiB": 31.204559326171875,
+        "textures": {
+          "first": 76,
+          "last": 76,
+          "mean": 76
+        },
+        "geometries": {
+          "first": 382,
+          "last": 419,
+          "mean": 411.23
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 8.517307168165173,
+        "onePercentLowRafFps": 2.8735632183908044,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 131.90600000000558,
+          "after": 117.40800000000745,
+          "difference": -14.497999999998129,
+          "percent": -10.991160371778019
+        },
+        "p50Ms": {
+          "before": 165.3999999994412,
+          "after": 144.6000000005588,
+          "difference": -20.799999998882413,
+          "percent": -12.575574364542131
+        },
+        "p95Ms": {
+          "before": 206.90000000037253,
+          "after": 181.70000000018626,
+          "difference": -25.200000000186265,
+          "percent": -12.179797003451377
+        },
+        "p99Ms": {
+          "before": 328.3999999994412,
+          "after": 325.20000000018626,
+          "difference": -3.199999999254942,
+          "percent": -0.9744214370464022
+        },
+        "calls": {
+          "before": 429.53,
+          "after": 430.53,
+          "difference": 1,
+          "percent": 0.23281260913090573
+        },
+        "triangles": {
+          "before": 587723.52,
+          "after": 477179.52,
+          "difference": -110544,
+          "percent": -18.808843995217337
+        },
+        "submitMs": {
+          "before": 8.547000000001862,
+          "after": 8.891000000005588,
+          "difference": 0.3440000000037262,
+          "percent": 4.024804024846751
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 159.26361083984375,
+          "after": 124.93133544921875,
+          "difference": -34.332275390625,
+          "percent": -21.556886227544915
+        },
+        "sampleHeapLastMiB": {
+          "before": 159.26361083984375,
+          "after": 124.93133544921875,
+          "difference": -34.332275390625,
+          "percent": -21.556886227544915
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 16.703834533691406,
+          "after": 18.986682891845703,
+          "difference": 2.282848358154297,
+          "percent": 13.6666126184968
+        },
+        "cdpHeapAfterMiB": {
+          "before": 16.544002532958984,
+          "after": 31.204559326171875,
+          "difference": 14.66055679321289,
+          "percent": 88.6155376488012
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 12987.837,
+            "after": 11593.042999999998,
+            "difference": -1394.7940000000017,
+            "percent": -10.739232406443055
+          },
+          "ScriptDuration": {
+            "before": 12883.769,
+            "after": 11479.586000000001,
+            "difference": -1404.182999999999,
+            "percent": -10.898852657168867
+          },
+          "LayoutDuration": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "RecalcStyleDuration": {
+            "before": 24.313999999999997,
+            "after": 25.154999999999998,
+            "difference": 0.8410000000000011,
+            "percent": 3.45891256066464
+          },
+          "ThreadTime": {
+            "before": 765.218,
+            "after": 806.4200000000002,
+            "difference": 41.202000000000226,
+            "percent": 5.384347989723226
+          },
+          "ProcessTime": {
+            "before": 1760.0000000000007,
+            "after": 1710,
+            "difference": -50.00000000000068,
+            "percent": -2.8409090909091272
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.018999999975785612,
+            "after": 0.02,
+            "difference": 0.0010000000242143883,
+            "percent": 5.26315802888857
+          },
+          "visual": {
+            "before": 0.07699999996460974,
+            "after": 0.05200000000186265,
+            "difference": -0.024999999962747092,
+            "percent": -32.4675324340746
+          },
+          "orchestra": {
+            "before": 0.7010000000055879,
+            "after": 0.7480000000167638,
+            "difference": 0.04700000001117588,
+            "percent": 6.704707562168499
+          },
+          "stage": {
+            "before": 0.1439999999757856,
+            "after": 0.13700000000186263,
+            "difference": -0.006999999973922977,
+            "percent": -4.861111093819492
+          },
+          "effects": {
+            "before": 0.015000000009313225,
+            "after": 0.006000000005587936,
+            "difference": -0.009000000003725288,
+            "percent": -59.99999998758236
+          },
+          "director": {
+            "before": 0.09200000001117586,
+            "after": 0.1489999999664724,
+            "difference": 0.05699999995529653,
+            "percent": 61.95652168301342
+          },
+          "listener": {
+            "before": 0.06299999996088446,
+            "after": 0.00400000000372529,
+            "difference": -0.05899999995715917,
+            "percent": -93.65079364093839
+          },
+          "audioRoom": {
+            "before": 0.0010000000055879355,
+            "after": 0.002000000001862645,
+            "difference": 0.0009999999962747095,
+            "percent": 99.9999990686774
+          },
+          "fx": {
+            "before": 0.00800000000745058,
+            "after": 0.013999999975785613,
+            "difference": 0.005999999968335033,
+            "percent": 74.99999953433871
+          },
+          "syncLite": {
+            "before": 0.5950000000186264,
+            "after": 0.6160000000149012,
+            "difference": 0.020999999996274776,
+            "percent": 3.5294117639693035
+          },
+          "renderSubmit": {
+            "before": 6.720000000037253,
+            "after": 7.066000000061467,
+            "difference": 0.3460000000242145,
+            "percent": 5.148809524141318
+          }
+        },
+        "observedRafFps": {
+          "before": 7.581156277955193,
+          "after": 8.517307168165173,
+          "difference": 0.93615089020998,
+          "percent": 12.34839193240429
+        },
+        "onePercentLowRafFps": {
+          "before": 2.7434842249657065,
+          "after": 2.8735632183908044,
+          "difference": 0.13007899342509788,
+          "percent": 4.741379310344818
+        }
+      },
+      "direction": {
+        "meanTime": "better",
+        "p95Time": "better"
+      }
+    },
+    {
+      "pairKey": "-cadence/hall/low/desktop/cadence",
+      "repeat": "cadence",
+      "venue": "hall",
+      "quality": "low",
+      "device": "desktop",
+      "mode": "raf-cadence",
+      "scenario": "wide",
+      "category": "same-quality",
+      "beforeFile": "render/baseline-cadence-full-hall-low-desktop-cadence.json",
+      "afterFile": "render/candidate-cadence-full-hall-low-desktop-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        640,
+        360
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            22,
+            30
+          ],
+          "target": [
+            0,
+            4,
+            -4
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 203.255,
+        "p50Ms": 259.79999999981374,
+        "p95Ms": 313.8999999994412,
+        "p99Ms": 539.2999999998137,
+        "calls": 492.46,
+        "triangles": 746675.72,
+        "submitMs": 7.425999999977648,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.022000000057742,
+          "visual": 0.04399999998509884,
+          "orchestra": 0.7550000000372529,
+          "stage": 0.0969999999459833,
+          "effects": 0.009999999981373549,
+          "director": 0.12200000001117588,
+          "listener": 0.058999999975785616,
+          "audioRoom": 0.0019999999925494195,
+          "fx": 0.012999999988824128,
+          "syncLite": 0.6320000000298023,
+          "renderSubmit": 5.607000000020489
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 20112.856,
+          "ScriptDuration": 20033.569999999996,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 25.774000000000004,
+          "ThreadTime": 779.617,
+          "ProcessTime": 2060.0000000000005
+        },
+        "cdpWindowMs": 20631.782999999814,
+        "sampleHeapMeanMiB": 159.26361083984375,
+        "sampleHeapLastMiB": 159.26361083984375,
+        "cdpHeapBeforeMiB": 14.826915740966797,
+        "cdpHeapAfterMiB": 15.959571838378906,
+        "textures": {
+          "first": 77,
+          "last": 77,
+          "mean": 77
+        },
+        "geometries": {
+          "first": 477,
+          "last": 489,
+          "mean": 483.08
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 4.919928169048732,
+        "onePercentLowRafFps": 1.8254837531952173,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 196.93299999999815,
+        "p50Ms": 254.70000000018626,
+        "p95Ms": 285.20000000018626,
+        "p99Ms": 307.90000000037253,
+        "calls": 492.46,
+        "triangles": 746675.72,
+        "submitMs": 8.313000000044703,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.02299999997019768,
+          "visual": 0.04700000000186264,
+          "orchestra": 0.7079999999981373,
+          "stage": 0.17200000003911556,
+          "effects": 0.01,
+          "director": 0.09800000004470348,
+          "listener": 0.0009999999962747098,
+          "audioRoom": 0.00400000000372529,
+          "fx": 0.011000000005587936,
+          "syncLite": 0.7149999999720603,
+          "renderSubmit": 6.453000000016764
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 19786.624,
+          "ScriptDuration": 19676.576999999997,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 23.98700000000001,
+          "ThreadTime": 823.3099999999997,
+          "ProcessTime": 2109.9999999999995
+        },
+        "cdpWindowMs": 20005.33600000017,
+        "sampleHeapMeanMiB": 124.93133544921875,
+        "sampleHeapLastMiB": 124.93133544921875,
+        "cdpHeapBeforeMiB": 15.563400268554688,
+        "cdpHeapAfterMiB": 15.784198760986328,
+        "textures": {
+          "first": 76,
+          "last": 76,
+          "mean": 76
+        },
+        "geometries": {
+          "first": 464,
+          "last": 476,
+          "mean": 470.08
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 5.077869123001272,
+        "onePercentLowRafFps": 2.7578599007198767,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 203.255,
+          "after": 196.93299999999815,
+          "difference": -6.32200000000185,
+          "percent": -3.110378588473517
+        },
+        "p50Ms": {
+          "before": 259.79999999981374,
+          "after": 254.70000000018626,
+          "difference": -5.099999999627471,
+          "percent": -1.9630484987032792
+        },
+        "p95Ms": {
+          "before": 313.8999999994412,
+          "after": 285.20000000018626,
+          "difference": -28.699999999254942,
+          "percent": -9.14303918423257
+        },
+        "p99Ms": {
+          "before": 539.2999999998137,
+          "after": 307.90000000037253,
+          "difference": -231.3999999994412,
+          "percent": -42.907472649642344
+        },
+        "calls": {
+          "before": 492.46,
+          "after": 492.46,
+          "difference": 0,
+          "percent": 0
+        },
+        "triangles": {
+          "before": 746675.72,
+          "after": 746675.72,
+          "difference": 0,
+          "percent": 0
+        },
+        "submitMs": {
+          "before": 7.425999999977648,
+          "after": 8.313000000044703,
+          "difference": 0.8870000000670544,
+          "percent": 11.944519257604691
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 159.26361083984375,
+          "after": 124.93133544921875,
+          "difference": -34.332275390625,
+          "percent": -21.556886227544915
+        },
+        "sampleHeapLastMiB": {
+          "before": 159.26361083984375,
+          "after": 124.93133544921875,
+          "difference": -34.332275390625,
+          "percent": -21.556886227544915
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 14.826915740966797,
+          "after": 15.563400268554688,
+          "difference": 0.7364845275878906,
+          "percent": 4.967213279245808
+        },
+        "cdpHeapAfterMiB": {
+          "before": 15.959571838378906,
+          "after": 15.784198760986328,
+          "difference": -0.17537307739257812,
+          "percent": -1.0988582849750905
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 20112.856,
+            "after": 19786.624,
+            "difference": -326.23199999999997,
+            "percent": -1.6220073369987875
+          },
+          "ScriptDuration": {
+            "before": 20033.569999999996,
+            "after": 19676.576999999997,
+            "difference": -356.9929999999986,
+            "percent": -1.781973956713645
+          },
+          "LayoutDuration": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "RecalcStyleDuration": {
+            "before": 25.774000000000004,
+            "after": 23.98700000000001,
+            "difference": -1.7869999999999955,
+            "percent": -6.933343679677173
+          },
+          "ThreadTime": {
+            "before": 779.617,
+            "after": 823.3099999999997,
+            "difference": 43.692999999999756,
+            "percent": 5.604418579892401
+          },
+          "ProcessTime": {
+            "before": 2060.0000000000005,
+            "after": 2109.9999999999995,
+            "difference": 49.99999999999909,
+            "percent": 2.427184466019372
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.022000000057742,
+            "after": 0.02299999997019768,
+            "difference": 0.0009999999124556784,
+            "percent": 4.545454135595639
+          },
+          "visual": {
+            "before": 0.04399999998509884,
+            "after": 0.04700000000186264,
+            "difference": 0.0030000000167638013,
+            "percent": 6.818181858590422
+          },
+          "orchestra": {
+            "before": 0.7550000000372529,
+            "after": 0.7079999999981373,
+            "difference": -0.04700000003911553,
+            "percent": -6.2251655677876165
+          },
+          "stage": {
+            "before": 0.0969999999459833,
+            "after": 0.17200000003911556,
+            "difference": 0.07500000009313226,
+            "percent": 77.31958776793584
+          },
+          "effects": {
+            "before": 0.009999999981373549,
+            "after": 0.01,
+            "difference": 1.8626451075975936e-11,
+            "percent": 1.862645149230957e-7
+          },
+          "director": {
+            "before": 0.12200000001117588,
+            "after": 0.09800000004470348,
+            "difference": -0.023999999966472396,
+            "percent": -19.672131118257262
+          },
+          "listener": {
+            "before": 0.058999999975785616,
+            "after": 0.0009999999962747098,
+            "difference": -0.057999999979510906,
+            "percent": -98.30508475138114
+          },
+          "audioRoom": {
+            "before": 0.0019999999925494195,
+            "after": 0.00400000000372529,
+            "difference": 0.0020000000111758706,
+            "percent": 100.00000093132257
+          },
+          "fx": {
+            "before": 0.012999999988824128,
+            "after": 0.011000000005587936,
+            "difference": -0.0019999999832361927,
+            "percent": -15.3846152688889
+          },
+          "syncLite": {
+            "before": 0.6320000000298023,
+            "after": 0.7149999999720603,
+            "difference": 0.08299999994225804,
+            "percent": 13.132911382649382
+          },
+          "renderSubmit": {
+            "before": 5.607000000020489,
+            "after": 6.453000000016764,
+            "difference": 0.8459999999962751,
+            "percent": 15.088282503891271
+          }
+        },
+        "observedRafFps": {
+          "before": 4.919928169048732,
+          "after": 5.077869123001272,
+          "difference": 0.15794095395254004,
+          "percent": 3.2102288595623474
+        },
+        "onePercentLowRafFps": {
+          "before": 1.8254837531952173,
+          "after": 2.7578599007198767,
+          "difference": 0.9323761475246595,
+          "percent": 51.07556536138347
+        }
+      },
+      "direction": {
+        "meanTime": "better",
+        "p95Time": "better"
+      }
+    },
+    {
+      "pairKey": "-cadence/sphere/low/desktop/cadence",
+      "repeat": "cadence",
+      "venue": "sphere",
+      "quality": "low",
+      "device": "desktop",
+      "mode": "raf-cadence",
+      "scenario": "front",
+      "category": "same-quality",
+      "beforeFile": "render/baseline-cadence-full-sphere-low-desktop-cadence.json",
+      "afterFile": "render/candidate-cadence-full-sphere-low-desktop-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        640,
+        360
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            1.75,
+            5
+          ],
+          "target": [
+            0,
+            2,
+            -7
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 101.13700000000186,
+        "p50Ms": 126.09999999962747,
+        "p95Ms": 148.19999999925494,
+        "p99Ms": 244.6000000005588,
+        "calls": 405.89,
+        "triangles": 379713.44,
+        "submitMs": 13.60300000000745,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.06399999994784594,
+          "audienceLOD": 0.0030000000074505806,
+          "seatLOD": 0.006999999992549419,
+          "visual": 0.06899999999441206,
+          "orchestra": 0.8550000000279396,
+          "stage": 0.12700000001117587,
+          "effects": 0.008999999994412065,
+          "director": 0.24400000005960465,
+          "listener": 0.18399999999441208,
+          "audioRoom": 0.002000000011175871,
+          "fx": 0.010000000018626451,
+          "worlds": 0.0009999999962747098,
+          "syncLite": 0.9830000000167638,
+          "renderSubmit": 10.908999999985099
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 10196.140000000001,
+          "ScriptDuration": 10078.93,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 26.347999999999995,
+          "ThreadTime": 878.9030000000002,
+          "ProcessTime": 1779.9999999999993
+        },
+        "cdpWindowMs": 10354.263000000174,
+        "sampleHeapMeanMiB": 179.290771484375,
+        "sampleHeapLastMiB": 179.290771484375,
+        "cdpHeapBeforeMiB": 42.513248443603516,
+        "cdpHeapAfterMiB": 42.5847053527832,
+        "textures": {
+          "first": 47,
+          "last": 47,
+          "mean": 47
+        },
+        "geometries": {
+          "first": 374,
+          "last": 415,
+          "mean": 402.52
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 9.887578235462605,
+        "onePercentLowRafFps": 4.0584415584354225,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 100.80700000000186,
+        "p50Ms": 128.5,
+        "p95Ms": 149.59999999962747,
+        "p99Ms": 156.20000000018626,
+        "calls": 405.89,
+        "triangles": 379713.44,
+        "submitMs": 8.781000000052154,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.03799999999813736,
+          "audienceLOD": 0.0010000000055879355,
+          "seatLOD": 0.012000000020489097,
+          "visual": 0.056999999983236196,
+          "orchestra": 0.7620000000949949,
+          "stage": 0.13499999998137355,
+          "effects": 0.01199999999254942,
+          "director": 0.26900000003166497,
+          "listener": 0.002000000011175871,
+          "audioRoom": 0.017000000001862647,
+          "fx": 0.01799999998882413,
+          "worlds": 0.002000000001862645,
+          "syncLite": 0.6399999999720604,
+          "renderSubmit": 6.718000000007451
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 10078.242000000002,
+          "ScriptDuration": 9965.84,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 24.685000000000006,
+          "ThreadTime": 762.806,
+          "ProcessTime": 1569.9999999999993
+        },
+        "cdpWindowMs": 10288.236999999754,
+        "sampleHeapMeanMiB": 159.26361083984375,
+        "sampleHeapLastMiB": 159.26361083984375,
+        "cdpHeapBeforeMiB": 35.793724060058594,
+        "cdpHeapAfterMiB": 39.570030212402344,
+        "textures": {
+          "first": 46,
+          "last": 46,
+          "mean": 46
+        },
+        "geometries": {
+          "first": 361,
+          "last": 402,
+          "mean": 389.52
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 9.919946035493384,
+        "onePercentLowRafFps": 4.502476362006652,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 101.13700000000186,
+          "after": 100.80700000000186,
+          "difference": -0.3299999999999983,
+          "percent": -0.3262900817702641
+        },
+        "p50Ms": {
+          "before": 126.09999999962747,
+          "after": 128.5,
+          "difference": 2.400000000372529,
+          "percent": 1.9032513880885116
+        },
+        "p95Ms": {
+          "before": 148.19999999925494,
+          "after": 149.59999999962747,
+          "difference": 1.400000000372529,
+          "percent": 0.9446693659781236
+        },
+        "p99Ms": {
+          "before": 244.6000000005588,
+          "after": 156.20000000018626,
+          "difference": -88.40000000037253,
+          "percent": -36.140637776030495
+        },
+        "calls": {
+          "before": 405.89,
+          "after": 405.89,
+          "difference": 0,
+          "percent": 0
+        },
+        "triangles": {
+          "before": 379713.44,
+          "after": 379713.44,
+          "difference": 0,
+          "percent": 0
+        },
+        "submitMs": {
+          "before": 13.60300000000745,
+          "after": 8.781000000052154,
+          "difference": -4.821999999955295,
+          "percent": -35.4480629269474
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "sampleHeapLastMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 42.513248443603516,
+          "after": 35.793724060058594,
+          "difference": -6.719524383544922,
+          "percent": -15.805718521977429
+        },
+        "cdpHeapAfterMiB": {
+          "before": 42.5847053527832,
+          "after": 39.570030212402344,
+          "difference": -3.0146751403808594,
+          "percent": -7.079243863275497
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 10196.140000000001,
+            "after": 10078.242000000002,
+            "difference": -117.89799999999923,
+            "percent": -1.1563003254172588
+          },
+          "ScriptDuration": {
+            "before": 10078.93,
+            "after": 9965.84,
+            "difference": -113.09000000000015,
+            "percent": -1.1220437090048274
+          },
+          "LayoutDuration": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "RecalcStyleDuration": {
+            "before": 26.347999999999995,
+            "after": 24.685000000000006,
+            "difference": -1.6629999999999896,
+            "percent": -6.311674510399234
+          },
+          "ThreadTime": {
+            "before": 878.9030000000002,
+            "after": 762.806,
+            "difference": -116.09700000000021,
+            "percent": -13.209307511750467
+          },
+          "ProcessTime": {
+            "before": 1779.9999999999993,
+            "after": 1569.9999999999993,
+            "difference": -210,
+            "percent": -11.79775280898877
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.06399999994784594,
+            "after": 0.03799999999813736,
+            "difference": -0.025999999949708585,
+            "percent": -40.624999954525265
+          },
+          "audienceLOD": {
+            "before": 0.0030000000074505806,
+            "after": 0.0010000000055879355,
+            "difference": -0.002000000001862645,
+            "percent": -66.66666656318638
+          },
+          "seatLOD": {
+            "before": 0.006999999992549419,
+            "after": 0.012000000020489097,
+            "difference": 0.005000000027939678,
+            "percent": 71.42857190373601
+          },
+          "visual": {
+            "before": 0.06899999999441206,
+            "after": 0.056999999983236196,
+            "difference": -0.012000000011175863,
+            "percent": -17.391304365431417
+          },
+          "orchestra": {
+            "before": 0.8550000000279396,
+            "after": 0.7620000000949949,
+            "difference": -0.09299999993294472,
+            "percent": -10.877192974257976
+          },
+          "stage": {
+            "before": 0.12700000001117587,
+            "after": 0.13499999998137355,
+            "difference": 0.00799999997019768,
+            "percent": 6.299212574404489
+          },
+          "effects": {
+            "before": 0.008999999994412065,
+            "after": 0.01199999999254942,
+            "difference": 0.0029999999981373555,
+            "percent": 33.33333333333335
+          },
+          "director": {
+            "before": 0.24400000005960465,
+            "after": 0.26900000003166497,
+            "difference": 0.024999999972060316,
+            "percent": 10.245901625390697
+          },
+          "listener": {
+            "before": 0.18399999999441208,
+            "after": 0.002000000011175871,
+            "difference": -0.1819999999832362,
+            "percent": -98.91304347215402
+          },
+          "audioRoom": {
+            "before": 0.002000000011175871,
+            "after": 0.017000000001862647,
+            "difference": 0.014999999990686776,
+            "percent": 749.9999953433871
+          },
+          "fx": {
+            "before": 0.010000000018626451,
+            "after": 0.01799999998882413,
+            "difference": 0.007999999970197678,
+            "percent": 79.99999955296518
+          },
+          "worlds": {
+            "before": 0.0009999999962747098,
+            "after": 0.002000000001862645,
+            "difference": 0.0010000000055879353,
+            "percent": 100.00000093132257
+          },
+          "syncLite": {
+            "before": 0.9830000000167638,
+            "after": 0.6399999999720604,
+            "difference": -0.34300000004470343,
+            "percent": -34.89318413416622
+          },
+          "renderSubmit": {
+            "before": 10.908999999985099,
+            "after": 6.718000000007451,
+            "difference": -4.190999999977648,
+            "percent": -38.41782014834882
+          }
+        },
+        "observedRafFps": {
+          "before": 9.887578235462605,
+          "after": 9.919946035493384,
+          "difference": 0.032367800030778326,
+          "percent": 0.32735821917129204
+        },
+        "onePercentLowRafFps": {
+          "before": 4.0584415584354225,
+          "after": 4.502476362006652,
+          "difference": 0.4440348035712294,
+          "percent": 10.941017560011623
+        }
+      },
+      "direction": {
+        "meanTime": "better",
+        "p95Time": "worse"
+      }
+    },
+    {
+      "pairKey": "-cadence/sphere/low/desktop/cadence",
+      "repeat": "cadence",
+      "venue": "sphere",
+      "quality": "low",
+      "device": "desktop",
+      "mode": "raf-cadence",
+      "scenario": "wide",
+      "category": "same-quality",
+      "beforeFile": "render/baseline-cadence-full-sphere-low-desktop-cadence.json",
+      "afterFile": "render/candidate-cadence-full-sphere-low-desktop-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        640,
+        360
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            44,
+            62
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 421.8759999999963,
+        "p50Ms": 517.7999999998137,
+        "p95Ms": 626.6999999992549,
+        "p99Ms": 1112.5999999996275,
+        "calls": 489.46,
+        "triangles": 968098,
+        "submitMs": 13.380000000018626,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.06200000003911555,
+          "audienceLOD": 0.0009999999962747098,
+          "seatLOD": 0.007000000011175871,
+          "visual": 0.0980000000167638,
+          "orchestra": 1.1589999999664724,
+          "stage": 0.12799999996088446,
+          "effects": 0.01,
+          "director": 0.2399999999627471,
+          "listener": 0.0570000000204891,
+          "audioRoom": 0.0049999999906867746,
+          "fx": 0.007000000011175871,
+          "worlds": 0,
+          "syncLite": 0.8180000000353903,
+          "renderSubmit": 10.716999999983237
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 42510.191000000006,
+          "ScriptDuration": 42366.439,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 32.42399999999999,
+          "ThreadTime": 904.4160000000003,
+          "ProcessTime": 3519.9999999999995
+        },
+        "cdpWindowMs": 42752.7170000003,
+        "sampleHeapMeanMiB": 179.290771484375,
+        "sampleHeapLastMiB": 179.290771484375,
+        "cdpHeapBeforeMiB": 44.97964096069336,
+        "cdpHeapAfterMiB": 32.19992446899414,
+        "textures": {
+          "first": 47,
+          "last": 47,
+          "mean": 47
+        },
+        "geometries": {
+          "first": 446,
+          "last": 454,
+          "mean": 451.09
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 2.3703647517280166,
+        "onePercentLowRafFps": 0.8700191404208073,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 409.435,
+        "p50Ms": 519.6000000005588,
+        "p95Ms": 594.0999999996275,
+        "p99Ms": 1082,
+        "calls": 489.46,
+        "triangles": 968098,
+        "submitMs": 8.732000000029803,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.035999999968335035,
+          "audienceLOD": 0.002999999998137355,
+          "seatLOD": 0.005999999986961484,
+          "visual": 0.0470000000204891,
+          "orchestra": 0.6309999999869614,
+          "stage": 0.0879999999795109,
+          "effects": 0.00900000000372529,
+          "director": 0.19700000000186266,
+          "listener": 0.0019999999925494195,
+          "audioRoom": 0.003999999994412065,
+          "fx": 0.017000000020489098,
+          "worlds": 0,
+          "syncLite": 0.5429999999981373,
+          "renderSubmit": 7.04300000006333
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 40865.245,
+          "ScriptDuration": 40736.600000000006,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 23.183999999999997,
+          "ThreadTime": 780.506,
+          "ProcessTime": 3170
+        },
+        "cdpWindowMs": 41623.94099999983,
+        "sampleHeapMeanMiB": 159.26361083984375,
+        "sampleHeapLastMiB": 159.26361083984375,
+        "cdpHeapBeforeMiB": 41.97178649902344,
+        "cdpHeapAfterMiB": 32.0615234375,
+        "textures": {
+          "first": 46,
+          "last": 46,
+          "mean": 46
+        },
+        "geometries": {
+          "first": 433,
+          "last": 441,
+          "mean": 438.09
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 2.4423901229743428,
+        "onePercentLowRafFps": 0.9009009009009009,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 421.8759999999963,
+          "after": 409.435,
+          "difference": -12.44099999999628,
+          "percent": -2.948970787623939
+        },
+        "p50Ms": {
+          "before": 517.7999999998137,
+          "after": 519.6000000005588,
+          "difference": 1.800000000745058,
+          "percent": 0.34762456561330257
+        },
+        "p95Ms": {
+          "before": 626.6999999992549,
+          "after": 594.0999999996275,
+          "difference": -32.59999999962747,
+          "percent": -5.20185096532092
+        },
+        "p99Ms": {
+          "before": 1112.5999999996275,
+          "after": 1082,
+          "difference": -30.59999999962747,
+          "percent": -2.7503145784323
+        },
+        "calls": {
+          "before": 489.46,
+          "after": 489.46,
+          "difference": 0,
+          "percent": 0
+        },
+        "triangles": {
+          "before": 968098,
+          "after": 968098,
+          "difference": 0,
+          "percent": 0
+        },
+        "submitMs": {
+          "before": 13.380000000018626,
+          "after": 8.732000000029803,
+          "difference": -4.647999999988823,
+          "percent": -34.73841554545854
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "sampleHeapLastMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 44.97964096069336,
+          "after": 41.97178649902344,
+          "difference": -3.007854461669922,
+          "percent": -6.687146445429426
+        },
+        "cdpHeapAfterMiB": {
+          "before": 32.19992446899414,
+          "after": 32.0615234375,
+          "difference": -0.13840103149414062,
+          "percent": -0.42981787621089174
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 42510.191000000006,
+            "after": 40865.245,
+            "difference": -1644.9460000000036,
+            "percent": -3.8695333079072802
+          },
+          "ScriptDuration": {
+            "before": 42366.439,
+            "after": 40736.600000000006,
+            "difference": -1629.8389999999927,
+            "percent": -3.8470049370918136
+          },
+          "LayoutDuration": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "RecalcStyleDuration": {
+            "before": 32.42399999999999,
+            "after": 23.183999999999997,
+            "difference": -9.239999999999995,
+            "percent": -28.49740932642486
+          },
+          "ThreadTime": {
+            "before": 904.4160000000003,
+            "after": 780.506,
+            "difference": -123.91000000000031,
+            "percent": -13.700553727488263
+          },
+          "ProcessTime": {
+            "before": 3519.9999999999995,
+            "after": 3170,
+            "difference": -349.99999999999955,
+            "percent": -9.9431818181818
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.06200000003911555,
+            "after": 0.035999999968335035,
+            "difference": -0.026000000070780516,
+            "percent": -41.93548395867294
+          },
+          "audienceLOD": {
+            "before": 0.0009999999962747098,
+            "after": 0.002999999998137355,
+            "difference": 0.0020000000018626455,
+            "percent": 200.00000093132257
+          },
+          "seatLOD": {
+            "before": 0.007000000011175871,
+            "after": 0.005999999986961484,
+            "difference": -0.0010000000242143875,
+            "percent": -14.285714608826206
+          },
+          "visual": {
+            "before": 0.0980000000167638,
+            "after": 0.0470000000204891,
+            "difference": -0.050999999996274706,
+            "percent": -52.04081631382723
+          },
+          "orchestra": {
+            "before": 1.1589999999664724,
+            "after": 0.6309999999869614,
+            "difference": -0.527999999979511,
+            "percent": -45.55651423596074
+          },
+          "stage": {
+            "before": 0.12799999996088446,
+            "after": 0.0879999999795109,
+            "difference": -0.03999999998137356,
+            "percent": -31.24999999499779
+          },
+          "effects": {
+            "before": 0.01,
+            "after": 0.00900000000372529,
+            "difference": -0.00099999999627471,
+            "percent": -9.999999962747097
+          },
+          "director": {
+            "before": 0.2399999999627471,
+            "after": 0.19700000000186266,
+            "difference": -0.04299999996088444,
+            "percent": -17.916666653149548
+          },
+          "listener": {
+            "before": 0.0570000000204891,
+            "after": 0.0019999999925494195,
+            "difference": -0.05500000002793968,
+            "percent": -96.49122808450788
+          },
+          "audioRoom": {
+            "before": 0.0049999999906867746,
+            "after": 0.003999999994412065,
+            "difference": -0.00099999999627471,
+            "percent": -19.999999962747104
+          },
+          "fx": {
+            "before": 0.007000000011175871,
+            "after": 0.017000000020489098,
+            "difference": 0.010000000009313226,
+            "percent": 142.85714276210996
+          },
+          "worlds": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "syncLite": {
+            "before": 0.8180000000353903,
+            "after": 0.5429999999981373,
+            "difference": -0.275000000037253,
+            "percent": -33.61858191019014
+          },
+          "renderSubmit": {
+            "before": 10.716999999983237,
+            "after": 7.04300000006333,
+            "difference": -3.673999999919907,
+            "percent": -34.281981897225464
+          }
+        },
+        "observedRafFps": {
+          "before": 2.3703647517280166,
+          "after": 2.4423901229743428,
+          "difference": 0.07202537124632613,
+          "percent": 3.0385775519914837
+        },
+        "onePercentLowRafFps": {
+          "before": 0.8700191404208073,
+          "after": 0.9009009009009009,
+          "difference": 0.030881760480093612,
+          "percent": 3.5495495495831086
+        }
+      },
+      "direction": {
+        "meanTime": "better",
+        "p95Time": "better"
+      }
+    },
+    {
+      "pairKey": "-cadence/hall/low/mobile/cadence",
+      "repeat": "cadence",
+      "venue": "hall",
+      "quality": "low",
+      "device": "mobile",
+      "mode": "raf-cadence",
+      "scenario": "front",
+      "category": "same-quality",
+      "beforeFile": "render/baseline-cadence-full-hall-low-mobile-cadence.json",
+      "afterFile": "render/candidate-cadence-full-hall-low-mobile-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        390,
+        844
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            1.75,
+            5
+          ],
+          "target": [
+            0,
+            2,
+            -7
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 147.97900000000374,
+        "p50Ms": 181.70000000018626,
+        "p95Ms": 365.90000000037253,
+        "p99Ms": 389.20000000018626,
+        "calls": 343.7,
+        "triangles": 564003.54,
+        "submitMs": 8.495999999986962,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.015,
+          "visual": 0.06000000001862645,
+          "orchestra": 0.8140000000223517,
+          "stage": 0.13399999998509884,
+          "effects": 0.015000000009313225,
+          "director": 0.11399999998509884,
+          "listener": 0.050999999968335034,
+          "audioRoom": 0.0030000000074505806,
+          "fx": 0.014000000031664968,
+          "syncLite": 0.6129999999701977,
+          "renderSubmit": 6.589999999981374
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 14467.672000000002,
+          "ScriptDuration": 14372.15,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 9.828000000000003,
+          "ThreadTime": 667.7840000000001,
+          "ProcessTime": 1730.0000000000005
+        },
+        "cdpWindowMs": 15056.987999999365,
+        "sampleHeapMeanMiB": 141.143798828125,
+        "sampleHeapLastMiB": 141.143798828125,
+        "cdpHeapBeforeMiB": 23.45193862915039,
+        "cdpHeapAfterMiB": 14.947525024414062,
+        "textures": {
+          "first": 77,
+          "last": 77,
+          "mean": 77
+        },
+        "geometries": {
+          "first": 323,
+          "last": 360,
+          "mean": 350.71
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 6.757715621811032,
+        "onePercentLowRafFps": 2.484472049689441,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 131.96900000000372,
+        "p50Ms": 164,
+        "p95Ms": 202.70000000018626,
+        "p99Ms": 352.79999999981374,
+        "calls": 346.7,
+        "triangles": 468615.54,
+        "submitMs": 9.940999999996274,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.026999999992549418,
+          "visual": 0.05199999997392297,
+          "orchestra": 0.8040000000130385,
+          "stage": 0.1460000000242144,
+          "effects": 0.012999999998137356,
+          "director": 0.10999999994412064,
+          "listener": 0.005000000009313226,
+          "audioRoom": 0.0010000000055879355,
+          "fx": 0.01699999999254942,
+          "syncLite": 0.6349999999441206,
+          "renderSubmit": 8.014000000031665
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 13107.105,
+          "ScriptDuration": 13038.935,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 5.857000000000001,
+          "ThreadTime": 706.731,
+          "ProcessTime": 1699.9999999999993
+        },
+        "cdpWindowMs": 13406.95500000038,
+        "sampleHeapMeanMiB": 141.143798828125,
+        "sampleHeapLastMiB": 141.143798828125,
+        "cdpHeapBeforeMiB": 17.789215087890625,
+        "cdpHeapAfterMiB": 23.81114959716797,
+        "textures": {
+          "first": 76,
+          "last": 76,
+          "mean": 76
+        },
+        "geometries": {
+          "first": 307,
+          "last": 344,
+          "mean": 334.71
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 7.577537148875659,
+        "onePercentLowRafFps": 2.807411566534186,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 147.97900000000374,
+          "after": 131.96900000000372,
+          "difference": -16.01000000000002,
+          "percent": -10.819102710519479
+        },
+        "p50Ms": {
+          "before": 181.70000000018626,
+          "after": 164,
+          "difference": -17.700000000186265,
+          "percent": -9.741331865805236
+        },
+        "p95Ms": {
+          "before": 365.90000000037253,
+          "after": 202.70000000018626,
+          "difference": -163.20000000018626,
+          "percent": -44.60235036895877
+        },
+        "p99Ms": {
+          "before": 389.20000000018626,
+          "after": 352.79999999981374,
+          "difference": -36.40000000037253,
+          "percent": -9.352517985702747
+        },
+        "calls": {
+          "before": 343.7,
+          "after": 346.7,
+          "difference": 3,
+          "percent": 0.8728542333430234
+        },
+        "triangles": {
+          "before": 564003.54,
+          "after": 468615.54,
+          "difference": -95388.00000000006,
+          "percent": -16.91265980351826
+        },
+        "submitMs": {
+          "before": 8.495999999986962,
+          "after": 9.940999999996274,
+          "difference": 1.445000000009312,
+          "percent": 17.008003766614046
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 141.143798828125,
+          "after": 141.143798828125,
+          "difference": 0,
+          "percent": 0
+        },
+        "sampleHeapLastMiB": {
+          "before": 141.143798828125,
+          "after": 141.143798828125,
+          "difference": 0,
+          "percent": 0
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 23.45193862915039,
+          "after": 17.789215087890625,
+          "difference": -5.662723541259766,
+          "percent": -24.14607862831898
+        },
+        "cdpHeapAfterMiB": {
+          "before": 14.947525024414062,
+          "after": 23.81114959716797,
+          "difference": 8.863624572753906,
+          "percent": 59.29827552238105
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 14467.672000000002,
+            "after": 13107.105,
+            "difference": -1360.5670000000027,
+            "percent": -9.404187487800408
+          },
+          "ScriptDuration": {
+            "before": 14372.15,
+            "after": 13038.935,
+            "difference": -1333.2150000000001,
+            "percent": -9.276378273257658
+          },
+          "LayoutDuration": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "RecalcStyleDuration": {
+            "before": 9.828000000000003,
+            "after": 5.857000000000001,
+            "difference": -3.971000000000002,
+            "percent": -40.40496540496541
+          },
+          "ThreadTime": {
+            "before": 667.7840000000001,
+            "after": 706.731,
+            "difference": 38.94699999999989,
+            "percent": 5.832275106920792
+          },
+          "ProcessTime": {
+            "before": 1730.0000000000005,
+            "after": 1699.9999999999993,
+            "difference": -30.000000000001137,
+            "percent": -1.7341040462428348
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.015,
+            "after": 0.026999999992549418,
+            "difference": 0.011999999992549418,
+            "percent": 79.99999995032947
+          },
+          "visual": {
+            "before": 0.06000000001862645,
+            "after": 0.05199999997392297,
+            "difference": -0.008000000044703484,
+            "percent": -13.333333403699932
+          },
+          "orchestra": {
+            "before": 0.8140000000223517,
+            "after": 0.8040000000130385,
+            "difference": -0.010000000009313226,
+            "percent": -1.2285012296116227
+          },
+          "stage": {
+            "before": 0.13399999998509884,
+            "after": 0.1460000000242144,
+            "difference": 0.012000000039115555,
+            "percent": 8.955223910783584
+          },
+          "effects": {
+            "before": 0.015000000009313225,
+            "after": 0.012999999998137356,
+            "difference": -0.0020000000111758693,
+            "percent": -13.33333339956071
+          },
+          "director": {
+            "before": 0.11399999998509884,
+            "after": 0.10999999994412064,
+            "difference": -0.004000000040978197,
+            "percent": -3.508771966228985
+          },
+          "listener": {
+            "before": 0.050999999968335034,
+            "after": 0.005000000009313226,
+            "difference": -0.045999999959021806,
+            "percent": -90.19607840702425
+          },
+          "audioRoom": {
+            "before": 0.0030000000074505806,
+            "after": 0.0010000000055879355,
+            "difference": -0.002000000001862645,
+            "percent": -66.66666656318638
+          },
+          "fx": {
+            "before": 0.014000000031664968,
+            "after": 0.01699999999254942,
+            "difference": 0.0029999999608844516,
+            "percent": 21.42857110070786
+          },
+          "syncLite": {
+            "before": 0.6129999999701977,
+            "after": 0.6349999999441206,
+            "difference": 0.02199999997392288,
+            "percent": 3.588907010602349
+          },
+          "renderSubmit": {
+            "before": 6.589999999981374,
+            "after": 8.014000000031665,
+            "difference": 1.4240000000502908,
+            "percent": 21.60849772464819
+          }
+        },
+        "observedRafFps": {
+          "before": 6.757715621811032,
+          "after": 7.577537148875659,
+          "difference": 0.8198215270646267,
+          "percent": 12.131636975349958
+        },
+        "onePercentLowRafFps": {
+          "before": 2.484472049689441,
+          "after": 2.807411566534186,
+          "difference": 0.3229395168447451,
+          "percent": 12.998315553000994
+        }
+      },
+      "direction": {
+        "meanTime": "better",
+        "p95Time": "better"
+      }
+    },
+    {
+      "pairKey": "-cadence/hall/low/mobile/cadence",
+      "repeat": "cadence",
+      "venue": "hall",
+      "quality": "low",
+      "device": "mobile",
+      "mode": "raf-cadence",
+      "scenario": "wide",
+      "category": "same-quality",
+      "beforeFile": "render/baseline-cadence-full-hall-low-mobile-cadence.json",
+      "afterFile": "render/candidate-cadence-full-hall-low-mobile-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        390,
+        844
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            22,
+            30
+          ],
+          "target": [
+            0,
+            4,
+            -4
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 236.16399999999442,
+        "p50Ms": 293.40000000037253,
+        "p95Ms": 592.1000000005588,
+        "p99Ms": 617.8999999994412,
+        "calls": 492.46,
+        "triangles": 746675.72,
+        "submitMs": 8.130999999912456,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.022999999998137354,
+          "visual": 0.04299999998882413,
+          "orchestra": 0.7799999999441206,
+          "stage": 0.0970000000204891,
+          "effects": 0.010000000018626451,
+          "director": 0.14200000001117588,
+          "listener": 0.07799999997019767,
+          "audioRoom": 0.002000000011175871,
+          "fx": 0.01400000000372529,
+          "syncLite": 0.5729999999515712,
+          "renderSubmit": 6.297999999988824
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 23387.217,
+          "ScriptDuration": 23312.121000000006,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 5.9589999999999925,
+          "ThreadTime": 745.4209999999999,
+          "ProcessTime": 2289.999999999999
+        },
+        "cdpWindowMs": 23952.511999999842,
+        "sampleHeapMeanMiB": 141.143798828125,
+        "sampleHeapLastMiB": 141.143798828125,
+        "cdpHeapBeforeMiB": 14.645069122314453,
+        "cdpHeapAfterMiB": 15.943012237548828,
+        "textures": {
+          "first": 77,
+          "last": 77,
+          "mean": 77
+        },
+        "geometries": {
+          "first": 476,
+          "last": 488,
+          "mean": 482.08
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 4.234345624227332,
+        "onePercentLowRafFps": 1.5183723048900177,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 229.28200000000186,
+        "p50Ms": 298.30000000074506,
+        "p95Ms": 332.8999999994412,
+        "p99Ms": 578.6000000005588,
+        "calls": 528.46,
+        "triangles": 737507.72,
+        "submitMs": 9.837000000048429,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.03699999997392297,
+          "visual": 0.08299999999813736,
+          "orchestra": 0.7010000000149011,
+          "stage": 0.10399999998509885,
+          "effects": 0.009999999981373549,
+          "director": 0.1650000000745058,
+          "listener": 0.0009999999962747098,
+          "audioRoom": 0.0010000000055879355,
+          "fx": 0.006999999983236194,
+          "syncLite": 0.7180000000447034,
+          "renderSubmit": 7.93999999997206
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 23367.044,
+          "ScriptDuration": 23291.444999999996,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 6.178000000000003,
+          "ThreadTime": 860.4359999999999,
+          "ProcessTime": 2470.0000000000005
+        },
+        "cdpWindowMs": 23661.613000000216,
+        "sampleHeapMeanMiB": 141.143798828125,
+        "sampleHeapLastMiB": 141.143798828125,
+        "cdpHeapBeforeMiB": 15.07882308959961,
+        "cdpHeapAfterMiB": 15.890884399414062,
+        "textures": {
+          "first": 76,
+          "last": 76,
+          "mean": 76
+        },
+        "geometries": {
+          "first": 460,
+          "last": 472,
+          "mean": 466.08
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 4.361441369143639,
+        "onePercentLowRafFps": 1.6795431642582705,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 236.16399999999442,
+          "after": 229.28200000000186,
+          "difference": -6.8819999999925585,
+          "percent": -2.9140766585901035
+        },
+        "p50Ms": {
+          "before": 293.40000000037253,
+          "after": 298.30000000074506,
+          "difference": 4.900000000372529,
+          "percent": 1.6700749830832695
+        },
+        "p95Ms": {
+          "before": 592.1000000005588,
+          "after": 332.8999999994412,
+          "difference": -259.2000000011176,
+          "percent": -43.77638912360631
+        },
+        "p99Ms": {
+          "before": 617.8999999994412,
+          "after": 578.6000000005588,
+          "difference": -39.29999999888241,
+          "percent": -6.360252467861782
+        },
+        "calls": {
+          "before": 492.46,
+          "after": 528.46,
+          "difference": 36.00000000000006,
+          "percent": 7.31023839499656
+        },
+        "triangles": {
+          "before": 746675.72,
+          "after": 737507.72,
+          "difference": -9168,
+          "percent": -1.2278422552697954
+        },
+        "submitMs": {
+          "before": 8.130999999912456,
+          "after": 9.837000000048429,
+          "difference": 1.7060000001359725,
+          "percent": 20.981429100410033
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 141.143798828125,
+          "after": 141.143798828125,
+          "difference": 0,
+          "percent": 0
+        },
+        "sampleHeapLastMiB": {
+          "before": 141.143798828125,
+          "after": 141.143798828125,
+          "difference": 0,
+          "percent": 0
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 14.645069122314453,
+          "after": 15.07882308959961,
+          "difference": 0.43375396728515625,
+          "percent": 2.9617748039457936
+        },
+        "cdpHeapAfterMiB": {
+          "before": 15.943012237548828,
+          "after": 15.890884399414062,
+          "difference": -0.052127838134765625,
+          "percent": -0.3269635458975184
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 23387.217,
+            "after": 23367.044,
+            "difference": -20.172999999998865,
+            "percent": -0.08625652209922618
+          },
+          "ScriptDuration": {
+            "before": 23312.121000000006,
+            "after": 23291.444999999996,
+            "difference": -20.67600000001039,
+            "percent": -0.08869205852187756
+          },
+          "LayoutDuration": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "RecalcStyleDuration": {
+            "before": 5.9589999999999925,
+            "after": 6.178000000000003,
+            "difference": 0.21900000000001008,
+            "percent": 3.675113274039443
+          },
+          "ThreadTime": {
+            "before": 745.4209999999999,
+            "after": 860.4359999999999,
+            "difference": 115.01499999999999,
+            "percent": 15.429535792525307
+          },
+          "ProcessTime": {
+            "before": 2289.999999999999,
+            "after": 2470.0000000000005,
+            "difference": 180.00000000000136,
+            "percent": 7.860262008733687
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.022999999998137354,
+            "after": 0.03699999997392297,
+            "difference": 0.013999999975785615,
+            "percent": 60.86956511704087
+          },
+          "visual": {
+            "before": 0.04299999998882413,
+            "after": 0.08299999999813736,
+            "difference": 0.040000000009313225,
+            "percent": 93.02325585978926
+          },
+          "orchestra": {
+            "before": 0.7799999999441206,
+            "after": 0.7010000000149011,
+            "difference": -0.07899999992921947,
+            "percent": -10.128205119856293
+          },
+          "stage": {
+            "before": 0.0970000000204891,
+            "after": 0.10399999998509885,
+            "difference": 0.006999999964609746,
+            "percent": 7.216494807351692
+          },
+          "effects": {
+            "before": 0.010000000018626451,
+            "after": 0.009999999981373549,
+            "difference": -3.725290215195187e-11,
+            "percent": -3.7252901874396116e-7
+          },
+          "director": {
+            "before": 0.14200000001117588,
+            "after": 0.1650000000745058,
+            "difference": 0.023000000063329917,
+            "percent": 16.197183141915318
+          },
+          "listener": {
+            "before": 0.07799999997019767,
+            "after": 0.0009999999962747098,
+            "difference": -0.07699999997392297,
+            "percent": -98.71794872223488
+          },
+          "audioRoom": {
+            "before": 0.002000000011175871,
+            "after": 0.0010000000055879355,
+            "difference": -0.0010000000055879355,
+            "percent": -50
+          },
+          "fx": {
+            "before": 0.01400000000372529,
+            "after": 0.006999999983236194,
+            "difference": -0.007000000020489096,
+            "percent": -50.000000133046086
+          },
+          "syncLite": {
+            "before": 0.5729999999515712,
+            "after": 0.7180000000447034,
+            "difference": 0.1450000000931322,
+            "percent": 25.30541014055625
+          },
+          "renderSubmit": {
+            "before": 6.297999999988824,
+            "after": 7.93999999997206,
+            "difference": 1.641999999983236,
+            "percent": 26.071768815277064
+          }
+        },
+        "observedRafFps": {
+          "before": 4.234345624227332,
+          "after": 4.361441369143639,
+          "difference": 0.12709574491630704,
+          "percent": 3.001543950241392
+        },
+        "onePercentLowRafFps": {
+          "before": 1.5183723048900177,
+          "after": 1.6795431642582705,
+          "difference": 0.16117085936825282,
+          "percent": 10.614712797987135
+        }
+      },
+      "direction": {
+        "meanTime": "better",
+        "p95Time": "better"
+      }
+    },
+    {
+      "pairKey": "-cadence/sphere/low/mobile/cadence",
+      "repeat": "cadence",
+      "venue": "sphere",
+      "quality": "low",
+      "device": "mobile",
+      "mode": "raf-cadence",
+      "scenario": "front",
+      "category": "same-quality",
+      "beforeFile": "render/baseline-cadence-full-sphere-low-mobile-cadence.json",
+      "afterFile": "render/candidate-cadence-full-sphere-low-mobile-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        390,
+        844
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            1.75,
+            5
+          ],
+          "target": [
+            0,
+            2,
+            -7
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 128.89200000000187,
+        "p50Ms": 158.40000000037253,
+        "p95Ms": 204.29999999981374,
+        "p99Ms": 393,
+        "calls": 318.08,
+        "triangles": 353848.68,
+        "submitMs": 11.211000000033527,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.058999999994412064,
+          "audienceLOD": 0.0019999999925494195,
+          "seatLOD": 0.004000000013038516,
+          "visual": 0.12700000000186265,
+          "orchestra": 0.9409999999403954,
+          "stage": 0.11600000002421439,
+          "effects": 0.02199999999254942,
+          "director": 0.3240000000130385,
+          "listener": 0.07499999998137355,
+          "audioRoom": 0.0030000000074505806,
+          "fx": 0.012999999979510903,
+          "worlds": 0.0009999999962747098,
+          "syncLite": 0.785,
+          "renderSubmit": 8.63800000000745
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 12841.571,
+          "ScriptDuration": 12755.603000000001,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 7.085000000000001,
+          "ThreadTime": 783.058,
+          "ProcessTime": 1880.0000000000007
+        },
+        "cdpWindowMs": 13149.8789999996,
+        "sampleHeapMeanMiB": 179.290771484375,
+        "sampleHeapLastMiB": 179.290771484375,
+        "cdpHeapBeforeMiB": 45.43877410888672,
+        "cdpHeapAfterMiB": 40.865966796875,
+        "textures": {
+          "first": 47,
+          "last": 47,
+          "mean": 47
+        },
+        "geometries": {
+          "first": 297,
+          "last": 332,
+          "mean": 322.94
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 7.7584334171243015,
+        "onePercentLowRafFps": 2.536783358699968,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 137.37200000000186,
+        "p50Ms": 166.29999999981374,
+        "p95Ms": 238.8999999994412,
+        "p99Ms": 350.29999999981374,
+        "calls": 318.08,
+        "triangles": 353848.68,
+        "submitMs": 9.791000000052154,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.03400000002235174,
+          "audienceLOD": 0,
+          "seatLOD": 0.002999999998137355,
+          "visual": 0.05900000001303852,
+          "orchestra": 0.7680000000074506,
+          "stage": 0.11499999998137354,
+          "effects": 0.01800000000745058,
+          "director": 0.23199999995529652,
+          "listener": 0.004000000013038516,
+          "audioRoom": 0.003999999994412065,
+          "fx": 0.011000000033527612,
+          "worlds": 0.0010000000055879355,
+          "syncLite": 0.5949999999720603,
+          "renderSubmit": 7.839000000031665
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 13661.39,
+          "ScriptDuration": 13591.240000000003,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 6.7089999999999925,
+          "ThreadTime": 722.855,
+          "ProcessTime": 1749.999999999999
+        },
+        "cdpWindowMs": 13908.018999999513,
+        "sampleHeapMeanMiB": 159.26361083984375,
+        "sampleHeapLastMiB": 159.26361083984375,
+        "cdpHeapBeforeMiB": 58.23366928100586,
+        "cdpHeapAfterMiB": 36.450008392333984,
+        "textures": {
+          "first": 46,
+          "last": 46,
+          "mean": 46
+        },
+        "geometries": {
+          "first": 284,
+          "last": 319,
+          "mean": 309.94
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 7.279503829018916,
+        "onePercentLowRafFps": 2.718868950517962,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 128.89200000000187,
+          "after": 137.37200000000186,
+          "difference": 8.47999999999999,
+          "percent": 6.579151537721395
+        },
+        "p50Ms": {
+          "before": 158.40000000037253,
+          "after": 166.29999999981374,
+          "difference": 7.8999999994412065,
+          "percent": 4.9873737370092375
+        },
+        "p95Ms": {
+          "before": 204.29999999981374,
+          "after": 238.8999999994412,
+          "difference": 34.59999999962747,
+          "percent": 16.935878609720522
+        },
+        "p99Ms": {
+          "before": 393,
+          "after": 350.29999999981374,
+          "difference": -42.700000000186265,
+          "percent": -10.86513994915681
+        },
+        "calls": {
+          "before": 318.08,
+          "after": 318.08,
+          "difference": 0,
+          "percent": 0
+        },
+        "triangles": {
+          "before": 353848.68,
+          "after": 353848.68,
+          "difference": 0,
+          "percent": 0
+        },
+        "submitMs": {
+          "before": 11.211000000033527,
+          "after": 9.791000000052154,
+          "difference": -1.419999999981373,
+          "percent": -12.66613147780864
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "sampleHeapLastMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 45.43877410888672,
+          "after": 58.23366928100586,
+          "difference": 12.79489517211914,
+          "percent": 28.15853953598799
+        },
+        "cdpHeapAfterMiB": {
+          "before": 40.865966796875,
+          "after": 36.450008392333984,
+          "difference": -4.415958404541016,
+          "percent": -10.805956033025266
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 12841.571,
+            "after": 13661.39,
+            "difference": 819.8189999999995,
+            "percent": 6.384102069754549
+          },
+          "ScriptDuration": {
+            "before": 12755.603000000001,
+            "after": 13591.240000000003,
+            "difference": 835.6370000000024,
+            "percent": 6.551136782792644
+          },
+          "LayoutDuration": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "RecalcStyleDuration": {
+            "before": 7.085000000000001,
+            "after": 6.7089999999999925,
+            "difference": -0.3760000000000083,
+            "percent": -5.306986591390384
+          },
+          "ThreadTime": {
+            "before": 783.058,
+            "after": 722.855,
+            "difference": -60.202999999999975,
+            "percent": -7.688191679288126
+          },
+          "ProcessTime": {
+            "before": 1880.0000000000007,
+            "after": 1749.999999999999,
+            "difference": -130.0000000000016,
+            "percent": -6.914893617021356
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.058999999994412064,
+            "after": 0.03400000002235174,
+            "difference": -0.024999999972060323,
+            "percent": -42.37288131258998
+          },
+          "audienceLOD": {
+            "before": 0.0019999999925494195,
+            "after": 0,
+            "difference": -0.0019999999925494195,
+            "percent": -100
+          },
+          "seatLOD": {
+            "before": 0.004000000013038516,
+            "after": 0.002999999998137355,
+            "difference": -0.0010000000149011606,
+            "percent": -25.000000291038294
+          },
+          "visual": {
+            "before": 0.12700000000186265,
+            "after": 0.05900000001303852,
+            "difference": -0.06799999998882414,
+            "percent": -53.54330707702899
+          },
+          "orchestra": {
+            "before": 0.9409999999403954,
+            "after": 0.7680000000074506,
+            "difference": -0.1729999999329448,
+            "percent": -18.38469712475057
+          },
+          "stage": {
+            "before": 0.11600000002421439,
+            "after": 0.11499999998137354,
+            "difference": -0.0010000000428408429,
+            "percent": -0.8620690022690503
+          },
+          "effects": {
+            "before": 0.02199999999254942,
+            "after": 0.01800000000745058,
+            "difference": -0.00399999998509884,
+            "percent": -18.181818120243143
+          },
+          "director": {
+            "before": 0.3240000000130385,
+            "after": 0.23199999995529652,
+            "difference": -0.092000000057742,
+            "percent": -28.39506174507398
+          },
+          "listener": {
+            "before": 0.07499999998137355,
+            "after": 0.004000000013038516,
+            "difference": -0.07099999996833503,
+            "percent": -94.66666664795743
+          },
+          "audioRoom": {
+            "before": 0.0030000000074505806,
+            "after": 0.003999999994412065,
+            "difference": 0.000999999986961484,
+            "percent": 33.33333281593192
+          },
+          "fx": {
+            "before": 0.012999999979510903,
+            "after": 0.011000000033527612,
+            "difference": -0.0019999999459832905,
+            "percent": -15.384614993349688
+          },
+          "worlds": {
+            "before": 0.0009999999962747098,
+            "after": 0.0010000000055879355,
+            "difference": 9.313225754828403e-12,
+            "percent": 9.313225746154785e-7
+          },
+          "syncLite": {
+            "before": 0.785,
+            "after": 0.5949999999720603,
+            "difference": -0.1900000000279397,
+            "percent": -24.20382165961015
+          },
+          "renderSubmit": {
+            "before": 8.63800000000745,
+            "after": 7.839000000031665,
+            "difference": -0.7989999999757851,
+            "percent": -9.249826348403523
+          }
+        },
+        "observedRafFps": {
+          "before": 7.7584334171243015,
+          "after": 7.279503829018916,
+          "difference": -0.47892958810538566,
+          "percent": -6.1730192470080265
+        },
+        "onePercentLowRafFps": {
+          "before": 2.536783358699968,
+          "after": 2.718868950517962,
+          "difference": 0.182085591817994,
+          "percent": 7.17781402946871
+        }
+      },
+      "direction": {
+        "meanTime": "worse",
+        "p95Time": "worse"
+      }
+    },
+    {
+      "pairKey": "-cadence/sphere/low/mobile/cadence",
+      "repeat": "cadence",
+      "venue": "sphere",
+      "quality": "low",
+      "device": "mobile",
+      "mode": "raf-cadence",
+      "scenario": "wide",
+      "category": "same-quality",
+      "beforeFile": "render/baseline-cadence-full-sphere-low-mobile-cadence.json",
+      "afterFile": "render/candidate-cadence-full-sphere-low-mobile-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        390,
+        844
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            44,
+            62
+          ],
+          "target": [
+            0,
+            3,
+            -6
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 387.27400000000375,
+        "p50Ms": 477.40000000037253,
+        "p95Ms": 932,
+        "p99Ms": 1045.2999999998137,
+        "calls": 455.46,
+        "triangles": 700410,
+        "submitMs": 12.179000000031666,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.04500000002793968,
+          "audienceLOD": 0.0010000000055879355,
+          "seatLOD": 0.00599999999627471,
+          "visual": 0.053999999994412066,
+          "orchestra": 0.6960000000055879,
+          "stage": 0.11699999999254942,
+          "effects": 0.01900000000372529,
+          "director": 0.5640000000409782,
+          "listener": 0.125,
+          "audioRoom": 0.0009999999962747098,
+          "fx": 0.00900000000372529,
+          "worlds": 0,
+          "syncLite": 0.7200000000279396,
+          "renderSubmit": 9.638000000026077
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 38562.700999999994,
+          "ScriptDuration": 38431.57,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 7.599999999999996,
+          "ThreadTime": 842.8480000000001,
+          "ProcessTime": 3429.9999999999995
+        },
+        "cdpWindowMs": 39320.14199999958,
+        "sampleHeapMeanMiB": 179.290771484375,
+        "sampleHeapLastMiB": 179.290771484375,
+        "cdpHeapBeforeMiB": 43.713294982910156,
+        "cdpHeapAfterMiB": 32.670433044433594,
+        "textures": {
+          "first": 47,
+          "last": 47,
+          "mean": 47
+        },
+        "geometries": {
+          "first": 427,
+          "last": 435,
+          "mean": 432.09
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 2.582151138470412,
+        "onePercentLowRafFps": 0.9461633077874243,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 392.84,
+        "p50Ms": 492.70000000018626,
+        "p95Ms": 658.7999999998137,
+        "p99Ms": 1001.5999999996275,
+        "calls": 455.46,
+        "triangles": 700410,
+        "submitMs": 8.060999999968335,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.04199999999254942,
+          "audienceLOD": 0.002000000001862645,
+          "seatLOD": 0.014999999990686774,
+          "visual": 0.03299999998882413,
+          "orchestra": 0.7220000000298024,
+          "stage": 0.09800000000745059,
+          "effects": 0.007000000011175871,
+          "director": 0.3779999999795109,
+          "listener": 0.0019999999925494195,
+          "audioRoom": 0.0010000000055879355,
+          "fx": 0.007999999998137355,
+          "worlds": 0,
+          "syncLite": 0.5280000000633299,
+          "renderSubmit": 6.139999999962747
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 39575.166,
+          "ScriptDuration": 39485.471000000005,
+          "LayoutDuration": 0,
+          "RecalcStyleDuration": 7.261000000000004,
+          "ThreadTime": 740.4639999999998,
+          "ProcessTime": 3170
+        },
+        "cdpWindowMs": 39948.14300000053,
+        "sampleHeapMeanMiB": 159.26361083984375,
+        "sampleHeapLastMiB": 159.26361083984375,
+        "cdpHeapBeforeMiB": 31.749900817871094,
+        "cdpHeapAfterMiB": 32.690818786621094,
+        "textures": {
+          "first": 46,
+          "last": 46,
+          "mean": 46
+        },
+        "geometries": {
+          "first": 414,
+          "last": 422,
+          "mean": 419.09
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 1,
+          "counts": {
+            "1": 100
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 2.5455656246818044,
+        "onePercentLowRafFps": 0.9878494517428272,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 387.27400000000375,
+          "after": 392.84,
+          "difference": 5.565999999996222,
+          "percent": 1.4372253236716537
+        },
+        "p50Ms": {
+          "before": 477.40000000037253,
+          "after": 492.70000000018626,
+          "difference": 15.299999999813735,
+          "percent": 3.204859656431047
+        },
+        "p95Ms": {
+          "before": 932,
+          "after": 658.7999999998137,
+          "difference": -273.20000000018626,
+          "percent": -29.313304721050027
+        },
+        "p99Ms": {
+          "before": 1045.2999999998137,
+          "after": 1001.5999999996275,
+          "difference": -43.700000000186265,
+          "percent": -4.1806180044192125
+        },
+        "calls": {
+          "before": 455.46,
+          "after": 455.46,
+          "difference": 0,
+          "percent": 0
+        },
+        "triangles": {
+          "before": 700410,
+          "after": 700410,
+          "difference": 0,
+          "percent": 0
+        },
+        "submitMs": {
+          "before": 12.179000000031666,
+          "after": 8.060999999968335,
+          "difference": -4.118000000063331,
+          "percent": -33.81229986084756
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "sampleHeapLastMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 43.713294982910156,
+          "after": 31.749900817871094,
+          "difference": -11.963394165039062,
+          "percent": -27.36786181347388
+        },
+        "cdpHeapAfterMiB": {
+          "before": 32.670433044433594,
+          "after": 32.690818786621094,
+          "difference": 0.0203857421875,
+          "percent": 0.062398138891439636
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 38562.700999999994,
+            "after": 39575.166,
+            "difference": 1012.4650000000038,
+            "percent": 2.6255033328708155
+          },
+          "ScriptDuration": {
+            "before": 38431.57,
+            "after": 39485.471000000005,
+            "difference": 1053.9010000000053,
+            "percent": 2.742279329207742
+          },
+          "LayoutDuration": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "RecalcStyleDuration": {
+            "before": 7.599999999999996,
+            "after": 7.261000000000004,
+            "difference": -0.3389999999999924,
+            "percent": -4.460526315789382
+          },
+          "ThreadTime": {
+            "before": 842.8480000000001,
+            "after": 740.4639999999998,
+            "difference": -102.38400000000024,
+            "percent": -12.147386005543137
+          },
+          "ProcessTime": {
+            "before": 3429.9999999999995,
+            "after": 3170,
+            "difference": -259.99999999999955,
+            "percent": -7.580174927113692
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.04500000002793968,
+            "after": 0.04199999999254942,
+            "difference": -0.003000000035390256,
+            "percent": -6.666666741172467
+          },
+          "audienceLOD": {
+            "before": 0.0010000000055879355,
+            "after": 0.002000000001862645,
+            "difference": 0.0009999999962747095,
+            "percent": 99.9999990686774
+          },
+          "seatLOD": {
+            "before": 0.00599999999627471,
+            "after": 0.014999999990686774,
+            "difference": 0.008999999994412065,
+            "percent": 150
+          },
+          "visual": {
+            "before": 0.053999999994412066,
+            "after": 0.03299999998882413,
+            "difference": -0.021000000005587938,
+            "percent": -38.888888903261154
+          },
+          "orchestra": {
+            "before": 0.6960000000055879,
+            "after": 0.7220000000298024,
+            "difference": 0.02600000002421443,
+            "percent": 3.7356321873571297
+          },
+          "stage": {
+            "before": 0.11699999999254942,
+            "after": 0.09800000000745059,
+            "difference": -0.01899999998509884,
+            "percent": -16.23931622761433
+          },
+          "effects": {
+            "before": 0.01900000000372529,
+            "after": 0.007000000011175871,
+            "difference": -0.011999999992549418,
+            "percent": -63.15789468524529
+          },
+          "director": {
+            "before": 0.5640000000409782,
+            "after": 0.3779999999795109,
+            "difference": -0.18600000006146727,
+            "percent": -32.97872341275766
+          },
+          "listener": {
+            "before": 0.125,
+            "after": 0.0019999999925494195,
+            "difference": -0.12300000000745058,
+            "percent": -98.40000000596046
+          },
+          "audioRoom": {
+            "before": 0.0009999999962747098,
+            "after": 0.0010000000055879355,
+            "difference": 9.313225754828403e-12,
+            "percent": 9.313225746154785e-7
+          },
+          "fx": {
+            "before": 0.00900000000372529,
+            "after": 0.007999999998137355,
+            "difference": -0.0010000000055879355,
+            "percent": -11.111111168600162
+          },
+          "worlds": {
+            "before": 0,
+            "after": 0,
+            "difference": 0,
+            "percent": null
+          },
+          "syncLite": {
+            "before": 0.7200000000279396,
+            "after": 0.5280000000633299,
+            "difference": -0.1919999999646097,
+            "percent": -26.666666660716544
+          },
+          "renderSubmit": {
+            "before": 9.638000000026077,
+            "after": 6.139999999962747,
+            "difference": -3.49800000006333,
+            "percent": -36.29383689618039
+          }
+        },
+        "observedRafFps": {
+          "before": 2.582151138470412,
+          "after": 2.5455656246818044,
+          "difference": -0.03658551378860775,
+          "percent": -1.4168618266969468
+        },
+        "onePercentLowRafFps": {
+          "before": 0.9461633077874243,
+          "after": 0.9878494517428272,
+          "difference": 0.04168614395540293,
+          "percent": 4.405808554644208
+        }
+      },
+      "direction": {
+        "meanTime": "worse",
+        "p95Time": "better"
+      }
+    }
+  ],
+  "adaptive": [
+    {
+      "pairKey": "-adaptive/hall/auto/mobile/cadence",
+      "repeat": "adaptive",
+      "venue": "hall",
+      "quality": "auto",
+      "device": "mobile",
+      "mode": "raf-cadence",
+      "scenario": "front",
+      "category": "adaptive-observation",
+      "beforeFile": "render/baseline-adaptive-full-hall-auto-mobile-cadence.json",
+      "afterFile": "render/candidate-adaptive-full-hall-auto-mobile-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        390,
+        844
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            1.75,
+            5
+          ],
+          "target": [
+            0,
+            2,
+            -7
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": null,
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 153.37,
+        "p50Ms": 189.70000000018626,
+        "p95Ms": 399.29999999981374,
+        "p99Ms": 400.70000000018626,
+        "calls": 345.23,
+        "triangles": 564614.98,
+        "submitMs": 12.095000000018626,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.021999999955296515,
+          "visual": 0.055999999977648256,
+          "orchestra": 0.7129999999795109,
+          "stage": 0.09500000000931323,
+          "effects": 0.016000000024214388,
+          "director": 0.0919999999832362,
+          "listener": 0.06299999998882413,
+          "audioRoom": 0.002000000001862645,
+          "fx": 0.012000000020489097,
+          "syncLite": 0.6879999999329448,
+          "renderSubmit": 6.291000000080094
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 14473.226000000002,
+          "ScriptDuration": 14373.955,
+          "LayoutDuration": 0.08099999999999774,
+          "RecalcStyleDuration": 7.123999999999999,
+          "ThreadTime": 653.7860000000002,
+          "ProcessTime": 1820.0000000000002
+        },
+        "cdpWindowMs": 15589.544999999816,
+        "sampleHeapMeanMiB": 168.80035400390625,
+        "sampleHeapLastMiB": 168.80035400390625,
+        "cdpHeapBeforeMiB": 16.282455444335938,
+        "cdpHeapAfterMiB": 24.365482330322266,
+        "textures": {
+          "first": 77,
+          "last": 77,
+          "mean": 77
+        },
+        "geometries": {
+          "first": 328,
+          "last": 374,
+          "mean": 357.76
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 0.85,
+          "counts": {
+            "1": 73,
+            "0.85": 27
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 6.520179956966812,
+        "onePercentLowRafFps": 2.331002331002331,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 117.695,
+        "p50Ms": 129.09999999962747,
+        "p95Ms": 209.5,
+        "p99Ms": 348.70000000018626,
+        "calls": 344.54,
+        "triangles": 469221.48,
+        "submitMs": 11.786000000005588,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.01099999999627471,
+          "visual": 0.046999999983236194,
+          "orchestra": 0.9839999999850988,
+          "stage": 0.18300000003539027,
+          "effects": 0.01900000002235174,
+          "director": 0.11399999991059304,
+          "listener": 0.004000000013038516,
+          "audioRoom": 0.0010000000055879355,
+          "fx": 0.009000000013038516,
+          "syncLite": 0.6899999999627471,
+          "renderSubmit": 7.401000000005588
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 11440.606,
+          "ScriptDuration": 11359.306,
+          "LayoutDuration": 0.09299999999998199,
+          "RecalcStyleDuration": 7.397000000000001,
+          "ThreadTime": 735.1869999999998,
+          "ProcessTime": 1630
+        },
+        "cdpWindowMs": 11971.50099999999,
+        "sampleHeapMeanMiB": 141.143798828125,
+        "sampleHeapLastMiB": 141.143798828125,
+        "cdpHeapBeforeMiB": 17.765079498291016,
+        "cdpHeapAfterMiB": 26.159420013427734,
+        "textures": {
+          "first": 76,
+          "last": 76,
+          "mean": 76
+        },
+        "geometries": {
+          "first": 312,
+          "last": 358,
+          "mean": 342.28
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 0.8,
+          "counts": {
+            "1": 36,
+            "0.8": 64
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 8.496537660903183,
+        "onePercentLowRafFps": 2.6511134676551067,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 153.37,
+          "after": 117.695,
+          "difference": -35.67500000000001,
+          "percent": -23.260741996479105
+        },
+        "p50Ms": {
+          "before": 189.70000000018626,
+          "after": 129.09999999962747,
+          "difference": -60.60000000055879,
+          "percent": -31.94517659488629
+        },
+        "p95Ms": {
+          "before": 399.29999999981374,
+          "after": 209.5,
+          "difference": -189.79999999981374,
+          "percent": -47.533183070348684
+        },
+        "p99Ms": {
+          "before": 400.70000000018626,
+          "after": 348.70000000018626,
+          "difference": -52,
+          "percent": -12.97728974294381
+        },
+        "calls": {
+          "before": 345.23,
+          "after": 344.54,
+          "difference": -0.6899999999999977,
+          "percent": -0.19986675549633626
+        },
+        "triangles": {
+          "before": 564614.98,
+          "after": 469221.48,
+          "difference": -95393.5,
+          "percent": -16.89531864705396
+        },
+        "submitMs": {
+          "before": 12.095000000018626,
+          "after": 11.786000000005588,
+          "difference": -0.30900000001303773,
+          "percent": -2.5547747003932364
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 168.80035400390625,
+          "after": 141.143798828125,
+          "difference": -27.65655517578125,
+          "percent": -16.384180790960457
+        },
+        "sampleHeapLastMiB": {
+          "before": 168.80035400390625,
+          "after": 141.143798828125,
+          "difference": -27.65655517578125,
+          "percent": -16.384180790960457
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 16.282455444335938,
+          "after": 17.765079498291016,
+          "difference": 1.4826240539550781,
+          "percent": 9.10565399072427
+        },
+        "cdpHeapAfterMiB": {
+          "before": 24.365482330322266,
+          "after": 26.159420013427734,
+          "difference": 1.7939376831054688,
+          "percent": 7.3626192118222855
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 14473.226000000002,
+            "after": 11440.606,
+            "difference": -3032.6200000000026,
+            "percent": -20.953310616444476
+          },
+          "ScriptDuration": {
+            "before": 14373.955,
+            "after": 11359.306,
+            "difference": -3014.6489999999994,
+            "percent": -20.972995949966446
+          },
+          "LayoutDuration": {
+            "before": 0.08099999999999774,
+            "after": 0.09299999999998199,
+            "difference": 0.011999999999984245,
+            "percent": 14.814814814795785
+          },
+          "RecalcStyleDuration": {
+            "before": 7.123999999999999,
+            "after": 7.397000000000001,
+            "difference": 0.27300000000000235,
+            "percent": 3.832116788321205
+          },
+          "ThreadTime": {
+            "before": 653.7860000000002,
+            "after": 735.1869999999998,
+            "difference": 81.40099999999961,
+            "percent": 12.450710171218038
+          },
+          "ProcessTime": {
+            "before": 1820.0000000000002,
+            "after": 1630,
+            "difference": -190.00000000000023,
+            "percent": -10.439560439560447
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.021999999955296515,
+            "after": 0.01099999999627471,
+            "difference": -0.010999999959021805,
+            "percent": -49.9999999153343
+          },
+          "visual": {
+            "before": 0.055999999977648256,
+            "after": 0.046999999983236194,
+            "difference": -0.008999999994412061,
+            "percent": -16.07142856786483
+          },
+          "orchestra": {
+            "before": 0.7129999999795109,
+            "after": 0.9839999999850988,
+            "difference": 0.2710000000055879,
+            "percent": 38.008415149141015
+          },
+          "stage": {
+            "before": 0.09500000000931323,
+            "after": 0.18300000003539027,
+            "difference": 0.08800000002607704,
+            "percent": 92.63157896573688
+          },
+          "effects": {
+            "before": 0.016000000024214388,
+            "after": 0.01900000002235174,
+            "difference": 0.0029999999981373537,
+            "percent": 18.749999959982233
+          },
+          "director": {
+            "before": 0.0919999999832362,
+            "after": 0.11399999991059304,
+            "difference": 0.021999999927356836,
+            "percent": 23.91304340365823
+          },
+          "listener": {
+            "before": 0.06299999998882413,
+            "after": 0.004000000013038516,
+            "difference": -0.058999999975785616,
+            "percent": -93.65079362897127
+          },
+          "audioRoom": {
+            "before": 0.002000000001862645,
+            "after": 0.0010000000055879355,
+            "difference": -0.0009999999962747095,
+            "percent": -49.999999767169356
+          },
+          "fx": {
+            "before": 0.012000000020489097,
+            "after": 0.009000000013038516,
+            "difference": -0.003000000007450581,
+            "percent": -25.000000019402556
+          },
+          "syncLite": {
+            "before": 0.6879999999329448,
+            "after": 0.6899999999627471,
+            "difference": 0.0020000000298022735,
+            "percent": 0.29069767877867303
+          },
+          "renderSubmit": {
+            "before": 6.291000000080094,
+            "after": 7.401000000005588,
+            "difference": 1.1099999999254946,
+            "percent": 17.64425369434688
+          }
+        },
+        "observedRafFps": {
+          "before": 6.520179956966812,
+          "after": 8.496537660903183,
+          "difference": 1.9763577039363707,
+          "percent": 30.311398105272126
+        },
+        "onePercentLowRafFps": {
+          "before": 2.331002331002331,
+          "after": 2.6511134676551067,
+          "difference": 0.3201111366527756,
+          "percent": 13.732767762404062
+        }
+      },
+      "direction": {
+        "meanTime": "better",
+        "p95Time": "better"
+      }
+    },
+    {
+      "pairKey": "-adaptive/sphere/auto/mobile/cadence",
+      "repeat": "adaptive",
+      "venue": "sphere",
+      "quality": "auto",
+      "device": "mobile",
+      "mode": "raf-cadence",
+      "scenario": "front",
+      "category": "adaptive-observation",
+      "beforeFile": "render/baseline-adaptive-full-sphere-auto-mobile-cadence.json",
+      "afterFile": "render/candidate-adaptive-full-sphere-auto-mobile-cadence.json",
+      "beforeRevision": "e741811d1d7a040afcdd3a8230465980c64f82fc",
+      "afterRevision": "6c7817218814f00631089eb2c6f150d68190980f",
+      "viewport": [
+        390,
+        844
+      ],
+      "devicePixelRatio": 1,
+      "samplesPerScenario": 100,
+      "warmupFrames": 6,
+      "scenarioState": {
+        "camera": {
+          "position": [
+            0,
+            1.75,
+            5
+          ],
+          "target": [
+            0,
+            2,
+            -7
+          ],
+          "fov": 64
+        },
+        "musicTime": 25,
+        "world": "ARCH",
+        "broadcast": false,
+        "effectsPeak": false,
+        "effectsShow": false
+      },
+      "fixtureSourceSha256": "402bb5506fdf26b4b3a25a47617ed628f9dbad67f6f9673bc0ab4f8d2d034500",
+      "before": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 126.08099999999628,
+        "p50Ms": 161.70000000018626,
+        "p95Ms": 186.5,
+        "p99Ms": 311.1000000005588,
+        "calls": 317.38,
+        "triangles": 354289.42,
+        "submitMs": 16.290000000018626,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.04800000000745058,
+          "audienceLOD": 0.005999999977648258,
+          "seatLOD": 0.007999999998137355,
+          "visual": 0.06000000000931323,
+          "orchestra": 0.8310000000149012,
+          "stage": 0.11099999996833504,
+          "effects": 0.009000000013038516,
+          "director": 0.31900000004097817,
+          "listener": 0.085,
+          "audioRoom": 0.0010000000055879355,
+          "fx": 0.01699999999254942,
+          "worlds": 0.0009999999962747098,
+          "syncLite": 0.9160000000335277,
+          "renderSubmit": 10.334000000003725
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 12593.104,
+          "ScriptDuration": 12511.939999999999,
+          "LayoutDuration": 0.07699999999999374,
+          "RecalcStyleDuration": 6.944000000000006,
+          "ThreadTime": 793.5810000000001,
+          "ProcessTime": 1800.0000000000007
+        },
+        "cdpWindowMs": 12826.13399999991,
+        "sampleHeapMeanMiB": 179.290771484375,
+        "sampleHeapLastMiB": 179.290771484375,
+        "cdpHeapBeforeMiB": 49.75290298461914,
+        "cdpHeapAfterMiB": 55.50711441040039,
+        "textures": {
+          "first": 47,
+          "last": 47,
+          "mean": 47
+        },
+        "geometries": {
+          "first": 300,
+          "last": 347,
+          "mean": 330.38
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 0.85,
+          "counts": {
+            "1": 71,
+            "0.85": 29
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 7.931409173468084,
+        "onePercentLowRafFps": 2.8498147620450056,
+        "onePercentLowSampleCount": 1
+      },
+      "after": {
+        "n": 100,
+        "metric": "cadenceMs",
+        "meanMs": 122.035,
+        "p50Ms": 150.3999999994412,
+        "p95Ms": 204.70000000018626,
+        "p99Ms": 340.20000000018626,
+        "calls": 317.46,
+        "triangles": 354289.58,
+        "submitMs": 13.201000000061468,
+        "completionWaitMs": null,
+        "phaseMeanMs": {
+          "hall": 0.04699999996460974,
+          "audienceLOD": 0.0009999999962747098,
+          "seatLOD": 0.01,
+          "visual": 0.07000000006519258,
+          "orchestra": 0.7839999999664724,
+          "stage": 0.11399999999441207,
+          "effects": 0.012999999998137356,
+          "director": 0.2820000000484288,
+          "listener": 0.0010000000055879355,
+          "audioRoom": 0.0030000000074505806,
+          "fx": 0.01400000000372529,
+          "worlds": 0,
+          "syncLite": 0.7570000000204891,
+          "renderSubmit": 7.522000000029802
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": 12136.547,
+          "ScriptDuration": 12043.143,
+          "LayoutDuration": 0.07899999999999574,
+          "RecalcStyleDuration": 8.167999999999994,
+          "ThreadTime": 735.496,
+          "ProcessTime": 1670.000000000001
+        },
+        "cdpWindowMs": 12421.745999999985,
+        "sampleHeapMeanMiB": 159.26361083984375,
+        "sampleHeapLastMiB": 159.26361083984375,
+        "cdpHeapBeforeMiB": 57.4521484375,
+        "cdpHeapAfterMiB": 36.423362731933594,
+        "textures": {
+          "first": 46,
+          "last": 46,
+          "mean": 46
+        },
+        "geometries": {
+          "first": 287,
+          "last": 334,
+          "mean": 317.34
+        },
+        "actualQuality": {
+          "first": "low",
+          "last": "low",
+          "counts": {
+            "low": 100
+          }
+        },
+        "actualScale": {
+          "first": 1,
+          "last": 0.8,
+          "counts": {
+            "1": 54,
+            "0.8": 46
+          }
+        },
+        "gpuFrameMs": null,
+        "gpuMemoryMiB": null,
+        "observedRafFps": 8.194370467488836,
+        "onePercentLowRafFps": 2.844141069392522,
+        "onePercentLowSampleCount": 1
+      },
+      "changes": {
+        "meanMs": {
+          "before": 126.08099999999628,
+          "after": 122.035,
+          "difference": -4.045999999996283,
+          "percent": -3.209048151582239
+        },
+        "p50Ms": {
+          "before": 161.70000000018626,
+          "after": 150.3999999994412,
+          "difference": -11.300000000745058,
+          "percent": -6.988249845845418
+        },
+        "p95Ms": {
+          "before": 186.5,
+          "after": 204.70000000018626,
+          "difference": 18.200000000186265,
+          "percent": 9.758713136829101
+        },
+        "p99Ms": {
+          "before": 311.1000000005588,
+          "after": 340.20000000018626,
+          "difference": 29.09999999962747,
+          "percent": 9.353905496488334
+        },
+        "calls": {
+          "before": 317.38,
+          "after": 317.46,
+          "difference": 0.07999999999998408,
+          "percent": 0.025206377213438103
+        },
+        "triangles": {
+          "before": 354289.42,
+          "after": 354289.58,
+          "difference": 0.1600000000325963,
+          "percent": 0.000045160817974121414
+        },
+        "submitMs": {
+          "before": 16.290000000018626,
+          "after": 13.201000000061468,
+          "difference": -3.0889999999571582,
+          "percent": -18.962553713650255
+        },
+        "completionWaitMs": null,
+        "sampleHeapMeanMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "sampleHeapLastMiB": {
+          "before": 179.290771484375,
+          "after": 159.26361083984375,
+          "difference": -20.02716064453125,
+          "percent": -11.170212765957444
+        },
+        "cdpHeapBeforeMiB": {
+          "before": 49.75290298461914,
+          "after": 57.4521484375,
+          "difference": 7.699245452880859,
+          "percent": 15.474967270273732
+        },
+        "cdpHeapAfterMiB": {
+          "before": 55.50711441040039,
+          "after": 36.423362731933594,
+          "difference": -19.083751678466797,
+          "percent": -34.380730976876485
+        },
+        "cdpDurationDeltaMs": {
+          "TaskDuration": {
+            "before": 12593.104,
+            "after": 12136.547,
+            "difference": -456.5569999999989,
+            "percent": -3.6254524698596913
+          },
+          "ScriptDuration": {
+            "before": 12511.939999999999,
+            "after": 12043.143,
+            "difference": -468.79699999999866,
+            "percent": -3.746797059448803
+          },
+          "LayoutDuration": {
+            "before": 0.07699999999999374,
+            "after": 0.07899999999999574,
+            "difference": 0.002000000000002,
+            "percent": 2.597402597405396
+          },
+          "RecalcStyleDuration": {
+            "before": 6.944000000000006,
+            "after": 8.167999999999994,
+            "difference": 1.2239999999999878,
+            "percent": 17.62672811059889
+          },
+          "ThreadTime": {
+            "before": 793.5810000000001,
+            "after": 735.496,
+            "difference": -58.08500000000015,
+            "percent": -7.319353663961225
+          },
+          "ProcessTime": {
+            "before": 1800.0000000000007,
+            "after": 1670.000000000001,
+            "difference": -129.99999999999977,
+            "percent": -7.222222222222207
+          }
+        },
+        "phaseMeanMs": {
+          "hall": {
+            "before": 0.04800000000745058,
+            "after": 0.04699999996460974,
+            "difference": -0.0010000000428408429,
+            "percent": -2.083333422261713
+          },
+          "audienceLOD": {
+            "before": 0.005999999977648258,
+            "after": 0.0009999999962747098,
+            "difference": -0.004999999981373548,
+            "percent": -83.33333333333333
+          },
+          "seatLOD": {
+            "before": 0.007999999998137355,
+            "after": 0.01,
+            "difference": 0.0020000000018626455,
+            "percent": 25.00000002910383
+          },
+          "visual": {
+            "before": 0.06000000000931323,
+            "after": 0.07000000006519258,
+            "difference": 0.010000000055879352,
+            "percent": 16.666666757211914
+          },
+          "orchestra": {
+            "before": 0.8310000000149012,
+            "after": 0.7839999999664724,
+            "difference": -0.04700000004842875,
+            "percent": -5.655836347483268
+          },
+          "stage": {
+            "before": 0.11099999996833504,
+            "after": 0.11399999999441207,
+            "difference": 0.003000000026077032,
+            "percent": 2.7027027269665327
+          },
+          "effects": {
+            "before": 0.009000000013038516,
+            "after": 0.012999999998137356,
+            "difference": 0.00399999998509884,
+            "percent": 44.44444421448828
+          },
+          "director": {
+            "before": 0.31900000004097817,
+            "after": 0.2820000000484288,
+            "difference": -0.03699999999254938,
+            "percent": -11.598746077679134
+          },
+          "listener": {
+            "before": 0.085,
+            "after": 0.0010000000055879355,
+            "difference": -0.08399999999441207,
+            "percent": -98.82352940519067
+          },
+          "audioRoom": {
+            "before": 0.0010000000055879355,
+            "after": 0.0030000000074505806,
+            "difference": 0.002000000001862645,
+            "percent": 199.99999906867743
+          },
+          "fx": {
+            "before": 0.01699999999254942,
+            "after": 0.01400000000372529,
+            "difference": -0.00299999998882413,
+            "percent": -17.64705876552317
+          },
+          "worlds": {
+            "before": 0.0009999999962747098,
+            "after": 0,
+            "difference": -0.0009999999962747098,
+            "percent": -100
+          },
+          "syncLite": {
+            "before": 0.9160000000335277,
+            "after": 0.7570000000204891,
+            "difference": -0.1590000000130386,
+            "percent": -17.358078603408167
+          },
+          "renderSubmit": {
+            "before": 10.334000000003725,
+            "after": 7.522000000029802,
+            "difference": -2.8119999999739225,
+            "percent": -27.211147667630243
+          }
+        },
+        "observedRafFps": {
+          "before": 7.931409173468084,
+          "after": 8.194370467488836,
+          "difference": 0.2629612940207524,
+          "percent": 3.315442291142956
+        },
+        "onePercentLowRafFps": {
+          "before": 2.8498147620450056,
+          "after": 2.844141069392522,
+          "difference": -0.005673692652483631,
+          "percent": -0.19908987517532895
+        }
+      },
+      "direction": {
+        "meanTime": "better",
+        "p95Time": "worse"
+      }
+    }
+  ],
+  "excluded": [],
+  "unplannedFiles": [],
+  "inputs": [
+    {
+      "file": "../cadence-plan.json",
+      "bytes": 11327,
+      "sha256": "fca60f6c0519ee0d86d070a1637988bfee502ce54d47cf9a22c533922eeb3b92",
+      "stable": true
+    },
+    {
+      "file": "../source-manifest.json",
+      "bytes": 10132,
+      "sha256": "504b7dccaa999e723a740d2171e9a347bb663cd985f1debb0f56d7704ac898a9",
+      "stable": true
+    },
+    {
+      "file": "logs/000-baseline-cadence-hall-desktop.json",
+      "bytes": 1776,
+      "sha256": "7b66723f8daedfd7fd0cee02b6108c6d4e9ed7f8503253f0b3617cfce7828aa3",
+      "stable": true
+    },
+    {
+      "file": "logs/000-baseline-cadence-hall-desktop.log",
+      "bytes": 1301,
+      "sha256": "f14abfd405cfb7e41874adf0f66a5c6c94734b37a2c636168becf822b7ac414b",
+      "stable": true
+    },
+    {
+      "file": "render/baseline-cadence-full-hall-low-desktop-cadence.json",
+      "bytes": 216627,
+      "sha256": "80749a0b05e5df17a4838ab39d791e1ab3cc806e5729067a2414a93a7693f9df",
+      "stable": true
+    },
+    {
+      "file": "logs/001-candidate-cadence-hall-desktop.json",
+      "bytes": 1779,
+      "sha256": "a5723db4de95197f76b1f55f165aaaf9b18334a4ef3f460c1ef6e4f3692d4901",
+      "stable": true
+    },
+    {
+      "file": "logs/001-candidate-cadence-hall-desktop.log",
+      "bytes": 1320,
+      "sha256": "e8e23820e8004e2f7db07d0f089952205c8670f650948974c2ea5f9b61baf305",
+      "stable": true
+    },
+    {
+      "file": "render/candidate-cadence-full-hall-low-desktop-cadence.json",
+      "bytes": 215407,
+      "sha256": "72f133a07675bda7ca2938c5613cae27a6133d67fcaf814405da393799af34f1",
+      "stable": true
+    },
+    {
+      "file": "logs/002-baseline-cadence-sphere-desktop.json",
+      "bytes": 1782,
+      "sha256": "f94154578d1f4138e46c20a36f66f113038eee0e9875900feb350b04e06b668d",
+      "stable": true
+    },
+    {
+      "file": "logs/002-baseline-cadence-sphere-desktop.log",
+      "bytes": 1314,
+      "sha256": "4237ed8e4a8336ac11987f5e44ddf5a6f85d64307d70c8a8bdea5495b03d002d",
+      "stable": true
+    },
+    {
+      "file": "render/baseline-cadence-full-sphere-low-desktop-cadence.json",
+      "bytes": 238731,
+      "sha256": "eda1c9eff19b127f2dbb7377995293418fe059fb9b341582d8d2b15a2929aca8",
+      "stable": true
+    },
+    {
+      "file": "logs/003-candidate-cadence-sphere-desktop.json",
+      "bytes": 1785,
+      "sha256": "41ff11a5941d8a5c7a20ce937fe763534cd41ed9ae3b785967afb722839259cd",
+      "stable": true
+    },
+    {
+      "file": "logs/003-candidate-cadence-sphere-desktop.log",
+      "bytes": 1283,
+      "sha256": "c120aca96a1ca44d28467bb28ea2260fba04cd7c39a64ba4cde04a4fcfb38848",
+      "stable": true
+    },
+    {
+      "file": "render/candidate-cadence-full-sphere-low-desktop-cadence.json",
+      "bytes": 234833,
+      "sha256": "d74d829d05ad11d0d311b1336314af3a9bcd321b4fa72ca28193fa556770bc99",
+      "stable": true
+    },
+    {
+      "file": "logs/004-baseline-cadence-hall-mobile.json",
+      "bytes": 1773,
+      "sha256": "ce122010861c3dea8b3b0fdfaeeed3b9e5de11a7be6e66e69bfc0a78bf511037",
+      "stable": true
+    },
+    {
+      "file": "logs/004-baseline-cadence-hall-mobile.log",
+      "bytes": 1320,
+      "sha256": "33af7f19b590a0024235f2f774fe88266bed4132c2969481360556e965427aae",
+      "stable": true
+    },
+    {
+      "file": "render/baseline-cadence-full-hall-low-mobile-cadence.json",
+      "bytes": 216501,
+      "sha256": "df0f3724364649a807e5e9a21bd31f3a4199761dee7179368f99c7e608062824",
+      "stable": true
+    },
+    {
+      "file": "logs/005-candidate-cadence-hall-mobile.json",
+      "bytes": 1776,
+      "sha256": "5bc200d361b5bf1e8696c64c58d6806f13cd043f99b847286638106367f6d0fb",
+      "stable": true
+    },
+    {
+      "file": "logs/005-candidate-cadence-hall-mobile.log",
+      "bytes": 1310,
+      "sha256": "6b59df2b20c775741eba84deed04286d7e43318ed3e96f3efab5441172aef88d",
+      "stable": true
+    },
+    {
+      "file": "render/candidate-cadence-full-hall-low-mobile-cadence.json",
+      "bytes": 215419,
+      "sha256": "c9f8b9196b2cd545eb89b1bbf8dc7e0767e0d53befd300cbb23e1a4b32b14ffc",
+      "stable": true
+    },
+    {
+      "file": "logs/006-baseline-cadence-sphere-mobile.json",
+      "bytes": 1779,
+      "sha256": "d3043bfc56f87e9ab4ad5254f739d943761344ee3239f9b632b7ac108407b0d4",
+      "stable": true
+    },
+    {
+      "file": "logs/006-baseline-cadence-sphere-mobile.log",
+      "bytes": 1295,
+      "sha256": "8d69cd9ce2685f7ce0e241c95cabb0518fa42e4825fd6b0164e1fbb5aff9c919",
+      "stable": true
+    },
+    {
+      "file": "render/baseline-cadence-full-sphere-low-mobile-cadence.json",
+      "bytes": 238263,
+      "sha256": "5571f5fe62762c6ab2dbb8ab985ca02dd2c6127f554112f7b2080169a5c97f17",
+      "stable": true
+    },
+    {
+      "file": "logs/007-candidate-cadence-sphere-mobile.json",
+      "bytes": 1782,
+      "sha256": "0601fe08a674d896ae78ae948019655d51b85f2a5b5fbeb13c28e7ad751340c6",
+      "stable": true
+    },
+    {
+      "file": "logs/007-candidate-cadence-sphere-mobile.log",
+      "bytes": 1316,
+      "sha256": "db5bd4dc3c17f89f6aef1f82cc90f37e91e2db09ff8f5037b68aa276f5403cca",
+      "stable": true
+    },
+    {
+      "file": "render/candidate-cadence-full-sphere-low-mobile-cadence.json",
+      "bytes": 234973,
+      "sha256": "802975815bce622be669d2f9cc5271391d2237e828cdd88f21b9605b66466706",
+      "stable": true
+    },
+    {
+      "file": "logs/008-baseline-adaptive-hall.json",
+      "bytes": 1759,
+      "sha256": "477cb7f27048a4c21c8973b49bd0dfabc348b8edf6816829e9428ee26bcaee84",
+      "stable": true
+    },
+    {
+      "file": "logs/008-baseline-adaptive-hall.log",
+      "bytes": 1045,
+      "sha256": "ede5522e28af28bc810c7cfc033d1ab2626b04a2bef87dc8bc455d95936c23f3",
+      "stable": true
+    },
+    {
+      "file": "render/baseline-adaptive-full-hall-auto-mobile-cadence.json",
+      "bytes": 111698,
+      "sha256": "2bafad11c1adf6d319a2784471aa69b42af899e74d355e073cd497f982dbe18f",
+      "stable": true
+    },
+    {
+      "file": "logs/009-candidate-adaptive-hall.json",
+      "bytes": 1762,
+      "sha256": "e0a6a29676be8fab689bbe73b7a2fab600929eb7bde14d1889767b1a937b518d",
+      "stable": true
+    },
+    {
+      "file": "logs/009-candidate-adaptive-hall.log",
+      "bytes": 1036,
+      "sha256": "fbacfd74673ae9664070c0473f7bc66fddba5a68803a5683a29f2b484420a803",
+      "stable": true
+    },
+    {
+      "file": "render/candidate-adaptive-full-hall-auto-mobile-cadence.json",
+      "bytes": 111364,
+      "sha256": "f9ec21cd8cbef2c2222c54b904697176b080807bdfe9e67fb8c9d59d4d284658",
+      "stable": true
+    },
+    {
+      "file": "logs/010-baseline-adaptive-sphere.json",
+      "bytes": 1766,
+      "sha256": "900ff33c63ee3c51d58b8317bcd87bfef7f3dee8d2120799298193f359f16993",
+      "stable": true
+    },
+    {
+      "file": "logs/010-baseline-adaptive-sphere.log",
+      "bytes": 1048,
+      "sha256": "802cff0f91b9149ec5c5e008b48762a96120beb2a864ffddd3ae460bf6d67109",
+      "stable": true
+    },
+    {
+      "file": "render/baseline-adaptive-full-sphere-auto-mobile-cadence.json",
+      "bytes": 123081,
+      "sha256": "15bd2791d407a6f7d4c88cefaaa1be65b95bf55b98578071e98630cc74692185",
+      "stable": true
+    },
+    {
+      "file": "logs/011-candidate-adaptive-sphere.json",
+      "bytes": 1769,
+      "sha256": "6627104f974e80a836b783660c297f75d09b565bb5cb1ef2f9c90fc5684708bc",
+      "stable": true
+    },
+    {
+      "file": "logs/011-candidate-adaptive-sphere.log",
+      "bytes": 1053,
+      "sha256": "dd03e4cbd8d2b167a57dd33d101e4722c96f42a4f6321abaed3063abf5cd469b",
+      "stable": true
+    },
+    {
+      "file": "render/candidate-adaptive-full-sphere-auto-mobile-cadence.json",
+      "bytes": 121772,
+      "sha256": "2e4ba37959979eb25b6deaa2b3f19971ee2d739399a2f56b3ae0c38e37a55b54",
+      "stable": true
+    }
+  ]
+}
