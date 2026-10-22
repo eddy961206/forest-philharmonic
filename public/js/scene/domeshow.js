@@ -655,18 +655,55 @@ vec3 sRAIN(vec3 d, float az, float el) {
 }
 
 vec3 sSNOW(vec3 d, float az, float el) {
-  vec3 c = mix(vec3(0.12, 0.16, 0.24), vec3(0.02, 0.03, 0.07), smoothstep(-0.25, 1.1, el));
-  c += vec3(0.25, 0.3, 0.38) * exp(-max(el + 0.2, 0.0) * 5.0);
+  // A winter night at the edge of a village: low snow cloud glowing faintly
+  // with the lights below, a snowfield and rows of snow-laden firs round the
+  // horizon with a few warm windows among them, and snow falling out of the
+  // dark straight at you - small and far, then big and soft as it comes close.
+  float zen = acos(clamp(d.y, -1.0, 1.0));
+  vec3 c = mix(vec3(0.1, 0.095, 0.11), vec3(0.022, 0.03, 0.06), smoothstep(-0.02, 0.9, el));
+  vec2 p = d.xz / max(d.y + 0.4, 0.1);
+  c *= 0.8 + 0.45 * fbm(vec3(p * 0.8 + vec2(uTime * 0.004, 0.0), 2.0)); // the cloud's soft folds
+  c += vec3(0.1, 0.06, 0.03) * exp(-max(el, 0.0) * 12.0); // the village's glow in the haze
+  // the snowfield
+  c = mix(c, vec3(0.085, 0.09, 0.11) + vec3(0.06, 0.035, 0.015) * smoothstep(-0.08, 0.0, el), smoothstep(0.002, -0.004, el));
+  // firs, a far row in the haze and a near row, each in tiers of snowy boughs
+  for (int l = 0; l < 2 * uOne; l++) {
+    float fl = float(l);
+    float k = 52.0 - fl * 20.0;
+    float u = az * k / PI + fl * 3.7;
+    float ui = floor(u);
+    float hh = hash2(vec2(ui, fl + 1.0));
+    float H = (0.04 + 0.05 * hh) * (0.8 + fl * 0.9) * step(0.08, hash2(vec2(ui, fl + 7.0)));
+    float x = abs(fract(u) - 0.5 - (hh - 0.5) * 0.25) * 2.0;
+    float y = (el + 0.012 + fl * 0.02) / max(H, 1e-3);
+    float tier = fract(-y * 5.0 + hh);
+    float w = (1.0 - y) * (0.45 + 0.5 * tier) * 1.1;
+    float tree = step(0.0, y) * smoothstep(w + 0.06, w - 0.06, x) * step(y, 1.0);
+    vec3 fir = mix(vec3(0.05, 0.055, 0.07), vec3(0.012, 0.018, 0.024), fl);
+    fir += vec3(0.13, 0.14, 0.17) * smoothstep(w * 0.5, w * 0.95, x) * smoothstep(0.15, 0.6, tier) * (0.5 + 0.5 * fl); // snow along each tier's boughs
+    c = mix(c, fir, tree);
+  }
+  // windows: a few warm lights low among the trees, and their glow
+  vec2 wg = vec2(az * 80.0, el * 140.0 + 1.0);
+  vec2 wi = floor(wg);
+  float win = step(0.9, hash2(wi + 3.0)) * step(abs(wi.y - 0.0), 0.5);
+  win *= smoothstep(0.42, 0.25, length((fract(wg) - 0.5) * vec2(1.0, 0.7)));
+  c += vec3(1.0, 0.6, 0.25) * win * (0.85 + 0.15 * sin(uTime * 1.3 + wi.x)) * 1.4;
+  // the snow, in three depths, streaming out from the top of the sky
+  float lz = log(max(zen, 0.015));
   for (int l = 0; l < 3 * uOne; l++) {
     float fl = float(l);
-    float k = 16.0 + fl * 16.0;
-    vec2 g = vec2(az * k + sin(uTime * 0.4 + el * 6.0 + fl) * 0.4, el * k + uTime * (0.35 + fl * 0.25));
+    float N = 70.0 - fl * 22.0; // far (many, small) to near (few, big)
+    vec2 g = vec2((az + PI) / (2.0 * PI) * N, lz * N / (2.0 * PI) - uTime * (0.18 + fl * 0.16));
+    g.x += sin(uTime * 0.35 + g.y * 0.7 + fl * 2.0) * 0.25; // the drift
     vec2 gi = floor(g);
     vec2 o = hash22(gi + fl * 13.0) - 0.5;
-    float s = exp(-dot(fract(g) - 0.5 - o * 0.7, fract(g) - 0.5 - o * 0.7) * (220.0 + fl * 180.0));
-    c += vec3(0.95, 0.97, 1.0) * s * step(0.4, hash2(gi + 5.0 + fl)) * (1.2 - fl * 0.3);
+    vec2 q = fract(g) - 0.5 - o * 0.6;
+    float sz = mix(0.045, 0.15, fl * 0.5) * (0.6 + 0.6 * hash2(gi + 2.0));
+    float flake = smoothstep(sz, sz * (0.35 - fl * 0.17), length(q)) * step(0.38 + fl * 0.18, hash2(gi + 5.0 + fl));
+    c += vec3(0.85, 0.88, 0.95) * flake * (0.55 - fl * 0.12) * smoothstep(0.02, 0.15, zen);
   }
-  return c;
+  return c * (0.9 + 0.2 * uLevel);
 }
 
 vec3 sSPRING(vec3 d, float az, float el) {
