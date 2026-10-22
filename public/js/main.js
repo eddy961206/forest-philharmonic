@@ -34,6 +34,7 @@ import { Practice, SeatThief, noticeLines, buildNoticeBoard } from './scene/lobb
 import { buildRecital } from './scene/recital.js';
 import { Avatars, AVATARS } from './scene/avatars.js';
 import { AdaptiveQuality } from './quality.js';
+import { watchRenderContext, showRenderStatus } from './render-status.js';
 
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
@@ -120,11 +121,20 @@ scene.background = new THREE.Color(IS_SPHERE ? '#000000' : '#0b0806');
 scene.fog = IS_SPHERE ? new THREE.FogExp2('#06070b', 0.0028) : new THREE.FogExp2('#140d08', 0.006);
 const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, 0.1, 260); // near 0.1: better depth precision, no flicker
 
-const pmrem = new THREE.PMREMGenerator(renderer);
-const environmentRoom = new RoomEnvironment();
-scene.environment = pmrem.fromScene(environmentRoom, 0.04).texture;
-environmentRoom.dispose();
-pmrem.dispose();
+let environmentTarget;
+function buildEnvironment() {
+  environmentTarget?.dispose();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const environmentRoom = new RoomEnvironment();
+  try {
+    environmentTarget = pmrem.fromScene(environmentRoom, 0.04);
+    scene.environment = environmentTarget.texture;
+  } finally {
+    environmentRoom.dispose();
+    pmrem.dispose();
+  }
+}
+buildEnvironment();
 // (the Sphere is a black room: the bright studio reflections would glow)
 scene.environmentIntensity = IS_SPHERE ? 0.05 : 0.2;
 
@@ -869,6 +879,11 @@ ui.on('mode', (m) => {
   if (m === 'cinema') ui.toast('편하게 보기: 지금 선율을 이끄는 악기를 따라가요. 드래그하면 다시 직접 봐요.', 2800);
 });
 ui.on('sit', () => director.toggleSit());
+ui.on('dialogOpen', () => {
+  director.keys.clear();
+  director.vel.set(0, 0, 0);
+  director.releaseLock();
+});
 ui.on('jump', () => director.jump());
 ui.on('mute', () => {
   muted = !muted;
@@ -1894,8 +1909,9 @@ function wireRoom(c) {
   c.on('error', (e) => { if (e?.msg) ui.toast(e.msg, 2000); }); // (the room's answer to something we sent)
   c.on('disconnected', () => { ui.setOffline(true); ui.toast('연결이 끊겼어요. 다시 잇는 중…', 3000); });
   c.on('reconnected', () => ui.toast('다시 연결됐어요.', 1800));
-  c.on('lost', () => {
-    ui.chatLine({ sys: true, text: '방과 연결이 끊겼어요. 혼자 보기로 이어서 볼게요.' });
+  c.on('lost', (error) => {
+    const reason = error?.code === 'replaced' ? '다른 탭에서 이 방에 연결했어요.' : '방과 연결이 끊겼어요.';
+    ui.chatLine({ sys: true, text: `${reason} 혼자 보기로 이어서 볼게요.` });
     goSolo();
   });
 }
@@ -2132,10 +2148,11 @@ const levelBuf = new Uint8Array(512);
 let introT = 0;
 let screenActive = false;
 let pendingFrame = null;
+let graphicsUnavailable = false;
 const frameStats = { frameMs: 0, submitMs: 0, fps: 0, calls: 0, triangles: 0, quality, renderScale };
 
 function requestFrame() {
-  if (pendingFrame === null && !asleep && !document.hidden) pendingFrame = requestAnimationFrame(frame);
+  if (pendingFrame === null && !asleep && !document.hidden && !graphicsUnavailable) pendingFrame = requestAnimationFrame(frame);
 }
 function cancelFrame() {
   if (pendingFrame !== null) cancelAnimationFrame(pendingFrame);
@@ -2143,7 +2160,7 @@ function cancelFrame() {
 }
 function frame() {
   pendingFrame = null;
-  if (asleep || document.hidden) return; // wake/visibility resumes a single chain
+  if (asleep || document.hidden || graphicsUnavailable) return; // wake/visibility resumes a single chain
   const nowMs = performance.now();
   const elapsed = Math.max(0, (nowMs - lastNow) / 1000);
   const dt = Math.min(window.__fpMaxDt || 0.05, elapsed);
@@ -2354,11 +2371,44 @@ function interiorCull() {
   if (audience) audience.group.visible = show;
   if (hall.seatGroup) hall.seatGroup.visible = show;
 }
+watchRenderContext(renderer.domElement, {
+  lost() {
+    graphicsUnavailable = true;
+    cancelFrame();
+    director.keys.clear();
+    director.vel.set(0, 0, 0);
+    director.releaseLock();
+    // Dispose while the old context is lost. Disposing its GPU handles after
+    // Three has restored the context would try to delete foreign objects.
+    environmentTarget?.dispose();
+    environmentTarget = null;
+    scene.environment = null;
+    if (composer) {
+      composer.passes.forEach(pass => pass.dispose?.());
+      composer.dispose();
+      composer = null;
+    }
+  },
+  restored() {
+    buildEnvironment();
+    buildComposer();
+    hall.dome?.invalidate();
+    screen.invalidate();
+    screenActive = false;
+    lastNow = performance.now();
+    fpsAcc = 0;
+    fpsFrames = 0;
+    holdQuality(6000);
+    graphicsUnavailable = false;
+    requestFrame();
+  },
+});
 requestFrame();
 
 boot().catch((e) => {
   console.error(e);
   ui.setLoading(`불러오지 못했어요: ${e.message}. 서버가 켜져 있는지 확인하고 새로고침해 주세요.`, 0);
+  showRenderStatus('공연 준비를 마치지 못했어요. 연결을 확인하고 다시 불러와 주세요.');
 });
 
 window.__fp = {

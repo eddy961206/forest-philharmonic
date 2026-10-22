@@ -30,6 +30,8 @@ function buildConfetti(scene, N = 700) {
   const m4 = new THREE.Matrix4();
   const q = new THREE.Quaternion();
   const e = new THREE.Euler();
+  const unitScale = V(1, 1, 1);
+  const scatter = V();
   let next = 0;
   let aliveCount = 0;
   return {
@@ -40,29 +42,35 @@ function buildConfetti(scene, N = 700) {
         it.alive = true;
         it.life = rnd(4, 7);
         it.p.copy(origin);
-        it.v.copy(dir).add(V(rnd(-0.5, 0.5), rnd(-0.2, 0.5), rnd(-0.5, 0.5))).normalize().multiplyScalar(speed * rnd(0.5, 1.1));
+        it.v.copy(dir).add(scatter.set(rnd(-0.5, 0.5), rnd(-0.2, 0.5), rnd(-0.5, 0.5))).normalize().multiplyScalar(speed * rnd(0.5, 1.1));
       }
       mesh.visible = true;
     },
     update(dt) {
       if (!mesh.visible) return;
       aliveCount = 0;
+      const drag = Math.exp(-dt * 2.6);
       for (let i = 0; i < N; i++) {
         const it = P[i];
         if (!it.alive) { m4.makeScale(0, 0, 0); mesh.setMatrixAt(i, m4); continue; }
         it.life -= dt;
-        if (it.life <= 0 || it.p.y < -0.5) { it.alive = false; continue; }
+        if (it.life <= 0 || it.p.y < -0.5) {
+          it.alive = false;
+          m4.makeScale(0, 0, 0);
+          mesh.setMatrixAt(i, m4);
+          continue;
+        }
         aliveCount++;
         // drag + flutter: confetti falls slowly and sways
         it.v.y -= 9.8 * dt;
-        it.v.multiplyScalar(Math.exp(-dt * 2.6));
+        it.v.multiplyScalar(drag);
         it.v.y = Math.max(it.v.y, -1.3);
         it.p.addScaledVector(it.v, dt);
         it.p.x += Math.sin(it.r.x * 5 + it.life * 3) * dt * 0.4;
         it.r.addScaledVector(it.w, dt);
         e.set(it.r.x, it.r.y, it.r.z);
         q.setFromEuler(e);
-        m4.compose(it.p, q, V(1, 1, 1));
+        m4.compose(it.p, q, unitScale);
         mesh.setMatrixAt(i, m4);
       }
       mesh.instanceMatrix.needsUpdate = true;
@@ -124,6 +132,8 @@ function buildFireworks(scene, N = 2400) {
       this.clock = 0;
     },
     burst(at, color) {
+      // A delayed shell may arrive after its rising trail has died away.
+      pts.visible = true;
       const n = 140 + Math.floor(Math.random() * 60);
       const hue2 = palette[Math.floor(Math.random() * palette.length)];
       for (let k = 0; k < n; k++) {
@@ -158,6 +168,7 @@ function buildFireworks(scene, N = 2400) {
       flash.intensity = flashT > 0 ? 120 * (flashT / 0.25) : 0;
       flash.visible = flashT > 0;
       let alive = 0;
+      const drag = Math.exp(-dt * 1.4);
       for (let i = 0; i < N; i++) {
         const it = P[i];
         if (!it.alive) { size[i] = 0; continue; }
@@ -165,7 +176,7 @@ function buildFireworks(scene, N = 2400) {
         if (it.life >= it.max) { it.alive = false; size[i] = 0; continue; }
         alive++;
         it.v.y -= 4.5 * dt;
-        it.v.multiplyScalar(Math.exp(-dt * 1.4));
+        it.v.multiplyScalar(drag);
         it.p.addScaledVector(it.v, dt);
         pos[i * 3] = it.p.x; pos[i * 3 + 1] = it.p.y; pos[i * 3 + 2] = it.p.z;
         const k = 1 - it.life / it.max;

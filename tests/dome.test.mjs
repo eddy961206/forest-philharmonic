@@ -32,6 +32,26 @@ function assertRestored(f) {
   assert.equal(f.renderer.xr.enabled, true);
 }
 
+test('context recovery redraws lost cube faces without restarting the world flight', () => {
+  const f = fixture();
+  const worlds = makeWorldRenderer(f.renderer, { every: 90 });
+  worlds.update(['FOREST3D'], 12, 0.2, 1);
+  const slot = worlds.slots[0];
+  assert.equal(slot.start, 12);
+  f.renders.length = 0;
+  worlds.update(['FOREST3D'], 13, 0.2, 1);
+  assert.equal(f.renders.length, 0);
+  worlds.invalidate();
+  worlds.update(['FOREST3D'], 14, 0.2, 1);
+  assert.deepEqual(f.renders.map(row => row.face), [0]);
+  assert.equal(slot.start, 12);
+  assert.equal(slot.world, 'FOREST3D');
+  f.renders.length = 0;
+  worlds.update(['FOREST3D'], 15, 0.2, 1 << 4);
+  assert.deepEqual(f.renders.map(row => row.face), [4]);
+  assertRestored(f);
+});
+
 test('cube rendering updates only the five visible faces and restores caller render state', () => {
   const f = fixture();
   const worlds = makeWorldRenderer(f.renderer);
