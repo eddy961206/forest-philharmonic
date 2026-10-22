@@ -1,0 +1,40 @@
+{
+  "index": 1,
+  "job": {
+    "id": "candidate-cadence-hall-desktop",
+    "script": "tools/bench/full-frame.mjs",
+    "args": [
+      "candidate-cadence",
+      "hall",
+      "low",
+      "desktop",
+      "front,wide"
+    ],
+    "directory": "render",
+    "env": {
+      "BASE_URL": "http://127.0.0.1:18084/",
+      "REVISION": "dea7997c6278f10ff467815ab96b370362549b0c",
+      "MODE": "cadence",
+      "SAMPLES": "120",
+      "WARMUP": "12",
+      "SCREENSHOTS": "1",
+      "TIMEOUT_MS": "300000"
+    }
+  },
+  "command": [
+    "node",
+    "/workspace/scratch/296fafc0af7f/forest-philharmonic/tools/bench/full-frame.mjs",
+    "candidate-cadence",
+    "hall",
+    "low",
+    "desktop",
+    "front,wide"
+  ],
+  "startedAt": "2026-10-21T14:09:51.688949+00:00",
+  "planSha256": "80417fb8f74ebf3df05684cb6a9cf7f851edd98245d8aa47f46b514e4c21c564",
+  "collectorSha256": "2bf556b443cd64df6b4d743ec45e11dc382e6a9014083054472ddb39919d37c9",
+  "status": "PASS",
+  "exitCode": 0,
+  "finishedAt": "2026-10-21T14:11:06.823126+00:00",
+  "logSha256": "a1738d8fc0619b10f6af8040c4026d10a1d676e4e2a11bdd2f78bd7d78626751"
+}

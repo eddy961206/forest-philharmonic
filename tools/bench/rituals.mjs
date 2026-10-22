@@ -236,6 +236,8 @@ function readState() {
   const forward = c.position.clone().set(0, 0, -1).applyQuaternion(c.quaternion);
   const up = c.position.clone().set(0, 1, 0).applyQuaternion(c.quaternion);
   const original = window.__ritualOriginalSeats || [];
+  const crowdKey = new URL(location.href).searchParams.get('venue') === 'sphere' ? 'crowdSphere' : 'crowdHall';
+  const crowdPercent = typeof settings[crowdKey] === 'number' ? settings[crowdKey] : null;
   return {
     ready: true, at: { wallTimeMs: Date.now(), performanceNowMs: performance.now(), visibility: document.visibilityState },
     phase: fp.phase, piece: p.piece?.id ?? null, title: p.piece?.titleKo ?? null,
@@ -258,7 +260,9 @@ function readState() {
     conductor: { on: stage.conductorOn, state: stage.conductor.state },
     travelling: stage.walkers.filter(w => w.state === 'queued' || w.state === 'walking' || w.leaving)
       .map(w => ({ key: `${w.player.sid}:${w.player.ci}`, state: w.state, leaving: w.leaving })),
-    settings: { quality: settings.quality, audience: settings.audience, interval: settings.interval,
+    settings: { quality: settings.quality,
+      audience: typeof settings.audience === 'boolean' ? settings.audience : crowdPercent === null ? null : crowdPercent > 0,
+      audienceSetting: crowdPercent === null ? 'legacy-checkbox' : crowdKey, crowdPercent, interval: settings.interval,
       screen: settings.screen, fx: settings.fx, lasers: settings.lasers, fixedEar: settings.fixedEar },
     render: { preset: fp.quality ?? fp.stats?.quality ?? null, scale: fp.stats?.renderScale ?? null,
       pixelRatio: fp.renderer.getPixelRatio(), mainPasses: window.__ritualRender?.main ?? null },

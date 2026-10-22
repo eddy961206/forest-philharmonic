@@ -124,6 +124,8 @@ function readState() {
   const pose = e._listenerPose || window.__qaListenerTarget;
   const stats = window.__fp.stats;
   const uniforms = hall.dome?.uniforms;
+  const crowdKey = new URL(location.href).searchParams.get('venue') === 'sphere' ? 'crowdSphere' : 'crowdHall';
+  const crowdPercent = typeof settings[crowdKey] === 'number' ? settings[crowdKey] : null;
   const cube = (texture, id) => ({
     id,
     sizes: Array.isArray(texture?.image) ? texture.image.map(i => [i?.width, i?.height]) : [],
@@ -143,7 +145,10 @@ function readState() {
       visibility: document.visibilityState,
     },
     phase, audience: audience?.count ?? null, occupied: d.occupied.size,
-    settings: { quality: settings.quality, audience: settings.audience, screen: settings.screen, fixedEar: settings.fixedEar },
+    settings: { quality: settings.quality,
+      audience: typeof settings.audience === 'boolean' ? settings.audience : crowdPercent === null ? null : crowdPercent > 0,
+      audienceSetting: crowdPercent === null ? 'legacy-checkbox' : crowdKey, crowdPercent,
+      screen: settings.screen, fixedEar: settings.fixedEar },
     render: { quality: stats?.quality ?? null, scale: stats?.renderScale ?? null, pixelRatio: renderer.getPixelRatio(), shadows: renderer.shadowMap.enabled, statisticsAvailable: !!stats },
     dome: uniforms ? {
       current: hall.dome.current, live: hall.dome.liveActive, liveMix: uniforms.uLive.value,
@@ -288,6 +293,36 @@ async function runCase({ venue, device }) {
       const locator = page.locator(`#${id}`);
       if ((await locator.isChecked()) !== checked) await activate(locator);
       assert.equal(await locator.isChecked(), checked, `${id} native input`);
+    };
+    let originalCrowdPercent = null;
+    const setAudience = async enabled => {
+      const legacyCount = await page.locator('#optAudience').count();
+      assert.ok(legacyCount <= 1, 'At most one legacy audience control');
+      if (legacyCount === 1) {
+        assert.equal(await page.locator('#crowd').count(), 0, 'Exactly one supported audience control');
+        await setCheckbox('optAudience', enabled);
+        report.checks.audienceControl = { kind: 'legacy-checkbox', input: mobile ? 'touch' : 'mouse' };
+        return;
+      }
+      const slider = page.locator('#crowd');
+      assert.equal(await slider.count(), 1, 'A supported native audience slider exists');
+      const current = Number(await slider.inputValue());
+      assert.ok(Number.isInteger(current) && current >= 0 && current <= 100, 'Audience slider has a valid percent');
+      if (!enabled) originalCrowdPercent = current;
+      const target = enabled ? originalCrowdPercent : 0;
+      assert.ok(Number.isInteger(target) && (!enabled || target > 0), 'Restore the original nonempty crowd');
+      // Native range keyboard input is exact and keeps the original share.
+      // This control check is not a mobile touch-slider fidelity measurement.
+      await slider.press('Home');
+      for (let i = 0; i < target; i++) await slider.press('ArrowRight');
+      assert.equal(Number(await slider.inputValue()), target, 'Native range input reaches the requested percent');
+      const key = venue === 'sphere' ? 'crowdSphere' : 'crowdHall';
+      await page.waitForFunction(({ key, target }) => window.__fp.settings[key] === target
+        && (target === 0 ? window.__fp.audience === null : window.__fp.audience?.count > 0),
+      { key, target }, { polling: 50, timeout: 5000 });
+      report.checks.audienceControl = { kind: 'percentage-slider', input: 'native Home/ArrowRight keyboard',
+        originalPercent: originalCrowdPercent, requestedPercent: target, settingKey: key,
+        limitation: 'The crowd slider itself is checked with keyboard events, including mobile emulation; joystick, view and seek touch checks remain separate.' };
     };
     const settingsPanel = async () => {
       if (await page.locator('#panel').isHidden() || await page.locator('[data-body="settings"]').isHidden())
@@ -790,14 +825,14 @@ async function runCase({ venue, device }) {
         }
         report.checks.quality.push({ requested: quality, actual: s.render, dome: s.dome, ...(worldPasses ? { worldPasses } : {}) });
       }
-      await setCheckbox('optAudience', false);
+      await setAudience(false);
       assert.equal((await state()).audience, null);
       assert.equal((await state()).settings.audience, false);
       await setCheckbox('optScreen', false);
       const screenOff = await renderFrame('audience-and-screen-off');
       assert.equal(screenOff.passes.filter(p => p.kind === 'broadcast').length, 0);
       assert.equal(screenOff.state.settings.screen, false);
-      await setCheckbox('optAudience', true);
+      await setAudience(true);
       const audienceOn = await state();
       assert.ok(audienceOn.audience > 0);
       assert.equal(audienceOn.settings.audience, true);

@@ -25,19 +25,23 @@ export function browserOptions(device, version) {
   };
 }
 
-// Only loading opts into this fixture. Keep the crowd's own generator separate
-// from Math.random: Three UUID allocations differ between the two revisions.
+// Loading and explicit fixed-audience audio QA opt into this fixture. Keep
+// the crowd's generator separate: Three UUID allocations differ by revision.
 export function fixedAudienceMain(original, audienceSeed) {
   if (!Number.isInteger(audienceSeed) || audienceSeed < 0 || audienceSeed > 0xffffffff)
     throw new Error('audienceSeed must be a uint32 integer');
-  const anchor = 'const rand = room ? seeded(room.seed) : Math.random;';
-  const matches = original.split(anchor).length - 1;
-  if (matches !== 1) throw new Error(`Fixed-audience main fixture requires exactly one solo crowd generator; found ${matches}`);
-  const served = original.replace(anchor, `const rand = room ? seeded(room.seed) : seeded(${audienceSeed});`);
+  const anchors = [
+    { kind: 'legacy-solo-rand', text: 'const rand = room ? seeded(room.seed) : Math.random;' },
+    { kind: 'planned-house', text: 'housePlan = planHouse(hall.seats.filter((s) => !s.stage), room ? seeded(room.seed) : Math.random);' },
+  ].map(anchor => ({ ...anchor, matches: original.split(anchor.text).length - 1 }));
+  const matches = anchors.reduce((sum, anchor) => sum + anchor.matches, 0);
+  if (matches !== 1) throw new Error(`Fixed-audience main fixture requires exactly one supported solo crowd generator; found ${matches}`);
+  const anchor = anchors.find(candidate => candidate.matches === 1);
+  const served = original.replace(anchor.text, anchor.text.replace(' : Math.random', ` : seeded(${audienceSeed})`));
   return {
     served,
     metadata: {
-      path: '/js/main.js', audienceSeed, replacements: matches,
+      path: '/js/main.js', audienceSeed, replacements: matches, anchorKind: anchor.kind,
       originalSha256: digest(original), servedSha256: digest(served),
       originalIdentityBytes: Buffer.byteLength(original), servedIdentityBytes: Buffer.byteLength(served),
       contentEncoding: 'identity', cacheControl: 'no-cache',
@@ -237,7 +241,10 @@ export async function browserState(page, { audienceFingerprint = false } = {}) {
     let sampleCount = 0, samplePcmBytes = 0;
     for (const instrument of Object.values(engine.samples)) for (const buffer of instrument.buf.values()) { sampleCount++; samplePcmBytes += buffer.length * buffer.numberOfChannels * 4; }
     const crowd = engine._crowd;
-    const crowdBuffers = crowd ? [crowd.welcome, ...crowd.normal, crowd.finale] : [];
+    const crowdBuffers = crowd ? [crowd.welcome, ...crowd.normal, crowd.finale]
+      .flatMap(profile => profile?.close && profile?.wash ? [profile.close, profile.wash] : [profile]) : [];
+    if (crowdBuffers.some(buffer => !Number.isInteger(buffer?.length) || !Number.isInteger(buffer?.numberOfChannels)))
+      throw new Error('Unknown applause PCM layout; refusing an invalid memory observation');
     return {
       userAgent: navigator.userAgent, hardwareConcurrency: navigator.hardwareConcurrency,
       viewport: [innerWidth, innerHeight], devicePixelRatio, rendererPixelRatio: renderer.getPixelRatio(),

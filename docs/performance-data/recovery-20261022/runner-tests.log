@@ -1,0 +1,14 @@
+Command: python3 docs/performance-data/recovery-20261022/runner-targeted-tests.py
+Environment: Linux; real Python subprocesses; Windows tree cleanup mocked; no browser execution.
+
+test_atomic_failure_keeps_previous_document (__main__.RunnerTests.test_atomic_failure_keeps_previous_document) ... ok
+test_invalid_timeout_is_rejected (__main__.RunnerTests.test_invalid_timeout_is_rejected) ... ok
+test_resume_retains_first_and_rejects_overwrite (__main__.RunnerTests.test_resume_retains_first_and_rejects_overwrite) ... ok
+test_sigterm_closes_job (__main__.RunnerTests.test_sigterm_closes_job) ... ok
+test_timeout_descendants_continue_and_inventory (__main__.RunnerTests.test_timeout_descendants_continue_and_inventory) ... ok
+test_windows_cleanup_arguments_mock_only (__main__.RunnerTests.test_windows_cleanup_arguments_mock_only) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.217s
+
+OK
