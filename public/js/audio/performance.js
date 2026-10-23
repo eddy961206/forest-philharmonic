@@ -133,7 +133,7 @@ export class Performance {
       if (on >= pos - 0.001 || on + dur < pos + 0.25) continue;
       const tr = tracks[ev[k]];
       try {
-        this.engine.playNote({ section: tr.section, inst: tr.inst, midi: ev[k + 3], vel: ev[k + 4], when: this.startCtx, dur: on + dur - pos, gain: tr.gain ?? 1, layer: tr.layer, skip: pos - on });
+        this.engine.playNote({ section: tr.section, inst: tr.inst, midi: ev[k + 3], vel: ev[k + 4], when: this.startCtx, dur: on + dur - pos, gain: tr.gain ?? 1, layer: tr.layer, skip: pos - on, bends: tr.bends, bendStart: pos });
       } catch { /* a note less */ }
     }
   }
@@ -319,7 +319,7 @@ export class Performance {
       const vel = ev[i + 4] * (1 + (Math.random() - 0.5) * 0.07);
       this.schedIdx++;
       try {
-        e.playNote({ section: tr.section, inst: tr.inst, midi: ev[i + 3], vel, when, dur: ev[i + 2], gain: tr.gain ?? 1, layer: tr.layer });
+        e.playNote({ section: tr.section, inst: tr.inst, midi: ev[i + 3], vel, when, dur: ev[i + 2], gain: tr.gain ?? 1, layer: tr.layer, bends: tr.bends, bendStart: ev[i + 1] });
       } catch (err) {
         console.warn('note skipped', err);
       }

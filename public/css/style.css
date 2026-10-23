@@ -1099,3 +1099,8 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
   .joystick.active, .toast, .chat-log li, .pz-loading, .pz-gate, .pz-gate p { transition: none; }
   #boothTicket .ticket { animation: none; }
 }
+
+/* Optional performance reference; the orchestra itself always plays natively. */
+.now-meta a { color: var(--paper-dim); pointer-events: auto; text-underline-offset: 3px; }
+.now-meta a:focus-visible { outline: 2px solid var(--fern); outline-offset: 4px; }
+.program .p-meta { flex-wrap: wrap; gap: 3px 12px; }

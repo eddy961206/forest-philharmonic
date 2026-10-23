@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { AudioEngine } from '../public/js/audio/engine.js';
 import { SECTIONS, sectionCenter } from '../public/js/layout.js';
+const sectionCount = Object.keys(SECTIONS).length;
 
 const position = { x: 0, y: 1.2, z: 10 };
 const forward = { x: 0, y: 0, z: -1 };
@@ -68,8 +69,8 @@ test('600 identical frames keep the initial targets and schedule no duplicates',
     // The camera creates new vectors each frame: compare values, not references.
     engine.setListener({ ...position }, { ...forward }, { ...up });
   }
-  assert.equal(writes.length, 24); // 9 listener parameters + 15 section filters, once.
-  assert.equal(writes.filter((write) => write.name.startsWith('air:')).length, 15);
+  assert.equal(writes.length, 9 + sectionCount); // Listener parameters plus one filter per section.
+  assert.equal(writes.filter((write) => write.name.startsWith('air:')).length, sectionCount);
   assert.ok(writes.every((write) => write.time === 0));
 });
 
@@ -119,7 +120,7 @@ test('moving retains every spatial target and air absorption value', () => {
   const moved = { x: 3, y: 1.6, z: 5 };
   engine.ctx.currentTime = 3;
   engine.setListener(moved, forward, up);
-  assert.equal(writes.length, 18); // Position and filters; orientation is unchanged.
+  assert.equal(writes.length, 3 + sectionCount); // Position and filters; orientation is unchanged.
   assert.deepEqual(writes.slice(0, 3), [
     { name: 'positionX', value: 3, time: 3, constant: 0.04 },
     { name: 'positionY', value: 1.6, time: 3, constant: 0.04 },
@@ -142,7 +143,7 @@ test('the exact cache preserves tiny movements and mutable vector inputs', () =>
   writes.length = 0;
   pos.x += 1e-12;
   engine.setListener(pos, forward, up);
-  assert.equal(writes.length, 18);
+  assert.equal(writes.length, 3 + sectionCount);
   assert.equal(writes[0].value, 1e-12);
   writes.length = 0;
   engine.setListener(pos, forward, up);
@@ -160,7 +161,7 @@ test('listener initialization invalidates a pose sent during async setup', () =>
   engine.sections = sections;
   writes.length = 0;
   engine.setListener(position, forward, up);
-  assert.equal(writes.length, 24);
+  assert.equal(writes.length, 9 + sectionCount);
 });
 
 test('reinitialization binds a new audio listener and resends unchanged targets', () => {
@@ -171,14 +172,14 @@ test('reinitialization binds a new audio listener and resends unchanged targets'
   first.engine.sections = second.engine.sections;
   first.engine._initListener();
   first.engine.setListener(position, forward, up);
-  assert.equal(second.writes.length, 24);
-  assert.equal(first.writes.length, 24); // No writes were sent to the old context.
+  assert.equal(second.writes.length, 9 + sectionCount);
+  assert.equal(first.writes.length, 9 + sectionCount); // No writes were sent to the old context.
 });
 
 test('legacy listeners keep separate position/orientation updates', () => {
   const { engine, writes } = fixture({ legacy: true });
   engine.setListener(position, forward, up);
-  assert.equal(writes.length, 17); // Two legacy calls plus the same 15 filters.
+  assert.equal(writes.length, 2 + sectionCount); // Two legacy calls plus the section filters.
   writes.length = 0;
   engine.setListener({ ...position }, { ...forward }, { ...up });
   assert.equal(writes.length, 0);
@@ -186,7 +187,7 @@ test('legacy listeners keep separate position/orientation updates', () => {
   assert.deepEqual(writes, [{ name: 'orientation', values: [1, 0, 0, 0, 1, 0] }]);
   writes.length = 0;
   engine.setListener({ ...position, x: 1 }, { x: 1, y: 0, z: 0 }, up);
-  assert.equal(writes.length, 16);
+  assert.equal(writes.length, 1 + sectionCount);
   assert.deepEqual(writes[0], { name: 'position', values: [1, 1.2, 10] });
 });
 
@@ -204,7 +205,7 @@ test('adding a foyer source refreshes distance and air for a stationary listener
   assert.deepEqual(writes.find(write => write.name === 'spot:filter:0'), {
     name: 'spot:filter:0', value: 21000 / (1 + distance * 0.055), time: 2, constant: 0.08,
   });
-  assert.equal(writes.length, 16); // Filters only: no unchanged listener targets.
+  assert.equal(writes.length, 1 + sectionCount); // Filters only: no unchanged listener targets.
   assert.ok(writes.every(write => write.constant === 0.08));
   assert.equal(engine._spatialDirty, false);
   writes.length = 0;
@@ -238,7 +239,7 @@ test('moving a foyer source refreshes a stationary legacy ear without duplicate 
   assert.deepEqual(writes.find(write => write.name === 'spot:filter:0'), {
     name: 'spot:filter:0', value: Math.min(21000 / (1 + distance * 0.055), 24000 * 0.49), time: 3, constant: 0.08,
   });
-  assert.equal(writes.length, 16);
+  assert.equal(writes.length, 1 + sectionCount);
   assert.ok(writes.every(write => write.constant === 0.08));
   writes.length = 0;
   engine.setListener(position, forward, up);

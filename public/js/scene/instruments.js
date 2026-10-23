@@ -605,3 +605,140 @@ export function standParts(height = 1.05) {
   const paper = new THREE.PlaneGeometry(0.44, 0.3).translate(0, 0.01, 0.007).rotateX(-0.42).translate(0, height + 0.1, 0.02);
   return { metal: mergeGeometries(parts), paper };
 }
+
+// Additional orchestral instruments. Rigid bodies are merged by the caller;
+// slides and keys remain separate so their movement follows the live score.
+export function trombone() {
+  const group = new THREE.Group(), slide = new THREE.Group();
+  const brass = M.brass();
+  const tube = (parent, a, b, r = 0.008) => {
+    const d = b.clone().sub(a);
+    const m = mesh(new THREE.CylinderGeometry(r, r, d.length(), 8), brass);
+    m.position.copy(a).add(b).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize()); parent.add(m);
+  };
+  tube(group, V(0, 0, 0), V(-0.07, 0, -0.24));
+  tube(group, V(-0.07, 0, -0.24), V(-0.07, 0.08, -0.55));
+  const profile = Array.from({ length: 13 }, (_, i) => new THREE.Vector2(0.012 + (i / 12) ** 3 * 0.1, i / 12 * 0.2));
+  const bell = mesh(new THREE.LatheGeometry(profile, 20), brass);
+  bell.rotation.x = -Math.PI / 2; bell.position.set(-0.07, 0.08, -0.55); group.add(bell);
+  tube(slide, V(0.03, -0.06, -0.1), V(0.03, -0.06, -0.62));
+  tube(slide, V(0.09, -0.06, -0.1), V(0.09, -0.06, -0.62));
+  tube(slide, V(0.03, -0.06, -0.62), V(0.09, -0.06, -0.62));
+  tube(slide, V(0.03, -0.06, -0.24), V(0.09, -0.06, -0.24));
+  group.add(slide);
+  return { group, slide, mouth: V(0, 0, 0), lh: V(-0.02, -0.04, -0.13), rh: V(0.06, -0.06, -0.24) };
+}
+
+export function tuba() {
+  const group = new THREE.Group(), brass = M.brass();
+  const loop = mesh(new THREE.TorusGeometry(0.23, 0.036, 8, 28), brass);
+  loop.scale.y = 1.35; loop.position.y = -0.25; group.add(loop);
+  const profile = Array.from({ length: 15 }, (_, i) => new THREE.Vector2(0.035 + (i / 14) ** 3 * 0.17, i / 14 * 0.39));
+  const bell = mesh(new THREE.LatheGeometry(profile, 24), brass);
+  bell.position.set(0.15, -0.2, 0); group.add(bell);
+  const lead = new THREE.CatmullRomCurve3([V(-0.08, 0.06, 0.12), V(-0.2, 0.02, 0.08), V(-0.23, -0.2, 0), V(-0.1, -0.3, 0)]);
+  group.add(mesh(new THREE.TubeGeometry(lead, 12, 0.01, 6), brass));
+  for (let i = 0; i < 3; i++) {
+    const valve = mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.16, 8), brass);
+    valve.position.set(-0.08 + i * 0.05, -0.2, 0.06); group.add(valve);
+  }
+  return { group, mouth: V(-0.08, 0.06, 0.12), lh: V(-0.16, -0.32, 0.06), rh: V(0, -0.12, 0.08) };
+}
+
+export function saxophone() {
+  const group = new THREE.Group(), brass = M.brass();
+  const path = new THREE.CatmullRomCurve3([V(0, 0, 0), V(0, -0.1, -0.1), V(0, -0.5, -0.13), V(0, -0.58, -0.27), V(0, -0.4, -0.35)]);
+  group.add(mesh(new THREE.TubeGeometry(path, 22, 0.024, 10), brass));
+  const bell = mesh(new THREE.CylinderGeometry(0.08, 0.025, 0.15, 18, 1, true), brass);
+  bell.position.set(0, -0.35, -0.35); group.add(bell);
+  for (let i = 0; i < 7; i++) {
+    const key = mesh(new THREE.SphereGeometry(0.014, 8, 5), M.silver(), { cast: false });
+    key.position.set(0.025, -0.13 - i * 0.045, -0.1); group.add(key);
+  }
+  return { group, mouth: V(0, 0, 0), lh: V(-0.02, -0.2, -0.1), rh: V(0.02, -0.38, -0.13) };
+}
+
+export function chamberKeyboard(organ = false) {
+  const group = new THREE.Group(), keys = [], wood = M.darkWood();
+  const body = mesh(new THREE.BoxGeometry(1.12, 0.36, 0.45), wood);
+  body.position.set(0, 0.76, -0.62); group.add(body);
+  for (const x of [-0.48, 0.48]) {
+    const leg = mesh(new THREE.BoxGeometry(0.06, 0.62, 0.06), wood); leg.position.set(x, 0.31, -0.63); group.add(leg);
+  }
+  for (let m = 48; m <= 84; m++) {
+    const black = [1, 3, 6, 8, 10].includes(m % 12);
+    const key = mesh(new THREE.BoxGeometry(0.025, 0.025, black ? 0.12 : 0.2), black ? M.ebony() : M.ivory(), { cast: false });
+    key.position.set((m - 66) * 0.027, 0.96 + (black ? 0.018 : 0), black ? -0.51 : -0.46);
+    key.userData.homeY = key.position.y; key.userData.midi = m; keys.push(key); group.add(key);
+  }
+  if (organ) for (let i = 0; i < 13; i++) {
+    const h = 0.6 + Math.abs(i - 6) * 0.1;
+    const pipe = mesh(new THREE.CylinderGeometry(0.03, 0.03, h, 8), M.silver());
+    pipe.position.set((i - 6) * 0.075, 0.95 + h / 2, -0.83); group.add(pipe);
+  }
+  return { group, keys, keyPos: m => V((Math.max(48, Math.min(84, m)) - 66) * 0.027, 0.99, -0.4),
+    setPressed: pitches => { for (const k of keys) k.position.y = k.userData.homeY - (pitches.has(k.userData.midi) ? 0.012 : 0); } };
+}
+
+export function percussion(kind = 'snare') {
+  const group = new THREE.Group(), metal = M.silver(), wood = M.darkWood();
+  const targets = [];
+  const stand = (x, z, h) => {
+    const pole = mesh(new THREE.CylinderGeometry(0.012, 0.016, h, 8), metal); pole.position.set(x, h / 2, z); group.add(pole);
+    for (let j = 0; j < 3; j++) {
+      const foot = mesh(new THREE.BoxGeometry(0.38, 0.025, 0.025), metal);
+      foot.rotation.y = j * Math.PI / 3; foot.position.set(x, 0.025, z); group.add(foot);
+    }
+  };
+  if (kind === 'mallet') {
+    for (let i = 0; i < 18; i++) {
+      const bar = mesh(new THREE.BoxGeometry(0.055, 0.035, 0.36 - i * 0.008), wood);
+      bar.position.set((i - 8.5) * 0.061, 0.78, -0.45); group.add(bar);
+    }
+    stand(-0.43, -0.45, 0.74); stand(0.43, -0.45, 0.74);
+    for (const x of [-0.3, 0, 0.3]) targets.push({ center: V(x, 0.8, -0.45), r: 0.2 });
+  } else if (kind === 'bells') {
+    for (let i = 0; i < 10; i++) {
+      const h = 1.2 - i * 0.045;
+      const pipe = mesh(new THREE.CylinderGeometry(0.025, 0.025, h, 8), M.brass());
+      pipe.position.set((i - 4.5) * 0.065, 1.55 - h / 2, -0.55); group.add(pipe);
+    }
+    stand(-0.4, -0.55, 1.65); stand(0.4, -0.55, 1.65);
+    targets.push({ center: V(0, 1.3, -0.55), r: 0.18 });
+  } else if (kind === 'triangle') {
+    const points = [V(-0.18, 1.05, -0.45), V(0, 1.35, -0.45), V(0.18, 1.05, -0.45), V(-0.12, 1.05, -0.45)];
+    for (let i = 0; i < 3; i++) {
+      const d = points[i + 1].clone().sub(points[i]);
+      const rod = mesh(new THREE.CylinderGeometry(0.009, 0.009, d.length(), 8), metal);
+      rod.position.copy(points[i]).add(points[i + 1]).multiplyScalar(0.5); rod.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize()); group.add(rod);
+    }
+    stand(0.28, -0.45, 1.4); targets.push({ center: V(0.08, 1.08, -0.45), r: 0.1 });
+  } else if (kind === 'tambourine') {
+    const rim = mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.09, 24, 1, true), wood);
+    rim.position.set(0, 0.95, -0.45); group.add(rim);
+    const head = mesh(new THREE.CircleGeometry(0.217, 24), M.ivory());
+    head.rotation.x = -Math.PI / 2; head.position.set(0, 1, -0.45); group.add(head);
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+      for (const y of [0.938, 0.957]) {
+        const jingle = mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.006, 12), metal);
+        jingle.position.set(Math.cos(a) * 0.218, y, -0.45 + Math.sin(a) * 0.218); group.add(jingle);
+      }
+    }
+    stand(0, -0.45, 0.9); targets.push({ center: V(0, 1.01, -0.45), r: 0.2 });
+  } else if (kind === 'cymbals') {
+    const disc = mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.012, 32), M.brass());
+    disc.position.set(0, 0.9, -0.45); disc.rotation.x = 0.12; group.add(disc);
+    stand(0, -0.45, 0.9); targets.push({ center: V(0, 0.91, -0.45), r: 0.3 });
+  } else {
+    const r = kind === 'bassDrum' ? 0.42 : 0.27;
+    const shell = mesh(new THREE.CylinderGeometry(r, r, kind === 'bassDrum' ? 0.38 : 0.18, 24), kind === 'bassDrum' || kind === 'tom' ? wood : metal);
+    shell.position.set(0, 0.68, -0.45); group.add(shell);
+    const head = mesh(new THREE.CylinderGeometry(r, r, 0.012, 24), M.ivory());
+    head.position.set(0, kind === 'bassDrum' ? 0.88 : 0.78, -0.45); group.add(head);
+    stand(0, -0.45, 0.6); targets.push({ center: head.position.clone(), r });
+  }
+  while (targets.length < 3) targets.push(targets[0]);
+  return { group, drums: targets };
+}

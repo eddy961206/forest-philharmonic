@@ -13,6 +13,8 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "build:music": "python3 tools/build_music.py --fetch",
-    "build:samples": "python3 tools/fetch_samples.py && python3 tools/analyze_samples.py"
+    "build:samples": "python3 tools/fetch_samples.py && python3 tools/fetch_percussion.py && python3 tools/analyze_samples.py",
+    "build:repertoire": "python3 tools/build_repertoire.py",
+    "check:repertoire": "python3 tools/build_repertoire.py --check"
   }
 }

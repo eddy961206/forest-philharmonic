@@ -791,6 +791,8 @@ def main(argv):
         with open(os.path.join(OUT, f"{piece['id']}.json"), "w") as f:
             json.dump(piece, f, ensure_ascii=False, separators=(",", ":"))
         index.append({k: piece.get(k) for k in INDEX_KEYS})
+    from build_repertoire import build as build_repertoire
+    index = build_repertoire(index, argv)
     with open(os.path.join(OUT, "index.json"), "w") as f:
         json.dump(index, f, ensure_ascii=False, indent=1)
 

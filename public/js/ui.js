@@ -474,7 +474,7 @@ export class UI {
       b.querySelector('.p-dur').textContent = fmt(p.duration);
       const meta = b.querySelectorAll('.p-meta span');
       meta[0].textContent = p.composerKo;
-      meta[1].textContent = p.ensembleKo;
+      meta[1].textContent = p.editionKo || p.ensembleKo;
       b.addEventListener('click', (e) => { this.emit('select', i); if (e.detail > 0) b.blur(); });
       li.appendChild(b);
       ol.appendChild(li);
@@ -488,7 +488,13 @@ export class UI {
     if (!piece) return;
     $('npComposer').textContent = `${piece.composerKo} (${piece.composer}), ${piece.year}`;
     $('npTitle').textContent = piece.titleKo;
-    $('npEnsemble').textContent = piece.ensembleKo;
+    $('npEnsemble').textContent = piece.editionKo || piece.ensembleKo;
+    const reference = $('npReference');
+    if (reference) {
+      reference.hidden = !piece.referenceUrl;
+      if (piece.referenceUrl) reference.href = piece.referenceUrl;
+      else reference.removeAttribute('href');
+    }
     this.duration = piece.duration;
     document.title = `${piece.titleKo} · 숲속 필하모닉`;
   }
