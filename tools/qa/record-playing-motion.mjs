@@ -53,7 +53,7 @@ try {
       const start=spec.start??Math.max(0,best-.7);f.perf.seek(start);
       const target=p.char.root.localToWorld(new THREE.Vector3(0,.96,-.22));
       const eye=p.char.root.localToWorld(new THREE.Vector3(...offset));
-      if(spec.mode){f.perf.pause();f.stage.snapOnstage();f.stage.snapConductor(true);eye.set(6.5,5.2,4);target.set(0,2,-5);}
+      if(spec.mode){f.perf.pause();f.stage.snapOnstage();f.stage.snapConductor(true);eye.set(...(spec.venue==='outdoor'?[0,6,12]:[6.5,5.2,4]));target.set(0,2,-5);}
       const d=f.director;d.setMode('cinema');d.placeAt({x:eye.x,y:eye.y-1.62,z:eye.z},target);
       d.targetFov=d.fov=spec.mode?60:42;d.cine.shot={kind:'qa',hold:Infinity};d.cine.until=Infinity;d.cine.drift=null;
       return {start,offset,notes:count,root:p.char.root.position.toArray(),visible:p.char.root.visible};
@@ -91,7 +91,8 @@ try {
         sampling=false;recorder.stop();await stopped;
         const blob=new Blob(chunks,{type:mime});
         const b64=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(';base64,')[1]);reader.readAsDataURL(blob);});
-        return {b64,frames,phase:f.phase,canvas:[f.renderer.domElement.width,f.renderer.domElement.height],mime};
+        const lifecycleEnd=spec.mode?{allOffstage:f.stage.allOffstage,conductorOffstage:f.stage.conductorOffstage,arrived:f.stage.arrived(f.stage.walkers),conductorReady:f.stage.conductorReady,routes:[...f.stage.walkers,f.stage.conductor].every(w=>w.routeFound)}:null;
+        return {b64,frames,phase:f.phase,canvas:[f.renderer.domElement.width,f.renderer.domElement.height],mime,lifecycleEnd};
       }finally{
         sampling=false;cancelAnimationFrame(raf);timers.forEach(clearTimeout);
         if(recorder.state!=='inactive')recorder.stop();
@@ -99,6 +100,9 @@ try {
       }
     },spec);
     const activeFrames=data.frames.filter(frame=>frame.playing).length;
+    if(spec.mode&&data.lifecycleEnd?.routes!==true)errors.push('Missing stage route');
+    if(spec.mode==='exit'&&(!data.lifecycleEnd.allOffstage||!data.lifecycleEnd.conductorOffstage))errors.push('Incomplete rendered exit');
+    if(spec.mode==='entry'&&(!data.lifecycleEnd.arrived||!data.lifecycleEnd.conductorReady))errors.push('Incomplete rendered entry');
     if(spec.sid!=='conductor'&&!activeFrames)errors.push('Selected performer did not play during the captured window');
     data.activeFrames=activeFrames;
     fs.writeFileSync(`${outputDir}/${label}-${spec.id}.webm`,Buffer.from(data.b64,'base64'));delete data.b64;

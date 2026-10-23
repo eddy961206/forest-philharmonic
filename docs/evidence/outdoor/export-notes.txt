@@ -1,0 +1,5 @@
+Source: Chrome 156 MediaRecorder WebM (VP9/Opus).
+FFmpeg emitted "Error parsing Opus packet header." once per source during conversion.
+All five delivered H.264/AAC MP4 files passed ffmpeg -v error -xerror -i FILE -f null - full decoding.
+Browser playback progress checks are in browser-video-playback.json.
+Desktop concert audio: mean_volume -21.6 dB, max_volume -4.0 dB (ffmpeg volumedetect).

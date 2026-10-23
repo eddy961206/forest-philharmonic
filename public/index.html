@@ -78,6 +78,7 @@
 
         <div class="lb-venue" id="lbVenue" role="group" aria-label="공연장">
           <button type="button" data-venue="hall" aria-pressed="true"><b>숲속 필하모닉 홀</b><small>달빛 숲 4층 그랜드 콘서트홀</small></button>
+          <button type="button" data-venue="outdoor" aria-pressed="false"><b>숲속 작은 음악회</b><small>나무 그늘 아래 이웃들과 듣는 연주</small></button>
           <button type="button" data-venue="sphere" aria-pressed="false"><b>스피어</b><small>머리 위를 감싸는 16K 돔</small></button>
         </div>
 
@@ -275,8 +276,8 @@
       </fieldset>
       <fieldset class="field">
         <legend>소리</legend>
-        <label class="slider">홀 잔향 <input type="range" id="reverb" min="0" max="1" step="0.01" value="0.45"></label>
-        <label class="check"><input type="checkbox" id="optFixedEar" checked> 편하게 보기 중에는 1층 중앙 자리에서 듣기</label>
+        <label class="slider"><span id="reverbText">홀 잔향 </span><input type="range" id="reverb" min="0" max="1" step="0.01" value="0.45"></label>
+        <label class="check"><input type="checkbox" id="optFixedEar" checked><span id="fixedEarText"> 편하게 보기 중에는 1층 중앙 자리에서 듣기</span></label>
         <label class="slider">박수 소리 <input type="range" id="applauseVol" min="0" max="1" step="0.05" value="0.7"><output id="applauseOut">70%</output></label>
         <label class="slider">곡 사이 쉬는 시간 <input type="range" id="gap" min="2" max="20" step="1" value="7"><output id="gapOut">7초</output></label>
       </fieldset>
@@ -285,7 +286,7 @@
         <div class="seg" id="intervalSeg">
           <button data-min="0">없음</button><button data-min="2">2분</button><button data-min="3">3분</button><button data-min="5">5분</button>
         </div>
-        <p class="hint">프로그램 한가운데에서 한 번 쉬어 가요. 로비로 나가 차를 마시고, 연습하는 단원도 만나 봐요.</p>
+        <p class="hint" id="intervalHint">프로그램 한가운데에서 한 번 쉬어 가요. 로비로 나가 차를 마시고, 연습하는 단원도 만나 봐요.</p>
       </fieldset>
       <fieldset class="field">
         <legend>관객</legend>
@@ -325,6 +326,7 @@
         <dt class="h-touch">화면 끌기</dt><dd class="h-touch">둘러보기</dd>
         <dt class="h-key">클릭</dt><dd class="h-key">마우스 고정 — 움직이기만 해도 둘러봐요 (Esc 로 풀기)</dd>
         <dt class="h-hall">계단</dt><dd class="h-hall">로비 양쪽 나선 계단으로 2층 · 3층 · 4층</dd>
+        <dt class="h-outdoor">공원 길</dt><dd class="h-outdoor">가운데 통로와 객석 양옆 길로 걸어가 원하는 의자에 앉기</dd>
         <dt class="h-sphere">엘리베이터</dt><dd class="h-sphere">입구 바로 뒤 엘리베이터로 100 · 200 · 300 · 400 레벨<span class="h-key"> (안에서 숫자 키 1–4)</span></dd>
         <dt class="h-key">E</dt><dd class="h-key">앞의 빈 좌석에 앉기 / 일어서기</dd>
         <dt class="h-touch">앉기 버튼</dt><dd class="h-touch">빈 좌석 앞에 서면 나타나요 · 앉으면 일어서기 (조이스틱을 밀어도 돼요)</dd>

@@ -36,6 +36,9 @@ Object.assign(MOTION_CASES, {
  bow: { song:'elgar-pomp-and-circumstance',venue:'hall',sid:'conductor',mode:'bow',seconds:10,start:280 },
  exit: { song:'elgar-pomp-and-circumstance',venue:'hall',sid:'conductor',mode:'exit',seconds:65,start:280 },
  entry: { song:'elgar-pomp-and-circumstance',venue:'hall',sid:'conductor',mode:'entry',seconds:85,start:280 },
+ outdoorBow: { song:'strauss-radetzky-march',venue:'outdoor',sid:'conductor',mode:'bow',seconds:10,start:30 },
+ outdoorExit: { song:'strauss-radetzky-march',venue:'outdoor',sid:'conductor',mode:'exit',seconds:65,start:30 },
+ outdoorEntry: { song:'strauss-radetzky-march',venue:'outdoor',sid:'conductor',mode:'entry',seconds:85,start:30 },
 });
 export const MOTION_CAMERAS = {
  conductor: [1.25,1.6,-1.6], piano:[1.15,1.9,.65], harp:[-1.6,1.7,-1.4],

@@ -1,8 +1,10 @@
 // Fail closed when live content grows beyond the adapters this harness knows.
-// Both current venues use StageManager and hallplan's musician stage. Audience
+// These venues use StageManager and hallplan's musician stage. Audience
 // geometry/lighting is intentionally outside this numerical pose contract.
 import { densestEntry } from './motion-catalog.mjs';
-export const VENUE_STAGE_CONTRACTS = { hall: 'shared-hall-stage', sphere: 'shared-hall-stage' };
+// Outdoor builds the same stage, risers and service steps through buildStage;
+// tests/outdoor.test.mjs separately exercises its grass/seat/stair walking plan.
+export const VENUE_STAGE_CONTRACTS = { hall: 'shared-hall-stage', sphere: 'shared-hall-stage', outdoor: 'shared-hall-stage' };
 
 export function motionCoverage(catalog, players, venueStages = VENUE_STAGE_CONTRACTS) {
   const failures = [], cases = [], seen = new Map();

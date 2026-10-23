@@ -1,5 +1,6 @@
-// Each building has its own evening: the pieces are shared out between them,
-// none plays in both. The hall balances recitals, chamber music, symphonies
+// Each venue has its own evening. The outdoor recital reuses a smaller
+// selection from both programmes. The hall and Sphere keep their separate
+// programmes. The hall balances recitals, chamber music, symphonies
 // and choral works, opening with the Ode to Joy and closing
 // with the full Pomp and Circumstance March No. 1; the Sphere keeps the pieces its dome paints
 // best, from a chorale under an opening roof to the fireworks of Bach's
@@ -38,4 +39,14 @@ export const SPHERE_SETLIST = [
   'bach-nun-seid-ihr',
 ];
 
-export const SETLISTS = { hall: HALL_SETLIST, sphere: SPHERE_SETLIST };
+// Piano, chamber music and familiar orchestral pieces for the park recital.
+export const OUTDOOR_SETLIST = [
+  'grieg-morning-arietta', 'mozart-eine-kleine', 'beethoven-fur-elise',
+  'vivaldi-spring', 'haydn-op74-1-andantino', 'pachelbel-canon',
+  'grieg-morning-mood', 'mozart-k545', 'schubert-lindenbaum',
+  'tchaikovsky-swan-lake', 'mozart-k80-adagio', 'schumann-traumerei',
+  'strauss-blue-danube', 'greensleeves', 'grieg-to-spring',
+  'strauss-radetzky-march',
+];
+
+export const SETLISTS = { hall: HALL_SETLIST, sphere: SPHERE_SETLIST, outdoor: OUTDOOR_SETLIST };

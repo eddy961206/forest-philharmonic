@@ -30,7 +30,7 @@ npm run verify:motion
 - 곡의 파트·자리 번호·음표 형식, 실제 단원별 활성 연주 구간
 - 미등록 공연장 무대 어댑터, 연주 악보가 없는 단원, 알려지지 않은 파트 누락
 
-현재 두 공연장은 같은 악단 무대와 바닥 정의를 쓴다. 관객석·조명·GPU는 이 수치 검사 대상이 아니다. 새로운 독립 무대는 `motion-contracts.mjs`의 등록만 바꾸지 말고, `audit-playing-motion.mjs`가 실제 무대 생성과 길찾기를 실행하도록 확장해야 한다.
+홀·스피어·야외 마당은 같은 악단 무대와 바닥 정의를 쓴다. 야외는 `buildStage`로 실제 무대를 만들고, `outdoor.test.mjs`에서 잔디·계단 렌더 높이와 이동 바닥을 함께 검사한다. `navgrid.test.mjs`는 격자 셀 안의 곡선 단차까지 경로 전체를 독립 검사한다. 관객석 조명·GPU는 수치 동작 검사 대상이 아니다. 새로운 독립 무대는 `motion-contracts.mjs`의 등록만 바꾸지 말고, `audit-playing-motion.mjs`가 실제 무대 생성과 길찾기를 실행하도록 확장해야 한다.
 
 ## 실패에서 수정까지
 
@@ -56,6 +56,7 @@ cdp-direct new http://127.0.0.1:8096 --port 9224
 npm run record:motion -- --plan work/motion/recording-plan.json --case vn1-0 --label review
 npm run record:motion -- --song tchaikovsky-1812 --venue sphere --section bells --chair 0 --start 854.4061 --seconds 8 --label bells
 npm run record:motion -- review bow,exit,entry
+npm run record:motion -- outdoor outdoorBow,outdoorExit,outdoorEntry
 ```
 
 `--plan`에서 `--case`를 생략하면 전체 생성 사례를 녹화한다. 도구는 해당 곡이 실제 연주 중인지, 해당 단원에게 실제 음이 있는지, 촬영 동안 연주했는지 검사한다. WebGL과 실제 Web Audio를 함께 녹화하고 프레임별 관절 자료를 저장한다. `MOBILE=1`은 Chrome 모바일 에뮬레이션이며 실제 iPhone 검사가 아니다.
@@ -72,3 +73,15 @@ npm run record:motion -- review bow,exit,entry
 | 장소 | 렌더 바닥과 길찾기 바닥을 공유. 실제 무대 생성/입퇴장 어댑터와 영상 사례 추가 |
 
 성능 검사는 `quality-optimization-measure.mjs`로 녹화 없이 따로 실행한다. 검사 명령, 소스 해시, 원자료와 미검증 범위를 PR에 함께 남긴다. 숫자 통과를 전체 곡 완주·실제 기기 성능·예술적 품질 보장으로 확대하지 않는다.
+
+## 야외 공연장 흐름 검사
+
+전용 Chrome에서 다음 명령으로 광장 매표소 → 야외 표 → 입구 → 실제 합주 → 착석 → 걷기 → 자동 카메라를 확인한다. 매표소와 입구까지의 위치만 테스트 훅으로 옮기고, 화면 버튼과 실제 발권·입장 코드를 사용한다. `--record`는 실제 연주와 소리를 24초 연속 녹화한다. `MOBILE=1`은 모바일 Chrome 에뮬레이션이다.
+
+```sh
+QA_OUT=work/outdoor node tools/qa/verify-outdoor.mjs --record
+MOBILE=1 QA_OUT=work/outdoor node tools/qa/verify-outdoor.mjs --record
+QA_OUT=work/outdoor node tools/qa/quality-optimization-measure.mjs outdoor outdoor 20 measure
+```
+
+동일 장면의 성능 측정은 녹화·수치 검사 종료 후 별도로 실행한다. 야외 측정 곡은 「푸른 도나우」의 음이 밀집한 구간이다.

@@ -1046,7 +1046,11 @@ export async function generateHallIR(ctx, { rt60 = 2.3, preDelay = 0.02, length 
   // early reflections: short bursts of scattered noise, each reaching the
   // two ears at slightly different times and levels
   const ers = [];
-  if (er === 'arena') {
+  if (er === 'outdoor') {
+    ers.push([preDelay + 0.008, 0.2, 0, 0.0015]);
+    ers.push([preDelay + 0.018, 0.12, -0.4, 0.002]);
+    ers.push([preDelay + 0.026, 0.1, 0.45, 0.002]);
+  } else if (er === 'arena') {
     for (let i = 0; i < 30; i++) {
       const t = preDelay + 0.014 + Math.pow(Math.random(), 0.85) * 0.14;
       const a = (0.4 + Math.random() * 0.6) * Math.exp(-(t - preDelay) / 0.1);

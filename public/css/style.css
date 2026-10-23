@@ -113,7 +113,7 @@ button { font: inherit; color: inherit; }
 .lb-cap { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--paper-dim); }
 .lobby .lb-cap input { width: 64px; text-align: center; }
 .lb-vis, .lb-venue { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
-.lb-venue { margin: 2px 0 4px; }
+.lb-venue { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 2px 0 4px; }
 .lb-vis button, .lb-venue button {
   appearance: none; cursor: pointer; color: var(--paper-dim); background: rgba(242, 237, 225, 0.04);
   border: 1px solid rgba(242, 237, 225, 0.12); border-radius: 12px; padding: 7px 10px; display: flex; flex-direction: column; align-items: center; gap: 1px;
@@ -606,6 +606,9 @@ body.touch .act-btn kbd { display: none; }
     repeating-linear-gradient(25deg, rgba(120, 90, 40, 0.03) 0 1px, transparent 1px 4px),
     var(--paper);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset; }
+.ticket.outdoor { --ink: #263b30; --band: #3f5949; --band2: #63775a; --accent: #6b7855; --paper: #eeeadd; --red: #6d744f; }
+.ticket.outdoor .t-mode { color: #42543b; }
+.ticket.outdoor .t-seal { color: #64734d; border-color: #74845c; box-shadow: none; }
 .ticket.sphere { --ink: #e8f1ff; --band: #0c1430; --band2: #23306a; --accent: #7fd3ff; --paper: #121a33; --red: #ff6b7d; }
 .ticket.sphere .t-main {
   background:
@@ -706,6 +709,8 @@ body.touch .act-btn kbd { display: none; }
   border-radius: 2px 2px 0 0; box-shadow: 0 0 40px rgba(255, 170, 80, 0.25); }
 .venue-card.hall .vc-art::after { content: ""; position: absolute; right: 5%; bottom: 62%; width: 48%; height: 22%;
   background: linear-gradient(180deg, #4a3c32, #2a221d); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.venue-card.outdoor .vc-art { background: radial-gradient(ellipse at 18% 15%, #426047 0 20%, transparent 21%), radial-gradient(ellipse at 85% 5%, #3a5541 0 26%, transparent 27%), linear-gradient(180deg, #77908b, #89987a 62%, #4d6448); }
+.venue-card.outdoor .vc-art::after { content: ''; position: absolute; width: 44%; height: 16%; right: 28%; bottom: 20%; background: #c9bd9b; clip-path: polygon(0 25%, 50% 0, 100% 25%, 100% 100%, 0 100%); }
 .venue-card.sphere .vc-art { background: radial-gradient(45% 80% at 50% 110%, #59a2ff, #7c4dff 45%, transparent 75%), linear-gradient(180deg, #050812, #10163a); }
 .venue-card .vc-art span { position: absolute; left: 14px; bottom: 10px; font-family: var(--serif); font-size: 20px; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6); }
 .venue-card .vc-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
@@ -903,7 +908,7 @@ body:has(#liftPanel:not([hidden])) .start-hint { visibility: hidden; }
 html.touch .keys .h-key, body.touch .keys .h-key, html.touch .splash-hint .h-key { display: none; }
 html.touch .keys .h-touch, body.touch .keys .h-touch { display: block; }
 html.touch .splash-hint .h-touch { display: inline; }
-body[data-venue='sphere'] .keys .h-hall, body:not([data-venue='sphere']) .keys .h-sphere { display: none; }
+body:not([data-venue='hall']) .keys .h-hall, body:not([data-venue='sphere']) .keys .h-sphere, body:not([data-venue='outdoor']) .keys .h-outdoor { display: none; }
 /* with the side panel open: the start stack, the interval chip and the lift
    buttons move into the free space to its left */
 @media (min-width: 761px), (orientation: landscape) and (max-height: 500px) {

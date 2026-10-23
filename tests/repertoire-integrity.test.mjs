@@ -2,11 +2,31 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import test from 'node:test';
-import { HALL_SETLIST, SPHERE_SETLIST } from '../public/js/programs.js';
+import { HALL_SETLIST, SPHERE_SETLIST, OUTDOOR_SETLIST, SETLISTS } from '../public/js/programs.js';
+import { VENUES } from '../public/js/scene/venue.js';
 import { SECTIONS } from '../public/js/layout.js';
 
 const root = new URL('../', import.meta.url);
 const json = async path => JSON.parse(await readFile(new URL(path, root)));
+
+test('every selectable venue has a nonempty program and outdoor scores resolve to the real catalog', async () => {
+  const index = await json('public/music/index.json');
+  const scores = new Map(index.map(piece => [piece.id, piece]));
+  assert.deepEqual(Object.keys(SETLISTS).sort(), Object.keys(VENUES).sort());
+  assert.equal(SETLISTS.outdoor, OUTDOOR_SETLIST);
+  assert.notEqual(OUTDOOR_SETLIST, HALL_SETLIST);
+  assert.notEqual(OUTDOOR_SETLIST, SPHERE_SETLIST);
+  for (const [venue, program] of Object.entries(SETLISTS)) {
+    assert.ok(program.length > 0, venue);
+    assert.equal(new Set(program).size, program.length, `${venue}: duplicate score`);
+    for (const id of program) {
+      assert.ok(scores.has(id), `${venue}: ${id} absent from catalog`);
+      const piece = await json(`public/music/${id}.json`);
+      assert.equal(piece.id, id);
+      assert.ok(piece.duration > 0 && piece.tracks.some(track => track.notes.length > 0), `${venue}: ${id} empty score`);
+    }
+  }
+});
 
 test('82 scores have unique venue assignments, metadata, notes and sample files', async () => {
   const [index, catalog, manifest] = await Promise.all([
