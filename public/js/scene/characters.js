@@ -1,9 +1,11 @@
 // Chibi forest-animal musicians built from primitives, with two-bone IK
 // arms. Local frame: right = +X, up = +Y, forward = -Z. Origin on the floor
 // under the seat.
+import { ARM_LENGTH, solveArm } from './arm-ik.js';
 import * as THREE from 'three';
 import { furMaterial, clothMaterial, plainMaterial, isLite, M } from './materials.js';
 import { mergeChildren, bakeColor } from './merge.js';
+import { raccoonPatchGeometry } from './playing-motion.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const UP = V(0, 1, 0);
@@ -15,7 +17,7 @@ const SPECIES = {
   cat: { ears: 'pointed', snout: 0.22, muzzle: '#fff8ef', nose: '#e88a9a', earInner: '#f6c2cb', whiskers: true },
   fox: { ears: 'tall', snout: 0.55, muzzle: '#fff6ea', nose: '#1d1412', earTip: '#2b1d16', pointy: true },
   dog: { ears: 'pointed', snout: 0.42, muzzle: '#fff4e2', nose: '#21160f', earInner: '#f0c9a0' },
-  raccoon: { ears: 'pointed', snout: 0.35, muzzle: '#f2efe9', nose: '#1a1a1a', mask: '#3b3634', earInner: '#e9e4de' },
+  raccoon: { ears: 'round', snout: 0.35, muzzle: '#f2efe9', nose: '#1a1a1a', mask: '#51463f', earInner: '#e9e4de' },
   deer: { ears: 'side', snout: 0.4, muzzle: '#f4e6d4', nose: '#2a1a12', spots: true },
   sheep: { ears: 'side', snout: 0.25, muzzle: '#e8dccb', nose: '#6b4d3e', wool: true, face: '#e8dccb' },
   mouse: { ears: 'big', snout: 0.3, muzzle: '#f2eee9', nose: '#f29aa8', earInner: '#f6c2cb', whiskers: true },
@@ -178,14 +180,18 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   const headR = 0.27;
   const skull = add(head, sphereG(headR, 32, 24), sp.face ? furMaterial(sp.face) : fur, V(0, 0, 0));
   skull.scale.set(1.05, 0.95, 0.97);
+  // The QA collision audit uses the same ellipsoids as the rendered face.
+  const headVolumes = [{ center: skull.position.clone(), radii: skull.scale.clone().multiplyScalar(headR) }];
 
   // snout / muzzle
   if (sp.snout > 0) {
     const sn = add(head, sphereG(0.11, 20, 14), muzzleMat, V(0, -0.07, -0.21));
     sn.scale.set(1.15, 0.8, 0.7 + sp.snout * 0.9);
     if (sp.pointy) sn.scale.set(0.95, 0.7, 1.5);
+    headVolumes.push({ center: sn.position.clone(), radii: sn.scale.clone().multiplyScalar(.11) });
     const nose = add(head, sphereG(sp.bigNose ? 0.05 : 0.028, 12, 8), plainMaterial(sp.nose, { roughness: 0.25 }), V(0, -0.03, -0.23 - sp.snout * 0.11 - (sp.pointy ? 0.06 : 0)), { cast: false });
     nose.scale.set(1.3, sp.bigNose ? 1.4 : 0.9, 1);
+    headVolumes.push({ center: nose.position.clone(), radii: nose.scale.clone().multiplyScalar(sp.bigNose ? .05 : .028) });
     // mouth: small smile
     const mouth = add(head, new THREE.TorusGeometry(0.022, 0.005, 6, 12, Math.PI), dark, V(0, -0.1, -0.29 - sp.snout * 0.05), { cast: false });
     mouth.rotation.z = Math.PI;
@@ -212,13 +218,8 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     }
   }
   if (sp.mask) {
-    // The bandit mask across the eyes: the front half of a band of the
-    // skull itself - its segments (rings 10-14 of 24, the half from ear to
-    // ear) lifted 1.2% off it, so it lies just outside every facet of the
-    // head, also on phones. (A smaller sphere with its own tessellation sat
-    // partly inside the head: the surfaces crossed in a jagged stair pattern.)
-    const mk = add(head, sphereG(headR * 1.012, 16, 4, Math.PI, Math.PI, Math.PI * (10 / 24), Math.PI * (4 / 24)), plainMaterial(sp.mask, { polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }), V(0, 0, 0), { cast: false });
-    mk.scale.copy(skull.scale);
+    const marking = plainMaterial('#ffffff', { vertexColors: true, roughness: 0.92 });
+    for (const side of [-1, 1]) add(head, raccoonPatchGeometry(side, spec.fur, sp.mask), marking, V(), { cast: false });
   }
 
   // eyes (open) + closed arcs for blinking / blissful moments
@@ -370,7 +371,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     const cuff = add(body, new THREE.CylinderGeometry(0.05, 0.05, 0.03, 12), shirt, V(), { cast: false });
     const paw = add(body, sphereG(0.058, 14, 10), fur, V());
     paw.scale.set(1, 0.85, 1.1);
-    arms[side] = { shoulder, upper, fore, cuff, paw, a: 0.25, b: 0.25, elbow: V(), wrist: V() };
+    arms[side] = { shoulder, upper, fore, cuff, paw, a: ARM_LENGTH, b: ARM_LENGTH, elbow: V(), wrist: V(), target: V() };
   }
 
   if (isLite()) {
@@ -409,7 +410,8 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
 
   root.scale.setScalar(scale);
   const char = {
-    root, body, head, torso, eyes, arms, scale, spec, mouthOpen, legPivots,
+    root, body, head, torso, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes,
+    mouthPoint: V(0, -0.085, -0.28 - sp.snout * 0.08),
     headBase: head.position.clone(),
     blinkT: Math.random() * 4,
     bliss: 0,
@@ -434,8 +436,6 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
 
 // ----------------------------------------------------------------- IK
 const _d = new THREE.Vector3();
-const _p = new THREE.Vector3();
-const _q = new THREE.Quaternion();
 
 function placeLimb(m, from, to) {
   _d.subVectors(to, from);
@@ -449,29 +449,8 @@ function placeLimb(m, from, to) {
 // target & pole in the character's local (unscaled) frame
 export function setArm(char, side, target, pole) {
   const A = char.arms[side];
-  const S = A.shoulder;
-  _d.subVectors(target, S);
-  let dist = _d.length();
-  const maxReach = (A.a + A.b) * 0.999;
-  let a = A.a;
-  let b = A.b;
-  if (dist > maxReach) {
-    // cartoon stretch up to 25%, then just point
-    const k = Math.min(1.25, dist / maxReach);
-    a *= k;
-    b *= k;
-    dist = Math.min(dist, (a + b) * 0.999);
-  }
-  dist = Math.max(dist, Math.abs(a - b) + 0.02);
-  const dir = _d.normalize().clone();
-  const cosA = (a * a + dist * dist - b * b) / (2 * a * dist);
-  const sinA = Math.sqrt(Math.max(0, 1 - cosA * cosA));
-  _p.copy(pole).addScaledVector(dir, -pole.dot(dir));
-  if (_p.lengthSq() < 1e-6) _p.set(0, -1, 0);
-  _p.normalize();
-  A.elbow.copy(S).addScaledVector(dir, a * cosA).addScaledVector(_p, a * sinA);
-  A.wrist.copy(S).addScaledVector(dir, dist);
-  placeLimb(A.upper, S, A.elbow);
+  solveArm(A, target, pole);
+  placeLimb(A.upper, A.shoulder, A.elbow);
   placeLimb(A.fore, A.elbow, A.wrist);
   A.cuff.position.copy(A.elbow).lerp(A.wrist, 0.88);
   A.cuff.quaternion.copy(A.fore.quaternion);

@@ -2290,8 +2290,8 @@ function frame() {
   let events = null;
   if (perf.piece) events = perf.updateVisual(t);
   const running = perf.playing;
+  stage.update(dt); // root/standing pose before body-local instrument contacts
   orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing, practice: practice.on ? practice.frame(BEAR) : null });
-  stage.update(dt);
   if (intervalState) intervalTick(dt);
   roomTick(dt);
   if (IS_SPHERE) sphereTick(dt, t);

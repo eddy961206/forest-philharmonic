@@ -15,6 +15,9 @@
     "build:music": "python3 tools/build_music.py --fetch",
     "build:samples": "python3 tools/fetch_samples.py && python3 tools/fetch_percussion.py && python3 tools/analyze_samples.py",
     "build:repertoire": "python3 tools/build_repertoire.py",
-    "check:repertoire": "python3 tools/build_repertoire.py --check"
+    "check:repertoire": "python3 tools/build_repertoire.py --check",
+    "check:motion": "node --experimental-loader ./tests/helpers/three-loader.mjs tools/qa/audit-playing-motion.mjs",
+    "record:motion": "node tools/qa/record-playing-motion.mjs",
+    "verify:motion": "node tools/qa/verify-motion.mjs"
   }
 }

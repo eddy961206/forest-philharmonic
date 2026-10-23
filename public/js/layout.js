@@ -41,10 +41,12 @@ export const SECTIONS = {
   bd: { ko: '큰북', color: '#d7a283', chairs: [at(7.8, -51, R3)] },
   cy: { ko: '심벌즈', color: '#e9cf76', chairs: [at(7.8, -38, R3)] },
   tri: { ko: '트라이앵글', color: '#d9dfed', chairs: [at(6.5, -42, R2)] },
-  cel: { ko: '첼레스타', color: '#a7e2ed', chairs: [at(5.6, 79, R1)] },
-  mallet: { ko: '건반 타악기', color: '#edc397', chairs: [at(6.8, 70, R2)] },
-  bells: { ko: '튜블러 벨', color: '#f4d786', chairs: [at(8.1, 69, R3)] },
-  organ: { ko: '오르간', color: '#bfc5e9', chairs: [at(7.2, -73, R2)] },
+  // Large fixed instruments sit on the flat wings, leaving both riser
+  // staircases and the rear service aisles clear for every roster.
+  cel: { ko: '첼레스타', color: '#a7e2ed', chairs: [{ x: 6.5, z: .1, y: STAGE_Y }] },
+  mallet: { ko: '건반 타악기', color: '#edc397', chairs: [{ x: 8.5, z: -.8, y: STAGE_Y }] },
+  bells: { ko: '튜블러 벨', color: '#f4d786', chairs: [{ x: 10, z: -.8, y: STAGE_Y }] },
+  organ: { ko: '오르간', color: '#bfc5e9', chairs: [{ x: -8.3, z: -1.5, y: STAGE_Y }] },
   piano: { ko: '피아노', color: '#a8ece9', chairs: [{ x: -5.05, z: -0.95, y: STAGE_Y }] },
   // choir on two risers behind the orchestra: sopranos, altos, tenors, basses
   choir: { ko: '합창단', color: '#ffe9b5', standing: true, chairs: [

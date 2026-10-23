@@ -329,15 +329,18 @@ export function timpani() {
   return { group, drums };
 }
 
-export function mallet() {
+export function mallet(kind = 'felt') {
   const group = new THREE.Group();
-  const shaft = mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.32, 6), plainMaterial('#d9b98a'));
+  const length = kind === 'triangle' || kind === 'stick' ? 0.26 : 0.28;
+  const shaft = mesh(new THREE.CylinderGeometry(kind === 'triangle' ? 0.004 : 0.005, 0.005, length, 6), kind === 'triangle' ? M.silver() : plainMaterial('#d9b98a'));
   shaft.rotation.z = -Math.PI / 2;
-  shaft.position.x = 0.16;
-  const head = mesh(new THREE.SphereGeometry(0.022, 12, 8), plainMaterial('#f4efe4', { roughness: 0.95 }));
-  head.position.x = 0.32;
-  group.add(shaft, head);
-  return { group, tip: V(0.32, 0, 0) };
+  shaft.position.x = length / 2;
+  group.add(shaft);
+  if (kind !== 'triangle') {
+    const head = mesh(new THREE.SphereGeometry(kind === 'stick' ? 0.009 : 0.022, 12, 8), plainMaterial(kind === 'stick' ? '#d9b98a' : '#f4efe4', { roughness: 0.95 }));
+    head.position.x = length; group.add(head);
+  }
+  return { group, tip: V(length, 0, 0) };
 }
 
 // ------------------------------------------------------------------- harp
@@ -684,6 +687,7 @@ export function chamberKeyboard(organ = false) {
 export function percussion(kind = 'snare') {
   const group = new THREE.Group(), metal = M.silver(), wood = M.darkWood();
   const targets = [];
+  let grip = null, targetForMidi = null;
   const stand = (x, z, h) => {
     const pole = mesh(new THREE.CylinderGeometry(0.012, 0.016, h, 8), metal); pole.position.set(x, h / 2, z); group.add(pole);
     for (let j = 0; j < 3; j++) {
@@ -698,6 +702,7 @@ export function percussion(kind = 'snare') {
     }
     stand(-0.43, -0.45, 0.74); stand(0.43, -0.45, 0.74);
     for (const x of [-0.3, 0, 0.3]) targets.push({ center: V(x, 0.8, -0.45), r: 0.2 });
+    targetForMidi = midi => ({ center: V((Math.round(Math.max(0, Math.min(17, (midi - 48) / 36 * 17))) - 8.5) * 0.061, 0.8, -0.45), r: 0.025 });
   } else if (kind === 'bells') {
     for (let i = 0; i < 10; i++) {
       const h = 1.2 - i * 0.045;
@@ -705,28 +710,32 @@ export function percussion(kind = 'snare') {
       pipe.position.set((i - 4.5) * 0.065, 1.55 - h / 2, -0.55); group.add(pipe);
     }
     stand(-0.4, -0.55, 1.65); stand(0.4, -0.55, 1.65);
-    targets.push({ center: V(0, 1.3, -0.55), r: 0.18 });
+    targets.push({ center: V(0, 1.15, -0.55), r: 0.18 });
+    targetForMidi = midi => ({ center: V((Math.round(Math.max(0, Math.min(9, (midi - 60) / 24 * 9))) - 4.5) * 0.065, 1.15, -0.525), r: 0.025 });
   } else if (kind === 'triangle') {
-    const points = [V(-0.18, 1.05, -0.45), V(0, 1.35, -0.45), V(0.18, 1.05, -0.45), V(-0.12, 1.05, -0.45)];
+    const points = [V(-0.15, -0.10, 0), V(0, 0.16, 0), V(0.15, -0.10, 0), V(-0.10, -0.10, 0)];
     for (let i = 0; i < 3; i++) {
       const d = points[i + 1].clone().sub(points[i]);
       const rod = mesh(new THREE.CylinderGeometry(0.009, 0.009, d.length(), 8), metal);
       rod.position.copy(points[i]).add(points[i + 1]).multiplyScalar(0.5); rod.quaternion.setFromUnitVectors(V(0, 1, 0), d.normalize()); group.add(rod);
     }
-    stand(0.28, -0.45, 1.4); targets.push({ center: V(0.08, 1.08, -0.45), r: 0.1 });
+    const loop = mesh(new THREE.TorusGeometry(0.025, 0.003, 6, 12), plainMaterial('#efe8d9'));
+    loop.position.set(0, 0.19, 0); group.add(loop);
+    grip = V(0, 0.22, 0); targets.push({ center: V(0.05, -0.10, 0), r: 0.1 });
   } else if (kind === 'tambourine') {
-    const rim = mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.09, 24, 1, true), wood);
-    rim.position.set(0, 0.95, -0.45); group.add(rim);
-    const head = mesh(new THREE.CircleGeometry(0.217, 24), M.ivory());
-    head.rotation.x = -Math.PI / 2; head.position.set(0, 1, -0.45); group.add(head);
+    const rim = mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.065, 24, 1, true), wood);
+    rim.rotation.x = Math.PI / 2; group.add(rim);
+    const head = mesh(new THREE.CircleGeometry(0.157, 24), M.ivory());
+    head.rotation.y = Math.PI; head.position.z = -0.033; group.add(head);
     for (let i = 0; i < 8; i++) {
       const a = i * Math.PI / 4;
-      for (const y of [0.938, 0.957]) {
-        const jingle = mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.006, 12), metal);
-        jingle.position.set(Math.cos(a) * 0.218, y, -0.45 + Math.sin(a) * 0.218); group.add(jingle);
+      for (const z of [-0.012, 0.012]) {
+        const jingle = mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.006, 12), metal);
+        jingle.rotation.x = Math.PI / 2;
+        jingle.position.set(Math.cos(a) * 0.159, Math.sin(a) * 0.159, z); group.add(jingle);
       }
     }
-    stand(0, -0.45, 0.9); targets.push({ center: V(0, 1.01, -0.45), r: 0.2 });
+    grip = V(-0.16, 0, 0); targets.push({ center: V(0, 0, -0.033), r: 0.16 });
   } else if (kind === 'cymbals') {
     const disc = mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.012, 32), M.brass());
     disc.position.set(0, 0.9, -0.45); disc.rotation.x = 0.12; group.add(disc);
@@ -740,5 +749,5 @@ export function percussion(kind = 'snare') {
     stand(0, -0.45, 0.6); targets.push({ center: head.position.clone(), r });
   }
   while (targets.length < 3) targets.push(targets[0]);
-  return { group, drums: targets };
+  return { group, drums: targets, grip, targetForMidi };
 }

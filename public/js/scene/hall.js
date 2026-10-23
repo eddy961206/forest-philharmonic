@@ -10,7 +10,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { M, glowTexture, phys } from './materials.js';
 import { STAGE_Y, PODIUM } from '../layout.js';
 import {
-  HALL, rakeY, lipZ, SHELL, shellPoint, DOORS, RISERS, PODIUM_R, PODIUM_H, STAGE_STAIRS, PROS_COLUMNS,
+  HALL, rakeY, lipZ, SHELL, shellPoint, DOORS, RISERS, SERVICE_STEPS, PODIUM_R, PODIUM_H, STAGE_STAIRS, PROS_COLUMNS,
   BALCONIES, BALCONY_AISLES, AISLE_HALF, balconyZ, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H, BOX_DAIS_X, BOX_DAIS_H,
   SIDE_STEP_W, rowFloorY, treadStart,
 } from './hallplan.js';
@@ -346,6 +346,10 @@ export function buildStage(group, S = HALL_STYLE) {
         sides.push(q.side);
       }
     }
+  }
+  for (const step of SERVICE_STEPS) {
+    const p = sectorPrism(step.r0, step.r1, step.angle - step.aRad, step.angle + step.aRad, STAGE_Y, STAGE_Y + step.h, 8);
+    tops.push(p.top); sides.push(p.side);
   }
   addMesh(group, tops, S.boards(), { cast: false });
   addMesh(group, sides, S.skirt(), { cast: true });

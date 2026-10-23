@@ -408,3 +408,7 @@ tools/                    악보 변환 & 샘플 도구
 
 - 코드: MIT ([LICENSE](LICENSE))
 - 사용한 음원·악보 데이터와 그 라이선스는 [CREDITS.md](CREDITS.md)에 정리했어요. 작품 자체는 모두 퍼블릭 도메인이지만, DCML·Humdrum 에디션에서 만든 연주 데이터는 CC BY-NC-SA(비상업)입니다.
+
+## 동작 검증과 AI 개발
+
+곡·단원·무대를 수정한 뒤 `npm run verify:motion`으로 자동 검증할 수 있어. 실패 위치와 재현 명령, 실제 단원별 녹화 계획을 생성해. [AI 하네스 사용법](docs/motion-harness.md), [전체 동작 수정과 검증 기록](docs/character-motion-validation.md), [작업 규칙](AGENTS.md)을 참고해.

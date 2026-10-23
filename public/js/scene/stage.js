@@ -54,6 +54,8 @@ class Walker {
     const b = DOORS.find((d) => d.side === this.door).behind;
     this.pos.set(b.x, floorAt(b.x, b.z), b.z);
     this.char.root.visible = false;
+    this.char.walking = false;
+    this.char.walk(0, 0);
     this.sit = 0;
     this.sitTarget = 0;
     this.char.setStanding(1);
@@ -143,7 +145,7 @@ class Walker {
     this.yaw = lerpAngle(this.yaw, want, 1 - Math.exp(-dt * 5));
     ch.root.rotation.y = this.yaw;
     this.bow = smooth(this.bow, this.bowTarget, 3, dt);
-    ch.body.rotation.x += -0.55 * this.bow; // on top of the rig's sway
+    // Orchestra applies bow rotation before solving instrument contacts.
     this._swingArms(false);
   }
 
@@ -166,7 +168,7 @@ export class StageManager {
     this.orch = orchestra;
     this.walkers = orchestra.players.map((p) => {
       const door = p.home.x < 0 || p.sid === 'piano' ? 'L' : 'R';
-      const w = new Walker(p.char, p.home, p.yaw, door, { standing: p.sid === 'choir' });
+      const w = new Walker(p.char, p.home, p.yaw, door, { standing: !!p.char.spec.standing });
       w.player = p;
       p.walker = w;
       return w;
@@ -189,6 +191,7 @@ export class StageManager {
       // the conductor walks round to the front of the podium, then steps up
       const goal = w.podium ? { x: w.home.x, z: w.home.z } : { x: w.home.x, z: w.home.z };
       let p = this.nav.find(d.inside.x, d.inside.z, goal.x, goal.z);
+      w.routeFound = !!p;
       if (!p) {
         console.warn('no stage route for', w.player?.sid ?? 'conductor', w.player?.ci);
         p = [d.inside, goal];
@@ -360,6 +363,8 @@ export class StageManager {
     w.sit = w.sitTarget = sit ? 1 : 0;
     w.bow = w.bowTarget = 0;
     w.char.root.visible = true;
+    w.char.walking = false;
+    w.char.walk(0, 0);
     w.char.setStanding(1 - w.sit);
     w.char.root.position.copy(w.pos);
     w.char.root.rotation.y = yaw;
@@ -393,6 +398,8 @@ export class StageManager {
     w.pos.copy(w.home);
     w.yaw = w.homeYaw;
     w.char.root.visible = true;
+    w.char.walking = false;
+    w.char.walk(0, 0);
     w.char.setStanding(1 - w.sit);
     w.char.root.position.copy(w.pos);
     w.char.root.rotation.y = w.yaw;
