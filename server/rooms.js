@@ -49,7 +49,7 @@ const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u001f\u007f\u200b\u2
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : 0);
 
 // the buildings a room can be in (see public/js/scene/venue.js)
-const VENUES = new Set(['hall', 'sphere']);
+const VENUES = new Set(['hall', 'sphere', 'outdoor']);
 
 function newCode() {
   for (;;) {

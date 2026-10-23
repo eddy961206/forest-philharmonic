@@ -1,7 +1,5 @@
-// The square in the forest between the two buildings: a ring of cobbles
-// under the moon, lamps, a ticket booth with a squirrel at the window, and
-// two gates - the path to the concert hall on one side, to the Sphere on
-// the other, both buildings glowing far off through the trees.
+// The square links the hall, the Sphere and the park recital. Lamps and
+// a ticket booth stand on a ring of cobbles, with a gate for each venue.
 // Kept light: everything that repeats is instanced, everything that stands
 // still is merged by material, three lights for the whole scene and no
 // shadows. Roughly forty draws before the characters.
@@ -19,10 +17,12 @@ export const PLAZA = {
   gates: {
     hall: { x: -9.3, z: -5.2 },
     sphere: { x: 9.3, z: -5.2 },
+    outdoor: { x: -9.3, z: 5.2 },
   },
   far: {
     hall: { x: -58, z: -56 },
     sphere: { x: 58, z: -56 },
+    outdoor: { x: -58, z: 42 },
   },
 };
 // a gate's facing: toward the middle of the square
@@ -163,8 +163,8 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
   const cobbleMat = std({ map: cobbleTexture(), roughness: 0.9 });
   {
     const parts = [new THREE.CircleGeometry(PLAZA.R + 0.4, 64).rotateX(-Math.PI / 2).translate(0, 0.01, 0)];
-    // the two paths out through the gates, on toward the buildings
-    for (const id of ['hall', 'sphere']) {
+    // the paths out through the gates, on toward the venues
+    for (const id of Object.keys(PLAZA.gates)) {
       const g = PLAZA.gates[id];
       const f = PLAZA.far[id];
       const len = Math.hypot(f.x - g.x, f.z - g.z) - 6;
@@ -291,7 +291,7 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
 
   // ------------------------------------------------------------ the gates
   const gates = {};
-  for (const [id, title, sub, col] of [['hall', '숲속 필하모닉 홀', '이쪽 숲길로', '#ffcf8f'], ['sphere', '스피어', '이쪽 숲길로', '#9fd3ff']]) {
+  for (const [id, title, sub, col] of [['hall', '숲속 필하모닉 홀', '이쪽 숲길로', '#ffcf8f'], ['sphere', '스피어', '이쪽 숲길로', '#9fd3ff'], ['outdoor', '숲속 작은 음악회', '공원 마당으로', '#c6d6ad']]) {
     const g = PLAZA.gates[id];
     const yaw = gateYaw(g);
     const parts = [];
@@ -392,6 +392,18 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
     warm.position.set(f.x, 7, f.z);
     warm.scale.setScalar(46);
     group.add(warm);
+  }
+  {
+    const f = PLAZA.far.outdoor;
+    const park = new THREE.Group();
+    park.add(new THREE.Mesh(new THREE.BoxGeometry(15, 0.65, 8).translate(0, 0.325, 0), std({ color: '#6c5c42', roughness: 1 })));
+    const posts = [];
+    for (const x of [-6.5, 6.5]) for (const z of [-3.2, 3.2]) posts.push(new THREE.BoxGeometry(0.28, 5.1, 0.28).translate(x, 3.1, z));
+    park.add(new THREE.Mesh(mergeGeometries(posts), std({ color: '#8d8066', roughness: 1 })));
+    park.add(new THREE.Mesh(new THREE.BoxGeometry(16, 0.2, 9).translate(0, 5.7, 0), std({ color: '#b8b398', roughness: 1 })));
+    park.position.set(f.x, 0, f.z);
+    park.rotation.y = Math.atan2(-f.x, -f.z);
+    group.add(park);
   }
   let exo;
   {

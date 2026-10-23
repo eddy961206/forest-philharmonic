@@ -17,6 +17,7 @@
 // choir has a width and the shimmer of many players.
 
 import { SECTIONS, sectionCenter, sectionFacing, PODIUM } from '../layout.js';
+import { schedulePitchBend } from './pitch-bend.js';
 import { renderHouse } from './crowd.js';
 import { prepareCrowd } from './crowd-loader.js';
 
@@ -25,6 +26,12 @@ const FAMILY = {
   flute: 'winds', oboe: 'winds', clarinet: 'winds', bassoon: 'winds',
   horn: 'horn', trumpet: 'trumpet', piano: 'piano', harp: 'harp', timpani: 'timpani',
   choir: 'choir', voice: 'choir', bells: 'bells',
+  tremolo: 'strings', pizzicato: 'plucked', piccolo: 'winds', englishHorn: 'winds',
+  trombone: 'lowBrass', tuba: 'lowBrass', organ: 'organ', harpsichord: 'plucked',
+  altoSax: 'winds', tenorSax: 'winds', baritoneSax: 'winds', sopranoSax: 'winds',
+  celesta: 'celesta', glockenspiel: 'celesta', vibraphone: 'celesta', marimba: 'mallet', xylophone: 'mallet',
+  tom: 'drums', snare: 'drums', bassDrum: 'bassDrum', cymbals: 'cymbals', triangle: 'cymbals', tambourine: 'drums',
+
 };
 
 // Per-family envelope and timbre. atk = [pianissimo, fortissimo] seconds.
@@ -37,6 +44,14 @@ const ENV = {
   harp: { atk: [0.002, 0.002], rel: 1.6, sustain: false, bright: [2200, 15000], level: 1.0 },
   timpani: { atk: [0.002, 0.002], rel: 1.0, sustain: false, bright: [700, 7000], level: 1.0 },
   choir: { atk: [0.2, 0.07], rel: 0.38, sustain: true, bright: [1500, 8000], level: 0.9 },
+  lowBrass: { atk: [0.1, 0.025], rel: 0.25, sustain: true, bright: [1100, 9000], level: 0.85 },
+  organ: { atk: [0.035, 0.018], rel: 0.2, sustain: true, bright: [2200, 12000], level: 0.65 },
+  plucked: { atk: [0.002, 0.002], rel: 0.2, sustain: false, bright: [1600, 12000], level: 0.9 },
+  celesta: { atk: [0.002, 0.002], rel: 0.8, sustain: false, bright: [3000, 16000], level: 0.85 },
+  mallet: { atk: [0.002, 0.002], rel: 0.4, sustain: false, bright: [2200, 14000], level: 0.9 },
+  drums: { atk: [0.001, 0.001], rel: 0.16, sustain: false, bright: [5000, 16000], level: 0.7 },
+  bassDrum: { atk: [0.002, 0.002], rel: 0.7, sustain: false, bright: [800, 6500], level: 0.85 },
+  cymbals: { atk: [0.002, 0.002], rel: 1.5, sustain: false, bright: [6000, 18000], level: 0.65 },
   bells: { atk: [0.002, 0.002], rel: 2.5, sustain: false, bright: [3000, 14000], level: 0.8 },
 };
 
@@ -622,7 +637,7 @@ export class AudioEngine {
   // skip: seconds of the note already gone (a note held through a pause or
   // a seek comes back in where it was, with a short swell instead of a new
   // attack)
-  playNote({ section, inst, midi, vel, when, dur, gain = 1, layer = null, skip = 0 }) {
+  playNote({ section, inst, midi, vel, when, dur, gain = 1, layer = null, skip = 0, bends = null, bendStart = 0 }) {
     const ctx = this.ctx;
     const sec = this.sections[section];
     const main = this._nearest(inst, midi);
@@ -638,6 +653,7 @@ export class AudioEngine {
       // Leave enough time for the 80 ms re-entry swell and its 20 ms hold.
       if (!fam.sustain || dur - late <= 0.1) return;
       skip += late;
+      bendStart += late;
       dur -= late;
     }
     if (skip > 0 && !fam.sustain) return; // a struck note is not struck again
@@ -656,7 +672,7 @@ export class AudioEngine {
     env.gain.value = 0;
     filter.connect(env).connect(sec.input);
 
-    const voice = { env, srcs: [], end: 0 };
+    const voice = { env, srcs: [], end: 0, bends, bendStart, bendWhen: when };
     const rate = Math.pow(2, (midi - main.root) / 12);
 
     if (fam.sustain) {
@@ -690,6 +706,7 @@ export class AudioEngine {
       const src = ctx.createBufferSource();
       src.buffer = main.buf;
       src.playbackRate.value = rate;
+      schedulePitchBend(src.detune, bends, bendStart, when, dur);
       src.connect(filter);
       const avail = (main.buf.duration - main.meta.s) / rate;
       const g = env.gain;
@@ -697,7 +714,7 @@ export class AudioEngine {
       g.linearRampToValueAtTime(amp, when + atk);
       let rel = fam.rel;
       if (inst === 'piano') rel = 0.25 + Math.max(0, (60 - midi) / 60) * 0.5;
-      const ring = inst === 'harp' || inst === 'timpani' ? Math.max(dur, 0.6) : dur;
+      const ring = ['harp', 'timpani', 'tom', 'snare', 'bassDrum', 'cymbals', 'triangle', 'tambourine', 'bells'].includes(inst) ? Math.max(dur, inst === 'cymbals' || inst === 'bells' ? 2 : 0.6) : dur;
       const off = when + Math.min(ring, avail);
       g.setTargetAtTime(0, off, rel / 3);
       src.start(when, main.meta.s);
@@ -726,6 +743,7 @@ export class AudioEngine {
       const src = ctx.createBufferSource();
       src.buffer = smp.buf;
       src.playbackRate.value = rate;
+      schedulePitchBend(src.detune, voice.bends, voice.bendStart + t0 - voice.bendWhen, t0, len);
       const g = ctx.createGain();
       src.connect(g).connect(dest);
       const p = g.gain;
@@ -1028,7 +1046,11 @@ export async function generateHallIR(ctx, { rt60 = 2.3, preDelay = 0.02, length 
   // early reflections: short bursts of scattered noise, each reaching the
   // two ears at slightly different times and levels
   const ers = [];
-  if (er === 'arena') {
+  if (er === 'outdoor') {
+    ers.push([preDelay + 0.008, 0.2, 0, 0.0015]);
+    ers.push([preDelay + 0.018, 0.12, -0.4, 0.002]);
+    ers.push([preDelay + 0.026, 0.1, 0.45, 0.002]);
+  } else if (er === 'arena') {
     for (let i = 0; i < 30; i++) {
       const t = preDelay + 0.014 + Math.pow(Math.random(), 0.85) * 0.14;
       const a = (0.4 + Math.random() * 0.6) * Math.exp(-(t - preDelay) / 0.1);

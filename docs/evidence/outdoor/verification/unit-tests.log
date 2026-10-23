@@ -1,0 +1,1739 @@
+TAP version 13
+# (node:34297) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: legacy and e741 desktop/Lite contracts retain exact rates, people, seeds, durations and PCM totals
+ok 1 - legacy and e741 desktop/Lite contracts retain exact rates, people, seeds, durations and PCM totals
+  ---
+  duration_ms: 0.903833
+  type: 'test'
+  ...
+# Subtest: a matching aggregate cannot hide wrong per-profile rate, length, channel count, name or layer
+ok 2 - a matching aggregate cannot hide wrong per-profile rate, length, channel count, name or layer
+  ---
+  duration_ms: 0.155083
+  type: 'test'
+  ...
+# Subtest: missing/extra buffers, unsupported layout/Lite policy and incorrect total fail closed
+ok 3 - missing/extra buffers, unsupported layout/Lite policy and incorrect total fail closed
+  ---
+  duration_ms: 0.1295
+  type: 'test'
+  ...
+# Subtest: browserState exposes actual old/new AudioBuffer metadata and rejects mixed or unexpected pair shape
+ok 4 - browserState exposes actual old/new AudioBuffer metadata and rejects mixed or unexpected pair shape
+  ---
+  duration_ms: 2.674042
+  type: 'test'
+  ...
+# (node:34298) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: batched arms preserve animated world vertices, material and shadows under transformed parents
+ok 5 - batched arms preserve animated world vertices, material and shadows under transformed parents
+  ---
+  duration_ms: 4.502542
+  type: 'test'
+  ...
+# Subtest: hidden musicians leave every view and return at the current pose
+ok 6 - hidden musicians leave every view and return at the current pose
+  ---
+  duration_ms: 0.951667
+  type: 'test'
+  ...
+# Subtest: original arm intersections and musician ownership survive batching and disposal
+ok 7 - original arm intersections and musician ownership survive batching and disposal
+  ---
+  duration_ms: 3.026292
+  type: 'test'
+  ...
+# (node:34299) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: fixed-length arms preserve bone lengths and flex limits for a full target sweep
+ok 8 - fixed-length arms preserve bone lengths and flex limits for a full target sweep
+  ---
+  duration_ms: 14.645
+  type: 'test'
+  ...
+# Subtest: zero distance and parallel poles cannot collapse or invert the elbow
+ok 9 - zero distance and parallel poles cannot collapse or invert the elbow
+  ---
+  duration_ms: 2.29375
+  type: 'test'
+  ...
+# Subtest: an elbow remains continuous when its pole crosses the reach axis
+ok 10 - an elbow remains continuous when its pole crosses the reach axis
+  ---
+  duration_ms: 3.55275
+  type: 'test'
+  ...
+# Subtest: unreachable targets report the contact error instead of stretching bones
+ok 11 - unreachable targets report the contact error instead of stretching bones
+  ---
+  duration_ms: 0.21925
+  type: 'test'
+  ...
+# (node:34300) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: increasing the audience share keeps existing guests in the same seats and colours
+ok 12 - increasing the audience share keeps existing guests in the same seats and colours
+  ---
+  duration_ms: 45.954709
+  type: 'test'
+  ...
+# Subtest: a capped Lite audience keeps room reservations and full-house applause count
+ok 13 - a capped Lite audience keeps room reservations and full-house applause count
+  ---
+  duration_ms: 26.507708
+  type: 'test'
+  ...
+# (node:34301) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: calls before audio init do not establish a stale cached pose
+ok 14 - calls before audio init do not establish a stale cached pose
+  ---
+  duration_ms: 1.050541
+  type: 'test'
+  ...
+# Subtest: 600 identical frames keep the initial targets and schedule no duplicates
+ok 15 - 600 identical frames keep the initial targets and schedule no duplicates
+  ---
+  duration_ms: 1.945209
+  type: 'test'
+  ...
+# Subtest: turning updates orientation without changing distance filters
+ok 16 - turning updates orientation without changing distance filters
+  ---
+  duration_ms: 1.069875
+  type: 'test'
+  ...
+# Subtest: section desks follow head turns while unchanged distance and pose targets are reused
+ok 17 - section desks follow head turns while unchanged distance and pose targets are reused
+  ---
+  duration_ms: 0.799833
+  type: 'test'
+  ...
+# Subtest: moving retains every spatial target and air absorption value
+ok 18 - moving retains every spatial target and air absorption value
+  ---
+  duration_ms: 0.577209
+  type: 'test'
+  ...
+# Subtest: the exact cache preserves tiny movements and mutable vector inputs
+ok 19 - the exact cache preserves tiny movements and mutable vector inputs
+  ---
+  duration_ms: 0.204959
+  type: 'test'
+  ...
+# Subtest: listener initialization invalidates a pose sent during async setup
+ok 20 - listener initialization invalidates a pose sent during async setup
+  ---
+  duration_ms: 0.18
+  type: 'test'
+  ...
+# Subtest: reinitialization binds a new audio listener and resends unchanged targets
+ok 21 - reinitialization binds a new audio listener and resends unchanged targets
+  ---
+  duration_ms: 0.408958
+  type: 'test'
+  ...
+# Subtest: legacy listeners keep separate position/orientation updates
+ok 22 - legacy listeners keep separate position/orientation updates
+  ---
+  duration_ms: 0.312375
+  type: 'test'
+  ...
+# Subtest: adding a foyer source refreshes distance and air for a stationary listener only once
+ok 23 - adding a foyer source refreshes distance and air for a stationary listener only once
+  ---
+  duration_ms: 2.003
+  type: 'test'
+  ...
+# Subtest: moving a foyer source refreshes a stationary legacy ear without duplicate pose writes
+ok 24 - moving a foyer source refreshes a stationary legacy ear without duplicate pose writes
+  ---
+  duration_ms: 0.58125
+  type: 'test'
+  ...
+# Subtest: audio initialization resets source dirtiness before asynchronous setup
+ok 25 - audio initialization resets source dirtiness before asynchronous setup
+  ---
+  duration_ms: 0.837458
+  type: 'test'
+  ...
+# (node:34302) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual Performance keeps identical audio requests and transport state with the observer attached
+ok 26 - actual Performance keeps identical audio requests and transport state with the observer attached
+  ---
+  duration_ms: 3.8265
+  type: 'test'
+  ...
+# Subtest: legacy scheduler without _resumeHeld is supported explicitly and original arguments/returns survive
+ok 27 - legacy scheduler without _resumeHeld is supported explicitly and original arguments/returns survive
+  ---
+  duration_ms: 0.321
+  type: 'test'
+  ...
+# Subtest: held and fresh notes retain separate original indices and all continuation arguments
+ok 28 - held and fresh notes retain separate original indices and all continuation arguments
+  ---
+  duration_ms: 0.291667
+  type: 'test'
+  ...
+# Subtest: wrong held skip, remaining duration, pitch, gain, start time or velocity remains an explicit mismatch
+ok 29 - wrong held skip, remaining duration, pitch, gain, start time or velocity remains an explicit mismatch
+  ---
+  duration_ms: 0.518417
+  type: 'test'
+  ...
+# Subtest: missing, extra, duplicated and reordered held requests are not silently ignored
+ok 30 - missing, extra, duplicated and reordered held requests are not silently ignored
+  ---
+  duration_ms: 0.84175
+  type: 'test'
+  ...
+# Subtest: scheduler index advancement without a request and foreign music requests fail separately
+ok 31 - scheduler index advancement without a request and foreign music requests fail separately
+  ---
+  duration_ms: 0.527167
+  type: 'test'
+  ...
+# Subtest: native exceptions retain identity and observer callback errors cannot change product return values
+ok 32 - native exceptions retain identity and observer callback errors cannot change product return values
+  ---
+  duration_ms: 0.757125
+  type: 'test'
+  ...
+# (node:34303) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: a stalled scheduler discards ended notes before allocating any audio nodes
+ok 33 - a stalled scheduler discards ended notes before allocating any audio nodes
+  ---
+  duration_ms: 1.109959
+  type: 'test'
+  ...
+# Subtest: a tone with less than one re-entry swell left is not extended past its score ending
+ok 34 - a tone with less than one re-entry swell left is not extended past its score ending
+  ---
+  duration_ms: 0.097125
+  type: 'test'
+  ...
+# Subtest: late sustained notes continue at their score position and keep the original end time
+ok 35 - late sustained notes continue at their score position and keep the original end time
+  ---
+  duration_ms: 0.670667
+  type: 'test'
+  ...
+# Subtest: late held-note continuation advances its existing skip and optional layer equally
+ok 36 - late held-note continuation advances its existing skip and optional layer equally
+  ---
+  duration_ms: 0.102291
+  type: 'test'
+  ...
+# Subtest: late struck notes are not re-attacked, while normal jitter and future notes retain their envelopes
+ok 37 - late struck notes are not re-attacked, while normal jitter and future notes retain their envelopes
+  ---
+  duration_ms: 0.424
+  type: 'test'
+  ...
+# Subtest: a successful worker clock releases its Blob URL and reinitialization stops the previous clock
+ok 38 - a successful worker clock releases its Blob URL and reinitialization stops the previous clock
+  ---
+  duration_ms: 1.599167
+  type: 'test'
+  ...
+# Subtest: worker constructor failure starts one tracked fallback and ignores stale callbacks
+ok 39 - worker constructor failure starts one tracked fallback and ignores stale callbacks
+  ---
+  duration_ms: 0.881291
+  type: 'test'
+  ...
+# Subtest: worker postMessage failure starts one tracked fallback and ignores stale callbacks
+ok 40 - worker postMessage failure starts one tracked fallback and ignores stale callbacks
+  ---
+  duration_ms: 0.570166
+  type: 'test'
+  ...
+# Subtest: worker error failure starts one tracked fallback and ignores stale callbacks
+ok 41 - worker error failure starts one tracked fallback and ignores stale callbacks
+  ---
+  duration_ms: 0.381125
+  type: 'test'
+  ...
+# Subtest: worker messageerror failure starts one tracked fallback and ignores stale callbacks
+ok 42 - worker messageerror failure starts one tracked fallback and ignores stale callbacks
+  ---
+  duration_ms: 0.571708
+  type: 'test'
+  ...
+# Subtest: audio reinitialization stops a pending worker even if the new context fails
+ok 43 - audio reinitialization stops a pending worker even if the new context fails
+  ---
+  duration_ms: 1.2835
+  type: 'test'
+  ...
+# Subtest: reinitializing a fallback clock clears its interval and accepts ticks from only the replacement
+ok 44 - reinitializing a fallback clock clears its interval and accepts ticks from only the replacement
+  ---
+  duration_ms: 0.453541
+  type: 'test'
+  ...
+# (node:34304) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: hardware gate rejects software and unknown renderers
+ok 45 - hardware gate rejects software and unknown renderers
+  ---
+  duration_ms: 0.57
+  type: 'test'
+  ...
+# Subtest: full source contract catches non-core asset and local server drift
+ok 46 - full source contract catches non-core asset and local server drift
+  ---
+  duration_ms: 30.996541
+  type: 'test'
+  ...
+# (node:34305) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Bremen score introduces four players in order and ends inside the miniature
+ok 47 - Bremen score introduces four players in order and ends inside the miniature
+  ---
+  duration_ms: 2.392583
+  type: 'test'
+  ...
+# Subtest: four footsteps unlock once, slow abandoned attempts reset, saved discoveries reopen
+ok 48 - four footsteps unlock once, slow abandoned attempts reset, saved discoveries reopen
+  ---
+  duration_ms: 0.26825
+  type: 'test'
+  ...
+# Subtest: miniature uses existing samples, and stop disconnects every scheduled source and bus
+ok 49 - miniature uses existing samples, and stop disconnects every scheduled source and bus
+  ---
+  duration_ms: 1.88475
+  type: 'test'
+  ...
+# Subtest: missing samples are reported and empty audio graphs are still disposed
+ok 50 - missing samples are reported and empty audio graphs are still disposed
+  ---
+  duration_ms: 0.215791
+  type: 'test'
+  ...
+# (node:34306) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:34306) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: the actual module worker preserves all 17 audio buffers bit for bit (desktop)
+ok 51 - the actual module worker preserves all 17 audio buffers bit for bit (desktop)
+  ---
+  duration_ms: 860.100708
+  type: 'test'
+  ...
+# (node:34306) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: the actual module worker preserves all 17 audio buffers bit for bit (Lite)
+ok 52 - the actual module worker preserves all 17 audio buffers bit for bit (Lite)
+  ---
+  duration_ms: 347.3805
+  type: 'test'
+  ...
+# Subtest: one shared preparation requests the next profile only after copying the previous one
+ok 53 - one shared preparation requests the next profile only after copying the previous one
+  ---
+  duration_ms: 2.083334
+  type: 'test'
+  ...
+# Subtest: browsers without Worker complete through the unchanged synchronous synthesizer
+ok 54 - browsers without Worker complete through the unchanged synchronous synthesizer
+  ---
+  duration_ms: 154.907459
+  type: 'test'
+  ...
+# Subtest: a worker failure keeps completed buffers and synthesizes only the missing profile
+ok 55 - a worker failure keeps completed buffers and synthesizes only the missing profile
+  ---
+  duration_ms: 42.055958
+  type: 'test'
+  ...
+# Subtest: malformed worker messages fall back and late decode errors are ignored
+ok 56 - malformed worker messages fall back and late decode errors are ignored
+  ---
+  duration_ms: 40.628833
+  type: 'test'
+  ...
+# Subtest: direct applause remains synchronous while an unfinished worker is terminated
+ok 57 - direct applause remains synchronous while an unfinished worker is terminated
+  ---
+  duration_ms: 45.563167
+  type: 'test'
+  ...
+# Subtest: audio initialization cancels an old generation after 0 transfers and ignores late responses
+ok 58 - audio initialization cancels an old generation after 0 transfers and ignores late responses
+  ---
+  duration_ms: 1.44625
+  type: 'test'
+  ...
+# Subtest: audio initialization cancels an old generation after 1 transfers and ignores late responses
+ok 59 - audio initialization cancels an old generation after 1 transfers and ignores late responses
+  ---
+  duration_ms: 1.401834
+  type: 'test'
+  ...
+# Subtest: reinitialization after the last transfer prevents a queued old graph from being installed
+ok 60 - reinitialization after the last transfer prevents a queued old graph from being installed
+  ---
+  duration_ms: 1.796375
+  type: 'test'
+  ...
+# Subtest: a stalled worker is stopped and missing PCM is completed before resolving
+ok 61 - a stalled worker is stopped and missing PCM is completed before resolving
+  ---
+  duration_ms: 43.154209
+  type: 'test'
+  ...
+# Subtest: constructor restrictions fall back, and synthesis errors reject without leaking a worker
+ok 62 - constructor restrictions fall back, and synthesis errors reject without leaking a worker
+  ---
+  duration_ms: 58.932042
+  type: 'test'
+  ...
+# Subtest: an incomplete house result falls back before allocating a partial house
+ok 63 - an incomplete house result falls back before allocating a partial house
+  ---
+  duration_ms: 220.0115
+  type: 'test'
+  ...
+# Subtest: direct murmur keeps one house and one graph (before-preparation)
+ok 64 - direct murmur keeps one house and one graph (before-preparation)
+  ---
+  duration_ms: 54.448541
+  type: 'test'
+  ...
+# Subtest: direct murmur keeps one house and one graph (worker-pending)
+ok 65 - direct murmur keeps one house and one graph (worker-pending)
+  ---
+  duration_ms: 54.252583
+  type: 'test'
+  ...
+# Subtest: direct murmur keeps one house and one graph (house-transferred)
+ok 66 - direct murmur keeps one house and one graph (house-transferred)
+  ---
+  duration_ms: 2.154959
+  type: 'test'
+  ...
+# Subtest: a pending house malformed retains the direct murmur buffers during fallback
+ok 67 - a pending house malformed retains the direct murmur buffers during fallback
+  ---
+  duration_ms: 151.1615
+  type: 'test'
+  ...
+# Subtest: a pending house error retains the direct murmur buffers during fallback
+ok 68 - a pending house error retains the direct murmur buffers during fallback
+  ---
+  duration_ms: 149.771167
+  type: 'test'
+  ...
+# Subtest: a pending house timeout retains the direct murmur buffers during fallback
+ok 69 - a pending house timeout retains the direct murmur buffers during fallback
+  ---
+  duration_ms: 151.720333
+  type: 'test'
+  ...
+# Subtest: direct house allocation failure stops the worker and rejects the shared readiness promise
+ok 70 - direct house allocation failure stops the worker and rejects the shared readiness promise
+  ---
+  duration_ms: 50.327916
+  type: 'test'
+  ...
+# Subtest: ready includes the real house graph, hidden fade and generation-scoped cleanup
+ok 71 - ready includes the real house graph, hidden fade and generation-scoped cleanup
+  ---
+  duration_ms: 2.364292
+  type: 'test'
+  ...
+# Subtest: house graph failures reject readiness before the concert can enter
+ok 72 - house graph failures reject readiness before the concert can enter
+  ---
+  duration_ms: 1.76275
+  type: 'test'
+  ...
+# (node:34307) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: finite scenery keeps center rays and near layers show stronger parallax
+ok 73 - finite scenery keeps center rays and near layers show stronger parallax
+  ---
+  duration_ms: 2.277417
+  type: 'test'
+  ...
+# Subtest: a fixed world landmark stays fixed when the observer moves
+ok 74 - a fixed world landmark stays fixed when the observer moves
+  ---
+  duration_ms: 0.261208
+  type: 'test'
+  ...
+# Subtest: zenith/nadir and all approved layer radii stay finite across the audience
+ok 75 - zenith/nadir and all approved layer radii stay finite across the audience
+  ---
+  duration_ms: 0.492417
+  type: 'test'
+  ...
+# Subtest: musical phrase envelope is bounded and independent of frame rate
+ok 76 - musical phrase envelope is bounded and independent of frame rate
+  ---
+  duration_ms: 0.227083
+  type: 'test'
+  ...
+# Subtest: phrase light stops following audio on pause and survives crossfade/projection changes
+ok 77 - phrase light stops following audio on pause and survives crossfade/projection changes
+  ---
+  duration_ms: 6.460125
+  type: 'test'
+  ...
+# (node:34308) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: world warm-up draws one face through the box and leaves the first flight fresh
+ok 78 - world warm-up draws one face through the box and leaves the first flight fresh
+  ---
+  duration_ms: 3.215709
+  type: 'test'
+  ...
+# Subtest: failed world warm-up releases its temporary slot and restores the caller state
+ok 79 - failed world warm-up releases its temporary slot and restores the caller state
+  ---
+  duration_ms: 0.699166
+  type: 'test'
+  ...
+# Subtest: the two-pass dome shares resized cube uniforms and keeps both flights during a crossfade
+ok 80 - the two-pass dome shares resized cube uniforms and keeps both flights during a crossfade
+  ---
+  duration_ms: 35.441041
+  type: 'test'
+  ...
+# Subtest: Lite warm-up keeps cube rendering disabled and the painted transition completes in two passes
+ok 81 - Lite warm-up keeps cube rendering disabled and the painted transition completes in two passes
+  ---
+  duration_ms: 2.893792
+  type: 'test'
+  ...
+# Subtest: a stationary dome viewer reuses only visibility while every world frame stays current
+ok 82 - a stationary dome viewer reuses only visibility while every world frame stays current
+  ---
+  duration_ms: 26.609667
+  type: 'test'
+  ...
+# Subtest: venue projection visibility invalidates for movement, rotation, FOV, aspect and view offset
+ok 83 - venue projection visibility invalidates for movement, rotation, FOV, aspect and view offset
+  ---
+  duration_ms: 29.037042
+  type: 'test'
+  ...
+# Subtest: cached dome cameras remain independent and viewer activation is checked every frame
+ok 84 - cached dome cameras remain independent and viewer activation is checked every frame
+  ---
+  duration_ms: 5.648833
+  type: 'test'
+  ...
+# Subtest: immersive cube visibility follows viewer rays and mode switches invalidate the stationary cache
+ok 85 - immersive cube visibility follows viewer rays and mode switches invalidate the stationary cache
+  ---
+  duration_ms: 33.495
+  type: 'test'
+  ...
+# (node:34309) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: distant scenery keeps the same direction across floor, sides and upper tiers
+ok 86 - distant scenery keeps the same direction across floor, sides and upper tiers
+  ---
+  duration_ms: 1.056
+  type: 'test'
+  ...
+# Subtest: the floor and the front rows see the distant worlds from a lifted eye; the tiers from their own
+ok 87 - the floor and the front rows see the distant worlds from a lifted eye; the tiers from their own
+  ---
+  duration_ms: 0.35225
+  type: 'test'
+  ...
+# Subtest: sweet-spot image matches and physical architectural scenes stay locked in both modes
+ok 88 - sweet-spot image matches and physical architectural scenes stay locked in both modes
+  ---
+  duration_ms: 0.139417
+  type: 'test'
+  ...
+# Subtest: natural 2D, mobile fallbacks and all cube worlds use viewer rays
+ok 89 - natural 2D, mobile fallbacks and all cube worlds use viewer rays
+  ---
+  duration_ms: 0.051
+  type: 'test'
+  ...
+# Subtest: projection/calibration changes share uniforms across passes without resetting the show
+ok 90 - projection/calibration changes share uniforms across passes without resetting the show
+  ---
+  duration_ms: 4.391833
+  type: 'test'
+  ...
+# (node:34310) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: context recovery redraws lost cube faces without restarting the world flight
+ok 91 - context recovery redraws lost cube faces without restarting the world flight
+  ---
+  duration_ms: 7.263292
+  type: 'test'
+  ...
+# Subtest: cube rendering updates only the five visible faces and restores caller render state
+ok 92 - cube rendering updates only the five visible faces and restores caller render state
+  ---
+  duration_ms: 0.572791
+  type: 'test'
+  ...
+# Subtest: a failed cube face restores render state and retries the fresh world on the next update
+ok 93 - a failed cube face restores render state and retries the fresh world on the next update
+  ---
+  duration_ms: 0.410541
+  type: 'test'
+  ...
+# Subtest: face masks skip hidden faces and resizing invalidates even the previously cached offscreen faces
+ok 94 - face masks skip hidden faces and resizing invalidates even the previously cached offscreen faces
+  ---
+  duration_ms: 0.355
+  type: 'test'
+  ...
+# Subtest: drawWorlds combines only enabled viewers after camera movement
+ok 95 - drawWorlds combines only enabled viewers after camera movement
+  ---
+  duration_ms: 17.03425
+  type: 'test'
+  ...
+# Subtest: the simplified cube proxy preserves ray directions on every face, including edges
+ok 96 - the simplified cube proxy preserves ray directions on every face, including edges
+  ---
+  duration_ms: 17.952541
+  type: 'test'
+  ...
+# Subtest: quality changes resize active cube targets immediately and preserve the worlds and cadence
+ok 97 - quality changes resize active cube targets immediately and preserve the worlds and cadence
+  ---
+  duration_ms: 7.884958
+  type: 'test'
+  ...
+# Subtest: live video is needed immediately on request and through the complete visible fade-out
+ok 98 - live video is needed immediately on request and through the complete visible fade-out
+  ---
+  duration_ms: 10.319792
+  type: 'test'
+  ...
+# Subtest: explicit downward cube rays render -Y for immersive upper-tier views
+ok 99 - explicit downward cube rays render -Y for immersive upper-tier views
+  ---
+  duration_ms: 0.289542
+  type: 'test'
+  ...
+# (node:34311) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: the host at the end of the piece: a guest playing at 30 s stops there, on each of the boundaries
+ok 100 - the host at the end of the piece: a guest playing at 30 s stops there, on each of the boundaries
+  ---
+  duration_ms: 6.541166
+  type: 'test'
+  ...
+# Subtest: a command, a snapshot, or both repeated: the same end, its side effects once
+ok 101 - a command, a snapshot, or both repeated: the same end, its side effects once
+  ---
+  duration_ms: 5.547875
+  type: 'test'
+  ...
+# Subtest: the host already bowing while a guest still plays the piece: it ends here, once
+ok 102 - the host already bowing while a guest still plays the piece: it ends here, once
+  ---
+  duration_ms: 0.322625
+  type: 'test'
+  ...
+# Subtest: between pieces never ends what is not this piece playing: a walk-on of ours, another piece, a choice on its way
+ok 103 - between pieces never ends what is not this piece playing: a walk-on of ours, another piece, a choice on its way
+  ---
+  duration_ms: 0.196084
+  type: 'test'
+  ...
+# Subtest: a natural end, then the host saying so again: no second end
+ok 104 - a natural end, then the host saying so again: no second end
+  ---
+  duration_ms: 0.177
+  type: 'test'
+  ...
+# Subtest: paused near the end is paused - and goes on from there
+ok 105 - paused near the end is paused - and goes on from there
+  ---
+  duration_ms: 0.219292
+  type: 'test'
+  ...
+# Subtest: paused near the end, then the host plays the last moment: that is the end
+ok 106 - paused near the end, then the host plays the last moment: that is the end
+  ---
+  duration_ms: 0.144625
+  type: 'test'
+  ...
+# Subtest: the end told again and again, then the same piece once more (one piece on repeat): it plays, and ends again
+ok 107 - the end told again and again, then the same piece once more (one piece on repeat): it plays, and ends again
+  ---
+  duration_ms: 0.54
+  type: 'test'
+  ...
+# Subtest: in late at the end: nothing is set up or stopped here, the caller sets the stage between pieces
+ok 108 - in late at the end: nothing is set up or stopped here, the caller sets the stage between pieces
+  ---
+  duration_ms: 0.477708
+  type: 'test'
+  ...
+# Subtest: a newer piece chosen while an old end is on its way: the old one does not touch it
+ok 109 - a newer piece chosen while an old end is on its way: the old one does not touch it
+  ---
+  duration_ms: 9.944333
+  type: 'test'
+  ...
+# Subtest: (\#13) the same B by five snapshots while B is on its way: one download, the latest playback applied
+ok 110 - (\#13) the same B by five snapshots while B is on its way: one download, the latest playback applied
+  ---
+  duration_ms: 1.661875
+  type: 'test'
+  ...
+# (node:34312) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: a firework burst after an idle or exhausted show becomes visible again
+ok 111 - a firework burst after an idle or exhausted show becomes visible again
+  ---
+  duration_ms: 31.806833
+  type: 'test'
+  ...
+# Subtest: expired confetti clears its instance immediately while other confetti lives
+ok 112 - expired confetti clears its instance immediately while other confetti lives
+  ---
+  duration_ms: 20.866709
+  type: 'test'
+  ...
+# Subtest: fireworks keep the point-light shader layout stable through a burst
+ok 113 - fireworks keep the point-light shader layout stable through a burst
+  ---
+  duration_ms: 5.358542
+  type: 'test'
+  ...
+# (node:34313) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: indexing preserves every triangle attribute, hard normal and UV seam exactly
+ok 114 - indexing preserves every triangle attribute, hard normal and UV seam exactly
+  ---
+  duration_ms: 2.386208
+  type: 'test'
+  ...
+# Subtest: lite colour baking retains indexed geometry and leaves a shared source intact
+ok 115 - lite colour baking retains indexed geometry and leaves a shared source intact
+  ---
+  duration_ms: 2.955666
+  type: 'test'
+  ...
+# Subtest: rigid mesh merging preserves triangles and a kept animated descendant in world space
+ok 116 - rigid mesh merging preserves triangles and a kept animated descendant in world space
+  ---
+  duration_ms: 8.182667
+  type: 'test'
+  ...
+# (node:34314) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: batched picking returns the original global IDs and all raw raycast intersections
+ok 117 - batched picking returns the original global IDs and all raw raycast intersections
+  ---
+  duration_ms: 7.687583
+  type: 'test'
+  ...
+# Subtest: parent movement, rotation and nonuniform scale preserve picking and edge hits
+ok 118 - parent movement, rotation and nonuniform scale preserve picking and edge hits
+  ---
+  duration_ms: 11.016708
+  type: 'test'
+  ...
+# Subtest: misses and near/far limits behave like the original mesh without changing existing hits
+ok 119 - misses and near/far limits behave like the original mesh without changing existing hits
+  ---
+  duration_ms: 1.724041
+  type: 'test'
+  ...
+# Subtest: a ray only inspects instances in intersected spatial bounds
+ok 120 - a ray only inspects instances in intersected spatial bounds
+  ---
+  duration_ms: 1.093917
+  type: 'test'
+  ...
+# (node:34315) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: new chairs, score parts and venues cannot silently escape motion coverage
+ok 121 - new chairs, score parts and venues cannot silently escape motion coverage
+  ---
+  duration_ms: 0.712875
+  type: 'test'
+  ...
+# Subtest: machine report fails on crashed commands, absent audit and known pose failures
+ok 122 - machine report fails on crashed commands, absent audit and known pose failures
+  ---
+  duration_ms: 1.790416
+  type: 'test'
+  ...
+# Subtest: malformed required audit data returns a failure summary without throwing
+ok 123 - malformed required audit data returns a failure summary without throwing
+  ---
+  duration_ms: 0.42
+  type: 'test'
+  ...
+# Subtest: unobserved chair failures explain which score and sampling contracts to inspect
+ok 124 - unobserved chair failures explain which score and sampling contracts to inspect
+  ---
+  duration_ms: 0.097208
+  type: 'test'
+  ...
+# Subtest: unknown failure names cannot read inherited rule properties
+ok 125 - unknown failure names cannot read inherited rule properties
+  ---
+  duration_ms: 0.091708
+  type: 'test'
+  ...
+# Subtest: recorder supports named, generated and failure-specific cases and rejects invalid options
+ok 126 - recorder supports named, generated and failure-specific cases and rejects invalid options
+  ---
+  duration_ms: 1.799542
+  type: 'test'
+  ...
+# Subtest: sparse chair-specific entrances are sampled even when section density is elsewhere
+ok 127 - sparse chair-specific entrances are sampled even when section density is elsewhere
+  ---
+  duration_ms: 0.976292
+  type: 'test'
+  ...
+# (node:34316) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: stage smoothing rejects a curved riser edge hidden inside a grid cell
+ok 128 - stage smoothing rejects a curved riser edge hidden inside a grid cell
+  ---
+  duration_ms: 15.874292
+  type: 'test'
+  ...
+# Subtest: A* and smoothing preserve real tread heights for both doors and every shared stage chair
+ok 129 - A* and smoothing preserve real tread heights for both doors and every shared stage chair
+  ---
+  duration_ms: 148.2845
+  type: 'test'
+  ...
+# (node:34317) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: leaving during connect cancels entry and ignores a late open
+ok 130 - leaving during connect cancels entry and ignores a late open
+  ---
+  duration_ms: 12.556167
+  type: 'test'
+  ...
+# Subtest: entry timeout clears its pending response and socket
+ok 131 - entry timeout clears its pending response and socket
+  ---
+  duration_ms: 0.665333
+  type: 'test'
+  ...
+# Subtest: leaving during automatic reconnect cancels retries and queued chat
+ok 132 - leaving during automatic reconnect cancels retries and queued chat
+  ---
+  duration_ms: 2.475583
+  type: 'test'
+  ...
+# Subtest: a late close from an old socket does not start another retry loop
+ok 133 - a late close from an old socket does not start another retry loop
+  ---
+  duration_ms: 0.901
+  type: 'test'
+  ...
+# Subtest: a connection replaced by a duplicate tab stops reconnecting
+ok 134 - a connection replaced by a duplicate tab stops reconnecting
+  ---
+  duration_ms: 1.005292
+  type: 'test'
+  ...
+# Subtest: stale poses are dropped under backpressure and a stuck queue reconnects
+ok 135 - stale poses are dropped under backpressure and a stuck queue reconnects
+  ---
+  duration_ms: 0.451208
+  type: 'test'
+  ...
+# Subtest: room list timeout aborts the underlying request
+ok 136 - room list timeout aborts the underlying request
+  ---
+  duration_ms: 0.284916
+  type: 'test'
+  ...
+# (node:34318) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: gzip negotiation and conditional requests keep representation validators distinct
+ok 137 - gzip negotiation and conditional requests keep representation validators distinct
+  ---
+  duration_ms: 78.993291
+  type: 'test'
+  ...
+# Subtest: cold concurrent gzip requests agree with an identity download
+ok 138 - cold concurrent gzip requests agree with an identity download
+  ---
+  duration_ms: 7.084167
+  type: 'test'
+  ...
+# Subtest: byte ranges preserve offsets, support If-Range, and reject empty suffixes
+ok 139 - byte ranges preserve offsets, support If-Range, and reject empty suffixes
+  ---
+  duration_ms: 10.004625
+  type: 'test'
+  ...
+# Subtest: HEAD and malformed paths complete without bodies or a server crash
+ok 140 - HEAD and malformed paths complete without bodies or a server crash
+  ---
+  duration_ms: 2.937291
+  type: 'test'
+  ...
+# Subtest: a frame sent with the upgrade is not lost
+ok 141 - a frame sent with the upgrade is not lost
+  ---
+  duration_ms: 6.712042
+  type: 'test'
+  ...
+# Subtest: replacing a lingering host connection preserves a full room and show
+ok 142 - replacing a lingering host connection preserves a full room and show
+  ---
+  duration_ms: 18.214375
+  type: 'test'
+  ...
+# Subtest: venue mismatch does not evict the tab that is still in the correct venue
+ok 143 - venue mismatch does not evict the tab that is still in the correct venue
+  ---
+  duration_ms: 2.592292
+  type: 'test'
+  ...
+# Subtest: outdoor rooms retain their venue through listing, joining, state and host resume
+ok 144 - outdoor rooms retain their venue through listing, joining, state and host resume
+  ---
+  duration_ms: 12.302417
+  type: 'test'
+  ...
+# (node:34319) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: fragmented JSON survives an interleaved ping and split TCP reads
+ok 145 - fragmented JSON survives an interleaved ping and split TCP reads
+  ---
+  duration_ms: 2.023791
+  type: 'test'
+  ...
+# Subtest: invalid fragments and control frames close before reaching room state
+    # Subtest: orphan continuation
+    ok 1 - orphan continuation
+      ---
+      duration_ms: 0.25725
+      type: 'test'
+      ...
+    # Subtest: fragmented ping
+    ok 2 - fragmented ping
+      ---
+      duration_ms: 0.119375
+      type: 'test'
+      ...
+    # Subtest: oversized ping
+    ok 3 - oversized ping
+      ---
+      duration_ms: 0.095125
+      type: 'test'
+      ...
+    # Subtest: reserved bits
+    ok 4 - reserved bits
+      ---
+      duration_ms: 0.107625
+      type: 'test'
+      ...
+    # Subtest: invalid close payload
+    ok 5 - invalid close payload
+      ---
+      duration_ms: 0.10025
+      type: 'test'
+      ...
+    1..5
+ok 146 - invalid fragments and control frames close before reaching room state
+  ---
+  duration_ms: 3.326417
+  type: 'test'
+  ...
+# Subtest: a new text message cannot interrupt an unfinished fragment
+ok 147 - a new text message cannot interrupt an unfinished fragment
+  ---
+  duration_ms: 0.735417
+  type: 'test'
+  ...
+# Subtest: invalid UTF-8 and oversized fragmented messages are rejected
+ok 148 - invalid UTF-8 and oversized fragmented messages are rejected
+  ---
+  duration_ms: 3.011958
+  type: 'test'
+  ...
+# Subtest: slow receivers are disconnected before their queued output grows
+ok 149 - slow receivers are disconnected before their queued output grows
+  ---
+  duration_ms: 0.195625
+  type: 'test'
+  ...
+# Subtest: upgrade validates the WebSocket version and 16-byte nonce
+ok 150 - upgrade validates the WebSocket version and 16-byte nonce
+  ---
+  duration_ms: 0.430042
+  type: 'test'
+  ...
+# (node:34320) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: outdoor entry and every stable seat ID stand on the active lawn navigation surface
+ok 151 - outdoor entry and every stable seat ID stand on the active lawn navigation surface
+  ---
+  duration_ms: 23.536542
+  type: 'test'
+  ...
+# Subtest: outdoor boundaries reject walking and canopy posts block a standing visitor
+ok 152 - outdoor boundaries reject walking and canopy posts block a standing visitor
+  ---
+  duration_ms: 0.174209
+  type: 'test'
+  ...
+# Subtest: both shared stage stairs can be climbed from the outdoor entrance without a floor jump
+ok 153 - both shared stage stairs can be climbed from the outdoor entrance without a floor jump
+  ---
+  duration_ms: 8.740708
+  type: 'test'
+  ...
+# Subtest: both musicians entrances still route to the shared podium over actual stage treads
+ok 154 - both musicians entrances still route to the shared podium over actual stage treads
+  ---
+  duration_ms: 47.061667
+  type: 'test'
+  ...
+# Subtest: outdoor acoustics provide finite dry open air parameters
+ok 155 - outdoor acoustics provide finite dry open air parameters
+  ---
+  duration_ms: 0.10075
+  type: 'test'
+  ...
+# Subtest: rendered outdoor lawn, stairs and chair picking agree with the active navigation plan
+ok 156 - rendered outdoor lawn, stairs and chair picking agree with the active navigation plan
+  ---
+  duration_ms: 241.696792
+  type: 'test'
+  ...
+# (node:34321) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: visual updates before loading and retained note-on lists keep independent results
+ok 157 - visual updates before loading and retained note-on lists keep independent results
+  ---
+  duration_ms: 1.89275
+  type: 'test'
+  ...
+# Subtest: in-place expiry preserves polyphonic order, timing, peak velocity and event lists
+ok 158 - in-place expiry preserves polyphonic order, timing, peak velocity and event lists
+  ---
+  duration_ms: 1.837375
+  type: 'test'
+  ...
+# Subtest: 600 frames and time discontinuities exactly match the original visual states and events
+ok 159 - 600 frames and time discontinuities exactly match the original visual states and events
+  ---
+  duration_ms: 33.076834
+  type: 'test'
+  ...
+# Subtest: seek, rewind, stop and loading a new score rebuild the cached chair references
+ok 160 - seek, rewind, stop and loading a new score rebuild the cached chair references
+  ---
+  duration_ms: 2.154625
+  type: 'test'
+  ...
+# Subtest: frame updates reuse active arrays without filter, map or Object.values allocations
+ok 161 - frame updates reuse active arrays without filter, map or Object.values allocations
+  ---
+  duration_ms: 4.62675
+  type: 'test'
+  ...
+# Subtest: audio scheduling is identical with frequent, 5 FPS or absent visual updates
+ok 162 - audio scheduling is identical with frequent, 5 FPS or absent visual updates
+  ---
+  duration_ms: 4.508084
+  type: 'test'
+  ...
+# (node:34322) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: A -> B (held) -> A: the late B never replaces A, nor stops it
+ok 163 - A -> B (held) -> A: the late B never replaces A, nor stops it
+  ---
+  duration_ms: 4.98875
+  type: 'test'
+  ...
+# Subtest: A -> B -> C answered in reverse: C stays, B arriving or failing late changes nothing
+ok 164 - A -> B -> C answered in reverse: C stays, B arriving or failing late changes nothing
+  ---
+  duration_ms: 3.603541
+  type: 'test'
+  ...
+# Subtest: a failed download rejects the latest choice, leaves the loaded piece alone, and is tried afresh
+ok 165 - a failed download rejects the latest choice, leaves the loaded piece alone, and is tried afresh
+  ---
+  duration_ms: 3.26425
+  type: 'test'
+  ...
+# Subtest: the same piece asked for again and again while on its way is one download; the latest ask applies it
+ok 166 - the same piece asked for again and again while on its way is one download; the latest ask applies it
+  ---
+  duration_ms: 1.396209
+  type: 'test'
+  ...
+# Subtest: a shared download of B then a choice of C or of the loaded A: B does not land
+ok 167 - a shared download of B then a choice of C or of the loaded A: B does not land
+  ---
+  duration_ms: 2.13875
+  type: 'test'
+  ...
+# Subtest: a shared download that fails is tried again by the next ask
+ok 168 - a shared download that fails is tried again by the next ask
+  ---
+  duration_ms: 1.479375
+  type: 'test'
+  ...
+# Subtest: the room is never told a piece with the time of the one before
+ok 169 - the room is never told a piece with the time of the one before
+  ---
+  duration_ms: 0.376583
+  type: 'test'
+  ...
+# (node:34323) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: seek resumes the active wheel position and schedules later bends
+ok 170 - seek resumes the active wheel position and schedules later bends
+  ---
+  duration_ms: 0.67525
+  type: 'test'
+  ...
+# Subtest: a new sample segment starts at the current pitch bend
+ok 171 - a new sample segment starts at the current pitch bend
+  ---
+  duration_ms: 0.083959
+  type: 'test'
+  ...
+# (node:34325) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: strikes contact at onset and rebound continuously at 30, 60 and 120 fps
+ok 172 - strikes contact at onset and rebound continuously at 30, 60 and 120 fps
+  ---
+  duration_ms: 0.574625
+  type: 'test'
+  ...
+# Subtest: compact keyboard mapping preserves every MIDI pitch class
+ok 173 - compact keyboard mapping preserves every MIDI pitch class
+  ---
+  duration_ms: 1.6305
+  type: 'test'
+  ...
+# Subtest: pizzicato persists between short notes, switches to bowed notes and follows backward seeks
+ok 174 - pizzicato persists between short notes, switches to bowed notes and follows backward seeks
+  ---
+  duration_ms: 0.299
+  type: 'test'
+  ...
+# Subtest: instrument contacts remain fixed through body sway, player scale and stage transforms
+ok 175 - instrument contacts remain fixed through body sway, player scale and stage transforms
+  ---
+  duration_ms: 4.256459
+  type: 'test'
+  ...
+# Subtest: raccoon markings have separated rounded contours and outward normals
+ok 176 - raccoon markings have separated rounded contours and outward normals
+  ---
+  duration_ms: 3.214166
+  type: 'test'
+  ...
+# Subtest: snare: live-note poses keep beaters/grips attached and finite through a seek
+ok 177 - snare: live-note poses keep beaters/grips attached and finite through a seek
+  ---
+  duration_ms: 38.693
+  type: 'test'
+  ...
+# Subtest: tom: live-note poses keep beaters/grips attached and finite through a seek
+ok 178 - tom: live-note poses keep beaters/grips attached and finite through a seek
+  ---
+  duration_ms: 33.673166
+  type: 'test'
+  ...
+# Subtest: bassDrum: live-note poses keep beaters/grips attached and finite through a seek
+ok 179 - bassDrum: live-note poses keep beaters/grips attached and finite through a seek
+  ---
+  duration_ms: 13.785292
+  type: 'test'
+  ...
+# Subtest: cymbals: live-note poses keep beaters/grips attached and finite through a seek
+ok 180 - cymbals: live-note poses keep beaters/grips attached and finite through a seek
+  ---
+  duration_ms: 9.919791
+  type: 'test'
+  ...
+# Subtest: mallet: live-note poses keep beaters/grips attached and finite through a seek
+ok 181 - mallet: live-note poses keep beaters/grips attached and finite through a seek
+  ---
+  duration_ms: 15.603792
+  type: 'test'
+  ...
+# Subtest: bells: live-note poses keep beaters/grips attached and finite through a seek
+ok 182 - bells: live-note poses keep beaters/grips attached and finite through a seek
+  ---
+  duration_ms: 12.023375
+  type: 'test'
+  ...
+# Subtest: timpani: live-note poses keep beaters/grips attached and finite through a seek
+ok 183 - timpani: live-note poses keep beaters/grips attached and finite through a seek
+  ---
+  duration_ms: 13.312625
+  type: 'test'
+  ...
+# Subtest: triangle: live-note poses keep beaters/grips attached and finite through a seek
+ok 184 - triangle: live-note poses keep beaters/grips attached and finite through a seek
+  ---
+  duration_ms: 20.582625
+  type: 'test'
+  ...
+# Subtest: tambourine: live-note poses keep beaters/grips attached and finite through a seek
+ok 185 - tambourine: live-note poses keep beaters/grips attached and finite through a seek
+  ---
+  duration_ms: 20.2125
+  type: 'test'
+  ...
+# Subtest: keyboard percussion contact points follow pitch across actual bars/pipes
+ok 186 - keyboard percussion contact points follow pitch across actual bars/pipes
+  ---
+  duration_ms: 0.599833
+  type: 'test'
+  ...
+# Subtest: beater collision guard detects crossing, clearance and zero-length segments
+ok 187 - beater collision guard detects crossing, clearance and zero-length segments
+  ---
+  duration_ms: 0.055875
+  type: 'test'
+  ...
+# (node:34326) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: 진입·한 번의 끊김은 화질을 내리지 않아
+ok 188 - 진입·한 번의 끊김은 화질을 내리지 않아
+  ---
+  duration_ms: 1.825666
+  type: 'test'
+  ...
+# Subtest: 지속 부하에서는 해상도부터 내리고 바닥을 넘지 않아
+ok 189 - 지속 부하에서는 해상도부터 내리고 바닥을 넘지 않아
+  ---
+  duration_ms: 1.744292
+  type: 'test'
+  ...
+# Subtest: 안정적으로 회복되면 해상도와 화질을 한 단계씩 복구해
+ok 190 - 안정적으로 회복되면 해상도와 화질을 한 단계씩 복구해
+  ---
+  duration_ms: 2.596542
+  type: 'test'
+  ...
+# Subtest: 큰 지연은 프리셋을 내리되 DPR를 늘리지 않아
+ok 191 - 큰 지연은 프리셋을 내리되 DPR를 늘리지 않아
+  ---
+  duration_ms: 0.281667
+  type: 'test'
+  ...
+# Subtest: 소수 DPR에서 프리셋을 내려도 반올림으로 해상도가 늘지 않아
+ok 192 - 소수 DPR에서 프리셋을 내려도 반올림으로 해상도가 늘지 않아
+  ---
+  duration_ms: 0.243583
+  type: 'test'
+  ...
+# Subtest: 실제 프리셋의 medium 0.6에서 low로 내려도 픽셀 수가 늘거나 바닥에서 재할당하지 않아
+ok 193 - 실제 프리셋의 medium 0.6에서 low로 내려도 픽셀 수가 늘거나 바닥에서 재할당하지 않아
+  ---
+  duration_ms: 1.524334
+  type: 'test'
+  ...
+# Subtest: 모바일 low에서 회복한 뒤 다시 느려지는 실제 경로도 매번 DPR를 유지하거나 줄여
+ok 194 - 모바일 low에서 회복한 뒤 다시 느려지는 실제 경로도 매번 DPR를 유지하거나 줄여
+  ---
+  duration_ms: 1.909625
+  type: 'test'
+  ...
+# Subtest: 실제 high와 medium의 기존 바닥을 유지하고 양방향 프리셋 변경에서 DPR를 올리지 않아
+ok 195 - 실제 high와 medium의 기존 바닥을 유지하고 양방향 프리셋 변경에서 DPR를 올리지 않아
+  ---
+  duration_ms: 3.365542
+  type: 'test'
+  ...
+# Subtest: 새 low 바닥에서도 곡 사이 회복과 수동 초기화는 범위와 Lite 상한을 지켜
+ok 196 - 새 low 바닥에서도 곡 사이 회복과 수동 초기화는 범위와 Lite 상한을 지켜
+  ---
+  duration_ms: 3.17775
+  type: 'test'
+  ...
+# Subtest: 다음 프리셋 바닥이 현재 DPR보다 높으면 회복으로 큰 렌더 타깃을 만들지 않아
+ok 197 - 다음 프리셋 바닥이 현재 DPR보다 높으면 회복으로 큰 렌더 타깃을 만들지 않아
+  ---
+  duration_ms: 1.44775
+  type: 'test'
+  ...
+# Subtest: 경계 근처의 부하는 설정을 왕복하지 않아
+ok 198 - 경계 근처의 부하는 설정을 왕복하지 않아
+  ---
+  duration_ms: 0.268208
+  type: 'test'
+  ...
+# Subtest: 숨긴 탭에서 돌아오거나 수동 선택하면 이전 부하 기록을 버려
+ok 199 - 숨긴 탭에서 돌아오거나 수동 선택하면 이전 부하 기록을 버려
+  ---
+  duration_ms: 0.098708
+  type: 'test'
+  ...
+# Subtest: 가벼운 자동 모드의 회복 상한과 잘못된 입력을 지켜
+ok 200 - 가벼운 자동 모드의 회복 상한과 잘못된 입력을 지켜
+  ---
+  duration_ms: 0.407792
+  type: 'test'
+  ...
+# Subtest: 입장이나 전환 유예는 이전 느린 관측을 버리고 새 관측부터 판단해
+ok 201 - 입장이나 전환 유예는 이전 느린 관측을 버리고 새 관측부터 판단해
+  ---
+  duration_ms: 0.100166
+  type: 'test'
+  ...
+# Subtest: 긴 방해 뒤 유예 끝을 가로지른 프레임은 부하로 누적하지 않아
+ok 202 - 긴 방해 뒤 유예 끝을 가로지른 프레임은 부하로 누적하지 않아
+  ---
+  duration_ms: 0.067459
+  type: 'test'
+  ...
+# Subtest: 곡 중에는 해상도를 먼저 조절하고 보통 부하로 프리셋을 바꾸지 않아
+ok 203 - 곡 중에는 해상도를 먼저 조절하고 보통 부하로 프리셋을 바꾸지 않아
+  ---
+  duration_ms: 0.505917
+  type: 'test'
+  ...
+# Subtest: 곡 중에도 심한 지속 부하는 프리셋을 내리고 0.6 바닥을 지켜
+ok 204 - 곡 중에도 심한 지속 부하는 프리셋을 내리고 0.6 바닥을 지켜
+  ---
+  duration_ms: 0.141584
+  type: 'test'
+  ...
+# Subtest: 해상도와 프리셋 복구는 곡 사이에만 하고 Lite 상한을 넘지 않아
+ok 205 - 해상도와 프리셋 복구는 곡 사이에만 하고 Lite 상한을 넘지 않아
+  ---
+  duration_ms: 1.672958
+  type: 'test'
+  ...
+# Subtest: 실패한 복구는 전환·숨김 유예 뒤에도 재시도하지 않고 수동 선택으로 초기화해
+ok 206 - 실패한 복구는 전환·숨김 유예 뒤에도 재시도하지 않고 수동 선택으로 초기화해
+  ---
+  duration_ms: 0.323417
+  type: 'test'
+  ...
+# Subtest: 일반 모드의 자동 품질은 심한 부하에도 보통 재질을 유지해
+ok 207 - 일반 모드의 자동 품질은 심한 부하에도 보통 재질을 유지해
+  ---
+  duration_ms: 0.153292
+  type: 'test'
+  ...
+# Subtest: 일반 모드도 안정적인 곡 사이에는 해상도와 높음 프리셋을 복구해
+ok 208 - 일반 모드도 안정적인 곡 사이에는 해상도와 높음 프리셋을 복구해
+  ---
+  duration_ms: 0.620458
+  type: 'test'
+  ...
+# (node:34327) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: every selectable venue has a nonempty program and outdoor scores resolve to the real catalog
+ok 209 - every selectable venue has a nonempty program and outdoor scores resolve to the real catalog
+  ---
+  duration_ms: 86.71425
+  type: 'test'
+  ...
+# Subtest: 82 scores have unique venue assignments, metadata, notes and sample files
+ok 210 - 82 scores have unique venue assignments, metadata, notes and sample files
+  ---
+  duration_ms: 198.145666
+  type: 'test'
+  ...
+# (node:34328) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: stereo compact retains intermediate Float32 rounding and positive zero
+ok 211 - stereo compact retains intermediate Float32 rounding and positive zero
+  ---
+  duration_ms: 1.660834
+  type: 'test'
+  ...
+# Subtest: compact preserves Float32 boundary values, signed zero and exceptional values
+ok 212 - compact preserves Float32 boundary values, signed zero and exceptional values
+  ---
+  duration_ms: 0.364916
+  type: 'test'
+  ...
+# Subtest: compact preserves mono/multichannel fallback and Lite truncation/fade
+ok 213 - compact preserves mono/multichannel fallback and Lite truncation/fade
+  ---
+  duration_ms: 169.413166
+  type: 'test'
+  ...
+# (node:34329) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: low quality draws its first live frame immediately, then films in real time
+ok 214 - low quality draws its first live frame immediately, then films in real time
+  ---
+  duration_ms: 4.752875
+  type: 'test'
+  ...
+# Subtest: a long stall is not caught up with a burst of renders
+ok 215 - a long stall is not caught up with a burst of renders
+  ---
+  duration_ms: 2.340791
+  type: 'test'
+  ...
+# Subtest: a zero cadence suppresses initial and invalidated renders, then resumes immediately
+ok 216 - a zero cadence suppresses initial and invalidated renders, then resumes immediately
+  ---
+  duration_ms: 0.83425
+  type: 'test'
+  ...
+# Subtest: reactivating the live feed refreshes its texture before the next periodic frame
+ok 217 - reactivating the live feed refreshes its texture before the next periodic frame
+  ---
+  duration_ms: 0.467292
+  type: 'test'
+  ...
+# Subtest: successful rendering restores the previous target and visibility
+ok 218 - successful rendering restores the previous target and visibility
+  ---
+  duration_ms: 0.502791
+  type: 'test'
+  ...
+# Subtest: before errors restore the render target and screen visibility
+ok 219 - before errors restore the render target and screen visibility
+  ---
+  duration_ms: 1.674583
+  type: 'test'
+  ...
+# Subtest: render errors restore the render target and screen visibility
+ok 220 - render errors restore the render target and screen visibility
+  ---
+  duration_ms: 2.322292
+  type: 'test'
+  ...
+# Subtest: after errors restore the render target and screen visibility
+ok 221 - after errors restore the render target and screen visibility
+  ---
+  duration_ms: 1.575041
+  type: 'test'
+  ...
+# Subtest: shot time advances on skipped frames while camera matrices update only when rendered
+ok 222 - shot time advances on skipped frames while camera matrices update only when rendered
+  ---
+  duration_ms: 1.845667
+  type: 'test'
+  ...
+# Subtest: 600 empty-caption frames clear and dirty the canvas texture only once
+ok 223 - 600 empty-caption frames clear and dirty the canvas texture only once
+  ---
+  duration_ms: 2.42725
+  type: 'test'
+  ...
+# Subtest: settled captions stop uploading, repaint when fonts load, and change for the next piece
+ok 224 - settled captions stop uploading, repaint when fonts load, and change for the next piece
+  ---
+  duration_ms: 3.22975
+  type: 'test'
+  ...
+# Subtest: a title still animates in, fades out, and clears before caching the empty caption
+ok 225 - a title still animates in, fades out, and clears before caching the empty caption
+  ---
+  duration_ms: 1.935292
+  type: 'test'
+  ...
+# (node:34330) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: fine/coarse seats share geometry and part matrices while preserving every seat transform and colour
+ok 226 - fine/coarse seats share geometry and part matrices while preserving every seat transform and colour
+  ---
+  duration_ms: 15.408916
+  type: 'test'
+  ...
+# Subtest: broadcast and main cameras can alternate coarse/fine selection without reusing the other camera state
+ok 227 - broadcast and main cameras can alternate coarse/fine selection without reusing the other camera state
+  ---
+  duration_ms: 8.592917
+  type: 'test'
+  ...
+# Subtest: per-camera selection never submits more triangles, including parent transforms and a view away from the hall
+ok 228 - per-camera selection never submits more triangles, including parent transforms and a view away from the hall
+  ---
+  duration_ms: 4.863625
+  type: 'test'
+  ...
+# Subtest: seat picking keeps the same global IDs and hit distances after each render-camera switch
+ok 229 - seat picking keeps the same global IDs and hit distances after each render-camera switch
+  ---
+  duration_ms: 5.466292
+  type: 'test'
+  ...
+# (node:34331) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: what is wanted: the user's intent, the page's sleep and a gesture kept apart
+ok 230 - what is wanted: the user's intent, the page's sleep and a gesture kept apart
+  ---
+  duration_ms: 0.399417
+  type: 'test'
+  ...
+# Subtest: back to the page, the context's change, a touch and the media keys at once: one resume, recovered once
+ok 231 - back to the page, the context's change, a touch and the media keys at once: one resume, recovered once
+  ---
+  duration_ms: 1.04775
+  type: 'test'
+  ...
+# Subtest: paused by the user, or the page asleep: no resume
+ok 232 - paused by the user, or the page asleep: no resume
+  ---
+  duration_ms: 0.535709
+  type: 'test'
+  ...
+# Subtest: a resume asked for in the background that never answers: coming back asks afresh, once
+ok 233 - a resume asked for in the background that never answers: coming back asks afresh, once
+  ---
+  duration_ms: 41.937625
+  type: 'test'
+  ...
+# Subtest: a resume that never answers (the browser waits for a touch): the button, and the touch resumes inside the gesture
+ok 234 - a resume that never answers (the browser waits for a touch): the button, and the touch resumes inside the gesture
+  ---
+  duration_ms: 43.729167
+  type: 'test'
+  ...
+# Subtest: a refused resume is not success: the button stays, nothing recovered
+ok 235 - a refused resume is not success: the button stays, nothing recovered
+  ---
+  duration_ms: 0.258667
+  type: 'test'
+  ...
+# Subtest: paused while the resume was on its way: no button for music that is not wanted
+ok 236 - paused while the resume was on its way: no button for music that is not wanted
+  ---
+  duration_ms: 40.511292
+  type: 'test'
+  ...
+# Subtest: asleep before a late resume answered: the sound stays off
+ok 237 - asleep before a late resume answered: the sound stays off
+  ---
+  duration_ms: 0.271875
+  type: 'test'
+  ...
+# Subtest: a context the browser gave back by itself: no resume, the button away
+ok 238 - a context the browser gave back by itself: no resume, the button away
+  ---
+  duration_ms: 0.100709
+  type: 'test'
+  ...
+# Subtest: the transport keeps its clock and its schedule: no restart, no second scheduler, no doubled notes
+ok 239 - the transport keeps its clock and its schedule: no restart, no second scheduler, no doubled notes
+  ---
+  duration_ms: 1.513792
+  type: 'test'
+  ...
+# Subtest: play() on a context that is not running asks by the shared way, after it is playing
+ok 240 - play() on a context that is not running asks by the shared way, after it is playing
+  ---
+  duration_ms: 1.811583
+  type: 'test'
+  ...
+# (node:34332) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Sphere seat representations retain one transform and colour buffer per section
+ok 241 - Sphere seat representations retain one transform and colour buffer per section
+  ---
+  duration_ms: 53.642584
+  type: 'test'
+  ...
+# Subtest: Sphere LOD changes preserve seat picking IDs, distances and static buffer versions
+ok 242 - Sphere LOD changes preserve seat picking IDs, distances and static buffer versions
+  ---
+  duration_ms: 2.682917
+  type: 'test'
+  ...
+# (node:34333) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: live venue registry automatically supplies score and every section entry to the audit
+ok 243 - live venue registry automatically supplies score and every section entry to the audit
+  ---
+  duration_ms: 51.024792
+  type: 'test'
+  ...
+# Subtest: video cases select a real part for the named performer and venue
+ok 244 - video cases select a real part for the named performer and venue
+  ---
+  duration_ms: 26.113541
+  type: 'test'
+  ...
+# Subtest: service steps share their rendered height and navigation height
+ok 245 - service steps share their rendered height and navigation height
+  ---
+  duration_ms: 0.224
+  type: 'test'
+  ...
+# Subtest: every musician and conductor has a planned route; travel never reaches back to fixed furniture
+ok 246 - every musician and conductor has a planned route; travel never reaches back to fixed furniture
+  ---
+  duration_ms: 492.662917
+  type: 'test'
+  ...
+# (node:34334) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: touch activation deduplicates only its compatibility click, never a keyboard click
+ok 247 - touch activation deduplicates only its compatibility click, never a keyboard click
+  ---
+  duration_ms: 1.312417
+  type: 'test'
+  ...
+# Subtest: a second finger cannot steal a tap and disabling a held button cancels activation
+ok 248 - a second finger cannot steal a tap and disabling a held button cancels activation
+  ---
+  duration_ms: 0.6685
+  type: 'test'
+  ...
+# Subtest: jump activates on touch down once and remains keyboard accessible
+ok 249 - jump activates on touch down once and remains keyboard accessible
+  ---
+  duration_ms: 0.152083
+  type: 'test'
+  ...
+# Subtest: the joystick resets on app switching and remeasures after the dock moves
+ok 250 - the joystick resets on app switching and remeasures after the dock moves
+  ---
+  duration_ms: 0.364875
+  type: 'test'
+  ...
+# Subtest: scrubbing belongs to one finger and commits only that finger release
+ok 251 - scrubbing belongs to one finger and commits only that finger release
+  ---
+  duration_ms: 0.513959
+  type: 'test'
+  ...
+# Subtest: scrubbing cancelled by pointercancel never seeks
+ok 252 - scrubbing cancelled by pointercancel never seeks
+  ---
+  duration_ms: 0.139125
+  type: 'test'
+  ...
+# Subtest: scrubbing cancelled by lostpointercapture never seeks
+ok 253 - scrubbing cancelled by lostpointercapture never seeks
+  ---
+  duration_ms: 0.106583
+  type: 'test'
+  ...
+# Subtest: scrubbing cancelled by blur never seeks
+ok 254 - scrubbing cancelled by blur never seeks
+  ---
+  duration_ms: 0.087542
+  type: 'test'
+  ...
+# Subtest: scrubbing cancelled by visibilitychange never seeks
+ok 255 - scrubbing cancelled by visibilitychange never seeks
+  ---
+  duration_ms: 0.105
+  type: 'test'
+  ...
+# Subtest: seek supports Home/End and vertical arrows while guest and empty states cannot seek
+ok 256 - seek supports Home/End and vertical arrows while guest and empty states cannot seek
+  ---
+  duration_ms: 0.179125
+  type: 'test'
+  ...
+# Subtest: dialogs isolate the background, preserve recovery, and restore prior inert/focus state
+ok 257 - dialogs isolate the background, preserve recovery, and restore prior inert/focus state
+  ---
+  duration_ms: 0.247125
+  type: 'test'
+  ...
+# Subtest: a new card replaces the modal and Tab cycles through all card controls
+ok 258 - a new card replaces the modal and Tab cycles through all card controls
+  ---
+  duration_ms: 0.139084
+  type: 'test'
+  ...
+# (node:34335) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+# --import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: outdoor URL selection wins over a remembered venue and has its own labels
+ok 259 - outdoor URL selection wins over a remembered venue and has its own labels
+  ---
+  duration_ms: 1.660041
+  type: 'test'
+  ...
+# Subtest: remembered outdoor selection is restored when the URL has no known venue
+ok 260 - remembered outdoor selection is restored when the URL has no known venue
+  ---
+  duration_ms: 1.346459
+  type: 'test'
+  ...
+# Subtest: storage failure still permits an explicit outdoor URL
+ok 261 - storage failure still permits an explicit outdoor URL
+  ---
+  duration_ms: 1.542375
+  type: 'test'
+  ...
+# Subtest: unknown venue and unavailable storage safely choose the hall
+ok 262 - unknown venue and unavailable storage safely choose the hall
+  ---
+  duration_ms: 1.866542
+  type: 'test'
+  ...
+# Subtest: outdoor navigation saves selection, replaces room codes and opens its lobby
+ok 263 - outdoor navigation saves selection, replaces room codes and opens its lobby
+  ---
+  duration_ms: 2.307291
+  type: 'test'
+  ...
+1..263
+# tests 268
+# suites 0
+# pass 268
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2662.1055

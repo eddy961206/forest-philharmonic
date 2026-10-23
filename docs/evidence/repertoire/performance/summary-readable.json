@@ -1,0 +1,1622 @@
+{
+  "hall-concerto-overlap": {
+    "framesMs": {
+      "n": 2401,
+      "mean": 16.68046647230321,
+      "p50": 16.69999999999709,
+      "p95": 17.80000000000291,
+      "p99": 18.699999999982538,
+      "max": 18.80000000000291
+    },
+    "rafRate": 59.95036179955954,
+    "framesOver50": 0,
+    "framesOver100": 0,
+    "leadMs": {
+      "n": 471,
+      "mean": 385.1731432326752,
+      "p50": 385.7749409665985,
+      "p95": 399.3290125553415,
+      "p99": 402.8664247831273,
+      "max": 404.3370225691092
+    },
+    "notesLate0": 0,
+    "notesLate100": 0,
+    "longtasks": {},
+    "audioStates": [
+      "running"
+    ],
+    "visibility": [
+      "visible"
+    ],
+    "heapBytes": {
+      "n": 41,
+      "mean": 579529770.7073171,
+      "p50": 580231963,
+      "p95": 591339519,
+      "p99": 592024479,
+      "max": 592747525
+    },
+    "voices": {
+      "n": 41,
+      "mean": 71.07317073170732,
+      "p50": 16,
+      "p95": 295,
+      "p99": 297,
+      "max": 299
+    },
+    "resourceFirst": {
+      "geometries": 1891,
+      "textures": 116
+    },
+    "resourceLast": {
+      "geometries": 1891,
+      "textures": 116
+    },
+    "qualities": [
+      "high"
+    ],
+    "renderScales": [
+      0.8
+    ],
+    "errors": [],
+    "rendererTaskBusyPct": 32.92486824018538,
+    "cdpJSHeapUsedSizeBytes": {
+      "n": 8,
+      "mean": 48940228.5,
+      "p50": 48848528,
+      "p95": 52927544,
+      "p99": 52927544,
+      "max": 60560624
+    },
+    "cdpV8PerContextDatas": [
+      2
+    ],
+    "audioRealtime": {
+      "n": 8,
+      "renderCapacity": {
+        "n": 8,
+        "mean": 0.1157138530560475,
+        "p50": 0.08134106662894328,
+        "p95": 0.176418190342241,
+        "p99": 0.176418190342241,
+        "max": 0.2519416113034528
+      },
+      "callbackMeanMs": {
+        "n": 8,
+        "mean": 21.333147822923607,
+        "p50": 21.333253308255614,
+        "p95": 21.333541902444882,
+        "p99": 21.333541902444882,
+        "max": 21.333740840306763
+      },
+      "callbackVarianceMs2": {
+        "n": 8,
+        "mean": 0.004000449760165977,
+        "p50": 0.003701068849437578,
+        "p95": 0.0056404175105536185,
+        "p99": 0.0056404175105536185,
+        "max": 0.005661578948323652
+      }
+    },
+    "playbackDelta": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 40.09670000000001
+    },
+    "playbackFinal": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 151.3462,
+      "averageLatency": 0.0487,
+      "minimumLatency": 0,
+      "maximumLatency": 0.0487
+    },
+    "dedicatedChromeRSSMiB": {
+      "n": 8,
+      "mean": 3598.224609375,
+      "p50": 3597.671875,
+      "p95": 3601.140625,
+      "p99": 3601.140625,
+      "max": 3602.6875
+    },
+    "cpuPctByProcess": [
+      {
+        "type": "GPU",
+        "pid": 93158,
+        "cpuPct": 38.46696611909642
+      },
+      {
+        "type": "network.mojom.NetworkService",
+        "pid": 93159,
+        "cpuPct": 0.013338466803559327
+      },
+      {
+        "type": "storage.mojom.StorageService",
+        "pid": 93162,
+        "cpuPct": 0.0020334245950262135
+      },
+      {
+        "type": "audio.mojom.AudioService",
+        "pid": 93290,
+        "cpuPct": 0.5232517681953006
+      },
+      {
+        "type": "renderer",
+        "pid": 93167,
+        "cpuPct": 0.007292379648642572
+      },
+      {
+        "type": "renderer",
+        "pid": 93169,
+        "cpuPct": 0.0016626739676020995
+      },
+      {
+        "type": "renderer",
+        "pid": 93173,
+        "cpuPct": 0.0025068446269678833
+      },
+      {
+        "type": "browser",
+        "pid": 93145,
+        "cpuPct": 0.46481576545744063
+      },
+      {
+        "type": "renderer",
+        "pid": 93275,
+        "cpuPct": 0.0018451973534108909
+      },
+      {
+        "type": "renderer",
+        "pid": 93213,
+        "cpuPct": 46.480635409536745
+      }
+    ],
+    "playingSamples": 41,
+    "sampleCount": 41
+  },
+  "hall-existing-ode": {
+    "framesMs": {
+      "n": 2355,
+      "mean": 17.013418259023354,
+      "p50": 16.69999999999709,
+      "p95": 17.600000000002183,
+      "p99": 33.39999999999782,
+      "max": 66.70000000000073
+    },
+    "rafRate": 58.77713606844604,
+    "framesOver50": 4,
+    "framesOver100": 0,
+    "leadMs": {
+      "n": 1101,
+      "mean": 390.274681623657,
+      "p50": 391.93030180318544,
+      "p95": 407.0695662266992,
+      "p99": 411.47281735694463,
+      "max": 416.1376208850456
+    },
+    "notesLate0": 0,
+    "notesLate100": 0,
+    "longtasks": {
+      "n": 1,
+      "mean": 62,
+      "p50": 62,
+      "p95": 62,
+      "p99": 62,
+      "max": 62
+    },
+    "audioStates": [
+      "running"
+    ],
+    "visibility": [
+      "visible"
+    ],
+    "heapBytes": {
+      "n": 41,
+      "mean": 574179282.5853659,
+      "p50": 573623714,
+      "p95": 587001806,
+      "p99": 588194960,
+      "max": 591667708
+    },
+    "voices": {
+      "n": 41,
+      "mean": 47.46341463414634,
+      "p50": 45,
+      "p95": 60,
+      "p99": 60,
+      "max": 60
+    },
+    "resourceFirst": {
+      "geometries": 1855,
+      "textures": 116
+    },
+    "resourceLast": {
+      "geometries": 1864,
+      "textures": 116
+    },
+    "qualities": [
+      "high"
+    ],
+    "renderScales": [
+      0.9,
+      1
+    ],
+    "errors": [],
+    "rendererTaskBusyPct": 43.235226607616525,
+    "cdpJSHeapUsedSizeBytes": {
+      "n": 8,
+      "mean": 45698146,
+      "p50": 42291632,
+      "p95": 55181452,
+      "p99": 55181452,
+      "max": 56869136
+    },
+    "cdpV8PerContextDatas": [
+      2
+    ],
+    "audioRealtime": {
+      "n": 8,
+      "renderCapacity": {
+        "n": 8,
+        "mean": 0.16577109021042394,
+        "p50": 0.1589810949007834,
+        "p95": 0.1889374911810357,
+        "p99": 0.1889374911810357,
+        "max": 0.20346462607389323
+      },
+      "callbackMeanMs": {
+        "n": 8,
+        "mean": 21.333219497809377,
+        "p50": 21.33287865857929,
+        "p95": 21.33396477360867,
+        "p99": 21.33396477360867,
+        "max": 21.33440566859806
+      },
+      "callbackVarianceMs2": {
+        "n": 8,
+        "mean": 0.0027966351701412054,
+        "p50": 0.002545306505403184,
+        "p95": 0.0035210383850009237,
+        "p99": 0.0035210383850009237,
+        "max": 0.0036338342280911205
+      }
+    },
+    "playbackDelta": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 41.099000000000004
+    },
+    "playbackFinal": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 57.119,
+      "averageLatency": 0.0487,
+      "minimumLatency": 0,
+      "maximumLatency": 0.0487
+    },
+    "dedicatedChromeRSSMiB": {
+      "n": 8,
+      "mean": 3572.138671875,
+      "p50": 3571.9375,
+      "p95": 3572.421875,
+      "p99": 3572.421875,
+      "max": 3572.796875
+    },
+    "cpuPctByProcess": [
+      {
+        "type": "GPU",
+        "pid": 93158,
+        "cpuPct": 42.51970003706764
+      },
+      {
+        "type": "network.mojom.NetworkService",
+        "pid": 93159,
+        "cpuPct": 0.008280345584671146
+      },
+      {
+        "type": "storage.mojom.StorageService",
+        "pid": 93162,
+        "cpuPct": 0.0010607054261355857
+      },
+      {
+        "type": "audio.mojom.AudioService",
+        "pid": 93290,
+        "cpuPct": 0.4951840552023036
+      },
+      {
+        "type": "renderer",
+        "pid": 93167,
+        "cpuPct": 0.0068004904336917285
+      },
+      {
+        "type": "renderer",
+        "pid": 93169,
+        "cpuPct": 0.0008012317869465691
+      },
+      {
+        "type": "renderer",
+        "pid": 93173,
+        "cpuPct": 0.0001739328790168672
+      },
+      {
+        "type": "browser",
+        "pid": 93145,
+        "cpuPct": 1.0293461834564146
+      },
+      {
+        "type": "renderer",
+        "pid": 93275,
+        "cpuPct": 0.00020244646574093018
+      },
+      {
+        "type": "renderer",
+        "pid": 93213,
+        "cpuPct": 58.22717344814795
+      }
+    ],
+    "playingSamples": 41,
+    "sampleCount": 41
+  },
+  "hall-fixed-flash-dense": {
+    "framesMs": {
+      "n": 2401,
+      "mean": 16.68046647230321,
+      "p50": 16.69999999999709,
+      "p95": 17.39999999999418,
+      "p99": 18.5,
+      "max": 18.80000000000291
+    },
+    "rafRate": 59.95036179955954,
+    "framesOver50": 0,
+    "framesOver100": 0,
+    "leadMs": {
+      "n": 1039,
+      "mean": 389.50108902652624,
+      "p50": 389.69274237170737,
+      "p95": 406.2917073933363,
+      "p99": 411.208132289957,
+      "max": 415.9148481856221
+    },
+    "notesLate0": 0,
+    "notesLate100": 0,
+    "longtasks": {},
+    "audioStates": [
+      "running"
+    ],
+    "visibility": [
+      "visible"
+    ],
+    "heapBytes": {
+      "n": 41,
+      "mean": 578130844.2682927,
+      "p50": 578912459,
+      "p95": 589344225,
+      "p99": 589638257,
+      "max": 593256831
+    },
+    "voices": {
+      "n": 41,
+      "mean": 46.609756097560975,
+      "p50": 42,
+      "p95": 102,
+      "p99": 132,
+      "max": 158
+    },
+    "resourceFirst": {
+      "geometries": 1965,
+      "textures": 116
+    },
+    "resourceLast": {
+      "geometries": 1980,
+      "textures": 116
+    },
+    "qualities": [
+      "high"
+    ],
+    "renderScales": [
+      0.9
+    ],
+    "errors": [],
+    "rendererTaskBusyPct": 41.958234668957054,
+    "cdpJSHeapUsedSizeBytes": {
+      "n": 8,
+      "mean": 50737438.5,
+      "p50": 50208868,
+      "p95": 56330028,
+      "p99": 56330028,
+      "max": 57710568
+    },
+    "cdpV8PerContextDatas": [
+      2
+    ],
+    "audioRealtime": {
+      "n": 8,
+      "renderCapacity": {
+        "n": 8,
+        "mean": 0.16005201545562578,
+        "p50": 0.15779111194449652,
+        "p95": 0.1779146874853031,
+        "p99": 0.1779146874853031,
+        "max": 0.25937045550499604
+      },
+      "callbackMeanMs": {
+        "n": 8,
+        "mean": 21.333255581017813,
+        "p50": 21.332928158880918,
+        "p95": 21.33334840190352,
+        "p99": 21.33334840190352,
+        "max": 21.334705005344833
+      },
+      "callbackVarianceMs2": {
+        "n": 8,
+        "mean": 0.0025332641819623405,
+        "p50": 0.0023939379503071616,
+        "p95": 0.0029802211233256088,
+        "p99": 0.0029802211233256088,
+        "max": 0.003548316637188272
+      }
+    },
+    "playbackDelta": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 40.09670000000001
+    },
+    "playbackFinal": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 139.3172,
+      "averageLatency": 0.048600000000000004,
+      "minimumLatency": 0,
+      "maximumLatency": 0.048799999999999996
+    },
+    "dedicatedChromeRSSMiB": {
+      "n": 8,
+      "mean": 3014.04296875,
+      "p50": 3015.90625,
+      "p95": 3028.921875,
+      "p99": 3028.921875,
+      "max": 3028.96875
+    },
+    "cpuPctByProcess": [
+      {
+        "type": "renderer",
+        "pid": 98051,
+        "cpuPct": 61.40948061949176
+      },
+      {
+        "type": "GPU",
+        "pid": 93158,
+        "cpuPct": 45.029134936253804
+      },
+      {
+        "type": "network.mojom.NetworkService",
+        "pid": 93159,
+        "cpuPct": 0.004697527166938126
+      },
+      {
+        "type": "storage.mojom.StorageService",
+        "pid": 93162,
+        "cpuPct": 0.0012777730241578678
+      },
+      {
+        "type": "audio.mojom.AudioService",
+        "pid": 93290,
+        "cpuPct": 0.4741878440432428
+      },
+      {
+        "type": "renderer",
+        "pid": 93167,
+        "cpuPct": 0.0064373520435813715
+      },
+      {
+        "type": "renderer",
+        "pid": 93169,
+        "cpuPct": 0.0013291121188785885
+      },
+      {
+        "type": "renderer",
+        "pid": 98451,
+        "cpuPct": 0.0009954080031944386
+      },
+      {
+        "type": "renderer",
+        "pid": 93173,
+        "cpuPct": 0.0001768346595932988
+      },
+      {
+        "type": "browser",
+        "pid": 93145,
+        "cpuPct": 1.6108354011579844
+      }
+    ],
+    "playingSamples": 41,
+    "sampleCount": 41
+  },
+  "sphere-existing-bach": {
+    "framesMs": {
+      "n": 2329,
+      "mean": 17.19613568054959,
+      "p50": 16.69999999999709,
+      "p95": 18.599999999998545,
+      "p99": 33.400000000001455,
+      "max": 35.30000000000291
+    },
+    "rafRate": 58.15260001298384,
+    "framesOver50": 0,
+    "framesOver100": 0,
+    "leadMs": {
+      "n": 558,
+      "mean": 388.89750736494324,
+      "p50": 390.11378453238524,
+      "p95": 404.5205395025988,
+      "p99": 409.8038102971095,
+      "max": 413.8090464263726
+    },
+    "notesLate0": 0,
+    "notesLate100": 0,
+    "longtasks": {},
+    "audioStates": [
+      "running"
+    ],
+    "visibility": [
+      "visible"
+    ],
+    "heapBytes": {
+      "n": 41,
+      "mean": 1145576940.4146342,
+      "p50": 1145582057,
+      "p95": 1156763985,
+      "p99": 1156839121,
+      "max": 1157081891
+    },
+    "voices": {
+      "n": 41,
+      "mean": 27.4390243902439,
+      "p50": 29,
+      "p95": 38,
+      "p99": 38,
+      "max": 39
+    },
+    "resourceFirst": {
+      "geometries": 1823,
+      "textures": 87
+    },
+    "resourceLast": {
+      "geometries": 1823,
+      "textures": 87
+    },
+    "qualities": [
+      "high"
+    ],
+    "renderScales": [
+      1
+    ],
+    "errors": [],
+    "rendererTaskBusyPct": 34.164748968932024,
+    "cdpJSHeapUsedSizeBytes": {
+      "n": 8,
+      "mean": 90486480.5,
+      "p50": 87383220,
+      "p95": 100565184,
+      "p99": 100565184,
+      "max": 101468788
+    },
+    "cdpV8PerContextDatas": [
+      4
+    ],
+    "audioRealtime": {
+      "n": 8,
+      "renderCapacity": {
+        "n": 8,
+        "mean": 0.14989212064641236,
+        "p50": 0.14809439086056747,
+        "p95": 0.16232371345848512,
+        "p99": 0.16232371345848512,
+        "max": 0.1683656691877672
+      },
+      "callbackMeanMs": {
+        "n": 8,
+        "mean": 21.332969946399057,
+        "p50": 21.3328140519633,
+        "p95": 21.333230104436907,
+        "p99": 21.333230104436907,
+        "max": 21.333805210216642
+      },
+      "callbackVarianceMs2": {
+        "n": 8,
+        "mean": 0.006234882078072401,
+        "p50": 0.006724300340675531,
+        "p95": 0.007802026772587689,
+        "p99": 0.007802026772587689,
+        "max": 0.008461069191693869
+      }
+    },
+    "playbackDelta": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 40.0967
+    },
+    "playbackFinal": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 56.116699999999994,
+      "averageLatency": 0.0487,
+      "minimumLatency": 0,
+      "maximumLatency": 0.0487
+    },
+    "dedicatedChromeRSSMiB": {
+      "n": 8,
+      "mean": 3907.66015625,
+      "p50": 3906.140625,
+      "p95": 3911.0,
+      "p99": 3911.0,
+      "max": 3913.484375
+    },
+    "cpuPctByProcess": [
+      {
+        "type": "GPU",
+        "pid": 93158,
+        "cpuPct": 36.50687619427873
+      },
+      {
+        "type": "network.mojom.NetworkService",
+        "pid": 93159,
+        "cpuPct": 0.022448164732054254
+      },
+      {
+        "type": "storage.mojom.StorageService",
+        "pid": 93162,
+        "cpuPct": 0.0017853577845592262
+      },
+      {
+        "type": "audio.mojom.AudioService",
+        "pid": 93290,
+        "cpuPct": 0.5471237486809475
+      },
+      {
+        "type": "renderer",
+        "pid": 93167,
+        "cpuPct": 0.007651940792288141
+      },
+      {
+        "type": "renderer",
+        "pid": 93169,
+        "cpuPct": 0.001089467529874778
+      },
+      {
+        "type": "renderer",
+        "pid": 93173,
+        "cpuPct": 0.0013119242506346176
+      },
+      {
+        "type": "browser",
+        "pid": 93145,
+        "cpuPct": 0.6212816929526821
+      },
+      {
+        "type": "renderer",
+        "pid": 93275,
+        "cpuPct": 0.0014145965832929196
+      },
+      {
+        "type": "renderer",
+        "pid": 93213,
+        "cpuPct": 52.60846476342579
+      }
+    ],
+    "playingSamples": 41,
+    "sampleCount": 41
+  },
+  "hall-elgar-concert-full": {
+    "framesMs": {
+      "n": 24677,
+      "mean": 16.847392308627466,
+      "p50": 16.69999999999709,
+      "p95": 17.400000000023283,
+      "p99": 18.60000000000582,
+      "max": 2084.9000000000233
+    },
+    "rafRate": 59.35636694872387,
+    "framesOver50": 6,
+    "framesOver100": 3,
+    "leadMs": {
+      "n": 7621,
+      "mean": 391.3371194273479,
+      "p50": 389.79859973250086,
+      "p95": 406.3134855676651,
+      "p99": 411.53739594409444,
+      "max": 2900.000000000034
+    },
+    "notesLate0": 0,
+    "notesLate100": 0,
+    "longtasks": {
+      "n": 7,
+      "mean": 391.2857142857143,
+      "p50": 56,
+      "p95": 283,
+      "p99": 283,
+      "max": 2087
+    },
+    "audioStates": [
+      "running"
+    ],
+    "visibility": [
+      "visible"
+    ],
+    "heapBytes": {
+      "n": 415,
+      "mean": 568718066.1879518,
+      "p50": 567496126,
+      "p95": 583577610,
+      "p99": 589035460,
+      "max": 590725106
+    },
+    "voices": {
+      "n": 415,
+      "mean": 33.35903614457831,
+      "p50": 30,
+      "p95": 56,
+      "p99": 145,
+      "max": 172
+    },
+    "resourceFirst": {
+      "geometries": 1833,
+      "textures": 116
+    },
+    "resourceLast": {
+      "geometries": 1981,
+      "textures": 116
+    },
+    "qualities": [
+      "high"
+    ],
+    "renderScales": [
+      0.8,
+      0.9
+    ],
+    "errors": [],
+    "rendererTaskBusyPct": 39.26938750593749,
+    "cdpJSHeapUsedSizeBytes": {
+      "n": 83,
+      "mean": 39031187.03614458,
+      "p50": 37839252,
+      "p95": 52628564,
+      "p99": 58705080,
+      "max": 65931788
+    },
+    "cdpV8PerContextDatas": [
+      2
+    ],
+    "musicOnly": {
+      "cutoffWallMs": 404244.65000009537,
+      "framesMs": {
+        "n": 24160,
+        "mean": 16.73157284768212,
+        "p50": 16.69999999999709,
+        "p95": 17.400000000023283,
+        "p99": 18.60000000000582,
+        "max": 65.80000000000291
+      },
+      "rafRate": 59.767244185804884,
+      "over50": 2,
+      "over100": 0,
+      "cameraPositions": [
+        [
+          0,
+          16.42,
+          5.9
+        ]
+      ]
+    },
+    "audioRealtime": {
+      "n": 83,
+      "renderCapacity": {
+        "n": 83,
+        "mean": 0.1390106455635388,
+        "p50": 0.13720316622691295,
+        "p95": 0.18205212183596126,
+        "p99": 0.2773061951882943,
+        "max": 0.3634956374894455
+      },
+      "callbackMeanMs": {
+        "n": 83,
+        "mean": 21.333306585113206,
+        "p50": 21.333131145937177,
+        "p95": 21.33448643661687,
+        "p99": 21.33526011731094,
+        "max": 21.335785803889426
+      },
+      "callbackVarianceMs2": {
+        "n": 83,
+        "mean": 0.0030939829786875003,
+        "p50": 0.003077562850713027,
+        "p95": 0.004385331064406519,
+        "p99": 0.00498813150920429,
+        "max": 0.005048030175780631
+      }
+    },
+    "playbackDelta": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 415.0003
+    },
+    "playbackFinal": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 434.0275,
+      "averageLatency": 0.0487,
+      "minimumLatency": 0,
+      "maximumLatency": 0.0487
+    },
+    "dedicatedChromeRSSMiB": {
+      "n": 83,
+      "mean": 3474.298381024096,
+      "p50": 3459.46875,
+      "p95": 3519.359375,
+      "p99": 3538.6875,
+      "max": 3543.5
+    },
+    "cpuPctByProcess": [
+      {
+        "type": "GPU",
+        "pid": 93158,
+        "cpuPct": 40.93334315312792
+      },
+      {
+        "type": "network.mojom.NetworkService",
+        "pid": 93159,
+        "cpuPct": 0.007243112956042203
+      },
+      {
+        "type": "storage.mojom.StorageService",
+        "pid": 93162,
+        "cpuPct": 0.0017975093430070484
+      },
+      {
+        "type": "audio.mojom.AudioService",
+        "pid": 93290,
+        "cpuPct": 0.48044481234859465
+      },
+      {
+        "type": "renderer",
+        "pid": 93167,
+        "cpuPct": 0.008575358807990548
+      },
+      {
+        "type": "renderer",
+        "pid": 93169,
+        "cpuPct": 0.0022228444130643777
+      },
+      {
+        "type": "renderer",
+        "pid": 93173,
+        "cpuPct": 0.00155063483754732
+      },
+      {
+        "type": "browser",
+        "pid": 93145,
+        "cpuPct": 1.133286912486153
+      },
+      {
+        "type": "renderer",
+        "pid": 93275,
+        "cpuPct": 0.0009857937599668878
+      },
+      {
+        "type": "renderer",
+        "pid": 93213,
+        "cpuPct": 53.1061850097995
+      }
+    ],
+    "playingSamples": 404,
+    "sampleCount": 415
+  },
+  "sphere-valkyries-overlap": {
+    "framesMs": {
+      "n": 2394,
+      "mean": 16.72923976608187,
+      "p50": 16.69999999999709,
+      "p95": 17.90000000000873,
+      "p99": 18.699999999982538,
+      "max": 114.89999999999418
+    },
+    "rafRate": 59.77557940364247,
+    "framesOver50": 1,
+    "framesOver100": 1,
+    "leadMs": {
+      "n": 1786,
+      "mean": 391.65175856783253,
+      "p50": 392.31227778945765,
+      "p95": 408.1732827499138,
+      "p99": 412.2081598911933,
+      "max": 414.97591438081827
+    },
+    "notesLate0": 0,
+    "notesLate100": 0,
+    "longtasks": {},
+    "audioStates": [
+      "running"
+    ],
+    "visibility": [
+      "visible"
+    ],
+    "heapBytes": {
+      "n": 41,
+      "mean": 1152301110.317073,
+      "p50": 1153031493,
+      "p95": 1164128081,
+      "p99": 1164384229,
+      "max": 1167545095
+    },
+    "voices": {
+      "n": 41,
+      "mean": 151.4878048780488,
+      "p50": 119,
+      "p95": 360,
+      "p99": 387,
+      "max": 412
+    },
+    "resourceFirst": {
+      "geometries": 1838,
+      "textures": 87
+    },
+    "resourceLast": {
+      "geometries": 1838,
+      "textures": 87
+    },
+    "qualities": [
+      "high"
+    ],
+    "renderScales": [
+      0.9
+    ],
+    "errors": [],
+    "rendererTaskBusyPct": 37.491119671762355,
+    "cdpJSHeapUsedSizeBytes": {
+      "n": 8,
+      "mean": 93717877,
+      "p50": 91658576,
+      "p95": 101324020,
+      "p99": 101324020,
+      "max": 107344116
+    },
+    "cdpV8PerContextDatas": [
+      4
+    ],
+    "audioRealtime": {
+      "n": 8,
+      "renderCapacity": {
+        "n": 8,
+        "mean": 0.29009258093110235,
+        "p50": 0.15556280283265,
+        "p95": 0.484909551035711,
+        "p99": 0.484909551035711,
+        "max": 0.7991027154663518
+      },
+      "callbackMeanMs": {
+        "n": 8,
+        "mean": 21.3335741887336,
+        "p50": 21.332804398657263,
+        "p95": 21.335789359685666,
+        "p99": 21.335789359685666,
+        "max": 21.336734361105993
+      },
+      "callbackVarianceMs2": {
+        "n": 8,
+        "mean": 0.01877797830596526,
+        "p50": 0.004189049827158251,
+        "p95": 0.0059710968348872535,
+        "p99": 0.0059710968348872535,
+        "max": 0.11931294369741219
+      }
+    },
+    "playbackDelta": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 40.09670000000001
+    },
+    "playbackFinal": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 151.3462,
+      "averageLatency": 0.0487,
+      "minimumLatency": 0,
+      "maximumLatency": 0.0487
+    },
+    "dedicatedChromeRSSMiB": {
+      "n": 8,
+      "mean": 4012.658203125,
+      "p50": 3996.890625,
+      "p95": 4040.65625,
+      "p99": 4040.65625,
+      "max": 4107.578125
+    },
+    "cpuPctByProcess": [
+      {
+        "type": "GPU",
+        "pid": 93158,
+        "cpuPct": 37.281828555127795
+      },
+      {
+        "type": "network.mojom.NetworkService",
+        "pid": 93159,
+        "cpuPct": 0.008421052631579135
+      },
+      {
+        "type": "storage.mojom.StorageService",
+        "pid": 93162,
+        "cpuPct": 0.0014833832548851991
+      },
+      {
+        "type": "audio.mojom.AudioService",
+        "pid": 93290,
+        "cpuPct": 0.5189958636428471
+      },
+      {
+        "type": "renderer",
+        "pid": 93167,
+        "cpuPct": 0.006809299671944167
+      },
+      {
+        "type": "renderer",
+        "pid": 93169,
+        "cpuPct": 0.0019369562116673376
+      },
+      {
+        "type": "renderer",
+        "pid": 93173,
+        "cpuPct": 0.0013692768506631877
+      },
+      {
+        "type": "browser",
+        "pid": 93145,
+        "cpuPct": 4.138282698616462
+      },
+      {
+        "type": "renderer",
+        "pid": 93275,
+        "cpuPct": 0.0009813150763086495
+      },
+      {
+        "type": "renderer",
+        "pid": 93213,
+        "cpuPct": 69.38676650977037
+      }
+    ],
+    "playingSamples": 41,
+    "sampleCount": 41
+  },
+  "sphere-1812-peak": {
+    "framesMs": {
+      "n": 2257,
+      "mean": 17.81860877270713,
+      "p50": 16.69999999999709,
+      "p95": 33.30000000000291,
+      "p99": 33.59999999999127,
+      "max": 35.30000000000291
+    },
+    "rafRate": 56.121104220645215,
+    "framesOver50": 0,
+    "framesOver100": 0,
+    "leadMs": {
+      "n": 3447,
+      "mean": 387.41692412912374,
+      "p50": 388.7667825230494,
+      "p95": 403.3319281607106,
+      "p99": 407.96013954035004,
+      "max": 414.8928692177236
+    },
+    "notesLate0": 0,
+    "notesLate100": 0,
+    "longtasks": {},
+    "audioStates": [
+      "running"
+    ],
+    "visibility": [
+      "visible"
+    ],
+    "heapBytes": {
+      "n": 41,
+      "mean": 1150597465.8536584,
+      "p50": 1146695230,
+      "p95": 1165456104,
+      "p99": 1165722436,
+      "max": 1167049388
+    },
+    "voices": {
+      "n": 41,
+      "mean": 136.2439024390244,
+      "p50": 80,
+      "p95": 289,
+      "p99": 295,
+      "max": 305
+    },
+    "resourceFirst": {
+      "geometries": 1834,
+      "textures": 87
+    },
+    "resourceLast": {
+      "geometries": 1838,
+      "textures": 87
+    },
+    "qualities": [
+      "high"
+    ],
+    "renderScales": [
+      0.9
+    ],
+    "errors": [],
+    "rendererTaskBusyPct": 86.67823552849951,
+    "cdpJSHeapUsedSizeBytes": {
+      "n": 8,
+      "mean": 93441821,
+      "p50": 93641896,
+      "p95": 97663164,
+      "p99": 97663164,
+      "max": 101150232
+    },
+    "cdpV8PerContextDatas": [
+      4
+    ],
+    "audioRealtime": {
+      "n": 8,
+      "renderCapacity": {
+        "n": 8,
+        "mean": 0.2576206338390317,
+        "p50": 0.16602064166627747,
+        "p95": 0.4150491140668327,
+        "p99": 0.4150491140668327,
+        "max": 0.49457415323906606
+      },
+      "callbackMeanMs": {
+        "n": 8,
+        "mean": 21.3332774844297,
+        "p50": 21.333140499722074,
+        "p95": 21.33363222772375,
+        "p99": 21.33363222772375,
+        "max": 21.33438226900222
+      },
+      "callbackVarianceMs2": {
+        "n": 8,
+        "mean": 0.003085960257623201,
+        "p50": 0.003159798919821352,
+        "p95": 0.0035448372455803914,
+        "p99": 0.0035448372455803914,
+        "max": 0.00411500274194304
+      }
+    },
+    "playbackDelta": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 41.099000000000004
+    },
+    "playbackFinal": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 104.2326,
+      "averageLatency": 0.0487,
+      "minimumLatency": 0,
+      "maximumLatency": 0.0487
+    },
+    "dedicatedChromeRSSMiB": {
+      "n": 8,
+      "mean": 3929.703125,
+      "p50": 3926.921875,
+      "p95": 3932.5,
+      "p99": 3932.5,
+      "max": 3938.140625
+    },
+    "cpuPctByProcess": [
+      {
+        "type": "GPU",
+        "pid": 93158,
+        "cpuPct": 42.21678693181826
+      },
+      {
+        "type": "network.mojom.NetworkService",
+        "pid": 93159,
+        "cpuPct": 0.010571022727272969
+      },
+      {
+        "type": "storage.mojom.StorageService",
+        "pid": 93162,
+        "cpuPct": 0.0023806818181818334
+      },
+      {
+        "type": "audio.mojom.AudioService",
+        "pid": 93290,
+        "cpuPct": 0.4852187499999983
+      },
+      {
+        "type": "renderer",
+        "pid": 93167,
+        "cpuPct": 0.007914772727272756
+      },
+      {
+        "type": "renderer",
+        "pid": 93169,
+        "cpuPct": 0.0020085227272727646
+      },
+      {
+        "type": "renderer",
+        "pid": 93173,
+        "cpuPct": 0.002221590909090923
+      },
+      {
+        "type": "browser",
+        "pid": 93145,
+        "cpuPct": 3.140031250000003
+      },
+      {
+        "type": "renderer",
+        "pid": 93275,
+        "cpuPct": 0.002019886363636373
+      },
+      {
+        "type": "renderer",
+        "pid": 93213,
+        "cpuPct": 65.85198863636356
+      }
+    ],
+    "playingSamples": 41,
+    "sampleCount": 41
+  },
+  "hall-dvorak-peak": {
+    "framesMs": {
+      "n": 2362,
+      "mean": 16.96299745977985,
+      "p50": 16.69999999999709,
+      "p95": 18.19999999999709,
+      "p99": 33.39999999999418,
+      "max": 50
+    },
+    "rafRate": 58.95184517777899,
+    "framesOver50": 0,
+    "framesOver100": 0,
+    "leadMs": {
+      "n": 2848,
+      "mean": 387.9167587413194,
+      "p50": 389.792418119967,
+      "p95": 405.0836460085492,
+      "p99": 409.9147487664965,
+      "max": 414.9201747951423
+    },
+    "notesLate0": 0,
+    "notesLate100": 0,
+    "longtasks": {
+      "n": 1,
+      "mean": 53,
+      "p50": 53,
+      "p95": 53,
+      "p99": 53,
+      "max": 53
+    },
+    "audioStates": [
+      "running"
+    ],
+    "visibility": [
+      "visible"
+    ],
+    "heapBytes": {
+      "n": 41,
+      "mean": 572324971.4390244,
+      "p50": 570203277,
+      "p95": 589802143,
+      "p99": 590077616,
+      "max": 590575466
+    },
+    "voices": {
+      "n": 41,
+      "mean": 122.78048780487805,
+      "p50": 130,
+      "p95": 235,
+      "p99": 237,
+      "max": 240
+    },
+    "resourceFirst": {
+      "geometries": 1866,
+      "textures": 116
+    },
+    "resourceLast": {
+      "geometries": 1890,
+      "textures": 116
+    },
+    "qualities": [
+      "high"
+    ],
+    "renderScales": [
+      0.8,
+      0.9
+    ],
+    "errors": [],
+    "rendererTaskBusyPct": 54.95909219635432,
+    "cdpJSHeapUsedSizeBytes": {
+      "n": 8,
+      "mean": 44973184.5,
+      "p50": 44256872,
+      "p95": 51435588,
+      "p99": 51435588,
+      "max": 57925960
+    },
+    "cdpV8PerContextDatas": [
+      2
+    ],
+    "audioRealtime": {
+      "n": 8,
+      "renderCapacity": {
+        "n": 8,
+        "mean": 0.21708675247994239,
+        "p50": 0.22099550898203593,
+        "p95": 0.23630907726931735,
+        "p99": 0.23630907726931735,
+        "max": 0.31563324538258575
+      },
+      "callbackMeanMs": {
+        "n": 8,
+        "mean": 21.333414222717142,
+        "p50": 21.33342376136584,
+        "p95": 21.3339423212549,
+        "p99": 21.3339423212549,
+        "max": 21.33452628928886
+      },
+      "callbackVarianceMs2": {
+        "n": 8,
+        "mean": 0.002688102325903617,
+        "p50": 0.002560195915678324,
+        "p95": 0.0031481484996869397,
+        "p99": 0.0031481484996869397,
+        "max": 0.0033723435298745625
+      }
+    },
+    "playbackDelta": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 40.09660000000001
+    },
+    "playbackFinal": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 104.2326,
+      "averageLatency": 0.0487,
+      "minimumLatency": 0,
+      "maximumLatency": 0.0487
+    },
+    "dedicatedChromeRSSMiB": {
+      "n": 8,
+      "mean": 3578.576171875,
+      "p50": 3578.46875,
+      "p95": 3578.75,
+      "p99": 3578.75,
+      "max": 3579.0625
+    },
+    "cpuPctByProcess": [
+      {
+        "type": "GPU",
+        "pid": 93158,
+        "cpuPct": 43.17547675379835
+      },
+      {
+        "type": "network.mojom.NetworkService",
+        "pid": 93159,
+        "cpuPct": 0.013796642056954411
+      },
+      {
+        "type": "storage.mojom.StorageService",
+        "pid": 93162,
+        "cpuPct": 0.0009720361449217355
+      },
+      {
+        "type": "audio.mojom.AudioService",
+        "pid": 93290,
+        "cpuPct": 0.4758729796756091
+      },
+      {
+        "type": "renderer",
+        "pid": 93167,
+        "cpuPct": 0.006160029645677057
+      },
+      {
+        "type": "renderer",
+        "pid": 93169,
+        "cpuPct": 0.0005473048088708132
+      },
+      {
+        "type": "renderer",
+        "pid": 93173,
+        "cpuPct": 0.0002964567714717168
+      },
+      {
+        "type": "browser",
+        "pid": 93145,
+        "cpuPct": 3.365000997691054
+      },
+      {
+        "type": "renderer",
+        "pid": 93275,
+        "cpuPct": 0.0006214190017388214
+      },
+      {
+        "type": "renderer",
+        "pid": 93213,
+        "cpuPct": 65.74495595906646
+      }
+    ],
+    "playingSamples": 41,
+    "sampleCount": 41
+  },
+  "sphere-sabre-peak": {
+    "framesMs": {
+      "n": 2401,
+      "mean": 16.68050812161599,
+      "p50": 16.699999999982538,
+      "p95": 17.699999999982538,
+      "p99": 18.60000000000582,
+      "max": 18.70000000001164
+    },
+    "rafRate": 59.9502121103923,
+    "framesOver50": 0,
+    "framesOver100": 0,
+    "leadMs": {
+      "n": 2776,
+      "mean": 387.94575815329506,
+      "p50": 388.9694195996469,
+      "p95": 403.6031851084658,
+      "p99": 409.4273531562749,
+      "max": 414.39437608769936
+    },
+    "notesLate0": 0,
+    "notesLate100": 0,
+    "longtasks": {},
+    "audioStates": [
+      "running"
+    ],
+    "visibility": [
+      "visible"
+    ],
+    "heapBytes": {
+      "n": 41,
+      "mean": 1147485455.7317073,
+      "p50": 1147283437,
+      "p95": 1159090217,
+      "p99": 1161220389,
+      "max": 1162393717
+    },
+    "voices": {
+      "n": 41,
+      "mean": 86,
+      "p50": 83,
+      "p95": 137,
+      "p99": 139,
+      "max": 144
+    },
+    "resourceFirst": {
+      "geometries": 1839,
+      "textures": 87
+    },
+    "resourceLast": {
+      "geometries": 1841,
+      "textures": 87
+    },
+    "qualities": [
+      "high"
+    ],
+    "renderScales": [
+      0.9
+    ],
+    "errors": [],
+    "rendererTaskBusyPct": 38.03831532888702,
+    "cdpJSHeapUsedSizeBytes": {
+      "n": 8,
+      "mean": 85136434.5,
+      "p50": 83543792,
+      "p95": 88782280,
+      "p99": 88782280,
+      "max": 97689364
+    },
+    "cdpV8PerContextDatas": [
+      4
+    ],
+    "audioRealtime": {
+      "n": 8,
+      "renderCapacity": {
+        "n": 8,
+        "mean": 0.16831063712645722,
+        "p50": 0.1648418491484185,
+        "p95": 0.1956286721504113,
+        "p99": 0.1956286721504113,
+        "max": 0.2581763658513729
+      },
+      "callbackMeanMs": {
+        "n": 8,
+        "mean": 21.333441046322424,
+        "p50": 21.333072974803414,
+        "p95": 21.33412162027772,
+        "p99": 21.33412162027772,
+        "max": 21.336781413700734
+      },
+      "callbackVarianceMs2": {
+        "n": 8,
+        "mean": 0.0036397363351317485,
+        "p50": 0.00321068500268751,
+        "p95": 0.004189393791818863,
+        "p99": 0.004189393791818863,
+        "max": 0.005795796645498978
+      }
+    },
+    "playbackDelta": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 40.096599999999995
+    },
+    "playbackFinal": {
+      "underrunDuration": 0,
+      "underrunEvents": 0,
+      "totalDuration": 198.4597,
+      "averageLatency": 0.0487,
+      "minimumLatency": 0,
+      "maximumLatency": 0.0487
+    },
+    "dedicatedChromeRSSMiB": {
+      "n": 8,
+      "mean": 4109.97265625,
+      "p50": 4110.03125,
+      "p95": 4110.09375,
+      "p99": 4110.09375,
+      "max": 4110.140625
+    },
+    "cpuPctByProcess": [
+      {
+        "type": "GPU",
+        "pid": 93158,
+        "cpuPct": 38.18293149199652
+      },
+      {
+        "type": "network.mojom.NetworkService",
+        "pid": 93159,
+        "cpuPct": 0.004371272862156787
+      },
+      {
+        "type": "storage.mojom.StorageService",
+        "pid": 93162,
+        "cpuPct": 0.0013068165606185981
+      },
+      {
+        "type": "audio.mojom.AudioService",
+        "pid": 93290,
+        "cpuPct": 0.5131280851428079
+      },
+      {
+        "type": "renderer",
+        "pid": 93167,
+        "cpuPct": 0.005755128827003713
+      },
+      {
+        "type": "renderer",
+        "pid": 93169,
+        "cpuPct": 0.0009530059634205524
+      },
+      {
+        "type": "renderer",
+        "pid": 93173,
+        "cpuPct": 0.00028533112677258825
+      },
+      {
+        "type": "browser",
+        "pid": 93145,
+        "cpuPct": 2.1139669586555176
+      },
+      {
+        "type": "renderer",
+        "pid": 93275,
+        "cpuPct": 0.00018546523240222987
+      },
+      {
+        "type": "renderer",
+        "pid": 93213,
+        "cpuPct": 58.07434302508047
+      }
+    ],
+    "playingSamples": 41,
+    "sampleCount": 41
+  }
+}

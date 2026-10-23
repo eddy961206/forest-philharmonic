@@ -7,9 +7,11 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 // the venue first: the Sphere takes over the walking plan before anything reads it
-import { IS_SPHERE, VENUE, VENUES, goVenue } from './scene/venue.js';
+import { IS_SPHERE, IS_OUTDOOR, IS_HALL, VENUE, VENUES, goVenue } from './scene/venue.js';
 import { SPHERE_ACOUSTICS, SP } from './scene/sphereplan.js';
 import { buildSphere } from './scene/sphere.js';
+import { OUTDOOR_ACOUSTICS } from './scene/outdoorplan.js';
+import { buildOutdoor } from './scene/outdoor.js';
 import { visualsFor } from './scene/domeshow.js';
 import { SETLISTS } from './programs.js';
 import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement, ticketQuery, EMOJI } from './tickets.js';
@@ -33,6 +35,7 @@ import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
 import { RoomClient, listRooms } from './net/room.js';
 import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf, josa } from './evening.js';
+import { installBremen } from './bremen.js';
 import { Practice, SeatThief, noticeLines, buildNoticeBoard } from './scene/lobby.js';
 import { buildRecital } from './scene/recital.js';
 import { Avatars, AVATARS } from './scene/avatars.js';
@@ -47,18 +50,18 @@ const DEFAULTS = {
   fx: true, lasers: true, screen: true, interval: 3, domeProjection: 'immersive',
   // how full the house is, in per cent, for each venue: the Sphere seats
   // nearly fourteen thousand - a quarter of that is already a big crowd
-  crowdHall: 45, crowdSphere: 25,
+  crowdHall: 45, crowdSphere: 25, crowdOutdoor: 55,
 };
 const settings = { ...DEFAULTS };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || '{}')); } catch { /* private mode */ }
 // (the old on/off switch for the audience: off is an empty house)
-if (settings.audience === false) { settings.crowdHall = 0; settings.crowdSphere = 0; }
+if (settings.audience === false) { settings.crowdHall = 0; settings.crowdSphere = 0; settings.crowdOutdoor = 0; }
 delete settings.audience;
 // (the old on/off switch for the applause: off is none at all)
 if (settings.applause === false) settings.applauseVol = 0;
 delete settings.applause;
 settings.domeProjection = normalizeDomeProjection(settings.domeProjection);
-const CROWD = IS_SPHERE ? 'crowdSphere' : 'crowdHall'; // this venue's audience setting
+const CROWD = IS_SPHERE ? 'crowdSphere' : IS_OUTDOOR ? 'crowdOutdoor' : 'crowdHall'; // this venue's audience setting
 const save = () => { try { localStorage.setItem('fp-settings', JSON.stringify(settings)); } catch { /* ignore */ } };
 
 const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
@@ -124,9 +127,9 @@ setAnisotropy(Math.min(LITE ? 2 : 8, renderer.capabilities.getMaxAnisotropy()));
 setLite(LITE);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(IS_SPHERE ? '#000000' : '#0b0806');
+scene.background = new THREE.Color(IS_SPHERE ? '#000000' : IS_OUTDOOR ? '#526b70' : '#0b0806');
 // the Sphere is a black bowl lit by its screen: only a trace of haze
-scene.fog = IS_SPHERE ? new THREE.FogExp2('#06070b', 0.0028) : new THREE.FogExp2('#140d08', 0.006);
+scene.fog = IS_SPHERE ? new THREE.FogExp2('#06070b', 0.0028) : IS_OUTDOOR ? new THREE.FogExp2('#52665e', 0.0035) : new THREE.FogExp2('#140d08', 0.006);
 const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, 0.1, 260); // near 0.1: better depth precision, no flicker
 
 let environmentTarget;
@@ -144,7 +147,7 @@ function buildEnvironment() {
 }
 buildEnvironment();
 // (the Sphere is a black room: the bright studio reflections would glow)
-scene.environmentIntensity = IS_SPHERE ? 0.05 : 0.2;
+scene.environmentIntensity = IS_SPHERE ? 0.05 : IS_OUTDOOR ? 0.28 : 0.2;
 
 let composer;
 let bloomPass;
@@ -177,7 +180,7 @@ const ui = new UI({ settings, onSetting });
 ui.touch = isTouch;
 ui.setLoading('공연장을 짓는 중', 0.03);
 
-const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE, renderer }) : buildHall({ quality, lite: LITE });
+const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE, renderer }) : IS_OUTDOOR ? buildOutdoor({ quality, lite: LITE }) : buildHall({ quality, lite: LITE });
 scene.add(hall.group);
 // Both the broadcast and visitor cameras select batches after their world
 // matrices are current, before Three.js builds the render list.
@@ -233,7 +236,7 @@ function seatAudience() {
     if (director?.seat && director.seat.index >= 0) exclude.add(director.seat.index);
     // the Sphere: thousands of guests, drawn in full only near you
     const big = IS_SPHERE ? { detail: LITE ? 80 : 220, mid: LITE ? 0 : 900, cap: LITE ? 2500 : Infinity } : {};
-    audience = buildAudience(housePlan, { share, reserve, exclude, lite: LITE, ...big });
+    audience = buildAudience(housePlan, { share, reserve, exclude, lite: LITE, casual: IS_OUTDOOR, ...big });
     audience.updateLOD?.(camera.position, true);
     audience.group.visible = interiorShown;
     scene.add(audience.group);
@@ -243,7 +246,7 @@ function seatAudience() {
   refreshOccupied();
 }
 // (no fireflies indoors at the Sphere - only dust in the light)
-const effects = buildEffects(scene, { fireflies: IS_SPHERE ? 0 : LITE ? 40 : 170, dust: LITE ? 140 : 520 });
+const effects = buildEffects(scene, { fireflies: IS_SPHERE ? 0 : IS_OUTDOOR ? (LITE ? 12 : 30) : LITE ? 40 : 170, dust: IS_OUTDOOR ? (LITE ? 30 : 80) : LITE ? 140 : 520 });
 // in the Sphere the broadcast goes up on the dome (IMAG) instead of a screen
 // of its own; the dome stops sampling the picture while it is being drawn
 const screen = buildScreen(scene, renderer, IS_SPHERE ? {
@@ -251,7 +254,7 @@ const screen = buildScreen(scene, renderer, IS_SPHERE ? {
   headless: true,
   before: () => hall.dome.setLive(null, null),
   after: () => hall.dome.setLive(screen.texture, screen.capTex),
-} : { lite: LITE });
+} : { lite: LITE, headless: IS_OUTDOOR });
 if (IS_SPHERE) {
   hall.dome.setLive(screen.texture, screen.capTex);
   // The dome's shader is big: compiled in the background (where the browser
@@ -280,6 +283,7 @@ applyQuality();
 // Sphere's sweet spot in section 204
 const bestSeat = (IS_SPHERE
   ? hall.seats.filter((s) => s.section === '204' && s.row === '8')
+  : IS_OUTDOOR ? hall.seats.filter((s) => s.level === '잔디마당' && s.row === 'D')
   : hall.seats.filter((s) => s.level === '1층' && s.row === 'H')).sort((a, b) => Math.abs(a.x) - Math.abs(b.x))[0];
 const headPositions = orchestra.players.map((p) => p.home.clone().add(new THREE.Vector3(0, 1.25 * p.char.scale, 0)));
 headPositions.push(orchestra.conductor.home.clone().add(new THREE.Vector3(0, 1.35, 0)));
@@ -330,7 +334,7 @@ let leaf = new Leaf(VENUE); // tonight, for the leaf programme
 
 async function boot() {
   try {
-    await engine.init({ lite: LITE, acoustics: IS_SPHERE ? { ...SPHERE_ACOUSTICS, room: 'arena' } : null });
+    await engine.init({ lite: LITE, acoustics: IS_SPHERE ? { ...SPHERE_ACOUSTICS, room: 'arena' } : IS_OUTDOOR ? OUTDOOR_ACOUSTICS : null });
   } catch (e) {
     ui.setLoading('이 브라우저에서는 소리를 낼 수 없어요. 최신 Chrome, Edge, Firefox, Safari에서 열어 주세요.', 0);
     throw e;
@@ -340,7 +344,7 @@ async function boot() {
   engine.setApplause(settings.applauseVol);
   // (the browser taking the sound away, or giving it back: see sound)
   engine.ctx.addEventListener?.('statechange', () => sound.changed());
-  fx = buildFX(scene, engine);
+  if (!IS_OUTDOOR) fx = buildFX(scene, engine);
   // each building plays its own half of the pieces (see programs.js)
   const all = await (await fetch('music/index.json')).json();
   const byId = new Map(all.map((p) => [p.id, p]));
@@ -476,7 +480,7 @@ function startShow() {
   ui.showStarted();
   // still out in the foyer: the music comes through the wall (as it would) -
   // say how to hear it properly, never move them
-  if (!IS_SPHERE && engine.ctx) {
+  if (IS_HALL && engine.ctx) {
     // (after the walk-on, which has its own toast - and only if they are still out there)
     const hint = (ms, tries = 0) => setTimeout(() => {
       if ((phase === 'changing' || phase === 'entering') && tries < 40) return hint(1000, tries + 1);
@@ -962,6 +966,8 @@ ui.on('mode', (m) => {
 });
 ui.on('sit', () => director.toggleSit());
 ui.on('dialogOpen', () => {
+  const miniature = document.getElementById('bremen');
+  if (miniature?.open) miniature.close();
   director.keys.clear();
   director.vel.set(0, 0, 0);
   director.releaseLock();
@@ -999,8 +1005,8 @@ let lastSeat = null;
 let tea = false;
 const clockNow = () => (room ? room.now() : performance.now() / 1000);
 // the foyer: where the cellist sits (an ottoman, facing the middle), the notice board
-const FOYER_BEAR = !IS_SPHERE ? { x: 4.4 - 0.78, y: LEVELS[0] - 0.05, z: 37.6, yaw: Math.PI / 2 } : null;
-const BOARD = !IS_SPHERE ? { x: 10, y: LEVELS[0] + 1.65, z: HALL.back + HALL.wallT + 0.02 } : null;
+const FOYER_BEAR = IS_HALL ? { x: 4.4 - 0.78, y: LEVELS[0] - 0.05, z: 37.6, yaw: Math.PI / 2 } : null;
+const BOARD = IS_HALL ? { x: 10, y: LEVELS[0] + 1.65, z: HALL.back + HALL.wallT + 0.02 } : null;
 if (BOARD) buildNoticeBoard(hall.group, new THREE.Vector3(BOARD.x, BOARD.y, BOARD.z), 0);
 
 function intervalDue(i) {
@@ -1033,8 +1039,8 @@ function beginInterval(endsAt, next) {
   ui.setIntervalLeft(endsAt - clockNow());
   // the seat you leave behind (seven times in ten, someone wants it)
   const r = room ? seeded(room.seed ^ 0x5ea7)() : Math.random();
-  thief.arm(director.mode === 'seat' ? director.seat : lastSeat, r < 0.7);
-  ui.toast(`인터미션이에요. ${Math.max(1, Math.round((endsAt - clockNow()) / 60))}분 뒤에 2부가 시작돼요.${IS_SPHERE ? '' : ' 로비로 나가 봐요.'}`, 3600);
+  if (!IS_OUTDOOR) thief.arm(director.mode === 'seat' ? director.seat : lastSeat, r < 0.7);
+  ui.toast(`인터미션이에요. ${Math.max(1, Math.round((endsAt - clockNow()) / 60))}분 뒤에 2부가 시작돼요.${IS_HALL ? ' 로비로 나가 봐요.' : IS_OUTDOOR ? ' 공원 길을 잠깐 거닐어 봐요.' : ''}`, 3600);
 }
 
 function endInterval() {
@@ -1059,6 +1065,7 @@ function secondHalf() {
 }
 
 async function startPractice() {
+  if (IS_OUTDOOR) return;
   // a phrase from the coming half (the next piece with a cello part)
   let score = null;
   for (let k = 0; k < 8 && !score && intervalState; k++) {
@@ -1066,7 +1073,7 @@ async function startPractice() {
     if (sc?.tracks.some((tr) => tr.section === 'vc')) score = sc;
   }
   if (!score || !intervalState) return;
-  if (!IS_SPHERE) engine.addSpot('lobby', { x: FOYER_BEAR.x, y: FOYER_BEAR.y + 0.9, z: FOYER_BEAR.z });
+  if (IS_HALL) engine.addSpot('lobby', { x: FOYER_BEAR.x, y: FOYER_BEAR.y + 0.9, z: FOYER_BEAR.z });
   practice.start(score, { section: IS_SPHERE ? 'vc' : 'lobby', seed: room ? room.seed : (Math.random() * 1e9) | 0 });
 }
 
@@ -1075,7 +1082,7 @@ function intervalTick(dt) {
   const S = intervalState;
   const bear = stage.walkers.find((w) => StageManager.key(w) === BEAR);
   if (S.bear === 'wait' && bear) {
-    if (!IS_SPHERE && bear.state === 'off') {
+    if (IS_HALL && bear.state === 'off') {
       stage.borrow(BEAR, FOYER_BEAR, FOYER_BEAR.yaw);
       S.bear = 'on';
       startPractice();
@@ -1093,8 +1100,8 @@ function intervalTick(dt) {
   }
   // the seat thief (away: out in the foyer, or anywhere far from the seat)
   const d = director;
-  const inFoyer = !IS_SPHERE && d.pos.z > HALL.back + 0.5;
-  const nearThief = thief.update(dt, d.pos, d.mode === 'walk' && (inFoyer || IS_SPHERE));
+  const inFoyer = IS_HALL && d.pos.z > HALL.back + 0.5;
+  const nearThief = !IS_OUTDOOR && thief.update(dt, d.pos, d.mode === 'walk' && (inFoyer || IS_SPHERE));
   if (thief.taken !== thiefWas) { thiefWas = thief.taken; refreshOccupied(); }
   ui.act(nearThief ? `${thief.name}에게 도토리 쿠키 건네기` : nearBoard() ? '숲속 소식 읽기' : null);
 }
@@ -1520,7 +1527,7 @@ function onSetting(key, value) {
   }
   if (key === 'domeProjection') hall.dome?.setProjection(value);
   if (key === 'fireflies') effects.setCounts(value);
-  if (key === 'screen') screen.setEnabled(value);
+  if (key === 'screen') screen.setEnabled(value && !IS_OUTDOOR);
   if (key === 'lasers' && !value && fx) { fx.lasers.set(false); fx.wash.set(false); }
   if (key === 'lasers') hall.setBeams?.(value); // (the Sphere's moving heads)
   // the audience slider: the crowd is rebuilt once the slider rests for a
@@ -2287,8 +2294,8 @@ function frame() {
   let events = null;
   if (perf.piece) events = perf.updateVisual(t);
   const running = perf.playing;
-  orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing, practice: practice.on ? practice.frame(BEAR) : null });
-  stage.update(dt);
+  stage.update(dt); // root/standing pose before body-local instrument contacts
+  orchestra.update(t, dt, perf, { running, particles: settings.notes && !IS_OUTDOOR, glow: settings.glow && !IS_OUTDOOR, events, bowing, practice: practice.on ? practice.frame(BEAR) : null });
   if (intervalState) intervalTick(dt);
   roomTick(dt);
   if (IS_SPHERE) sphereTick(dt, t);
@@ -2312,6 +2319,7 @@ function frame() {
     introT += dt;
     const a = introT * 0.05;
     if (IS_SPHERE) director.pos.set(Math.sin(a) * 22, 14 + Math.sin(a * 0.7) * 4, 26 + Math.cos(a) * 12);
+    else if (IS_OUTDOOR) director.pos.set(Math.sin(a) * 7, 5 + Math.sin(a * 0.7), 21 + Math.cos(a) * 5);
     else director.pos.set(Math.sin(a) * 9, 9 + Math.sin(a * 0.7) * 2, 14 + Math.cos(a) * 7);
     const la = director.lookAt(IS_SPHERE ? new THREE.Vector3(0, 12, -8) : new THREE.Vector3(0, 3.2, -5));
     director.yaw = la.yaw;
@@ -2337,7 +2345,7 @@ function frame() {
   }
   if (perf.piece) ui.setTime(Math.min(perf.duration, t), perf.duration);
   if (fx) fx.update(dt, wall, levelSmoothed);
-  if (!IS_SPHERE) interiorCull();
+  if (IS_HALL) interiorCull();
   audience?.updateLOD?.(camera.position);
   hall.updateLOD?.(camera.position);
   hall.dome?.drawWorlds(); // after the camera moved: only what it sees
@@ -2345,8 +2353,8 @@ function frame() {
   orchestra.syncLite();
   renderer.shadowMap.needsUpdate = QUALITY[quality].shadows;
   // Keep IMAG current through its fade-out, then stop rendering the unseen feed.
-  const wantsScreen = settings.screen && concertStarted && (IS_SPHERE ? hall.dome.liveActive : screenInView());
-  if (settings.screen && concertStarted) {
+  const wantsScreen = !IS_OUTDOOR && settings.screen && concertStarted && (IS_SPHERE ? hall.dome.liveActive : screenInView());
+  if (!IS_OUTDOOR && settings.screen && concertStarted) {
     if (wantsScreen && !screenActive) screen.invalidate();
     // Keep the broadcast shot clock in step while its picture is hidden.
     // A zero cadence advances time without a scene render or camera update.
@@ -2453,9 +2461,9 @@ function autoQuality(fps) {
 // A feed hidden behind the visitor or the foyer wall needs no second scene
 // render. screenActive/invalidate refreshes it immediately on re-entry, even
 // at the low preset's 90-frame cadence. Never capture a foyer-culled house.
-const _screenBox = IS_SPHERE ? null : new THREE.Box3().setFromObject(screen.group);
+const _screenBox = !IS_HALL ? null : new THREE.Box3().setFromObject(screen.group);
 function screenInView() {
-  if (!interiorShown) return false;
+  if (!IS_HALL || !interiorShown) return false;
   camera.updateMatrixWorld();
   _frustum.setFromProjectionMatrix(_pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
   return _frustum.intersectsBox(_screenBox);
@@ -2527,7 +2535,27 @@ boot().catch((e) => {
   showRenderStatus('공연 준비를 마치지 못했어요. 연결을 확인하고 다시 불러와 주세요.');
 });
 
+const bremen = installBremen({ engine, ui, onOpen() {
+  director.keys.clear(); director.vel.set(0, 0, 0); director.releaseLock();
+  const resume = !room && phase === 'playing' && perf.playing;
+  const piece = perf.piece;
+  if (resume) {
+    const floor = perf.startPos;
+    perf.pause();
+    // Rapid reopen can occur before the resumed audio's output latency ends.
+    if (perf.pos < floor) perf.seek(floor);
+    ui.setPlaying(false);
+  }
+  // In a shared room the local miniature never changes the room transport.
+  return () => {
+    if (resume && !room && phase === 'playing' && perf.piece === piece) {
+      perf.play(); ui.setPlaying(true);
+    }
+  };
+} });
+
 window.__fp = {
+  bremen,
   scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, ui, stats: frameStats, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },

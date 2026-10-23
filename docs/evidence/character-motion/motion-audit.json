@@ -1,0 +1,7817 @@
+{
+  "description": "Actual score state, full scene rigs, synthetic 60 Hz. Not a rendered-video or FPS benchmark.",
+  "createdAt": "2026-10-23T15:41:41.157Z",
+  "source": {
+    "baseCommit": "79b5c025e469c0654fde8c7ccdbc49aed2cea6a1",
+    "sourceSHA256": "5e6510e15b1e8b8843b42335462df290fa6de0ba875a3bae0b61d6047ae26c8d",
+    "files": 61
+  },
+  "seed": 2326,
+  "limits": {
+    "contactError": 0.03,
+    "boneError": 1e-8,
+    "continuousStep": 0.15
+  },
+  "coverage": {
+    "venues": [
+      {
+        "id": "hall",
+        "stage": "shared-hall-stage"
+      },
+      {
+        "id": "sphere",
+        "stage": "shared-hall-stage"
+      }
+    ],
+    "chairs": 51,
+    "cases": [
+      {
+        "id": "vn1-0",
+        "song": "strauss-blue-danube",
+        "venue": "hall",
+        "sid": "vn1",
+        "ci": 0,
+        "rig": "violin",
+        "start": 501.8665,
+        "seconds": 8,
+        "noteCount": 180
+      },
+      {
+        "id": "vn1-1",
+        "song": "strauss-blue-danube",
+        "venue": "hall",
+        "sid": "vn1",
+        "ci": 1,
+        "rig": "violin",
+        "start": 501.8665,
+        "seconds": 8,
+        "noteCount": 180
+      },
+      {
+        "id": "vn1-2",
+        "song": "strauss-blue-danube",
+        "venue": "hall",
+        "sid": "vn1",
+        "ci": 2,
+        "rig": "violin",
+        "start": 501.8665,
+        "seconds": 8,
+        "noteCount": 180
+      },
+      {
+        "id": "vn2-0",
+        "song": "dvorak-new-world-4",
+        "venue": "hall",
+        "sid": "vn2",
+        "ci": 0,
+        "rig": "violin",
+        "start": 548.0411,
+        "seconds": 8,
+        "noteCount": 256
+      },
+      {
+        "id": "vn2-1",
+        "song": "dvorak-new-world-4",
+        "venue": "hall",
+        "sid": "vn2",
+        "ci": 1,
+        "rig": "violin",
+        "start": 548.0411,
+        "seconds": 8,
+        "noteCount": 256
+      },
+      {
+        "id": "vn2-2",
+        "song": "dvorak-new-world-4",
+        "venue": "hall",
+        "sid": "vn2",
+        "ci": 2,
+        "rig": "violin",
+        "start": 548.0411,
+        "seconds": 8,
+        "noteCount": 256
+      },
+      {
+        "id": "va-0",
+        "song": "dvorak-new-world-4",
+        "venue": "hall",
+        "sid": "va",
+        "ci": 0,
+        "rig": "viola",
+        "start": 106.7089,
+        "seconds": 8,
+        "noteCount": 259
+      },
+      {
+        "id": "va-1",
+        "song": "dvorak-new-world-4",
+        "venue": "hall",
+        "sid": "va",
+        "ci": 1,
+        "rig": "viola",
+        "start": 106.7089,
+        "seconds": 8,
+        "noteCount": 259
+      },
+      {
+        "id": "vc-0",
+        "song": "dvorak-new-world-4",
+        "venue": "hall",
+        "sid": "vc",
+        "ci": 0,
+        "rig": "cello",
+        "start": 662.0454,
+        "seconds": 8,
+        "noteCount": 134
+      },
+      {
+        "id": "vc-1",
+        "song": "dvorak-new-world-4",
+        "venue": "hall",
+        "sid": "vc",
+        "ci": 1,
+        "rig": "cello",
+        "start": 662.0454,
+        "seconds": 8,
+        "noteCount": 134
+      },
+      {
+        "id": "cb-0",
+        "song": "wagner-valkyries",
+        "venue": "sphere",
+        "sid": "cb",
+        "ci": 0,
+        "rig": "bass",
+        "start": 311.5655,
+        "seconds": 8,
+        "noteCount": 125
+      },
+      {
+        "id": "harp-0",
+        "song": "tchaikovsky-waltz-flowers",
+        "venue": "sphere",
+        "sid": "harp",
+        "ci": 0,
+        "rig": "harp",
+        "start": 11.1,
+        "seconds": 8,
+        "noteCount": 232
+      },
+      {
+        "id": "fl-0",
+        "song": "khachaturian-sabre-dance",
+        "venue": "sphere",
+        "sid": "fl",
+        "ci": 0,
+        "rig": "flute",
+        "start": 122.9774,
+        "seconds": 8,
+        "noteCount": 125
+      },
+      {
+        "id": "ob-0",
+        "song": "rossini-william-tell",
+        "venue": "sphere",
+        "sid": "ob",
+        "ci": 0,
+        "rig": "oboe",
+        "start": 26.1447,
+        "seconds": 8,
+        "noteCount": 99
+      },
+      {
+        "id": "cl-0",
+        "song": "dvorak-new-world-4",
+        "venue": "hall",
+        "sid": "cl",
+        "ci": 0,
+        "rig": "clarinet",
+        "start": 76.8685,
+        "seconds": 8,
+        "noteCount": 105
+      },
+      {
+        "id": "bn-0",
+        "song": "rossini-william-tell",
+        "venue": "sphere",
+        "sid": "bn",
+        "ci": 0,
+        "rig": "bassoon",
+        "start": 18.6447,
+        "seconds": 8,
+        "noteCount": 114
+      },
+      {
+        "id": "hn-0",
+        "song": "wagner-valkyries",
+        "venue": "sphere",
+        "sid": "hn",
+        "ci": 0,
+        "rig": "horn",
+        "start": 242.7113,
+        "seconds": 8,
+        "noteCount": 123
+      },
+      {
+        "id": "hn-1",
+        "song": "wagner-valkyries",
+        "venue": "sphere",
+        "sid": "hn",
+        "ci": 1,
+        "rig": "horn",
+        "start": 242.7113,
+        "seconds": 8,
+        "noteCount": 123
+      },
+      {
+        "id": "tp-0",
+        "song": "tchaikovsky-1812",
+        "venue": "sphere",
+        "sid": "tp",
+        "ci": 0,
+        "rig": "trumpet",
+        "start": 832.6982,
+        "seconds": 8,
+        "noteCount": 136
+      },
+      {
+        "id": "timp-0",
+        "song": "tchaikovsky-1812",
+        "venue": "sphere",
+        "sid": "timp",
+        "ci": 0,
+        "rig": "timpani",
+        "start": 870.3955,
+        "seconds": 8,
+        "noteCount": 163
+      },
+      {
+        "id": "picc-0",
+        "song": "rossini-william-tell",
+        "venue": "sphere",
+        "sid": "picc",
+        "ci": 0,
+        "rig": "piccolo",
+        "start": 51.4079,
+        "seconds": 8,
+        "noteCount": 56
+      },
+      {
+        "id": "eh-0",
+        "song": "tchaikovsky-1812",
+        "venue": "sphere",
+        "sid": "eh",
+        "ci": 0,
+        "rig": "englishHorn",
+        "start": 862.5008,
+        "seconds": 8,
+        "noteCount": 41
+      },
+      {
+        "id": "tb-0",
+        "song": "wagner-valkyries",
+        "venue": "sphere",
+        "sid": "tb",
+        "ci": 0,
+        "rig": "trombone",
+        "start": 312.3988,
+        "seconds": 8,
+        "noteCount": 177
+      },
+      {
+        "id": "tb-1",
+        "song": "wagner-valkyries",
+        "venue": "sphere",
+        "sid": "tb",
+        "ci": 1,
+        "rig": "trombone",
+        "start": 312.3988,
+        "seconds": 8,
+        "noteCount": 177
+      },
+      {
+        "id": "tu-0",
+        "song": "prokofiev-dance-knights",
+        "venue": "sphere",
+        "sid": "tu",
+        "ci": 0,
+        "rig": "tuba",
+        "start": 144.6999,
+        "seconds": 8,
+        "noteCount": 50
+      },
+      {
+        "id": "sax-0",
+        "song": "strauss-zarathustra",
+        "venue": "sphere",
+        "sid": "sax",
+        "ci": 0,
+        "rig": "saxophone",
+        "start": 47.5,
+        "seconds": 8,
+        "noteCount": 50
+      },
+      {
+        "id": "sax-1",
+        "song": "tchaikovsky-swan-lake",
+        "venue": "sphere",
+        "sid": "sax",
+        "ci": 1,
+        "rig": "saxophone",
+        "start": 136.4522,
+        "seconds": 8,
+        "noteCount": 40
+      },
+      {
+        "id": "sax-2",
+        "song": "tchaikovsky-swan-lake",
+        "venue": "sphere",
+        "sid": "sax",
+        "ci": 2,
+        "rig": "saxophone",
+        "start": 131.4998,
+        "seconds": 8,
+        "noteCount": 33
+      },
+      {
+        "id": "tamb-0",
+        "song": "tchaikovsky-1812",
+        "venue": "sphere",
+        "sid": "tamb",
+        "ci": 0,
+        "rig": "tambourine",
+        "start": 476.4038,
+        "seconds": 8,
+        "noteCount": 24
+      },
+      {
+        "id": "tom-0",
+        "song": "bizet-habanera",
+        "venue": "sphere",
+        "sid": "tom",
+        "ci": 0,
+        "rig": "tom",
+        "start": 73.8646,
+        "seconds": 8,
+        "noteCount": 20
+      },
+      {
+        "id": "sd-0",
+        "song": "tchaikovsky-1812",
+        "venue": "sphere",
+        "sid": "sd",
+        "ci": 0,
+        "rig": "snare",
+        "start": 870.3955,
+        "seconds": 8,
+        "noteCount": 163
+      },
+      {
+        "id": "bd-0",
+        "song": "prokofiev-dance-knights",
+        "venue": "sphere",
+        "sid": "bd",
+        "ci": 0,
+        "rig": "bassDrum",
+        "start": 9.1,
+        "seconds": 8,
+        "noteCount": 54
+      },
+      {
+        "id": "cy-0",
+        "song": "prokofiev-dance-knights",
+        "venue": "sphere",
+        "sid": "cy",
+        "ci": 0,
+        "rig": "cymbals",
+        "start": 9.1,
+        "seconds": 8,
+        "noteCount": 54
+      },
+      {
+        "id": "tri-0",
+        "song": "tchaikovsky-1812",
+        "venue": "sphere",
+        "sid": "tri",
+        "ci": 0,
+        "rig": "triangle",
+        "start": 690.978,
+        "seconds": 8,
+        "noteCount": 129
+      },
+      {
+        "id": "cel-0",
+        "song": "tchaikovsky-sugar-plum",
+        "venue": "sphere",
+        "sid": "cel",
+        "ci": 0,
+        "rig": "celesta",
+        "start": 127.4389,
+        "seconds": 8,
+        "noteCount": 123
+      },
+      {
+        "id": "mallet-0",
+        "song": "khachaturian-sabre-dance",
+        "venue": "sphere",
+        "sid": "mallet",
+        "ci": 0,
+        "rig": "mallet",
+        "start": 100.5065,
+        "seconds": 8,
+        "noteCount": 60
+      },
+      {
+        "id": "bells-0",
+        "song": "tchaikovsky-1812",
+        "venue": "sphere",
+        "sid": "bells",
+        "ci": 0,
+        "rig": "bells",
+        "start": 854.6061,
+        "seconds": 8,
+        "noteCount": 41
+      },
+      {
+        "id": "organ-0",
+        "song": "mendelssohn-wedding-march",
+        "venue": "hall",
+        "sid": "organ",
+        "ci": 0,
+        "rig": "organ",
+        "start": 71.25,
+        "seconds": 8,
+        "noteCount": 93
+      },
+      {
+        "id": "piano-0",
+        "song": "tchaikovsky-piano-concerto-1",
+        "venue": "hall",
+        "sid": "piano",
+        "ci": 0,
+        "rig": "piano",
+        "start": 166.0959,
+        "seconds": 8,
+        "noteCount": 262
+      },
+      {
+        "id": "choir-0",
+        "song": "bizet-habanera",
+        "venue": "sphere",
+        "sid": "choir",
+        "ci": 0,
+        "rig": "choir",
+        "start": 18.4583,
+        "seconds": 8,
+        "noteCount": 46
+      },
+      {
+        "id": "choir-1",
+        "song": "bizet-habanera",
+        "venue": "sphere",
+        "sid": "choir",
+        "ci": 1,
+        "rig": "choir",
+        "start": 18.4583,
+        "seconds": 8,
+        "noteCount": 46
+      },
+      {
+        "id": "choir-2",
+        "song": "bizet-habanera",
+        "venue": "sphere",
+        "sid": "choir",
+        "ci": 2,
+        "rig": "choir",
+        "start": 18.4583,
+        "seconds": 8,
+        "noteCount": 46
+      },
+      {
+        "id": "choir-3",
+        "song": "elgar-pomp-and-circumstance",
+        "venue": "hall",
+        "sid": "choir",
+        "ci": 3,
+        "rig": "choir",
+        "start": 341.275,
+        "seconds": 8,
+        "noteCount": 42
+      },
+      {
+        "id": "choir-4",
+        "song": "elgar-pomp-and-circumstance",
+        "venue": "hall",
+        "sid": "choir",
+        "ci": 4,
+        "rig": "choir",
+        "start": 341.275,
+        "seconds": 8,
+        "noteCount": 42
+      },
+      {
+        "id": "choir-5",
+        "song": "elgar-pomp-and-circumstance",
+        "venue": "hall",
+        "sid": "choir",
+        "ci": 5,
+        "rig": "choir",
+        "start": 341.275,
+        "seconds": 8,
+        "noteCount": 42
+      },
+      {
+        "id": "choir-6",
+        "song": "bizet-habanera",
+        "venue": "sphere",
+        "sid": "choir",
+        "ci": 6,
+        "rig": "choir",
+        "start": 32.4167,
+        "seconds": 8,
+        "noteCount": 44
+      },
+      {
+        "id": "choir-7",
+        "song": "bizet-habanera",
+        "venue": "sphere",
+        "sid": "choir",
+        "ci": 7,
+        "rig": "choir",
+        "start": 32.4167,
+        "seconds": 8,
+        "noteCount": 44
+      },
+      {
+        "id": "choir-8",
+        "song": "bizet-habanera",
+        "venue": "sphere",
+        "sid": "choir",
+        "ci": 8,
+        "rig": "choir",
+        "start": 32.4167,
+        "seconds": 8,
+        "noteCount": 44
+      },
+      {
+        "id": "choir-9",
+        "song": "elgar-pomp-and-circumstance",
+        "venue": "hall",
+        "sid": "choir",
+        "ci": 9,
+        "rig": "choir",
+        "start": 339.6084,
+        "seconds": 8,
+        "noteCount": 35
+      },
+      {
+        "id": "choir-10",
+        "song": "elgar-pomp-and-circumstance",
+        "venue": "hall",
+        "sid": "choir",
+        "ci": 10,
+        "rig": "choir",
+        "start": 339.6084,
+        "seconds": 8,
+        "noteCount": 35
+      },
+      {
+        "id": "choir-11",
+        "song": "elgar-pomp-and-circumstance",
+        "venue": "hall",
+        "sid": "choir",
+        "ci": 11,
+        "rig": "choir",
+        "start": 339.6084,
+        "seconds": 8,
+        "noteCount": 35
+      }
+    ],
+    "failures": []
+  },
+  "songs": 82,
+  "cast": 51,
+  "rigs": 30,
+  "frames": 142110,
+  "armSamples": 5181820,
+  "rows": [
+    {
+      "id": "beethoven-ode-to-joy",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vn1",
+        "ob",
+        "cl",
+        "fl",
+        "tp",
+        "choir",
+        "vn2",
+        "hn",
+        "va",
+        "vc",
+        "bn",
+        "cb",
+        "timp"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 17.714,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 18.485,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 33.786,
+          "reason": "entry:timp"
+        },
+        {
+          "start": 36.97,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 52,
+          "reason": "dense:choir:chair:8"
+        },
+        {
+          "start": 55.455,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 65.929,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 70.243,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1350,
+      "armSamples": 86400,
+      "nonFinite": 0,
+      "maxContactError": 0.025094087244018827,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.10168850734657955,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.7368200462987275,
+      "minFlex": 0.5607126759163413,
+      "maxFlex": 2.705260340591211,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "ob:0",
+        "cl:0",
+        "bn:0",
+        "hn:0",
+        "hn:1",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:9",
+        "choir:10",
+        "choir:11",
+        "fl:0",
+        "tp:0",
+        "timp:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:6",
+        "choir:7",
+        "choir:8"
+      ]
+    },
+    {
+      "id": "beethoven-fur-elise",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "duration:0"
+        },
+        {
+          "start": 0.289,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 1.079,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 16.4175,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 32.835,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 49.2525,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 62.3865,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1050,
+      "armSamples": 4200,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.0342228769937919,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1279502367888308,
+      "maxFlex": 2.3123515468376734,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "beethoven-moonlight",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 76.0425,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 109.143,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 152.085,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 228.1275,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 288.9615,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.028183234415944104,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1623531362155797,
+      "maxFlex": 1.9123334796985536,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "beethoven-symphony-5",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "fl",
+        "ob",
+        "cl",
+        "bn",
+        "hn",
+        "tp",
+        "timp",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 3.25,
+          "reason": "entry:bn"
+        },
+        {
+          "start": 10.2812,
+          "reason": "entry:timp"
+        },
+        {
+          "start": 30.125,
+          "reason": "dense:va"
+        },
+        {
+          "start": 62,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 67.625,
+          "reason": "dense:hn"
+        },
+        {
+          "start": 79.4405,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 102,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 151.5312,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 152.1562,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 152.625,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 154.0312,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 158.881,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 238.3215,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 301.8739,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 311.6875,
+          "reason": "dense:vn2"
+        }
+      ],
+      "frames": 2400,
+      "armSamples": 96000,
+      "nonFinite": 0,
+      "maxContactError": 0.007531368297396402,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.08079561558934392,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.948001516960694,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6557391180823973,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "cl:0",
+        "bn:0",
+        "fl:0",
+        "ob:0",
+        "hn:0",
+        "hn:1",
+        "tp:0",
+        "timp:0"
+      ]
+    },
+    {
+      "id": "mozart-eine-kleine",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vn1",
+        "vn2",
+        "va",
+        "vc"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 6.1667,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 30.5416,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 34.4999,
+          "reason": "dense:va"
+        },
+        {
+          "start": 80.1958,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 160.3915,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 240.5873,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 304.7439,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1200,
+      "armSamples": 26400,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.03323103300865761,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.747992788906302,
+      "maxFlex": 2.6529983839076086,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1"
+      ]
+    },
+    {
+      "id": "vivaldi-spring",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vn1",
+        "vn2",
+        "va",
+        "vc"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 43.1478,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 86.2955,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 89.5,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 89.6304,
+          "reason": "dense:va"
+        },
+        {
+          "start": 129.4433,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 163.9615,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1050,
+      "armSamples": 23100,
+      "nonFinite": 0,
+      "maxContactError": 1.2888423398670571e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.07910192525775181,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.6056528425944027,
+      "maxFlex": 2.6460370371241453,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1"
+      ]
+    },
+    {
+      "id": "handel-lascia",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "ob",
+        "choir",
+        "harp",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 61.105,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 122.21,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 124.407,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 124.963,
+          "reason": "dense:choir:chair:5"
+        },
+        {
+          "start": 134.963,
+          "reason": "dense:harp"
+        },
+        {
+          "start": 183.315,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 232.199,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1200,
+      "armSamples": 43200,
+      "nonFinite": 0,
+      "maxContactError": 1.2888423398670571e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.06464346949264259,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.5189507333209489,
+      "maxFlex": 2.6539462069371824,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "harp:0",
+        "ob:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5"
+      ]
+    },
+    {
+      "id": "mozart-k545",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 35.3075,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 70.615,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 105.9225,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 128.071,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 134.1685,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.02771151115978627,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1460931038708502,
+      "maxFlex": 2.2989768459227253,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "haydn-op74-1-andantino",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vn1",
+        "vn2",
+        "va",
+        "vc"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:vc:chair:0"
+        },
+        {
+          "start": 59.5,
+          "reason": "dense:vc:chair:0"
+        },
+        {
+          "start": 102.985,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 170.654,
+          "reason": "dense:va:chair:0"
+        },
+        {
+          "start": 183.538,
+          "reason": "dense:vn2:chair:0"
+        },
+        {
+          "start": 183.923,
+          "reason": "dense:vn1:chair:0"
+        },
+        {
+          "start": 205.97,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 308.955,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 391.343,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1350,
+      "armSamples": 29700,
+      "nonFinite": 0,
+      "maxContactError": 1.2888423398670571e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.09368841331871884,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.2644616484606951,
+      "maxFlex": 2.6549639858741148,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn2:0",
+        "va:0",
+        "vc:0",
+        "vn1:0"
+      ]
+    },
+    {
+      "id": "beethoven-pathetique-adagio",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 67.4775,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 134.955,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 142.245,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 202.4325,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 256.4145,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.02574133544813442,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1459816111713423,
+      "maxFlex": 1.9103804589943159,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "schubert-lindenbaum",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "hn",
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 22.242,
+          "reason": "entry:hn:chair:0"
+        },
+        {
+          "start": 47.887,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 63.7025,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 127.405,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 191.1075,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 216.855,
+          "reason": "dense:hn:chair:0"
+        },
+        {
+          "start": 242.0695,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1200,
+      "armSamples": 9600,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.027657205656318688,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.160999219895352,
+      "maxFlex": 1.9096076575040795,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0",
+        "hn:0"
+      ]
+    },
+    {
+      "id": "pachelbel-canon",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vn1",
+        "vn2",
+        "vc"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "dense:vc:chair:0"
+        },
+        {
+          "start": 8.2273,
+          "reason": "entry:vn1:chair:0"
+        },
+        {
+          "start": 16.9545,
+          "reason": "entry:vn2:chair:0"
+        },
+        {
+          "start": 25.6818,
+          "reason": "entry:vn2:chair:1"
+        },
+        {
+          "start": 61.6638,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 78.3182,
+          "reason": "dense:vn1:chair:0"
+        },
+        {
+          "start": 87.0454,
+          "reason": "dense:vn2:chair:0"
+        },
+        {
+          "start": 95.7727,
+          "reason": "dense:vn2:chair:1"
+        },
+        {
+          "start": 123.3275,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 184.9913,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 234.3222,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1650,
+      "armSamples": 29700,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.07960387082817469,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.5612863434840349,
+      "maxFlex": 2.645180165632843,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vc:0",
+        "vn1:0",
+        "vn2:0",
+        "vn2:1"
+      ]
+    },
+    {
+      "id": "grieg-morning-mood",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "fl",
+        "va",
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "duration:0"
+        },
+        {
+          "start": 1,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 52.465,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 104.93,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 157.395,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 159.4,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 162.2,
+          "reason": "dense:va"
+        },
+        {
+          "start": 199.367,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 203.8,
+          "reason": "dense:piano"
+        }
+      ],
+      "frames": 1350,
+      "armSamples": 13500,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.08532936798590518,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.6464901074226691,
+      "maxFlex": 2.3243796703869757,
+      "failures": [],
+      "observedPlayingChairs": [
+        "va:0",
+        "va:1",
+        "fl:0",
+        "piano:0"
+      ]
+    },
+    {
+      "id": "chopin-mazurka-7-1",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 7,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 31.9725,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 63.945,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 95.9175,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 121.4955,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.249000902703301e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.030098876405436285,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1268288140374498,
+      "maxFlex": 2.1611021063710005,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "corelli-op3-1-grave",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vn1",
+        "vn2",
+        "vc",
+        "cb",
+        "harp"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:harp"
+        },
+        {
+          "start": 11.375,
+          "reason": "dense:harp"
+        },
+        {
+          "start": 19.5,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 24.0575,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 33.875,
+          "reason": "dense:vn2:chair:0"
+        },
+        {
+          "start": 48.115,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 72.1725,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 91.4185,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1200,
+      "armSamples": 26400,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.0701086887370149,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.6247926839338185,
+      "maxFlex": 2.6558427052437175,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn2:0",
+        "vc:0",
+        "cb:0",
+        "harp:0"
+      ]
+    },
+    {
+      "id": "grieg-morning-arietta",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 11.5,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 14.1525,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 28.305,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 42.4575,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 53.7795,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.030142136585073632,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1835211025369816,
+      "maxFlex": 1.9129777958752994,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "mozart-k458-adagio",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 63.625,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 66.625,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 80.1275,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 133.188,
+          "reason": "dense:va"
+        },
+        {
+          "start": 160.255,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 240.3825,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 304.4845,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1200,
+      "armSamples": 28800,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.08877115836895223,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.7439976737874343,
+      "maxFlex": 2.654685475029643,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0"
+      ]
+    },
+    {
+      "id": "strauss-blue-danube",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "fl",
+        "picc",
+        "ob",
+        "cl",
+        "bn",
+        "hn",
+        "tp",
+        "tb",
+        "tu",
+        "timp",
+        "bd",
+        "sd",
+        "tri",
+        "harp",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:vn2"
+        },
+        {
+          "start": 3.9262,
+          "reason": "entry:hn:chair:0"
+        },
+        {
+          "start": 6.877,
+          "reason": "entry:cl"
+        },
+        {
+          "start": 9.8278,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 17.2049,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 29.0081,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 34.9097,
+          "reason": "entry:timp"
+        },
+        {
+          "start": 64.7666,
+          "reason": "entry:picc"
+        },
+        {
+          "start": 74.1852,
+          "reason": "dense:tri"
+        },
+        {
+          "start": 88.4696,
+          "reason": "entry:harp"
+        },
+        {
+          "start": 89.1553,
+          "reason": "entry:sd"
+        },
+        {
+          "start": 109.041,
+          "reason": "dense:harp"
+        },
+        {
+          "start": 135.6415,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 236.8091,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 237.0856,
+          "reason": "dense:hn:chair:0"
+        },
+        {
+          "start": 263.6515,
+          "reason": "entry:bd"
+        },
+        {
+          "start": 271.283,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 279.5449,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 296.6929,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 307.4218,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 369.9601,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 376.7168,
+          "reason": "dense:tu"
+        },
+        {
+          "start": 379.4195,
+          "reason": "dense:hn:chair:1"
+        },
+        {
+          "start": 391.3114,
+          "reason": "dense:sd"
+        },
+        {
+          "start": 392.1222,
+          "reason": "dense:bd"
+        },
+        {
+          "start": 406.9245,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 433.5749,
+          "reason": "dense:picc"
+        },
+        {
+          "start": 458.686,
+          "reason": "dense:va"
+        },
+        {
+          "start": 501.8665,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 515.4377,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 531.8665,
+          "reason": "dense:vc"
+        }
+      ],
+      "frames": 4650,
+      "armSamples": 260400,
+      "nonFinite": 0,
+      "maxContactError": 0.007727389274456177,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.0745517363609901,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.59603401004741,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6578922010591515,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "hn:0",
+        "fl:0",
+        "ob:0",
+        "cl:0",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "bn:0",
+        "hn:1",
+        "cb:0",
+        "tp:0",
+        "timp:0",
+        "tb:0",
+        "tb:1",
+        "tu:0",
+        "picc:0",
+        "tri:0",
+        "harp:0",
+        "sd:0",
+        "bd:0"
+      ]
+    },
+    {
+      "id": "brahms-hungarian-dance-5",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "fl",
+        "cl",
+        "vn1",
+        "piano",
+        "va",
+        "vc"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 10.9286,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 37.6198,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 75.2395,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 83.3333,
+          "reason": "dense:va"
+        },
+        {
+          "start": 94.1594,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 112.8593,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 126.9016,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 142.955,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1350,
+      "armSamples": 29700,
+      "nonFinite": 0,
+      "maxContactError": 1.2719202621569003e-16,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.043600150799826314,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.7376015302760438,
+      "maxFlex": 2.6459245908681077,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vc:0",
+        "vc:1",
+        "fl:0",
+        "cl:0",
+        "piano:0",
+        "va:0",
+        "va:1"
+      ]
+    },
+    {
+      "id": "scarlatti-k1",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 16.6325,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 33.265,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 49.8975,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 56.526,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 63.2035,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.02903555646254035,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1626822510045343,
+      "maxFlex": 2.2822321505205965,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "bach-o-haupt",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "choir",
+        "vn1",
+        "ob",
+        "vn2",
+        "va",
+        "vc",
+        "bn",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:bn"
+        },
+        {
+          "start": 1.569,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 9.866,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 10.901,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 20.91,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 41.82,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 62.73,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 70.944,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 74.047,
+          "reason": "dense:va"
+        },
+        {
+          "start": 79.458,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1500,
+      "armSamples": 78000,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.09514493482282486,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.5757512867443237,
+      "maxFlex": 2.6556480241484635,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "ob:0",
+        "bn:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11",
+        "cb:0"
+      ]
+    },
+    {
+      "id": "joplin-solace",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 34.7275,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 45.625,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 69.455,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 104.1825,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 131.9645,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.249000902703301e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.027243164653618854,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2077533055431504,
+      "maxFlex": 2.2182346013898457,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "chopin-minute-waltz",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 2.2857,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 22.7462,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 45.4925,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 68.2387,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 86.4357,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.045345668188974356,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1550551359155625,
+      "maxFlex": 1.8552345710699525,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "mendelssohn-wedding-march",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "tp",
+        "organ"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:organ"
+        },
+        {
+          "start": 8,
+          "reason": "entry:tp"
+        },
+        {
+          "start": 12,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 28.3,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 56.6,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 73.75,
+          "reason": "dense:organ"
+        },
+        {
+          "start": 84.9,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 107.54,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1200,
+      "armSamples": 7200,
+      "nonFinite": 0,
+      "maxContactError": 1.2063502038080008e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.06171248352217421,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.5567117714931403,
+      "maxFlex": 2.3569369045504445,
+      "failures": [],
+      "observedPlayingChairs": [
+        "organ:0",
+        "tp:0"
+      ]
+    },
+    {
+      "id": "chopin-prelude-6",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vc",
+        "vn2",
+        "va"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:va"
+        },
+        {
+          "start": 18.638,
+          "reason": "dense:vc:chair:0"
+        },
+        {
+          "start": 20.435,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 40.87,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 48.121,
+          "reason": "dense:va"
+        },
+        {
+          "start": 61.305,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 77.653,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1050,
+      "armSamples": 16800,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.10064368839957041,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.5734071032929601,
+      "maxFlex": 2.569455953254861,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0"
+      ]
+    },
+    {
+      "id": "beethoven-op49-2",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 61.365,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 100.167,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 122.73,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 184.095,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 233.187,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.249000902703301e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.028855282677003272,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.0773330754687787,
+      "maxFlex": 2.3199592255764196,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "tchaikovsky-piano-concerto-1",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "fl",
+        "ob",
+        "cl",
+        "bn",
+        "hn",
+        "tp",
+        "tb",
+        "timp",
+        "piano",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "duration:0"
+        },
+        {
+          "start": 0.7857,
+          "reason": "entry:hn:chair:1"
+        },
+        {
+          "start": 2.9286,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 12.3571,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 183.7744,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 339.813,
+          "reason": "dense:hn:chair:0"
+        },
+        {
+          "start": 352.0857,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 354.1902,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 544.7111,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 561.4254,
+          "reason": "dense:tb:chair:1"
+        },
+        {
+          "start": 650.7684,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 664.4827,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 688.4827,
+          "reason": "dense:va"
+        },
+        {
+          "start": 688.9113,
+          "reason": "dense:tb"
+        },
+        {
+          "start": 708.3805,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 820.6257,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 1062.5707,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 1345.9229,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 2700,
+      "armSamples": 124200,
+      "nonFinite": 0,
+      "maxContactError": 0.002551615673797325,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.10025540430855813,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 2.2697028007600553,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.655048316326996,
+      "failures": [],
+      "observedPlayingChairs": [
+        "hn:0",
+        "hn:1",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "fl:0",
+        "ob:0",
+        "cl:0",
+        "bn:0",
+        "tp:0",
+        "timp:0",
+        "tb:0",
+        "tb:1",
+        "piano:0"
+      ]
+    },
+    {
+      "id": "chopin-nocturne-9-2",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 50.8683,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 82.6817,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 101.7365,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 152.6048,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 193.2994,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.249000902703301e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.04795910273873758,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1823107520247491,
+      "maxFlex": 2.1075153724147704,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "schumann-foreign-lands",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 17.58,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 32.395,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 35.16,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 52.74,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 66.804,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.027507819882648023,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1593135838018638,
+      "maxFlex": 1.855234571069952,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "mozart-k80-adagio",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 6.167,
+          "reason": "entry:vn2"
+        },
+        {
+          "start": 39.5,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 56.1675,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 66.167,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 70.889,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 75.333,
+          "reason": "dense:va"
+        },
+        {
+          "start": 112.335,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 168.5025,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 213.4365,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1500,
+      "armSamples": 36000,
+      "nonFinite": 0,
+      "maxContactError": 1.3092278833360675e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.09325489781782605,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.4629044877111351,
+      "maxFlex": 2.654624536260291,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2"
+      ]
+    },
+    {
+      "id": "chopin-prelude-7",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 9.3475,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 18.695,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 21.148,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 28.0425,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 35.5205,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.03917266257301881,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2117142267987049,
+      "maxFlex": 2.346077008166317,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "joplin-maple-leaf",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 83.2775,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 92.312,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 166.555,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 249.8325,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 316.4545,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1188630228279524e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.026443734836673602,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1643110994426231,
+      "maxFlex": 1.8925596198397747,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "mozart-lacrimosa",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "cl",
+        "bn",
+        "tp",
+        "timp",
+        "tb",
+        "vn1",
+        "vn2",
+        "va",
+        "choir",
+        "vc",
+        "organ"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:va"
+        },
+        {
+          "start": 0.1,
+          "reason": "entry:vn1"
+        },
+        {
+          "start": 13.9,
+          "reason": "entry:organ"
+        },
+        {
+          "start": 16.3,
+          "reason": "dense:choir:chair:8"
+        },
+        {
+          "start": 16.9,
+          "reason": "dense:choir:chair:11"
+        },
+        {
+          "start": 28.3,
+          "reason": "entry:tb:chair:1"
+        },
+        {
+          "start": 53.5,
+          "reason": "entry:timp"
+        },
+        {
+          "start": 54.3,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 59.5,
+          "reason": "dense:tb:chair:1"
+        },
+        {
+          "start": 62.5,
+          "reason": "dense:tb:chair:0"
+        },
+        {
+          "start": 80.5,
+          "reason": "dense:organ"
+        },
+        {
+          "start": 108.6,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 162.9,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 201.1,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 206.34,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 207.1,
+          "reason": "dense:vn1"
+        }
+      ],
+      "frames": 2400,
+      "armSamples": 144000,
+      "nonFinite": 0,
+      "maxContactError": 0.007154525061193862,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.09557260755732608,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.9927750439139436,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6539740448636544,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vc:0",
+        "vc:1",
+        "cl:0",
+        "bn:0",
+        "organ:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11",
+        "tb:0",
+        "tb:1",
+        "tp:0",
+        "timp:0"
+      ]
+    },
+    {
+      "id": "dvorak-new-world-4",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "fl",
+        "ob",
+        "cl",
+        "bn",
+        "hn",
+        "tp",
+        "tb",
+        "timp",
+        "cy",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 10.9474,
+          "reason": "entry:tb:chair:1"
+        },
+        {
+          "start": 11.7368,
+          "reason": "dense:tb:chair:1"
+        },
+        {
+          "start": 12.1316,
+          "reason": "entry:timp"
+        },
+        {
+          "start": 64.6316,
+          "reason": "dense:hn:chair:1"
+        },
+        {
+          "start": 64.829,
+          "reason": "dense:hn"
+        },
+        {
+          "start": 65.4211,
+          "reason": "dense:tb:chair:0"
+        },
+        {
+          "start": 99.7632,
+          "reason": "dense:cy"
+        },
+        {
+          "start": 111.6053,
+          "reason": "dense:va"
+        },
+        {
+          "start": 141.6053,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 172.0732,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 175.7357,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 224.851,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 348.1844,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 351.4715,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 400.9623,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 527.2072,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 545.041,
+          "reason": "dense:hn:chair:0"
+        },
+        {
+          "start": 548.0411,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 662.0454,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 667.7958,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 3150,
+      "armSamples": 144900,
+      "nonFinite": 0,
+      "maxContactError": 0.009977197048336526,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.09337812667897918,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.6795972423511099,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.656946692811317,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "fl:0",
+        "ob:0",
+        "cl:0",
+        "bn:0",
+        "hn:0",
+        "hn:1",
+        "tp:0",
+        "tb:0",
+        "tb:1",
+        "timp:0",
+        "cy:0"
+      ]
+    },
+    {
+      "id": "bach-brich-an",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "choir",
+        "vn1",
+        "ob",
+        "vn2",
+        "va",
+        "vc",
+        "bn",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 1.5,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 2,
+          "reason": "dense:va"
+        },
+        {
+          "start": 9.521,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 18.1675,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 36.335,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 38.063,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 54.5025,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 69.0365,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1350,
+      "armSamples": 70200,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.03337050707843462,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.4234019404474043,
+      "maxFlex": 2.6559624034091454,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "ob:0",
+        "bn:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11"
+      ]
+    },
+    {
+      "id": "chopin-mazurka-68-2",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 57.9975,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 78.1,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 115.995,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 173.9925,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 220.3905,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.0388864181467797,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1244630632024686,
+      "maxFlex": 2.2993119945290887,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "beethoven-tempest-3",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 44.857,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 71.81,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 143.62,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 215.43,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 272.878,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2719202621569003e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.02007712137798242,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2485310371720346,
+      "maxFlex": 1.8552345710699512,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "beethoven-op59-2-molto-adagio",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:vn1"
+        },
+        {
+          "start": 1.9,
+          "reason": "entry:vn2"
+        },
+        {
+          "start": 4.3,
+          "reason": "entry:va"
+        },
+        {
+          "start": 6.7,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 148.15,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 190.27,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 244.3,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 321.9,
+          "reason": "dense:va"
+        },
+        {
+          "start": 380.54,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 445.6,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 570.81,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 723.026,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1800,
+      "armSamples": 43200,
+      "nonFinite": 0,
+      "maxContactError": 1.3092278833360675e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.0936633673922421,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.2644616484606951,
+      "maxFlex": 2.652228768719388,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0"
+      ]
+    },
+    {
+      "id": "strauss-radetzky-march",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "fl",
+        "cl",
+        "sax",
+        "tu",
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 1.5,
+          "reason": "dense:tu"
+        },
+        {
+          "start": 3.25,
+          "reason": "dense:sax:chair:0"
+        },
+        {
+          "start": 26.675,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 53.35,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 80.025,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 101.365,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1050,
+      "armSamples": 16800,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.05891056583159644,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.27386787552466973,
+      "maxFlex": 2.3701946856878657,
+      "failures": [],
+      "observedPlayingChairs": [
+        "fl:0",
+        "cl:0",
+        "tu:0",
+        "sax:0",
+        "sax:1",
+        "piano:0"
+      ]
+    },
+    {
+      "id": "handel-hallelujah",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "ob",
+        "bn",
+        "tp",
+        "timp",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "choir"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 5.5,
+          "reason": "entry:choir:chair:11"
+        },
+        {
+          "start": 8.5,
+          "reason": "dense:choir"
+        },
+        {
+          "start": 27.25,
+          "reason": "entry:timp"
+        },
+        {
+          "start": 39.25,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 43.25,
+          "reason": "dense:choir:chair:8"
+        },
+        {
+          "start": 45.25,
+          "reason": "dense:choir:chair:5"
+        },
+        {
+          "start": 47.25,
+          "reason": "dense:choir:chair:2"
+        },
+        {
+          "start": 47.3,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 47.75,
+          "reason": "dense:va"
+        },
+        {
+          "start": 58.25,
+          "reason": "dense:choir:chair:11"
+        },
+        {
+          "start": 61.25,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 94.6,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 141.9,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 154.5,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 159.5,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 179.74,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 2550,
+      "armSamples": 137700,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.08895601483920922,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 2.1161767940203573,
+      "minFlex": 0.5200689174901785,
+      "maxFlex": 2.656062837597743,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "bn:0",
+        "ob:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11",
+        "tp:0",
+        "timp:0"
+      ]
+    },
+    {
+      "id": "elgar-pomp-and-circumstance",
+      "venues": [
+        "hall"
+      ],
+      "sections": [
+        "choir",
+        "vn1",
+        "vn2",
+        "hn",
+        "tp",
+        "fl",
+        "va",
+        "cb",
+        "vc",
+        "tu",
+        "tb",
+        "sd",
+        "bd",
+        "timp",
+        "cy"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "duration:0"
+        },
+        {
+          "start": 0.349,
+          "reason": "dense:cy"
+        },
+        {
+          "start": 0.3491,
+          "reason": "entry:tu"
+        },
+        {
+          "start": 0.6321,
+          "reason": "dense:bd"
+        },
+        {
+          "start": 1.4811,
+          "reason": "entry:tp"
+        },
+        {
+          "start": 45.9815,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 101.015,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 108.8116,
+          "reason": "dense:va"
+        },
+        {
+          "start": 111.0758,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 130.1816,
+          "reason": "entry:fl"
+        },
+        {
+          "start": 182.2725,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 202.03,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 226.9999,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 303.045,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 319.6084,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 342.9417,
+          "reason": "dense:tu"
+        },
+        {
+          "start": 343.775,
+          "reason": "dense:tb"
+        },
+        {
+          "start": 344.3306,
+          "reason": "dense:choir:chair:5"
+        },
+        {
+          "start": 383.857,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 2850,
+      "armSamples": 199500,
+      "nonFinite": 0,
+      "maxContactError": 0.00004758596624059915,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.09540725465867982,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.63071244294111,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.654925243411048,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "hn:0",
+        "hn:1",
+        "tu:0",
+        "cy:0",
+        "sd:0",
+        "bd:0",
+        "tp:0",
+        "fl:0",
+        "timp:0",
+        "tb:0",
+        "tb:1",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11"
+      ]
+    },
+    {
+      "id": "bach-wachet-auf",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "choir",
+        "vn1",
+        "ob",
+        "vn2",
+        "va",
+        "vc",
+        "bn",
+        "cb",
+        "tp"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:tp"
+        },
+        {
+          "start": 1.583,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 2.417,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 11.333,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 23.165,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 46.33,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 57.021,
+          "reason": "dense:va"
+        },
+        {
+          "start": 58.688,
+          "reason": "dense:choir"
+        },
+        {
+          "start": 69.495,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 83.052,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 88.027,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1650,
+      "armSamples": 89100,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.09577202502927802,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.25998935739299617,
+      "maxFlex": 2.6488470543318807,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "ob:0",
+        "bn:0",
+        "tp:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11"
+      ]
+    },
+    {
+      "id": "debussy-clair-de-lune",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "duration:0"
+        },
+        {
+          "start": 0.026,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 81.0225,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 89.366,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 162.045,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 243.0675,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 307.8855,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1050,
+      "armSamples": 4200,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.03801835298470057,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1013675697993808,
+      "maxFlex": 2.343939802823501,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "strauss-zarathustra",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "tp",
+        "timp",
+        "fl",
+        "cl",
+        "sax",
+        "hn",
+        "tb",
+        "tu",
+        "bd",
+        "cy"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:tu"
+        },
+        {
+          "start": 3.5,
+          "reason": "entry:hn"
+        },
+        {
+          "start": 7.25,
+          "reason": "dense:cy"
+        },
+        {
+          "start": 7.5,
+          "reason": "entry:bd"
+        },
+        {
+          "start": 17.3,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 34.6,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 43.5,
+          "reason": "dense:hn"
+        },
+        {
+          "start": 46.5,
+          "reason": "dense:tb"
+        },
+        {
+          "start": 47.5,
+          "reason": "dense:tu"
+        },
+        {
+          "start": 48.5,
+          "reason": "dense:sax:chair:0"
+        },
+        {
+          "start": 51.9,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 55,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 57.5,
+          "reason": "dense:bd"
+        },
+        {
+          "start": 65.74,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 2100,
+      "armSamples": 63000,
+      "nonFinite": 0,
+      "maxContactError": 0.0021024868569997435,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.06331971466004692,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.5507873429906454,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.4811864027223205,
+      "failures": [],
+      "observedPlayingChairs": [
+        "tp:0",
+        "timp:0",
+        "tb:0",
+        "tb:1",
+        "tu:0",
+        "sax:2",
+        "fl:0",
+        "cl:0",
+        "hn:0",
+        "hn:1",
+        "sax:0",
+        "sax:1",
+        "cy:0",
+        "bd:0"
+      ]
+    },
+    {
+      "id": "tchaikovsky-swan-lake",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "picc",
+        "fl",
+        "ob",
+        "bn",
+        "cl",
+        "sax",
+        "tp",
+        "hn",
+        "tb",
+        "tu",
+        "cb",
+        "timp",
+        "mallet"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:mallet"
+        },
+        {
+          "start": 2.9286,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 13.2142,
+          "reason": "dense:mallet"
+        },
+        {
+          "start": 45.5427,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 61.2141,
+          "reason": "entry:timp"
+        },
+        {
+          "start": 85.214,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 91.0855,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 98.464,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 98.714,
+          "reason": "dense:hn:chair:0"
+        },
+        {
+          "start": 122.357,
+          "reason": "entry:tp"
+        },
+        {
+          "start": 132.6427,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 136.6282,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 137.2141,
+          "reason": "dense:tb:chair:1"
+        },
+        {
+          "start": 150.0713,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 156.8713,
+          "reason": "dense:hn:chair:1"
+        },
+        {
+          "start": 173.0624,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 2400,
+      "armSamples": 86400,
+      "nonFinite": 0,
+      "maxContactError": 0.009601081141635116,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.06171248352209782,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.8772881361336042,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6608747913415303,
+      "failures": [],
+      "observedPlayingChairs": [
+        "sax:0",
+        "sax:1",
+        "sax:2",
+        "mallet:0",
+        "cb:0",
+        "ob:0",
+        "cl:0",
+        "fl:0",
+        "bn:0",
+        "hn:0",
+        "hn:1",
+        "timp:0",
+        "picc:0",
+        "tb:0",
+        "tb:1",
+        "tu:0",
+        "tp:0"
+      ]
+    },
+    {
+      "id": "bach-prelude-c",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "harp",
+        "vc"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "dense:vc:chair:0"
+        },
+        {
+          "start": 37.605,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 75.21,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 112.815,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 135.638,
+          "reason": "dense:harp"
+        },
+        {
+          "start": 142.899,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 7200,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.026416285044082492,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1711394499345475,
+      "maxFlex": 2.653794387688675,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vc:0",
+        "harp:0"
+      ]
+    },
+    {
+      "id": "chopin-raindrop",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 80.05,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 160.1,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 240.15,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 276.336,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 304.19,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1188630228279524e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.019276387372375622,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2416776067888864,
+      "maxFlex": 1.904051983666364,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "mozart-turkish-march",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 31.105,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 62.21,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 93.315,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 95.615,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 118.199,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.029454218289811224,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.129877424468786,
+      "maxFlex": 1.8552345710699387,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "tchaikovsky-sugar-plum",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "fl",
+        "ob",
+        "eh",
+        "cl",
+        "bn",
+        "hn",
+        "cel",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 0.0455,
+          "reason": "entry:va"
+        },
+        {
+          "start": 8.7727,
+          "reason": "entry:cel"
+        },
+        {
+          "start": 16.4091,
+          "reason": "entry:cl"
+        },
+        {
+          "start": 34.3143,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 34.4091,
+          "reason": "entry:bn"
+        },
+        {
+          "start": 35.5,
+          "reason": "entry:fl"
+        },
+        {
+          "start": 42.5909,
+          "reason": "entry:hn:chair:1"
+        },
+        {
+          "start": 46.9545,
+          "reason": "dense:va"
+        },
+        {
+          "start": 66.5909,
+          "reason": "dense:hn:chair:1"
+        },
+        {
+          "start": 68.6285,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 92.7727,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 102.9428,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 109.1364,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 110.2273,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 125.8507,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 130.3941,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 133.2625,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 133.4389,
+          "reason": "dense:cb"
+        }
+      ],
+      "frames": 2850,
+      "armSamples": 114000,
+      "nonFinite": 0,
+      "maxContactError": 0.007798115367495579,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.1007396228911521,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6540686201756714,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "cel:0",
+        "cl:0",
+        "bn:0",
+        "eh:0",
+        "fl:0",
+        "ob:0",
+        "hn:0",
+        "hn:1"
+      ]
+    },
+    {
+      "id": "tchaikovsky-waltz-flowers",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "vn1",
+        "fl",
+        "harp",
+        "va",
+        "hn",
+        "vn2",
+        "cb",
+        "vc"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 0.7,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 3.1,
+          "reason": "entry:fl"
+        },
+        {
+          "start": 7.5575,
+          "reason": "entry:harp"
+        },
+        {
+          "start": 11.9475,
+          "reason": "dense:harp"
+        },
+        {
+          "start": 115.1033,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 141.2111,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 230.2065,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 345.3098,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 377.9247,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 410.6231,
+          "reason": "dense:va"
+        },
+        {
+          "start": 428.1231,
+          "reason": "dense:hn"
+        },
+        {
+          "start": 437.3923,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 451.202,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 454.9912,
+          "reason": "dense:fl"
+        }
+      ],
+      "frames": 2250,
+      "armSamples": 72000,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.09472964772074946,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.304727381896095,
+      "maxFlex": 2.6476691709004085,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "cb:0",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vc:0",
+        "vc:1",
+        "hn:0",
+        "hn:1",
+        "fl:0",
+        "harp:0"
+      ]
+    },
+    {
+      "id": "tchaikovsky-june",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 80.58,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 143.409,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 161.16,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 241.74,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 306.204,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.029600406248532267,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.177799805392294,
+      "maxFlex": 2.1375092817453245,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "joplin-entertainer",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 21.348,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 51.835,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 103.67,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 155.505,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 196.973,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.029433230089122922,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.188061073406518,
+      "maxFlex": 1.8552345710699514,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "greensleeves",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "fl",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "harp"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "dense:harp"
+        },
+        {
+          "start": 21.765,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 43.53,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 65.295,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 82.707,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 750,
+      "armSamples": 19500,
+      "nonFinite": 0,
+      "maxContactError": 1.2888423398670571e-16,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.09515528655421267,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.30472738186302956,
+      "maxFlex": 2.6452257779433017,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "harp:0",
+        "fl:0"
+      ]
+    },
+    {
+      "id": "grieg-mountain-king",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "va",
+        "vc",
+        "cb",
+        "bn"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:bn"
+        },
+        {
+          "start": 11.5,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 42.55,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 47.5,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 51.5,
+          "reason": "dense:va"
+        },
+        {
+          "start": 59.5,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 85.1,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 127.25,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 127.65,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 161.69,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1500,
+      "armSamples": 21000,
+      "nonFinite": 0,
+      "maxContactError": 0.008813450684781749,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.10073961299296214,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6542637167299543,
+      "failures": [],
+      "observedPlayingChairs": [
+        "cb:0",
+        "bn:0",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1"
+      ]
+    },
+    {
+      "id": "prokofiev-dance-knights",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "picc",
+        "fl",
+        "ob",
+        "eh",
+        "cl",
+        "sax",
+        "bn",
+        "tp",
+        "hn",
+        "tb",
+        "tu",
+        "timp",
+        "sd",
+        "cy",
+        "tri",
+        "bd",
+        "tamb",
+        "harp",
+        "piano",
+        "cel",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:hn:chair:0"
+        },
+        {
+          "start": 1.9,
+          "reason": "entry:sd"
+        },
+        {
+          "start": 4.3,
+          "reason": "entry:tb"
+        },
+        {
+          "start": 6.7,
+          "reason": "entry:tu"
+        },
+        {
+          "start": 9.1,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 76.3,
+          "reason": "entry:cl"
+        },
+        {
+          "start": 83.5833,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 121.2999,
+          "reason": "dense:hn:chair:1"
+        },
+        {
+          "start": 129.5499,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 135.6999,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 143.4999,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 145.2999,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 152.4999,
+          "reason": "entry:harp"
+        },
+        {
+          "start": 154.8999,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 157.8999,
+          "reason": "dense:harp"
+        },
+        {
+          "start": 158.1999,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 160.8999,
+          "reason": "dense:eh"
+        },
+        {
+          "start": 167.1665,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 186.6998,
+          "reason": "dense:tamb"
+        },
+        {
+          "start": 190.0331,
+          "reason": "dense:va"
+        },
+        {
+          "start": 206.6998,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 250.7498,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 266.6998,
+          "reason": "dense:cel"
+        },
+        {
+          "start": 294.0831,
+          "reason": "dense:sax"
+        },
+        {
+          "start": 317.6164,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 330.0831,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 330.2331,
+          "reason": "dense:bn"
+        }
+      ],
+      "frames": 4050,
+      "armSamples": 291600,
+      "nonFinite": 0,
+      "maxContactError": 0.013514995860102363,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.09371743468748601,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.5408207467778496,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.705260340591211,
+      "failures": [],
+      "observedPlayingChairs": [
+        "hn:0",
+        "hn:1",
+        "sd:0",
+        "tp:0",
+        "tb:0",
+        "tb:1",
+        "tu:0",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "fl:0",
+        "ob:0",
+        "bn:0",
+        "timp:0",
+        "picc:0",
+        "eh:0",
+        "bd:0",
+        "cy:0",
+        "cl:0",
+        "piano:0",
+        "harp:0",
+        "tamb:0",
+        "tri:0",
+        "cel:0",
+        "sax:0",
+        "sax:1",
+        "sax:2"
+      ]
+    },
+    {
+      "id": "schumann-traumerei",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 13.389,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 40.645,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 81.29,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 121.935,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 154.451,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.027929495767412587,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1872819940750405,
+      "maxFlex": 2.307742264200598,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "grieg-march-of-trolls",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 29.262,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 46.81,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 93.62,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 140.43,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 177.878,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.0328982997106149,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2545536243553237,
+      "maxFlex": 1.895940662050637,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "debussy-prelude",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 26.062,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 56.1375,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 112.275,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 168.4125,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 213.3225,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1102230246251565e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.028646194717392003,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.227077226814186,
+      "maxFlex": 1.8552345710699387,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "rossini-william-tell",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "picc",
+        "fl",
+        "ob",
+        "eh",
+        "cl",
+        "bn",
+        "hn",
+        "tp",
+        "tb",
+        "timp",
+        "tri",
+        "cy",
+        "bd",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 2.6579,
+          "reason": "entry:hn:chair:1"
+        },
+        {
+          "start": 6.6053,
+          "reason": "entry:timp"
+        },
+        {
+          "start": 7.1974,
+          "reason": "dense:hn:chair:0"
+        },
+        {
+          "start": 7.3947,
+          "reason": "dense:hn"
+        },
+        {
+          "start": 10.5526,
+          "reason": "entry:tb:chair:1"
+        },
+        {
+          "start": 13.5132,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 18.4474,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 19.829,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 26.3421,
+          "reason": "entry:bd"
+        },
+        {
+          "start": 48.8083,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 56.8355,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 57.7237,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 97.6165,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 133.3158,
+          "reason": "dense:hn:chair:1"
+        },
+        {
+          "start": 136.8063,
+          "reason": "dense:tb:chair:1"
+        },
+        {
+          "start": 136.9881,
+          "reason": "dense:tb:chair:0"
+        },
+        {
+          "start": 140.4426,
+          "reason": "dense:tri"
+        },
+        {
+          "start": 146.4248,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 150.7154,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 178.2608,
+          "reason": "dense:bd"
+        },
+        {
+          "start": 181.1699,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 185.4714,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 3450,
+      "armSamples": 186300,
+      "nonFinite": 0,
+      "maxContactError": 0.009143507307711312,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.09350559353300981,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.51017064099773,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6628160285268594,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "fl:0",
+        "bn:0",
+        "hn:0",
+        "tp:0",
+        "eh:0",
+        "tri:0",
+        "hn:1",
+        "timp:0",
+        "tb:0",
+        "tb:1",
+        "cl:0",
+        "ob:0",
+        "picc:0",
+        "bd:0",
+        "cy:0"
+      ]
+    },
+    {
+      "id": "wagner-valkyries",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "hn",
+        "vn1",
+        "tp",
+        "cb",
+        "vc",
+        "vn2",
+        "tb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 1.2391,
+          "reason": "entry:vn1"
+        },
+        {
+          "start": 1.5109,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 3.4674,
+          "reason": "entry:vn2"
+        },
+        {
+          "start": 7.5435,
+          "reason": "entry:tb"
+        },
+        {
+          "start": 34.5725,
+          "reason": "entry:tp"
+        },
+        {
+          "start": 81.233,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 92.2945,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 162.466,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 243.0238,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 243.699,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 284.8988,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 303.6488,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 308.6854,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 316.9821,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 317.1905,
+          "reason": "dense:tb"
+        }
+      ],
+      "frames": 2400,
+      "armSamples": 72000,
+      "nonFinite": 0,
+      "maxContactError": 0.007855215748208565,
+      "maxBoneError": 3.885780586188048e-16,
+      "maxStep": 0.09364932374439322,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6562360102383367,
+      "failures": [],
+      "observedPlayingChairs": [
+        "cb:0",
+        "hn:0",
+        "hn:1",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vc:0",
+        "vc:1",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "tb:0",
+        "tb:1",
+        "tp:0"
+      ]
+    },
+    {
+      "id": "liliuokalani-aloha-oe",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "fl",
+        "choir",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb",
+        "harp"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:harp"
+        },
+        {
+          "start": 12.833,
+          "reason": "entry:fl"
+        },
+        {
+          "start": 14.917,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 16.945,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 33.89,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 39.083,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 42,
+          "reason": "dense:harp"
+        },
+        {
+          "start": 50.835,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 64.391,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1350,
+      "armSamples": 70200,
+      "nonFinite": 0,
+      "maxContactError": 1.2586013583571652e-16,
+      "maxBoneError": 3.885780586188048e-16,
+      "maxStep": 0.08826272985266155,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.2644616484606951,
+      "maxFlex": 2.644444706185768,
+      "failures": [],
+      "observedPlayingChairs": [
+        "harp:0",
+        "fl:0",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11"
+      ]
+    },
+    {
+      "id": "chopin-prelude-4",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "vn2",
+        "va",
+        "vc",
+        "ob",
+        "vn1"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:va"
+        },
+        {
+          "start": 0.333,
+          "reason": "entry:vn2"
+        },
+        {
+          "start": 0.611,
+          "reason": "entry:vn1"
+        },
+        {
+          "start": 29.33,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 50.056,
+          "reason": "dense:va"
+        },
+        {
+          "start": 58.66,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 69.935,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 71.908,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 87.99,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 104.058,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 107.058,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 111.454,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1800,
+      "armSamples": 43200,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.09310356870996862,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.2655873444785061,
+      "maxFlex": 2.646220723119181,
+      "failures": [],
+      "observedPlayingChairs": [
+        "va:0",
+        "va:1",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "ob:0",
+        "vc:0",
+        "vc:1"
+      ]
+    },
+    {
+      "id": "grieg-to-spring",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "duration:0"
+        },
+        {
+          "start": 0.1,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 83.015,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 166.03,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 249.045,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 295.9,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 315.457,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1050,
+      "armSamples": 4200,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.035143234259067395,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1046347337105171,
+      "maxFlex": 2.267956193129629,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "verdi-la-donna",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "hn",
+        "tp",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 0.304,
+          "reason": "entry:vn2"
+        },
+        {
+          "start": 6.732,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 11.821,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 14.1425,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 16.375,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 21.196,
+          "reason": "dense:va"
+        },
+        {
+          "start": 23.339,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 28.285,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 42.4275,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 53.7415,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1650,
+      "armSamples": 49500,
+      "nonFinite": 0,
+      "maxContactError": 0.00028749104720870343,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.09352762884160921,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.656161956318656,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "va:0",
+        "va:1",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "hn:0",
+        "tp:0"
+      ]
+    },
+    {
+      "id": "bizet-toreador",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "tp",
+        "fl",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 8.75,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 10,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 12.3,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 20.5,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 22.125,
+          "reason": "dense:va"
+        },
+        {
+          "start": 24.6,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 36.9,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 46.74,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1350,
+      "armSamples": 21600,
+      "nonFinite": 0,
+      "maxContactError": 0.001098321450318481,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.05901303452192545,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6542178760283712,
+      "failures": [],
+      "observedPlayingChairs": [
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "fl:0",
+        "tp:0",
+        "cb:0"
+      ]
+    },
+    {
+      "id": "bizet-habanera",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "fl",
+        "ob",
+        "cl",
+        "bn",
+        "hn",
+        "tp",
+        "timp",
+        "tri",
+        "tom",
+        "vn1",
+        "vn2",
+        "va",
+        "choir",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 0.125,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 5.3333,
+          "reason": "entry:choir:chair:2"
+        },
+        {
+          "start": 18.4583,
+          "reason": "dense:choir:chair:2"
+        },
+        {
+          "start": 18.6667,
+          "reason": "entry:fl"
+        },
+        {
+          "start": 32,
+          "reason": "entry:choir:chair:8"
+        },
+        {
+          "start": 32.8333,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 33.3889,
+          "reason": "dense:choir:chair:8"
+        },
+        {
+          "start": 35.125,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 51.8548,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 57,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 58.4583,
+          "reason": "entry:choir:chair:11"
+        },
+        {
+          "start": 65.125,
+          "reason": "dense:hn:chair:1"
+        },
+        {
+          "start": 73.8646,
+          "reason": "dense:tom"
+        },
+        {
+          "start": 77.1979,
+          "reason": "dense:choir:chair:5"
+        },
+        {
+          "start": 78.2396,
+          "reason": "dense:choir:chair:11"
+        },
+        {
+          "start": 86.5729,
+          "reason": "dense:hn:chair:0"
+        },
+        {
+          "start": 88.8645,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 101.776,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 103.7095,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 155.5643,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 197.048,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 205.0937,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 205.302,
+          "reason": "dense:tp"
+        }
+      ],
+      "frames": 3600,
+      "armSamples": 244800,
+      "nonFinite": 0,
+      "maxContactError": 0.008799803110105656,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.09500349201371311,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.5958722674932877,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.646208806849734,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vc:0",
+        "vc:1",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "fl:0",
+        "cl:0",
+        "bn:0",
+        "tom:0",
+        "tri:0",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "cb:0",
+        "ob:0",
+        "hn:0",
+        "choir:9",
+        "choir:10",
+        "choir:11",
+        "hn:1",
+        "timp:0",
+        "tp:0"
+      ]
+    },
+    {
+      "id": "tchaikovsky-october",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 56.7325,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 85.833,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 113.465,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 170.1975,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 215.5835,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.02927920120658156,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2285432737953563,
+      "maxFlex": 2.2616423564489456,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "grieg-butterfly",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 22.7225,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 32.455,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 45.445,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 68.1675,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 86.3455,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.03505000633432675,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2194102983920725,
+      "maxFlex": 1.8552345710699514,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "rimsky-bumblebee",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "cl",
+        "sax",
+        "tp",
+        "tb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:tb"
+        },
+        {
+          "start": 2.0455,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 18.5727,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 28.9545,
+          "reason": "dense:sax:chair:0"
+        },
+        {
+          "start": 29.3182,
+          "reason": "dense:sax:chair:1"
+        },
+        {
+          "start": 33.3181,
+          "reason": "dense:tb"
+        },
+        {
+          "start": 34.7727,
+          "reason": "dense:sax:chair:2"
+        },
+        {
+          "start": 37.1455,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 43.8636,
+          "reason": "dense:sax"
+        },
+        {
+          "start": 55.7182,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 55.8636,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 70.5764,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1800,
+      "armSamples": 28800,
+      "nonFinite": 0,
+      "maxContactError": 0.005051688163566718,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.06369970755176843,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.318431915879584,
+      "failures": [],
+      "observedPlayingChairs": [
+        "cl:0",
+        "tp:0",
+        "tb:0",
+        "tb:1",
+        "sax:0",
+        "sax:1",
+        "sax:2"
+      ]
+    },
+    {
+      "id": "khachaturian-sabre-dance",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano",
+        "mallet",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb",
+        "harp",
+        "timp",
+        "sd",
+        "tamb",
+        "cy",
+        "tp",
+        "tb",
+        "tu",
+        "hn",
+        "sax",
+        "ob",
+        "bn",
+        "cl",
+        "fl"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "duration:0"
+        },
+        {
+          "start": 2.2762,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 2.2907,
+          "reason": "entry:vn2"
+        },
+        {
+          "start": 2.2943,
+          "reason": "entry:vn1"
+        },
+        {
+          "start": 2.4615,
+          "reason": "entry:sd"
+        },
+        {
+          "start": 2.4651,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 2.6359,
+          "reason": "entry:bn"
+        },
+        {
+          "start": 8.0283,
+          "reason": "entry:cl"
+        },
+        {
+          "start": 8.0392,
+          "reason": "entry:ob"
+        },
+        {
+          "start": 8.0429,
+          "reason": "entry:fl"
+        },
+        {
+          "start": 8.0501,
+          "reason": "entry:mallet"
+        },
+        {
+          "start": 8.061,
+          "reason": "entry:hn"
+        },
+        {
+          "start": 10.3103,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 10.3176,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 15.1868,
+          "reason": "entry:tp"
+        },
+        {
+          "start": 15.2158,
+          "reason": "entry:tb"
+        },
+        {
+          "start": 37.0588,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 48.6824,
+          "reason": "entry:sax"
+        },
+        {
+          "start": 49.7325,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 49.7398,
+          "reason": "entry:harp"
+        },
+        {
+          "start": 49.9033,
+          "reason": "dense:tamb"
+        },
+        {
+          "start": 53.9222,
+          "reason": "dense:sax"
+        },
+        {
+          "start": 74.1175,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 82.3524,
+          "reason": "dense:hn"
+        },
+        {
+          "start": 84.9651,
+          "reason": "entry:cy"
+        },
+        {
+          "start": 84.9723,
+          "reason": "entry:tu"
+        },
+        {
+          "start": 86.702,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 86.7056,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 86.7093,
+          "reason": "dense:va"
+        },
+        {
+          "start": 95.601,
+          "reason": "dense:sd"
+        },
+        {
+          "start": 100.4883,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 105.2085,
+          "reason": "dense:mallet"
+        },
+        {
+          "start": 111.1763,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 111.8364,
+          "reason": "dense:tb"
+        },
+        {
+          "start": 111.84,
+          "reason": "dense:tu"
+        },
+        {
+          "start": 112.8684,
+          "reason": "dense:cy"
+        },
+        {
+          "start": 134.8415,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 135.1976,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 140.8233,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 143.5624,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 144.4381,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 144.4527,
+          "reason": "dense:harp"
+        }
+      ],
+      "frames": 6300,
+      "armSamples": 403200,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.10077179168908117,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.6306657862646932,
+      "minFlex": 0.2572521435192923,
+      "maxFlex": 2.66485946433569,
+      "failures": [],
+      "observedPlayingChairs": [
+        "timp:0",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "sd:0",
+        "bn:0",
+        "cl:0",
+        "fl:0",
+        "ob:0",
+        "hn:0",
+        "hn:1",
+        "mallet:0",
+        "tp:0",
+        "tb:0",
+        "tb:1",
+        "sax:0",
+        "sax:1",
+        "sax:2",
+        "harp:0",
+        "tamb:0",
+        "cy:0",
+        "tu:0",
+        "piano:0"
+      ]
+    },
+    {
+      "id": "weber-clarinet-concertino",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "cl",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 26.5,
+          "reason": "entry:cl"
+        },
+        {
+          "start": 118.2025,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 154.761,
+          "reason": "dense:va"
+        },
+        {
+          "start": 236.405,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 320.116,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 320.172,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 354.6075,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 377.559,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 402.843,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 449.1695,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1650,
+      "armSamples": 42900,
+      "nonFinite": 0,
+      "maxContactError": 1.2888423398670571e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.10009075338439251,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.20349303274404315,
+      "maxFlex": 2.653229813428342,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "cl:0"
+      ]
+    },
+    {
+      "id": "grieg-notturno",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 47.78,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 79.424,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 95.56,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 143.34,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 181.564,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.2412670766236366e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.04445323112190751,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.0962827303626468,
+      "maxFlex": 2.1393172644431537,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "debussy-passepied",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 83.9875,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 125.393,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 167.975,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 251.9625,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 319.1525,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1188630228279524e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.02847938774574349,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2126877472662125,
+      "maxFlex": 1.8552345710699512,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "ravel-bolero",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "fl",
+        "cl",
+        "vn1",
+        "sax",
+        "vc",
+        "sd"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:sd"
+        },
+        {
+          "start": 2.7812,
+          "reason": "dense:sd"
+        },
+        {
+          "start": 10.75,
+          "reason": "entry:fl"
+        },
+        {
+          "start": 59.0311,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 61.3748,
+          "reason": "entry:cl"
+        },
+        {
+          "start": 111.9996,
+          "reason": "entry:vc"
+        },
+        {
+          "start": 114.8121,
+          "reason": "entry:vn1"
+        },
+        {
+          "start": 170.573,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 261.5304,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 263.8742,
+          "reason": "entry:sax"
+        },
+        {
+          "start": 341.146,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 511.719,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 641.2167,
+          "reason": "dense:sax"
+        },
+        {
+          "start": 644.0292,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 648.1774,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 678.2478,
+          "reason": "dense:vn1"
+        }
+      ],
+      "frames": 2400,
+      "armSamples": 57600,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.06247102765666268,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.8863709771904198,
+      "minFlex": 0.27386787552466973,
+      "maxFlex": 2.6559830660727655,
+      "failures": [],
+      "observedPlayingChairs": [
+        "sd:0",
+        "fl:0",
+        "cl:0",
+        "vc:0",
+        "vc:1",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "sax:0",
+        "sax:1",
+        "sax:2"
+      ]
+    },
+    {
+      "id": "bach-wir-singen",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "choir",
+        "fl",
+        "ob",
+        "cl",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb",
+        "bn"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:bn"
+        },
+        {
+          "start": 0.182,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 9.045,
+          "reason": "entry:cl"
+        },
+        {
+          "start": 9.955,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 13.818,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 19.61,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 23.591,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 24.955,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 26.318,
+          "reason": "dense:va"
+        },
+        {
+          "start": 32.909,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 39.22,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 58.83,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 74.518,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1950,
+      "armSamples": 109200,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.10073917531600844,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.2709866276490979,
+      "maxFlex": 2.6544263894141813,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "bn:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11",
+        "fl:0",
+        "ob:0",
+        "cl:0"
+      ]
+    },
+    {
+      "id": "tchaikovsky-troika",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 56.7375,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 113.193,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 113.475,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 170.2125,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 215.6025,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1188630228279524e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.029363926996095933,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2150532818779876,
+      "maxFlex": 2.3127823068538236,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "amazing-grace",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "fl",
+        "harp",
+        "choir",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb",
+        "hn",
+        "timp"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "dense:harp"
+        },
+        {
+          "start": 19.083,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 29.185,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 35.405,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 54.69,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 58.37,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 71.58,
+          "reason": "entry:timp"
+        },
+        {
+          "start": 87.555,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 93.647,
+          "reason": "dense:hn:chair:0"
+        },
+        {
+          "start": 110.506,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 110.903,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1650,
+      "armSamples": 95700,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.10077179168907008,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 2.391887552261084,
+      "minFlex": 0.2644616484728086,
+      "maxFlex": 2.6445772562069454,
+      "failures": [],
+      "observedPlayingChairs": [
+        "harp:0",
+        "fl:0",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11",
+        "hn:0",
+        "timp:0"
+      ]
+    },
+    {
+      "id": "chopin-prelude-20",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "tp",
+        "vn1",
+        "hn",
+        "vn2",
+        "va",
+        "vc",
+        "bn",
+        "cb",
+        "timp"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 2.109,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 7.326,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 17.1275,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 20.37,
+          "reason": "dense:va"
+        },
+        {
+          "start": 21.674,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 22.978,
+          "reason": "dense:hn"
+        },
+        {
+          "start": 34.255,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 51.3825,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 65.0845,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 1500,
+      "armSamples": 51000,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 3.885780586188048e-16,
+      "maxStep": 0.10059063755696054,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 2.151884665398488,
+      "minFlex": 0.3046541065290839,
+      "maxFlex": 2.6555455685004827,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "bn:0",
+        "hn:1",
+        "tp:0",
+        "timp:0",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "hn:0"
+      ]
+    },
+    {
+      "id": "grieg-wedding-day",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "piano"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:piano"
+        },
+        {
+          "start": 91.4575,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 112.429,
+          "reason": "dense:piano"
+        },
+        {
+          "start": 182.915,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 274.3725,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 347.5385,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 900,
+      "armSamples": 3600,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.033318188641493836,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.056624872184325,
+      "maxFlex": 2.29060902524655,
+      "failures": [],
+      "observedPlayingChairs": [
+        "piano:0"
+      ]
+    },
+    {
+      "id": "offenbach-can-can",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "vn1",
+        "va",
+        "bn",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 22.925,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 45.85,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 68.775,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 79.5,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 87.115,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 87.5,
+          "reason": "dense:cb"
+        }
+      ],
+      "frames": 1050,
+      "armSamples": 21000,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.09497825798814893,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.2039692143603251,
+      "maxFlex": 2.6560510010456246,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "va:0",
+        "va:1",
+        "vc:0",
+        "vc:1",
+        "bn:0",
+        "cb:0"
+      ]
+    },
+    {
+      "id": "tchaikovsky-1812",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "picc",
+        "fl",
+        "ob",
+        "eh",
+        "cl",
+        "bn",
+        "hn",
+        "tp",
+        "tb",
+        "tu",
+        "timp",
+        "tri",
+        "tamb",
+        "sd",
+        "cy",
+        "bd",
+        "bells",
+        "vn1",
+        "vn2",
+        "va",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "duration:0"
+        },
+        {
+          "start": 1.5,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 2.5,
+          "reason": "entry:va"
+        },
+        {
+          "start": 66,
+          "reason": "entry:bn"
+        },
+        {
+          "start": 71.5,
+          "reason": "entry:ob"
+        },
+        {
+          "start": 98.5,
+          "reason": "entry:vn2"
+        },
+        {
+          "start": 99.5,
+          "reason": "entry:hn:chair:1"
+        },
+        {
+          "start": 104.5,
+          "reason": "entry:tu"
+        },
+        {
+          "start": 182.5418,
+          "reason": "entry:bd"
+        },
+        {
+          "start": 202.6846,
+          "reason": "entry:picc"
+        },
+        {
+          "start": 219.1042,
+          "reason": "entry:sd"
+        },
+        {
+          "start": 221.7817,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 305.0245,
+          "reason": "dense:tu"
+        },
+        {
+          "start": 307.8506,
+          "reason": "dense:tb:chair:1"
+        },
+        {
+          "start": 321.981,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 365.568,
+          "reason": "dense:vn2"
+        },
+        {
+          "start": 376.981,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 395.7637,
+          "reason": "entry:tri"
+        },
+        {
+          "start": 443.5635,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 476.4038,
+          "reason": "entry:tamb"
+        },
+        {
+          "start": 559.4474,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 559.6648,
+          "reason": "dense:va"
+        },
+        {
+          "start": 641.1953,
+          "reason": "dense:tamb"
+        },
+        {
+          "start": 665.3452,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 690.978,
+          "reason": "dense:tri"
+        },
+        {
+          "start": 691.4128,
+          "reason": "dense:hn:chair:1"
+        },
+        {
+          "start": 692.2823,
+          "reason": "dense:bells"
+        },
+        {
+          "start": 697.6084,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 725.8824,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 835.8561,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 842.7706,
+          "reason": "duration:0.95"
+        },
+        {
+          "start": 847.8955,
+          "reason": "dense:bd"
+        },
+        {
+          "start": 848.5534,
+          "reason": "dense:tb:chair:0"
+        },
+        {
+          "start": 867.2377,
+          "reason": "dense:hn:chair:0"
+        },
+        {
+          "start": 870.3955,
+          "reason": "dense:sd"
+        }
+      ],
+      "frames": 5250,
+      "armSamples": 325500,
+      "nonFinite": 0,
+      "maxContactError": 0.007846554386808782,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.1007017828128856,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.132472153802033,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.6567990551449014,
+      "failures": [],
+      "observedPlayingChairs": [
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "va:0",
+        "va:1",
+        "fl:0",
+        "cl:0",
+        "bn:0",
+        "eh:0",
+        "ob:0",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "timp:0",
+        "hn:0",
+        "hn:1",
+        "tp:0",
+        "tb:0",
+        "tb:1",
+        "tu:0",
+        "bd:0",
+        "cy:0",
+        "picc:0",
+        "sd:0",
+        "tri:0",
+        "tamb:0",
+        "bells:0"
+      ]
+    },
+    {
+      "id": "bach-nun-seid-ihr",
+      "venues": [
+        "sphere"
+      ],
+      "sections": [
+        "tp",
+        "hn",
+        "timp",
+        "ob",
+        "vn1",
+        "vn2",
+        "va",
+        "choir",
+        "fl",
+        "cl",
+        "bn",
+        "vc",
+        "cb"
+      ],
+      "windows": [
+        {
+          "start": 0,
+          "reason": "entry:tp"
+        },
+        {
+          "start": 0.182,
+          "reason": "entry:cb"
+        },
+        {
+          "start": 1.034,
+          "reason": "dense:ob"
+        },
+        {
+          "start": 3.25,
+          "reason": "dense:vc"
+        },
+        {
+          "start": 19.273,
+          "reason": "dense:cb"
+        },
+        {
+          "start": 19.614,
+          "reason": "dense:vn1"
+        },
+        {
+          "start": 20.977,
+          "reason": "dense:timp"
+        },
+        {
+          "start": 25.58,
+          "reason": "dense:tp"
+        },
+        {
+          "start": 32.227,
+          "reason": "entry:bn"
+        },
+        {
+          "start": 32.398,
+          "reason": "dense:va"
+        },
+        {
+          "start": 43.818,
+          "reason": "dense:fl"
+        },
+        {
+          "start": 44.5,
+          "reason": "dense:bn"
+        },
+        {
+          "start": 46.5875,
+          "reason": "duration:0.25"
+        },
+        {
+          "start": 93.175,
+          "reason": "duration:0.5"
+        },
+        {
+          "start": 109.955,
+          "reason": "dense:cl"
+        },
+        {
+          "start": 139.7625,
+          "reason": "duration:0.75"
+        },
+        {
+          "start": 177.0325,
+          "reason": "duration:0.95"
+        }
+      ],
+      "frames": 2550,
+      "armSamples": 163200,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.09338937106583099,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 2.0479320895092283,
+      "minFlex": 0.3100962335505428,
+      "maxFlex": 2.656141623510977,
+      "failures": [],
+      "observedPlayingChairs": [
+        "tp:0",
+        "vc:0",
+        "vc:1",
+        "cb:0",
+        "ob:0",
+        "vn1:0",
+        "vn1:1",
+        "vn1:2",
+        "vn2:0",
+        "vn2:1",
+        "vn2:2",
+        "va:0",
+        "va:1",
+        "hn:0",
+        "hn:1",
+        "timp:0",
+        "fl:0",
+        "cl:0",
+        "bn:0",
+        "choir:0",
+        "choir:1",
+        "choir:2",
+        "choir:3",
+        "choir:4",
+        "choir:5",
+        "choir:6",
+        "choir:7",
+        "choir:8",
+        "choir:9",
+        "choir:10",
+        "choir:11"
+      ]
+    }
+  ],
+  "lifecycle": {
+    "id": "stage-lifecycle",
+    "states": {
+      "sitting": 7176,
+      "standing": 59724,
+      "seated": 142090,
+      "queued": 75130,
+      "walking": 60520,
+      "off": 142080
+    },
+    "maxWalkingRootFloorGap": 0.08499997070893084,
+    "frames": 9360,
+    "armSamples": 597520,
+    "nonFinite": 0,
+    "maxContactError": 0.003912684988264914,
+    "maxBoneError": 2.220446049250313e-16,
+    "maxStep": 0.09482686280120164,
+    "maxHandleGap": 0,
+    "minBeaterHeadClearance": 1.9615754339763527,
+    "minFlex": 0.2644616484606951,
+    "maxFlex": 2.705260340591211,
+    "failures": []
+  },
+  "rigSummary": {
+    "violin": {
+      "id": "violin",
+      "frames": 0,
+      "armSamples": 1098266,
+      "nonFinite": 0,
+      "maxContactError": 1.3078552441950627e-16,
+      "maxBoneError": 3.885780586188048e-16,
+      "maxStep": 0.09371743468748601,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.7043547057499149,
+      "maxFlex": 2.343272662895982,
+      "failures": []
+    },
+    "viola": {
+      "id": "viola",
+      "frames": 0,
+      "armSamples": 365800,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.10077179168908117,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.2644616484606951,
+      "maxFlex": 2.3063319321582463,
+      "failures": []
+    },
+    "cello": {
+      "id": "cello",
+      "frames": 0,
+      "armSamples": 397454,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.08755005183787562,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.25279159839126913,
+      "maxFlex": 2.656946692811317,
+      "failures": []
+    },
+    "bass": {
+      "id": "bass",
+      "frames": 0,
+      "armSamples": 165198,
+      "nonFinite": 0,
+      "maxContactError": 0.010197461584527863,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.08943305189845982,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 2.705260340591211,
+      "failures": []
+    },
+    "flute": {
+      "id": "flute",
+      "frames": 0,
+      "armSamples": 144636,
+      "nonFinite": 0,
+      "maxContactError": 1.2719202621569003e-16,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.06359507227959448,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.9394021612524771,
+      "maxFlex": 2.127278069558063,
+      "failures": []
+    },
+    "oboe": {
+      "id": "oboe",
+      "frames": 0,
+      "armSamples": 127764,
+      "nonFinite": 0,
+      "maxContactError": 1.249000902703301e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.02905751526162354,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.7547002563093423,
+      "maxFlex": 1.5109812889827974,
+      "failures": []
+    },
+    "clarinet": {
+      "id": "clarinet",
+      "frames": 0,
+      "armSamples": 133598,
+      "nonFinite": 0,
+      "maxContactError": 1.249000902703301e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.02940847766805021,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.8340653703738066,
+      "maxFlex": 1.5109812889827974,
+      "failures": []
+    },
+    "bassoon": {
+      "id": "bassoon",
+      "frames": 0,
+      "armSamples": 135036,
+      "nonFinite": 0,
+      "maxContactError": 1.3092278833360675e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.026286663142680154,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.5863520817922879,
+      "maxFlex": 1.693410623612078,
+      "failures": []
+    },
+    "horn": {
+      "id": "horn",
+      "frames": 0,
+      "armSamples": 269718,
+      "nonFinite": 0,
+      "maxContactError": 1.3597399555105182e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.03179188097088846,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.0453232360592528,
+      "maxFlex": 1.5459276655104934,
+      "failures": []
+    },
+    "trumpet": {
+      "id": "trumpet",
+      "frames": 0,
+      "armSamples": 138190,
+      "nonFinite": 0,
+      "maxContactError": 1.2936199464062934e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.06816274714968544,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.546359927035194,
+      "maxFlex": 1.9185515253272998,
+      "failures": []
+    },
+    "timpani": {
+      "id": "timpani",
+      "frames": 0,
+      "armSamples": 123336,
+      "nonFinite": 0,
+      "maxContactError": 0.025094087244018827,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.10168850734657955,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.7368200462987275,
+      "minFlex": 1.3791205245545144,
+      "maxFlex": 2.705260340591211,
+      "failures": []
+    },
+    "choir": {
+      "id": "choir",
+      "frames": 0,
+      "armSamples": 759474,
+      "nonFinite": 0,
+      "maxContactError": 3.1031676915590914e-17,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.011613256401237835,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.8453380241055528,
+      "maxFlex": 2.2343239175158756,
+      "failures": []
+    },
+    "conductor": {
+      "id": "conductor",
+      "frames": 0,
+      "armSamples": 277710,
+      "nonFinite": 0,
+      "maxContactError": 1.249000902703301e-16,
+      "maxBoneError": 2.7755575615628914e-16,
+      "maxStep": 0.04934928803017468,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.2613838879277101,
+      "maxFlex": 2.401530206100079,
+      "failures": []
+    },
+    "piano": {
+      "id": "piano",
+      "frames": 0,
+      "armSamples": 102334,
+      "nonFinite": 0,
+      "maxContactError": 1.2719202621569003e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.057047357589687236,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.056624872184325,
+      "maxFlex": 1.920319089703335,
+      "failures": []
+    },
+    "harp": {
+      "id": "harp",
+      "frames": 0,
+      "armSamples": 57966,
+      "nonFinite": 0,
+      "maxContactError": 0.013514995860102363,
+      "maxBoneError": 3.885780586188048e-16,
+      "maxStep": 0.06464346949264259,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.0447632501493527,
+      "maxFlex": 2.705260340591211,
+      "failures": []
+    },
+    "piccolo": {
+      "id": "piccolo",
+      "frames": 0,
+      "armSamples": 52664,
+      "nonFinite": 0,
+      "maxContactError": 1.2177709378935645e-16,
+      "maxBoneError": 3.3306690738754696e-16,
+      "maxStep": 0.056569795621581105,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.0428217746417927,
+      "maxFlex": 2.1487520094705186,
+      "failures": []
+    },
+    "trombone": {
+      "id": "trombone",
+      "frames": 0,
+      "armSamples": 193316,
+      "nonFinite": 0,
+      "maxContactError": 0.009977197048336526,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.0624025241144516,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.17453292519943253,
+      "maxFlex": 1.9380799935541368,
+      "failures": []
+    },
+    "tuba": {
+      "id": "tuba",
+      "frames": 0,
+      "armSamples": 66094,
+      "nonFinite": 0,
+      "maxContactError": 1.3383253895372864e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.02795065050972631,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2364193281383444,
+      "maxFlex": 1.8335048806546148,
+      "failures": []
+    },
+    "snare": {
+      "id": "snare",
+      "frames": 0,
+      "armSamples": 61490,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.027373156450735608,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.8533959450354451,
+      "minFlex": 1.5733218591571474,
+      "maxFlex": 2.596066401500225,
+      "failures": []
+    },
+    "bassDrum": {
+      "id": "bassDrum",
+      "frames": 0,
+      "armSamples": 52868,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.045500665406484224,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.533385006611133,
+      "minFlex": 1.5760667532124448,
+      "maxFlex": 2.543539713934947,
+      "failures": []
+    },
+    "triangle": {
+      "id": "triangle",
+      "frames": 0,
+      "armSamples": 54022,
+      "nonFinite": 0,
+      "maxContactError": 6.206335383118183e-17,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.08433191569703831,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.5958722674932877,
+      "minFlex": 1.5246439217911436,
+      "maxFlex": 2.3794589527870573,
+      "failures": []
+    },
+    "organ": {
+      "id": "organ",
+      "frames": 0,
+      "armSamples": 15070,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.04189364678179856,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.2929343031808749,
+      "maxFlex": 2.1831911187514925,
+      "failures": []
+    },
+    "cymbals": {
+      "id": "cymbals",
+      "frames": 0,
+      "armSamples": 62860,
+      "nonFinite": 0,
+      "maxContactError": 1.1188630228279524e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.04883111062871508,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.5004669195222582,
+      "minFlex": 1.5790676924115004,
+      "maxFlex": 2.4921383352033963,
+      "failures": []
+    },
+    "saxophone": {
+      "id": "saxophone",
+      "frames": 0,
+      "armSamples": 156716,
+      "nonFinite": 0,
+      "maxContactError": 1.298611723169814e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.02803056419837182,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.27386787552466973,
+      "maxFlex": 1.5653395226690243,
+      "failures": []
+    },
+    "mallet": {
+      "id": "mallet",
+      "frames": 0,
+      "armSamples": 25940,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.03119703386814542,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.8772881361336042,
+      "minFlex": 1.5715842272525975,
+      "maxFlex": 2.604156131834472,
+      "failures": []
+    },
+    "englishHorn": {
+      "id": "englishHorn",
+      "frames": 0,
+      "armSamples": 44652,
+      "nonFinite": 0,
+      "maxContactError": 1.249000902703301e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.029448770529083332,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.7277785947695946,
+      "maxFlex": 1.4486399508774406,
+      "failures": []
+    },
+    "celesta": {
+      "id": "celesta",
+      "frames": 0,
+      "armSamples": 23448,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.038986659263220834,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 1.1575694284122187,
+      "maxFlex": 2.1798067869991566,
+      "failures": []
+    },
+    "tambourine": {
+      "id": "tambourine",
+      "frames": 0,
+      "armSamples": 40020,
+      "nonFinite": 0,
+      "maxContactError": 1.3092278833360675e-16,
+      "maxBoneError": 1.6653345369377348e-16,
+      "maxStep": 0.07940786949225567,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": null,
+      "minFlex": 0.47848292127690323,
+      "maxFlex": 2.082081480443817,
+      "failures": []
+    },
+    "tom": {
+      "id": "tom",
+      "frames": 0,
+      "armSamples": 17380,
+      "nonFinite": 0,
+      "maxContactError": 1.1188630228279524e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.02737287148120031,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.8814375349252688,
+      "minFlex": 1.5763233994792332,
+      "maxFlex": 2.565338918178448,
+      "failures": []
+    },
+    "bells": {
+      "id": "bells",
+      "frames": 0,
+      "armSamples": 18800,
+      "nonFinite": 0,
+      "maxContactError": 1.1443916996305594e-16,
+      "maxBoneError": 2.220446049250313e-16,
+      "maxStep": 0.02737311826014181,
+      "maxHandleGap": 0,
+      "minBeaterHeadClearance": 1.132472153802033,
+      "minFlex": 1.5759437505214566,
+      "maxFlex": 2.478543855775594,
+      "failures": []
+    }
+  }
+}

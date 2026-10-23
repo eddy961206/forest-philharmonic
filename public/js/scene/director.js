@@ -4,8 +4,9 @@
 // lock); dragging still works when the cursor is free. Zoom works like opera
 // glasses. An optional auto-director films the concert for you.
 import * as THREE from 'three';
-import { stepTo, surfacesAt, LEVELS, groundBelow, headroomAt, barrierTop, ENTRY } from './hallplan.js';
-import { SECTIONS, PODIUM, STAGE_Y, sectionCenter } from '../layout.js';
+import { stepTo, surfacesAt, floorAt, LEVELS, groundBelow, headroomAt, barrierTop, ENTRY } from './hallplan.js';
+import { SECTIONS, PODIUM, STAGE_Y } from '../layout.js';
+import { CinemaProgram } from './cinema-program.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 export const STAGE_FOCUS = V(0, STAGE_Y + 1.1, -4.6);
@@ -818,7 +819,7 @@ export class Director {
     // the curtain call: when the applause begins, a new shot at once - one
     // where the bows can be seen - not a close-up held through them
     if (ctx.phase !== c.phase) {
-      if (ctx.phase === 'applause' && c.phase !== undefined) c.until = 0;
+      if ((ctx.phase === 'applause' || ctx.phase === 'playing') && c.phase !== undefined) c.until = 0;
       c.phase = ctx.phase;
     }
     if (!c.shot || c.clock > c.until) {
@@ -830,7 +831,8 @@ export class Director {
       // long one - across the hall, up to the dome - is a cut, as on film,
       // rather than a rush through the players and the walls
       const d = this.pos.distanceTo(shot.pos);
-      if (d > 6) shot.cut = true;
+      const angle = Math.acos(clamp(new THREE.Vector3(-Math.sin(this.yaw) * Math.cos(this.pitch), Math.sin(this.pitch), -Math.cos(this.yaw) * Math.cos(this.pitch)).dot(shot.look.clone().sub(shot.pos).normalize()), -1, 1));
+      if (d > 4 || angle > Math.PI / 5) shot.cut = true;
       this.flyTo(shot.pos, shot.look, shot.cut ? 0.001 : clamp(d / 1.8, 2.4, 3.6), shot.fov);
       this.anim.lift = false;
       this.anim.after = () => { c.drift = { t: 0 }; };
@@ -839,11 +841,14 @@ export class Director {
     if (c.drift && c.shot) {
       c.drift.t += dt;
       const s = c.shot;
-      const x = c.drift.t / s.hold;
+      const x = clamp(c.drift.t / s.hold, 0, 1);
       const p = s.pos.clone().addScaledVector(s.drift, x);
       this.pos.lerp(p, 1 - Math.exp(-dt * 2));
       const { yaw, pitch } = this.lookAt(s.look, this.pos);
-      this.yaw += (yaw - this.yaw) * (1 - Math.exp(-dt * 2));
+      let turn = yaw - this.yaw;
+      while (turn > Math.PI) turn -= Math.PI * 2;
+      while (turn < -Math.PI) turn += Math.PI * 2;
+      this.yaw += turn * (1 - Math.exp(-dt * 2));
       this.pitch += (pitch - this.pitch) * (1 - Math.exp(-dt * 2));
     }
   }
@@ -852,9 +857,32 @@ export class Director {
     const perf = ctx.perf;
     const t = ctx.time;
     const piece = perf.piece;
-    const r = Math.random();
-    const last = this.cine.shot?.kind;
-    const dom = piece && perf.playing ? perf.dominantSection(t + 2, 8) : null;
+
+    const c = this.cine;
+    this.cinemaProgram ||= new CinemaProgram();
+    if (c.piece !== piece || t < (c.scoreTime ?? -Infinity) - .5) { c.edit = 0; c.wideIndex = Math.floor(Math.random() * 3); c.angles = new Map(); c.piece = piece; }
+    c.scoreTime = t;
+    const edit = c.edit || 0;
+    // Establish the space; shuffle performers, audience and conductor
+    // within a balanced programme rather than independent random cuts.
+    let role = 'wide';
+    if (edit % 7) {
+      if (edit % 7 === 1) {
+        // A shuffled programme with bounded repetition, not independent
+        // random cuts that can neglect the audience or one instrument.
+        let attempts = 0;
+        do {
+          c.roles = ['player', 'player', 'player', 'player', 'audience', 'conductor'];
+          for (let i = c.roles.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [c.roles[i], c.roles[j]] = [c.roles[j], c.roles[i]]; }
+        } while (++attempts < 12 && c.roles.some((v, i, a) => v === 'player' && a[i + 1] === v && a[i + 2] === v));
+        if (attempts === 12) c.roles = ['player', 'player', 'audience', 'player', 'conductor', 'player'];
+      }
+      role = c.roles[edit % 7 - 1];
+    }
+    c.edit = edit + 1;
+    const selected = piece && perf.playing && (role === 'player' || (role === 'conductor' && !piece.conducted))
+      ? this.cinemaProgram.choose(piece, t) : null;
+    const dom = selected?.sid;
     const wide = () => {
       const options = [
         { kind: 'wide', pos: V(0, 4.4, 17), look: V(0, STAGE_Y + 1.4, -5), fov: 44, drift: V(0, -0.4, -3.5) },
@@ -864,9 +892,15 @@ export class Director {
         { kind: 'hall', pos: V(0, 3.2, -1.5), look: V(0, 8, 24), fov: 62, drift: V(1.5, 0.6, 0) },
       ];
       let list = ENTRY.wide ? ENTRY.wide.map((o) => ({ ...o, pos: V(o.pos[0], o.pos[1], o.pos[2]), look: V(o.look[0], o.look[1], o.look[2]), drift: V(o.drift[0], o.drift[1], o.drift[2]) })) : options;
+      if (role === 'audience') list = [
+        { kind: 'audience', pos: V(0, floorAt(0, 12) + 2.1, 12), look: V(0, STAGE_Y + 1.3, -5.5), fov: 58, drift: V(.55, .12, -.35) },
+        { kind: 'audience', pos: V(-10, floorAt(-10, 9) + 3.2, 9), look: V(-.8, STAGE_Y + 1.3, -5.5), fov: 58, drift: V(.6, 0, 0) },
+        { kind: 'audience', pos: V(10, floorAt(10, 9) + 3.2, 9), look: V(.8, STAGE_Y + 1.3, -5.5), fov: 58, drift: V(-.6, 0, 0) },
+      ];
+      if (perf.playing) list = list.filter(o => o.kind !== 'hall');
       // (for the bows: the stage from the house, not the house from the stage)
       if (bows && list.some((o) => o.kind !== 'hall')) list = list.filter((o) => o.kind !== 'hall');
-      return list[Math.floor(Math.random() * list.length)];
+      return list[(c.wideIndex = (c.wideIndex ?? -1) + 1) % list.length];
     };
     const bows = ctx.phase === 'applause';
     let shot;
@@ -874,40 +908,48 @@ export class Director {
     // no conductor, the whole stage
     if (bows && piece?.conducted) shot = { kind: 'bows', pos: V(0.6, STAGE_Y + 1.9, 2.8), look: V(0, STAGE_Y + 1.3, -5.5), fov: 52, drift: V(-0.8, 0, 0.5) };
     else if (bows) shot = wide();
-    else if (!piece || !perf.playing || r < 0.28 || (last === 'section' && r < 0.4)) shot = wide();
-    else if (piece.conducted && r < 0.4 && last !== 'conductor') {
+    else if (!piece || !perf.playing || role === 'wide' || role === 'audience') shot = wide();
+    else if (piece.conducted && role === 'conductor') {
       shot = Math.random() < 0.5
         ? { kind: 'conductor', pos: V(1.4, STAGE_Y + 2.0, -6.0), look: V(PODIUM.x, STAGE_Y + 1.6, PODIUM.z), fov: 34, drift: V(-1.2, 0, 0) }
         : { kind: 'conductor', pos: V(0.6, STAGE_Y + 1.9, 2.8), look: V(0, STAGE_Y + 1.3, -5.5), fov: 48, drift: V(-1, 0, -1) };
     } else if (dom) {
-      const sc = sectionCenter(dom);
-      const look = V(sc.x, sc.y + 0.25, sc.z);
+      const key = `${dom}:${selected.ci}`;
+      const angle = c.angles.get(key) ?? Math.floor(Math.random() * 3);
+      c.angles.set(key, (angle + 1) % 3);
+      const chair = SECTIONS[dom].chairs[selected.ci];
+      const sc = { ...chair };
+      const look = V(sc.x, sc.y + .95, sc.z);
       const toAud = V(-sc.x * 0.25, 0, 1).normalize();
       // (on the section's outer side: from the middle the conductor's head
       // would fill the picture)
       const side = Math.abs(sc.x) > 1 ? Math.sign(sc.x) : Math.random() < 0.5 ? -1 : 1;
       const lateral = V(toAud.z, 0, -toAud.x).multiplyScalar(side);
-      let dist = 2.6 + Math.random() * 1.4;
+      let dist = 2.8 + (edit % 3) * .4;
       if (dom === 'piano') {
         const pPos = SECTIONS.piano.chairs[0];
-        shot = Math.random() < 0.5
+        shot = angle === 0
           ? { kind: 'section', pos: V(pPos.x + 0.9, pPos.y + 1.45, pPos.z + 0.7), look: V(pPos.x + 0.55, pPos.y + 0.72, pPos.z), fov: 40, drift: V(0, 0, -0.5) }
           : { kind: 'section', pos: V(pPos.x + 2.8, pPos.y + 1.5, pPos.z + 2.4), look: V(pPos.x + 0.3, pPos.y + 1.0, pPos.z - 0.2), fov: 38, drift: V(-0.6, 0, 0.4) };
-      } else if (dom === 'choir') {
+      } else if (dom === 'choir' && angle === 0) {
         shot = { kind: 'section', pos: V(side * 3.5, STAGE_Y + 2.8, -5.0), look: V(0, STAGE_Y + 2.7, -11.5), fov: 40, drift: V(-side * 1.5, 0, 0) };
       } else {
         if (sc.z < -6) dist += 1.5;
-        const pos = look.clone().addScaledVector(toAud, dist).addScaledVector(lateral, 1.2).add(V(0, 0.55, 0));
+        const bearing = toAud.clone().applyAxisAngle(V(0, 1, 0), [-.5, .15, .65][angle] * side);
+        const pos = look.clone().addScaledVector(bearing, dist).addScaledVector(lateral, .6).add(V(0, [.55, .9, .65][angle]));
         shot = { kind: 'section', pos, look, fov: 40, drift: lateral.clone().multiplyScalar(-0.9) };
       }
+      shot.angle = angle;
     } else shot = wide();
+    const portrait = (this.camera?.aspect ?? 1) < .8;
+    if (portrait && shot.kind === 'section') shot.pos.y += .65;
     if (ctx.obstacles) {
       // a head too near the camera, or between it and what it films (not
       // the heads it is filming): step back and up until the view is clear
       const ab = V();
       const ap = V();
       const inTheWay = (o) => {
-        if (o.distanceTo(shot.pos) < 0.95) return true;
+        if (o.distanceTo(shot.pos) < (portrait ? 1.5 : .95)) return true;
         // (only a section's close shot: a wide one looks over them all, and
         // in the conductor's shots the conductor is the point)
         if (shot.kind !== 'section' || o.distanceTo(shot.look) < 1.6) return false;
@@ -922,8 +964,18 @@ export class Director {
         shot.pos.addScaledVector(away, 0.45).add(V(0, 0.3, 0));
       }
     }
-    shot.hold = 14 + Math.random() * 6;
-    shot.cut = bows || Math.random() < 0.2;
+    if (shot.kind === 'section') {
+      shot.sid = selected.sid; shot.ci = selected.ci;
+      // Alternate a medium portrait and a looser section framing.
+      shot.fov = edit % 2 ? 46 : 52;
+      shot.drift.multiplyScalar(.65);
+    }
+    shot.hold = bows ? 11 : !perf.playing ? 13 : (shot.kind === 'section' ? 8 : 10) + Math.random() * 2;
+    if (perf.playing && !bows) {
+      const downbeat = piece.beats?.find(b => b[1] === 0 && b[0] >= t + shot.hold && b[0] <= t + Math.min(12, shot.hold + 1.2));
+      if (downbeat) shot.hold = downbeat[0] - t;
+    }
+    shot.cut = bows;
     return shot;
   }
 

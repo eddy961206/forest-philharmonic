@@ -1,7 +1,9 @@
 # Credits & licenses
 
-All compositions performed here are in the public domain. The data and
-samples used to perform them come from these sources:
+Compositions, score editions, MIDI sequences and instrument samples have
+separate rights. Licenses below apply to the identified assets; this project
+does not claim that every composition is public domain in every territory.
+The code MIT license does not relicense third-party music data.
 
 ## Instrument samples (`public/samples/`)
 
@@ -9,7 +11,9 @@ samples used to perform them come from these sources:
   [gleitz/midi-js-soundfonts](https://github.com/gleitz/midi-js-soundfonts) —
   [Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/).
   Used for violin, viola, cello, contrabass, string ensemble, flute, oboe,
-  clarinet, bassoon, horn, trumpet, timpani and harp.
+  clarinet, bassoon, horn, trumpet, timpani and harp, plus piccolo, English horn,
+  trombone, tuba, saxophones, celesta, mallets, organ, harpsichord,
+  pizzicato and tremolo strings.
 - **Salamander Grand Piano V3** by Alexander Holm, via
   [Tonejs/audio](https://github.com/Tonejs/audio) —
   [Creative Commons Attribution 3.0](https://creativecommons.org/licenses/by/3.0/).
@@ -44,11 +48,43 @@ samples used to perform them come from these sources:
   by hand for this project from the public-domain originals.
 - *Amazing Grace* (the tune New Britain, *Southern Harmony*, 1835) and the
   trio of Elgar's *Pomp and Circumstance* March No. 1 (1901) are public-domain
-  melodies, written out here and harmonised and orchestrated for this project.
+  melodies. Amazing Grace remains written out and orchestrated for this project.
+  The earlier short Elgar trio has now been replaced by a full-march arrangement
+  derived from the CC0 piano/choral edition credited below.
   The Elgar melody was checked against the melody line published by
   [flutetunes.com](https://www.flutetunes.com/tunes.php?id=63); the
   harmony, voicing and orchestration are our own.
 - Choir, voice and tubular-bell samples are also from FluidR3_GM (CC BY 3.0).
+
+
+### Added repertoire and full Elgar march
+
+The complete per-piece attribution, original URLs, license declarations,
+SHA-256 hashes and arrangement notes are in [`tools/repertoire.json`](tools/repertoire.json)
+and the readable [source ledger](docs/repertoire-sources.md).
+
+- Mutopia 941, 900, 459, 483: Public Domain declarations.
+- Mutopia 301, *Spring*: maintainer smailliw, CC BY-SA 3.0.
+- Mutopia 1590, *Nocturne Op. 9 No. 2*: Renato Biolcati Rinaldi, CC BY-SA 3.0.
+- Mutopia 2047, *Canon per 3 Violini e Basso*: Michael Fischer v. Mollard, CC BY 4.0.
+  The source MIDI and derived performance files retain these licenses. Changes:
+  native instrument routing, orchestration where labeled, score timing conversion,
+  and sample-based performance. License links appear in the catalog.
+- [PDMX](https://github.com/pnlong/PDMX), [dataset release](https://zenodo.org/records/15571083):
+  each selected score's contributor and CC0/PD declaration are recorded individually.
+  Source declarations do not grant rights the contributor did not possess.
+- **Sabre Dance** sequence from [Classical MIDI](https://www.classicalmidi.co.uk/khachaturian.htm),
+  sequencer unknown: **NOASSERTION — redistribution permission is not established**.
+  This is an open source-clearance item, not a CC0 or MIT asset.
+
+### Direct FluidR3 percussion extraction
+
+`bassDrum`, `snare`, `tom`, `cymbals`, `triangle`, and `tambourine` are mono
+MP3 conversions of the acoustic percussion samples in FluidR3_GM, obtained
+from Debian's `fluid-soundfont-gm_3.1-6_all.deb`. The SoundFont's MIT notice
+is reproduced in [`tools/licenses/FluidR3-MIT.txt`](tools/licenses/FluidR3-MIT.txt).
+The conversion script records and verifies its checksum. Debian packaging
+is not included in the delivered audio assets.
 
 ## Libraries
 

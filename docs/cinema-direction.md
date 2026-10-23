@@ -1,0 +1,50 @@
+# 편하게 보기 — 자동 카메라 연출
+
+기존 카메라는 14~20초마다 우세한 파트 중심으로 장면을 골랐다. 새 카메라는 공연장 전경, 관객석에서 보는 합주, 연주 중인 단원, 지휘자를 하나의 공연 중계처럼 섞는다.
+
+- 처음에는 공간을 보여준다. 이후 7장면 단위로 전경 1회, 단원 4회, 관객석 시점 1회, 지휘자 1회를 배분한다. 지휘자가 없는 곡은 연주자 장면으로 대체한다.
+- 중간 순서는 무작위로 섞되 단원 장면 세 개가 연속되지 않도록 제한한다. 무작위 조합 재시도 횟수에도 상한을 둔다.
+- 실제 악보의 현재 지속음·최근 종료 0.35초·1.5초 안의 진입에서 대상을 찾는다. 파트별 등장 횟수와 자리별 등장 횟수를 관리해 큰 소리의 파트나 같은 단원에만 치우치지 않는다.
+- 같은 단원을 다시 촬영하면 각도를 순환한다. 좌우 사선, 높이, 중간 거리와 파트가 함께 보이는 구도를 섞는다. 피아노는 건반·연주자가 보이는 전용 구도를 사용한다.
+- 연주자 장면은 8~10초, 전경·객석·지휘자는 10~12초다. 1.2초 안에 마디 첫 박이 있고 총 12초를 넘지 않으면 그 박에 맞춰 전환한다. 박자 자료가 없으면 기본 간격을 쓴다.
+- 각 장면 안에서는 작은 이동을 천천히 이어간다. 4m보다 먼 이동이나 36도보다 큰 방향 전환은 컷으로 처리한다. 가까운 이동만 2.4~3.6초 동안 부드럽게 연결한다.
+- 카메라 옆과 피사체 앞의 단원 머리를 검사한다. 세로 화면에서는 근접 시점을 0.65m 높이고 주변 단원과의 최소 거리를 1.5m로 늘린다. 회전이 ±π 경계를 지날 때 한 바퀴 돌아가는 현상도 방지한다.
+
+선택은 장면 전환 때 계산한다. 매 프레임 전체 악보를 다시 읽지 않으며, 정렬한 음표의 종료 구간을 이진 탐색한다. 새로운 곡은 기존 악보 형식과 실제 자리 배정을 그대로 사용한다.
+
+## 재현
+
+```sh
+npm run verify:motion -- --out work/cinema/verification
+QA_OUT=work/cinema node tools/qa/record-cinema.mjs outdoor 75
+QA_OUT=work/cinema node tools/qa/record-cinema.mjs hall 45
+QA_OUT=work/cinema node tools/qa/record-cinema.mjs sphere 45
+MOBILE=1 QA_OUT=work/cinema node tools/qa/record-cinema.mjs outdoor 45
+```
+
+전용 `cdp-direct` Chrome 9224와 로컬 서버 8096을 사용한다. 녹화 도구는 실제 자동 카메라를 켜고 화면·소리를 연속 녹화한다. 카메라를 검사 전용 고정 위치로 바꾸지 않는다. 실제 편집 시간, 각도, 단원, 곡의 음표로 독립 확인한 활성 여부, visibility와 콘솔 오류를 JSON에 남긴다. 녹화 중 다른 자동화 연결로 뷰포트를 변경하지 않는다.
+
+검증 환경은 Mac mini M4, Chrome 156이다. 모바일은 Chrome 에뮬레이션이며 실제 iPhone/Safari 검사는 포함하지 않는다. 선택 시점의 실제 음표 검사는 모든 촬영 시간 동안 피사체가 계속 소리를 내거나 모든 물체의 가림이 제거된다는 보장은 아니다. 전곡 완주 영상 검사도 아니다.
+
+결과와 실제 영상은 `docs/evidence/cinema/`에 보존한다.
+
+## 확인 결과
+
+2026-10-24 KST, Mac mini M4 / Chrome 156 / Node 24.22.1에서 직접 수정·검증했다.
+
+- 단위·회귀 검사 **274개 통과**. 전체 82곡·51단원·142,110프레임 동작 검사도 실패 0개다.
+- 야외 75초, 홀 45초, 스피어 45초, 최종 모바일 45초의 실제 자동 연출을 녹화했다. 23개 장면의 선택 시점에서 연주 대상 자격·장면 간격·페이지 visibility·콘솔 오류 검사를 통과했다.
+- 세로 화면 추가 보정 후 PC 야외 20초 재검사와 모바일 45초 재녹화가 통과했다. PC의 기존 세 공연장 영상은 세로 보정 이전의 공통 연출 검사이며, 세로 보정이 가로 구도를 바꾸지 않는 회귀 검사도 통과했다. 각 JSON에 당시 제품 소스 해시를 따로 기록한다.
+- 전달용 MP4 4개는 요청한 녹화 길이와 전체 디코딩 검사를 통과했다. 실제 시간순 프레임에서 전경·단원·지휘자·객석 구도를 확인했다. 원본 WebM 변환 시 Opus 헤더 경고가 있었고, 최종 H.264/AAC MP4의 전체 디코딩에는 오류가 없었다.
+
+| 영상 | 시간 | 장면 | 자료 |
+| --- | ---: | ---: | --- |
+| 야외 | 75초 | 8 | [영상](evidence/cinema/outdoor.mp4) · [선택 기록](evidence/cinema/outdoor.json) |
+| 홀 | 45초 | 5 | [영상](evidence/cinema/hall.mp4) · [선택 기록](evidence/cinema/hall.json) |
+| 스피어 | 45초 | 5 | [영상](evidence/cinema/sphere.mp4) · [선택 기록](evidence/cinema/sphere.json) |
+| 모바일 최종 | 45초 | 5 | [영상](evidence/cinema/outdoor-mobile.mp4) · [선택 기록](evidence/cinema/outdoor-mobile.json) |
+
+[최종 검사 요약](evidence/cinema/verification/verification-summary.json) · [실행 로그](evidence/cinema/verification/unit-tests.log) · [전체 동작 원자료](evidence/cinema/verification/motion-audit.json) · [최종 PC 재검사](evidence/cinema/outdoor-current-smoke.json).
+
+최종 제품 JS SHA-256: `92f658ee1a069e91adfdc63924e02457740aa08278ca36e1b68ce8a5ed61daa4`.
+검증 입력 SHA-256: `10b36e4721605c1bdece22329eb6b0955f51d2af6380ee8ac250fc691da96474`.

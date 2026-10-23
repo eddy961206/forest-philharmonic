@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { Performance } from '../public/js/audio/performance.js';
+import { SECTIONS } from '../public/js/layout.js';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
 const score = {
@@ -74,7 +75,8 @@ test('600 frames and time discontinuities exactly match the original visual stat
   const { transport } = await fixture(t, piece);
   // Recorded before the allocation optimization, including every chair field,
   // active-note order, track cursor and emitted event at each frame.
-  const snapshot = (time, events) => JSON.stringify({ t: time, events, chairs: transport.chairs, visualIndices: transport.piece.tracks.map(track => track.vi), lastVisualT: transport.lastVisualT });
+  const originalSections = ['vn1', 'vn2', 'va', 'vc', 'cb', 'harp', 'fl', 'ob', 'cl', 'bn', 'hn', 'tp', 'timp', 'piano', 'choir'];
+  const snapshot = (time, events) => JSON.stringify({ t: time, events, chairs: Object.fromEntries(originalSections.map(id => [id, transport.chairs[id]])), visualIndices: transport.piece.tracks.map(track => track.vi), lastVisualT: transport.lastVisualT });
   const all = createHash('sha256');
   for (let frame = 0; frame < 600; frame++) {
     const time = frame / 60;
@@ -110,7 +112,7 @@ test('seek, rewind, stop and loading a new score rebuild the cached chair refere
   const afterSeek = transport.chairs.vn1[0];
   transport.updateVisual(0);
   assert.notEqual(transport.chairs.vn1[0], afterSeek);
-  assert.equal(transport._visualChairs.length, 33);
+  assert.equal(transport._visualChairs.length, Object.values(SECTIONS).reduce((n, section) => n + section.chairs.length, 0));
   transport.stop();
   assert.equal(transport.chairs.vn1[0].active.length, 0);
   const afterStop = transport.chairs.vn1[0];

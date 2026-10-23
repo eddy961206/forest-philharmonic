@@ -1,7 +1,7 @@
 // DOM interface: now-playing card, the vibrating "string" seek bar,
 // transport, side panel (programme, settings), touch controls, prompts.
 import { tapButton, thumbStick } from './joystick.js';
-import { IS_SPHERE } from './scene/venue.js';
+import { IS_SPHERE, IS_OUTDOOR } from './scene/venue.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (s) => {
@@ -36,7 +36,8 @@ export class UI {
     document.body.dataset.venue = venue; // (the help speaks of this building: stairs or lifts)
     // which building: the splash speaks of it, the other one is a click away
     const V = venues[venue];
-    if (V?.title) $('splashTitle').textContent = V.title;
+    if (V?.title) { $('splashTitle').textContent = V.title; document.title = V.title; }
+    if (V?.ko) $('stage').setAttribute('aria-label', `3D ${V.ko}`);
     if (V?.intro) $('splashSub').textContent = V.intro;
     document.querySelectorAll('#lbVenue button').forEach((b) => {
       b.setAttribute('aria-pressed', String(b.dataset.venue === venue));
@@ -474,7 +475,7 @@ export class UI {
       b.querySelector('.p-dur').textContent = fmt(p.duration);
       const meta = b.querySelectorAll('.p-meta span');
       meta[0].textContent = p.composerKo;
-      meta[1].textContent = p.ensembleKo;
+      meta[1].textContent = p.editionKo || p.ensembleKo;
       b.addEventListener('click', (e) => { this.emit('select', i); if (e.detail > 0) b.blur(); });
       li.appendChild(b);
       ol.appendChild(li);
@@ -488,9 +489,15 @@ export class UI {
     if (!piece) return;
     $('npComposer').textContent = `${piece.composerKo} (${piece.composer}), ${piece.year}`;
     $('npTitle').textContent = piece.titleKo;
-    $('npEnsemble').textContent = piece.ensembleKo;
+    $('npEnsemble').textContent = piece.editionKo || piece.ensembleKo;
+    const reference = $('npReference');
+    if (reference) {
+      reference.hidden = !piece.referenceUrl;
+      if (piece.referenceUrl) reference.href = piece.referenceUrl;
+      else reference.removeAttribute('href');
+    }
     this.duration = piece.duration;
-    document.title = `${piece.titleKo} · 숲속 필하모닉`;
+    document.title = `${piece.titleKo} · ${this.venues?.[this.venue]?.title || '숲속 필하모닉'}`;
   }
 
   setPlaying(on) {
@@ -905,7 +912,7 @@ export class UI {
     for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen']]) bindCheck(id, key);
     // the audience: how full this venue's house is (each venue keeps its own)
     const crowd = $('crowd');
-    const crowdKey = IS_SPHERE ? 'crowdSphere' : 'crowdHall';
+    const crowdKey = IS_SPHERE ? 'crowdSphere' : IS_OUTDOOR ? 'crowdOutdoor' : 'crowdHall';
     const showCrowd = () => {
       $('crowdOut').textContent = `${crowd.value}%`;
       crowd.style.setProperty('--fill', `${crowd.value}%`);
@@ -949,6 +956,12 @@ export class UI {
       });
     });
 
+    if (IS_OUTDOOR) {
+      for (const id of ['optFx', 'optLasers', 'optScreen', 'optNotes', 'optGlow']) $(id).closest('label').hidden = true;
+      $('fixedEarText').textContent = ' 편하게 보기 중에는 마당 중앙 자리에서 듣기';
+      $('reverbText').textContent = '야외 잔향 ';
+      $('intervalHint').textContent = '프로그램 한가운데에서 한 번 쉬어 가요. 공원 길을 걷거나 자리에서 쉬어도 좋아요.';
+    }
     const domeField = $('domeProjectionField');
     if (domeField) domeField.hidden = !IS_SPHERE;
     document.querySelectorAll('#domeProjectionSeg button').forEach((b) => {
