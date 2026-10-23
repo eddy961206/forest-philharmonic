@@ -1,0 +1,334 @@
+
+> forest-philharmonic@1.0.0 test
+> node tools/test.mjs
+
+(node:17114) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ legacy and e741 desktop/Lite contracts retain exact rates, people, seeds, durations and PCM totals (1.895459ms)
+✔ a matching aggregate cannot hide wrong per-profile rate, length, channel count, name or layer (0.16775ms)
+✔ missing/extra buffers, unsupported layout/Lite policy and incorrect total fail closed (0.127ms)
+✔ browserState exposes actual old/new AudioBuffer metadata and rejects mixed or unexpected pair shape (1.64075ms)
+(node:17115) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ batched arms preserve animated world vertices, material and shadows under transformed parents (7.257667ms)
+✔ hidden musicians leave every view and return at the current pose (0.565041ms)
+✔ original arm intersections and musician ownership survive batching and disposal (1.874541ms)
+(node:17116) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ increasing the audience share keeps existing guests in the same seats and colours (41.64775ms)
+✔ a capped Lite audience keeps room reservations and full-house applause count (18.913292ms)
+(node:17117) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ calls before audio init do not establish a stale cached pose (1.040417ms)
+✔ 600 identical frames keep the initial targets and schedule no duplicates (0.8755ms)
+✔ turning updates orientation without changing distance filters (0.417291ms)
+✔ section desks follow head turns while unchanged distance and pose targets are reused (0.262667ms)
+✔ moving retains every spatial target and air absorption value (0.228042ms)
+✔ the exact cache preserves tiny movements and mutable vector inputs (0.077125ms)
+✔ listener initialization invalidates a pose sent during async setup (0.0675ms)
+✔ reinitialization binds a new audio listener and resends unchanged targets (0.10425ms)
+✔ legacy listeners keep separate position/orientation updates (0.123666ms)
+✔ adding a foyer source refreshes distance and air for a stationary listener only once (1.592333ms)
+✔ moving a foyer source refreshes a stationary legacy ear without duplicate pose writes (0.630333ms)
+✔ audio initialization resets source dirtiness before asynchronous setup (0.859875ms)
+(node:17118) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ actual Performance keeps identical audio requests and transport state with the observer attached (6.544334ms)
+✔ legacy scheduler without _resumeHeld is supported explicitly and original arguments/returns survive (0.380458ms)
+✔ held and fresh notes retain separate original indices and all continuation arguments (0.325833ms)
+✔ wrong held skip, remaining duration, pitch, gain, start time or velocity remains an explicit mismatch (0.449ms)
+✔ missing, extra, duplicated and reordered held requests are not silently ignored (0.29525ms)
+✔ scheduler index advancement without a request and foreign music requests fail separately (0.179834ms)
+✔ native exceptions retain identity and observer callback errors cannot change product return values (0.347792ms)
+(node:17119) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a stalled scheduler discards ended notes before allocating any audio nodes (3.407875ms)
+✔ a tone with less than one re-entry swell left is not extended past its score ending (0.211208ms)
+✔ late sustained notes continue at their score position and keep the original end time (1.199708ms)
+✔ late held-note continuation advances its existing skip and optional layer equally (0.2995ms)
+✔ late struck notes are not re-attacked, while normal jitter and future notes retain their envelopes (0.547458ms)
+✔ a successful worker clock releases its Blob URL and reinitialization stops the previous clock (1.542709ms)
+✔ worker constructor failure starts one tracked fallback and ignores stale callbacks (0.335583ms)
+✔ worker postMessage failure starts one tracked fallback and ignores stale callbacks (0.230875ms)
+✔ worker error failure starts one tracked fallback and ignores stale callbacks (0.168875ms)
+✔ worker messageerror failure starts one tracked fallback and ignores stale callbacks (0.163375ms)
+✔ audio reinitialization stops a pending worker even if the new context fails (0.474125ms)
+✔ reinitializing a fallback clock clears its interval and accepts ticks from only the replacement (0.159959ms)
+(node:17120) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ hardware gate rejects software and unknown renderers (1.111ms)
+✔ full source contract catches non-core asset and local server drift (40.216833ms)
+(node:17121) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ Bremen score introduces four players in order and ends inside the miniature (1.616458ms)
+✔ four footsteps unlock once, slow abandoned attempts reset, saved discoveries reopen (0.108958ms)
+✔ miniature uses existing samples, and stop disconnects every scheduled source and bus (1.646709ms)
+✔ missing samples are reported and empty audio graphs are still disposed (0.234208ms)
+(node:17122) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17122) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the actual module worker preserves all 17 audio buffers bit for bit (desktop) (679.957458ms)
+(node:17122) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the actual module worker preserves all 17 audio buffers bit for bit (Lite) (254.923458ms)
+✔ one shared preparation requests the next profile only after copying the previous one (2.0335ms)
+✔ browsers without Worker complete through the unchanged synchronous synthesizer (155.835209ms)
+✔ a worker failure keeps completed buffers and synthesizes only the missing profile (38.939917ms)
+✔ malformed worker messages fall back and late decode errors are ignored (38.678875ms)
+✔ direct applause remains synchronous while an unfinished worker is terminated (42.241334ms)
+✔ audio initialization cancels an old generation after 0 transfers and ignores late responses (1.488208ms)
+✔ audio initialization cancels an old generation after 1 transfers and ignores late responses (1.502541ms)
+✔ reinitialization after the last transfer prevents a queued old graph from being installed (1.81725ms)
+✔ a stalled worker is stopped and missing PCM is completed before resolving (41.9765ms)
+✔ constructor restrictions fall back, and synthesis errors reject without leaking a worker (50.458125ms)
+✔ an incomplete house result falls back before allocating a partial house (203.330875ms)
+✔ direct murmur keeps one house and one graph (before-preparation) (52.396167ms)
+✔ direct murmur keeps one house and one graph (worker-pending) (52.900709ms)
+✔ direct murmur keeps one house and one graph (house-transferred) (2.009667ms)
+✔ a pending house malformed retains the direct murmur buffers during fallback (149.561083ms)
+✔ a pending house error retains the direct murmur buffers during fallback (145.448042ms)
+✔ a pending house timeout retains the direct murmur buffers during fallback (146.362334ms)
+✔ direct house allocation failure stops the worker and rejects the shared readiness promise (49.648833ms)
+✔ ready includes the real house graph, hidden fade and generation-scoped cleanup (1.65775ms)
+✔ house graph failures reject readiness before the concert can enter (1.64ms)
+(node:17123) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ finite scenery keeps center rays and near layers show stronger parallax (1.237292ms)
+✔ a fixed world landmark stays fixed when the observer moves (0.104416ms)
+✔ zenith/nadir and all approved layer radii stay finite across the audience (0.225792ms)
+✔ musical phrase envelope is bounded and independent of frame rate (0.094709ms)
+✔ phrase light stops following audio on pause and survives crossfade/projection changes (5.751875ms)
+(node:17124) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ world warm-up draws one face through the box and leaves the first flight fresh (5.647209ms)
+✔ failed world warm-up releases its temporary slot and restores the caller state (0.810125ms)
+✔ the two-pass dome shares resized cube uniforms and keeps both flights during a crossfade (13.015916ms)
+✔ Lite warm-up keeps cube rendering disabled and the painted transition completes in two passes (0.872875ms)
+✔ a stationary dome viewer reuses only visibility while every world frame stays current (9.753542ms)
+✔ venue projection visibility invalidates for movement, rotation, FOV, aspect and view offset (13.851584ms)
+✔ cached dome cameras remain independent and viewer activation is checked every frame (8.288209ms)
+✔ immersive cube visibility follows viewer rays and mode switches invalidate the stationary cache (23.549375ms)
+(node:17125) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ distant scenery keeps the same direction across floor, sides and upper tiers (1.023833ms)
+✔ the floor and the front rows see the distant worlds from a lifted eye; the tiers from their own (0.36075ms)
+✔ sweet-spot image matches and physical architectural scenes stay locked in both modes (0.145875ms)
+✔ natural 2D, mobile fallbacks and all cube worlds use viewer rays (0.055334ms)
+✔ projection/calibration changes share uniforms across passes without resetting the show (4.443208ms)
+(node:17126) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ context recovery redraws lost cube faces without restarting the world flight (4.940833ms)
+✔ cube rendering updates only the five visible faces and restores caller render state (1.518084ms)
+✔ a failed cube face restores render state and retries the fresh world on the next update (1.08ms)
+✔ face masks skip hidden faces and resizing invalidates even the previously cached offscreen faces (1.45125ms)
+✔ drawWorlds combines only enabled viewers after camera movement (24.572333ms)
+✔ the simplified cube proxy preserves ray directions on every face, including edges (41.0115ms)
+✔ quality changes resize active cube targets immediately and preserve the worlds and cadence (5.678416ms)
+✔ live video is needed immediately on request and through the complete visible fade-out (2.093917ms)
+✔ explicit downward cube rays render -Y for immersive upper-tier views (0.25175ms)
+(node:17127) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the host at the end of the piece: a guest playing at 30 s stops there, on each of the boundaries (6.172375ms)
+✔ a command, a snapshot, or both repeated: the same end, its side effects once (1.859416ms)
+✔ the host already bowing while a guest still plays the piece: it ends here, once (0.732417ms)
+✔ between pieces never ends what is not this piece playing: a walk-on of ours, another piece, a choice on its way (0.520084ms)
+✔ a natural end, then the host saying so again: no second end (0.485875ms)
+✔ paused near the end is paused - and goes on from there (0.55675ms)
+✔ paused near the end, then the host plays the last moment: that is the end (1.610542ms)
+✔ the end told again and again, then the same piece once more (one piece on repeat): it plays, and ends again (0.318458ms)
+✔ in late at the end: nothing is set up or stopped here, the caller sets the stage between pieces (0.152167ms)
+✔ a newer piece chosen while an old end is on its way: the old one does not touch it (2.743542ms)
+✔ (#13) the same B by five snapshots while B is on its way: one download, the latest playback applied (1.28825ms)
+(node:17128) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ a firework burst after an idle or exhausted show becomes visible again (26.457542ms)
+✔ expired confetti clears its instance immediately while other confetti lives (9.025792ms)
+✔ fireworks keep the point-light shader layout stable through a burst (2.731292ms)
+(node:17129) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ indexing preserves every triangle attribute, hard normal and UV seam exactly (3.411834ms)
+✔ lite colour baking retains indexed geometry and leaves a shared source intact (3.376916ms)
+✔ rigid mesh merging preserves triangles and a kept animated descendant in world space (11.367542ms)
+(node:17130) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ batched picking returns the original global IDs and all raw raycast intersections (4.747041ms)
+✔ parent movement, rotation and nonuniform scale preserve picking and edge hits (3.717666ms)
+✔ misses and near/far limits behave like the original mesh without changing existing hits (0.655ms)
+✔ a ray only inspects instances in intersected spatial bounds (0.754417ms)
+(node:17131) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ leaving during connect cancels entry and ignores a late open (14.045916ms)
+✔ entry timeout clears its pending response and socket (0.560833ms)
+✔ leaving during automatic reconnect cancels retries and queued chat (2.727ms)
+✔ a late close from an old socket does not start another retry loop (0.916834ms)
+✔ a connection replaced by a duplicate tab stops reconnecting (0.855834ms)
+✔ stale poses are dropped under backpressure and a stuck queue reconnects (0.879291ms)
+✔ room list timeout aborts the underlying request (0.677084ms)
+(node:17132) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ gzip negotiation and conditional requests keep representation validators distinct (73.307292ms)
+✔ cold concurrent gzip requests agree with an identity download (6.622542ms)
+✔ byte ranges preserve offsets, support If-Range, and reject empty suffixes (14.208917ms)
+✔ HEAD and malformed paths complete without bodies or a server crash (3.29575ms)
+✔ a frame sent with the upgrade is not lost (4.038959ms)
+✔ replacing a lingering host connection preserves a full room and show (9.429167ms)
+✔ venue mismatch does not evict the tab that is still in the correct venue (3.797125ms)
+(node:17133) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ fragmented JSON survives an interleaved ping and split TCP reads (1.095833ms)
+▶ invalid fragments and control frames close before reaching room state
+  ✔ orphan continuation (0.231625ms)
+  ✔ fragmented ping (0.106209ms)
+  ✔ oversized ping (0.093167ms)
+  ✔ reserved bits (0.106167ms)
+  ✔ invalid close payload (0.099333ms)
+✔ invalid fragments and control frames close before reaching room state (1.030542ms)
+✔ a new text message cannot interrupt an unfinished fragment (0.125875ms)
+✔ invalid UTF-8 and oversized fragmented messages are rejected (4.368083ms)
+✔ slow receivers are disconnected before their queued output grows (0.443292ms)
+✔ upgrade validates the WebSocket version and 16-byte nonce (1.089583ms)
+(node:17134) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ visual updates before loading and retained note-on lists keep independent results (1.827709ms)
+✔ in-place expiry preserves polyphonic order, timing, peak velocity and event lists (5.537792ms)
+✔ 600 frames and time discontinuities exactly match the original visual states and events (41.931916ms)
+✔ seek, rewind, stop and loading a new score rebuild the cached chair references (0.652292ms)
+✔ frame updates reuse active arrays without filter, map or Object.values allocations (4.578917ms)
+✔ audio scheduling is identical with frequent, 5 FPS or absent visual updates (7.647125ms)
+(node:17135) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ A -> B (held) -> A: the late B never replaces A, nor stops it (5.848334ms)
+✔ A -> B -> C answered in reverse: C stays, B arriving or failing late changes nothing (4.986333ms)
+✔ a failed download rejects the latest choice, leaves the loaded piece alone, and is tried afresh (3.709ms)
+✔ the same piece asked for again and again while on its way is one download; the latest ask applies it (3.956334ms)
+✔ a shared download of B then a choice of C or of the loaded A: B does not land (2.54775ms)
+✔ a shared download that fails is tried again by the next ask (1.019542ms)
+✔ the room is never told a piece with the time of the one before (0.145417ms)
+(node:17136) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ seek resumes the active wheel position and schedules later bends (1.455084ms)
+✔ a new sample segment starts at the current pitch bend (0.218084ms)
+(node:17137) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 진입·한 번의 끊김은 화질을 내리지 않아 (1.298458ms)
+✔ 지속 부하에서는 해상도부터 내리고 바닥을 넘지 않아 (0.726792ms)
+✔ 안정적으로 회복되면 해상도와 화질을 한 단계씩 복구해 (2.912917ms)
+✔ 큰 지연은 프리셋을 내리되 DPR를 늘리지 않아 (0.239625ms)
+✔ 소수 DPR에서 프리셋을 내려도 반올림으로 해상도가 늘지 않아 (0.223167ms)
+✔ 실제 프리셋의 medium 0.6에서 low로 내려도 픽셀 수가 늘거나 바닥에서 재할당하지 않아 (1.915625ms)
+✔ 모바일 low에서 회복한 뒤 다시 느려지는 실제 경로도 매번 DPR를 유지하거나 줄여 (1.556375ms)
+✔ 실제 high와 medium의 기존 바닥을 유지하고 양방향 프리셋 변경에서 DPR를 올리지 않아 (5.432625ms)
+✔ 새 low 바닥에서도 곡 사이 회복과 수동 초기화는 범위와 Lite 상한을 지켜 (2.948667ms)
+✔ 다음 프리셋 바닥이 현재 DPR보다 높으면 회복으로 큰 렌더 타깃을 만들지 않아 (1.932875ms)
+✔ 경계 근처의 부하는 설정을 왕복하지 않아 (0.248209ms)
+✔ 숨긴 탭에서 돌아오거나 수동 선택하면 이전 부하 기록을 버려 (0.099834ms)
+✔ 가벼운 자동 모드의 회복 상한과 잘못된 입력을 지켜 (1.010583ms)
+✔ 입장이나 전환 유예는 이전 느린 관측을 버리고 새 관측부터 판단해 (0.101375ms)
+✔ 긴 방해 뒤 유예 끝을 가로지른 프레임은 부하로 누적하지 않아 (0.064083ms)
+✔ 곡 중에는 해상도를 먼저 조절하고 보통 부하로 프리셋을 바꾸지 않아 (0.509333ms)
+✔ 곡 중에도 심한 지속 부하는 프리셋을 내리고 0.6 바닥을 지켜 (0.127875ms)
+✔ 해상도와 프리셋 복구는 곡 사이에만 하고 Lite 상한을 넘지 않아 (1.016833ms)
+✔ 실패한 복구는 전환·숨김 유예 뒤에도 재시도하지 않고 수동 선택으로 초기화해 (1.92875ms)
+✔ 일반 모드의 자동 품질은 심한 부하에도 보통 재질을 유지해 (0.146625ms)
+✔ 일반 모드도 안정적인 곡 사이에는 해상도와 높음 프리셋을 복구해 (0.365166ms)
+(node:17138) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 82 scores have unique venue assignments, metadata, notes and sample files (173.850416ms)
+(node:17140) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ stereo compact retains intermediate Float32 rounding and positive zero (2.037458ms)
+✔ compact preserves Float32 boundary values, signed zero and exceptional values (0.408666ms)
+✔ compact preserves mono/multichannel fallback and Lite truncation/fade (101.696792ms)
+(node:17141) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ low quality draws its first live frame immediately, then films in real time (4.677541ms)
+✔ a long stall is not caught up with a burst of renders (0.659708ms)
+✔ a zero cadence suppresses initial and invalidated renders, then resumes immediately (1.369209ms)
+✔ reactivating the live feed refreshes its texture before the next periodic frame (0.469416ms)
+✔ successful rendering restores the previous target and visibility (0.737542ms)
+✔ before errors restore the render target and screen visibility (1.300291ms)
+✔ render errors restore the render target and screen visibility (0.637541ms)
+✔ after errors restore the render target and screen visibility (0.621625ms)
+✔ shot time advances on skipped frames while camera matrices update only when rendered (3.654875ms)
+✔ 600 empty-caption frames clear and dirty the canvas texture only once (1.486042ms)
+✔ settled captions stop uploading, repaint when fonts load, and change for the next piece (1.083084ms)
+✔ a title still animates in, fades out, and clears before caching the empty caption (3.253625ms)
+(node:17142) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ fine/coarse seats share geometry and part matrices while preserving every seat transform and colour (13.22725ms)
+✔ broadcast and main cameras can alternate coarse/fine selection without reusing the other camera state (4.138ms)
+✔ per-camera selection never submits more triangles, including parent transforms and a view away from the hall (4.06325ms)
+✔ seat picking keeps the same global IDs and hit distances after each render-camera switch (5.394708ms)
+(node:17143) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ what is wanted: the user's intent, the page's sleep and a gesture kept apart (1.022667ms)
+✔ back to the page, the context's change, a touch and the media keys at once: one resume, recovered once (1.638375ms)
+✔ paused by the user, or the page asleep: no resume (0.208792ms)
+✔ a resume asked for in the background that never answers: coming back asks afresh, once (42.128125ms)
+✔ a resume that never answers (the browser waits for a touch): the button, and the touch resumes inside the gesture (42.609875ms)
+✔ a refused resume is not success: the button stays, nothing recovered (0.5345ms)
+✔ paused while the resume was on its way: no button for music that is not wanted (42.566458ms)
+✔ asleep before a late resume answered: the sound stays off (0.423875ms)
+✔ a context the browser gave back by itself: no resume, the button away (0.124834ms)
+✔ the transport keeps its clock and its schedule: no restart, no second scheduler, no doubled notes (1.232334ms)
+✔ play() on a context that is not running asks by the shared way, after it is playing (0.925834ms)
+(node:17144) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ Sphere seat representations retain one transform and colour buffer per section (32.463917ms)
+✔ Sphere LOD changes preserve seat picking IDs, distances and static buffer versions (2.963417ms)
+(node:17145) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./")); register("file%3A//<repo>/tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ touch activation deduplicates only its compatibility click, never a keyboard click (1.314166ms)
+✔ a second finger cannot steal a tap and disabling a held button cancels activation (0.978625ms)
+✔ jump activates on touch down once and remains keyboard accessible (0.783625ms)
+✔ the joystick resets on app switching and remeasures after the dock moves (1.196834ms)
+✔ scrubbing belongs to one finger and commits only that finger release (0.739583ms)
+✔ scrubbing cancelled by pointercancel never seeks (0.260792ms)
+✔ scrubbing cancelled by lostpointercapture never seeks (0.188292ms)
+✔ scrubbing cancelled by blur never seeks (0.118042ms)
+✔ scrubbing cancelled by visibilitychange never seeks (0.103542ms)
+✔ seek supports Home/End and vertical arrows while guest and empty states cannot seek (0.196167ms)
+✔ dialogs isolate the background, preserve recovery, and restore prior inert/focus state (0.275834ms)
+✔ a new card replaces the modal and Tab cycles through all card controls (0.161125ms)
+ℹ tests 222
+ℹ suites 0
+ℹ pass 222
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2329.307166

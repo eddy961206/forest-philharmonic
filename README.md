@@ -81,6 +81,8 @@ docker run -d --restart unless-stopped -p 8080:8080 forest-philharmonic
 | 읽을 문서 | 내용 |
 |---|---|
 | [레퍼토리 확장 실시간 성능 검증](docs/repertoire-performance-validation.md) | GPT-6.1 Sol의 실제 연주 화면 전곡·합주·CPU·메모리 검사, 피날레 지연 수정과 재검증 |
+| [화질 유지 최적화](docs/quality-preserving-optimization.md) | 원래 재질·음원을 유지한 팔 배치, 전후 비교·화면 차이·모바일 경로 검사 |
+| [브레멘의 밤손님](docs/bremen-easter-egg.md) | 숨은 동화책 공연, 네 악기 오리지널 소품과 기능·오디오 검증 |
 | [로컬 AI 에이전트 실행 지시](docs/LOCAL_AGENT_HANDOFF.md) | 사용자 위임 범위·설치·동일 기능 검사·실제 GPU A/B/B/A·수정/병합·PR 결과 기록 |
 | [추가 오디오 준비 검증](docs/AUDIO_PREPARATION_FOLLOWUP.md) | 직접 측정한 추가 후보, 채택·보류 근거, PCM 보존과 최신 회귀 결과 |
 | [cabfe78 수정과 검증](docs/MERGE_PREPARATION.md) | 테스트 실행 범위, 자동 화질 보정, CPU·배열 개선과 당시 확인 범위 |
