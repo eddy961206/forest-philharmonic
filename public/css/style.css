@@ -1104,3 +1104,34 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
 .now-meta a { color: var(--paper-dim); pointer-events: auto; text-underline-offset: 3px; }
 .now-meta a:focus-visible { outline: 2px solid var(--fern); outline-offset: 4px; }
 .program .p-meta { flex-wrap: wrap; gap: 3px 12px; }
+/* A quiet paper theatre, created only after the fourth footprint. */
+.bremen-trail { display:block; margin:20px auto 8px; min-height:44px; padding:8px 16px; border:0; background:none; color:var(--muted, #b6ad98); font:inherit; font-size:12px; cursor:pointer; letter-spacing:.06em; }
+.bremen-trail:hover { color:#edcf8d; }
+.bremen { width:min(640px, calc(100vw - 28px)); max-height:calc(100svh - 28px); padding:0; border:1px solid #7c7750; border-radius:22px; background:#f0e5c9; color:#243d34; box-shadow:0 30px 100px #0009; overflow:auto; }
+.bremen::backdrop { background:#071713e8; }
+.bremen-card { position:relative; padding:30px 28px 22px; text-align:center; }
+.bremen-close { position:absolute; right:10px; top:8px; min-width:44px; min-height:44px; border:0; border-radius:50%; background:none; color:#4a5a48; font-size:28px; cursor:pointer; }
+.bremen-close:hover { background:#d8ceb3; }
+.bremen-eyebrow { margin:0 24px 10px; color:#69725b; font-size:11px; letter-spacing:.15em; }
+.bremen h2 { margin:0; font:700 clamp(27px, 5vw, 37px)/1.35 'Gowun Batang', serif; letter-spacing:-.03em; }
+.bremen-intro { margin:9px 0 22px; color:#6a725b; font-size:13px; }
+.bremen svg { display:block; width:100%; height:auto; border-radius:15px; }
+.bremen-status { min-height:2.8em; margin:18px 0 0; display:grid; place-items:center; font:700 15px/1.6 'Gowun Batang', serif; word-break:keep-all; }
+.bremen-progress { display:block; width:100%; height:3px; margin:10px 0 15px; border:0; border-radius:3px; background:#d9d1b5; accent-color:#6a7958; }
+.bremen-progress::-webkit-progress-bar { background:#d9d1b5; border-radius:3px; }
+.bremen-progress::-webkit-progress-value { background:#6a7958; border-radius:3px; }
+.bremen-bottom { display:flex; align-items:center; justify-content:space-between; gap:12px; color:#747c64; font-size:10px; }
+.bremen-replay { min-height:44px; padding:8px 14px; border:1px solid #adb193; border-radius:24px; background:transparent; color:#364e3f; font:inherit; font-size:12px; cursor:pointer; }
+.bremen-replay:disabled { opacity:.4; cursor:default; }
+.bremen button:focus-visible, .bremen-trail:focus-visible { outline:3px solid #a87936; outline-offset:3px; }
+.bremen-animal { opacity:0; }
+.bremen-running .bremen-animal { transform-box:fill-box; transform-origin:50% 100%; animation: bremen-arrive 1.7s var(--delay) cubic-bezier(.16,.8,.25,1) both, bremen-sway 2.143s calc(var(--delay) + 1.7s) ease-in-out infinite; }
+.bremen-notes { opacity:0; }
+.bremen-running .bremen-notes { animation:bremen-notes 3s 8.57s ease-in-out infinite; }
+@keyframes bremen-arrive { 0% { opacity:0; transform:translate(-180px, 50px) rotate(-9deg); } 35% { opacity:1; } 75% { transform:translate(0,-7px) rotate(2deg); } 100% { opacity:1; transform:translate(0,0) rotate(0deg); } }
+@keyframes bremen-notes { 0%,100% { opacity:.25; transform:translateY(0); } 50% { opacity:.85; transform:translateY(-8px); } }
+@keyframes bremen-sway { 0%,100% { transform:rotate(-.7deg); } 50% { transform:rotate(.7deg) translateY(-1px); } }
+.bremen-ended .bremen-animal { animation:none; opacity:1; }
+.bremen-ended .bremen-notes { animation:none; opacity:.3; }
+@media(max-width:480px) { .bremen-card { padding:28px 16px 16px; } .bremen-intro { margin-bottom:16px; } .bremen-bottom { flex-wrap:wrap; justify-content:center; gap:4px 12px; } .bremen-eyebrow { letter-spacing:.07em; font-size:10px; } }
+@media(prefers-reduced-motion:reduce) { .bremen-running .bremen-animal { animation:none; opacity:1; } .bremen-running .bremen-notes { animation:none; opacity:.6; } }

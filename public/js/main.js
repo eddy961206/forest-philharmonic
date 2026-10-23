@@ -33,6 +33,7 @@ import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
 import { RoomClient, listRooms } from './net/room.js';
 import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf, josa } from './evening.js';
+import { installBremen } from './bremen.js';
 import { Practice, SeatThief, noticeLines, buildNoticeBoard } from './scene/lobby.js';
 import { buildRecital } from './scene/recital.js';
 import { Avatars, AVATARS } from './scene/avatars.js';
@@ -962,6 +963,8 @@ ui.on('mode', (m) => {
 });
 ui.on('sit', () => director.toggleSit());
 ui.on('dialogOpen', () => {
+  const miniature = document.getElementById('bremen');
+  if (miniature?.open) miniature.close();
   director.keys.clear();
   director.vel.set(0, 0, 0);
   director.releaseLock();
@@ -2527,7 +2530,27 @@ boot().catch((e) => {
   showRenderStatus('공연 준비를 마치지 못했어요. 연결을 확인하고 다시 불러와 주세요.');
 });
 
+const bremen = installBremen({ engine, ui, onOpen() {
+  director.keys.clear(); director.vel.set(0, 0, 0); director.releaseLock();
+  const resume = !room && phase === 'playing' && perf.playing;
+  const piece = perf.piece;
+  if (resume) {
+    const floor = perf.startPos;
+    perf.pause();
+    // Rapid reopen can occur before the resumed audio's output latency ends.
+    if (perf.pos < floor) perf.seek(floor);
+    ui.setPlaying(false);
+  }
+  // In a shared room the local miniature never changes the room transport.
+  return () => {
+    if (resume && !room && phase === 'playing' && perf.piece === piece) {
+      perf.play(); ui.setPlaying(true);
+    }
+  };
+} });
+
 window.__fp = {
+  bremen,
   scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, ui, stats: frameStats, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
