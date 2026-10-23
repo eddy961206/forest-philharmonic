@@ -70,12 +70,20 @@ export function syncLiteArms() {
     const i = e.seg ? ns++ : np++;
     if (i >= m.instanceMatrix.count) continue;
     m.setMatrixAt(i, e.proxy.matrixWorld);
-    m.setColorAt(i, e.color);
+    // Instance colours are static between joins/leaves. Compare the GPU's
+    // Float32 values so unchanged colours do not upload again every frame.
+    const colors = m.instanceColor?.array;
+    const offset = i * 3;
+    if (!colors || colors[offset] !== Math.fround(e.color.r)
+      || colors[offset + 1] !== Math.fround(e.color.g)
+      || colors[offset + 2] !== Math.fround(e.color.b)) {
+      m.setColorAt(i, e.color);
+      m.instanceColor.needsUpdate = true;
+    }
   }
   for (const [m, n] of [[liteSeg, ns], [litePaw, np]]) {
     m.count = Math.min(n, m.instanceMatrix.count);
     m.instanceMatrix.needsUpdate = true;
-    if (m.instanceColor) m.instanceColor.needsUpdate = true;
   }
 }
 

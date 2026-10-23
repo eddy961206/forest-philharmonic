@@ -6,6 +6,7 @@ import { buildCharacter, setArm, updateFace, liteArmMeshes, syncLiteArms } from 
 import * as I from './instruments.js';
 import { M, plainMaterial, glowTexture, noteGlyphTexture, isLite } from './materials.js';
 import { mergeChildren } from './merge.js';
+import { batchCharacterArms } from './arm-batches.js';
 import { stageFloorY, PODIUM_H } from './hallplan.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -160,6 +161,7 @@ export function buildOrchestra(scene) {
 
   // phones: everyone's arms in two instanced draws (see characters.js)
   for (const m of liteArmMeshes()) scene.add(m);
+  const armBatches = isLite() ? null : batchCharacterArms(scene, players.map(p => p.char).concat(cond));
   const particles = buildNoteParticles(group);
   const byKey = new Map(players.map((p) => [`${p.sid}:${p.ci}`, p]));
 
@@ -167,7 +169,12 @@ export function buildOrchestra(scene) {
     group, players, conductor, particles, obstacles,
     playerAt: (sid, ci) => byKey.get(`${sid}:${ci}`),
     update(t, dt, perf, opts) { updateAll(players, conductor, particles, t, dt, perf, opts); },
-    syncLite: syncLiteArms, // call after everything has moved, before rendering
+    syncLite() { // after all movement, before either camera renders
+      if (armBatches) {
+        group.updateWorldMatrix(true, true);
+        armBatches.update();
+      } else syncLiteArms();
+    },
     pickables: players.map((p) => p.char.root).concat([cond.root]),
   };
 }
