@@ -1,0 +1,752 @@
+{
+  "baselineCommit": "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a",
+  "candidateCommit": "0bdf222cf1f10aa49efcdda899389bc04e0f1bee",
+  "scope": "Baseline full movement, excerpts, cleanup and navigation; candidate finale first/warm and one 40-second excerpt only.",
+  "sanitization": "Only profiler-injected local QA source URLs were normalized to repository-relative paths. No other user Chrome command lines were collected in the valid raw process series.",
+  "files": [
+    {
+      "path": "docs/evidence/repertoire/performance/candidate-fireworks-flash.png",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 1159308,
+      "sha256": "6c74977bf23cb77e67756eba520ac01f973fb80871642848c0ee3741b5a67e6c"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/candidate-fireworks-visual.json",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 356,
+      "sha256": "b322dd5a814786c5fcbcead95f557afd37cd84ea65d6a45636c1bcda84f8d0ae"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/candidate-fixed-stage-ready.png",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 1602085,
+      "sha256": "b9eeb2847f8af37690c3b464a6e783bb3dcc8fa16f2514f5d20734672025c6de"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/candidate-prepare.log",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 296,
+      "sha256": "008bd8db9469061e193cd6eb93a3574a53115bd0d1094d89483a77c477f814c0"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-first.cpuprofile",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 352453,
+      "sha256": "615af9f59702469e4df1a9331d03606e1d3add23905a6371cc3bee4fda4dd486"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-first.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 71040,
+      "sha256": "0860b85d411607f5884359264fc0b4ab5149548e548b223e9e091dcce47c785e"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-first.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1440094,
+      "sha256": "6fb4c15022d83aef108e76400760d43bb5b5379fa1bbebce4a83ad7cb51889a6"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-fixed-first.cpuprofile",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 303192,
+      "sha256": "214f7c9f01938291bf6df2e695ceaa4982b1bb26eb8fc826755f462728c07984"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-fixed-first.json",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 209767,
+      "sha256": "0ad8c6ea3209ce78183476c3d0e93c058a07b0cb5300a27116e1998ed4f3c287"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-fixed-first.png",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 1247760,
+      "sha256": "4f1a3c36e0c659056930af86b938a6b7578914a74997eeac55e4067203dc9b6f"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-fixed-profile.log",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 494,
+      "sha256": "ca3f12b3dcf162c1f0e251a59db14a1f043d6f5adbb98c015725377b5df26734"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-fixed-warm.cpuprofile",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 280620,
+      "sha256": "313ac629f154c29be2af39788efd83887614df44af1b6bb2bcc700f1a0d41d97"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-fixed-warm.json",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 230217,
+      "sha256": "83c611fe1c42bd4ba2a3364675dc0c0b27a661b851d64d10e74a01cd188c84d9"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-fixed-warm.png",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 1221916,
+      "sha256": "3990127f208ed6f73a45e6180619580afb149197447c30853befef72fc78f05f"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-prepare.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 296,
+      "sha256": "ca63498e1763ce72fa8ee34f426133ea6d80adce15cfcd8e80830ed0402efc88"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-profile.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 3898,
+      "sha256": "e617eb17f596f0301f654af321afb8e78416a62b16222086db787510accbccc1"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-warm.cpuprofile",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 331779,
+      "sha256": "686520585435e6c3270bef6b29ca0c239f3ac8c297ee2a4c0052101dae50b644"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-warm.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 77474,
+      "sha256": "c55c4617114f56994132f699e5de4b4085fdc6a1f1563bfde49b8b77bda47d58"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/finale-warm.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1198082,
+      "sha256": "0642712a4e96b3601dc81e04ca55acd1087c06d299a69d4f49a57d97b0d3dae9"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-cleanup.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 5705,
+      "sha256": "6b901e71efebd1627f7ea039721c331e3381b9936050043436fad76d71e21431"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-concert-camera-ready.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1321830,
+      "sha256": "d1634b8926fbe3fd8392111d2f28b4597b740e026899fa780120fedb3313dee8"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-concerto-overlap-end.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1424077,
+      "sha256": "198c0056f22a5073fe5e5aab55554351c374c3c1d282cff35012b737b092af93"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-concerto-overlap-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1249,
+      "sha256": "fd627a75b08b5d736dad7ea2844e417945d57fc37956a24fa3c4984bc4a7ad7c"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-concerto-overlap-run.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1803,
+      "sha256": "9d0c0e8f29db1dea00b28f570a785e5ac2eda647c14fb66721ff087bbf5ac798"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-concerto-overlap-start.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1443156,
+      "sha256": "3a9ac645f50f8b3ad98c54cc3747771841152762a4730ac0e653de6db99da811"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-concerto-overlap.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 168385,
+      "sha256": "643c104dc8bb304909de15dad399255221f43168b3bd3fa5973796bb639431c5"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-dvorak-peak-end.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1456245,
+      "sha256": "01714d44cc31184c5053923b17726c5a2923af67f7379e5817b6cd37feae6acc"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-dvorak-peak-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1249,
+      "sha256": "7348ea1562c385250cfcdfda328265ae673f22cf39253e27b8ed1b5106ccb2a7"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-dvorak-peak-run.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1767,
+      "sha256": "62357e9997c11acdf7f2f46be96d4078b8d29875c20c8a0956b1139d1f274573"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-dvorak-peak-start.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1499353,
+      "sha256": "88f1384005eb558c52171461ece192429a544ebf6b56058a86dcd8206eb96439"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-dvorak-peak.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 294116,
+      "sha256": "889f11ce688eb5ba3591f45f1dd0de650d668348c307bf1bbb5c752fbba813d0"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-cinema-aborted-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1265,
+      "sha256": "03ae521fb6f850b26acb2ddaf2ed5272793076bdca60d50503feadff15d34d50"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-cinema-aborted.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 2693,
+      "sha256": "0dd8dcfbd2f32f021473ad84c6077a4cd1949bf2f60bcfed26bbca1000e3cf27"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-cinema-aborted.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1309700,
+      "sha256": "a6d656536a447f406a9faf84297495fbc36a9ae335c9b08546ecbd659156b051"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-concert-full-end.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1223812,
+      "sha256": "493a2a864d4b2c6ac7fc96d6aa74c427c4086e7553eb2e28c80f71ef490e88ed"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-concert-full-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1274,
+      "sha256": "3788e957bd055f213103a5238013b61b234cdacda633c060274481d3e41903c3"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-concert-full-run.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 12575,
+      "sha256": "ad5ba5972b13d81f73e13666ee9d63699f9580fead6717a78916924a1849ddb0"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-concert-full-start.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1520987,
+      "sha256": "6e5a0aa8287030dfb84aed7e0d14b3feb76dfc77cec116a890b6fab8fa83277b"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-concert-full.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1914967,
+      "sha256": "d9ddf1d868a8d51f154bbe2a2575798221daae731a90407cc4d1fc3f42b157af"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-inherited-warmup-aborted-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1252,
+      "sha256": "6576a0f737e51452cf4213af8062a5e187927ea46beb0dc9aa342d8ccf6111da"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-inherited-warmup-aborted.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 875,
+      "sha256": "d1effd660435c2e0432ffd7a09f028bb66f176b2fabb06706c96b34024bcc477"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-inherited-warmup-aborted.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1313562,
+      "sha256": "bf0c3a3b924b8d8f08241f301f4aace44cc028b7118052d1915574935be054d2"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-lobby-audio-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 619,
+      "sha256": "72bb5488980d672018c64c2cf0f55f049112d340973c2c761463733b44206a15"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-lobby-audio.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-lobby-limited.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1088804,
+      "sha256": "0744f1532e2a8e466274d9155764833cc37b3e8a12e68aa5b87a5b74c4065b05"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-lobby-limited.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 533560,
+      "sha256": "3d39efb48d425397f680dddeb2597fd29400db957cfebe303835316ce0253355"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-lobby-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 953,
+      "sha256": "1c0714e83273ca8dcff99e6d0b7ee50b8a149be0abc5813d3338dfc5e319b7a8"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-lobby-run.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 8153,
+      "sha256": "afa14266b6f282362aafa177f12e0f21813c398cc3b4271bb2ced6e1c8f765ae"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-elgar-playback-mid.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 624,
+      "sha256": "cca8aab191c27ccba33059137d8df749455cd4ec9f3f4f121f6ca5b41c3103b1"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-existing-ode-end.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1525897,
+      "sha256": "b2876d3e40c0398f09b2b062e4fe6bd7db6b5df09ea84972327d1d59682088d5"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-existing-ode-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1247,
+      "sha256": "426699041fe118b482260a8a61d560f2e94434432b0f0c91d3f56222c5d247e1"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-existing-ode-run.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1774,
+      "sha256": "2191cfb7609350151bb01d5e084c58d0b8ec42d1442ead528cb272ab43399494"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-existing-ode-start.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1595854,
+      "sha256": "d42b66727a56f084c805e2e484e406f591fe1f7fc0f79d0f1ef9b33396a950a9"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-existing-ode.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 189996,
+      "sha256": "913fca9b4c639d510b8d4949a0bff30fa9e38dc78c506464715637fdf473e399"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-fixed-flash-dense-end.png",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 1520303,
+      "sha256": "7acc2db3e9d508544c6221c0c1bcc7e71eda3af41563760407df1de157f81a97"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-fixed-flash-dense-progress.json",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 1291,
+      "sha256": "c5028823b37f63c5d283bf08212eaf2ea7139bc04d7b86b32a8bc4ab91fa9027"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-fixed-flash-dense-run.log",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 1832,
+      "sha256": "1100fd3349bd2d1e86270b548e1bb16f2d93e79553e702bfd333a63afbb5c4b9"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-fixed-flash-dense-start.png",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 1476077,
+      "sha256": "7768bece47cf2f479294b44e690ad99e8b1d68528a307fa0132f4b90a36ddcd8"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-fixed-flash-dense.json",
+      "sourceCommits": [
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 202575,
+      "sha256": "cbb4e3c00f2d2176b256956dd480bdc3ff95eec4bb3903de24a37ac4f0109f04"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/hall-fixed-stage-ready.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1602375,
+      "sha256": "97a25a25f1fe5d472b6d7fbdffd7ca281fdaa64dc8d99afa213e9848d924f34b"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/navigation-back-cache.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 834,
+      "sha256": "a2ba07a1253923e24d4c748fce645818f7e08533d0ba23e7c2f71c19406673f5"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/navigation-memory-final.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 260039,
+      "sha256": "ebfec300bc2f5c9609b414cb82691874266f6b59ebac82dc313a1f82b513de38"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/navigation-memory.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 21289,
+      "sha256": "a2537245d2a38990ea98e6c54ad6d5cde67589282f4ca2ff4b24f200d9573e1e"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/navigation-memory.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 11357,
+      "sha256": "e547afe1dcf99b5d62657d38e11ec3a66f10d1c363d6be4e033caad9183a7e7b"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-1812-peak-end.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 616414,
+      "sha256": "93183b4cefe99b070c1f14316da65d4b2c0a623effaa2eb074108d6093fdc2c0"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-1812-peak-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1224,
+      "sha256": "9cfa9507e026ce9a6b8b1c914c48c685b691d092b0fa0c14732abf61acafe841"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-1812-peak-run.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1754,
+      "sha256": "685beddb6f66c79b96a5e472203aee5e7cb674b3a4d67080a258cad9ccebb099"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-1812-peak-start.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 648892,
+      "sha256": "4716157c5b981db2662280b259690b70ab831c061966b25a55f2187d621b5a10"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-1812-peak.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 319722,
+      "sha256": "7074803ab9a99f6519fc40afab9d561db45d144db77c057313a55a922a4e27bd"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-cleanup.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 5677,
+      "sha256": "c733f1d8dc0fa385b00be4986f986d91e4e87920f3150c3d758ce32228dbbd93"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-existing-bach-end.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 702588,
+      "sha256": "133845999b60914ccc0761750f1971cf9230c4ad992e451593f29efe23163730"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-existing-bach-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1250,
+      "sha256": "cad5df54cf8d754e2f1754a51f52faa6c0ea518f34ccdf54a1ba55df20b43c6f"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-existing-bach-run.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1767,
+      "sha256": "a9aa648cfd422f2c143bb3e3f19ed76b33c143b8fb1e5f5c3ae672d729375e7c"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-existing-bach-start.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 552782,
+      "sha256": "0a60ac5ba011c1f51039ad382d77034e1036c9d33f6d907f8cb1a994a240cdfc"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-existing-bach.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 161704,
+      "sha256": "daab5f9afb4c7a341ed3fff18353049a85c2ad47ffda75893fcd27c4babf8caa"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-sabre-peak-end.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 670247,
+      "sha256": "4c0df670dd9a2c1dd34a2904fab542e8a52cecf2e5ce6c82f77d2ac29503b983"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-sabre-peak-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1267,
+      "sha256": "311ecd4749a494d3ab55202bd4d197b9e6877fd4d597f878e08b102ef3c6a8a9"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-sabre-peak-run.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1760,
+      "sha256": "9b1db10be80bc50a8640d2d0f97e7d44aa18e84ae2e82a057c3139813ab12e5c"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-sabre-peak-start.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 682228,
+      "sha256": "6162f1a31144ab565bae97c7b454027f78fe77c39db9bf1750dc2d7012548327"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-sabre-peak.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 285977,
+      "sha256": "fc2a5b28dd282377403e088a3ae92d4438bfb543d688c7688adccdc6e72cc1fe"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-valkyries-overlap-end.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 713751,
+      "sha256": "f99db167c912f3b1686fa896f073e50539dbd3ab80a27b8a214ab4cdd72e179a"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-valkyries-overlap-progress.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1269,
+      "sha256": "d9037d66d6d48c2e8fb9bfca7e0ece76f37540ae82559544cfc91ed5d50a2d54"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-valkyries-overlap-run.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 1789,
+      "sha256": "7275e39fea7f5bea7dc80f71117a9f6e9c3b84dc018f2f67ac1990d3b2ca0b90"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-valkyries-overlap-start.png",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 694580,
+      "sha256": "3d2c99d32fda74447a1a7401e70097ea1fefae21cd71d89cc6c6f51e302f0e75"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/sphere-valkyries-overlap.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 240495,
+      "sha256": "5c3c216af9ac77211834d2f5d2c5df8e085c5a43815d43afd9e591b437822309"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/suite-hall.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 141,
+      "sha256": "38449dbaf4374d0e08c9ea24947b1dfb9f42e50641b1584b53c0c717f3574c68"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/suite-sphere.log",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a"
+      ],
+      "bytes": 179,
+      "sha256": "e6a6100a697a7f1571afbe5c8c6b79e166f243b6e14373cdf4c8379112c956a2"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/summary-readable.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a",
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 36172,
+      "sha256": "00a563aa5b30f154913f0af9735fe1bbd7cbe75a62bee550336e6e72714750c1"
+    },
+    {
+      "path": "docs/evidence/repertoire/performance/summary.json",
+      "sourceCommits": [
+        "ee39085fd25a3d2f3c5e967d3ae0e20ef303760a",
+        "0bdf222cf1f10aa49efcdda899389bc04e0f1bee"
+      ],
+      "bytes": 76375,
+      "sha256": "93e62b630fc4f307d962e3d6eb65278c26c8fd851e41219052ca7e2778dc8003"
+    }
+  ],
+  "harnesses": [
+    {
+      "path": "tools/qa/audio-realtime-observer.mjs",
+      "sha256": "7e271688874eb12df59b26d8f7cb418046f7e711f9df00899642789b0b4e5b66"
+    },
+    {
+      "path": "tools/qa/navigation-memory.mjs",
+      "sha256": "1df82b463edce0e51e258a3ce48632c14f12b2b58d2663aef1ab0b5d25470272"
+    },
+    {
+      "path": "tools/qa/prepare-concert-camera.mjs",
+      "sha256": "26d7a0fb1bef05c4163993e8b2a7d0be9e888f12d4202dd0d7b0e45e7c0a3401"
+    },
+    {
+      "path": "tools/qa/profile-finale-transition.mjs",
+      "sha256": "e3a5ee4e0e60303e925319b7b3603c518f2c141d48757e88762553ffbdbcadbb"
+    },
+    {
+      "path": "tools/qa/realtime-performance-suite.mjs",
+      "sha256": "1cd80cefd716ec4543a2517478c463158fbe76205b22f0ca9c73c8be8591ccba"
+    },
+    {
+      "path": "tools/qa/realtime-performance.mjs",
+      "sha256": "bbb090fb7ab43e42ccbda744ceff70000d1e0c9d81989ec6295551d9973f61b9"
+    },
+    {
+      "path": "tools/qa/summarize-realtime-performance.py",
+      "sha256": "8215a688900c33d25123b22cb4868961c5fc82c72bc307a5b1809593009e59ad"
+    }
+  ]
+}
