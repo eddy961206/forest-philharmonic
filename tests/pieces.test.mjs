@@ -32,14 +32,15 @@ function fixture(t) {
   const engine = { now: 0, outputLatency: 0, ctx: { state: 'running' }, onTick() {}, playNote() {}, stopAll() { stops.push(engine.now); } };
   const perf = new Performance(engine);
   const applied = [];
+  const prepared = [];
   const chooser = new PieceChooser({
     fetch: fetchPiece,
-    prepare: (p) => perf.prepare(p),
+    prepare: (p) => { prepared.push(p.id); return perf.prepare(p); },
     apply: (prep) => { applied.push(prep.piece.id); return perf.use(prep); },
     loaded: () => perf.piece,
   });
   const pending = (id) => requests.filter((r) => r.id === id);
-  return { perf, engine, chooser, requests, pending, stops, applied };
+  return { perf, engine, chooser, requests, pending, stops, applied, prepared };
 }
 const tick = () => new Promise((r) => setImmediate(r));
 
@@ -154,6 +155,7 @@ test('the same piece asked for again and again while on its way is one download;
   f.pending('B')[0].ok();
   const got = await Promise.all(asks);
   assert.deepEqual(got.map((p) => p?.id ?? null), [null, null, null, null, 'B']);
+  assert.equal(f.prepared.filter(id => id === 'B').length, 1);
   assert.deepEqual(f.applied, ['B']);
   assert.equal(f.perf.piece.id, 'B');
 });
@@ -200,4 +202,79 @@ test('the room is never told a piece with the time of the one before', () => {
   assert.deepEqual(transportState({ chosen: B, loaded: A, phase: 'intermission', playing: false, time: 100 }), { phase: 'intermission', playing: false, pos: 0, loading: true });
   // loaded: as it is
   assert.deepEqual(transportState({ chosen: B, loaded: B, phase: 'playing', playing: true, time: 12 }), { phase: 'playing', playing: true, pos: 12 });
+});
+
+
+test('superseded choices skip score preparation before the expensive work begins', async t => {
+  const f = fixture(t);
+  await playingA(f);
+  f.prepared.length = 0;
+  const choices = ['B', 'C', 'D'].map(id => f.chooser.choose(id));
+  await tick();
+  for (const id of ['B', 'C', 'D']) f.pending(id)[0].ok();
+  assert.deepEqual((await Promise.all(choices)).map(p => p?.id ?? null), [null, null, 'D']);
+  assert.deepEqual(f.prepared, ['D']);
+  assert.deepEqual(f.applied, ['D']);
+  assert.equal(f.chooser._pending.size, 0);
+});
+
+test('returning to the loaded piece discards preparation, but selecting the pending id again preserves it', async t => {
+  const f = fixture(t);
+  await playingA(f);
+  f.prepared.length = 0;
+  const stale = f.chooser.choose('B');
+  await tick();
+  await f.chooser.choose('A');
+  f.pending('B')[0].ok();
+  assert.equal(await stale, null);
+  assert.deepEqual(f.prepared, []);
+
+  const first = f.chooser.choose('B');
+  await tick();
+  await f.chooser.choose('A');
+  const latest = f.chooser.choose('B');
+  f.pending('B')[1].ok();
+  assert.equal(await first, null);
+  assert.equal((await latest).id, 'B');
+  assert.equal(f.pending('B').length, 2); // one fetch per pending round
+  assert.deepEqual(f.prepared, ['B']);
+});
+
+test('independent preload shares preparation and survives a different playback choice', async t => {
+  for (const preloadFirst of [true, false]) {
+    const f = fixture(t);
+    await playingA(f);
+    f.prepared.length = 0;
+    let preload, choice;
+    if (preloadFirst) {
+      preload = f.chooser.prepare('B');
+      choice = f.chooser.choose('B');
+    } else {
+      choice = f.chooser.choose('B');
+      preload = f.chooser.prepare('B'); // promote a playback-only request
+    }
+    assert.equal(preload, f.chooser.prepare('B'));
+    await tick();
+    await f.chooser.choose('A');
+    assert.equal(f.pending('B').length, 1);
+    f.pending('B')[0].ok();
+    assert.equal((await preload).piece.id, 'B');
+    assert.equal(await choice, null);
+    assert.deepEqual(f.prepared, ['B']);
+    assert.deepEqual(f.applied, []);
+  }
+});
+
+test('independent preload failures still reject after playback chooses elsewhere', async t => {
+  const f = fixture(t);
+  await playingA(f);
+  const preload = f.chooser.prepare('B');
+  const rejected = assert.rejects(preload, /Failed to fetch/);
+  const choice = f.chooser.choose('B');
+  await tick();
+  await f.chooser.choose('A');
+  f.pending('B')[0].fail();
+  await rejected;
+  assert.equal(await choice, null);
+  assert.equal(f.chooser._pending.size, 0);
 });

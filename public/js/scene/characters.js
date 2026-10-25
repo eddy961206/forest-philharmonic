@@ -54,6 +54,8 @@ export function liteArmMeshes() {
 }
 // a character that leaves the scene gives its arms back
 export function releaseCharacter(char) {
+  for (const material of char.ownedMaterials || []) material.dispose();
+  char.ownedMaterials?.clear();
   for (let i = liteArms.length - 1; i >= 0; i--) if (liteArms[i].root === char.root) liteArms.splice(i, 1);
 }
 const shown = (o) => { for (; o; o = o.parent) if (!o.visible) return false; return true; };
@@ -98,6 +100,10 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   root.add(body);
   const fur = furMaterial(spec.fur);
   const muzzleMat = furMaterial(sp.muzzle);
+  // Shared library materials/textures outlive a visitor. Only these local
+  // clones and decorative materials belong to this character.
+  const ownedMaterials = new Set();
+  const ownMaterial = material => { ownedMaterials.add(material); return material; };
   const isDress = spec.outfit === 'dress';
   const coat = clothMaterial(isDress ? '#2a1830' : '#18171d', 0.5);
   const shirt = clothMaterial('#f3efe6', 0.2);
@@ -166,7 +172,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   let coatTailGeometry = null;
   let skirt = null;
   if (isDress) {
-    skirt = add(body, skirtGeometry(hipY, !!spec.celloSeat), coat.clone());
+    skirt = add(body, skirtGeometry(hipY, !!spec.celloSeat), ownMaterial(coat.clone()));
     skirt.name = 'pose-skirt';
     skirt.material.side = THREE.DoubleSide;
     if (isLite()) bakeColor(skirt);
@@ -280,12 +286,12 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     if (sp.bigEyes) add(head, new THREE.CircleGeometry(0.075, 20), plainMaterial('#fff6dc', { roughness: 0.5 }), ep.clone().add(V(0, 0, 0.012)), { cast: false }).rotation.y = Math.PI;
     const eye = add(eyes.open, sphereG(eyeR, 16, 12), plainMaterial('#120c0a', { roughness: 0.15 }), ep, { cast: false });
     eye.scale.set(1, 1.15, 0.6);
-    add(eye, sphereG(eyeR * 0.32, 8, 6), new THREE.MeshBasicMaterial({ color: '#ffffff' }), V(eyeR * 0.3, eyeR * 0.35, -eyeR * 0.7), { cast: false });
+    add(eye, sphereG(eyeR * 0.32, 8, 6), ownMaterial(new THREE.MeshBasicMaterial({ color: '#ffffff' })), V(eyeR * 0.3, eyeR * 0.35, -eyeR * 0.7), { cast: false });
     add(eyes.closed, new THREE.TorusGeometry(eyeR * 0.85, 0.008, 6, 12, Math.PI), dark, ep.clone().add(V(0, -0.005, 0)), { cast: false });
   }
   // blush
   for (const sx of [-1, 1]) {
-    const b = add(head, new THREE.CircleGeometry(0.035, 16), new THREE.MeshBasicMaterial({ color: '#ff9fae', transparent: true, opacity: 0.45, depthWrite: false }), V(sx * 0.165, -0.06, -0.205), { cast: false });
+    const b = add(head, new THREE.CircleGeometry(0.035, 16), ownMaterial(new THREE.MeshBasicMaterial({ color: '#ff9fae', transparent: true, opacity: 0.45, depthWrite: false })), V(sx * 0.165, -0.06, -0.205), { cast: false });
     b.rotation.y = Math.PI + sx * 0.6;
   }
   if (sp.whiskers) {
@@ -458,7 +464,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
 
   root.scale.setScalar(scale);
   const char = {
-    root, body, head, torso, skirt, coatTailGeometry, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
+    root, body, head, torso, skirt, coatTailGeometry, ownedMaterials, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
     mouthPoint: V(0, -0.085, -0.28 - sp.snout * 0.08),
     headBase: head.position.clone(),
     blinkT: Math.random() * 4,

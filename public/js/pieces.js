@@ -45,21 +45,35 @@ export class PieceChooser {
     Object.assign(this, { _fetch: fetch, _prepare: prepare, _apply: apply, _loaded: loaded });
     this.gen = 0; // one more for each choice
     this.wanted = null; // the id of the latest choice while it is on the way
-    this._pending = new Map(); // id -> the prepared score on its way
+    this._pending = new Map(); // id -> shared preparation request
   }
 
-  // the prepared score `id` (one download while it is on the way)
+  // An explicit preload remains useful even when playback chooses another id.
   prepare(id) {
-    let p = this._pending.get(id);
-    if (!p) {
-      p = Promise.resolve(id).then(this._fetch).then(this._prepare);
-      this._pending.set(id, p);
-      // (settled: gone - a failure is asked for afresh. Only our own entry:
-      // never a newer one for the same piece)
-      const drop = () => { if (this._pending.get(id) === p) this._pending.delete(id); };
-      p.then(drop, drop);
+    return this._preparing(id, true);
+  }
+
+  _preparing(id, independent = false) {
+    let request = this._pending.get(id);
+    if (!request) {
+      request = { independent, promise: null };
+      const drop = () => { if (this._pending.get(id) === request) this._pending.delete(id); };
+      request.promise = Promise.resolve(id).then(this._fetch).then(score => {
+        // Check before the expensive score sort/dynamics analysis. Compare the
+        // wanted id, not the first caller's generation: a later same-id choice
+        // still owns this shared request. Explicit preloads are never cancelled.
+        if (!request.independent && this.wanted !== id) {
+          drop(); // a newly chosen id must not join an already discarded result
+          return null;
+        }
+        return this._prepare(score);
+      });
+      this._pending.set(id, request);
+      request.promise.then(drop, drop);
+    } else if (independent) {
+      request.independent = true;
     }
-    return p;
+    return request.promise;
   }
 
   // Choose `id`: the piece once it is the transport's, or null if another
@@ -73,7 +87,7 @@ export class PieceChooser {
     this.wanted = id;
     let prep;
     try {
-      prep = await this.prepare(id);
+      prep = await this._preparing(id);
     } catch (e) {
       if (gen !== this.gen) return null;
       this.wanted = null;

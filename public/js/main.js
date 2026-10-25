@@ -42,6 +42,7 @@ import { Avatars, AVATARS } from './scene/avatars.js';
 import { normalizeDomeProjection } from './scene/dome-projection.js';
 import { AdaptiveQuality, FramePacer } from './quality.js';
 import { watchRenderContext, showRenderStatus } from './render-status.js';
+import { disposeComposer, sameQualitySetting } from './render-resources.js';
 
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
@@ -160,7 +161,7 @@ let composer;
 let bloomPass;
 function buildComposer() {
   const q = QUALITY[quality];
-  if (composer) { composer.passes.forEach((p) => p.dispose?.()); composer.dispose(); }
+  disposeComposer(composer);
   if (!q.post) { composer = null; return; } // render straight to the screen
   const size = renderer.getDrawingBufferSize(new THREE.Vector2());
   const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: q.msaa });
@@ -1537,6 +1538,7 @@ director.on((type, data) => {
 });
 
 function onSetting(key, value) {
+  if (sameQualitySetting(settings, key, value)) return;
   if (key === 'skipStageTransitions' && hostOnly()) return;
   if (key === 'domeProjection') value = normalizeDomeProjection(value);
   settings[key] = value;
@@ -2568,8 +2570,7 @@ watchRenderContext(renderer.domElement, {
     environmentTarget = null;
     scene.environment = null;
     if (composer) {
-      composer.passes.forEach(pass => pass.dispose?.());
-      composer.dispose();
+      disposeComposer(composer);
       composer = null;
     }
   },

@@ -56,6 +56,31 @@ test('a new text message cannot interrupt an unfinished fragment', t => {
   assert.equal(closeCode(wire), 1002);
 });
 
+test('empty fragments do not accumulate while fragmented UTF-8 still completes', t => {
+  const { ws } = peer(t);
+  const messages = [];
+  ws.onmessage = message => messages.push(message);
+  ws._data(maskedFrame('', { fin: false }));
+  const empty = maskedFrame('', { op: 0, fin: false });
+  for (let i = 0; i < 10000; i++) ws._data(empty);
+  assert.equal(ws.open, true);
+  assert.equal(ws.parts.length, 0);
+  assert.equal(ws.partBytes, 0);
+
+  const text = Buffer.from('{"text":"숲"}');
+  // Split inside the Korean character, with empty fragments in between.
+  const split = Buffer.byteLength('{"text":"') + 1;
+  ws._data(maskedFrame(text.subarray(0, split), { op: 0, fin: false }));
+  for (let i = 0; i < 10000; i++) ws._data(empty);
+  assert.equal(ws.parts.length, 1);
+  assert.equal(ws.partBytes, split);
+  ws._data(maskedFrame(text.subarray(split), { op: 0, fin: false }));
+  ws._data(maskedFrame('', { op: 0 }));
+  assert.deepEqual(messages, [{ text: '숲' }]);
+  assert.equal(ws.parts.length, 0);
+  assert.equal(ws.partBytes, 0);
+});
+
 test('invalid UTF-8 and oversized fragmented messages are rejected', t => {
   const first = peer(t);
   first.ws._data(maskedFrame(Buffer.from([0xff])));
