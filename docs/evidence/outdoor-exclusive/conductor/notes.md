@@ -11,3 +11,6 @@
 증거: before-side.png 및 before-conducting.webm은 원래 사각판. after-side.png, after-bow.png, after-walking.png와 after-conducting/bow/walking.webm은 수정 모델. 영상은 WebGL canvas의 브라우저 MediaRecorder 원본이며 후처리 인코딩하지 않았다. before/after-model-sha256.txt는 촬영 모델 소스 해시다. 입퇴장 동작은 실제 StageManager의 conductorFace/conductorBow/conductorExit로 구동했다. 테스트용 연주곡 선택 및 옆 카메라 배치는 debug API를 사용했다.
 
 브라우저: 별도 CDP9225, http://127.0.0.1:8096. 기본 Chrome 데스크톱 기능 확인이다. 성능·실제 iPad·전체 동작 하네스는 여기서 검증하지 않았고 루트 통합 검증 대상이다. 자기 탭을 닫고 browser.disconnect를 호출한다.
+
+
+배포한 증거 폴더의 영상은 같은 기본 이름의 MP4다. 원본 WebM은 로컬 QA 작업 폴더에 보존한다. 일부 중간 실패는 사진·JSON만 PR에 보존하며 최종 통과 영상과 구분한다. 전체 인코딩·디코딩 결과는 상위 `media-check.json`에 있다.
