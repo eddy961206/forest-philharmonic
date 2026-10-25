@@ -36,7 +36,7 @@
 ```sh
 QA_REV=ecd5c09 QA_OUT=work/performance-lifecycle/resources-before node tools/qa/verify-performance-resources.mjs
 QA_OUT=work/performance-lifecycle/resources-after node tools/qa/verify-performance-resources.mjs
-QA_OUT=work/performance-lifecycle/final-cache-aware node tools/qa/verify-performance-lifecycle.mjs
+QA_OUT=work/performance-lifecycle/final node tools/qa/verify-performance-lifecycle.mjs
 RECONNECT_ROUNDS=6 QA_OUT=work/performance-lifecycle/network node tools/qa/verify-room-reconnect.mjs
 npm run verify:motion -- --out work/performance-lifecycle/verification
 QUALITY_MODE=efficient CPU_RATE=4 CAMERA=cinema QA_OUT=work/performance-lifecycle/fps node tools/qa/quality-optimization-measure.mjs after outdoor 20 measure
@@ -44,11 +44,33 @@ QUALITY_MODE=efficient CPU_RATE=4 CAMERA=cinema QA_OUT=work/performance-lifecycl
 
 메모리 검사와 FPS 검사는 순서대로 실행한다. FPS 동안 녹화·인코딩·다른 검사·다른 공연 탭을 실행하지 않는다.
 
+## 최종 결과
+
+전체 결과 요약은 [summary.json](evidence/performance-lifecycle/summary.json), 재현 전후는 [이전](evidence/performance-lifecycle/resources-before/resources.json) / [수정 후](evidence/performance-lifecycle/resources-after/resources.json)에 보존했다.
+
+| 검사 | 조건과 결과 |
+| --- | --- |
+| 같은 화면 반복 | 화질 전환 12회, 3곡×3회 선택, seek/pause/play 30회 PASS |
+| 같은 화면 자원 | scene 객체 2,818개, geometry 1,985개, listener 311개 유지(QA pagehide listener 1개 포함). 695개 PCM 버퍼 479,016,956 bytes 유지 |
+| GC 후 JS heap | 같은 3곡 반복의 첫/세 번째 회차 25,315,160→25,539,828 bytes(+224,668 bytes). 단기 관측이며 장기 plateau를 보증하지 않음 |
+| 공연장 이동 | 홀→스피어→야외 2회 순환. 각 공연장의 scene·샘플 수 유지. 뒤로가기 후 스피어/발퀴레/playing/AudioContext running 확인 |
+| BFCache 관찰 | 6번 이동 모두 이전 페이지 persisted=true. renderer-wide 문서 최대 7개, heap 최대 222,213,028 bytes. 영구 누수 판정에서 제외하고 캐시 비용으로 기록 |
+| 앱을 떠난 현재 target | about:blank 뒤 GC: 문서 1개, 노드 4개, listener 0개. 브라우저 전체 프로세스 메모리 보증 아님 |
+| 멀티플레이 | 실제 2클라이언트. 혼자 남은 방장 재접속, 늦은 참가, 손님 재접속 6회, 방장 승계 PASS. 관측 시계 보정 후 곡 시간 차이 최대 69.34ms, JS/콘솔 오류 0 |
+| 독립 성능 | 야외·모차르트 40번·편하게 보기·저사양·CPU4배 감속, 20초: 평균 30.001fps, frame p95 35.4ms, p99 49.9ms, 최대 50.9ms, render submit 평균 3.217ms |
+| 오디오 예약 | 위 20초에서 100ms 초과 지연 예약 0. 모든 실제 오디오 드롭아웃을 포괄하는 지표는 아님 |
+| 회귀·동작 | 321개 검사 PASS. 106곡·51단원·30rig·177,660프레임·6,110,324팔 표본, 실패 0 |
+
+[반복 흐름 원본](evidence/performance-lifecycle/final/lifecycle.json), [멀티플레이 원본](evidence/performance-lifecycle/network/multiplayer.json), [성능 원본](evidence/performance-lifecycle/fps/after-outdoor.json), [전체 검증](evidence/performance-lifecycle/verification/verification-summary.json), [실제 성능 측정 화면](evidence/performance-lifecycle/fps/after-outdoor.png)을 남겼다. 브라우저 작업은 전용 CDP 탭에서 진행했고 완료 후 앱 QA 탭을 닫았다. 로컬/LAN 서버는 최신 코드로 재시작했고 [LAN에서 제공되는 5개 파일 해시](evidence/performance-lifecycle/lan.json)를 확인했다.
+
+검증 입력 SHA256: `35e3a73fd3d4beae2058cc9a0dea9fdb000ba4a999448ad27ef61beaf28a6406`(259개 파일). 검사 도중 입력 해시는 유지됐다. 제품 수정 커밋의 [CI](https://github.com/eddy961206/forest-philharmonic/actions/runs/40165765235)는 Ubuntu Node18/22와 Windows Node22 모두 PASS다.
+
 ## 검사 도구에서 바로잡은 점
 
 - 첫 자원 검사에서는 카메라 이동과 눈 깜빡임으로 처음 보이는 기존 geometry까지 새 누수로 취급했다. 고정 무대 구도로 바꾸고 실제 WebGL geometry의 최초 업로드를 추적했다. 이미 scene에 존재하는 geometry의 지연 업로드와 새 객체 누적을 구분한다. 초기 실패 JSON도 보존한다.
 - material 검사 초안은 아바타 이름표 Sprite를 공유 재질로 분류했다. 이름표 정상 해제를 확인한 후 공유 캐릭터 Mesh만 검사하도록 분리했다. 허용값으로 실제 누수를 덮은 변경은 없다.
 - 공연장 이동 후 전체 renderer의 문서·listener·heap 증가를 처음에는 누수 후보로 분류했다. 별도 재현에서 `pagehide.persisted=true`를 확인했다. Chrome의 BFCache가 뒤로 가기를 위해 이전 문서를 보관한 것이므로 같은 화면 안에서의 누수 검사와 분리한다. 이 캐시를 임의로 끄거나 복귀 동작을 바꾸지는 않았다.
+- QA 초기 설정 스크립트가 `about:blank`에서도 localStorage에 접근해 발생한 SecurityError는 앱 오류가 아니었다. HTTP(S) 문서에만 QA 설정을 적용하도록 고치고 전체 흐름을 다시 실행했다.
 
 ## 공연장 이동의 메모리 해석
 

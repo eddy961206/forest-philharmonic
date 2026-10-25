@@ -1,0 +1,566 @@
+{
+  "source": {
+    "baseCommit": "44dd386d8ab6e47a0c22ba3d374339eb19de77f3",
+    "sourceSHA256": "24787456dc3b66da5483841e30946cf5a7e075488a2fae60befd310394b1cea3",
+    "files": 66
+  },
+  "createdAt": "2026-10-25T05:33:31.259Z",
+  "browser": "Chrome/156.0.8078.47",
+  "method": "Actual UI handlers and fixed playing-stage camera; paused/drained/GC snapshots, not an FPS benchmark",
+  "rows": [
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 1411.3999996185303
+      },
+      "resources": {
+        "geometries": 1362,
+        "textures": 101
+      },
+      "programs": 62,
+      "programRefs": 1300,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 25,
+        "knownScene": 25
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "initial",
+      "heapBytes": 23666480,
+      "dom": {
+        "documents": 1,
+        "nodes": 1329,
+        "jsEventListeners": 310
+      }
+    },
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 3565.5
+      },
+      "resources": {
+        "geometries": 1362,
+        "textures": 101
+      },
+      "programs": 88,
+      "programRefs": 1659,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 2,
+        "knownScene": 0
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "quality-round-1",
+      "heapBytes": 24962108,
+      "dom": {
+        "documents": 1,
+        "nodes": 1329,
+        "jsEventListeners": 310
+      }
+    },
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 3562.1000003814697
+      },
+      "resources": {
+        "geometries": 1362,
+        "textures": 101
+      },
+      "programs": 88,
+      "programRefs": 1684,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 2,
+        "knownScene": 0
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "quality-round-2",
+      "heapBytes": 25110120,
+      "dom": {
+        "documents": 1,
+        "nodes": 1329,
+        "jsEventListeners": 310
+      }
+    },
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 3570.0999994277954
+      },
+      "resources": {
+        "geometries": 1362,
+        "textures": 101
+      },
+      "programs": 88,
+      "programRefs": 1684,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 2,
+        "knownScene": 0
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "quality-round-3",
+      "heapBytes": 25189196,
+      "dom": {
+        "documents": 1,
+        "nodes": 1329,
+        "jsEventListeners": 310
+      }
+    },
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 0
+      },
+      "resources": {
+        "geometries": 1367,
+        "textures": 101
+      },
+      "programs": 89,
+      "programRefs": 1687,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 5,
+        "knownScene": 5
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "song-round-1",
+      "heapBytes": 25317292,
+      "dom": {
+        "documents": 1,
+        "nodes": 1329,
+        "jsEventListeners": 310
+      }
+    },
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 0
+      },
+      "resources": {
+        "geometries": 1368,
+        "textures": 101
+      },
+      "programs": 89,
+      "programRefs": 1724,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 1,
+        "knownScene": 1
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "song-round-2",
+      "heapBytes": 25477232,
+      "dom": {
+        "documents": 1,
+        "nodes": 1329,
+        "jsEventListeners": 310
+      }
+    },
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 0
+      },
+      "resources": {
+        "geometries": 1368,
+        "textures": 101
+      },
+      "programs": 89,
+      "programRefs": 1779,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 0,
+        "knownScene": 0
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "song-round-3",
+      "heapBytes": 25546860,
+      "dom": {
+        "documents": 1,
+        "nodes": 1329,
+        "jsEventListeners": 310
+      }
+    },
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 0
+      },
+      "resources": {
+        "geometries": 1369,
+        "textures": 101
+      },
+      "programs": 89,
+      "programRefs": 1818,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 1,
+        "knownScene": 1
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "30-seek-pause-resume",
+      "heapBytes": 25644060,
+      "dom": {
+        "documents": 1,
+        "nodes": 1329,
+        "jsEventListeners": 310
+      }
+    },
+    {
+      "venue": "hall",
+      "song": "beethoven-symphony-5",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 1358.9000005722046
+      },
+      "resources": {
+        "geometries": 1475,
+        "textures": 133
+      },
+      "programs": 114,
+      "programRefs": 1905,
+      "sceneObjects": 3193,
+      "sceneGeometries": 2131,
+      "geometryUploads": {
+        "total": 38,
+        "knownScene": 38
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "navigation-1-hall",
+      "heapBytes": 54189316,
+      "dom": {
+        "documents": 2,
+        "nodes": 2875,
+        "jsEventListeners": 684
+      }
+    },
+    {
+      "venue": "sphere",
+      "song": "wagner-valkyries",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 1363.5
+      },
+      "resources": {
+        "geometries": 1416,
+        "textures": 104
+      },
+      "programs": 110,
+      "programRefs": 1731,
+      "sceneObjects": 3026,
+      "sceneGeometries": 2069,
+      "geometryUploads": {
+        "total": 23,
+        "knownScene": 23
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "navigation-2-sphere",
+      "heapBytes": 101511312,
+      "dom": {
+        "documents": 3,
+        "nodes": 4391,
+        "jsEventListeners": 1011
+      }
+    },
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 1353.5
+      },
+      "resources": {
+        "geometries": 1365,
+        "textures": 101
+      },
+      "programs": 62,
+      "programRefs": 1305,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 25,
+        "knownScene": 25
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "navigation-3-outdoor",
+      "heapBytes": 123897772,
+      "dom": {
+        "documents": 4,
+        "nodes": 5720,
+        "jsEventListeners": 1321
+      }
+    },
+    {
+      "venue": "hall",
+      "song": "beethoven-symphony-5",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 1287.8000001907349
+      },
+      "resources": {
+        "geometries": 1475,
+        "textures": 133
+      },
+      "programs": 114,
+      "programRefs": 1916,
+      "sceneObjects": 3193,
+      "sceneGeometries": 2131,
+      "geometryUploads": {
+        "total": 38,
+        "knownScene": 38
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "navigation-4-hall",
+      "heapBytes": 152532984,
+      "dom": {
+        "documents": 5,
+        "nodes": 7266,
+        "jsEventListeners": 1648
+      }
+    },
+    {
+      "venue": "sphere",
+      "song": "wagner-valkyries",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 1304.1000003814697
+      },
+      "resources": {
+        "geometries": 1418,
+        "textures": 104
+      },
+      "programs": 110,
+      "programRefs": 1739,
+      "sceneObjects": 3026,
+      "sceneGeometries": 2069,
+      "geometryUploads": {
+        "total": 26,
+        "knownScene": 26
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "navigation-5-sphere",
+      "heapBytes": 199943248,
+      "dom": {
+        "documents": 6,
+        "nodes": 8782,
+        "jsEventListeners": 1975
+      }
+    },
+    {
+      "venue": "outdoor",
+      "song": "mozart-symphony-40",
+      "phase": "playing",
+      "visible": "visible",
+      "voices": 0,
+      "audioState": "running",
+      "quality": {
+        "mode": "high",
+        "effectiveDpr": 1,
+        "targetFps": null,
+        "lowStreak": 0,
+        "goodStreak": 0,
+        "raiseBlocked": false,
+        "renderScale": 1,
+        "hold": 1303.5999994277954
+      },
+      "resources": {
+        "geometries": 1372,
+        "textures": 101
+      },
+      "programs": 62,
+      "programRefs": 1301,
+      "sceneObjects": 2818,
+      "sceneGeometries": 1985,
+      "geometryUploads": {
+        "total": 23,
+        "knownScene": 23
+      },
+      "sampleBuffers": 695,
+      "samplePCMBytes": 479016956,
+      "label": "navigation-6-outdoor",
+      "heapBytes": 222179900,
+      "dom": {
+        "documents": 7,
+        "nodes": 10111,
+        "jsEventListeners": 2285
+      }
+    }
+  ],
+  "errors": [],
+  "status": "fail",
+  "failure": "AssertionError [ERR_ASSERTION]: navigation hall: listeners accumulate\n    at plateau (file:///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tools/qa/verify-performance-lifecycle.mjs:84:10)\n    at file:///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tools/qa/verify-performance-lifecycle.mjs:122:23",
+  "sourceEnd": {
+    "baseCommit": "44dd386d8ab6e47a0c22ba3d374339eb19de77f3",
+    "sourceSHA256": "24787456dc3b66da5483841e30946cf5a7e075488a2fae60befd310394b1cea3",
+    "files": 66
+  }
+}

@@ -17,6 +17,7 @@ const report = {source:process.env.QA_REV?await useBrowserRevision(page,process.
 page.on('pageerror',e=>report.errors.push(String(e)));
 const sleep = ms=>new Promise(r=>setTimeout(r,ms));
 await page.evaluateOnNewDocument(()=>{
+  if (!['http:','https:'].includes(location.protocol)) return;
   localStorage.setItem('fp-settings',JSON.stringify({quality:'high',skipStageTransitions:true,volume:.15}));
   addEventListener('pagehide',event=>sessionStorage.setItem('qa-lifecycle-pagehide',JSON.stringify({persisted:event.persisted,url:location.href})));
 });

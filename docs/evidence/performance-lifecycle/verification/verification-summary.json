@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-25T05:44:26.414Z",
+  "status": "pass",
+  "inputs": {
+    "sha256": "35e3a73fd3d4beae2058cc9a0dea9fdb000ba4a999448ad27ef61beaf28a6406",
+    "files": 259
+  },
+  "steps": [
+    {
+      "command": "node tools/test.mjs --test-reporter=tap",
+      "log": "unit-tests.log",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 3507
+    },
+    {
+      "command": "node --experimental-loader ./tests/helpers/three-loader.mjs tools/qa/audit-playing-motion.mjs /Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/work/performance-lifecycle/verification/motion-audit.json",
+      "log": "motion-audit.log",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 15313
+    }
+  ],
+  "coverage": {
+    "songs": 106,
+    "cast": 51,
+    "rigs": 30,
+    "frames": 177660,
+    "armSamples": 6110324,
+    "venues": [
+      {
+        "id": "hall",
+        "stage": "shared-hall-stage"
+      },
+      {
+        "id": "sphere",
+        "stage": "shared-hall-stage"
+      },
+      {
+        "id": "outdoor",
+        "stage": "shared-hall-stage"
+      }
+    ],
+    "generatedRecordingCases": 51
+  },
+  "failures": [],
+  "scope": "Sampled score windows and full stage lifecycle at synthetic 60 Hz; no GPU, audio, visual aesthetics or physical iPhone certification.",
+  "unitTests": "included"
+}
