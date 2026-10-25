@@ -51,7 +51,7 @@
     <div class="splash-inner">
       <div class="splash-intro">
         <h1 class="splash-title" id="splashTitle">숲속 필하모닉</h1>
-        <p class="splash-sub" id="splashSub">달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 마흔한 곡을 들려드립니다.</p>
+        <p class="splash-sub" id="splashSub">공연장을 준비하고 있어요. 잠시만 기다려 주세요.</p>
         <p id="loadText" class="splash-load">공연장을 짓는 중</p>
         <div class="splash-bar" aria-hidden="true"><span id="loadBar"></span></div>
         <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. <span class="h-key">걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></span><span class="h-touch">걷기 <b>왼쪽 스틱</b> · 둘러보기 <b>화면 끌기</b> · 앉기 <b>두 번 탭</b></span></p>
@@ -69,8 +69,9 @@
         </div>
       </div>
 
-      <!-- lobby: who you are, then a room to watch in (or alone) -->
-      <div class="lobby" id="lobby">
+      <!-- Reveal only after entry routing confirms a direct lobby or invitation.
+           A ticket holder must never see these controls during scene loading. -->
+      <div class="lobby" id="lobby" hidden>
         <div class="lb-who">
           <label class="lb-field lb-name">닉네임<input id="lbName" maxlength="16" autocomplete="nickname" spellcheck="false"></label>
           <p class="lb-field lb-animal">나는<b id="lbAnimal"></b></p>
@@ -263,8 +264,9 @@
       <fieldset class="field">
         <legend>화질</legend>
         <div class="seg" id="qualitySeg">
-          <button data-q="auto">자동</button><button data-q="high">높음</button><button data-q="medium">보통</button><button data-q="low">낮음</button>
+          <button data-q="auto">자동</button><button data-q="high">높음</button><button data-q="medium">보통</button><button data-q="low">낮음</button><button data-q="efficient">저사양</button>
         </div>
+        <p class="hint">저사양은 30 fps를 목표로 해상도·관객 표현·효과를 조절해요. 음악과 연주자는 그대로 유지해요. 선택은 다음 입장에도 적용돼요.</p>
         <p class="hint" id="fpsText"></p>
       </fieldset>
       <fieldset class="field" id="domeProjectionField" hidden>
@@ -400,6 +402,7 @@
           <div><h2 id="boothTitle">매표소</h2><p id="boothSay">어서 와요! 어디로 가는 표를 드릴까요?</p></div>
           <button class="ib booth-x" id="boothClose" type="button" aria-label="매표소 닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></button>
         </header>
+        <label class="field" style="display:block;padding:10px 20px"><input type="checkbox" id="pzEfficient"> 저사양 모드 <small>30 fps 목표 · 음악은 그대로 · 다음 입장에도 적용</small></label>
         <ol class="booth-steps" id="boothSteps"><li data-s="1">공연장</li><li data-s="2">관람 방식</li><li data-s="3">표 받기</li></ol>
 
         <section class="booth-step" data-step="1">

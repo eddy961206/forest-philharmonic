@@ -5,6 +5,7 @@ import { mergeChildren } from './merge.js';
 import { basis, placeBy, toParent, smooth, easeOut } from './rig-utils.js';
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 import { stringTechniqueAt } from './playing-motion.js';
+import { ARM_LIMITS } from './arm-ik.js';
 const tmpM = new THREE.Matrix4();
 // open-string pitch per string family
 const OPEN = {
@@ -36,9 +37,9 @@ export function stringRig(kind) {
         p.restPos = V(0.02, 0.6, -0.12);
       } else {
         const big = kind === 'bass';
-        p.playQ = basis(V(big ? -0.24 : -0.3, 1, big ? 0.22 : 0.16), V(0.22, 0, -1));
+        p.playQ = basis(V(big ? -0.24 : -0.15, 1, big ? 0.22 : 0.10), V(0.22, 0, -1));
         p.playAnchor = inst.endpin;
-        p.playPos = big ? V(-0.02, 0.0, -0.25) : V(0.05, 0.0, -0.20);
+        p.playPos = big ? V(-0.02, 0.0, -0.25) : V(0.04, 0.0, -0.29);
         p.restQ = p.playQ;
         p.restAnchor = inst.endpin;
         p.restPos = p.playPos;
@@ -109,6 +110,19 @@ export function stringRig(kind) {
       const contact = toParent(g, inst.contact);
       const L = p.bow.length;
       const lift = (1 - r) * 0.12 + (c.playing ? 0 : 0.02);
+      if (kind === 'cello') {
+        // Limit the bow stroke itself to the player's reach. The contact stays
+        // on the string and the hand stays on the frog; never stretch the arm.
+        const arm = p.char.arms.R;
+        const reach = Math.sqrt(arm.a ** 2 + arm.b ** 2 + 2 * arm.a * arm.b * Math.cos(ARM_LIMITS.minFlex)) * .98;
+        const d = contact.clone().addScaledVector(bowUp, .041 + lift).sub(arm.shoulder);
+        const along = d.dot(bowDir);
+        const half = Math.sqrt(Math.max(0, reach * reach - (d.lengthSq() - along * along)));
+        const lo = Math.max(.08, (along - half) / L);
+        const hi = Math.max(lo, Math.min(.92, (along + half) / L));
+        p.u = Math.max(lo, Math.min(hi, p.u));
+        p.u1 = Math.max(lo, Math.min(hi, p.u1));
+      }
       const frog = contact.clone().addScaledVector(bowDir, -p.u * L).addScaledVector(bowUp, 0.006 + lift);
       const bq = new THREE.Quaternion().setFromRotationMatrix(tmpM.makeBasis(bowDir, bowUp, new THREE.Vector3().crossVectors(bowDir, bowUp)));
       // resting bow lies across the lap
@@ -131,6 +145,9 @@ export function stringRig(kind) {
       // right hand on the frog, left hand on the neck with vibrato
       const pluck = c.running ? Math.sin(c.recent * 28) * Math.exp(-Math.max(0, c.recent) * 12) * 0.025 : 0;
       const pluckHand = contact.clone().add(V(0.02, 0, pluck));
+      // Cellists pluck near the lower fingerboard, above the bowing contact.
+      // Reaching down to the bridge overextends the arm on soft pizzicato.
+      if (kind === 'cello') pluckHand.addScaledVector(vY, .12);
       const rh = frog.clone().addScaledVector(bowUp, 0.035).lerp(pluckHand, p.pluckMix);
       // Retain the bow in the hand, pointing down while the finger plucks.
       // Hiding it for each short note made it flash in and out between rests.

@@ -281,3 +281,28 @@ test('일반 모드도 안정적인 곡 사이에는 해상도와 높음 프리�
   assert.equal(c.quality, 'high');
   assert.equal(c.scale, 1);
 });
+
+test('30fps deadline pacing stays near 30 on 60/120/144 Hz and resumes without bursts', async () => {
+  const { FramePacer } = await import('../public/js/quality.js');
+  for (const hz of [60, 120, 144]) {
+    const p = new FramePacer(30); const rendered = [];
+    for (let i = 0; i < hz * 10; i++) if (p.ready(i * 1000 / hz)) rendered.push(i * 1000 / hz);
+    assert.ok(Math.abs(rendered.length - 300) <= 1, `${hz}Hz: ${rendered.length}`);
+    const gaps = rendered.slice(1).map((t, i) => t - rendered[i]);
+    assert.ok(Math.max(...gaps) - Math.min(...gaps) <= 1000 / hz + 0.01);
+    assert.equal(p.ready(20000), true);
+    assert.equal(p.ready(20001), false);
+    p.reset(); assert.equal(p.ready(20001), true);
+  }
+});
+
+test('efficient resolution controller treats paced 30fps as healthy, reduces sustained overload and recovers only between pieces', () => {
+  const c = new AdaptiveQuality({ quality: 'low', minQuality: 'low', maxQuality: 'low', targetFps: 30 });
+  assert.equal(feed(c, 1000 / 30, 30).length, 0);
+  assert.ok(feed(c, 50, 18, { allowRecovery: false }).length > 0);
+  assert.ok(c.scale < 1 && c.scale >= 0.6);
+  const low = c.scale;
+  feed(c, 1000 / 30, 30, { allowRecovery: false }); assert.equal(c.scale, low);
+  feed(c, 1000 / 30, 45, { allowRecovery: true }); assert.ok(c.scale > low && c.scale <= 1);
+  assert.equal(c.quality, 'low');
+});

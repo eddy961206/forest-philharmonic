@@ -21,11 +21,24 @@ def midi_file(tracks):
 
 
 class MidiScoreTest(unittest.TestCase):
-    def read(self, tracks):
+    def read(self, tracks, **kwargs):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / 'score.mid'
             midi_file(tracks).save(path)
-            return read_midi(path)
+            return read_midi(path, **kwargs)
+
+    def test_opt_in_independent_track_ports_preserves_programs_and_note_ends(self):
+        tracks, _, _, _ = self.read([
+            [mido.Message('program_change', program=73, time=0),
+             mido.Message('note_on', note=60, velocity=80, time=0),
+             mido.Message('note_off', note=60, time=960)],
+            [mido.Message('program_change', program=40, time=0),
+             mido.Message('note_on', note=60, velocity=90, time=240),
+             mido.Message('note_off', note=60, time=240)],
+        ], independent_track_ports=True)
+        self.assertEqual([t['program'] for t in tracks], [73, 40])
+        self.assertEqual([t['notes'][0][1] for t in tracks], [1.0, 0.25])
+        self.assertEqual([t['notes'][0][0] for t in tracks], [0.0, 0.25])
 
     def test_tempo_and_compound_meter(self):
         tracks, beats, duration, info = self.read([[

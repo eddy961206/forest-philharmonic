@@ -6,7 +6,8 @@ const SCALE_EPSILON = 1e-12;
 const round = (v) => Math.round(v * 100) / 100;
 
 export class AdaptiveQuality {
-  constructor({ quality = 'high', scale = 1, minQuality = 'low', maxQuality = 'high', pixelRatios = {}, nowMs = 0 } = {}) {
+  constructor({ quality = 'high', scale = 1, minQuality = 'low', maxQuality = 'high', pixelRatios = {}, targetFps = null, nowMs = 0 } = {}) {
+    this.targetFps = targetFps;
     this.minLevel = LEVELS.indexOf(minQuality);
     this.maxLevel = LEVELS.indexOf(maxQuality);
     this.pixelRatios = Object.fromEntries(LEVELS.map(quality => {
@@ -72,8 +73,8 @@ export class AdaptiveQuality {
     const cost = Math.max(mean, p90);
     // Preserve a useful 30 FPS path at the lightest preset. Faster devices
     // keep running at their display refresh rate; this does not cap FPS.
-    const slowLimit = this.quality === 'low' ? 1000 / 28 : 1000 / 44;
-    const fastLimit = this.quality === 'low' ? 1000 / 45 : 1000 / 55;
+    const slowLimit = this.targetFps ? 1000 / (this.targetFps * 0.83) : this.quality === 'low' ? 1000 / 28 : 1000 / 44;
+    const fastLimit = this.targetFps ? 1000 / (this.targetFps * 0.93) : this.quality === 'low' ? 1000 / 45 : 1000 / 55;
     this.slow = cost > slowLimit ? Math.min(2, this.slow + 1) : 0;
     this.fast = cost < fastLimit ? Math.min(5, this.fast + 1) : 0;
     let level = LEVELS.indexOf(this.quality);
@@ -116,5 +117,21 @@ export class AdaptiveQuality {
     this.scale = scale;
     this.hold(6000);
     return { quality, scale, reason, meanMs: mean, p90Ms: p90 };
+  }
+}
+
+// Deadline accumulation distributes 30 frames evenly over 60/120/144 Hz.
+// Never catch up by submitting several frames after a long pause.
+export class FramePacer {
+  constructor(fps = 30) { this.interval = 1000 / fps; this.reset(); }
+  reset() { this.next = null; }
+  ready(now) {
+    if (this.next === null || now - this.next > this.interval * 3) {
+      this.next = now + this.interval;
+      return true;
+    }
+    if (now + 0.01 < this.next) return false;
+    this.next += Math.max(1, Math.floor((now - this.next + 0.01) / this.interval) + 1) * this.interval;
+    return true;
   }
 }

@@ -55,10 +55,10 @@ try {
   await page.screenshot({ path: `${outputDir}/${label}-arrival.png` });
   await page.evaluate(async () => {
     const { SETLISTS } = await import('/js/programs.js');
-    __fp.ui.emit('select', SETLISTS.outdoor.indexOf('strauss-blue-danube'));
+    __fp.ui.emit('select', SETLISTS.outdoor.indexOf('mozart-symphony-40'));
   });
-  await page.waitForFunction(() => __fp.phase === 'playing' && __fp.perf.playing && __fp.perf.piece.id === 'strauss-blue-danube', { timeout: 90000 });
-  await page.evaluate(() => __fp.perf.seek(236.2561));
+  await page.waitForFunction(() => __fp.phase === 'playing' && __fp.perf.playing && __fp.perf.piece.id === 'mozart-symphony-40', { timeout: 90000 });
+  await page.evaluate(() => __fp.perf.seek(199));
   const seat = await page.evaluate(() => {
     const f = __fp, seat = f.hall.seats.filter(s => !s.stage && !f.director.occupied.has(s.index))
       .sort((a, b) => Math.abs(a.z - 10) + Math.abs(a.x) - Math.abs(b.z - 10) - Math.abs(b.x))[0];

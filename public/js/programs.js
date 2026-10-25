@@ -1,10 +1,5 @@
-// Each venue has its own evening. Eight new complete works open the outdoor
-// recital, followed by a smaller selection from both indoor programmes. The hall and Sphere keep their separate
-// programmes. The hall balances recitals, chamber music, symphonies
-// and choral works, opening with the Ode to Joy and closing
-// with the full Pomp and Circumstance March No. 1; the Sphere keeps the pieces its dome paints
-// best, from a chorale under an opening roof to the fireworks of Bach's
-// Christmas Oratorio. Order = concert order (the interval falls in the middle).
+// Each venue has an exclusive programme: 41 hall, 41 Sphere and 24 outdoor.
+// Order is concert order; the interval falls in the middle.
 
 export const HALL_SETLIST = [
   'beethoven-ode-to-joy', 'beethoven-fur-elise', 'beethoven-moonlight',
@@ -41,14 +36,14 @@ export const SPHERE_SETLIST = [
 
 // Piano, chamber music and familiar orchestral pieces for the park recital.
 export const OUTDOOR_SETLIST = [
-  'elgar-salut-damour', 'dvorak-humoresque-7', 'bach-air', 'mozart-symphony-40',
-  'satie-gymnopedie-1', 'schubert-serenade', 'gounod-ave-maria', 'brahms-lullaby',
-  'grieg-morning-arietta', 'mozart-eine-kleine', 'beethoven-fur-elise',
-  'vivaldi-spring', 'haydn-op74-1-andantino', 'pachelbel-canon',
-  'grieg-morning-mood', 'mozart-k545', 'schubert-lindenbaum',
-  'tchaikovsky-swan-lake', 'mozart-k80-adagio', 'schumann-traumerei',
-  'strauss-blue-danube', 'greensleeves', 'grieg-to-spring',
-  'strauss-radetzky-march',
+  'elgar-salut-damour', 'dvorak-humoresque-7', 'saint-saens-the-swan',
+  'bach-air', 'mozart-symphony-40', 'liszt-liebestraum-3',
+  'bach-badinerie', 'boccherini-minuet', 'massenet-thais-meditation',
+  'chopin-etude-10-3', 'vivaldi-winter-1', 'mozart-figaro-overture',
+  'satie-gymnopedie-1', 'schubert-serenade', 'handel-sarabande',
+  'gounod-ave-maria', 'mozart-queen-night', 'chopin-fantaisie-impromptu',
+  'delibes-flower-duet', 'schubert-military-march', 'brahms-lullaby',
+  'bach-jesu-joy', 'bach-toccata-fugue', 'rossini-barber-overture',
 ];
 
 export const SETLISTS = { hall: HALL_SETLIST, sphere: SPHERE_SETLIST, outdoor: OUTDOOR_SETLIST };

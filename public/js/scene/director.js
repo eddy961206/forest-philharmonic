@@ -4,7 +4,7 @@
 // lock); dragging still works when the cursor is free. Zoom works like opera
 // glasses. An optional auto-director films the concert for you.
 import * as THREE from 'three';
-import { stepTo, surfacesAt, floorAt, LEVELS, groundBelow, headroomAt, barrierTop, ENTRY } from './hallplan.js';
+import { stepTo, surfacesAt, floorAt, LEVELS, groundBelow, headroomAt, barrierTop, ENTRY, HALL, insideShell } from './hallplan.js';
 import { SECTIONS, PODIUM, STAGE_Y } from '../layout.js';
 import { CinemaProgram } from './cinema-program.js';
 
@@ -299,6 +299,12 @@ export class Director {
 
   _bindInput() {
     const el = this.dom;
+    // Confine browser-scroll cancellation to the camera surface. Panels and
+    // programme lists keep their own scrolling. Native OS exit gestures remain
+    // under the browser's control, even when a touch event is cancelled here.
+    el.addEventListener('touchmove', (e) => {
+      if (this.active && e.cancelable) e.preventDefault();
+    }, { passive: false });
     const pointers = new Map();
     let pinch0 = 0;
     let moved = 0;
@@ -336,6 +342,7 @@ export class Director {
     window.addEventListener('blur', () => { this.mouse.inside = false; });
     el.addEventListener('pointerdown', (e) => {
       if (this.locked) return;
+      if (e.pointerType === 'touch' && e.cancelable) e.preventDefault();
       // a pinch whose first finger landed in the thumb stick's corner: that
       // finger (just down, hardly moved) is taken back from the stick, and
       // the two zoom - rather than one walking and the other turning
@@ -866,6 +873,8 @@ export class Director {
         .filter(tr => SECTIONS[tr.section] && tr.notes?.length && (tr.gain ?? 1) > 0)
         .map(tr => tr.section)).size <= 3;
       c.wideIndex = Math.floor(Math.random() * 3);
+      c.playerEdits = 0;
+      c.rearIndex = Math.floor(Math.random() * 3);
       c.angles = new Map(); c.piece = piece;
     }
     c.scoreTime = t;
@@ -924,6 +933,10 @@ export class Director {
       const key = `${dom}:${selected.ci}`;
       const angle = c.angles.get(key) ?? Math.floor(Math.random() * 3);
       c.angles.set(key, (angle + 1) % 3);
+      // Keep score-based selection and the existing front portraits. One
+      // in three performer edits reverses the view, cycling three distinct
+      // rear compositions even when the score keeps selecting new players.
+      const rear = c.playerEdits++ % 3 === 1;
       const chair = SECTIONS[dom].chairs[selected.ci];
       const sc = { ...chair };
       const look = V(sc.x, sc.y + .95, sc.z);
@@ -949,21 +962,48 @@ export class Director {
         shot = { kind: 'section', pos, look, fov: 40, drift: lateral.clone().multiplyScalar(-0.9) };
       }
       shot.angle = angle;
+      if (rear) {
+        const variant = c.rearIndex++ % 3;
+        const offsets = [[side * 1.45, 2.15, -2.2], [-side * 2.7, 2.6, -2.8], [side * .9, 3.15, -3.5]];
+        const [dx, dy, dz] = offsets[variant];
+        // The audience is +Z in all three venues. Aim beyond the player:
+        // their shoulder/section stays in the lower foreground, with the
+        // house in the background rather than a close-up of a back of head.
+        const pos = V(sc.x + dx, sc.y + dy, Math.max(HALL.front + 1.05, sc.z + dz));
+        if (dom === 'piano') {
+          // The pianist faces +X. Stay behind that shoulder and beside the
+          // raised lid, while keeping the audience in the same composition.
+          pos.set(sc.x - [1.5, 2.2, 1.9][variant], sc.y + [2.4, 2.8, 3.2][variant], sc.z - [1.8, 2.6, 3.4][variant]);
+        }
+        while (!insideShell(pos.x, pos.z, .8) && Math.abs(pos.x) > .1) pos.x *= .9;
+        shot = { kind: 'section', view: ['rear-shoulder', 'rear-oblique', 'rear-ensemble'][variant],
+          angle: 3 + variant, pos, look: V(sc.x - dx * .12, sc.y + 1.05, sc.z + [2.7, 3.3, 4][variant]),
+          subject: look.clone(), fov: 60, drift: V(side * .35, -.08, .12), cut: true };
+      }
     } else shot = wide();
     const portrait = (this.camera?.aspect ?? 1) < .8;
     if (portrait && shot.kind === 'section') shot.pos.y += .65;
     // Test the same geometry at the start and along the slow move. All of
     // this work happens at an edit, never in the frame loop.
     const ab = V(), ap = V();
+    // Actual fixed instrument geometry is supplied by the host scene. Bounds
+    // are sampled only at edits, so lids, harp frames and organ cases stay
+    // solid without adding mesh traversal to the frame loop.
+    const instrumentBounds = shot.view ? (ctx.cameraInstruments || []).map(group => {
+      group.updateWorldMatrix(true, true);
+      return new THREE.Box3().setFromObject(group).expandByScalar(.25);
+    }) : [];
     const blocked = pos => (ctx.obstacles || []).some(o => {
       if (o.distanceTo(pos) < (portrait ? 1.5 : .95)) return true;
-      if (shot.kind !== 'section' || o.distanceTo(shot.look) < 1.6) return false;
+      if (shot.kind !== 'section' || o.distanceTo(shot.subject || shot.look) < 1.6) return false;
       ab.subVectors(shot.look, pos);
       const u = clamp(ap.subVectors(o, pos).dot(ab) / ab.lengthSq(), 0, 1);
       return ap.copy(pos).addScaledVector(ab, u).distanceTo(o) < .45;
     });
     const terrainClear = pos => {
       if (pos.y < floorAt(pos.x, pos.z) + .8) return false;
+      if (shot.view && (pos.y > 6.8 || !insideShell(pos.x, pos.z, .45) || pos.z < HALL.front + .65
+        || instrumentBounds.some(box => box.containsPoint(pos)))) return false;
       // Keep the view above the stage tiers as well as the camera itself.
       for (const u of [.25, .5, .75]) {
         ap.copy(pos).lerp(shot.look, u);
@@ -974,12 +1014,17 @@ export class Director {
     for (let k = 0; k < 8; k++) {
       if (!blocked(shot.pos) && terrainClear(shot.pos)) break;
       const away = new THREE.Vector3().subVectors(shot.pos, shot.look).setY(0).normalize();
-      shot.pos.addScaledVector(away, .45).add(V(0, .3, 0));
+      // Rear views can already be close to the shell. Raise rather than
+      // retreat through the rear wall when seeking a clear camera position.
+      shot.pos.addScaledVector(away, shot.view ? 0 : .45).add(V(0, .3, 0));
     }
+    // A blocked rear composition falls back to the established clear wide
+    // view; never force a camera through scenery to preserve a shot quota.
+    if (shot.view && (blocked(shot.pos) || !terrainClear(shot.pos))) shot = wide();
     if (shot.kind === 'section') {
       shot.sid = selected.sid; shot.ci = selected.ci;
       // Alternate a medium portrait and a looser section framing.
-      shot.fov = edit % 2 ? 46 : 52;
+      shot.fov = shot.view ? (portrait ? 66 : 60) : edit % 2 ? 46 : 52;
       shot.drift.multiplyScalar(.65);
     }
     const probe = V();
@@ -995,7 +1040,7 @@ export class Director {
       const downbeat = piece.beats?.find(b => b[1] === 0 && b[0] >= t + shot.hold && b[0] <= t + Math.min(12, shot.hold + 1.2));
       if (downbeat) shot.hold = downbeat[0] - t;
     }
-    shot.cut = bows;
+    shot.cut = bows || !!shot.view;
     return shot;
   }
 

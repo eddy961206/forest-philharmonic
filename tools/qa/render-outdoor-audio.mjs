@@ -16,14 +16,14 @@ try{
   report.bank=await page.evaluate(fs.readFileSync('tools/qa/render-repertoire.js','utf8'));
   assert.equal(report.bank.failures.length,0,'sample decode failures');
   for(const entry of catalog){
-    const start=entry.id==='mozart-symphony-40'?55:entry.id==='dvorak-humoresque-7'?20:8;
+    const start=({'mozart-symphony-40':199,'dvorak-humoresque-7':20,'mozart-figaro-overture':60,'rossini-barber-overture':180,'vivaldi-winter-1':110,'mozart-queen-night':25})[entry.id]??8;
     const result=await page.evaluate(({id,start})=>renderRepertoireExcerpt(id,start,12,'outdoor'),{id:entry.id,start});
     report.results.push(result);
     assert.ok(result.peak>0.001,`${entry.id}: silence`);
     assert.equal(result.clipped,0,`${entry.id}: clipping`);
     assert.equal(result.nonfinite,0,`${entry.id}: nonfinite`);
     assert.equal(result.error,null,`${entry.id}: rendering error`);
-    if(['mozart-symphony-40','elgar-salut-damour'].includes(entry.id)){
+    if(['mozart-figaro-overture','saint-saens-the-swan'].includes(entry.id)){
       const wav=await page.evaluate(id=>repertoireWav(id),entry.id);
       fs.writeFileSync(`${outputDir}/${entry.id}.wav`,Buffer.from(wav,'base64'));
     }

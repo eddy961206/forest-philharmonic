@@ -48,7 +48,12 @@ test('a solo performer receives different repeat views even with a constant rand
     assert(shots.length >= 8);
     assert(shots.every(s => s.sid === 'piano'));
     for (let i = 1; i < shots.length; i++) assert.notEqual(shots[i].angle, shots[i - 1].angle);
-    assert(new Set(shots.map(s => s.pos.toArray().join(','))).size === 3);
+    assert(new Set(shots.map(s => s.pos.toArray().join(','))).size >= 5);
+    assert.equal(new Set(shots.filter(s => s.view).map(s => s.view)).size, 3);
+    for (const shot of shots.filter(s => s.view)) {
+      assert(shot.look.z > shot.pos.z);
+      assert(shot.cut);
+    }
   } finally { Math.random = random; }
 });
 
@@ -115,5 +120,34 @@ test('a clear starting position cannot drift into a nearby head', () => {
     assert(protectedShot.pos.distanceTo(initial.pos) < 1e-9);
     assert(protectedShot.drift.length() < initial.drift.length());
     for (const u of [0, .25, .5, .75, 1]) assert(protectedShot.pos.clone().addScaledVector(protectedShot.drift, u).distanceTo(head) >= .95);
+  } finally { Math.random = random; }
+});
+
+
+test('rear compositions stay inside the stage shell and outside fixed instruments', async () => {
+  const THREE = await import('three');
+  const { insideShell, HALL } = await import('../public/js/scene/hallplan.js');
+  const { SECTIONS } = await import('../public/js/layout.js');
+  const random = Math.random; Math.random = () => 0;
+  try {
+    for (const sid of Object.keys(SECTIONS)) {
+      const perf = { playing: true, piece: { tracks: [track(sid, [0], [0, 1000, 60, 90])] } };
+      const director = { cine: {}, camera: { aspect: .5 } };
+      const instrument = new THREE.Mesh(new THREE.BoxGeometry(1, 3, 1), new THREE.MeshBasicMaterial());
+      const chair = SECTIONS[sid].chairs[0];
+      instrument.position.set(chair.x, chair.y + 1, chair.z - 2);
+      const box = new THREE.Box3().setFromObject(instrument).expandByScalar(.25);
+      const shots = Array.from({ length: 28 }, (_, i) => Director.prototype._pickShot.call(director,
+        { perf, time: i * 10, phase: 'playing', cameraInstruments: [instrument] }));
+      for (const shot of shots.filter(s => s.view)) {
+        assert(shot.look.z > shot.pos.z, sid);
+        for (const u of [0, .25, .5, .75, 1]) {
+          const pos = shot.pos.clone().addScaledVector(shot.drift, u);
+          assert(insideShell(pos.x, pos.z, .45), sid);
+          assert(pos.z >= HALL.front + .65 && pos.y <= 6.8, sid);
+          assert(!box.containsPoint(pos), sid);
+        }
+      }
+    }
   } finally { Math.random = random; }
 });

@@ -28,7 +28,7 @@ DRUMS = {35:('bd','bassDrum'),36:('bd','bassDrum'),38:('sd','snare'),40:('sd','s
          54:('tamb','tambourine'),80:('tri','triangle'),81:('tri','triangle')}
 DRUM_ROOT = {'bassDrum':36,'snare':38,'cymbals':49,'tambourine':54,'triangle':81,'tom':43}
 
-def read_midi(filename):
+def read_midi(filename, independent_track_ports=False):
     midi=mido.MidiFile(filename)
     if midi.type==2:raise ValueError('Asynchronous MIDI sequences are not supported')
     tempos={0:500000}; meters={0:(4,4)}; timeline=[]; names={}; end=0
@@ -53,7 +53,11 @@ def read_midi(filename):
             if msg.type=='track_name':names[ti]=clean_name(msg.name)
             if msg.type=='set_tempo':tempos[tick]=msg.tempo
             if msg.type=='time_signature':meters[tick]=(msg.numerator,msg.denominator)
-            if not msg.is_meta:timeline.append((tick,ti,mi,port,msg))
+            # Some exported scores incorrectly reuse a port/channel for
+            # independent parts. Opt in only after checking each part carries
+            # its own setup/controllers; normal MIDI shares channel state.
+            routing_port = ti * 128 + port if independent_track_ports else port
+            if not msg.is_meta:timeline.append((tick,ti,mi,routing_port,msg))
         end=max(end,tick)
     points=sorted(tempos);secs=[0.0]
     for a,b in zip(points,points[1:]):secs.append(secs[-1]+mido.tick2second(b-a,midi.ticks_per_beat,tempos[a]))
@@ -132,7 +136,8 @@ def instrument(part, override=None):
 
 def realize(spec, root):
     source=Path(root)/'tools/scores'/spec['file']
-    parts,beats,duration,info=read_midi(source)
+    parts,beats,duration,info=read_midi(source, spec.get('independentTrackPorts', False))
+    if spec.get('independentTrackPorts'):info['independentTrackPorts']=True
     start,stop=spec.get('excerptSeconds',[0,duration])
     stop=min(stop,duration)
     speed=spec.get('tempoScale',1)

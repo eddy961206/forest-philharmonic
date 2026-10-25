@@ -275,6 +275,7 @@ export function buildAudience(plan, { share = 0.45, reserve = null, exclude = ne
       im.setMatrixAt(i, it.m);
       im.setColorAt(i, c.set(it.color));
     });
+    im.userData.audiencePart = part;
     im.frustumCulled = false;
     im.receiveShadow = true;
     im.renderOrder = 1; // after the walls (see seats)
@@ -288,6 +289,28 @@ export function buildAudience(plan, { share = 0.45, reserve = null, exclude = ne
     // (a phone draws fewer of them, but they are all there)
     count: house,
     drawn: chosen.length,
+    setBudget(fraction = 1) {
+      const threshold = Math.max(0, Math.min(1, fraction)) * 100;
+      // Every body part shares its guest's phase: retain whole guests, never
+      // orphan ears/paws. Repack existing instances; no models are rebuilt.
+      let visible = 0;
+      for (const im of meshes) {
+        const part = im.userData.audiencePart;
+        let n = 0;
+        for (const item of lists[part]) {
+          if (item.phase >= threshold) continue;
+          im.setMatrixAt(n, item.m);
+          im.setColorAt(n, c.set(item.color));
+          im.geometry.attributes.aPhase.array[n++] = item.phase;
+        }
+        im.count = n;
+        im.instanceMatrix.needsUpdate = true;
+        im.instanceColor.needsUpdate = true;
+        im.geometry.attributes.aPhase.needsUpdate = true;
+        if (part === 'torso') visible = n;
+      }
+      this.drawn = visible;
+    },
     dispose() {
       for (const im of meshes) { im.geometry.dispose(); im.material.dispose(); im.dispose?.(); }
       group.removeFromParent();
@@ -477,6 +500,7 @@ function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid, casual 
     if (im.instanceColor) im.instanceColor.needsUpdate = true;
     im.geometry.attributes.aPhase.needsUpdate = true;
   };
+  let budget = 1;
   const dist = new Float32Array(people.length);
   const last = new THREE.Vector3(1e9, 0, 0);
   let lastT = -1e9;
@@ -492,10 +516,11 @@ function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid, casual 
       const dx = s.x - cam.x;
       const dy = s.y - cam.y;
       const dz = s.z - cam.z;
-      dist[i] = dx * dx + dy * dy + dz * dz;
+      dist[i] = i < Math.ceil(people.length * budget) ? dx * dx + dy * dy + dz * dz : Infinity;
     }
-    const nNear = Math.min(detail, people.length);
-    const nMid = Math.min(mid, people.length - nNear);
+    const nVisible = Math.ceil(people.length * budget);
+    const nNear = Math.min(Math.ceil(detail * budget), nVisible);
+    const nMid = Math.min(Math.ceil(mid * budget), nVisible - nNear);
     const limNear = nNear > 0 ? (nNear >= people.length ? Infinity : kth(dist, nNear - 1)) : -1;
     const limMid = nMid > 0 ? (nNear + nMid >= people.length ? Infinity : kth(dist, nNear + nMid - 1)) : limNear;
     const cnt = {};
@@ -505,8 +530,8 @@ function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid, casual 
     const dirty = new Set();
     for (let i = 0; i < people.length; i++) {
       const p = people[i];
-      let tier = 2;
-      if (dist[i] <= limNear && kn < nNear) { tier = 0; kn++; } else if (dist[i] <= limMid && km < nMid) { tier = 1; km++; }
+      let tier = i < nVisible ? 2 : 3;
+      if (i < nVisible && dist[i] <= limNear && kn < nNear) { tier = 0; kn++; } else if (i < nVisible && dist[i] <= limMid && km < nMid) { tier = 1; km++; }
       if (tier === 0) {
         for (const [part, col] of p.parts) { const im = near[part]; const j = cnt[part] || 0; if (j >= im.instanceMatrix.count) continue; put(im, j, p.m, col, p.phase); cnt[part] = j + 1; }
       } else if (tier === 1) {
@@ -529,6 +554,12 @@ function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid, casual 
     count: house,
     drawn: chosen.length,
     updateLOD,
+    setBudget(fraction = 1) {
+      budget = Math.max(0, Math.min(1, fraction));
+      this.drawn = Math.ceil(people.length * budget);
+      lastT = -Infinity;
+      last.set(1e9, 0, 0);
+    },
     dispose() {
       for (const im of meshes) { im.geometry.dispose(); if (im.material !== blobMat) im.material.dispose(); im.dispose?.(); }
       blobMat.dispose();

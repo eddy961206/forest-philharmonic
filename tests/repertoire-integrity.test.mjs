@@ -16,10 +16,13 @@ test('every selectable venue has a nonempty program and outdoor scores resolve t
   assert.equal(SETLISTS.outdoor, OUTDOOR_SETLIST);
   assert.notEqual(OUTDOOR_SETLIST, HALL_SETLIST);
   assert.notEqual(OUTDOOR_SETLIST, SPHERE_SETLIST);
+  const assigned = new Map();
   for (const [venue, program] of Object.entries(SETLISTS)) {
     assert.ok(program.length > 0, venue);
     assert.equal(new Set(program).size, program.length, `${venue}: duplicate score`);
     for (const id of program) {
+      assert.ok(!assigned.has(id), `${id}: shared by ${assigned.get(id)} and ${venue}`);
+      assigned.set(id, venue);
       assert.ok(scores.has(id), `${venue}: ${id} absent from catalog`);
       const piece = await json(`public/music/${id}.json`);
       assert.equal(piece.id, id);
@@ -35,7 +38,8 @@ test('all scores have venue assignments, metadata, notes and sample files; outdo
   assert.equal(HALL_SETLIST.length, 41);
   assert.equal(SPHERE_SETLIST.length, 41);
   const outdoorNew = catalog.filter(p => p.venue === 'outdoor');
-  assert.ok(outdoorNew.length > 0, 'outdoor has its own new repertoire');
+  assert.equal(OUTDOOR_SETLIST.length, 24);
+  assert.deepEqual(new Set(outdoorNew.map(p => p.id)), new Set(OUTDOOR_SETLIST), 'every outdoor selection is an exclusive work');
   assert.equal(index.length, 82 + outdoorNew.length);
   assert.equal(catalog.filter(p => !p.replacesExisting).length, 30 + outdoorNew.length);
   assert.equal(catalog.filter(p => p.replacesExisting).length, 1);

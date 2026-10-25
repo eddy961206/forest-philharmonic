@@ -640,7 +640,7 @@ export class UI {
 
   setFps(fps, q) {
     const el = $('fpsText');
-    if (el && !$('panel').hidden) el.textContent = `지금 ${Math.round(fps)} fps, 화질 ${({ high: '높음', medium: '보통', low: '낮음' })[q]}`;
+    if (el && !$('panel').hidden) el.textContent = `지금 ${Math.round(fps)} fps, 화질 ${({ high: '높음', medium: '보통', low: '낮음', efficient: '저사양 · 30 fps 목표' })[q]}`;
   }
 
   // how many guests are in the house now; roomCap: watching together, the

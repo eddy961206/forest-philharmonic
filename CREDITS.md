@@ -125,3 +125,49 @@ See the [outdoor source ledger](docs/outdoor-repertoire-sources.md) and
   These four PDMX editions belong to the no-license-conflict subset; their
   embedded MusicXML was inspected for conflicting rights declarations.
   See the earlier PDMX acknowledgment for the dataset and publication credits.
+
+### Outdoor exclusive repertoire — sixteen replacement works
+
+These sixteen works replace the outdoor program’s shared entries. The original
+eight outdoor additions above remain. Hall 41 + Sphere 41 + outdoor 24 totals
+106 distinct score IDs. The [outdoor source ledger](docs/outdoor-repertoire-sources.md)
+describes the complete editions, transformations, and reproduction steps.
+
+| Work / ID | Source | Contributor | License |
+| --- | --- | --- | --- |
+| 동물의 사육제 · 백조 / `saint-saens-the-swan` | [PDMX / MuseScore 1752116](https://musescore.com/user/1397281/scores/1752116) | mooing | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 타이스 · 명상곡 / `massenet-thais-meditation` | [PDMX / MuseScore 2096176](https://musescore.com/user/31447/scores/2096176) | averybell | [Public Domain](https://creativecommons.org/publicdomain/mark/1.0/) |
+| 사랑의 꿈 3번 / `liszt-liebestraum-3` | [PDMX / MuseScore 6282292](https://musescore.com/user/33306646/scores/6282292) | venson72150 | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 이별의 곡 · 연습곡 Op. 10 No. 3 / `chopin-etude-10-3` | [PDMX / MuseScore 6075555](https://musescore.com/user/33306646/scores/6075555) | venson72150 | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 환상즉흥곡 / `chopin-fantaisie-impromptu` | [Mutopia 1693](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1693) | Guy D. Lederfein; source edition Herrmann Scholtz | [Public Domain](https://creativecommons.org/publicdomain/mark/1.0/) |
+| 미뉴에트와 트리오 / `boccherini-minuet` | [PDMX / MuseScore 5956699](https://musescore.com/user/9019046/scores/5956699) | jwberns | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 예수, 인간 소망의 기쁨 / `bach-jesu-joy` | [PDMX / MuseScore 6379773](https://musescore.com/user/34441303/scores/6379773) | goldieee | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 관현악 모음곡 2번 · 바디네리 / `bach-badinerie` | [PDMX / MuseScore 5910554](https://musescore.com/user/2939956/scores/5910554) | Sophie1998 | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 사라방드 · 현악 편곡 / `handel-sarabande` | [PDMX / MuseScore 4668631](https://musescore.com/user/14352791/scores/4668631) | Leonard Wilson | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 군대행진곡 1번 / `schubert-military-march` | [Mutopia 1545](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1545) | Ph. Raynaud | [Public Domain](https://creativecommons.org/publicdomain/mark/1.0/) |
+| 토카타와 푸가 D단조 / `bach-toccata-fugue` | [Mutopia 1780](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1780) | Mutopia maintainer Anonymous | [Public Domain](https://creativecommons.org/publicdomain/mark/1.0/) |
+| 피가로의 결혼 서곡 / `mozart-figaro-overture` | [PDMX / MuseScore 6288887](https://musescore.com/user/161593/scores/6288887) | fattypikachu | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 세비야의 이발사 서곡 / `rossini-barber-overture` | [PDMX / MuseScore 2540876](https://musescore.com/user/6105546/scores/2540876) | mike320 | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 라크메 · 꽃의 이중창 / `delibes-flower-duet` | [PDMX / MuseScore 5642661](https://musescore.com/user/1680641/scores/5642661) | chiefyblues | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+| 사계 · 겨울 1악장 / `vivaldi-winter-1` | [Mutopia 351](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351) | Mutopia maintainer smailliw | [CC-BY-SA-3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
+| 마술피리 · 밤의 여왕 아리아 / `mozart-queen-night` | [PDMX / MuseScore 5907530](https://musescore.com/user/30957314/scores/5907530) | moriik6180 | [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/) |
+
+The source and derived *Winter — I* files retain CC BY-SA 3.0. Changes are
+native instrument routing and playback at quarter note = 70 instead of the
+source MIDI’s 140. Credit: smailliw, Mutopia 351.
+
+Other adaptations: *Thaïs* is a violin/piano adaptation of Avery Bell’s public-domain
+tuba/piano edition, transposed to D major with the solo in violin register.
+*Badinerie* is Sophie1998’s six-wind arrangement. *Queen of the Night* uses
+moriik6180’s SATB recorder arrangement, routed to flute, oboe, clarinet and bassoon.
+*The Swan* retains both original piano parts but renders them on the app’s single
+piano; *Military March* similarly combines its four-hand parts. No two-piano stage
+or individual four-hand animation is claimed. *Flower Duet* routes vocal notes to
+a choir timbre without sung words.
+
+*Boccherini Minuet* restores the source score’s written Menuett D.C. from existing
+MIDI passages. *Barber of Seville* restores bowed/pizzicato program changes from
+MusicXML directions while preserving all original note, tempo and controller events.
+Its original MIDI and MusicXML, derived MIDI, transition ledger, and
+`tools/restore_barber_articulation.py` are retained for reproduction.
+Individual source and derived hashes are recorded in `tools/repertoire.json`.

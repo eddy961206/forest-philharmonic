@@ -15,7 +15,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: #070c0a; color: var(--paper); overflow: hidden; }
+html, body { margin: 0; height: 100%; background: #070c0a; color: var(--paper); overflow: hidden; overscroll-behavior: none; }
 body { font-family: var(--sans); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 button { font: inherit; color: inherit; }
 [hidden] { display: none !important; }

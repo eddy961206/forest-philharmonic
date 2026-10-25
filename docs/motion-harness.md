@@ -84,4 +84,16 @@ MOBILE=1 QA_OUT=work/outdoor node tools/qa/verify-outdoor.mjs --record
 QA_OUT=work/outdoor node tools/qa/quality-optimization-measure.mjs outdoor outdoor 20 measure
 ```
 
-동일 장면의 성능 측정은 녹화·수치 검사 종료 후 별도로 실행한다. 야외 측정 곡은 「푸른 도나우」의 음이 밀집한 구간이다.
+동일 장면의 성능 측정은 녹화·수치 검사 종료 후 별도로 실행한다. 야외 측정 곡은 「모차르트 교향곡 40번」 199초의 음이 밀집한 구간이다. 공연 목록 무결성 검사는 모든 공연장 사이의 곡 ID 중복도 차단한다.
+
+## 저사양 렌더 측정
+
+`QUALITY_MODE=efficient`로 저장된 저사양 모드에서 시작한다. 실제 렌더 완료의 `stats.sequence`가 바뀐 프레임만 집계한다. 60 Hz 브라우저 콜백 횟수를 30 fps 렌더 횟수로 오인하지 않는다. `CPU_RATE=4`는 Chrome CPU 감속 모의 환경이며 실제 구형 기기 성능을 뜻하지 않는다. 측정 도구는 종료할 때 감속 설정을 원복한다.
+
+```sh
+QUALITY_MODE=efficient CAMERA=cinema QA_OUT=work/efficient node tools/qa/quality-optimization-measure.mjs efficient outdoor 20 measure
+```
+
+## 첼로의 앉은 자세
+
+`tests/cello-seated-clearance.test.mjs`는 실제 두 첼리스트의 준비·휴식·긴 활·피치카토 자세를 검사한다. `characters.js`의 `seatedLegVolumes`는 렌더 다리와 같은 capsule 치수이며, `instruments.js`의 `bodyGeometry`는 실제 첼로 몸통이다. 캐릭터 체형이나 첼로 모델을 바꾸면 이 데이터도 실제 메시와 함께 갱신한다. 팔 길이와 `ARM_LIMITS`를 늘려 접점 실패를 감추지 않는다. 이 표본 검사는 영상 확인을 보완하며 모든 볼륨 내부나 연속 자세의 충돌 증명은 아니다.

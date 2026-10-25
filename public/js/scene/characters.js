@@ -124,6 +124,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   const legsStand = new THREE.Group();
   root.add(legsSit, legsStand);
   const legPivots = [];
+  const seatedLegVolumes = [];
   for (const sx of [-1, 1]) {
     const pivot = new THREE.Group();
     pivot.position.set(sx * 0.09, STAND_HIP, 0);
@@ -132,6 +133,22 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     legsStand.add(pivot);
     legPivots.push(pivot);
     if (!standing) {
+      if (spec.celloSeat) {
+        // A cello sits between the knees. Keep hips attached to the torso,
+        // then open the thighs instead of translating a pair of straight legs.
+        const hip = V(sx * 0.10, hipY, 0.02);
+        const knee = V(sx * 0.34, hipY - 0.04, -0.12);
+        const axis = knee.clone().sub(hip);
+        const thigh = add(legsSit, capsuleG(0.075, axis.length() - 0.15, 4, 10), trouser, hip.clone().add(knee).multiplyScalar(0.5));
+        thigh.quaternion.setFromUnitVectors(UP, axis.normalize());
+        // Capsule centreline endpoints; use these same dimensions in the guard.
+        const direction = knee.clone().sub(hip).normalize();
+        seatedLegVolumes.push({ a: hip.clone().addScaledVector(direction, .075), b: knee.clone().addScaledVector(direction, -.075), radius: .075 });
+        seatedLegVolumes.push({ a: V(knee.x, .10, knee.z), b: V(knee.x, knee.y - .06, knee.z), radius: .068 });
+        add(legsSit, capsuleG(0.068, knee.y - 0.16, 4, 10), trouser, V(knee.x, knee.y / 2 + 0.02, knee.z));
+        add(legsSit, sphereG(0.08, 12, 8), dark, V(knee.x, 0.05, knee.z - 0.05)).scale.set(1, 0.6, 1.4);
+        continue;
+      }
       const thigh = add(legsSit, capsuleG(0.075, 0.2, 4, 10), trouser, V(sx * 0.1, hipY, -0.12));
       thigh.rotation.x = Math.PI / 2;
       add(legsSit, capsuleG(0.068, hipY - 0.16, 4, 10), trouser, V(sx * 0.11, hipY / 2 + 0.02, -0.26));
@@ -410,7 +427,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
 
   root.scale.setScalar(scale);
   const char = {
-    root, body, head, torso, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes,
+    root, body, head, torso, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
     mouthPoint: V(0, -0.085, -0.28 - sp.snout * 0.08),
     headBase: head.position.clone(),
     blinkT: Math.random() * 4,

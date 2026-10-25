@@ -5,10 +5,10 @@ import { motionSource } from './motion-source.mjs';
 const venue = process.argv[2] || 'outdoor', seconds = Number(process.argv[3] || 90);
 if (!['hall','sphere','outdoor'].includes(venue) || !(seconds >= 20 && seconds <= 180)) throw Error('Invalid venue/duration');
 const mobile = process.env.MOBILE === '1', label = process.env.QA_LABEL || `${venue}${mobile ? '-mobile' : ''}`;
-const song = process.env.SONG_ID || (venue === 'sphere' ? 'wagner-valkyries' : 'strauss-blue-danube');
+const song = process.env.SONG_ID || ({ hall: 'strauss-blue-danube', sphere: 'wagner-valkyries', outdoor: 'mozart-symphony-40' })[venue];
 const start = Number(process.env.START_SECONDS || 200);
 if (!/^[\w-]+$/.test(label) || !/^[\w-]+$/.test(song) || !Number.isFinite(start) || start < 0) throw Error('Invalid label/song/start');
-const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9224}`,defaultViewport:null});
+const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9224}`,defaultViewport:null,protocolTimeout:240000});
 const page = await browser.newPage(), errors = [];
 const source = motionSource();
 try {
@@ -38,7 +38,7 @@ try {
       if(s&&s!==previous){
         const tr=f.perf.piece.tracks.filter(t=>t.section===s.sid&&(!t.chairs||t.chairs.includes(s.ci)));
         const eligible=tr.some(t=>t.notes.some((v,i)=>i%4===0&&v<=f.perf.time+1.5&&v+t.notes[i+1]>=f.perf.time-.35&&t.notes[i+3]>0));
-        shots.push({time:f.perf.time,kind:s.kind,sid:s.sid,ci:s.ci,angle:s.angle,hold:s.hold,cut:s.cut,pos:s.pos.toArray(),look:s.look.toArray(),eligible:s.sid?eligible:null,visible:document.visibilityState});previous=s;
+        shots.push({time:f.perf.time,kind:s.kind,sid:s.sid,ci:s.ci,angle:s.angle,view:s.view,hold:s.hold,cut:s.cut,pos:s.pos.toArray(),look:s.look.toArray(),eligible:s.sid?eligible:null,visible:document.visibilityState});previous=s;
       }
       if(running)raf=requestAnimationFrame(tick);
     };

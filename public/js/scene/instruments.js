@@ -142,6 +142,8 @@ export function violinFamily(kind = 'violin') {
   const neckEnd = V(0, topY + 0.08 * b, topZ + 0.06 * b);
   return {
     group, kind, b, strings, contact,
+    // Actual carved soundbox geometry, retained for seated-leg clearance QA.
+    bodyGeometry: geo,
     neckAt: (n) => new THREE.Vector3().lerpVectors(nut, neckEnd, n),
     chin: V(-0.12 * b, -0.36 * b, topZ + 0.04 * b),
     endpin: V(0, -bridgeY - 0.41 * b, 0),

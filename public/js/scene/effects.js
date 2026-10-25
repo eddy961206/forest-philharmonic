@@ -87,6 +87,7 @@ export function buildEffects(scene, { fireflies = 160, dust = 500 } = {}) {
   ff.geometry.setDrawRange(0, few);
   const motes = mk(dust, { x: [-7, 7], y: [STAGE_Y + 0.5, 12], z: [-9, 6] }, { color: '#ffe9c8', size: 0.03, flicker: 0.4, opacity: 0.45 });
   let enabled = true;
+  let budget = 1;
   let gather = 0;
   let gatherTo = 0;
   let glow = 1;
@@ -94,6 +95,7 @@ export function buildEffects(scene, { fireflies = 160, dust = 500 } = {}) {
   ff.visible = fireflies > 0;
   return {
     group,
+    setBudget(value) { budget = Math.max(0, Math.min(1, value)); motes.geometry.setDrawRange(0, Math.ceil(dust * budget)); },
     setCounts(on) { enabled = on; ff.visible = on && fireflies > 0; motes.visible = on; },
     // k: 0..1 how many have come to the lanterns; center: over the house
     gather(k, center = null) {
@@ -109,7 +111,7 @@ export function buildEffects(scene, { fireflies = 160, dust = 500 } = {}) {
       u.uGather.value = gather;
       u.uOpacity.value = 0.8 * glow * (1 + gather * 0.6);
       motes.material.uniforms.uOpacity.value = 0.45 * glow;
-      ff.geometry.setDrawRange(0, gather > 0.01 ? nff : few);
+      ff.geometry.setDrawRange(0, Math.ceil((gather > 0.01 ? nff : few) * budget));
       if (enabled) ff.visible = fireflies > 0 && glow > 0.02;
       ff.material.uniforms.uTime.value = t;
       motes.material.uniforms.uTime.value = t * 0.4;

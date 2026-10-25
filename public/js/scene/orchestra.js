@@ -38,6 +38,7 @@ export function buildOrchestra(scene) {
     sec.chairs.forEach((c, ci) => {
       const spec = { ...CAST[sid][ci] };
       const rigKind = RIG_FOR[sid];
+      if (rigKind === 'cello') spec.celloSeat = true;
       if (rigKind === 'bass') spec.seatY = 0.68;
       if (rigKind === 'timpani') spec.seatY = 0.62;
       if (sec.standing) spec.standing = true;
