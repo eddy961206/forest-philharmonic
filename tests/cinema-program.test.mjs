@@ -43,7 +43,7 @@ test('cinema edits alternate space, performers, audience angles and conductor wi
 test('a solo performer receives different repeat views even with a constant random source', () => {
   const random = Math.random; Math.random = () => 0;
   try {
-    const director = { cine: {} }, perf = { playing: true, piece: { conducted: false, tracks: [track('piano', [0])] } };
+    const director = { cine: {}, venue: 'outdoor' }, perf = { playing: true, piece: { conducted: false, tracks: [track('piano', [0])] } };
     const shots = Array.from({ length: 14 }, (_, i) => Director.prototype._pickShot.call(director, { perf, time: i * 10, phase: 'playing', obstacles: [] })).filter(s => s.sid);
     assert(shots.length >= 8);
     assert(shots.every(s => s.sid === 'piano'));
@@ -149,5 +149,96 @@ test('rear compositions stay inside the stage shell and outside fixed instrument
         }
       }
     }
+  } finally { Math.random = random; }
+});
+
+
+test('indoor rear reveals descend and tilt up, while outdoor retains canopy-safe rear views', () => {
+  const random = Math.random; Math.random = () => 0;
+  try {
+    for (const venue of ['hall', 'sphere', 'outdoor']) {
+      const director = { cine: {}, venue }, perf = { playing: true, piece: { tracks: [track('vn1', [0], [0, 1000, 60, 90])] } };
+      const shots = Array.from({ length: 28 }, (_, i) => Director.prototype._pickShot.call(director, { perf, time: i * 10, phase: 'playing' }));
+      const rear = shots.filter(s => s.view), reveals = rear.filter(s => s.lookEnd);
+      if (venue === 'outdoor') { assert.equal(reveals.length, 0); continue; }
+      assert(reveals.length >= 2);
+      assert(rear.some(s => !s.lookEnd));
+      for (const s of reveals) {
+        assert(s.drift.y <= -2.5 && s.lookEnd.y > s.look.y);
+        assert(s.fov >= 78 && s.cut && s.hold >= 8 && s.hold <= 12);
+        assert(s.pos.y + s.drift.y >= 3.25);
+      }
+    }
+  } finally { Math.random = random; }
+});
+
+test('a fixed instrument crossing only the middle of descent rejects the reveal', async () => {
+  const THREE = await import('three');
+  const random = Math.random; Math.random = () => 0;
+  try {
+    const obstacle = new THREE.Mesh(new THREE.BoxGeometry(40, .25, 40), new THREE.MeshBasicMaterial());
+    obstacle.position.y = 4.8;
+    const director = { cine: {}, venue: 'hall' }, perf = { playing: true, piece: { tracks: [track('vn1', [0])] } };
+    const shots = Array.from({ length: 7 }, (_, i) => Director.prototype._pickShot.call(director,
+      { perf, time: i * 10, phase: 'playing', cameraInstruments: [obstacle] }));
+    assert(shots.some(s => s.view));
+    assert(shots.every(s => !s.lookEnd));
+  } finally { Math.random = random; }
+});
+
+test('architectural reveal retains several real performer heads and torsos throughout the frame', async () => {
+  const THREE = await import('three');
+  const { SECTIONS } = await import('../public/js/layout.js');
+  const random = Math.random; Math.random = () => 0;
+  try {
+    const ids = ['vn1', 'vn2', 'va', 'vc', 'fl', 'bn'];
+    const cameraPerformers = ids.flatMap(sid => SECTIONS[sid].chairs.map((chair, ci) => {
+      const root = new THREE.Group(); root.position.set(chair.x, chair.y, chair.z);
+      return { sid, ci, char: { root, scale: 1 } };
+    }));
+    for (const venue of ['hall', 'sphere']) {
+      const director = { cine: {}, venue, camera: { aspect: 1.5 } };
+      const perf = { playing: true, piece: { tracks: ids.map(id => track(id, undefined, [0, 1000, 60, 90])) } };
+      const shots = Array.from({ length: 28 }, (_, i) => Director.prototype._pickShot.call(director,
+        { perf, time: i * 10, phase: 'playing', cameraPerformers })).filter(s => s.lookEnd);
+      assert(shots.length > 0, venue);
+      for (const s of shots) {
+        const cam = new THREE.PerspectiveCamera(s.fov, 1.5, .1, 300);
+        for (let i = 0; i <= 100; i++) {
+          const u = i / 100;
+          cam.position.copy(s.pos).addScaledVector(s.drift, u);
+          cam.lookAt(s.look.clone().lerp(s.lookEnd, u)); cam.updateMatrixWorld(true);
+          const foreground = cameraPerformers.filter(p => [1.25, .65].every(y => {
+            const q = p.char.root.position.clone().add(new THREE.Vector3(0, y, 0)).project(cam);
+            return Math.abs(q.x) < .9 && q.y > -.92 && q.y < .12 && q.z > -1 && q.z < 1;
+          }));
+          assert(foreground.length >= 3, `${venue}: ${u} lost ensemble foreground`);
+        }
+      }
+    }
+  } finally { Math.random = random; }
+});
+
+test('reveal cut applies the checked wide lens immediately', async () => {
+  const THREE = await import('three');
+  const shot = {pos:new THREE.Vector3(0,6.5,-10.5),look:new THREE.Vector3(0,3.2,12),lookEnd:new THREE.Vector3(0,17,26),fov:100,hold:10,cut:true};
+  let lensAtCut;
+  const d = {cine:{},pos:new THREE.Vector3(),yaw:0,pitch:0,fov:40,targetFov:40,
+    _pickShot:()=>shot,flyTo(){lensAtCut=this.fov;this.anim={};}};
+  Director.prototype._cinema.call(d,.016,{phase:'playing'});
+  assert.equal(lensAtCut,100);assert.equal(d.targetFov,100);
+});
+
+test('blocked close rear shot still evaluates the independent ensemble-back reveal', async () => {
+  const THREE = await import('three');
+  const random = Math.random; Math.random = () => 0;
+  try {
+    const obstacle = new THREE.Mesh(new THREE.BoxGeometry(2,12,2),new THREE.MeshBasicMaterial());
+    obstacle.position.set(-3.86,5,-5.57);
+    const d = {cine:{},venue:'hall',camera:{aspect:1.5}},perf={playing:true,piece:{tracks:[track('vn1',[0])]}};
+    const shots=Array.from({length:3},(_,i)=>Director.prototype._pickShot.call(d,
+      {perf,time:i*10,phase:'playing',cameraInstruments:[obstacle]}));
+    assert.equal(shots[2].view,'rear-architecture');
+    assert.equal(shots[2].kind,'section');assert.equal(shots[2].sid,'vn1');
   } finally { Math.random = random; }
 });

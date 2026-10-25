@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { stepTo, surfacesAt, floorAt, LEVELS, groundBelow, headroomAt, barrierTop, ENTRY, HALL, insideShell } from './hallplan.js';
 import { SECTIONS, PODIUM, STAGE_Y } from '../layout.js';
 import { CinemaProgram } from './cinema-program.js';
+import { VENUE } from './venue.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 export const STAGE_FOCUS = V(0, STAGE_Y + 1.1, -4.6);
@@ -840,6 +841,9 @@ export class Director {
       const d = this.pos.distanceTo(shot.pos);
       const angle = Math.acos(clamp(new THREE.Vector3(-Math.sin(this.yaw) * Math.cos(this.pitch), Math.sin(this.pitch), -Math.cos(this.yaw) * Math.cos(this.pitch)).dot(shot.look.clone().sub(shot.pos).normalize()), -1, 1));
       if (d > 4 || angle > Math.PI / 5) shot.cut = true;
+      // A reveal cut must start with its checked framing, not briefly use
+      // the previous portrait zoom while the lens eases toward the wide shot.
+      if (shot.lookEnd) this.fov = this.targetFov = shot.fov;
       this.flyTo(shot.pos, shot.look, shot.cut ? 0.001 : clamp(d / 1.8, 2.4, 3.6), shot.fov);
       this.anim.lift = false;
       this.anim.after = () => { c.drift = { t: 0 }; };
@@ -849,9 +853,11 @@ export class Director {
       c.drift.t += dt;
       const s = c.shot;
       const x = clamp(c.drift.t / s.hold, 0, 1);
-      const p = s.pos.clone().addScaledVector(s.drift, x);
+      const progress = s.lookEnd ? x * x * (3 - 2 * x) : x;
+      const p = s.pos.clone().addScaledVector(s.drift, progress);
       this.pos.lerp(p, 1 - Math.exp(-dt * 2));
-      const { yaw, pitch } = this.lookAt(s.look, this.pos);
+      const target = s.lookEnd ? s.look.clone().lerp(s.lookEnd, progress) : s.look;
+      const { yaw, pitch } = this.lookAt(target, this.pos);
       let turn = yaw - this.yaw;
       while (turn > Math.PI) turn -= Math.PI * 2;
       while (turn < -Math.PI) turn += Math.PI * 2;
@@ -873,7 +879,7 @@ export class Director {
         .filter(tr => SECTIONS[tr.section] && tr.notes?.length && (tr.gain ?? 1) > 0)
         .map(tr => tr.section)).size <= 3;
       c.wideIndex = Math.floor(Math.random() * 3);
-      c.playerEdits = 0;
+      c.playerEdits = 0; c.rearEdits = 0;
       c.rearIndex = Math.floor(Math.random() * 3);
       c.angles = new Map(); c.piece = piece;
     }
@@ -981,6 +987,7 @@ export class Director {
           subject: look.clone(), fov: 60, drift: V(side * .35, -.08, .12), cut: true };
       }
     } else shot = wide();
+    const architectural = shot.view && c.rearEdits++ % 2 === 0 && (this.venue ?? VENUE) !== 'outdoor';
     const portrait = (this.camera?.aspect ?? 1) < .8;
     if (portrait && shot.kind === 'section') shot.pos.y += .65;
     // Test the same geometry at the start and along the slow move. All of
@@ -1034,6 +1041,74 @@ export class Director {
     });
     for (let k = 0; k < 4 && !safeMove(); k++) shot.drift.multiplyScalar(.5);
     if (!safeMove()) shot.drift.set(0, 0, 0);
+    // Every other indoor rear edit introduces the room. Test the complete
+    // descending sweep before accepting it; an unsafe reveal keeps the normal
+    // protected rear composition selected above. Outdoor canopy views never
+    // use this move. No collision work is added to the animation loop.
+    if (architectural) {
+      const sphere = (this.venue ?? VENUE) === 'sphere';
+      const startY = 6.5, endY = portrait ? 3.8 : 3.5;
+      const roomLook = V(0, 3.2, 12);
+      const lookEnd = V(0, sphere ? 17 : 12, sphere ? 26 : 19);
+      const fov = sphere ? 100 : 96;
+      const radius = portrait ? 1.5 : .95;
+      // Keep the ensemble between the camera and the house. Side-stage
+      // lanes used by v1 could leave every player outside the final frame.
+      const candidates = [[0, -10.5], [-2.5, -10.5], [2.5, -10.5],
+        [0, -11.5], [-3.5, -11], [3.5, -11], [-1.5, -9.5], [1.5, -9.5]];
+      const occupied = new Map();
+      for (const tr of piece.tracks || []) {
+        const section = SECTIONS[tr.section];
+        if (!section || !tr.notes?.length || (tr.gain ?? 1) <= 0) continue;
+        for (const ci of tr.chairs || section.chairs.map((_, i) => i)) {
+          const chair = section.chairs[ci];
+          if (chair) occupied.set(`${tr.section}:${ci}`, chair);
+        }
+      }
+      const subjects = ctx.cameraPerformers ? ctx.cameraPerformers.filter(p =>
+        occupied.has(`${p.sid}:${p.ci}`) && p.char.root.visible).map(p => {
+          p.char.root.updateWorldMatrix(true, false);
+          return { base: p.char.root.getWorldPosition(V()), scale: p.char.scale };
+        }) : [...occupied.values()].map(c => ({ base: V(c.x, c.y, c.z), scale: 1 }));
+      const required = Math.min(3, subjects.length);
+      const frame = new THREE.PerspectiveCamera(fov, this.camera?.aspect || 1.5, .1, 300);
+      const foregroundVisible = (point, target) => {
+        frame.position.copy(point); frame.lookAt(target); frame.updateMatrixWorld(true);
+        const visible = subjects.filter(({ base, scale }) => {
+          if (point.z >= base.z || point.distanceTo(base) < 3) return false;
+          return [1.25, .65].every(height => {
+            const projected = base.clone().add(V(0, height * scale, 0)).project(frame);
+            return Math.abs(projected.x) < .9 && projected.y > -.92 && projected.y < .12
+              && projected.z > -1 && projected.z < 1;
+          });
+        });
+        return required > 0 && visible.length >= required;
+      };
+      for (const [cx, cz] of candidates) {
+        const start = V(cx, startY, cz), end = V(cx, endY, cz);
+        const sweep = new THREE.Box3().setFromPoints([start, end]);
+        const headsClear = (ctx.obstacles || []).every(head => {
+          const nearest = V(cx, clamp(head.y, endY, startY), start.z);
+          return nearest.distanceTo(head) >= radius;
+        });
+        if (!headsClear || instrumentBounds.some(box => box.intersectsBox(sweep))) continue;
+        const clear = Array.from({ length: 33 }, (_, i) => i / 32).every(u => {
+          const point = start.clone().lerp(end, u), target = roomLook.clone().lerp(lookEnd, u);
+          if (!foregroundVisible(point, target)) return false;
+          if (!insideShell(point.x, point.z, .8) || point.z < HALL.front + .65
+            || point.y < floorAt(point.x, point.z) + .8) return false;
+          return [.25, .5, .75].every(v => {
+            const ray = point.clone().lerp(target, v);
+            return ray.y > floorAt(ray.x, ray.z) + .2;
+          });
+        });
+        if (!clear) continue;
+        shot = { ...shot, kind: 'section', sid: selected.sid, ci: selected.ci,
+          view: 'rear-architecture', angle: 6, pos: start,
+          look: roomLook, lookEnd, drift: end.sub(start), fov, foregroundRequired: required, cut: true };
+        break;
+      }
+    }
     const unhurried = c.smallEnsemble || (selected?.energy ?? 0) <= 45;
     shot.hold = bows ? 11 : !perf.playing ? 13 : (shot.kind === 'section' && !unhurried ? 8 : 10) + Math.random() * 2;
     if (perf.playing && !bows) {
