@@ -1,0 +1,320 @@
+{
+  "source": {
+    "baseCommit": "23e3973519c40f1d7e57cd636f7a4e9931679365",
+    "sourceSHA256": "67f2e4a56f5d14351bb41d60833e8181796fe3bf6dd814e9feee1d457192e383",
+    "files": 64
+  },
+  "at": "2026-10-25T04:35:48.877Z",
+  "checks": [
+    {
+      "name": "default-off",
+      "data": {
+        "value": false,
+        "checked": false
+      }
+    },
+    {
+      "name": "reload-preserved",
+      "data": true
+    },
+    {
+      "name": "mid-entry-toggle-and-guest-sync",
+      "data": {
+        "moving": 0,
+        "stored": true
+      }
+    },
+    {
+      "name": "host-guest-playing",
+      "data": {
+        "phase": "playing",
+        "skip": true
+      }
+    },
+    {
+      "name": "applause-bows-gap-preserved",
+      "data": {
+        "applauseMs": 3479.800000190735,
+        "gapMs": 4040.199999809265,
+        "trace": {
+          "phases": [
+            {
+              "phase": "entering",
+              "at": 2924.7999992370605,
+              "song": "elgar-salut-damour"
+            },
+            {
+              "phase": "announce",
+              "at": 3845.0999994277954,
+              "song": "elgar-salut-damour"
+            },
+            {
+              "phase": "hush",
+              "at": 7725.89999961853,
+              "song": "elgar-salut-damour"
+            },
+            {
+              "phase": "playing",
+              "at": 10725.599999427795,
+              "song": "elgar-salut-damour"
+            },
+            {
+              "phase": "afterglow",
+              "at": 12643.89999961853,
+              "song": "elgar-salut-damour"
+            },
+            {
+              "phase": "applause",
+              "at": 13844.29999923706,
+              "song": "elgar-salut-damour"
+            },
+            {
+              "phase": "intermission",
+              "at": 17324.099999427795,
+              "song": "elgar-salut-damour"
+            },
+            {
+              "phase": "entering",
+              "at": 21364.29999923706,
+              "song": "dvorak-humoresque-7"
+            },
+            {
+              "phase": "announce",
+              "at": 22165.699999809265,
+              "song": "dvorak-humoresque-7"
+            },
+            {
+              "phase": "playing",
+              "at": 26043.79999923706,
+              "song": "dvorak-humoresque-7"
+            }
+          ],
+          "applause": [
+            {
+              "at": 3812.8999996185303,
+              "phase": "announce"
+            },
+            {
+              "at": 13818.199999809265,
+              "phase": "applause"
+            },
+            {
+              "at": 22133.199999809265,
+              "phase": "announce"
+            }
+          ],
+          "travels": [
+            {
+              "at": 2890.3999996185303,
+              "method": "callOn",
+              "skip": false,
+              "moving": 2
+            },
+            {
+              "at": 21331,
+              "method": "callOn",
+              "skip": true,
+              "moving": 0
+            }
+          ],
+          "bows": [
+            {
+              "at": 2884.0999994277954,
+              "method": "conductorBow",
+              "on": false
+            },
+            {
+              "at": 2884.0999994277954,
+              "method": "greet",
+              "on": false
+            },
+            {
+              "at": 3813.3999996185303,
+              "method": "greet",
+              "on": true
+            },
+            {
+              "at": 5213.599999427795,
+              "method": "greet",
+              "on": false
+            },
+            {
+              "at": 14420.099999427795,
+              "method": "greet",
+              "on": true
+            },
+            {
+              "at": 16421.699999809265,
+              "method": "greet",
+              "on": false
+            },
+            {
+              "at": 21324.599999427795,
+              "method": "conductorBow",
+              "on": false
+            },
+            {
+              "at": 21324.599999427795,
+              "method": "greet",
+              "on": false
+            },
+            {
+              "at": 22133.5,
+              "method": "greet",
+              "on": true
+            },
+            {
+              "at": 23536.099999427795,
+              "method": "greet",
+              "on": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "disable-propagates",
+      "data": true
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "Seeking near a piece end exercises the real end ceremony without a complete score playback.",
+    "Desktop Chrome only; no physical iOS check."
+  ],
+  "trace": {
+    "phases": [
+      {
+        "phase": "entering",
+        "at": 2924.7999992370605,
+        "song": "elgar-salut-damour"
+      },
+      {
+        "phase": "announce",
+        "at": 3845.0999994277954,
+        "song": "elgar-salut-damour"
+      },
+      {
+        "phase": "hush",
+        "at": 7725.89999961853,
+        "song": "elgar-salut-damour"
+      },
+      {
+        "phase": "playing",
+        "at": 10725.599999427795,
+        "song": "elgar-salut-damour"
+      },
+      {
+        "phase": "afterglow",
+        "at": 12643.89999961853,
+        "song": "elgar-salut-damour"
+      },
+      {
+        "phase": "applause",
+        "at": 13844.29999923706,
+        "song": "elgar-salut-damour"
+      },
+      {
+        "phase": "intermission",
+        "at": 17324.099999427795,
+        "song": "elgar-salut-damour"
+      },
+      {
+        "phase": "entering",
+        "at": 21364.29999923706,
+        "song": "dvorak-humoresque-7"
+      },
+      {
+        "phase": "announce",
+        "at": 22165.699999809265,
+        "song": "dvorak-humoresque-7"
+      },
+      {
+        "phase": "playing",
+        "at": 26043.79999923706,
+        "song": "dvorak-humoresque-7"
+      }
+    ],
+    "applause": [
+      {
+        "at": 3812.8999996185303,
+        "phase": "announce"
+      },
+      {
+        "at": 13818.199999809265,
+        "phase": "applause"
+      },
+      {
+        "at": 22133.199999809265,
+        "phase": "announce"
+      }
+    ],
+    "travels": [
+      {
+        "at": 2890.3999996185303,
+        "method": "callOn",
+        "skip": false,
+        "moving": 2
+      },
+      {
+        "at": 21331,
+        "method": "callOn",
+        "skip": true,
+        "moving": 0
+      }
+    ],
+    "bows": [
+      {
+        "at": 2884.0999994277954,
+        "method": "conductorBow",
+        "on": false
+      },
+      {
+        "at": 2884.0999994277954,
+        "method": "greet",
+        "on": false
+      },
+      {
+        "at": 3813.3999996185303,
+        "method": "greet",
+        "on": true
+      },
+      {
+        "at": 5213.599999427795,
+        "method": "greet",
+        "on": false
+      },
+      {
+        "at": 14420.099999427795,
+        "method": "greet",
+        "on": true
+      },
+      {
+        "at": 16421.699999809265,
+        "method": "greet",
+        "on": false
+      },
+      {
+        "at": 21324.599999427795,
+        "method": "conductorBow",
+        "on": false
+      },
+      {
+        "at": 21324.599999427795,
+        "method": "greet",
+        "on": false
+      },
+      {
+        "at": 22133.5,
+        "method": "greet",
+        "on": true
+      },
+      {
+        "at": 23536.099999427795,
+        "method": "greet",
+        "on": false
+      }
+    ]
+  },
+  "status": "pass"
+}

@@ -1,0 +1,14 @@
+(node:75937) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./")); register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ skipping entries preserves solo standing, choir, conductor greeting and bows (17.67075ms)
+✔ enabling during queued or active travel completes the destination and disabling resumes future walking (6.167083ms)
+✔ roster changes retain colleagues and final exit clears an already departing player (4.448583ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 99.811833

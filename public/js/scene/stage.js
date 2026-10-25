@@ -201,6 +201,36 @@ export class StageManager {
     }
   }
 
+  // Finish only travel. Bows, greetings and the concert clock remain intact.
+  setSkipTransitions(on) {
+    this.skipTransitions = !!on;
+    if (!on) return;
+    for (const w of this.walkers) {
+      if (w.state !== 'walking' && w.state !== 'queued') continue;
+      const arrive = w.onArrive;
+      if (w.leaving) { w.path = []; w.leaving = false; w.teleportOff(); }
+      else {
+        this._snapHome(w);
+        arrive?.();
+        w.sit = w.sitTarget;
+        w.state = w.sitTarget ? 'seated' : 'standing';
+        w.char.setStanding(1 - w.sit);
+      }
+      w.onArrive = null;
+      w.delay = 0;
+    }
+    const c = this.conductor;
+    if (c.state === 'walking' || c.state === 'queued') {
+      const face = c.faceYaw;
+      this.snapConductor(this.conductorOn);
+      if (this.conductorOn) c.faceYaw = c.yaw = face ?? 0;
+      c.char.root.position.copy(c.pos);
+      c.char.root.rotation.y = c.yaw;
+      c.onArrive = null;
+      c.delay = 0;
+    }
+  }
+
   // everyone starts in the wings
   clearStage() {
     for (const w of this.walkers) w.teleportOff();
@@ -218,6 +248,7 @@ export class StageManager {
 
   enterAll() {
     if (this.onstage) return;
+    if (this.skipTransitions) { this.snapOnstage(); return; }
     this.onstage = true;
     // per door: the musician going farthest goes first, so nobody has to
     // squeeze past a colleague who already sat down
@@ -235,6 +266,7 @@ export class StageManager {
   }
 
   exitAll() {
+    if (this.skipTransitions) { this.snapRoster(new Set()); return; }
     // (only those on stage: with rosters some may already be off)
     const on = this.walkers.filter((w) => w.state !== 'off' && !w.leaving);
     if (on.length) this.sendOff(on);
@@ -249,6 +281,7 @@ export class StageManager {
     c.faceYaw = Math.PI; // greet the audience first
     c.teleportOff();
     c.walk(c.route, () => { c.state = 'standing'; }, 0.2);
+    this.setSkipTransitions(this.skipTransitions);
   }
 
   conductorExit() {
@@ -258,6 +291,7 @@ export class StageManager {
     c.bowTarget = 0;
     c.wasSeated = true;
     c.walk([...c.route].reverse().slice(1), () => c.teleportOff(), 0.1);
+    this.setSkipTransitions(this.skipTransitions);
   }
 
   // yaw: Math.PI faces the audience, 0 faces the orchestra
@@ -329,6 +363,7 @@ export class StageManager {
         t += spacing + Math.random() * 0.3;
       }
     }
+    this.setSkipTransitions(this.skipTransitions);
     this.onstage = this.walkers.some((w) => w.state !== 'off' && !w.leaving);
   }
 
@@ -345,6 +380,7 @@ export class StageManager {
         t += spacing + Math.random() * 0.35;
       }
     }
+    this.setSkipTransitions(this.skipTransitions);
     if (list.length) this.onstage = true;
   }
 
@@ -397,6 +433,7 @@ export class StageManager {
     w.bow = w.bowTarget = 0;
     w.pos.copy(w.home);
     w.yaw = w.homeYaw;
+    w.faceYaw = null;
     w.char.root.visible = true;
     w.char.walking = false;
     w.char.walk(0, 0);

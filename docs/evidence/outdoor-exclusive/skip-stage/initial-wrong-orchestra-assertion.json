@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-25T04:34:36.595Z",
+  "checks": [
+    {
+      "name": "default-off",
+      "data": {
+        "value": false,
+        "checked": false
+      }
+    },
+    {
+      "name": "reload-preserved",
+      "data": true
+    },
+    {
+      "name": "mid-entry-toggle-and-guest-sync",
+      "data": {
+        "moving": 0,
+        "stored": true
+      }
+    },
+    {
+      "name": "host-guest-playing",
+      "data": {
+        "phase": "playing",
+        "skip": true
+      }
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "Seeking near a piece end exercises the real end ceremony without a complete score playback.",
+    "Desktop Chrome only; no physical iOS check."
+  ],
+  "status": "fail",
+  "failure": "AssertionError [ERR_ASSERTION]: full applause and bow ceremony\n    at file:///Users/seung/Documents/Codex/2026-10-23/new-chat/work/forest-philharmonic/tools/qa/verify-skip-stage.mjs:77:10"
+}

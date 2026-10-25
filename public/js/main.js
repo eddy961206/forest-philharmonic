@@ -46,7 +46,7 @@ import { watchRenderContext, showRenderStatus } from './render-status.js';
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
-  fixedEar: true, applauseVol: 0.7, gap: 7, notes: true, glow: true, fireflies: true,
+  fixedEar: true, skipStageTransitions: false, applauseVol: 0.7, gap: 7, notes: true, glow: true, fireflies: true,
   fx: true, lasers: true, screen: true, interval: 3, domeProjection: 'immersive',
   // how full the house is, in per cent, for each venue: the Sphere seats
   // nearly fourteen thousand - a quarter of that is already a big crowd
@@ -192,10 +192,11 @@ scene.add(hall.group);
 // Both the broadcast and visitor cameras select batches after their world
 // matrices are current, before Three.js builds the render list.
 scene.onBeforeRender = (_renderer, _scene, view) => hall.prepareRender?.(view);
-const orchestra = buildOrchestra(scene);
+const orchestra = buildOrchestra(scene, { brightFloor: IS_OUTDOOR });
 // Fixed geometry is consulted only when the camera plans a new shot.
 const cameraInstruments = orchestra.players.filter(p => p.fixedInstrument).map(p => p.inst.group);
 const stage = new StageManager(orchestra);
+stage.setSkipTransitions(settings.skipStageTransitions);
 const spot = new Spotlight(hall.lights, scene); // a recital: the key light gathers on the soloist
 hall.dome?.setProjection(settings.domeProjection);
 hall.setBeams?.(settings.lasers !== false && !efficient()); // (the Sphere's moving heads follow '조명 연출')
@@ -574,6 +575,7 @@ const STRINGS = /^(vn1|vn2|va|vc|cb):/;
 // late: a guest coming in while the host's orchestra walks on - { cond: the
 // host's conductor is out already, set(): called once our stage is set }
 async function runConcert(i, { quick = false, remote = false, late = null } = {}) {
+  syncStageTransitions();
   const tok = ++seq;
   endInterval();
   ceremony = true;
@@ -594,7 +596,7 @@ async function runConcert(i, { quick = false, remote = false, late = null } = {}
   nextPiece = meta;
   // (the guests start fetching it now; the snapshot that goes with it says
   // it is on its way, not playing: see snapshot)
-  if (!remote) sendCmd({ c: 'run', i: current, quick, ritual: ritualNext && !quick });
+  if (!remote) sendCmd({ c: 'run', i: current, quick, skipStageTransitions: !!settings.skipStageTransitions, ritual: ritualNext && !quick });
   let piece;
   try {
     piece = await pieces.choose(meta.id);
@@ -651,7 +653,7 @@ async function runConcert(i, { quick = false, remote = false, late = null } = {}
       // (a whole orchestra comes on closer together: it is a long walk-on)
       stage.callOn(enters, enters.length >= 16 ? 0.7 : undefined, { stand: soloists });
       // the stage fills in silence: say so (and that it can be skipped)
-      if (enters.length >= 6 && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 9000);
+      if (enters.length >= 6 && !stage.skipTransitions && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 9000);
       if (!(await until(() => stage.arrived(enters), tok, 90000))) return;
       if (!(await wait(800, tok))) return;
       if (enters.length >= 6 && enters.some((w) => STRINGS.test(StageManager.key(w)))) {
@@ -1535,9 +1537,11 @@ director.on((type, data) => {
 });
 
 function onSetting(key, value) {
+  if (key === 'skipStageTransitions' && hostOnly()) return;
   if (key === 'domeProjection') value = normalizeDomeProjection(value);
   settings[key] = value;
   save();
+  if (key === 'skipStageTransitions') { syncStageTransitions(); sendCmd({ c: 'stageTransitions', skip: !!value }); }
   if (key === 'volume') { muted = false; ui.setMuted(false); engine.setVolume(value); }
   if (key === 'reverb') engine.setReverb(value);
   if (key === 'applauseVol') engine.setApplause(value);
@@ -1681,6 +1685,12 @@ let ceremony = false; // a piece's walk-on / greeting is running here
 let pendingJoin = undefined; // the room's state, applied once we are inside
 const guest = () => !!room && !room.isHost;
 
+function syncStageTransitions() {
+  const on = guest() ? !!hostState?.skipStageTransitions : !!settings.skipStageTransitions;
+  stage.setSkipTransitions(on);
+  document.getElementById('optSkipStageTransitions').checked = on;
+}
+
 function hostOnly() {
   if (!guest()) return false;
   ui.toast('공연 진행은 방장만 할 수 있어요.', 1600);
@@ -1695,7 +1705,7 @@ function snapshot() {
     // (the host's sound taken away by its browser: its music stands still,
     // and the room waits there with it - not pulled back to it every few seconds)
     playing: t.playing && !sound.lost, pos: t.pos, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
-    on: [...stage.onstageKeys()],
+    on: [...stage.onstageKeys()], skipStageTransitions: !!settings.skipStageTransitions,
     iu: intervalState?.until, inext: intervalState?.next,
     ev: encore ? { c: encore.cands, n: encoreCounts(), u: encore.until } : undefined,
   };
@@ -1765,7 +1775,7 @@ const follower = new Follower({
 let hostState = null; // the host's latest snapshot
 let rejoin = false; // the next snapshot is taken as on coming in (see 'stay')
 async function followHost(s, { joining = false } = {}) {
-  if (s) hostState = s;
+  if (s) { hostState = s; syncStageTransitions(); }
   if (!s || !room || room.isHost || !concertStarted || !s.started) return true;
   if (rejoin) { rejoin = false; joining = true; }
   showOn();
@@ -1807,7 +1817,12 @@ async function followHost(s, { joining = false } = {}) {
 
 function onHostCmd(c) {
   if (!room || room.isHost || !concertStarted || !c) return;
-  if (c.c === 'run') {
+  if (c.c === 'stageTransitions') {
+    hostState = { ...hostState, skipStageTransitions: !!c.skip };
+    syncStageTransitions();
+  } else if (c.c === 'run') {
+    hostState = { ...hostState, skipStageTransitions: !!c.skipStageTransitions };
+    syncStageTransitions();
     showOn();
     if (phase === 'encore' && program[c.i]) ui.toast(`앙코르: 「${program[c.i].titleKo}」`, 3200); // (the lanterns' choice, for everyone)
     ritualNext = !!c.ritual;
@@ -1855,6 +1870,7 @@ function onHostCmd(c) {
 // a guest who becomes the host carries the show on from where it is
 // (back: the host's own page, reloaded, has it again)
 function takeOver(back = false) {
+  syncStageTransitions();
   ui.toast(back ? '다시 방장이에요. 공연을 이어서 진행해요.' : '이제 내가 방장이에요. 공연 진행을 맡아요.', 2600);
   ui.chatLine({ sys: true, text: back ? '다시 방장이에요.' : '이제 내가 방장이에요.' });
   carryOn();
@@ -2059,6 +2075,7 @@ function goSolo() {
   room = null;
   avatars.clear();
   ui.setRoom(null);
+  syncStageTransitions();
   refreshOccupied();
   if (intervalState) { intervalState.until += shift; ui.setIntervalLeft(intervalState.until - clockNow()); }
   if (encore) encore.until += shift;
@@ -2336,7 +2353,7 @@ function frame(rafMs) {
   if (perf.piece) events = perf.updateVisual(t);
   const running = perf.playing;
   stage.update(dt); // root/standing pose before body-local instrument contacts
-  orchestra.update(t, dt, perf, { running, particles: settings.notes && !IS_OUTDOOR && !efficient(), glow: settings.glow && !IS_OUTDOOR && !efficient(), events, bowing, practice: practice.on ? practice.frame(BEAR) : null });
+  orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, effectBudget: efficient() ? .2 : 1, events, bowing, practice: practice.on ? practice.frame(BEAR) : null });
   if (intervalState) intervalTick(dt);
   roomTick(dt);
   if (IS_SPHERE) sphereTick(dt, t);
@@ -2369,7 +2386,7 @@ function frame(rafMs) {
     camera.position.copy(director.pos);
     camera.quaternion.setFromEuler(new THREE.Euler(director.pitch, director.yaw, 0, 'YXZ'));
   } else {
-    director.update(dt, { time: t, perf, obstacles: headPositions, cameraInstruments, phase }); // (phase: the auto-director cuts to the bows)
+    director.update(dt, { time: t, perf, obstacles: headPositions, cameraInstruments, cameraPerformers: orchestra.players, phase }); // (phase: the auto-director cuts to the bows)
   }
 
   if (engine.ctx) {

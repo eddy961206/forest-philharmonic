@@ -249,7 +249,7 @@ export class UI {
       if ('disabled' in el) el.disabled = !isHost;
       if (!isHost) el.title = '방장만 할 수 있어요'; else el.removeAttribute('title');
     };
-    for (const id of ['btnPlay', 'btnPrev', 'btnNext', 'startBtn', 'optShuffle', 'optRepeatOne', 'gap', 'intervalGo']) lock($(id));
+    for (const id of ['btnPlay', 'btnPrev', 'btnNext', 'startBtn', 'optShuffle', 'optRepeatOne', 'gap', 'optSkipStageTransitions', 'intervalGo']) lock($(id));
     document.querySelectorAll('#intervalSeg button').forEach(lock);
     lock($('seek'));
     $('seek').setAttribute('aria-disabled', String(!isHost));
@@ -910,7 +910,7 @@ export class UI {
       el.checked = !!this.settings[key];
       el.addEventListener('change', () => this.onSetting(key, el.checked));
     };
-    for (const [id, key] of [['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen']]) bindCheck(id, key);
+    for (const [id, key] of [['optSkipStageTransitions', 'skipStageTransitions'], ['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen']]) bindCheck(id, key);
     // the audience: how full this venue's house is (each venue keeps its own)
     const crowd = $('crowd');
     const crowdKey = IS_SPHERE ? 'crowdSphere' : IS_OUTDOOR ? 'crowdOutdoor' : 'crowdHall';

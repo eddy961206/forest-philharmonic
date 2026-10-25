@@ -21,7 +21,7 @@ const RIG_FOR = { vn1: 'violin', vn2: 'violin', va: 'viola', vc: 'cello', cb: 'b
 
 const FIXED_RIGS = new Set(['piano', 'harp', 'timpani', 'tambourine', 'tom', 'snare', 'bassDrum', 'cymbals', 'triangle', 'celesta', 'organ', 'mallet', 'bells']);
 
-export function buildOrchestra(scene) {
+export function buildOrchestra(scene, { brightFloor = false } = {}) {
   const group = new THREE.Group();
   group.name = 'orchestra';
   scene.add(group);
@@ -31,7 +31,7 @@ export function buildOrchestra(scene) {
   const standMetal = [];
   const standPaper = [];
   const obstacles = [];
-  const glowMat = (color) => new THREE.MeshBasicMaterial({ map: glowTexture('rgba(255,255,255,1)', 'rgba(255,255,255,0)'), color, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+  const glowMat = (color) => new THREE.MeshBasicMaterial({ map: glowTexture('rgba(255,255,255,1)', 'rgba(255,255,255,0)'), color, transparent: true, opacity: 0, depthWrite: false, blending: brightFloor ? THREE.NormalBlending : THREE.AdditiveBlending });
 
 
   for (const [sid, sec] of Object.entries(SECTIONS)) {
@@ -85,6 +85,8 @@ export function buildOrchestra(scene) {
       glow.rotation.x = -Math.PI / 2;
       glow.position.set(c.x, c.y + 0.012, c.z);
       group.add(glow);
+      glow.userData.strength = brightFloor ? .7 : .32;
+      glow.visible = false;
 
       const p = { sid, ci, char, rigKind, glow, chair: c, yaw, ready: 0, sway: Math.random() * 10, anchor: new THREE.Vector3(), home: new THREE.Vector3(c.x, c.y, c.z) };
       if (!RIGS[rigKind]) throw new Error(`Missing animation rig for section ${sid}: ${rigKind}`);
@@ -163,6 +165,7 @@ export function buildOrchestra(scene) {
 
 // --------------------------------------------------------------- per frame
 function updateAll(players, conductor, particles, t0, dt, perf, opts) {
+  particles.setBudget(opts.effectBudget ?? 1);
   const t = t0;
   const piece = perf.piece;
   const chairs = perf.chairs || {};
@@ -211,18 +214,20 @@ function updateAll(players, conductor, particles, t0, dt, perf, opts) {
     // blissful eyes on long, soft notes
     const bliss = playing && st.lastDur > 1.2 && st.lastVel < 85 ? 1 : 0;
     updateFace(p.char, dt, bliss);
-    const g = opts.glow ? p.energy * 0.32 * p.ready : 0;
-    p.glow.material.opacity = smooth(p.glow.material.opacity, g, 6, dt);
+    p.effectsActive = !!(inPiece && running && atInstrument && p.char.root.visible);
+    const g = opts.glow && p.effectsActive ? p.energy * p.glow.userData.strength * p.ready : 0;
+    p.glow.material.opacity = opts.glow && p.effectsActive ? smooth(p.glow.material.opacity, g, 6, dt) : 0;
     p.glow.visible = p.glow.material.opacity > 0.004; // unlit glows cost a draw each
   }
   // note particles
   if (opts.particles && opts.events) {
     for (const e of opts.events) {
       const p = players.find((q) => q.sid === e.section && q.ci === e.chair);
-      if (p) particles.spawn(p, e, t);
+      if (p?.effectsActive && p.ready > .1) particles.spawn(p, e, t);
     }
   }
-  particles.update(dt);
+  if (!opts.particles || !opts.running) particles.clear();
+  else particles.update(dt);
   updateConductor(conductor, t, dt, perf, opts, energyAll.v / Math.max(1, players.length));
 }
 
@@ -426,18 +431,30 @@ function buildNoteParticles(parent) {
     pool.push({ s, life: 0, max: 1, v: new THREE.Vector3(), phase: 0 });
   }
   let next = 0;
+  let budget = 1, limit = N;
   const lastSpawn = new Map();
   const wp = new THREE.Vector3();
   return {
+    get stats() { return { capacity: N, limit, visible: pool.filter(it => it.s.visible).length }; },
+    setBudget(value) {
+      const wanted = Math.max(.05, Math.min(1, value));
+      if (wanted === budget) return;
+      budget = wanted;
+      limit = budget < 1 ? Math.min(24, Math.max(8, Math.round(N * budget))) : N;
+      next %= limit;
+      for (let i = limit; i < N; i++) pool[i].s.visible = false;
+    },
+    clear() { for (const it of pool) it.s.visible = false; lastSpawn.clear(); },
     spawn(p, e, t) {
       const key = `${p.sid}:${p.ci}`;
-      const gap = (p.rigKind === 'piano' || p.rigKind === 'harp' ? 0.12 : 0.22) * (lite ? 2 : 1);
+      const gap = (p.rigKind === 'piano' || p.rigKind === 'harp' ? 0.12 : 0.22) * (lite ? 2 : 1) / Math.sqrt(budget);
       const last = lastSpawn.get(key);
       if (last !== undefined && t >= last && t - last < gap) return;
       if (Math.random() > 0.35 + (e.vel / 127) * 0.5) return;
       lastSpawn.set(key, t);
       const it = pool[next];
-      next = (next + 1) % N;
+      next = (next + 1) % limit;
+      it.owner = p;
       wp.copy(p.anchor);
       p.char.body.localToWorld(wp);
       if (p.rigKind === 'piano' || p.rigKind === 'harp' || p.rigKind === 'timpani') {
@@ -455,8 +472,10 @@ function buildNoteParticles(parent) {
       it.s.visible = true;
     },
     update(dt) {
-      for (const it of pool) {
+      for (let i = 0; i < limit; i++) {
+        const it = pool[i];
         if (!it.s.visible) continue;
+        if (!it.owner.effectsActive) { it.s.visible = false; continue; }
         it.life += dt;
         const x = it.life / it.max;
         if (x >= 1) { it.s.visible = false; continue; }
