@@ -162,6 +162,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   const torsoY = hipY + 0.2;
   const torso = add(body, capsuleG(0.19, 0.2, 6, 16), coat, V(0, torsoY, 0));
   torso.scale.set(1.08, 1, 0.92);
+  let coatTailGeometry = null;
   if (isDress) {
     // flowing skirt over the lap/legs
     const skirt = add(body, new THREE.CylinderGeometry(0.2, standing ? 0.3 : 0.34, standing ? 0.5 : 0.28, 20, 1, true), coat, V(0, standing ? hipY - 0.12 : hipY - 0.03, standing ? 0 : -0.06));
@@ -176,8 +177,36 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     const front = add(body, sphereG(0.12, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), shirt, V(0, torsoY + 0.1, -0.14), { cast: false });
     front.rotation.x = -Math.PI / 2 - 0.25;
     front.scale.set(0.8, 1, 0.55);
-    // tails behind the chair
-    add(body, new THREE.BoxGeometry(0.26, 0.24, 0.03), coat, V(0, hipY - 0.06, 0.2), { cast: false }).rotation.x = 0.35;
+    // Character front is -Z. Anchor the coat at the back waist, then let
+    // both tapered tails fall down and slightly rearward (+Z). Rotating a
+    // detached box around its centre left the old top floating off the back.
+    const coatTails = new THREE.Group();
+    coatTails.name = 'coat-tails';
+    coatTails.position.set(0, hipY + 0.14, 0.12);
+    coatTails.rotation.x = -0.25;
+    body.add(coatTails);
+    for (const side of [-1, 1]) {
+      const shape = new THREE.Shape();
+      shape.moveTo(side * 0.008, 0);
+      shape.lineTo(side * 0.13, 0);
+      shape.lineTo(side * 0.105, -0.32);
+      shape.lineTo(side * 0.025, -0.34);
+      shape.closePath();
+      const geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.025, bevelEnabled: false, steps: 1 });
+      geometry.translate(0, 0, -0.0125);
+      add(coatTails, geometry, coat, null, { cast: false });
+    }
+    coatTails.updateMatrix();
+    const vertices = coatTails.children.flatMap(mesh => {
+      const position = mesh.geometry.getAttribute('position');
+      return Array.from({ length: position.count }, (_, i) => V().fromBufferAttribute(position, i));
+    });
+    // Contract comes from the actual mesh vertices, in body coordinates.
+    // Rigid cloth is merged below, so it adds no separate scene draw.
+    coatTailGeometry = {
+      seam: vertices.filter(p => Math.abs(p.y) < 1e-6).map(p => p.clone().applyMatrix4(coatTails.matrix)),
+      hem: vertices.filter(p => p.y < -0.3).map(p => p.clone().applyMatrix4(coatTails.matrix)),
+    };
   }
   const tieY = torsoY + 0.24;
   const tie = new THREE.Group();
@@ -427,7 +456,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
 
   root.scale.setScalar(scale);
   const char = {
-    root, body, head, torso, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
+    root, body, head, torso, coatTailGeometry, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
     mouthPoint: V(0, -0.085, -0.28 - sp.snout * 0.08),
     headBase: head.position.clone(),
     blinkT: Math.random() * 4,
