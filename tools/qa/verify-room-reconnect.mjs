@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 import {p, outputDir} from './quality-optimization-common.mjs';
 import {motionSource} from './motion-source.mjs';
 const song = process.env.SONG_ID || 'mozart-symphony-40';
+const reconnectRounds = Number(process.env.RECONNECT_ROUNDS || 1);
+if (!Number.isInteger(reconnectRounds) || reconnectRounds < 1 || reconnectRounds > 20) throw Error('RECONNECT_ROUNDS must be 1..20');
 const base = `http://127.0.0.1:${process.env.APP_PORT || 8096}`;
 const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9224}`,defaultViewport:null});
 const contexts=[], pages=[], errors=[], snapshots=[];
@@ -20,7 +22,7 @@ async function ready(url){
   await page.waitForFunction(()=>window.__fp&&!document.querySelector('#enterBtn').disabled,{timeout:120000});
   return page;
 }
-const report={source:motionSource(),song,snapshots,errors,status:'fail'};
+const report={source:motionSource(),song,reconnectRounds,snapshots,errors,status:'fail'};
 try {
   // Pause old test pages so two-client behavior is not mixed with other shows.
   for(const page of await browser.pages())if(page.url().startsWith(base))await page.evaluate(()=>window.__fp?.perf.pause()).catch(()=>{});
@@ -48,9 +50,11 @@ try {
     assert.equal(a.members,2);assert.equal(b.members,2);assert.ok(drift<.6,`${label}: drift ${drift}`);
   };
   await pair('late-join');
-  await guest.evaluate(()=>{window._oldSocket=__fp.room.ws;__fp.room.ws.close();});
-  await guest.waitForFunction(()=>__fp.room.connected&&__fp.room.ws!==_oldSocket&&__fp.room.members.size===2,{timeout:20000});
-  await pair('guest-reconnect');
+  for (let round=0;round<reconnectRounds;round++) {
+    await guest.evaluate(()=>{window._oldSocket=__fp.room.ws;__fp.room.ws.close();});
+    await guest.waitForFunction(()=>__fp.room.connected&&__fp.room.ws!==_oldSocket&&__fp.room.members.size===2,{timeout:20000});
+    await pair(`guest-reconnect-${round+1}`);
+  }
   await guest.screenshot({path:`${outputDir}/multiplayer-guest.png`});
   await host.evaluate(()=>{__fp.room.leave();__fp.perf.pause();});
   await guest.waitForFunction(()=>__fp.room.isHost&&__fp.room.members.size===1&&__fp.perf.playing,{timeout:20000});
