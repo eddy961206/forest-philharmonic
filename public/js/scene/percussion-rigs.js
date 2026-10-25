@@ -69,7 +69,13 @@ export function percussionRig(kind) {
         const h = p.strikes[k], side = k ? 1 : -1;
         const d = pitched ? p.inst.targetForMidi(h.pitch) : p.inst.drums[kind === 'timpani' ? (h.pitch < 46 ? 0 : h.pitch < 50 ? 1 : 2) : 0];
         const target = d.center.clone();
-        if (!pitched) { target.x += side * d.r * 0.30; target.z += d.r * 0.15; }
+        if (!pitched) {
+          // Reach the inward portion of each outer timpano after spacing the
+          // kettles apart; the grip and arm lengths stay unchanged.
+          target.x += kind === 'timpani' && d.center.x !== 0
+            ? -Math.sign(d.center.x) * d.r * .45 : side * d.r * .30;
+          target.z += d.r * .15;
+        }
         const prepares = pitched ? !!(nextHands & (1 << k)) : k === 1 - p.hand;
         const lift = strikeLift(c.running ? c.t - h.on : Infinity, c.running && prepares ? c.soon : Infinity, .08);
         // Tubular bells are struck towards the pipe, drums/bars downwards.

@@ -299,9 +299,10 @@ export function timpani() {
   const group = new THREE.Group();
   const drums = [];
   const defs = [
-    { x: -0.42, z: -0.32, r: 0.34 },
-    { x: 0, z: -0.46, r: 0.31 },
-    { x: 0.42, z: -0.32, r: 0.28 },
+    // Leave a physical gap between hoops; the former tight row overlapped heads.
+    { x: -0.64, z: -0.23, r: 0.34 },
+    { x: 0, z: -0.52, r: 0.31 },
+    { x: 0.60, z: -0.23, r: 0.28 },
   ];
   for (const d of defs) {
     const prof = [];

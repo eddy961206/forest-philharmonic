@@ -21,6 +21,14 @@ const RIG_FOR = { vn1: 'violin', vn2: 'violin', va: 'viola', vc: 'cello', cb: 'b
 
 const FIXED_RIGS = new Set(['piano', 'harp', 'timpani', 'tambourine', 'tom', 'snare', 'bassDrum', 'cymbals', 'triangle', 'celesta', 'organ', 'mallet', 'bells']);
 
+// The trombone slide sweeps straight ahead; read the score beside that lane.
+export function musicStandOffset(rigKind) {
+  return {
+    x: rigKind === 'trombone' ? -.4 : rigKind === 'cello' || rigKind === 'bass' ? .24 : .1,
+    z: -.78 - (rigKind === 'bass' ? .16 : rigKind === 'cello' ? .06 : 0),
+  };
+}
+
 export function buildOrchestra(scene, { brightFloor = false } = {}) {
   const group = new THREE.Group();
   group.name = 'orchestra';
@@ -67,8 +75,7 @@ export function buildOrchestra(scene, { brightFloor = false } = {}) {
       if (!FIXED_RIGS.has(rigKind) && rigKind !== 'choir') {
         // the stand stands on whatever floor is in front (it may be the step
         // below a riser) and reaches up to the player's eye line
-        const lx = rigKind === 'cello' || rigKind === 'bass' ? 0.24 : 0.1;
-        const lz = -0.78 - (rigKind === 'bass' ? 0.16 : rigKind === 'cello' ? 0.06 : 0);
+        const { x: lx, z: lz } = musicStandOffset(rigKind);
         const sp = V(lx, 0, lz).applyAxisAngle(V(0, 1, 0), yaw).add(root.position);
         const fy = stageFloorY(sp.x, sp.z);
         const parts = I.standParts(0.86 + (c.y - fy) + (rigKind === 'bass' ? 0.12 : 0));
