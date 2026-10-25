@@ -33,6 +33,8 @@ class Walker {
     this.homeYaw = homeYaw;
     this.door = door;
     this.podium = podium;
+    this.riseDistance = 0;
+    this.riseOffset = V(0, 0, 0);
     this.standingRole = standing; // choir / conductor never sit
     this.state = 'seated'; // seated | walking | off | sitting | standing
     this.path = [];
@@ -86,6 +88,7 @@ class Walker {
       if (this.sit > 0.05) {
         this.sit = smooth(this.sit, 0, 6, dt);
         ch.setStanding(1 - this.sit);
+        if (this.riseDistance) this._placeAtSeat();
         ch.root.position.copy(this.pos);
         return;
       }
@@ -139,7 +142,8 @@ class Walker {
     if (Math.abs(this.sit - this.sitTarget) < 0.01) this.sit = this.sitTarget;
     if (this.state === 'sitting' && this.sit === this.sitTarget) this.state = this.sitTarget ? 'seated' : 'standing';
     ch.setStanding(1 - this.sit);
-    this.pos.lerp(this.home, 1 - Math.exp(-dt * 6));
+    if (this.riseDistance) this._placeAtSeat();
+    else this.pos.lerp(this.home, 1 - Math.exp(-dt * 6));
     ch.root.position.copy(this.pos);
     const want = this.faceYaw ?? this.homeYaw;
     this.yaw = lerpAngle(this.yaw, want, 1 - Math.exp(-dt * 5));
@@ -147,6 +151,13 @@ class Walker {
     this.bow = smooth(this.bow, this.bowTarget, 3, dt);
     // Orchestra applies bow rotation before solving instrument contacts.
     this._swingArms(false);
+  }
+
+  // Seat/home remains the instrument anchor. Move the performer forward
+  // before the hanging hem develops, then reverse that motion when sitting.
+  _placeAtSeat() {
+    const advance = Math.min(1, (1 - this.sit) * 2);
+    this.pos.copy(this.home).addScaledVector(this.riseOffset, advance);
   }
 
   _swingArms(on) {
@@ -169,6 +180,17 @@ export class StageManager {
     this.walkers = orchestra.players.map((p) => {
       const door = p.home.x < 0 || p.sid === 'piano' ? 'L' : 'R';
       const w = new Walker(p.char, p.home, p.yaw, door, { standing: !!p.char.spec.standing });
+      // Fixed-instrument players retain their exact contact/workstation pose.
+      if (!w.standingRole && !p.fixedInstrument && p.char.spec.outfit === 'dress') {
+        const scale = p.char.scale ?? 1;
+        // Step beside the desk, on the side with more space to colleagues.
+        // The home point stays the seated rig anchor; this is only a rise pose.
+        const candidates = [-1, 1].map(side => V(side * .55 * scale, 0, -.30 * scale).applyAxisAngle(V(0, 1, 0), p.yaw));
+        const clearance = offset => Math.min(...orchestra.players.filter(other => other !== p).map(other =>
+          Math.hypot(p.home.x + offset.x - other.home.x, p.home.z + offset.z - other.home.z)));
+        w.riseOffset.copy(clearance(candidates[0]) >= clearance(candidates[1]) ? candidates[0] : candidates[1]);
+        w.riseDistance = w.riseOffset.length();
+      }
       w.player = p;
       p.walker = w;
       return w;
@@ -215,6 +237,7 @@ export class StageManager {
         w.sit = w.sitTarget;
         w.state = w.sitTarget ? 'seated' : 'standing';
         w.char.setStanding(1 - w.sit);
+        if (w.riseDistance) { w._placeAtSeat(); w.char.root.position.copy(w.pos); }
       }
       w.onArrive = null;
       w.delay = 0;

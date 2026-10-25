@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { furMaterial, clothMaterial, plainMaterial, isLite, M } from './materials.js';
 import { mergeChildren, bakeColor } from './merge.js';
 import { raccoonPatchGeometry } from './playing-motion.js';
+import { skirtGeometry } from './skirt.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const UP = V(0, 1, 0);
@@ -163,12 +164,13 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   const torso = add(body, capsuleG(0.19, 0.2, 6, 16), coat, V(0, torsoY, 0));
   torso.scale.set(1.08, 1, 0.92);
   let coatTailGeometry = null;
+  let skirt = null;
   if (isDress) {
-    // flowing skirt over the lap/legs
-    const skirt = add(body, new THREE.CylinderGeometry(0.2, standing ? 0.3 : 0.34, standing ? 0.5 : 0.28, 20, 1, true), coat, V(0, standing ? hipY - 0.12 : hipY - 0.03, standing ? 0 : -0.06));
-    skirt.material = coat.clone();
+    skirt = add(body, skirtGeometry(hipY, !!spec.celloSeat), coat.clone());
+    skirt.name = 'pose-skirt';
     skirt.material.side = THREE.DoubleSide;
-    if (!standing) skirt.rotation.x = -0.25;
+    if (isLite()) bakeColor(skirt);
+    skirt.morphTargetInfluences[0] = standing ? 1 : 0;
     const sash = add(body, new THREE.TorusGeometry(0.19, 0.025, 8, 24), accent, V(0, hipY + 0.1, 0));
     sash.rotation.x = Math.PI / 2;
     sash.scale.set(1.08, 0.92, 1);
@@ -449,14 +451,14 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   mergeChildren(eyes.closed);
   mergeChildren(head, [eyes.open, eyes.closed, mouthOpen]);
   const armParts = Object.values(arms).flatMap((A) => [A.upper, A.fore, A.cuff, A.paw]);
-  mergeChildren(body, [head, torso, ...armParts]);
+  mergeChildren(body, [head, torso, skirt, ...armParts].filter(Boolean));
   mergeChildren(legsSit);
   for (const lp of legPivots) mergeChildren(lp);
   mergeChildren(root, [body, legsSit, legsStand]);
 
   root.scale.setScalar(scale);
   const char = {
-    root, body, head, torso, coatTailGeometry, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
+    root, body, head, torso, skirt, coatTailGeometry, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
     mouthPoint: V(0, -0.085, -0.28 - sp.snout * 0.08),
     headBase: head.position.clone(),
     blinkT: Math.random() * 4,
@@ -465,6 +467,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     // 0 = seated on the chair, 1 = standing; walking swings the legs
     setStanding(t) {
       this.stand = t;
+      if (skirt) skirt.morphTargetInfluences[0] = standing ? 1 : Math.max(0, Math.min(1, (t - .5) * 2));
       body.position.y = standLift * t;
       legsStand.visible = t > 0.5 || standing;
       legsSit.visible = !standing && t <= 0.5;

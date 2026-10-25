@@ -97,3 +97,7 @@ QUALITY_MODE=efficient CAMERA=cinema QA_OUT=work/efficient node tools/qa/quality
 ## 첼로의 앉은 자세
 
 `tests/cello-seated-clearance.test.mjs`는 실제 두 첼리스트의 준비·휴식·긴 활·피치카토 자세를 검사한다. `characters.js`의 `seatedLegVolumes`는 렌더 다리와 같은 capsule 치수이며, `instruments.js`의 `bodyGeometry`는 실제 첼로 몸통이다. 캐릭터 체형이나 첼로 모델을 바꾸면 이 데이터도 실제 메시와 함께 갱신한다. 팔 길이와 `ARM_LIMITS`를 늘려 접점 실패를 감추지 않는다. 이 표본 검사는 영상 확인을 보완하며 모든 볼륨 내부나 연속 자세의 충돌 증명은 아니다.
+
+## 치마와 의자 앞 기립
+
+`skirt.test.mjs`는 실제 CAST의 치마 체형을 자동 수집하고 렌더되는 다리 표면이 앉은 치마 안에 있는지 검사한다. 별도 celloSeat 사례는 벌어진 무릎도 검사한다. `skirt-rise.test.mjs`는 좌석 home 불변, 앉기 복귀, 의자 앞 기립, 고정 악기 위치 보존, 스킵 중간 전환과 퇴장을 검사한다. 의자·다리를 숨기거나 접촉 허용값을 늘려 통과시키지 않는다. 치마 또는 기립점 변경 시 실제 앞·옆 연주 화면과 서기→앉기→걷기 연속 영상을 확인한다. 숫자 검사만으로 의자 모서리나 천의 관통이 없다고 단정하지 않는다.
