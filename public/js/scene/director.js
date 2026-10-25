@@ -860,7 +860,14 @@ export class Director {
 
     const c = this.cine;
     this.cinemaProgram ||= new CinemaProgram();
-    if (c.piece !== piece || t < (c.scoreTime ?? -Infinity) - .5) { c.edit = 0; c.wideIndex = Math.floor(Math.random() * 3); c.angles = new Map(); c.piece = piece; }
+    if (c.piece !== piece || t < (c.scoreTime ?? -Infinity) - .5) {
+      c.edit = 0;
+      c.smallEnsemble = new Set((piece?.tracks || [])
+        .filter(tr => SECTIONS[tr.section] && tr.notes?.length && (tr.gain ?? 1) > 0)
+        .map(tr => tr.section)).size <= 3;
+      c.wideIndex = Math.floor(Math.random() * 3);
+      c.angles = new Map(); c.piece = piece;
+    }
     c.scoreTime = t;
     const edit = c.edit || 0;
     // Establish the space; shuffle performers, audience and conductor
@@ -929,8 +936,10 @@ export class Director {
       if (dom === 'piano') {
         const pPos = SECTIONS.piano.chairs[0];
         shot = angle === 0
-          ? { kind: 'section', pos: V(pPos.x + 0.9, pPos.y + 1.45, pPos.z + 0.7), look: V(pPos.x + 0.55, pPos.y + 0.72, pPos.z), fov: 40, drift: V(0, 0, -0.5) }
-          : { kind: 'section', pos: V(pPos.x + 2.8, pPos.y + 1.5, pPos.z + 2.4), look: V(pPos.x + 0.3, pPos.y + 1.0, pPos.z - 0.2), fov: 38, drift: V(-0.6, 0, 0.4) };
+          ? { kind: 'section', pos: V(pPos.x + 1.25, pPos.y + 3.1, pPos.z + 1.5), look: V(pPos.x + .25, pPos.y + 1.1, pPos.z), fov: 40, drift: V(-.2, 0, -.25) }
+          : angle === 1
+          ? { kind: 'section', pos: V(pPos.x + 2.75, pPos.y + 2.2, pPos.z - 2.85), look: V(pPos.x + .25, pPos.y + 1.1, pPos.z), fov: 38, drift: V(.2, 0, .3) }
+          : { kind: 'section', pos: V(pPos.x - 1.6, pPos.y + 2.2, pPos.z + 2.5), look: V(pPos.x + .45, pPos.y + .85, pPos.z - .1), fov: 42, drift: V(.4, -.1, -.25) };
       } else if (dom === 'choir' && angle === 0) {
         shot = { kind: 'section', pos: V(side * 3.5, STAGE_Y + 2.8, -5.0), look: V(0, STAGE_Y + 2.7, -11.5), fov: 40, drift: V(-side * 1.5, 0, 0) };
       } else {
@@ -943,26 +952,29 @@ export class Director {
     } else shot = wide();
     const portrait = (this.camera?.aspect ?? 1) < .8;
     if (portrait && shot.kind === 'section') shot.pos.y += .65;
-    if (ctx.obstacles) {
-      // a head too near the camera, or between it and what it films (not
-      // the heads it is filming): step back and up until the view is clear
-      const ab = V();
-      const ap = V();
-      const inTheWay = (o) => {
-        if (o.distanceTo(shot.pos) < (portrait ? 1.5 : .95)) return true;
-        // (only a section's close shot: a wide one looks over them all, and
-        // in the conductor's shots the conductor is the point)
-        if (shot.kind !== 'section' || o.distanceTo(shot.look) < 1.6) return false;
-        ab.subVectors(shot.look, shot.pos);
-        const u = clamp(ap.subVectors(o, shot.pos).dot(ab) / ab.lengthSq(), 0, 1);
-        return ap.copy(shot.pos).addScaledVector(ab, u).distanceTo(o) < 0.45;
-      };
-      for (let k = 0; k < 8; k++) {
-        const hit = ctx.obstacles.find(inTheWay);
-        if (!hit) break;
-        const away = new THREE.Vector3().subVectors(shot.pos, shot.look).setY(0).normalize();
-        shot.pos.addScaledVector(away, 0.45).add(V(0, 0.3, 0));
+    // Test the same geometry at the start and along the slow move. All of
+    // this work happens at an edit, never in the frame loop.
+    const ab = V(), ap = V();
+    const blocked = pos => (ctx.obstacles || []).some(o => {
+      if (o.distanceTo(pos) < (portrait ? 1.5 : .95)) return true;
+      if (shot.kind !== 'section' || o.distanceTo(shot.look) < 1.6) return false;
+      ab.subVectors(shot.look, pos);
+      const u = clamp(ap.subVectors(o, pos).dot(ab) / ab.lengthSq(), 0, 1);
+      return ap.copy(pos).addScaledVector(ab, u).distanceTo(o) < .45;
+    });
+    const terrainClear = pos => {
+      if (pos.y < floorAt(pos.x, pos.z) + .8) return false;
+      // Keep the view above the stage tiers as well as the camera itself.
+      for (const u of [.25, .5, .75]) {
+        ap.copy(pos).lerp(shot.look, u);
+        if (ap.y < floorAt(ap.x, ap.z) + .2) return false;
       }
+      return true;
+    };
+    for (let k = 0; k < 8; k++) {
+      if (!blocked(shot.pos) && terrainClear(shot.pos)) break;
+      const away = new THREE.Vector3().subVectors(shot.pos, shot.look).setY(0).normalize();
+      shot.pos.addScaledVector(away, .45).add(V(0, .3, 0));
     }
     if (shot.kind === 'section') {
       shot.sid = selected.sid; shot.ci = selected.ci;
@@ -970,7 +982,15 @@ export class Director {
       shot.fov = edit % 2 ? 46 : 52;
       shot.drift.multiplyScalar(.65);
     }
-    shot.hold = bows ? 11 : !perf.playing ? 13 : (shot.kind === 'section' ? 8 : 10) + Math.random() * 2;
+    const probe = V();
+    const safeMove = () => [.25, .5, .75, 1].every(u => {
+      probe.copy(shot.pos).addScaledVector(shot.drift, u);
+      return !blocked(probe) && terrainClear(probe);
+    });
+    for (let k = 0; k < 4 && !safeMove(); k++) shot.drift.multiplyScalar(.5);
+    if (!safeMove()) shot.drift.set(0, 0, 0);
+    const unhurried = c.smallEnsemble || (selected?.energy ?? 0) <= 45;
+    shot.hold = bows ? 11 : !perf.playing ? 13 : (shot.kind === 'section' && !unhurried ? 8 : 10) + Math.random() * 2;
     if (perf.playing && !bows) {
       const downbeat = piece.beats?.find(b => b[1] === 0 && b[0] >= t + shot.hold && b[0] <= t + Math.min(12, shot.hold + 1.2));
       if (downbeat) shot.hold = downbeat[0] - t;

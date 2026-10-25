@@ -28,28 +28,35 @@ test('every selectable venue has a nonempty program and outdoor scores resolve t
   }
 });
 
-test('82 scores have unique venue assignments, metadata, notes and sample files', async () => {
+test('all scores have venue assignments, metadata, notes and sample files; outdoor additions are new works', async () => {
   const [index, catalog, manifest] = await Promise.all([
     json('public/music/index.json'), json('tools/repertoire.json'), json('public/samples/manifest.json'),
   ]);
   assert.equal(HALL_SETLIST.length, 41);
   assert.equal(SPHERE_SETLIST.length, 41);
-  assert.equal(index.length, 82);
-  assert.equal(catalog.filter(p => !p.replacesExisting).length, 30);
+  const outdoorNew = catalog.filter(p => p.venue === 'outdoor');
+  assert.ok(outdoorNew.length > 0, 'outdoor has its own new repertoire');
+  assert.equal(index.length, 82 + outdoorNew.length);
+  assert.equal(catalog.filter(p => !p.replacesExisting).length, 30 + outdoorNew.length);
   assert.equal(catalog.filter(p => p.replacesExisting).length, 1);
-  const ids = [...HALL_SETLIST, ...SPHERE_SETLIST];
-  assert.equal(new Set(ids).size, 82);
+  const indoor = new Set([...HALL_SETLIST, ...SPHERE_SETLIST]);
+  assert.equal(indoor.size, 82);
+  for (const spec of outdoorNew) {
+    assert.ok(!indoor.has(spec.id), `${spec.id} must not reuse an existing indoor piece`);
+    assert.equal(spec.replacesExisting, undefined);
+  }
+  const ids = [...new Set(Object.values(SETLISTS).flat())];
   assert.deepEqual(new Set(index.map(p => p.id)), new Set(ids));
   assert.equal(catalog.filter(p => p.venue === 'hall' && !p.replacesExisting).length, 15);
   assert.equal(catalog.filter(p => p.venue === 'sphere' && !p.replacesExisting).length, 15);
   const catalogIds = new Set(catalog.map(p => p.id));
-  assert.equal(catalogIds.size, 31);
+  assert.equal(catalogIds.size, catalog.length);
   for (const spec of catalog) {
     const file = await readFile(new URL(`tools/scores/${spec.file}`, root));
     assert.equal(createHash('sha256').update(file).digest('hex'), spec.source.sha256, spec.id);
     assert.ok(spec.source.url && spec.source.license, spec.id);
     assert.ok(spec.source.licenseUrl || spec.source.license === 'NOASSERTION', spec.id);
-    assert.ok((spec.venue === 'hall' ? HALL_SETLIST : SPHERE_SETLIST).includes(spec.id), spec.id);
+    assert.ok(SETLISTS[spec.venue]?.includes(spec.id), spec.id);
   }
   for (const item of index) {
     const piece = await json(`public/music/${item.id}.json`);

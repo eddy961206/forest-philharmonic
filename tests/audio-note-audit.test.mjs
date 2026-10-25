@@ -53,7 +53,7 @@ test('actual Performance keeps identical audio requests and transport state with
       get now() { return this.ctx.currentTime; }, onTick(fn) { this.tick = fn; },
       playNote(note) { calls.push(structuredClone(note)); return note; }, stopAll(...args) { stops.push(args); } };
     const perf = new Performance(engine);
-    await perf.load('fixture');
+    await perf.load('actual-transport');
     const audit = observed ? window.__createAudioNoteAudit(engine, perf, note => notes.push(note)) : null;
     const originalRandom = Math.random;
     let seed = 41;

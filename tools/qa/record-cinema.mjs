@@ -4,10 +4,13 @@ import { p, outputDir } from './quality-optimization-common.mjs';
 import { motionSource } from './motion-source.mjs';
 const venue = process.argv[2] || 'outdoor', seconds = Number(process.argv[3] || 90);
 if (!['hall','sphere','outdoor'].includes(venue) || !(seconds >= 20 && seconds <= 180)) throw Error('Invalid venue/duration');
-const mobile = process.env.MOBILE === '1', label = `${venue}${mobile ? '-mobile' : ''}`;
-const song = venue === 'sphere' ? 'wagner-valkyries' : 'strauss-blue-danube';
+const mobile = process.env.MOBILE === '1', label = process.env.QA_LABEL || `${venue}${mobile ? '-mobile' : ''}`;
+const song = process.env.SONG_ID || (venue === 'sphere' ? 'wagner-valkyries' : 'strauss-blue-danube');
+const start = Number(process.env.START_SECONDS || 200);
+if (!/^[\w-]+$/.test(label) || !/^[\w-]+$/.test(song) || !Number.isFinite(start) || start < 0) throw Error('Invalid label/song/start');
 const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9224}`,defaultViewport:null});
 const page = await browser.newPage(), errors = [];
+const source = motionSource();
 try {
   const base = `http://127.0.0.1:${process.env.APP_PORT || 8096}`;
   for (const old of await browser.pages()) if(old!==page && old.url().startsWith(base)) await old.close();
@@ -22,7 +25,7 @@ try {
   await page.click('#enterBtn');
   await page.evaluate(async ({venue,song})=>{const {SETLISTS}=await import('/js/programs.js');__fp.ui.emit('select',SETLISTS[venue].indexOf(song));},{venue,song});
   await page.waitForFunction(song=>__fp.phase==='playing'&&__fp.perf.playing&&__fp.perf.piece.id===song,{timeout:90000},song);
-  await page.evaluate(()=>__fp.perf.seek(200));
+  await page.evaluate(start=>{if(start>=__fp.perf.duration)throw Error('Start exceeds score');__fp.perf.seek(start);},start);
   await page.click('[data-mode="cinema"]');
   const result=await page.evaluate(async seconds=>{
     const f=__fp, stream=f.renderer.domElement.captureStream(30), tap=f.engine.ctx.createMediaStreamDestination();
@@ -51,7 +54,9 @@ try {
   if(result.shots.some(s=>s.sid&&!s.eligible))failures.push('Silent or absent performer selected');
   if(result.shots.some(s=>s.hold<8||s.hold>12||s.visible!=='visible'))failures.push('Invalid shot timing or hidden page');
   if(result.shots.length<Math.floor(seconds/12))failures.push('Too few automatic edits');
-  const report={source:motionSource(),venue,mobile,seconds,...result,errors,failures,status:failures.length?'fail':'pass'};
+  if(motionSource().sourceSHA256!==source.sourceSHA256)failures.push('Source changed during recording');
+  await page.screenshot({path:`${outputDir}/${label}.png`});
+  const report={source,venue,mobile,seconds,start,url:page.url(),title:await page.title(),...result,errors,failures,status:failures.length?'fail':'pass'};
   fs.writeFileSync(`${outputDir}/${label}.json`,JSON.stringify(report,null,2));
   console.log(JSON.stringify({venue,mobile,shots:result.shots,errors,failures}));
   if(failures.length)process.exitCode=1;

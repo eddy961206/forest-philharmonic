@@ -1,0 +1,98 @@
+{
+  "source": {
+    "baseCommit": "402dee3b7512c9941139e95bf27720360d9457d2",
+    "sourceSHA256": "77a041c03327105424eb6d3a3fb60eae9f99c71683cd3675fe5342fb7f9d407c",
+    "files": 64
+  },
+  "song": "mozart-symphony-40",
+  "snapshots": [
+    {
+      "case": "sole-host-reconnect",
+      "host": {
+        "song": "mozart-symphony-40",
+        "time": 0.45066666666666666,
+        "clock": 1792900330.202,
+        "playing": true,
+        "phase": "playing",
+        "id": 1,
+        "host": 1,
+        "members": 1,
+        "connected": true,
+        "audio": "running"
+      }
+    },
+    {
+      "case": "late-join",
+      "host": {
+        "song": "mozart-symphony-40",
+        "time": 2.9466666666666668,
+        "clock": 1792900332.6895,
+        "playing": true,
+        "phase": "playing",
+        "id": 1,
+        "host": 1,
+        "members": 2,
+        "connected": true,
+        "audio": "running"
+      },
+      "guest": {
+        "song": "mozart-symphony-40",
+        "time": 2.861333381017049,
+        "clock": 1792900332.689,
+        "playing": true,
+        "phase": "playing",
+        "id": 3,
+        "host": 1,
+        "members": 2,
+        "connected": true,
+        "audio": "running"
+      },
+      "driftSeconds": 0.08483314514160156
+    },
+    {
+      "case": "guest-reconnect",
+      "host": {
+        "song": "mozart-symphony-40",
+        "time": 3.5706666666666664,
+        "clock": 1792900333.3205,
+        "playing": true,
+        "phase": "playing",
+        "id": 1,
+        "host": 1,
+        "members": 2,
+        "connected": true,
+        "audio": "running"
+      },
+      "guest": {
+        "song": "mozart-symphony-40",
+        "time": 3.496000047683716,
+        "clock": 1792900333.32,
+        "playing": true,
+        "phase": "playing",
+        "id": 3,
+        "host": 1,
+        "members": 2,
+        "connected": true,
+        "audio": "running"
+      },
+      "driftSeconds": 0.07416653633117676
+    },
+    {
+      "case": "host-handoff",
+      "guest": {
+        "song": "mozart-symphony-40",
+        "time": 3.6293333810170494,
+        "clock": 1792900333.462,
+        "playing": true,
+        "phase": "playing",
+        "id": 3,
+        "host": 3,
+        "members": 1,
+        "connected": true,
+        "audio": "running"
+      }
+    }
+  ],
+  "errors": [],
+  "status": "pass"
+}

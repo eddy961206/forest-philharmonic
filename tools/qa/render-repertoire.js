@@ -3,6 +3,8 @@
 (async () => {
   const {AudioEngine} = await import('/js/audio/engine.js');
   const {Performance} = await import('/js/audio/performance.js');
+  const {OUTDOOR_ACOUSTICS} = await import('/js/scene/outdoorplan.js');
+  const {SPHERE_ACOUSTICS} = await import('/js/scene/sphereplan.js');
   const NativeAudioContext = window.AudioContext;
   const bank = new AudioEngine();
   bank.ctx = new NativeAudioContext({sampleRate: 48000});
@@ -14,12 +16,13 @@
     const rate=48000, ctx = new OfflineAudioContext(2,Math.ceil((length+3)*rate),rate);
     const engine = new AudioEngine();
     window.AudioContext = function(){return ctx;};
-    try { await engine.init({acoustics: venue==='sphere'?{room:'arena'}:null}); }
+    try { await engine.init({acoustics: venue==='outdoor'?OUTDOOR_ACOUSTICS:venue==='sphere'?SPHERE_ACOUSTICS:null}); }
     finally { window.AudioContext=NativeAudioContext; }
     engine._stopTimer(); engine.samples=bank.samples;
     engine.setListener({x:0,y:1.5,z:8},{x:0,y:0,z:-1},{x:0,y:1,z:0});
     const perf = Object.create(Performance.prototype); perf.engine=engine;
     const prepared=perf.prepare(score);
+    engine.setEnsemble(prepared.ensemble);
     engine.setTrim(prepared.level.trim, 0.001);
     let notes=0, error=null;
     try {
@@ -28,7 +31,9 @@
         const tr=score.tracks[ev[i]],on=ev[i+1],dur=ev[i+2];
         if(on>=start+length || on+dur<=start)continue;
         const skip=Math.max(0,start-on);
-        engine.playNote({section:tr.section,inst:tr.inst,midi:ev[i+3],vel:ev[i+4],when:Math.max(0,on-start)+.02,dur:Math.min(dur-skip,length-Math.max(0,on-start)),gain:tr.gain??1,layer:tr.layer,skip,bends:tr.bends,bendStart:Math.max(start,on)});notes++;
+        // Keep the original envelope through the excerpt boundary. The offline
+        // context limits the file; shortening the note would compress its phrase.
+        engine.playNote({section:tr.section,inst:tr.inst,midi:ev[i+3],vel:ev[i+4],when:Math.max(0,on-start)+.02,dur:dur-skip,gain:tr.gain??1,layer:tr.layer,skip,bends:tr.bends,bendStart:Math.max(start,on),expression:prepared.expression.subarray(i/5*2,i/5*2+2)});notes++;
       }
     } catch(e) { error=String(e.stack||e); }
     const audio=await ctx.startRendering();

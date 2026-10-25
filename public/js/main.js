@@ -18,7 +18,7 @@ import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement,
 
 import { AudioEngine } from './audio/engine.js';
 import { Performance, fetchPiece } from './audio/performance.js';
-import { PieceChooser, transportState } from './pieces.js';
+import { PieceChooser, ScoreLibrary, transportState } from './pieces.js';
 import { Follower } from './follow.js';
 import { SoundRecovery, wantsSound } from './audio/resume.js';
 import { buildHall } from './scene/hall.js';
@@ -293,8 +293,9 @@ const engine = new AudioEngine();
 const perf = new Performance(engine);
 // the piece to play: a choice made while another is on its way wins, and
 // only what is loaded is what the page shows (see pieces.js)
+const scores = new ScoreLibrary(fetchPiece);
 const pieces = new PieceChooser({
-  fetch: fetchPiece,
+  fetch: (id) => scores.get(id),
   prepare: (score) => perf.prepare(score),
   apply(prep) {
     const piece = perf.use(prep);
@@ -520,13 +521,11 @@ function setPhase(p, seconds = 0) {
 // its chairs). Between pieces those not wanted - and not wanted by the
 // piece after either - leave, and those missing come on.
 const rosterCache = new Map();
-const scoreCache = new Map();
 async function scoreFor(i) {
   const meta = program[i];
   if (!meta) return null;
   if (perf.piece?.id === meta.id) return perf.piece;
-  if (!scoreCache.has(meta.id)) scoreCache.set(meta.id, fetch(`music/${meta.id}.json`).then((r) => r.json()).catch(() => null));
-  return scoreCache.get(meta.id);
+  try { return await scores.get(meta.id); } catch { return null; }
 }
 function rosterOf(piece) {
   const set = new Set();
@@ -540,9 +539,11 @@ async function rosterFor(i) {
   const meta = program[i];
   if (!meta) return new Set();
   if (rosterCache.has(meta.id)) return rosterCache.get(meta.id);
-  let r = new Set();
   const piece = await scoreFor(i);
-  if (piece) r = rosterOf(piece); // (offline: keep everyone)
+  // A failed look-ahead must not send everyone off or become a cached empty
+  // roster. The next request retries once the connection is back.
+  if (!piece) return new Set(stage.onstageKeys());
+  const r = rosterOf(piece);
   rosterCache.set(meta.id, r);
   return r;
 }

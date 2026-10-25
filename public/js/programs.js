@@ -1,5 +1,5 @@
-// Each venue has its own evening. The outdoor recital reuses a smaller
-// selection from both programmes. The hall and Sphere keep their separate
+// Each venue has its own evening. Eight new complete works open the outdoor
+// recital, followed by a smaller selection from both indoor programmes. The hall and Sphere keep their separate
 // programmes. The hall balances recitals, chamber music, symphonies
 // and choral works, opening with the Ode to Joy and closing
 // with the full Pomp and Circumstance March No. 1; the Sphere keeps the pieces its dome paints
@@ -41,6 +41,8 @@ export const SPHERE_SETLIST = [
 
 // Piano, chamber music and familiar orchestral pieces for the park recital.
 export const OUTDOOR_SETLIST = [
+  'elgar-salut-damour', 'dvorak-humoresque-7', 'bach-air', 'mozart-symphony-40',
+  'satie-gymnopedie-1', 'schubert-serenade', 'gounod-ave-maria', 'brahms-lullaby',
   'grieg-morning-arietta', 'mozart-eine-kleine', 'beethoven-fur-elise',
   'vivaldi-spring', 'haydn-op74-1-andantino', 'pachelbel-canon',
   'grieg-morning-mood', 'mozart-k545', 'schubert-lindenbaum',

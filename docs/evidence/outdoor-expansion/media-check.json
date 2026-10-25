@@ -1,0 +1,50 @@
+{
+  "piano-final": {
+    "decodedWithoutError": true,
+    "sourceConversionWarnings": "[opus @ 0xc38c28380] Error parsing Opus packet header.",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1200,
+          "height": 800,
+          "duration": "45.045000"
+        },
+        {
+          "codec_name": "aac",
+          "duration": "44.966333"
+        }
+      ],
+      "format": {
+        "duration": "45.045000",
+        "size": "8870999"
+      }
+    }
+  },
+  "orchestra-mobile": {
+    "decodedWithoutError": true,
+    "sourceConversionWarnings": "[opus @ 0x72ac28380] Error parsing Opus packet header.",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 488,
+          "height": 1056,
+          "duration": "40.040000"
+        },
+        {
+          "codec_name": "aac",
+          "duration": "39.989000"
+        }
+      ],
+      "format": {
+        "duration": "40.040000",
+        "size": "10256249"
+      }
+    }
+  }
+}

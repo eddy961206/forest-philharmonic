@@ -1,0 +1,4 @@
+(node:70167) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"songs":90,"cast":51,"rigs":30,"frames":152610,"armSamples":5348994,"maxContactError":0.025094087244018827,"failures":[]}

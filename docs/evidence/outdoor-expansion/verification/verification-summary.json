@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-25T03:53:18.544Z",
+  "status": "pass",
+  "inputs": {
+    "sha256": "1526ff768f31d1a23e54e2429a861e7ae523b8428865c9a753f1400ad461faea",
+    "files": 226
+  },
+  "steps": [
+    {
+      "command": "node tools/test.mjs --test-reporter=tap",
+      "log": "unit-tests.log",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 2853
+    },
+    {
+      "command": "node --experimental-loader ./tests/helpers/three-loader.mjs tools/qa/audit-playing-motion.mjs /Users/seung/Documents/Codex/2026-10-23/new-chat/work/outdoor-expansion-qa/verification/motion-audit.json",
+      "log": "motion-audit.log",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 15531
+    }
+  ],
+  "coverage": {
+    "songs": 90,
+    "cast": 51,
+    "rigs": 30,
+    "frames": 152610,
+    "armSamples": 5348994,
+    "venues": [
+      {
+        "id": "hall",
+        "stage": "shared-hall-stage"
+      },
+      {
+        "id": "outdoor",
+        "stage": "shared-hall-stage"
+      },
+      {
+        "id": "sphere",
+        "stage": "shared-hall-stage"
+      }
+    ],
+    "generatedRecordingCases": 51
+  },
+  "failures": [],
+  "scope": "Sampled score windows and full stage lifecycle at synthetic 60 Hz; no GPU, audio, visual aesthetics or physical iPhone certification.",
+  "unitTests": "included"
+}

@@ -493,6 +493,7 @@ export class UI {
     const reference = $('npReference');
     if (reference) {
       reference.hidden = !piece.referenceUrl;
+      reference.textContent = piece.referenceUrl === piece.provenance?.url ? '악보 출처 ↗' : '실황 참고 ↗';
       if (piece.referenceUrl) reference.href = piece.referenceUrl;
       else reference.removeAttribute('href');
     }

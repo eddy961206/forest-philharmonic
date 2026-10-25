@@ -48,7 +48,7 @@ test('a solo performer receives different repeat views even with a constant rand
     assert(shots.length >= 8);
     assert(shots.every(s => s.sid === 'piano'));
     for (let i = 1; i < shots.length; i++) assert.notEqual(shots[i].angle, shots[i - 1].angle);
-    assert(new Set(shots.map(s => s.pos.toArray().join(','))).size >= 2);
+    assert(new Set(shots.map(s => s.pos.toArray().join(','))).size === 3);
   } finally { Math.random = random; }
 });
 
@@ -66,5 +66,54 @@ test('portrait framing raises performer views without changing landscape composi
     assert.ok(Math.abs(portrait.pos.y - landscape.pos.y - .65) < 1e-9);
     assert.equal(portrait.pos.x, landscape.pos.x);
     assert.equal(portrait.pos.z, landscape.pos.z);
+  } finally { Math.random = random; }
+});
+
+
+test('sounding players precede silent release tails and imminent entrances', () => {
+  const c = new CinemaProgram();
+  const p = { tracks: [track('vn1', [0], [0, 10, 60, 100]), track('fl', [0], [9, 20, 72, 30]), track('tb', [0], [11, 5, 60, 100]), { ...track('ob', [0]), gain: 0 }] };
+  assert.equal(c.choose(p, 10.2).sid, 'fl');
+  assert(!c.active(p, 10.2).some(s => s.sid === 'ob'));
+});
+
+test('dense accompaniment cannot outvote a melodic line through note count', () => {
+  const p = { tracks: [
+    { ...track('vn1', [0], [0, 20, 72, 80]), gain: .8 },
+    { ...track('piano', [0], [0, 20, 48, 100, 0, 20, 52, 100, 0, 20, 55, 100]), gain: .4 },
+  ] };
+  const c = new CinemaProgram();
+  assert.equal(c.choose(p, 1).sid, 'vn1');
+  assert.equal(c.choose(p, 2).sid, 'piano'); // quieter parts still get their turn
+});
+
+test('small ensembles and quiet portraits breathe for ten to twelve seconds', () => {
+  const random = Math.random; Math.random = () => 0;
+  try {
+    for (const tracks of [[track('piano', [0])], ['vn1', 'fl', 'ob', 'vc'].map(id => track(id, [0], [0, 300, 60, 30]))]) {
+      const director = { cine: {} }, perf = { playing: true, piece: { tracks, beats: [[11, 0], [22, 0]] } };
+      const shots = Array.from({ length: 7 }, (_, i) => Director.prototype._pickShot.call(director, { perf, time: i * 11, phase: 'playing' }));
+      assert(shots.some(s => s.kind === 'section'));
+      assert(shots.every(s => s.hold >= 10 && s.hold <= 12));
+    }
+  } finally { Math.random = random; }
+});
+
+test('a clear starting position cannot drift into a nearby head', () => {
+  const random = Math.random; Math.random = () => 0;
+  try {
+    const perf = { playing: true, piece: { tracks: [track('vn1', [0])] } };
+    const pick = obstacles => {
+      const director = { cine: {}, camera: { aspect: 1.5 } };
+      Director.prototype._pickShot.call(director, { perf, time: 0, phase: 'playing' });
+      return Director.prototype._pickShot.call(director, { perf, time: 12, phase: 'playing', obstacles });
+    };
+    const initial = pick([]);
+    const head = initial.pos.clone().addScaledVector(initial.drift.clone().normalize(), initial.drift.length() + .8);
+    assert(initial.pos.distanceTo(head) > .95);
+    const protectedShot = pick([head]);
+    assert(protectedShot.pos.distanceTo(initial.pos) < 1e-9);
+    assert(protectedShot.drift.length() < initial.drift.length());
+    for (const u of [0, .25, .5, .75, 1]) assert(protectedShot.pos.clone().addScaledVector(protectedShot.drift, u).distanceTo(head) >= .95);
   } finally { Math.random = random; }
 });

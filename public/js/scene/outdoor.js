@@ -112,9 +112,11 @@ function buildCanopy(group, cloth, timber, darkCloth) {
   beams.push(rod(V(0, C.ridgeY - 0.12, C.z0), V(0, C.ridgeY - 0.12, C.z1), 0.065));
   add(group, merged(beams), timber, { name: 'canopy-timber-frame' });
   // Narrow scallop-free canvas valances keep the silhouette simple.
-  for (const side of [-1, 1]) add(group, new THREE.BoxGeometry(0.025, 0.28, C.z1 - C.z0).translate(side * C.halfW, C.eaveY - 0.12, (C.z0 + C.z1) / 2), cloth);
+  add(group, merged([-1, 1].map(side => new THREE.BoxGeometry(0.025, 0.28, C.z1 - C.z0)
+    .translate(side * C.halfW, C.eaveY - 0.12, (C.z0 + C.z1) / 2))), cloth, { name: 'canopy-valances' });
   // Plain side drapes frame the shared 1.5m service entrances. Leave the
   // route open rather than making the musicians walk through a cloth mesh.
+  const wings = [];
   for (const door of DOORS) {
     const tangent = V(-door.normal.z, 0, door.normal.x);
     const centre = V(door.pos.x + door.normal.x * 0.5, STAGE_Y + 1.85, door.pos.z + door.normal.z * 0.5);
@@ -122,9 +124,10 @@ function buildCanopy(group, cloth, timber, darkCloth) {
       const p = centre.clone().addScaledVector(tangent, side * 1.25);
       const panel = new THREE.BoxGeometry(1, 3.7, 0.045);
       panel.rotateY(-Math.atan2(tangent.z, tangent.x)); panel.translate(...p.toArray());
-      add(group, panel, darkCloth, { name: `canvas-stage-wing-${door.side}-${side}` });
+      wings.push(panel);
     }
   }
+  add(group, merged(wings), darkCloth, { name: 'canvas-stage-wings' });
 }
 
 function buildTrees(group, lite) {
@@ -175,23 +178,35 @@ function buildStrings(group, bulbMat, timber, lite) {
 }
 
 function buildParkDetails(group, timber, darkMetal) {
-  // A simple gravel arrival path and two picnic blankets behind the chairs.
-  add(group, new THREE.PlaneGeometry(3.4, 29).rotateX(-Math.PI / 2).translate(0, 0.006, 31.5), mat('#9e9c84'));
+  // One continuous gravel surface joins arrival, the rear cross aisle and
+  // the 2m gap between chair blocks. Its narrow section leaves chair feet
+  // on grass; a single polygon avoids flickering at overlapping path joins.
+  const rear = OUTDOOR.firstRow + (OUTDOOR.rows - 1) * OUTDOOR.rowGap + 0.9;
+  const path = new THREE.Shape();
+  const outline = [
+    [-0.775, 2.8], [0.775, 2.8], [0.775, rear], [10.3, rear],
+    [10.3, rear + 1.4], [1.7, rear + 1.4], [1.7, OUTDOOR.back],
+    [-1.7, OUTDOOR.back], [-1.7, rear + 1.4], [-10.3, rear + 1.4],
+    [-10.3, rear], [-0.775, rear],
+  ];
+  outline.forEach(([x, z], i) => i ? path.lineTo(x, -z) : path.moveTo(x, -z));
+  path.closePath();
+  add(group, new THREE.ShapeGeometry(path).rotateX(-Math.PI / 2).translate(0, 0.006, 0), mat('#9e9c84'), { name: 'park-arrival-path' });
   for (const [x, z, color, yaw] of [[-10.8, 21.8, '#8e7462', 0.13], [10.6, 23.1, '#727f87', -0.16]]) {
     add(group, new THREE.BoxGeometry(2.5, 0.025, 1.85).rotateY(yaw).translate(x, 0.025, z), mat(color));
   }
   // Compact PA cabinets are functional park equipment, clear of the stairs.
+  const equipment = [];
   for (const side of [-1, 1]) {
     const x = side * 12.9;
-    add(group, new THREE.BoxGeometry(0.56, 0.9, 0.42).translate(x, 2.3, 1.5), darkMetal);
-    add(group, rod(V(x, 0, 1.5), V(x, 1.9, 1.5), 0.035), darkMetal);
-    const legs = [];
+    equipment.push(new THREE.BoxGeometry(0.56, 0.9, 0.42).translate(x, 2.3, 1.5));
+    equipment.push(rod(V(x, 0, 1.5), V(x, 1.9, 1.5), 0.035));
     for (let k = 0; k < 3; k++) {
       const a = k * Math.PI * 2 / 3;
-      legs.push(rod(V(x, 0.65, 1.5), V(x + Math.sin(a) * 0.5, 0.03, 1.5 + Math.cos(a) * 0.5), 0.025));
+      equipment.push(rod(V(x, 0.65, 1.5), V(x + Math.sin(a) * 0.5, 0.03, 1.5 + Math.cos(a) * 0.5), 0.025));
     }
-    add(group, merged(legs), darkMetal);
   }
+  add(group, merged(equipment), darkMetal, { name: 'park-pa-equipment' });
   const board = document.createElement('canvas'); board.width = 512; board.height = 256;
   const g = board.getContext('2d');
   g.fillStyle = '#d7d0b7'; g.fillRect(0, 0, 512, 256);
@@ -250,6 +265,13 @@ export function buildOutdoor({ quality = 'high', lite = false } = {}) {
     house.push({ light, base: light.intensity });
   }
   const lights = { key, hemi, fills, house };
+  // Furniture and scenery never animate. Preserve world propagation (the
+  // venue group can move), but skip recomposing every mesh's local matrix.
+  group.traverse(object => {
+    if (!object.isMesh) return;
+    object.updateMatrix();
+    object.matrixAutoUpdate = false;
+  });
   let level = 1; let target = 1;
   return {
     group, seats, seatMesh: furniture.pick, seatGroup: furniture.group, lights,

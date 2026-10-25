@@ -6,6 +6,37 @@
 // Every choice counts, going back to the piece already loaded too: a slow
 // download of a piece nobody wants any more never replaces the one here.
 
+// Playback and the next-piece roster share a download. Keep only a few raw
+// scores: browsing a long programme must not retain every large score forever.
+// Rejections are removed so a temporary lost connection never poisons a roster.
+export class ScoreLibrary {
+  constructor(fetch, limit = 4) {
+    this.fetch = fetch;
+    this.limit = Math.max(1, limit);
+    this.ready = new Map();
+    this.pending = new Map();
+  }
+
+  get(id) {
+    if (this.ready.has(id)) {
+      const score = this.ready.get(id);
+      this.ready.delete(id);
+      this.ready.set(id, score);
+      return Promise.resolve(score);
+    }
+    if (this.pending.has(id)) return this.pending.get(id);
+    const request = Promise.resolve().then(() => this.fetch(id)).then(score => {
+      this.ready.set(id, score);
+      while (this.ready.size > this.limit) this.ready.delete(this.ready.keys().next().value);
+      return score;
+    });
+    this.pending.set(id, request);
+    const drop = () => { if (this.pending.get(id) === request) this.pending.delete(id); };
+    request.then(drop, drop);
+    return request;
+  }
+}
+
 export class PieceChooser {
   // fetch(id) -> the score; prepare(score) -> ready to play, touching nothing
   // (Performance.prepare); apply(prepared) -> the transport's piece now;

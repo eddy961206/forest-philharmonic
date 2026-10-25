@@ -160,6 +160,25 @@ test('venue mismatch does not evict the tab that is still in the correct venue',
   host.close();
 });
 
+test('a sole host resuming keeps the show snapshot for a newly arriving guest', async () => {
+  const host = await peer({ t: 'create', cid: 'solo-host-tab', cap: 2 });
+  const created = await host.next(m => m.t === 'joined');
+  const state = { started: true, playing: true, pos: 42, title: '이어지는 연주' };
+  host.send({ t: 'state', s: state });
+  host.send({ t: 'ping', c: 7 });
+  await host.next(m => m.t === 'pong');
+  const resumed = await peer({ t: 'join', cid: 'solo-host-tab', code: created.room.code, resume: true });
+  const joined = await resumed.next(m => m.t === 'joined');
+  assert.equal(joined.you, created.you);
+  assert.equal(joined.host, created.host);
+  assert.deepEqual(joined.state, state);
+  const guest = await peer({ t: 'join', cid: 'solo-guest-tab', code: created.room.code });
+  assert.deepEqual((await guest.next(m => m.t === 'joined')).state, state);
+  resumed.send({ t: 'bye' });
+  guest.send({ t: 'bye' });
+  for (const socket of [host, resumed, guest]) socket.close();
+});
+
 test('outdoor rooms retain their venue through listing, joining, state and host resume', async () => {
   const host = await peer({ t: 'create', cid: 'outdoor-host-tab', name: '곰', title: '야외 연주', cap: 2, venue: 'outdoor' });
   const created = await host.next(m => m.t === 'joined' || m.t === 'error');

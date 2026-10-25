@@ -106,3 +106,22 @@ the balcony rails. Nothing is copied from the building's own media: the
 geometry is built from those proportions and everything on the dome is
 generated procedurally in a shader. "Sphere" is a trademark of its owner;
 this is an unofficial, non-commercial fan rendition.
+
+### Outdoor repertoire — eight new complete works
+
+See the [outdoor source ledger](docs/outdoor-repertoire-sources.md) and
+`tools/repertoire.json` for individual hashes, contributors and arrangement notes.
+
+- Mutopia 242, Bach *Air*: jeff covey, [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+  `tools/scores/bach-air.mid` and the derived `public/music/bach-air.json` retain
+  this license. Changes: native string-section routing and timing conversion.
+- Mutopia 37, Satie *Gymnopédie No. 1*: Evin Robertson, Public Domain.
+- Mutopia 2167, Gounod *Ave Maria*: Yann Leprince, Public Domain.
+- Mutopia 1037, Brahms *Wiegenlied*: 森 章吾, Public Domain; melody routed to clarinet.
+- PDMX / MuseScore 5936751, Dvořák *Humoresque*: AllmusicLab, CC0-1.0.
+- PDMX / MuseScore 5605158, Elgar *Salut d'amour*: hyakusen, CC0-1.0.
+- PDMX / MuseScore 106251, Mozart *Symphony No. 40 — I*: Nicolas, CC0-1.0.
+- PDMX / MuseScore 5192413, Schubert *Ständchen*: Matthew Lane, CC0-1.0.
+  These four PDMX editions belong to the no-license-conflict subset; their
+  embedded MusicXML was inspected for conflicting rights declarations.
+  See the earlier PDMX acknowledgment for the dataset and publication credits.

@@ -265,3 +265,22 @@ test('audio initialization resets source dirtiness before asynchronous setup', a
   engine._initListener();
   assert.equal(engine._spatialDirty, false);
 });
+
+test('solo chairs remove dry and wet desk copies and listener motion cannot restore them', () => {
+  const { engine, writes, param } = fixture();
+  engine.ac.refDistance = 8;
+  engine.ac.rolloff = 1;
+  const section = engine.sections.vn1;
+  section.desks = [{ level: 0.55, pos: { x: -3, y: 1, z: 0 }, g: { gain: param('desk:dry') }, wet: { gain: param('desk:wet') }, pan: { pan: param('desk:pan') } }];
+  engine.setEnsemble({ vn1: 1 });
+  assert.equal(section.ensemble, 0);
+  assert.equal(writes.find(w => w.name === 'desk:dry').value, 0);
+  assert.equal(writes.find(w => w.name === 'desk:wet').value, 0);
+  writes.length = 0;
+  engine.setListener(position, forward, up);
+  assert.equal(writes.find(w => w.name === 'desk:dry').value, 0);
+  engine.setEnsemble({ vn1: SECTIONS.vn1.chairs.length });
+  assert.equal(section.ensemble, 1);
+  assert.equal(writes.filter(w => w.name === 'desk:wet').at(-1).value, 0.55);
+  assert.ok(writes.filter(w => w.name === 'desk:dry').at(-1).value > 0);
+});

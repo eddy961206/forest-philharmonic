@@ -1,0 +1,21 @@
+(node:70460) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./")); register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ camera covers eligible sections and individual chairs without energy starving quieter players (8.15225ms)
+✔ camera includes sustained notes and imminent entrances, excludes silence, zero velocity and unknown rigs (0.172459ms)
+✔ selection fairness resets when seeking backwards or changing piece (0.068917ms)
+✔ cinema edits alternate space, performers, audience angles and conductor with bounded holds (1.67925ms)
+✔ a solo performer receives different repeat views even with a constant random source (0.541917ms)
+✔ portrait framing raises performer views without changing landscape composition (0.20125ms)
+✔ sounding players precede silent release tails and imminent entrances (0.059625ms)
+✔ dense accompaniment cannot outvote a melodic line through note count (0.065083ms)
+✔ small ensembles and quiet portraits breathe for ten to twelve seconds (0.579791ms)
+✔ a clear starting position cannot drift into a nearby head (0.238875ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 102.100041

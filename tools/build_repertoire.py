@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build 30 added performances and the expanded Elgar march from checked-in source MIDI.
+"""Build added performances and the expanded Elgar march from checked-in source MIDI.
 
 python3 -m pip install -r tools/requirements-music.txt
 python3 tools/build_repertoire.py

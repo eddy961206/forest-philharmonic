@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { Performance, fetchPiece } from '../public/js/audio/performance.js';
-import { PieceChooser, transportState } from '../public/js/pieces.js';
+import { PieceChooser, ScoreLibrary, transportState } from '../public/js/pieces.js';
 
 // Issue #13: a piece chosen while another is on its way, and a download that
 // fails. The real transport and the real chooser; the network is a set of
@@ -42,6 +42,35 @@ function fixture(t) {
   return { perf, engine, chooser, requests, pending, stops, applied };
 }
 const tick = () => new Promise((r) => setImmediate(r));
+
+test('roster and playback share scores; recent use controls the bounded cache', async () => {
+  const calls = [];
+  const library = new ScoreLibrary(async id => { calls.push(id); return score(id); }, 2);
+  const roster = library.get('A'), playback = library.get('A');
+  assert.equal(roster, playback);
+  assert.equal(await roster, await playback);
+  await library.get('B');
+  await library.get('A'); // A is still needed: B is the next to leave.
+  await library.get('C');
+  assert.deepEqual([...library.ready.keys()], ['A', 'C']);
+  await library.get('B');
+  assert.deepEqual(calls, ['A', 'B', 'C', 'B']);
+  assert.equal(library.ready.size, 2);
+  assert.equal(library.pending.size, 0);
+});
+
+test('failed look-ahead downloads are retried and never cached as empty scores', async () => {
+  let calls = 0;
+  const library = new ScoreLibrary(async id => {
+    if (++calls === 1) throw Error('offline');
+    return score(id);
+  });
+  await assert.rejects(library.get('A'), /offline/);
+  assert.equal(library.ready.size, 0);
+  assert.equal(library.pending.size, 0);
+  assert.equal((await library.get('A')).id, 'A');
+  assert.equal(calls, 2);
+});
 
 // A playing at 50 s, as the user hears it
 async function playingA(f) {

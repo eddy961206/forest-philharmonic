@@ -341,7 +341,7 @@ export class AudioEngine {
           const dd = Math.hypot(vx, vy, vz) || 1;
           const side = (vx * rx + vy * ry + vz * rz) / (rl * dd);
           dk.pan.pan.setTargetAtTime(clamp(side * 1.1, -1, 1), t, 0.06);
-          if (distancesChanged) dk.g.gain.setTargetAtTime(dk.level * this._distGain(dd), t, 0.06);
+          if (distancesChanged) dk.g.gain.setTargetAtTime(dk.level * (s.ensemble ?? 1) * this._distGain(dd), t, 0.06);
         }
       }
     }
@@ -428,12 +428,30 @@ export class AudioEngine {
           // every sample - a desk does not need that)
           const pn = new StereoPannerNode(ctx, { pan: 0 });
           air.connect(delay).connect(g).connect(pn).connect(this.musicDry);
-          delay.connect(new GainNode(ctx, { gain: level })).connect(send);
-          desks.push({ delay, lfo, g, pan: pn, pos: p, level });
+          const wet = new GainNode(ctx, { gain: level });
+          delay.connect(wet).connect(send);
+          desks.push({ delay, lfo, g, wet, pan: pn, pos: p, level });
         }
       }
       this.sections[id] = { id, input, focus, air, panner, send, pos, distance: 10, desks };
     }
+  }
+
+  // Match audible section width to the chairs in this score. One soloist
+  // has no delayed desk copies; full sections retain the established mix.
+  setEnsemble(counts = {}) {
+    const t = this.ctx.currentTime;
+    for (const [id, section] of Object.entries(this.sections)) {
+      const full = SECTIONS[id]?.chairs.length || 1;
+      section.ensemble = full > 1 ? Math.sqrt(clamp(((counts[id] ?? 0) - 1) / (full - 1), 0, 1)) : 0;
+      for (const desk of section.desks || []) {
+        desk.wet.gain.setTargetAtTime(desk.level * section.ensemble, t, 0.04);
+        const ear = this._listenerPose;
+        const distance = ear ? Math.hypot(desk.pos.x - ear.px, desk.pos.y - ear.py, desk.pos.z - ear.pz) : 10;
+        desk.g.gain.setTargetAtTime(desk.level * section.ensemble * this._distGain(distance), t, 0.04);
+      }
+    }
+    this._spatialDirty = true;
   }
 
   // A player out in the foyer (practising in the interval): a source of its
@@ -542,7 +560,7 @@ export class AudioEngine {
 
   // Roughly how much energy a note puts out (relative), for levelling a
   // piece from its score before it plays: amplitude² x how long it sounds.
-  noteEnergy(section, inst, midi, vel, dur, gain = 1, layer = null) {
+  noteEnergy(section, inst, midi, vel, dur, gain = 1, layer = null, players = null) {
     const main = this._nearest(inst, midi);
     if (!main) return 0;
     const fam = ENV[FAMILY[inst]] || ENV.winds;
@@ -551,7 +569,10 @@ export class AudioEngine {
     let e = amp * amp;
     if (layer && fam.sustain) e *= 1.3;
     const nDesk = (DESKS[section] || [0, 0])[this.lite ? 1 : 0];
-    e *= 1 + nDesk * DESK_GAIN * DESK_GAIN;
+    const full = SECTIONS[section]?.chairs.length || 1;
+    const ensemblePower = players == null ? 1 : full > 1 ? clamp((players - 1) / (full - 1), 0, 1) : 0;
+    const deskGain = section === 'choir' ? 0.7 : DESK_GAIN;
+    e *= 1 + nDesk * deskGain * deskGain * ensemblePower;
     // (the brightness filter: soft notes lose part of their energy)
     e *= 0.55 + 0.45 * v;
     // a held tone carries less energy than its peak level suggests (fitted to
@@ -637,7 +658,7 @@ export class AudioEngine {
   // skip: seconds of the note already gone (a note held through a pause or
   // a seek comes back in where it was, with a short swell instead of a new
   // attack)
-  playNote({ section, inst, midi, vel, when, dur, gain = 1, layer = null, skip = 0, bends = null, bendStart = 0 }) {
+  playNote({ section, inst, midi, vel, when, dur, gain = 1, layer = null, skip = 0, bends = null, bendStart = 0, expression = null }) {
     const ctx = this.ctx;
     const sec = this.sections[section];
     const main = this._nearest(inst, midi);
@@ -659,7 +680,11 @@ export class AudioEngine {
     if (skip > 0 && !fam.sustain) return; // a struck note is not struck again
     const v = Math.min(1, Math.max(0.05, vel / 127));
     const amp = fam.level * gain * 0.2 * (0.12 + 0.88 * Math.pow(v, 1.7)) * Math.min(4, main.meta.g);
-    const atk = skip > 0 ? 0.08 : fam.atk[0] + (fam.atk[1] - fam.atk[0]) * v;
+    const naturalAttack = fam.atk[0] + (fam.atk[1] - fam.atk[0]) * v;
+    // Fast bow/tongue strokes must speak before their note ends. Long tones
+    // retain the recorded family's attack and room-independent release.
+    const atk = skip > 0 ? 0.08 : fam.sustain ? Math.min(naturalAttack, Math.max(0.008, dur * 0.28)) : naturalAttack;
+    const release = fam.sustain ? Math.min(fam.rel, Math.max(0.045, (dur + skip) * 0.65)) : fam.rel;
     when = Math.max(when, earliest);
 
     // Timbre: louder = brighter (the main thing that makes dynamics sound real)
@@ -678,7 +703,7 @@ export class AudioEngine {
     if (fam.sustain) {
       const off = when + Math.max(dur, atk + 0.02);
       // the sources run until the release has died away (no hard stop)
-      const total = off - when + fam.rel * 2.4 + 0.05;
+      const total = off - when + release * 2.4 + 0.05;
       this._sustained(voice, main, rate, when, total, filter, 1, skip);
       if (layer) {
         const lay = this._nearest(layer, midi);
@@ -689,17 +714,33 @@ export class AudioEngine {
           this._sustained(voice, lay, Math.pow(2, (midi - lay.root) / 12), when + 0.012, total - 0.012, lg, 1, skip);
         }
       }
-      // Envelope with a little messa di voce on long notes
+      // Follow the score's phrase across held notes instead of restarting
+      // the same swell on every note. A resumed tone keeps its phrase position.
       const g = env.gain;
+      const whole = dur + skip;
+      const mid = expression?.[0] ?? 1, end = expression?.[1] ?? 1;
+      const valueAt = elapsed => {
+        const u = Math.max(0, Math.min(1, elapsed / whole));
+        return u < 0.5 ? 1 + (mid - 1) * u * 2 : mid + (end - mid) * (u - 0.5) * 2;
+      };
       g.setValueAtTime(0, when);
-      g.linearRampToValueAtTime(amp, when + atk);
-      if (dur > 1.2 && !skip) {
-        g.linearRampToValueAtTime(amp * 1.1, when + dur * 0.45);
-        g.linearRampToValueAtTime(amp * 0.92, when + dur);
+      g.linearRampToValueAtTime(amp * valueAt(skip + atk), when + atk);
+      const brightness = filter.frequency.value;
+      const colorAt = ratio => this._hz(brightness * Math.sqrt(ratio));
+      const middle = whole * 0.5 - skip;
+      if (expression && dur > atk + 0.02 && (mid !== 1 || end !== 1)) {
+        filter.frequency.setValueAtTime(colorAt(valueAt(skip)), when);
+        filter.frequency.linearRampToValueAtTime(colorAt(valueAt(skip + atk)), when + atk);
+        if (middle > atk && middle < dur) {
+          g.linearRampToValueAtTime(amp * mid, when + middle);
+          filter.frequency.linearRampToValueAtTime(colorAt(mid), when + middle);
+        }
+        g.linearRampToValueAtTime(amp * end, off);
+        filter.frequency.linearRampToValueAtTime(colorAt(end), off);
       } else {
         g.setValueAtTime(amp, Math.max(when + atk, when + dur - 0.01));
       }
-      g.setTargetAtTime(0, off, fam.rel / 3);
+      g.setTargetAtTime(0, off, release / 3);
       voice.end = when + total;
     } else {
       // Plucked / struck: play the natural decay; dampers cut at note end
