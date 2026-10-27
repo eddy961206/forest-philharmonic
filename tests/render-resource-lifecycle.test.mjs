@@ -55,8 +55,10 @@ test('same quality is a no-op before saving or resetting adaptive state',()=>{
   assert.equal(sameQualitySetting({quality},'volume',quality),false);
   assert.equal(sameQualitySetting({quality},'quality',quality==='high'?'low':'high'),false);
  }
- const source=readFileSync(new URL('../public/js/main.js',import.meta.url),'utf8');
- const onSetting=source.slice(source.indexOf('function onSetting(key, value) {'),source.indexOf('let crowdTimer'));
+ const preferences=readFileSync(new URL('../public/js/app/preferences.js',import.meta.url),'utf8');
+ const onSetting=preferences.slice(preferences.indexOf('function onSetting(key, value) {'),preferences.indexOf('return { onSetting }'));
+ assert.ok(onSetting.indexOf('if (sameQualitySetting(settings, key, value)) return;')>=0);
  assert.ok(onSetting.indexOf('if (sameQualitySetting(settings, key, value)) return;')<onSetting.indexOf('settings[key] = value;'));
- assert.equal((source.match(/disposeComposer\(composer\)/g)||[]).length,2,'preset rebuild and context-loss cleanup');
+ const graphics=readFileSync(new URL('../public/js/app/graphics.js',import.meta.url),'utf8');
+ assert.equal((graphics.match(/disposeComposer\(composer\)/g)||[]).length,2,'preset rebuild and context-loss cleanup');
 });

@@ -1,5 +1,6 @@
 // Small, deterministic pose helpers. Audio remains the performance clock.
 import * as THREE from 'three';
+import { skullFrontZ } from './body-shape.js';
 
 const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 const ease = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
@@ -57,7 +58,7 @@ export function raccoonPatchGeometry(side, fur, mask) {
       const dx = Math.cos(angle) * 0.103 * r;
       const x = side * (0.127 + dx);
       const y = 0.023 + Math.sin(angle) * 0.064 * r - dx * 0.23;
-      const z = -0.27 * 0.97 * Math.sqrt(1 - (x / (0.27 * 1.05)) ** 2 - (y / (0.27 * 0.95)) ** 2) - 0.004;
+      const z = skullFrontZ(x, y) - 0.004;
       positions.push(x, y, z);
       color.copy(dark).lerp(base, ease((r - 0.75) / 0.25));
       colors.push(color.r, color.g, color.b); uv.push(i / segments, r);

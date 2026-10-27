@@ -22,6 +22,13 @@ const WALL_R = 0.2;
 const RING = [0, 1, 2, 3, 4, 5, 6, 7].map((k) => [Math.cos((k * Math.PI) / 4), Math.sin((k * Math.PI) / 4)]);
 const GRAVITY = 9.8;
 const JUMP_SPEED = 4.7; // about 1.1 m: enough to swing over a railing
+// The auto-director's motion within and between shots: a short move glides
+// for GLIDE seconds, a performer shot keeps SECTION_DRIFT of its planned
+// sideways move (still shortened wherever the path is not clear), and the
+// lens closes by PUSH_IN of its angle over each shot.
+export const GLIDE = [1.8, 3.0];
+export const SECTION_DRIFT = 1.4;
+export const PUSH_IN = { section: 0.16, wide: 0.12 };
 
 export class Director {
   constructor(camera, dom, hall) {
@@ -844,7 +851,7 @@ export class Director {
       // A reveal cut must start with its checked framing, not briefly use
       // the previous portrait zoom while the lens eases toward the wide shot.
       if (shot.lookEnd) this.fov = this.targetFov = shot.fov;
-      this.flyTo(shot.pos, shot.look, shot.cut ? 0.001 : clamp(d / 1.8, 2.4, 3.6), shot.fov);
+      this.flyTo(shot.pos, shot.look, shot.cut ? 0.001 : clamp(d / 2.2, GLIDE[0], GLIDE[1]), shot.fov);
       this.anim.lift = false;
       this.anim.after = () => { c.drift = { t: 0 }; };
       c.drift = null;
@@ -857,6 +864,8 @@ export class Director {
       const p = s.pos.clone().addScaledVector(s.drift, progress);
       this.pos.lerp(p, 1 - Math.exp(-dt * 2));
       const target = s.lookEnd ? s.look.clone().lerp(s.lookEnd, progress) : s.look;
+      // the lens eases in through the shot (a push-in), slowest at both ends
+      if (s.fovEnd) this.targetFov = s.fov + (s.fovEnd - s.fov) * x * x * (3 - 2 * x);
       const { yaw, pitch } = this.lookAt(target, this.pos);
       let turn = yaw - this.yaw;
       while (turn > Math.PI) turn -= Math.PI * 2;
@@ -1032,7 +1041,7 @@ export class Director {
       shot.sid = selected.sid; shot.ci = selected.ci;
       // Alternate a medium portrait and a looser section framing.
       shot.fov = shot.view ? (portrait ? 66 : 60) : edit % 2 ? 46 : 52;
-      shot.drift.multiplyScalar(.65);
+      shot.drift.multiplyScalar(SECTION_DRIFT);
     }
     const probe = V();
     const safeMove = () => [.25, .5, .75, 1].every(u => {
@@ -1116,6 +1125,9 @@ export class Director {
       if (downbeat) shot.hold = downbeat[0] - t;
     }
     shot.cut = bows || !!shot.view;
+    // A slow push-in through every shot but the checked reveals, whose wide
+    // lens is part of what keeps the ensemble in frame.
+    if (!shot.lookEnd) shot.fovEnd = shot.fov * (1 - PUSH_IN[shot.kind === 'section' ? 'section' : 'wide']);
     return shot;
   }
 
