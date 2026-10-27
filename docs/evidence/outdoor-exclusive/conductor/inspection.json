@@ -1,0 +1,353 @@
+{
+  "root": {
+    "x": 0,
+    "y": 1.32,
+    "z": -2.35
+  },
+  "rotation": [
+    0,
+    0,
+    0,
+    "XYZ"
+  ],
+  "body": [
+    0,
+    0,
+    0,
+    "XYZ"
+  ],
+  "children": [
+    {
+      "name": "",
+      "type": "CapsuleGeometry",
+      "p": [
+        0,
+        0.8200000000000001,
+        0
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "parameters": {
+        "radius": 0.19,
+        "height": 0.2,
+        "capSegments": 6,
+        "radialSegments": 16,
+        "heightSegments": 1
+      }
+    },
+    {
+      "name": "",
+      "p": [
+        0,
+        1.34,
+        0
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "name": "",
+      "type": "CapsuleGeometry",
+      "p": [
+        -0.30151955523786433,
+        0.8897340778333738,
+        0.015797766499878747
+      ],
+      "rot": [
+        0.19571934308800054,
+        0.41562509716022017,
+        2.270103443723008,
+        "XYZ"
+      ],
+      "parameters": {
+        "radius": 0.055,
+        "height": 0.17,
+        "capSegments": 4,
+        "radialSegments": 10,
+        "heightSegments": 1
+      }
+    },
+    {
+      "name": "",
+      "type": "CapsuleGeometry",
+      "p": [
+        -0.30151955523786433,
+        0.7247340778333737,
+        -0.03920223350012125
+      ],
+      "rot": [
+        -0.9034289605563451,
+        0.7821044991726388,
+        -1.4087244539896038,
+        "XYZ"
+      ],
+      "parameters": {
+        "radius": 0.048,
+        "height": 0.17,
+        "capSegments": 4,
+        "radialSegments": 10,
+        "heightSegments": 1
+      }
+    },
+    {
+      "name": "",
+      "type": "CylinderGeometry",
+      "p": [
+        -0.22436469325708744,
+        0.6755361786800097,
+        -0.10060853604002909
+      ],
+      "rot": [
+        -0.9034289605563451,
+        0.7821044991726388,
+        -1.4087244539896038,
+        "XYZ"
+      ],
+      "parameters": {
+        "radiusTop": 0.05,
+        "radiusBottom": 0.05,
+        "height": 0.03,
+        "radialSegments": 12,
+        "heightSegments": 1,
+        "openEnded": false,
+        "thetaStart": 0,
+        "thetaLength": 6.283185307179586
+      }
+    },
+    {
+      "name": "",
+      "type": "SphereGeometry",
+      "p": [
+        -0.2,
+        0.66,
+        -0.12
+      ],
+      "rot": [
+        -0.9034289605563451,
+        0.7821044991726388,
+        -1.4087244539896038,
+        "XYZ"
+      ],
+      "parameters": {
+        "radius": 0.058,
+        "widthSegments": 14,
+        "heightSegments": 10,
+        "phiStart": 0,
+        "phiLength": 6.283185307179586,
+        "thetaStart": 0,
+        "thetaLength": 3.141592653589793
+      }
+    },
+    {
+      "name": "",
+      "type": "CapsuleGeometry",
+      "p": [
+        0.2915432308491239,
+        0.8793488104131054,
+        0.01002875754282073
+      ],
+      "rot": [
+        0.1491141892161724,
+        -0.37699636748497944,
+        -2.395170011741155,
+        "XYZ"
+      ],
+      "parameters": {
+        "radius": 0.055,
+        "height": 0.17,
+        "capSegments": 4,
+        "radialSegments": 10,
+        "heightSegments": 1
+      }
+    },
+    {
+      "name": "",
+      "type": "CapsuleGeometry",
+      "p": [
+        0.2715432308491239,
+        0.7143488104131054,
+        -0.044971242457179275
+      ],
+      "rot": [
+        -0.7355906710194823,
+        -0.690200889885653,
+        1.5014296511374134,
+        "XYZ"
+      ],
+      "parameters": {
+        "radius": 0.048,
+        "height": 0.17,
+        "capSegments": 4,
+        "radialSegments": 10,
+        "heightSegments": 1
+      }
+    },
+    {
+      "name": "",
+      "type": "CylinderGeometry",
+      "p": [
+        0.18677037540378974,
+        0.6730437144991454,
+        -0.10199309818972303
+      ],
+      "rot": [
+        -0.7355906710194823,
+        -0.690200889885653,
+        1.5014296511374134,
+        "XYZ"
+      ],
+      "parameters": {
+        "radiusTop": 0.05,
+        "radiusBottom": 0.05,
+        "height": 0.03,
+        "radialSegments": 12,
+        "heightSegments": 1,
+        "openEnded": false,
+        "thetaStart": 0,
+        "thetaLength": 6.283185307179586
+      }
+    },
+    {
+      "name": "",
+      "type": "SphereGeometry",
+      "p": [
+        0.16,
+        0.66,
+        -0.12
+      ],
+      "rot": [
+        -0.7355906710194823,
+        -0.690200889885653,
+        1.5014296511374134,
+        "XYZ"
+      ],
+      "parameters": {
+        "radius": 0.058,
+        "widthSegments": 14,
+        "heightSegments": 10,
+        "phiStart": 0,
+        "phiLength": 6.283185307179586,
+        "thetaStart": 0,
+        "thetaLength": 3.141592653589793
+      }
+    },
+    {
+      "name": "",
+      "type": "SphereGeometry",
+      "p": [
+        0,
+        0,
+        0
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "parameters": {
+        "radius": 0.12,
+        "widthSegments": 16,
+        "heightSegments": 12,
+        "phiStart": 0,
+        "phiLength": 6.283185307179586,
+        "thetaStart": 0,
+        "thetaLength": 1.5707963267948966
+      }
+    },
+    {
+      "name": "",
+      "type": "BoxGeometry",
+      "p": [
+        0,
+        0,
+        0
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "parameters": {
+        "width": 0.26,
+        "height": 0.24,
+        "depth": 0.03,
+        "widthSegments": 1,
+        "heightSegments": 1,
+        "depthSegments": 1
+      }
+    },
+    {
+      "name": "",
+      "type": "BufferGeometry",
+      "p": [
+        0,
+        0,
+        0
+      ],
+      "rot": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ]
+    },
+    {
+      "name": "",
+      "type": "CylinderGeometry",
+      "p": [
+        0.16,
+        0.66,
+        -0.12
+      ],
+      "rot": [
+        -1.1817131684248876,
+        -0.5343035556433857,
+        0.7747907102599996,
+        "XYZ"
+      ],
+      "parameters": {
+        "radiusTop": 0.003,
+        "radiusBottom": 0.006,
+        "height": 0.34,
+        "radialSegments": 6,
+        "heightSegments": 1,
+        "openEnded": false,
+        "thetaStart": 0,
+        "thetaLength": 6.283185307179586
+      }
+    }
+  ],
+  "rootChildren": [
+    {
+      "p": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "p": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "p": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

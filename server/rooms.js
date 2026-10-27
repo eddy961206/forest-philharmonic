@@ -49,7 +49,7 @@ const clean = (v, max) => String(v ?? '').replace(/[\u0000-\u001f\u007f\u200b\u2
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : 0);
 
 // the buildings a room can be in (see public/js/scene/venue.js)
-const VENUES = new Set(['hall', 'sphere']);
+const VENUES = new Set(['hall', 'sphere', 'outdoor']);
 
 function newCode() {
   for (;;) {
@@ -154,11 +154,13 @@ function enter(m, room, resume = false) {
   let gotShow = false;
   let ownPage = false; // the host's own tab back (a dropped line, or reloaded: then it follows first)
   if (empty) {
-    // the first one into an empty room runs a fresh show
+    // A sole host reconnecting still has the running show on its page. Keep
+    // its snapshot for guests arriving before that page publishes again.
+    const continuing = resume && m.cid && m.cid === room.hostCid && back && now - back.at < BACK_GRACE;
     room.emptyAt = 0;
     room.host = m.id;
     room.hostCid = m.cid;
-    room.state = null;
+    if (!continuing) room.state = null;
     room.votes.clear();
   } else if (hostAway && resume && m.cid && m.cid === room.hostCid) {
     // the host's line dropped and came back: the show is theirs again

@@ -6,6 +6,37 @@
 // Every choice counts, going back to the piece already loaded too: a slow
 // download of a piece nobody wants any more never replaces the one here.
 
+// Playback and the next-piece roster share a download. Keep only a few raw
+// scores: browsing a long programme must not retain every large score forever.
+// Rejections are removed so a temporary lost connection never poisons a roster.
+export class ScoreLibrary {
+  constructor(fetch, limit = 4) {
+    this.fetch = fetch;
+    this.limit = Math.max(1, limit);
+    this.ready = new Map();
+    this.pending = new Map();
+  }
+
+  get(id) {
+    if (this.ready.has(id)) {
+      const score = this.ready.get(id);
+      this.ready.delete(id);
+      this.ready.set(id, score);
+      return Promise.resolve(score);
+    }
+    if (this.pending.has(id)) return this.pending.get(id);
+    const request = Promise.resolve().then(() => this.fetch(id)).then(score => {
+      this.ready.set(id, score);
+      while (this.ready.size > this.limit) this.ready.delete(this.ready.keys().next().value);
+      return score;
+    });
+    this.pending.set(id, request);
+    const drop = () => { if (this.pending.get(id) === request) this.pending.delete(id); };
+    request.then(drop, drop);
+    return request;
+  }
+}
+
 export class PieceChooser {
   // fetch(id) -> the score; prepare(score) -> ready to play, touching nothing
   // (Performance.prepare); apply(prepared) -> the transport's piece now;
@@ -14,21 +45,35 @@ export class PieceChooser {
     Object.assign(this, { _fetch: fetch, _prepare: prepare, _apply: apply, _loaded: loaded });
     this.gen = 0; // one more for each choice
     this.wanted = null; // the id of the latest choice while it is on the way
-    this._pending = new Map(); // id -> the prepared score on its way
+    this._pending = new Map(); // id -> shared preparation request
   }
 
-  // the prepared score `id` (one download while it is on the way)
+  // An explicit preload remains useful even when playback chooses another id.
   prepare(id) {
-    let p = this._pending.get(id);
-    if (!p) {
-      p = Promise.resolve(id).then(this._fetch).then(this._prepare);
-      this._pending.set(id, p);
-      // (settled: gone - a failure is asked for afresh. Only our own entry:
-      // never a newer one for the same piece)
-      const drop = () => { if (this._pending.get(id) === p) this._pending.delete(id); };
-      p.then(drop, drop);
+    return this._preparing(id, true);
+  }
+
+  _preparing(id, independent = false) {
+    let request = this._pending.get(id);
+    if (!request) {
+      request = { independent, promise: null };
+      const drop = () => { if (this._pending.get(id) === request) this._pending.delete(id); };
+      request.promise = Promise.resolve(id).then(this._fetch).then(score => {
+        // Check before the expensive score sort/dynamics analysis. Compare the
+        // wanted id, not the first caller's generation: a later same-id choice
+        // still owns this shared request. Explicit preloads are never cancelled.
+        if (!request.independent && this.wanted !== id) {
+          drop(); // a newly chosen id must not join an already discarded result
+          return null;
+        }
+        return this._prepare(score);
+      });
+      this._pending.set(id, request);
+      request.promise.then(drop, drop);
+    } else if (independent) {
+      request.independent = true;
     }
-    return p;
+    return request.promise;
   }
 
   // Choose `id`: the piece once it is the transport's, or null if another
@@ -42,7 +87,7 @@ export class PieceChooser {
     this.wanted = id;
     let prep;
     try {
-      prep = await this.prepare(id);
+      prep = await this._preparing(id);
     } catch (e) {
       if (gen !== this.gen) return null;
       this.wanted = null;

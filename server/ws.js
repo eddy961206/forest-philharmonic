@@ -100,7 +100,9 @@ export class Socket {
       if (op === 0xa) { this.alive = true; continue; }
       if (op === 0x1 || op === 0x0) {
         if ((op === 0x0) !== this.fragmented) { this.close(1002); return; }
-        this.parts.push(payload);
+        // Empty continuation frames are legal, but must not grow the parts
+        // array without contributing to the message's byte limit.
+        if (payload.length) this.parts.push(payload);
         this.partBytes += payload.length;
         if (this.partBytes > MAX_MESSAGE) { this.close(1009); return; }
         this.fragmented = !fin;

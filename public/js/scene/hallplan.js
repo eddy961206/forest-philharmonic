@@ -133,6 +133,15 @@ export const RISERS = [
   return { ...R, aRad: R.a * DEG, treads: n, rise: R.h / (n + 1), span: (n * tread) / rm };
 });
 
+// Short connecting steps connect the wind/string tiers. The side stairs remain
+// useful, but a denser roster must not turn a tier into an inaccessible island.
+// Rendering and navigation consume this same definition.
+export const SERVICE_STEPS = RISERS.slice(0, 3).flatMap((R, i) => [-40, 0, 40].map(angle => ({
+  angle: angle * DEG,
+  r0: R.r0 - .28, r1: R.r0, aRad: .4 / (R.r0 - .28),
+  h: ((RISERS[i - 1]?.h || 0) + R.h) / 2,
+})));
+
 export const PODIUM_R = 0.6;
 export const PODIUM_H = 0.22;
 
@@ -146,6 +155,7 @@ function polar(x, z) {
 export function stageFloorY(x, z) {
   const { r, a } = polar(x, z);
   const aa = Math.abs(a);
+  for (const S of SERVICE_STEPS) if (r >= S.r0 && r < S.r1 && Math.abs(a - S.angle) < S.aRad) return STAGE_Y + S.h;
   for (const R of RISERS) {
     if (r < R.r0 || r >= R.r1) continue;
     if (aa < R.aRad) return STAGE_Y + R.h;

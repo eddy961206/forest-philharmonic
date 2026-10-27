@@ -7,16 +7,18 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 // the venue first: the Sphere takes over the walking plan before anything reads it
-import { IS_SPHERE, VENUE, VENUES, goVenue } from './scene/venue.js';
+import { IS_SPHERE, IS_OUTDOOR, IS_HALL, VENUE, VENUES, goVenue } from './scene/venue.js';
 import { SPHERE_ACOUSTICS, SP } from './scene/sphereplan.js';
 import { buildSphere } from './scene/sphere.js';
+import { OUTDOOR_ACOUSTICS } from './scene/outdoorplan.js';
+import { buildOutdoor } from './scene/outdoor.js';
 import { visualsFor } from './scene/domeshow.js';
 import { SETLISTS } from './programs.js';
 import { identity, setName, heldTicket, updateTicket, dropTicket, ticketElement, ticketQuery, EMOJI } from './tickets.js';
 
 import { AudioEngine } from './audio/engine.js';
 import { Performance, fetchPiece } from './audio/performance.js';
-import { PieceChooser, transportState } from './pieces.js';
+import { PieceChooser, ScoreLibrary, transportState } from './pieces.js';
 import { Follower } from './follow.js';
 import { SoundRecovery, wantsSound } from './audio/resume.js';
 import { buildHall } from './scene/hall.js';
@@ -33,32 +35,34 @@ import { SECTIONS, CHOIR_VOICES } from './layout.js';
 import { UI } from './ui.js';
 import { RoomClient, listRooms } from './net/room.js';
 import { ensembleOf, GRAMMAR, Spotlight, rosterCentre, Leaf, josa } from './evening.js';
+import { installBremen } from './bremen.js';
 import { Practice, SeatThief, noticeLines, buildNoticeBoard } from './scene/lobby.js';
 import { buildRecital } from './scene/recital.js';
 import { Avatars, AVATARS } from './scene/avatars.js';
 import { normalizeDomeProjection } from './scene/dome-projection.js';
-import { AdaptiveQuality } from './quality.js';
+import { AdaptiveQuality, FramePacer } from './quality.js';
 import { watchRenderContext, showRenderStatus } from './render-status.js';
+import { disposeComposer, sameQualitySetting } from './render-resources.js';
 
 // ------------------------------------------------------------- settings
 const DEFAULTS = {
   volume: 0.8, reverb: 0.45, quality: 'auto', shuffle: false, repeatOne: false,
-  fixedEar: true, applauseVol: 0.7, gap: 7, notes: true, glow: true, fireflies: true,
+  fixedEar: true, skipStageTransitions: false, applauseVol: 0.7, gap: 7, notes: true, glow: true, fireflies: true,
   fx: true, lasers: true, screen: true, interval: 3, domeProjection: 'immersive',
   // how full the house is, in per cent, for each venue: the Sphere seats
   // nearly fourteen thousand - a quarter of that is already a big crowd
-  crowdHall: 45, crowdSphere: 25,
+  crowdHall: 45, crowdSphere: 25, crowdOutdoor: 55,
 };
 const settings = { ...DEFAULTS };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('fp-settings') || '{}')); } catch { /* private mode */ }
 // (the old on/off switch for the audience: off is an empty house)
-if (settings.audience === false) { settings.crowdHall = 0; settings.crowdSphere = 0; }
+if (settings.audience === false) { settings.crowdHall = 0; settings.crowdSphere = 0; settings.crowdOutdoor = 0; }
 delete settings.audience;
 // (the old on/off switch for the applause: off is none at all)
 if (settings.applause === false) settings.applauseVol = 0;
 delete settings.applause;
 settings.domeProjection = normalizeDomeProjection(settings.domeProjection);
-const CROWD = IS_SPHERE ? 'crowdSphere' : 'crowdHall'; // this venue's audience setting
+const CROWD = IS_SPHERE ? 'crowdSphere' : IS_OUTDOOR ? 'crowdOutdoor' : 'crowdHall'; // this venue's audience setting
 const save = () => { try { localStorage.setItem('fp-settings', JSON.stringify(settings)); } catch { /* ignore */ } };
 
 const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
@@ -72,7 +76,7 @@ const QUALITY = {
   // only every ~1.5 s at a small size
   low: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenHz: 8, post: false },
 };
-if (settings.quality !== 'auto' && !Object.hasOwn(QUALITY, settings.quality)) settings.quality = 'auto';
+if (settings.quality !== 'auto' && settings.quality !== 'efficient' && !Object.hasOwn(QUALITY, settings.quality)) settings.quality = 'auto';
 // A computer's built-in graphics (most laptops, and desktops without a card
 // in use): automatic quality starts one step down and climbs if it can
 const weakGPU = (() => {
@@ -85,10 +89,13 @@ const weakGPU = (() => {
   } catch { return false; }
 })();
 const autoStart = () => (isMobile ? 'low' : weakGPU ? 'medium' : 'high');
-let quality = settings.quality === 'auto' ? autoStart() : settings.quality;
+const efficient = () => settings.quality === 'efficient';
+let quality = settings.quality === 'auto' ? autoStart() : efficient() ? 'low' : settings.quality;
 // Lite build (phones, or 'low' chosen): simpler seats, a smaller crowd, far
 // fewer lights, plain materials, lighter audio. Decided once at load.
 const LITE = isMobile || quality === 'low';
+// A graphics preference must not lower the existing desktop audio fidelity.
+const AUDIO_LITE = isMobile || settings.quality === 'low';
 let renderScale = 1; // phones: lowered further while the frame rate is poor
 const adaptiveQuality = new AdaptiveQuality({
   quality,
@@ -101,13 +108,17 @@ const adaptiveQuality = new AdaptiveQuality({
   pixelRatios: Object.fromEntries(Object.entries(QUALITY).map(([k, q]) => [k, q.pr])),
   nowMs: performance.now(),
 });
+const efficientQuality = new AdaptiveQuality({ quality: 'low', minQuality: 'low', maxQuality: 'low', targetFps: 30, nowMs: performance.now() });
+const framePacer = new FramePacer(30);
+const worldPacer = new FramePacer(10);
+const pixelRatio = () => (efficient() ? Math.min(window.devicePixelRatio || 1, 1) : QUALITY[quality].pr) * renderScale;
 let qualityHold = 0; // real-time deadline, also respected by the FPS debug hook
 let interiorShown = true; // the house, seen from the foyer (see interiorCull)
 
 // --------------------------------------------------------------- render
 const container = document.getElementById('stage');
 const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance', stencil: false });
-renderer.setPixelRatio(QUALITY[quality].pr);
+renderer.setPixelRatio(pixelRatio());
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = QUALITY[quality].shadows;
 renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -124,9 +135,9 @@ setAnisotropy(Math.min(LITE ? 2 : 8, renderer.capabilities.getMaxAnisotropy()));
 setLite(LITE);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(IS_SPHERE ? '#000000' : '#0b0806');
+scene.background = new THREE.Color(IS_SPHERE ? '#000000' : IS_OUTDOOR ? '#526b70' : '#0b0806');
 // the Sphere is a black bowl lit by its screen: only a trace of haze
-scene.fog = IS_SPHERE ? new THREE.FogExp2('#06070b', 0.0028) : new THREE.FogExp2('#140d08', 0.006);
+scene.fog = IS_SPHERE ? new THREE.FogExp2('#06070b', 0.0028) : IS_OUTDOOR ? new THREE.FogExp2('#52665e', 0.0035) : new THREE.FogExp2('#140d08', 0.006);
 const camera = new THREE.PerspectiveCamera(64, window.innerWidth / window.innerHeight, 0.1, 260); // near 0.1: better depth precision, no flicker
 
 let environmentTarget;
@@ -144,13 +155,13 @@ function buildEnvironment() {
 }
 buildEnvironment();
 // (the Sphere is a black room: the bright studio reflections would glow)
-scene.environmentIntensity = IS_SPHERE ? 0.05 : 0.2;
+scene.environmentIntensity = IS_SPHERE ? 0.05 : IS_OUTDOOR ? 0.28 : 0.2;
 
 let composer;
 let bloomPass;
 function buildComposer() {
   const q = QUALITY[quality];
-  if (composer) { composer.passes.forEach((p) => p.dispose?.()); composer.dispose(); }
+  disposeComposer(composer);
   if (!q.post) { composer = null; return; } // render straight to the screen
   const size = renderer.getDrawingBufferSize(new THREE.Vector2());
   const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.HalfFloatType, samples: q.msaa });
@@ -177,16 +188,19 @@ const ui = new UI({ settings, onSetting });
 ui.touch = isTouch;
 ui.setLoading('공연장을 짓는 중', 0.03);
 
-const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE, renderer }) : buildHall({ quality, lite: LITE });
+const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE, renderer }) : IS_OUTDOOR ? buildOutdoor({ quality, lite: LITE }) : buildHall({ quality, lite: LITE });
 scene.add(hall.group);
 // Both the broadcast and visitor cameras select batches after their world
 // matrices are current, before Three.js builds the render list.
 scene.onBeforeRender = (_renderer, _scene, view) => hall.prepareRender?.(view);
-const orchestra = buildOrchestra(scene);
+const orchestra = buildOrchestra(scene, { brightFloor: !IS_SPHERE });
+// Fixed geometry is consulted only when the camera plans a new shot.
+const cameraInstruments = orchestra.players.filter(p => p.fixedInstrument).map(p => p.inst.group);
 const stage = new StageManager(orchestra);
+stage.setSkipTransitions(settings.skipStageTransitions);
 const spot = new Spotlight(hall.lights, scene); // a recital: the key light gathers on the soloist
 hall.dome?.setProjection(settings.domeProjection);
-hall.setBeams?.(settings.lasers !== false); // (the Sphere's moving heads follow '조명 연출')
+hall.setBeams?.(settings.lasers !== false && !efficient()); // (the Sphere's moving heads follow '조명 연출')
 const thief = new SeatThief(stage, 'va:0'); // the interval: someone may take the seat you leave
 // a recital: chairs on the stage and a page turner's seat (added to the seat list, put away)
 const recital = buildRecital(scene, orchestra, hall.seats);
@@ -233,7 +247,8 @@ function seatAudience() {
     if (director?.seat && director.seat.index >= 0) exclude.add(director.seat.index);
     // the Sphere: thousands of guests, drawn in full only near you
     const big = IS_SPHERE ? { detail: LITE ? 80 : 220, mid: LITE ? 0 : 900, cap: LITE ? 2500 : Infinity } : {};
-    audience = buildAudience(housePlan, { share, reserve, exclude, lite: LITE, ...big });
+    audience = buildAudience(housePlan, { share, reserve, exclude, lite: LITE, casual: IS_OUTDOOR, ...big });
+    audience.setBudget?.(efficient() ? 0.35 : 1);
     audience.updateLOD?.(camera.position, true);
     audience.group.visible = interiorShown;
     scene.add(audience.group);
@@ -243,7 +258,9 @@ function seatAudience() {
   refreshOccupied();
 }
 // (no fireflies indoors at the Sphere - only dust in the light)
-const effects = buildEffects(scene, { fireflies: IS_SPHERE ? 0 : LITE ? 40 : 170, dust: LITE ? 140 : 520 });
+const effects = buildEffects(scene, { fireflies: IS_SPHERE ? 0 : IS_OUTDOOR ? (LITE ? 12 : 30) : LITE ? 40 : 170, dust: IS_OUTDOOR ? (LITE ? 30 : 80) : LITE ? 140 : 520 });
+effects.setBudget(efficient() ? 0.2 : 1);
+effects.setCounts(settings.fireflies);
 // in the Sphere the broadcast goes up on the dome (IMAG) instead of a screen
 // of its own; the dome stops sampling the picture while it is being drawn
 const screen = buildScreen(scene, renderer, IS_SPHERE ? {
@@ -251,7 +268,7 @@ const screen = buildScreen(scene, renderer, IS_SPHERE ? {
   headless: true,
   before: () => hall.dome.setLive(null, null),
   after: () => hall.dome.setLive(screen.texture, screen.capTex),
-} : { lite: LITE });
+} : { lite: LITE, headless: IS_OUTDOOR });
 if (IS_SPHERE) {
   hall.dome.setLive(screen.texture, screen.capTex);
   // The dome's shader is big: compiled in the background (where the browser
@@ -280,6 +297,7 @@ applyQuality();
 // Sphere's sweet spot in section 204
 const bestSeat = (IS_SPHERE
   ? hall.seats.filter((s) => s.section === '204' && s.row === '8')
+  : IS_OUTDOOR ? hall.seats.filter((s) => s.level === '잔디마당' && s.row === 'D')
   : hall.seats.filter((s) => s.level === '1층' && s.row === 'H')).sort((a, b) => Math.abs(a.x) - Math.abs(b.x))[0];
 const headPositions = orchestra.players.map((p) => p.home.clone().add(new THREE.Vector3(0, 1.25 * p.char.scale, 0)));
 headPositions.push(orchestra.conductor.home.clone().add(new THREE.Vector3(0, 1.35, 0)));
@@ -289,8 +307,9 @@ const engine = new AudioEngine();
 const perf = new Performance(engine);
 // the piece to play: a choice made while another is on its way wins, and
 // only what is loaded is what the page shows (see pieces.js)
+const scores = new ScoreLibrary(fetchPiece);
 const pieces = new PieceChooser({
-  fetch: fetchPiece,
+  fetch: (id) => scores.get(id),
   prepare: (score) => perf.prepare(score),
   apply(prep) {
     const piece = perf.use(prep);
@@ -330,7 +349,7 @@ let leaf = new Leaf(VENUE); // tonight, for the leaf programme
 
 async function boot() {
   try {
-    await engine.init({ lite: LITE, acoustics: IS_SPHERE ? { ...SPHERE_ACOUSTICS, room: 'arena' } : null });
+    await engine.init({ lite: AUDIO_LITE, acoustics: IS_SPHERE ? { ...SPHERE_ACOUSTICS, room: 'arena' } : IS_OUTDOOR ? OUTDOOR_ACOUSTICS : null });
   } catch (e) {
     ui.setLoading('이 브라우저에서는 소리를 낼 수 없어요. 최신 Chrome, Edge, Firefox, Safari에서 열어 주세요.', 0);
     throw e;
@@ -340,7 +359,7 @@ async function boot() {
   engine.setApplause(settings.applauseVol);
   // (the browser taking the sound away, or giving it back: see sound)
   engine.ctx.addEventListener?.('statechange', () => sound.changed());
-  fx = buildFX(scene, engine);
+  if (!IS_OUTDOOR) fx = buildFX(scene, engine);
   // each building plays its own half of the pieces (see programs.js)
   const all = await (await fetch('music/index.json')).json();
   const byId = new Map(all.map((p) => [p.id, p]));
@@ -392,7 +411,9 @@ ui.on('enter', async (opt) => {
   // fullscreen and sound must be started inside the click itself. (Only on
   // a phone or tablet, where the browser's bars take a good part of the
   // screen; at a computer it is a choice: ⛶ or Enter.)
-  if (isTouch) goFullscreen();
+  // iPadOS reserves a downward swipe to exit native fullscreen, which
+  // conflicts with looking down. Keep it an explicit choice on Apple touch devices.
+  if (isTouch && !appleTouchFullscreen()) goFullscreen();
   // never wait on the audio context: some browsers settle it late
   try { engine.ctx.resume().catch(() => {}); } catch { /* ignored */ }
   try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
@@ -463,6 +484,10 @@ function soloTicket() {
   } catch { /* file: */ }
 }
 
+function appleTouchFullscreen() {
+  return /iPad|iPhone|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
 function goFullscreen() {
   const el = document.documentElement;
   if (document.fullscreenElement || !el.requestFullscreen) return;
@@ -476,7 +501,7 @@ function startShow() {
   ui.showStarted();
   // still out in the foyer: the music comes through the wall (as it would) -
   // say how to hear it properly, never move them
-  if (!IS_SPHERE && engine.ctx) {
+  if (IS_HALL && engine.ctx) {
     // (after the walk-on, which has its own toast - and only if they are still out there)
     const hint = (ms, tries = 0) => setTimeout(() => {
       if ((phase === 'changing' || phase === 'entering') && tries < 40) return hint(1000, tries + 1);
@@ -516,13 +541,11 @@ function setPhase(p, seconds = 0) {
 // its chairs). Between pieces those not wanted - and not wanted by the
 // piece after either - leave, and those missing come on.
 const rosterCache = new Map();
-const scoreCache = new Map();
 async function scoreFor(i) {
   const meta = program[i];
   if (!meta) return null;
   if (perf.piece?.id === meta.id) return perf.piece;
-  if (!scoreCache.has(meta.id)) scoreCache.set(meta.id, fetch(`music/${meta.id}.json`).then((r) => r.json()).catch(() => null));
-  return scoreCache.get(meta.id);
+  try { return await scores.get(meta.id); } catch { return null; }
 }
 function rosterOf(piece) {
   const set = new Set();
@@ -536,9 +559,11 @@ async function rosterFor(i) {
   const meta = program[i];
   if (!meta) return new Set();
   if (rosterCache.has(meta.id)) return rosterCache.get(meta.id);
-  let r = new Set();
   const piece = await scoreFor(i);
-  if (piece) r = rosterOf(piece); // (offline: keep everyone)
+  // A failed look-ahead must not send everyone off or become a cached empty
+  // roster. The next request retries once the connection is back.
+  if (!piece) return new Set(stage.onstageKeys());
+  const r = rosterOf(piece);
   rosterCache.set(meta.id, r);
   return r;
 }
@@ -551,6 +576,7 @@ const STRINGS = /^(vn1|vn2|va|vc|cb):/;
 // late: a guest coming in while the host's orchestra walks on - { cond: the
 // host's conductor is out already, set(): called once our stage is set }
 async function runConcert(i, { quick = false, remote = false, late = null } = {}) {
+  syncStageTransitions();
   const tok = ++seq;
   endInterval();
   ceremony = true;
@@ -571,7 +597,7 @@ async function runConcert(i, { quick = false, remote = false, late = null } = {}
   nextPiece = meta;
   // (the guests start fetching it now; the snapshot that goes with it says
   // it is on its way, not playing: see snapshot)
-  if (!remote) sendCmd({ c: 'run', i: current, quick, ritual: ritualNext && !quick });
+  if (!remote) sendCmd({ c: 'run', i: current, quick, skipStageTransitions: !!settings.skipStageTransitions, ritual: ritualNext && !quick });
   let piece;
   try {
     piece = await pieces.choose(meta.id);
@@ -628,7 +654,7 @@ async function runConcert(i, { quick = false, remote = false, late = null } = {}
       // (a whole orchestra comes on closer together: it is a long walk-on)
       stage.callOn(enters, enters.length >= 16 ? 0.7 : undefined, { stand: soloists });
       // the stage fills in silence: say so (and that it can be skipped)
-      if (enters.length >= 6 && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 9000);
+      if (enters.length >= 6 && !stage.skipTransitions && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 9000);
       if (!(await until(() => stage.arrived(enters), tok, 90000))) return;
       if (!(await wait(800, tok))) return;
       if (enters.length >= 6 && enters.some((w) => STRINGS.test(StageManager.key(w)))) {
@@ -780,11 +806,11 @@ async function endOfPiece() {
     engine.applause(engine.now + 0.35, big ? 1.3 : 1, audience ? audience.count : 0);
     clapUntil = performance.now() + (big ? 12500 : 7600);
   }
-  if (settings.fx && big && fx) {
+  if (settings.fx && !efficient() && big && fx) {
     fx.fanfare(engine.now + 0.3);
     fx.confettiCannons();
-    setTimeout(() => fx.fireworksShow(), 1500);
-  } else if (settings.fx && fx && piece?.mood === 'lively' && G.confetti) {
+    setTimeout(() => { if (settings.fx && !efficient()) fx.fireworksShow(); }, 1500);
+  } else if (settings.fx && !efficient() && fx && piece?.mood === 'lively' && G.confetti) {
     fx.confettiCannons();
   }
   // bows
@@ -962,6 +988,8 @@ ui.on('mode', (m) => {
 });
 ui.on('sit', () => director.toggleSit());
 ui.on('dialogOpen', () => {
+  const miniature = document.getElementById('bremen');
+  if (miniature?.open) miniature.close();
   director.keys.clear();
   director.vel.set(0, 0, 0);
   director.releaseLock();
@@ -975,7 +1003,10 @@ ui.on('mute', () => {
 });
 ui.on('fullscreen', () => {
   if (document.fullscreenElement) document.exitFullscreen();
-  else document.documentElement.requestFullscreen?.().catch(() => {});
+  else {
+    if (appleTouchFullscreen()) ui.toast('iPad에서는 아래로 쓸면 전체화면이 해제될 수 있어요. 일반 화면에서도 둘러볼 수 있어요.', 6500);
+    document.documentElement.requestFullscreen?.().catch(() => {});
+  }
 });
 ui.on('unfocus', () => {
   focused = null;
@@ -999,8 +1030,8 @@ let lastSeat = null;
 let tea = false;
 const clockNow = () => (room ? room.now() : performance.now() / 1000);
 // the foyer: where the cellist sits (an ottoman, facing the middle), the notice board
-const FOYER_BEAR = !IS_SPHERE ? { x: 4.4 - 0.78, y: LEVELS[0] - 0.05, z: 37.6, yaw: Math.PI / 2 } : null;
-const BOARD = !IS_SPHERE ? { x: 10, y: LEVELS[0] + 1.65, z: HALL.back + HALL.wallT + 0.02 } : null;
+const FOYER_BEAR = IS_HALL ? { x: 4.4 - 0.78, y: LEVELS[0] - 0.05, z: 37.6, yaw: Math.PI / 2 } : null;
+const BOARD = IS_HALL ? { x: 10, y: LEVELS[0] + 1.65, z: HALL.back + HALL.wallT + 0.02 } : null;
 if (BOARD) buildNoticeBoard(hall.group, new THREE.Vector3(BOARD.x, BOARD.y, BOARD.z), 0);
 
 function intervalDue(i) {
@@ -1033,8 +1064,8 @@ function beginInterval(endsAt, next) {
   ui.setIntervalLeft(endsAt - clockNow());
   // the seat you leave behind (seven times in ten, someone wants it)
   const r = room ? seeded(room.seed ^ 0x5ea7)() : Math.random();
-  thief.arm(director.mode === 'seat' ? director.seat : lastSeat, r < 0.7);
-  ui.toast(`인터미션이에요. ${Math.max(1, Math.round((endsAt - clockNow()) / 60))}분 뒤에 2부가 시작돼요.${IS_SPHERE ? '' : ' 로비로 나가 봐요.'}`, 3600);
+  if (!IS_OUTDOOR) thief.arm(director.mode === 'seat' ? director.seat : lastSeat, r < 0.7);
+  ui.toast(`인터미션이에요. ${Math.max(1, Math.round((endsAt - clockNow()) / 60))}분 뒤에 2부가 시작돼요.${IS_HALL ? ' 로비로 나가 봐요.' : IS_OUTDOOR ? ' 공원 길을 잠깐 거닐어 봐요.' : ''}`, 3600);
 }
 
 function endInterval() {
@@ -1059,6 +1090,7 @@ function secondHalf() {
 }
 
 async function startPractice() {
+  if (IS_OUTDOOR) return;
   // a phrase from the coming half (the next piece with a cello part)
   let score = null;
   for (let k = 0; k < 8 && !score && intervalState; k++) {
@@ -1066,7 +1098,7 @@ async function startPractice() {
     if (sc?.tracks.some((tr) => tr.section === 'vc')) score = sc;
   }
   if (!score || !intervalState) return;
-  if (!IS_SPHERE) engine.addSpot('lobby', { x: FOYER_BEAR.x, y: FOYER_BEAR.y + 0.9, z: FOYER_BEAR.z });
+  if (IS_HALL) engine.addSpot('lobby', { x: FOYER_BEAR.x, y: FOYER_BEAR.y + 0.9, z: FOYER_BEAR.z });
   practice.start(score, { section: IS_SPHERE ? 'vc' : 'lobby', seed: room ? room.seed : (Math.random() * 1e9) | 0 });
 }
 
@@ -1075,7 +1107,7 @@ function intervalTick(dt) {
   const S = intervalState;
   const bear = stage.walkers.find((w) => StageManager.key(w) === BEAR);
   if (S.bear === 'wait' && bear) {
-    if (!IS_SPHERE && bear.state === 'off') {
+    if (IS_HALL && bear.state === 'off') {
       stage.borrow(BEAR, FOYER_BEAR, FOYER_BEAR.yaw);
       S.bear = 'on';
       startPractice();
@@ -1093,8 +1125,8 @@ function intervalTick(dt) {
   }
   // the seat thief (away: out in the foyer, or anywhere far from the seat)
   const d = director;
-  const inFoyer = !IS_SPHERE && d.pos.z > HALL.back + 0.5;
-  const nearThief = thief.update(dt, d.pos, d.mode === 'walk' && (inFoyer || IS_SPHERE));
+  const inFoyer = IS_HALL && d.pos.z > HALL.back + 0.5;
+  const nearThief = !IS_OUTDOOR && thief.update(dt, d.pos, d.mode === 'walk' && (inFoyer || IS_SPHERE));
   if (thief.taken !== thiefWas) { thiefWas = thief.taken; refreshOccupied(); }
   ui.act(nearThief ? `${thief.name}에게 도토리 쿠키 건네기` : nearBoard() ? '숲속 소식 읽기' : null);
 }
@@ -1506,23 +1538,31 @@ director.on((type, data) => {
 });
 
 function onSetting(key, value) {
+  if (sameQualitySetting(settings, key, value)) return;
+  if (key === 'skipStageTransitions' && hostOnly()) return;
   if (key === 'domeProjection') value = normalizeDomeProjection(value);
   settings[key] = value;
   save();
+  if (key === 'skipStageTransitions') { syncStageTransitions(); sendCmd({ c: 'stageTransitions', skip: !!value }); }
   if (key === 'volume') { muted = false; ui.setMuted(false); engine.setVolume(value); }
   if (key === 'reverb') engine.setReverb(value);
   if (key === 'applauseVol') engine.setApplause(value);
   if (key === 'quality') {
-    quality = value === 'auto' ? (LITE ? 'low' : autoStart()) : value;
+    quality = value === 'auto' ? (LITE ? 'low' : autoStart()) : value === 'efficient' ? 'low' : value;
     renderScale = 1;
     adaptiveQuality.reset(quality, renderScale, performance.now());
+    efficientQuality.reset('low', 1, performance.now());
+    framePacer.reset();
+    worldPacer.reset();
     applyQuality();
+    fxFor(perf.piece);
+    ui.setFps(frameStats.fps, value === 'efficient' ? 'efficient' : quality);
   }
   if (key === 'domeProjection') hall.dome?.setProjection(value);
   if (key === 'fireflies') effects.setCounts(value);
-  if (key === 'screen') screen.setEnabled(value);
+  if (key === 'screen') screen.setEnabled(value && !IS_OUTDOOR);
   if (key === 'lasers' && !value && fx) { fx.lasers.set(false); fx.wash.set(false); }
-  if (key === 'lasers') hall.setBeams?.(value); // (the Sphere's moving heads)
+  if (key === 'lasers') hall.setBeams?.(value && !efficient()); // (the Sphere's moving heads)
   // the audience slider: the crowd is rebuilt once the slider rests for a
   // moment, not on every step of a drag
   if (key === CROWD) {
@@ -1533,9 +1573,9 @@ function onSetting(key, value) {
 let crowdTimer = 0;
 
 function applyQuality() {
-  holdQuality(4500); // every material is rebuilt: a hitch, not a slow machine
+  holdQuality(4500); // target/shadow reallocations are transient, not sustained load
   const q = QUALITY[quality];
-  renderer.setPixelRatio(q.pr * renderScale);
+  renderer.setPixelRatio(pixelRatio());
   renderer.shadowMap.enabled = q.shadows;
   hall.lights.key.castShadow = q.shadows;
   if (hall.lights.key.shadow.map && hall.lights.key.shadow.mapSize.x !== q.shadowSize) {
@@ -1544,10 +1584,16 @@ function applyQuality() {
   }
   hall.lights.key.shadow.mapSize.set(q.shadowSize, q.shadowSize);
   hall.dome?.setQuality(quality);
-  scene.traverse((o) => { if (o.material) { const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach((m) => { m.needsUpdate = true; }); } });
   buildComposer();
   onResize();
   effects.setCounts(settings.fireflies);
+  effects.setBudget(efficient() ? 0.2 : 1);
+  audience?.setBudget?.(efficient() ? 0.35 : 1);
+  audience?.updateLOD?.(camera.position, true);
+  const reserve = room ? DEFAULTS[CROWD] / 100 : null;
+  const share = Math.max(0, Math.min(100, Number(settings[CROWD]) || 0)) / 100;
+  ui.setCrowdCount(audience?.count || 0, reserve !== null && share > reserve ? Math.round(reserve * 100) : 0, audience?.drawn || 0);
+  hall.setBeams?.(settings.lasers && !efficient());
 }
 
 // -------------------------------------------------------------- picking
@@ -1641,6 +1687,12 @@ let ceremony = false; // a piece's walk-on / greeting is running here
 let pendingJoin = undefined; // the room's state, applied once we are inside
 const guest = () => !!room && !room.isHost;
 
+function syncStageTransitions() {
+  const on = guest() ? !!hostState?.skipStageTransitions : !!settings.skipStageTransitions;
+  stage.setSkipTransitions(on);
+  document.getElementById('optSkipStageTransitions').checked = on;
+}
+
 function hostOnly() {
   if (!guest()) return false;
   ui.toast('공연 진행은 방장만 할 수 있어요.', 1600);
@@ -1655,7 +1707,7 @@ function snapshot() {
     // (the host's sound taken away by its browser: its music stands still,
     // and the room waits there with it - not pulled back to it every few seconds)
     playing: t.playing && !sound.lost, pos: t.pos, at: room.now(), onstage: stage.onstage, cond: stage.conductorOn,
-    on: [...stage.onstageKeys()],
+    on: [...stage.onstageKeys()], skipStageTransitions: !!settings.skipStageTransitions,
     iu: intervalState?.until, inext: intervalState?.next,
     ev: encore ? { c: encore.cands, n: encoreCounts(), u: encore.until } : undefined,
   };
@@ -1666,7 +1718,7 @@ const playMsg = () => ({ c: perf.playing ? 'play' : 'pause', i: current, pos: pe
 
 function fxFor(piece) {
   if (!fx) return;
-  const lively = piece?.mood === 'lively' && settings.lasers;
+  const lively = piece?.mood === 'lively' && settings.lasers && !efficient();
   // (a recital or a few players: the colour wash, but no laser show)
   fx.lasers.set(lively && GRAMMAR[ensembleOf(piece, rosterOf(piece))].lasers);
   fx.wash.set(lively);
@@ -1725,7 +1777,7 @@ const follower = new Follower({
 let hostState = null; // the host's latest snapshot
 let rejoin = false; // the next snapshot is taken as on coming in (see 'stay')
 async function followHost(s, { joining = false } = {}) {
-  if (s) hostState = s;
+  if (s) { hostState = s; syncStageTransitions(); }
   if (!s || !room || room.isHost || !concertStarted || !s.started) return true;
   if (rejoin) { rejoin = false; joining = true; }
   showOn();
@@ -1767,7 +1819,12 @@ async function followHost(s, { joining = false } = {}) {
 
 function onHostCmd(c) {
   if (!room || room.isHost || !concertStarted || !c) return;
-  if (c.c === 'run') {
+  if (c.c === 'stageTransitions') {
+    hostState = { ...hostState, skipStageTransitions: !!c.skip };
+    syncStageTransitions();
+  } else if (c.c === 'run') {
+    hostState = { ...hostState, skipStageTransitions: !!c.skipStageTransitions };
+    syncStageTransitions();
     showOn();
     if (phase === 'encore' && program[c.i]) ui.toast(`앙코르: 「${program[c.i].titleKo}」`, 3200); // (the lanterns' choice, for everyone)
     ritualNext = !!c.ritual;
@@ -1815,6 +1872,7 @@ function onHostCmd(c) {
 // a guest who becomes the host carries the show on from where it is
 // (back: the host's own page, reloaded, has it again)
 function takeOver(back = false) {
+  syncStageTransitions();
   ui.toast(back ? '다시 방장이에요. 공연을 이어서 진행해요.' : '이제 내가 방장이에요. 공연 진행을 맡아요.', 2600);
   ui.chatLine({ sys: true, text: back ? '다시 방장이에요.' : '이제 내가 방장이에요.' });
   carryOn();
@@ -2019,6 +2077,7 @@ function goSolo() {
   room = null;
   avatars.clear();
   ui.setRoom(null);
+  syncStageTransitions();
   refreshOccupied();
   if (intervalState) { intervalState.until += shift; ui.setIntervalLeft(intervalState.until - clockNow()); }
   if (encore) encore.until += shift;
@@ -2105,8 +2164,13 @@ ui.initLobby({ avatars: AVATARS, identity: { ...me, emoji: EMOJI[me.avatar] }, i
 const held = heldTicket(VENUE);
 const ticket = held && (!invite || held.code === invite) ? held : null;
 if (ticket) ui.ticketMode(ticket, ticketElement(ticket));
-// (an invite whose code is not a code: said at once, not after the building has loaded)
-else if (!invite && new URLSearchParams(location.search).get('room')) ui.lobbyError('초대 링크의 방 코드가 올바르지 않아요. 아래에서 방 코드를 직접 적어 들어가 보세요.');
+else {
+  // Hidden in the initial HTML: scene construction must not flash the old
+  // name / venue controls before we know whether this visitor holds a ticket.
+  document.getElementById('lobby').hidden = false;
+  // Keep direct ?lobby=1 and invitation entry available without a ticket.
+  if (!invite && new URLSearchParams(location.search).get('room')) ui.lobbyError('초대 링크의 방 코드가 올바르지 않아요. 아래에서 방 코드를 직접 적어 들어가 보세요.');
+}
 ui.on('venue', (id) => goVenue(id, { room: invite }));
 ui.on('dropTicket', () => dropTicket()); // (back to the square from a room that is gone: buy afresh)
 async function refreshRooms() {
@@ -2263,7 +2327,7 @@ let introT = 0;
 let screenActive = false;
 let pendingFrame = null;
 let graphicsUnavailable = false;
-const frameStats = { frameMs: 0, submitMs: 0, fps: 0, calls: 0, triangles: 0, quality, renderScale };
+const frameStats = { sequence: 0, frameMs: 0, submitMs: 0, fps: 0, calls: 0, triangles: 0, quality, renderScale };
 
 function requestFrame() {
   if (pendingFrame === null && !asleep && !document.hidden && !graphicsUnavailable) pendingFrame = requestAnimationFrame(frame);
@@ -2271,11 +2335,14 @@ function requestFrame() {
 function cancelFrame() {
   if (pendingFrame !== null) cancelAnimationFrame(pendingFrame);
   pendingFrame = null;
+  framePacer.reset();
+  worldPacer.reset();
 }
-function frame() {
+function frame(rafMs) {
   pendingFrame = null;
   if (asleep || document.hidden || graphicsUnavailable) return; // wake/visibility resumes a single chain
   const nowMs = performance.now();
+  if (efficient() && !framePacer.ready(rafMs)) { requestFrame(); return; }
   const elapsed = Math.max(0, (nowMs - lastNow) / 1000);
   const dt = Math.min(window.__fpMaxDt || 0.05, elapsed);
   lastNow = nowMs;
@@ -2287,8 +2354,8 @@ function frame() {
   let events = null;
   if (perf.piece) events = perf.updateVisual(t);
   const running = perf.playing;
-  orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, events, bowing, practice: practice.on ? practice.frame(BEAR) : null });
-  stage.update(dt);
+  stage.update(dt); // root/standing pose before body-local instrument contacts
+  orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, effectBudget: efficient() ? .2 : 1, events, bowing, practice: practice.on ? practice.frame(BEAR) : null });
   if (intervalState) intervalTick(dt);
   roomTick(dt);
   if (IS_SPHERE) sphereTick(dt, t);
@@ -2312,6 +2379,7 @@ function frame() {
     introT += dt;
     const a = introT * 0.05;
     if (IS_SPHERE) director.pos.set(Math.sin(a) * 22, 14 + Math.sin(a * 0.7) * 4, 26 + Math.cos(a) * 12);
+    else if (IS_OUTDOOR) director.pos.set(Math.sin(a) * 7, 5 + Math.sin(a * 0.7), 21 + Math.cos(a) * 5);
     else director.pos.set(Math.sin(a) * 9, 9 + Math.sin(a * 0.7) * 2, 14 + Math.cos(a) * 7);
     const la = director.lookAt(IS_SPHERE ? new THREE.Vector3(0, 12, -8) : new THREE.Vector3(0, 3.2, -5));
     director.yaw = la.yaw;
@@ -2320,7 +2388,7 @@ function frame() {
     camera.position.copy(director.pos);
     camera.quaternion.setFromEuler(new THREE.Euler(director.pitch, director.yaw, 0, 'YXZ'));
   } else {
-    director.update(dt, { time: t, perf, obstacles: headPositions, phase }); // (phase: the auto-director cuts to the bows)
+    director.update(dt, { time: t, perf, obstacles: headPositions, cameraInstruments, cameraPerformers: orchestra.players, phase }); // (phase: the auto-director cuts to the bows)
   }
 
   if (engine.ctx) {
@@ -2337,28 +2405,29 @@ function frame() {
   }
   if (perf.piece) ui.setTime(Math.min(perf.duration, t), perf.duration);
   if (fx) fx.update(dt, wall, levelSmoothed);
-  if (!IS_SPHERE) interiorCull();
+  if (IS_HALL) interiorCull();
   audience?.updateLOD?.(camera.position);
   hall.updateLOD?.(camera.position);
-  hall.dome?.drawWorlds(); // after the camera moved: only what it sees
+  if (!efficient() || worldPacer.ready(rafMs)) hall.dome?.drawWorlds(); // after the camera moved: only what it sees
   // Both cameras must see this frame's musician instance matrices.
   orchestra.syncLite();
   renderer.shadowMap.needsUpdate = QUALITY[quality].shadows;
   // Keep IMAG current through its fade-out, then stop rendering the unseen feed.
-  const wantsScreen = settings.screen && concertStarted && (IS_SPHERE ? hall.dome.liveActive : screenInView());
-  if (settings.screen && concertStarted) {
+  const wantsScreen = !IS_OUTDOOR && settings.screen && concertStarted && (IS_SPHERE ? hall.dome.liveActive : screenInView());
+  if (!IS_OUTDOOR && settings.screen && concertStarted) {
     if (wantsScreen && !screenActive) screen.invalidate();
     // Keep the broadcast shot clock in step while its picture is hidden.
     // A zero cadence advances time without a scene render or camera update.
     // (a broadcast picture costs about as much as a frame of the hall: fewer
     // of them while the automatic quality is already easing the load)
-    screen.update(dt, { perf, time: t, phase, nextPiece }, wantsScreen ? QUALITY[quality].screenHz * (renderScale < 0.95 ? 0.6 : 1) : 0);
+    screen.update(dt, { perf, time: t, phase, nextPiece }, wantsScreen ? (efficient() ? 2 : QUALITY[quality].screenHz) * (renderScale < 0.95 ? 0.6 : 1) : 0);
   }
   screenActive = wantsScreen;
 
   if (composer) composer.render(dt);
   else renderer.render(scene, camera);
 
+  frameStats.sequence++;
   frameStats.frameMs = elapsed * 1000;
   // Wall time includes synchronous driver stalls; this is not CPU/GPU time.
   frameStats.submitMs = performance.now() - nowMs;
@@ -2366,7 +2435,7 @@ function frame() {
   frameStats.triangles = renderer.info.render.triangles;
   frameStats.quality = quality;
   frameStats.renderScale = renderScale;
-  if (settings.quality === 'auto' && concertStarted) {
+  if ((settings.quality === 'auto' || efficient()) && concertStarted) {
     sampleQuality(elapsed * 1000);
   }
   // Animation dt is clamped for stability; FPS must use real wall-clock time.
@@ -2375,7 +2444,7 @@ function frame() {
   if (fpsAcc > 3) {
     const fps = fpsFrames / fpsAcc;
     frameStats.fps = fps;
-    ui.setFps(fps, quality);
+    ui.setFps(fps, efficient() ? 'efficient' : quality);
     fpsAcc = 0;
     fpsFrames = 0;
   }
@@ -2408,10 +2477,11 @@ function holdQuality(ms = 3500) {
   const now = performance.now();
   qualityHold = Math.max(qualityHold, now + ms);
   adaptiveQuality.hold(ms, now);
+  efficientQuality.hold(ms, now);
 }
 const walkingForQuality = (w) => w.state === 'queued' || w.state === 'walking';
 function sampleQuality(frameMs) {
-  if (settings.quality !== 'auto' || !concertStarted) return null;
+  if ((settings.quality !== 'auto' && !efficient()) || !concertStarted) return null;
   // A long procession must not outlast a fixed 3.5 s grace period. Include
   // interval departures and the conductor, even when the phase has settled.
   if (hush > 0 || walkingForQuality(stage.conductor) || stage.walkers.some(walkingForQuality)) {
@@ -2419,7 +2489,7 @@ function sampleQuality(frameMs) {
     return null;
   }
   const betweenPieces = phase !== 'playing' && !sleepy;
-  const change = adaptiveQuality.sample(frameMs, {
+  const change = (efficient() ? efficientQuality : adaptiveQuality).sample(frameMs, {
     allowPresetChange: betweenPieces,
     allowRecovery: betweenPieces,
     nowMs: performance.now(),
@@ -2430,7 +2500,7 @@ function sampleQuality(frameMs) {
   renderScale = change.scale;
   if (presetChanged) applyQuality();
   else {
-    renderer.setPixelRatio(QUALITY[quality].pr * renderScale);
+    renderer.setPixelRatio(pixelRatio());
     onResize();
   }
   if (presetChanged) ui.toast(change.reason === 'recovery'
@@ -2453,9 +2523,9 @@ function autoQuality(fps) {
 // A feed hidden behind the visitor or the foyer wall needs no second scene
 // render. screenActive/invalidate refreshes it immediately on re-entry, even
 // at the low preset's 90-frame cadence. Never capture a foyer-culled house.
-const _screenBox = IS_SPHERE ? null : new THREE.Box3().setFromObject(screen.group);
+const _screenBox = !IS_HALL ? null : new THREE.Box3().setFromObject(screen.group);
 function screenInView() {
-  if (!interiorShown) return false;
+  if (!IS_HALL || !interiorShown) return false;
   camera.updateMatrixWorld();
   _frustum.setFromProjectionMatrix(_pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
   return _frustum.intersectsBox(_screenBox);
@@ -2500,8 +2570,7 @@ watchRenderContext(renderer.domElement, {
     environmentTarget = null;
     scene.environment = null;
     if (composer) {
-      composer.passes.forEach(pass => pass.dispose?.());
-      composer.dispose();
+      disposeComposer(composer);
       composer = null;
     }
   },
@@ -2527,7 +2596,27 @@ boot().catch((e) => {
   showRenderStatus('공연 준비를 마치지 못했어요. 연결을 확인하고 다시 불러와 주세요.');
 });
 
+const bremen = installBremen({ engine, ui, onOpen() {
+  director.keys.clear(); director.vel.set(0, 0, 0); director.releaseLock();
+  const resume = !room && phase === 'playing' && perf.playing;
+  const piece = perf.piece;
+  if (resume) {
+    const floor = perf.startPos;
+    perf.pause();
+    // Rapid reopen can occur before the resumed audio's output latency ends.
+    if (perf.pos < floor) perf.seek(floor);
+    ui.setPlaying(false);
+  }
+  // In a shared room the local miniature never changes the room transport.
+  return () => {
+    if (resume && !room && phase === 'playing' && perf.piece === piece) {
+      perf.play(); ui.setPlaying(true);
+    }
+  };
+} });
+
 window.__fp = {
+  bremen,
   scene, camera, renderer, engine, perf, director, orchestra, hall, stage, settings, avatars, ui, stats: frameStats, get room() { return room; }, get phase() { return phase; }, get audience() { return audience; }, startShow,
   triggerFinaleFx() { if (!fx) return; fx.fanfare(); fx.confettiCannons(); fx.fireworksShow(); clapUntil = performance.now() + 8000; },
   setLasers(on) { fx?.lasers.set(on); fx?.wash.set(on); },
@@ -2547,9 +2636,10 @@ window.__fp = {
   get quality() { return quality; }, autoQuality, holdQuality,
   get qualityState() {
     return {
-      lowStreak: adaptiveQuality.slow, goodStreak: adaptiveQuality.fast,
-      raiseBlocked: adaptiveQuality.raiseBlocked, renderScale,
-      hold: Math.max(0, Math.max(adaptiveQuality.holdUntil, qualityHold) - performance.now()),
+      mode: settings.quality, effectiveDpr: renderer.getPixelRatio(), targetFps: efficient() ? 30 : null,
+      lowStreak: (efficient() ? efficientQuality : adaptiveQuality).slow, goodStreak: (efficient() ? efficientQuality : adaptiveQuality).fast,
+      raiseBlocked: (efficient() ? efficientQuality : adaptiveQuality).raiseBlocked, renderScale,
+      hold: Math.max(0, Math.max((efficient() ? efficientQuality : adaptiveQuality).holdUntil, qualityHold) - performance.now()),
     };
   },
 };

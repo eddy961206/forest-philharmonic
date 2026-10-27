@@ -55,3 +55,26 @@ test('a capped Lite audience keeps room reservations and full-house applause cou
     crowd.dispose();
   }
 });
+
+test('live efficient audience budget preserves occupied seats, whole guests and original geometry on restore', () => {
+  for (const opts of [{}, { detail: 40, mid: 30 }]) {
+    const crowd = buildAudience(planHouse(seats, () => 0.417), { share: 0.75, reserve: 0.8, ...opts });
+    const occupied = new Set(crowd.occupied);
+    const meshes = [...crowd.group.children];
+    const cam = new THREE.Vector3(0, 1, 4);
+    crowd.updateLOD?.(cam, true);
+    const baseline = meshes.map(m => ({ count: m.count, matrices: [...m.instanceMatrix.array.slice(0, m.count * 16)] }));
+    crowd.setBudget(0.35); crowd.updateLOD?.(cam, true);
+    assert.deepEqual(crowd.occupied, occupied);
+    assert.ok(crowd.drawn < crowd.count);
+    assert.deepEqual(crowd.group.children, meshes);
+    if (!opts.detail) {
+      const phases = meshes.filter(m => ['torso', 'head', 'pawL'].includes(m.userData.audiencePart)).map(m => [...m.geometry.attributes.aPhase.array.slice(0, m.count)]);
+      assert.deepEqual(phases[0], phases[1]); assert.deepEqual(phases[0], phases[2]);
+    }
+    crowd.setBudget(1); crowd.updateLOD?.(cam, true);
+    assert.deepEqual(crowd.occupied, occupied);
+    meshes.forEach((m, i) => { assert.equal(m.count, baseline[i].count); assert.deepEqual([...m.instanceMatrix.array.slice(0, m.count * 16)], baseline[i].matrices); });
+    crowd.dispose();
+  }
+});

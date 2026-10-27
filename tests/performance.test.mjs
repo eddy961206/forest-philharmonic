@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { Performance } from '../public/js/audio/performance.js';
+import { SECTIONS } from '../public/js/layout.js';
 
 const hash = value => createHash('sha256').update(value).digest('hex');
 const score = {
@@ -17,7 +18,7 @@ const score = {
 async function fixture(t, piece = score) {
   const previous = { document: globalThis.document, fetch: globalThis.fetch };
   globalThis.document = { hidden: false, addEventListener() {} };
-  globalThis.fetch = async () => ({ ok: true, json: async () => structuredClone(piece) });
+  globalThis.fetch = async url => ({ ok: true, json: async () => ({ ...structuredClone(piece), id: url.split('/').pop().replace('.json', '') }) });
   t.after(() => {
     if (previous.document === undefined) delete globalThis.document; else globalThis.document = previous.document;
     if (previous.fetch === undefined) delete globalThis.fetch; else globalThis.fetch = previous.fetch;
@@ -74,7 +75,8 @@ test('600 frames and time discontinuities exactly match the original visual stat
   const { transport } = await fixture(t, piece);
   // Recorded before the allocation optimization, including every chair field,
   // active-note order, track cursor and emitted event at each frame.
-  const snapshot = (time, events) => JSON.stringify({ t: time, events, chairs: transport.chairs, visualIndices: transport.piece.tracks.map(track => track.vi), lastVisualT: transport.lastVisualT });
+  const originalSections = ['vn1', 'vn2', 'va', 'vc', 'cb', 'harp', 'fl', 'ob', 'cl', 'bn', 'hn', 'tp', 'timp', 'piano', 'choir'];
+  const snapshot = (time, events) => JSON.stringify({ t: time, events, chairs: Object.fromEntries(originalSections.map(id => [id, transport.chairs[id]])), visualIndices: transport.piece.tracks.map(track => track.vi), lastVisualT: transport.lastVisualT });
   const all = createHash('sha256');
   for (let frame = 0; frame < 600; frame++) {
     const time = frame / 60;
@@ -110,7 +112,7 @@ test('seek, rewind, stop and loading a new score rebuild the cached chair refere
   const afterSeek = transport.chairs.vn1[0];
   transport.updateVisual(0);
   assert.notEqual(transport.chairs.vn1[0], afterSeek);
-  assert.equal(transport._visualChairs.length, 33);
+  assert.equal(transport._visualChairs.length, Object.values(SECTIONS).reduce((n, section) => n + section.chairs.length, 0));
   transport.stop();
   assert.equal(transport.chairs.vn1[0].active.length, 0);
   const afterStop = transport.chairs.vn1[0];
@@ -169,4 +171,47 @@ test('audio scheduling is identical with frequent, 5 FPS or absent visual update
   assert.ok(traces[0].notes.length > score.tracks.reduce((n, track) => n + track.notes.length / 4, 0)); // Seek/resume reschedules notes.
   assert.deepEqual(traces[1], traces[0]);
   assert.deepEqual(traces[2], traces[0]);
+});
+
+test('phrase shaping carries through flat held tones while preserving written dynamics and score notes', async t => {
+  const piece = { duration: 16, beats: Array.from({ length: 32 }, (_, i) => [i * 0.5, i % 4]), tracks: [
+    { section: 'vn1', inst: 'violin', notes: [0, 4, 60, 80, 4, 4, 64, 80, 8, 4, 67, 80, 12, 4, 60, 80] },
+    { section: 'vc', inst: 'cello', notes: [0, 4, 48, 50, 4, 4, 52, 90, 8, 4, 55, 60, 12, 4, 48, 100] },
+  ] };
+  const { transport, notes } = await fixture(t, piece);
+  assert.deepEqual(transport.piece.tracks.map(tr => tr.notes), piece.tracks.map(tr => tr.notes));
+  assert.equal(transport.expression.length, transport.evCount * 2);
+  let shaped = false;
+  for (let i = 0; i < transport.evCount; i++) {
+    const k = i * 5;
+    if (transport.ev[k] === 1) {
+      assert.deepEqual(Array.from(transport.expression.subarray(i * 2, i * 2 + 2)), [1, 1]);
+      assert.equal(transport.ev[k + 4], piece.tracks[1].notes[transport.ev[k + 1] + 3]);
+    } else if (transport.expression[i * 2] !== 1) shaped = true;
+  }
+  assert.ok(shaped);
+  transport.seek(2);
+  transport.play();
+  assert.equal(notes[0].skip, 2);
+  assert.deepEqual(Array.from(notes[0].expression), Array.from(transport.expression.subarray(0, 2)));
+});
+
+test('ensemble uses unique sounding chairs across tracks and default chairs mean the complete section', async t => {
+  const { transport, engine } = await fixture(t, null);
+  const counts = [], energyPlayers = [];
+  engine.setEnsemble = ensemble => counts.push(ensemble);
+  engine.setTrim = () => {};
+  engine.noteEnergy = (...args) => { energyPlayers.push(args[7]); return 1; };
+  const prep = transport.prepare({ duration: 3, tracks: [
+    { section: 'vn1', inst: 'violin', chairs: [0], notes: [0, 2, 60, 80] },
+    { section: 'vn1', inst: 'violin', chairs: [0], notes: [1, 2, 64, 80] },
+    { section: 'vn1', inst: 'violin', chairs: [1], notes: [] },
+    { section: 'vc', inst: 'cello', notes: [0, 2, 48, 80] },
+  ] });
+  assert.equal(prep.ensemble.vn1, 1);
+  assert.equal(prep.ensemble.vc, SECTIONS.vc.chairs.length);
+  assert.deepEqual(energyPlayers, [1, SECTIONS.vc.chairs.length, 1]);
+  assert.equal(counts.length, 0, 'preparing the next piece never changes the currently sounding stage');
+  transport.use(prep);
+  assert.deepEqual(counts, [prep.ensemble]);
 });

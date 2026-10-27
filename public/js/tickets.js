@@ -108,7 +108,7 @@ export function issueTicket(opt) {
     name: me.name,
     avatar: me.avatar,
     outfit: me.outfit,
-    no: `${opt.venue === 'sphere' ? 'S' : 'H'}-${String(Math.floor(1000 + Math.random() * 9000))}`,
+    no: `${opt.venue === 'sphere' ? 'S' : opt.venue === 'outdoor' ? 'O' : 'H'}-${String(Math.floor(1000 + Math.random() * 9000))}`,
     date: `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`,
     issued: Date.now(),
   };
@@ -136,7 +136,7 @@ export function dropTicket() { keep(SESSION, TICKET_KEY, null); }
 export function lastTicket() { return load(LOCAL, LAST_KEY); }
 
 // ------------------------------------------------------------ the card
-export const VENUE_NAMES = { hall: '숲속 필하모닉 홀', sphere: '스피어' };
+export const VENUE_NAMES = { hall: '숲속 필하모닉 홀', sphere: '스피어', outdoor: '숲속 작은 음악회' };
 
 export function modeLine(t) {
   // (no line break before "· 공개": it stays with the name)
@@ -162,7 +162,7 @@ function barcode(text, w = 120, h = 34) {
   return `<svg class="t-bar" viewBox="0 0 ${x.toFixed(1)} ${h}" preserveAspectRatio="none" aria-hidden="true">${bars.join('')}</svg>`;
 }
 
-const SUB = { hall: '오늘 밤 정기 공연 · 동물 오케스트라와 합창단', sphere: '오늘 밤 돔 스크린 공연 · 동물 오케스트라' };
+const SUB = { outdoor: '공원 마당의 작은 연주 · 동물 이웃들과 함께', hall: '오늘 밤 정기 공연 · 동물 오케스트라와 합창단', sphere: '오늘 밤 돔 스크린 공연 · 동물 오케스트라' };
 
 // A concert ticket: a printed band, the building in big letters, a grid of
 // what matters, the small print; then the perforation and the stub - ADMIT

@@ -43,3 +43,21 @@ test('expired confetti clears its instance immediately while other confetti live
   assert.ok(matrix.determinant() > 0.99);
   assert.equal(mesh.visible, true);
 });
+
+test('fireworks keep the point-light shader layout stable through a burst', t => {
+  const { scene, fx } = fixture(t);
+  const flash = scene.children.find(child => child.isPointLight);
+  const visibleLights = () => scene.children.filter(child => child.isLight && child.visible).length;
+  const initialCount = visibleLights();
+  assert.ok(flash);
+  assert.equal(flash.visible, true);
+  assert.equal(flash.intensity, 0);
+  fx.fireworks.burst(new THREE.Vector3(0, 6, 0), '#ffd166');
+  fx.fireworks.update(1 / 60);
+  assert.ok(flash.intensity > 0);
+  assert.equal(visibleLights(), initialCount);
+  fx.fireworks.update(10);
+  assert.equal(flash.intensity, 0);
+  assert.equal(flash.visible, true);
+  assert.equal(visibleLights(), initialCount);
+});

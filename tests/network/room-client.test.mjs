@@ -167,6 +167,52 @@ test('a connection replaced by a duplicate tab stops reconnecting', async t => {
   assert.equal(env.timers.size, 0);
 });
 
+test('a queued message from a retired socket cannot change the replacement room', async t => {
+  const env = browser(t);
+  const client = new RoomClient();
+  const ws = await join(client, env);
+  const oldMessage = ws.onmessage;
+  ws.close();
+  env.tick(600);
+  const next = env.sockets[1];
+  next.open();
+  await flush();
+  next.receive({ t: 'joined', you: 1, host: 2, room: { code: 'ABCDEF' }, seed: 5, members: [{ id: 1 }, { id: 2 }], now: Date.now() });
+  await flush();
+  let staleCommands = 0;
+  client.on('cmd', () => staleCommands++);
+  oldMessage({ data: JSON.stringify({ t: 'host', id: 99 }) });
+  oldMessage({ data: JSON.stringify({ t: 'cmd', c: { c: 'pause' } }) });
+  oldMessage({ data: JSON.stringify({ t: 'left', id: 2 }) });
+  assert.equal(client.host, 2);
+  assert.equal(client.members.has(2), true);
+  assert.equal(staleCommands, 0);
+  client.leave();
+  assert.equal(env.timers.size, 0);
+});
+
+test('replacement during an automatic entrance stops the retry loop', async t => {
+  const env = browser(t);
+  const client = new RoomClient();
+  const ws = await join(client, env);
+  const lost = [];
+  client.on('lost', error => lost.push(error));
+  ws.close();
+  env.tick(600);
+  const next = env.sockets[1];
+  next.open();
+  await flush();
+  next.close(4001);
+  await flush();
+  env.tick(60000);
+  await flush();
+  assert.equal(lost.length, 1);
+  assert.equal(lost[0].code, 'replaced');
+  assert.equal(client.room, null);
+  assert.equal(env.sockets.length, 2);
+  assert.equal(env.timers.size, 0);
+});
+
 test('stale poses are dropped under backpressure and a stuck queue reconnects', async t => {
   const env = browser(t);
   const client = new RoomClient();

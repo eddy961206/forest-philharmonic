@@ -33,6 +33,8 @@ class Walker {
     this.homeYaw = homeYaw;
     this.door = door;
     this.podium = podium;
+    this.riseDistance = 0;
+    this.riseOffset = V(0, 0, 0);
     this.standingRole = standing; // choir / conductor never sit
     this.state = 'seated'; // seated | walking | off | sitting | standing
     this.path = [];
@@ -54,6 +56,8 @@ class Walker {
     const b = DOORS.find((d) => d.side === this.door).behind;
     this.pos.set(b.x, floorAt(b.x, b.z), b.z);
     this.char.root.visible = false;
+    this.char.walking = false;
+    this.char.walk(0, 0);
     this.sit = 0;
     this.sitTarget = 0;
     this.char.setStanding(1);
@@ -84,6 +88,7 @@ class Walker {
       if (this.sit > 0.05) {
         this.sit = smooth(this.sit, 0, 6, dt);
         ch.setStanding(1 - this.sit);
+        if (this.riseDistance) this._placeAtSeat();
         ch.root.position.copy(this.pos);
         return;
       }
@@ -137,14 +142,22 @@ class Walker {
     if (Math.abs(this.sit - this.sitTarget) < 0.01) this.sit = this.sitTarget;
     if (this.state === 'sitting' && this.sit === this.sitTarget) this.state = this.sitTarget ? 'seated' : 'standing';
     ch.setStanding(1 - this.sit);
-    this.pos.lerp(this.home, 1 - Math.exp(-dt * 6));
+    if (this.riseDistance) this._placeAtSeat();
+    else this.pos.lerp(this.home, 1 - Math.exp(-dt * 6));
     ch.root.position.copy(this.pos);
     const want = this.faceYaw ?? this.homeYaw;
     this.yaw = lerpAngle(this.yaw, want, 1 - Math.exp(-dt * 5));
     ch.root.rotation.y = this.yaw;
     this.bow = smooth(this.bow, this.bowTarget, 3, dt);
-    ch.body.rotation.x += -0.55 * this.bow; // on top of the rig's sway
+    // Orchestra applies bow rotation before solving instrument contacts.
     this._swingArms(false);
+  }
+
+  // Seat/home remains the instrument anchor. Move the performer forward
+  // before the hanging hem develops, then reverse that motion when sitting.
+  _placeAtSeat() {
+    const advance = Math.min(1, (1 - this.sit) * 2);
+    this.pos.copy(this.home).addScaledVector(this.riseOffset, advance);
   }
 
   _swingArms(on) {
@@ -166,7 +179,18 @@ export class StageManager {
     this.orch = orchestra;
     this.walkers = orchestra.players.map((p) => {
       const door = p.home.x < 0 || p.sid === 'piano' ? 'L' : 'R';
-      const w = new Walker(p.char, p.home, p.yaw, door, { standing: p.sid === 'choir' });
+      const w = new Walker(p.char, p.home, p.yaw, door, { standing: !!p.char.spec.standing });
+      // Fixed-instrument players retain their exact contact/workstation pose.
+      if (!w.standingRole && !p.fixedInstrument && p.char.spec.outfit === 'dress') {
+        const scale = p.char.scale ?? 1;
+        // Step beside the desk, on the side with more space to colleagues.
+        // The home point stays the seated rig anchor; this is only a rise pose.
+        const candidates = [-1, 1].map(side => V(side * .55 * scale, 0, -.30 * scale).applyAxisAngle(V(0, 1, 0), p.yaw));
+        const clearance = offset => Math.min(...orchestra.players.filter(other => other !== p).map(other =>
+          Math.hypot(p.home.x + offset.x - other.home.x, p.home.z + offset.z - other.home.z)));
+        w.riseOffset.copy(clearance(candidates[0]) >= clearance(candidates[1]) ? candidates[0] : candidates[1]);
+        w.riseDistance = w.riseOffset.length();
+      }
       w.player = p;
       p.walker = w;
       return w;
@@ -189,12 +213,44 @@ export class StageManager {
       // the conductor walks round to the front of the podium, then steps up
       const goal = w.podium ? { x: w.home.x, z: w.home.z } : { x: w.home.x, z: w.home.z };
       let p = this.nav.find(d.inside.x, d.inside.z, goal.x, goal.z);
+      w.routeFound = !!p;
       if (!p) {
         console.warn('no stage route for', w.player?.sid ?? 'conductor', w.player?.ci);
         p = [d.inside, goal];
       }
       w.route = [d.behind, d.pos, ...p];
       w.routeLen = pathLength(w.route);
+    }
+  }
+
+  // Finish only travel. Bows, greetings and the concert clock remain intact.
+  setSkipTransitions(on) {
+    this.skipTransitions = !!on;
+    if (!on) return;
+    for (const w of this.walkers) {
+      if (w.state !== 'walking' && w.state !== 'queued') continue;
+      const arrive = w.onArrive;
+      if (w.leaving) { w.path = []; w.leaving = false; w.teleportOff(); }
+      else {
+        this._snapHome(w);
+        arrive?.();
+        w.sit = w.sitTarget;
+        w.state = w.sitTarget ? 'seated' : 'standing';
+        w.char.setStanding(1 - w.sit);
+        if (w.riseDistance) { w._placeAtSeat(); w.char.root.position.copy(w.pos); }
+      }
+      w.onArrive = null;
+      w.delay = 0;
+    }
+    const c = this.conductor;
+    if (c.state === 'walking' || c.state === 'queued') {
+      const face = c.faceYaw;
+      this.snapConductor(this.conductorOn);
+      if (this.conductorOn) c.faceYaw = c.yaw = face ?? 0;
+      c.char.root.position.copy(c.pos);
+      c.char.root.rotation.y = c.yaw;
+      c.onArrive = null;
+      c.delay = 0;
     }
   }
 
@@ -215,6 +271,7 @@ export class StageManager {
 
   enterAll() {
     if (this.onstage) return;
+    if (this.skipTransitions) { this.snapOnstage(); return; }
     this.onstage = true;
     // per door: the musician going farthest goes first, so nobody has to
     // squeeze past a colleague who already sat down
@@ -232,6 +289,7 @@ export class StageManager {
   }
 
   exitAll() {
+    if (this.skipTransitions) { this.snapRoster(new Set()); return; }
     // (only those on stage: with rosters some may already be off)
     const on = this.walkers.filter((w) => w.state !== 'off' && !w.leaving);
     if (on.length) this.sendOff(on);
@@ -246,6 +304,7 @@ export class StageManager {
     c.faceYaw = Math.PI; // greet the audience first
     c.teleportOff();
     c.walk(c.route, () => { c.state = 'standing'; }, 0.2);
+    this.setSkipTransitions(this.skipTransitions);
   }
 
   conductorExit() {
@@ -255,6 +314,7 @@ export class StageManager {
     c.bowTarget = 0;
     c.wasSeated = true;
     c.walk([...c.route].reverse().slice(1), () => c.teleportOff(), 0.1);
+    this.setSkipTransitions(this.skipTransitions);
   }
 
   // yaw: Math.PI faces the audience, 0 faces the orchestra
@@ -326,6 +386,7 @@ export class StageManager {
         t += spacing + Math.random() * 0.3;
       }
     }
+    this.setSkipTransitions(this.skipTransitions);
     this.onstage = this.walkers.some((w) => w.state !== 'off' && !w.leaving);
   }
 
@@ -342,6 +403,7 @@ export class StageManager {
         t += spacing + Math.random() * 0.35;
       }
     }
+    this.setSkipTransitions(this.skipTransitions);
     if (list.length) this.onstage = true;
   }
 
@@ -360,6 +422,8 @@ export class StageManager {
     w.sit = w.sitTarget = sit ? 1 : 0;
     w.bow = w.bowTarget = 0;
     w.char.root.visible = true;
+    w.char.walking = false;
+    w.char.walk(0, 0);
     w.char.setStanding(1 - w.sit);
     w.char.root.position.copy(w.pos);
     w.char.root.rotation.y = yaw;
@@ -392,7 +456,10 @@ export class StageManager {
     w.bow = w.bowTarget = 0;
     w.pos.copy(w.home);
     w.yaw = w.homeYaw;
+    w.faceYaw = null;
     w.char.root.visible = true;
+    w.char.walking = false;
+    w.char.walk(0, 0);
     w.char.setStanding(1 - w.sit);
     w.char.root.position.copy(w.pos);
     w.char.root.rotation.y = w.yaw;

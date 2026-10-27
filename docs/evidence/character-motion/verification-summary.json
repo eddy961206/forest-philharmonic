@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-23T15:41:41.187Z",
+  "status": "pass",
+  "inputs": {
+    "sha256": "0889ead770c64d6c5ecd94f2ab78c123194d06479907439a30b17b15e6e23ea5",
+    "files": 207
+  },
+  "steps": [
+    {
+      "command": "node tools/test.mjs --test-reporter=tap",
+      "log": "unit-tests.log",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 3088
+    },
+    {
+      "command": "node --experimental-loader ./tests/helpers/three-loader.mjs tools/qa/audit-playing-motion.mjs /Users/seung/Documents/Codex/2026-10-23/new-chat/work/animation-qa/verification-final/motion-audit.json",
+      "log": "motion-audit.log",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 15806
+    }
+  ],
+  "coverage": {
+    "songs": 82,
+    "cast": 51,
+    "rigs": 30,
+    "frames": 142110,
+    "armSamples": 5181820,
+    "venues": [
+      {
+        "id": "hall",
+        "stage": "shared-hall-stage"
+      },
+      {
+        "id": "sphere",
+        "stage": "shared-hall-stage"
+      }
+    ],
+    "generatedRecordingCases": 51
+  },
+  "failures": [],
+  "scope": "Sampled score windows and full stage lifecycle at synthetic 60 Hz; no GPU, audio, visual aesthetics or physical iPhone certification.",
+  "unitTests": "included"
+}

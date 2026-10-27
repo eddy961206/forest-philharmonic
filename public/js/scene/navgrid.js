@@ -2,10 +2,16 @@
 // (risers and their stairs included) with the furniture rasterised as
 // obstacles. A* finds a route a musician could really walk - around chairs
 // and stands, up the riser steps - which is then smoothed by line of sight.
-import { HALL, stageFloorY, onStage, insideShell, DOORS, SHELL } from './hallplan.js';
+import { HALL, stageFloorY, onStage, insideShell, DOORS, SHELL, RISERS, SERVICE_STEPS, PODIUM_R } from './hallplan.js';
+import { PODIUM } from '../layout.js';
 
 const CELL = 0.12;
 const MAX_STEP = 0.23; // riser steps are <= 0.18, the podium 0.22
+const FLOOR_RADII = [...new Set([PODIUM_R, ...RISERS.flatMap(r => [r.r0, r.r1]), ...SERVICE_STEPS.flatMap(s => [s.r0, s.r1])])];
+const FLOOR_RAYS = [...new Set([
+  ...RISERS.flatMap(r => Array.from({ length: r.treads + 1 }, (_, k) => r.aRad + k * r.span / r.treads).flatMap(a => [-a, a])),
+  ...SERVICE_STEPS.flatMap(s => [s.angle - s.aRad, s.angle + s.aRad]),
+])].map(a => ({ x: Math.sin(a), z: -Math.cos(a) }));
 
 export class NavGrid {
   constructor() {
@@ -17,6 +23,10 @@ export class NavGrid {
     this.height = new Float32Array(n);
     this.open = new Uint8Array(n); // walkable floor
     this.block = new Uint16Array(n); // obstacle count
+    // A cell can straddle the curved edge of a riser. Its centre height
+    // alone cannot certify that the segment into the next cell is walkable.
+    this.checkedEdges = new Uint8Array(n);
+    this.safeEdges = new Uint8Array(n);
     for (let j = 0; j < this.h; j++) {
       for (let i = 0; i < this.w; i++) {
         const { x, z } = this.center(i, j);
@@ -128,6 +138,7 @@ export class NavGrid {
         if (closed[nk] || !ok(nk)) continue;
         if (Math.abs(this.height[nk] - this.height[k]) > MAX_STEP) continue;
         if (d >= 4 && (!ok(j * W + ni) || !ok(nj * W + i))) continue; // no corner cutting
+        if (!this._edgeClear(k, nk, d)) continue;
         const cost = g[k] + (d < 4 ? 1 : 1.414) + (this.height[nk] !== this.height[k] ? 0.6 : 0);
         if (cost < g[nk]) {
           g[nk] = cost;
@@ -146,6 +157,53 @@ export class NavGrid {
     return this._smooth(pts, ok);
   }
 
+  _heightClear(a, b) {
+    // stageFloorY is piecewise constant between these exact circle/ray
+    // boundaries. Sampling each interval catches even a very narrow slice
+    // at a curved corner, which a fixed sampling pitch could skip entirely.
+    const x = a.x - PODIUM.x, z = a.z - PODIUM.z;
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const length2 = dx * dx + dz * dz;
+    if (length2 < 1e-20) return true;
+    const cuts = [0, 1];
+    const add = t => { if (t > 0 && t < 1) cuts.push(t); };
+    const linear = 2 * (x * dx + z * dz);
+    for (const radius of FLOOR_RADII) {
+      const discriminant = linear * linear - 4 * length2 * (x * x + z * z - radius * radius);
+      if (discriminant < 0) continue;
+      const root = Math.sqrt(discriminant);
+      add((-linear - root) / (2 * length2));
+      add((-linear + root) / (2 * length2));
+    }
+    for (const ray of FLOOR_RAYS) {
+      const denominator = dx * ray.z - dz * ray.x;
+      if (Math.abs(denominator) < 1e-12) continue;
+      const t = -(x * ray.z - z * ray.x) / denominator;
+      if ((x + dx * t) * ray.x + (z + dz * t) * ray.z >= 0) add(t);
+    }
+    cuts.sort((p, q) => p - q);
+    let previous = stageFloorY(a.x, a.z);
+    for (let i = 1; i < cuts.length; i++) {
+      if (cuts[i] - cuts[i - 1] < 1e-12) continue;
+      const t = (cuts[i - 1] + cuts[i]) / 2;
+      const height = stageFloorY(a.x + dx * t, a.z + dz * t);
+      if (Math.abs(height - previous) > MAX_STEP) return false;
+      previous = height;
+    }
+    return Math.abs(stageFloorY(b.x, b.z) - previous) <= MAX_STEP;
+  }
+
+  _edgeClear(k, nk, direction) {
+    const bit = 1 << direction;
+    if (!(this.checkedEdges[k] & bit)) {
+      this.checkedEdges[k] |= bit;
+      const a = this.center(k % this.w, Math.floor(k / this.w));
+      const b = this.center(nk % this.w, Math.floor(nk / this.w));
+      if (this._heightClear(a, b)) this.safeEdges[k] |= bit;
+    }
+    return !!(this.safeEdges[k] & bit);
+  }
+
   // string pulling: keep only the corners a walker actually needs
   _smooth(pts, ok) {
     if (pts.length <= 2) return pts;
@@ -161,6 +219,7 @@ export class NavGrid {
   }
 
   _clear(a, b, ok) {
+    if (!this._heightClear(a, b)) return false;
     const d = Math.hypot(b.x - a.x, b.z - a.z);
     const n = Math.ceil(d / (CELL * 0.4));
     let prevH = null;

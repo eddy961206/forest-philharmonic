@@ -190,3 +190,35 @@ test('reinitializing a fallback clock clears its interval and accepts ticks from
   engine._stopTimer();
   assert.equal(intervals[1].cleared, true);
 });
+
+test('fast bowed notes speak promptly and release without smearing the next stroke', () => {
+  const { engine, nodes, sustained } = voiceFixture();
+  engine.playNote({ ...note, dur: 0.12, vel: 40 });
+  const events = nodes[1].gain.events;
+  assert.ok(Math.abs(events[1][2] - (note.when + 0.12 * 0.28)) < 1e-12);
+  assert.deepEqual(events.at(-1), ['target', 0, note.when + 0.12, 0.12 * 0.65 / 3]);
+  assert.ok(sustained[0].total < 0.4);
+});
+
+test('phrase expression follows the held tone and resumes its existing position and brightness', () => {
+  const { engine, nodes } = voiceFixture();
+  engine.playNote({ ...note, dur: 2, skip: 2, expression: [1.2, 0.8] });
+  const events = nodes[1].gain.events;
+  assert.equal(events.length, 4); // attack, phrase end, release; midpoint already passed
+  const resumedRatio = 1.2 + (0.8 - 1.2) * 0.08 / 2;
+  const amp = events[1][1] / resumedRatio;
+  assert.ok(Math.abs(events[2][1] - amp * 0.8) < 1e-12);
+  assert.equal(events[2][2], note.when + 2);
+  const color = nodes[0].frequency.events;
+  assert.equal(color.length, 3);
+  assert.ok(color[0][1] > color.at(-1)[1]);
+  assert.equal(color.at(-1)[2], note.when + 2);
+});
+
+test('original dynamic tones hold their intensity without a compulsory identical per-note swell', () => {
+  const { engine, nodes } = voiceFixture();
+  engine.playNote({ ...note, dur: 4, expression: [1, 1] });
+  const events = nodes[1].gain.events;
+  assert.equal(events[1][1], events[2][1]);
+  assert.equal(nodes[0].frequency.events.length, 0);
+});

@@ -1,0 +1,32 @@
+{
+  "url": "http://192.168.55.22:8097/",
+  "scope": "Mac LAN HTTP, not physical phone",
+  "files": [
+    {
+      "file": "index.html",
+      "http": 200,
+      "matches": true
+    },
+    {
+      "file": "js/main.js",
+      "http": 200,
+      "matches": true
+    },
+    {
+      "file": "js/pieces.js",
+      "http": 200,
+      "matches": true
+    },
+    {
+      "file": "js/render-resources.js",
+      "http": 200,
+      "matches": true
+    },
+    {
+      "file": "js/scene/characters.js",
+      "http": 200,
+      "matches": true
+    }
+  ],
+  "status": "pass"
+}

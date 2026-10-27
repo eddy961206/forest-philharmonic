@@ -4,7 +4,11 @@
 export const VENUES = {
   hall: {
     id: 'hall', ko: '숲속 필하모닉 홀', short: '숲속 홀', title: '숲속 필하모닉',
-    intro: '달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 스물여섯 곡을 들려드립니다.',
+    intro: '달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 마흔한 곡을 들려드립니다.',
+  },
+  outdoor: {
+    id: 'outdoor', ko: '숲속 작은 음악회', short: '숲속 마당', title: '숲속 작은 음악회',
+    intro: '동네 공원 나무 그늘 아래 여는 작은 음악회. 낮은 나무 무대와 접이식 의자 사이로 동물 이웃들이 모여요. 피아노 독주부터 현악과 오케스트라의 익숙한 곡까지 가까이에서 들어 보세요.',
   },
   sphere: {
     id: 'sphere', ko: '스피어', short: '스피어', title: '스피어',
@@ -24,6 +28,8 @@ function pick() {
 
 export const VENUE = pick();
 export const IS_SPHERE = VENUE === 'sphere';
+export const IS_OUTDOOR = VENUE === 'outdoor';
+export const IS_HALL = VENUE === 'hall';
 
 // switch venues: a fresh page for the other building (keeps a room code)
 export function goVenue(id, { room = null } = {}) {

@@ -1,3 +1,4 @@
+import { FramePacer } from './quality.js';
 // The square in the forest: the first page. You arrive as your animal (a
 // random one on your first visit, yours from then on), walk to the booth,
 // choose a building and how you will watch, pay in whatever your kind trades
@@ -28,7 +29,12 @@ const lerpAngle = (a, b, k) => {
 
 const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (isTouch && window.innerWidth < 900);
-const LITE = isMobile;
+let savedQuality = 'auto';
+try { savedQuality = JSON.parse(localStorage.getItem('fp-settings') || '{}').quality || 'auto'; } catch { /* private mode */ }
+let efficientMode = savedQuality === 'efficient';
+let previousQuality = efficientMode ? 'auto' : savedQuality;
+const LITE = isMobile || efficientMode;
+const framePacer = new FramePacer(30);
 
 $('splash')?.remove();
 $('plaza').hidden = false;
@@ -39,11 +45,26 @@ $('stage').setAttribute('aria-label', '3D 숲속 공연 광장');
 // ------------------------------------------------------------- the stage
 const container = $('stage');
 const renderer = new THREE.WebGLRenderer({ antialias: !LITE, powerPreference: 'high-performance', stencil: false });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LITE ? 1.25 : 1.75));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, efficientMode ? 1 : LITE ? 1.25 : 1.75));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 container.appendChild(renderer.domElement);
+const efficientToggle = $('pzEfficient');
+efficientToggle.checked = efficientMode;
+efficientToggle.addEventListener('change', () => {
+  efficientMode = efficientToggle.checked;
+  try {
+    const current = JSON.parse(localStorage.getItem('fp-settings') || '{}');
+    if (efficientMode && current.quality !== 'efficient') previousQuality = current.quality || 'auto';
+    current.quality = efficientMode ? 'efficient' : previousQuality;
+    localStorage.setItem('fp-settings', JSON.stringify(current));
+  } catch { /* unavailable storage: current plaza still changes */ }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, efficientMode ? 1 : LITE ? 1.25 : 1.75));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  framePacer.reset();
+  still = false;
+});
 renderer.domElement.tabIndex = -1; // (where the keys go back to when the booth closes)
 setAnisotropy(Math.min(LITE ? 2 : 8, renderer.capabilities.getMaxAnisotropy()));
 setLite(LITE);
@@ -121,7 +142,7 @@ function showStub() {
   if (!ticket) { world.callGate(null); return; }
   stub.appendChild(ticketElement(ticket));
   world.callGate(ticket.venue);
-  const side = ticket.venue === 'hall' ? '왼쪽' : '오른쪽';
+  const side = ticket.venue === 'hall' ? '왼쪽' : ticket.venue === 'sphere' ? '오른쪽' : '왼쪽 뒤편';
   $('pzHint').textContent = `표를 들고 ${side} 숲길의 ${VENUE_NAMES[ticket.venue]} 입구로 걸어가요.`;
 }
 showStub();
@@ -313,6 +334,7 @@ fetchIndex();
 
 const INTRO = {
   hall: '달빛 숲 가장자리의 4층 그랜드 콘서트홀. 독주회와 현악 4중주, 합창 코랄이 진짜 공연장 울림으로 들려요. 환희의 송가로 열고 위풍당당 행진곡으로 닫아요.',
+  outdoor: '동네 공원 나무 그늘 아래 여는 작은 음악회. 낮은 나무 무대 앞 접이식 의자에 앉아 피아노와 현악, 오케스트라의 익숙한 곡을 가까이에서 들어요.',
   sphere: '머리 위를 통째로 감싸는 16K 돔 스크린의 원형 공연장. 음악에 맞춰 돔이 숲이 되고, 바닷속이 되고, 별밤이 돼요. 바흐 크리스마스 오라토리오의 불꽃놀이로 끝나요.',
 };
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
@@ -326,7 +348,7 @@ function buildVenueCards() {
   // (rebuilt while you are on them: the focus stays on the same card)
   const had = [...box.querySelectorAll('button')].indexOf(document.activeElement);
   box.innerHTML = '';
-  for (const v of ['hall', 'sphere']) {
+  for (const v of ['hall', 'sphere', 'outdoor']) {
     const list = (SETLISTS[v] || []).map((id) => index?.get(id)).filter(Boolean);
     const total = list.reduce((a, p) => a + p.duration, 0);
     const solos = list.filter((p) => p.ensembleKo === '피아노').length;
@@ -526,7 +548,7 @@ $('payBtn').addEventListener('click', () => {
     sfx.stamp();
     $('boothTicket').innerHTML = '';
     $('boothTicket').appendChild(ticketElement(ticket));
-    const side = ticket.venue === 'hall' ? '왼쪽' : '오른쪽';
+    const side = ticket.venue === 'hall' ? '왼쪽' : ticket.venue === 'sphere' ? '오른쪽' : '왼쪽 뒤편';
     $('boothGo').textContent = `표를 들고 ${side} 숲길의 ${VENUE_NAMES[ticket.venue]} 입구로 가요. 빛나는 문이에요.`;
     $('payBtn').disabled = false;
     paying = false;
@@ -790,7 +812,7 @@ function strollerPath() {
   // (they come from the open side of the square, never from behind the booth)
   const a = (Math.random() * 1.1 - 0.55) * Math.PI;
   const start = { x: Math.sin(a) * (PLAZA.R - 0.6), z: Math.cos(a) * (PLAZA.R - 0.6) };
-  const id = Math.random() < 0.5 ? 'hall' : 'sphere';
+  const id = GATE_IDS[Math.floor(Math.random() * GATE_IDS.length)];
   const gate = PLAZA.gates[id];
   const side = id === 'hall' ? -1 : 1;
   return [
@@ -951,15 +973,17 @@ function requestFrame() {
 function cancelFrame() {
   if (pendingFrame !== null) cancelAnimationFrame(pendingFrame);
   pendingFrame = null;
+  framePacer.reset();
 }
-function frame() {
+function frame(rafMs) {
   pendingFrame = null;
   if (document.hidden || graphicsUnavailable) return;
   requestFrame();
   const now = performance.now();
+  if (efficientMode && !framePacer.ready(rafMs)) return;
   if (still && boothOpen) { lastT = now; return; }
   // (behind the booth's blurred glass, every other frame is plenty)
-  if ((boothOpen || busy) && (++skip & 1)) return;
+  if (!efficientMode && (boothOpen || busy) && (++skip & 1)) return;
   const dt = Math.min(0.05, (now - lastT) / 1000);
   lastT = now;
   step(dt, now);
@@ -1009,7 +1033,7 @@ function step(dt, now = performance.now()) {
         setAct(null, null);
         if (now - warned > 4000) {
           warned = now;
-          toast(ticket ? `이 표는 ${VENUE_NAMES[ticket.venue]} 표예요. 반대편 숲길로 가요.` : '표가 있어야 들어갈 수 있어요. 매표소는 광장 가운데에 있어요.', 3000);
+          toast(ticket ? `이 표는 ${VENUE_NAMES[ticket.venue]} 표예요. 표와 같은 이름이 적힌 숲길로 가요.` : '표가 있어야 들어갈 수 있어요. 매표소는 광장 가운데에 있어요.', 3000);
         }
       }
     } else if (dWin < 2.1) setAct(ticket ? '매표소에서 표 다시 사기' : '매표소 다람쥐에게 말 걸기', openBooth);

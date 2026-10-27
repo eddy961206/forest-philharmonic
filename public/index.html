@@ -51,7 +51,7 @@
     <div class="splash-inner">
       <div class="splash-intro">
         <h1 class="splash-title" id="splashTitle">숲속 필하모닉</h1>
-        <p class="splash-sub" id="splashSub">달빛 숲 가장자리의 4층 그랜드 콘서트홀. 로비에서 걸어 들어가 마음에 드는 자리에 앉아 공연을 시작하면, 동물 오케스트라와 합창단이 오늘 밤 스물여섯 곡을 들려드립니다.</p>
+        <p class="splash-sub" id="splashSub">공연장을 준비하고 있어요. 잠시만 기다려 주세요.</p>
         <p id="loadText" class="splash-load">공연장을 짓는 중</p>
         <div class="splash-bar" aria-hidden="true"><span id="loadBar"></span></div>
         <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. <span class="h-key">걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></span><span class="h-touch">걷기 <b>왼쪽 스틱</b> · 둘러보기 <b>화면 끌기</b> · 앉기 <b>두 번 탭</b></span></p>
@@ -69,8 +69,9 @@
         </div>
       </div>
 
-      <!-- lobby: who you are, then a room to watch in (or alone) -->
-      <div class="lobby" id="lobby">
+      <!-- Reveal only after entry routing confirms a direct lobby or invitation.
+           A ticket holder must never see these controls during scene loading. -->
+      <div class="lobby" id="lobby" hidden>
         <div class="lb-who">
           <label class="lb-field lb-name">닉네임<input id="lbName" maxlength="16" autocomplete="nickname" spellcheck="false"></label>
           <p class="lb-field lb-animal">나는<b id="lbAnimal"></b></p>
@@ -78,6 +79,7 @@
 
         <div class="lb-venue" id="lbVenue" role="group" aria-label="공연장">
           <button type="button" data-venue="hall" aria-pressed="true"><b>숲속 필하모닉 홀</b><small>달빛 숲 4층 그랜드 콘서트홀</small></button>
+          <button type="button" data-venue="outdoor" aria-pressed="false"><b>숲속 작은 음악회</b><small>나무 그늘 아래 이웃들과 듣는 연주</small></button>
           <button type="button" data-venue="sphere" aria-pressed="false"><b>스피어</b><small>머리 위를 감싸는 16K 돔</small></button>
         </div>
 
@@ -116,7 +118,7 @@
   <header id="nowPlaying" class="now" hidden>
     <p class="now-composer" id="npComposer"></p>
     <h2 class="now-title" id="npTitle"></h2>
-    <p class="now-meta"><span id="npEnsemble"></span></p>
+    <p class="now-meta"><span id="npEnsemble"></span><a id="npReference" hidden target="_blank" rel="noopener noreferrer">실황 참고 ↗</a></p>
   </header>
 
   <!-- start of the show: the musicians come on when you are ready -->
@@ -244,6 +246,7 @@
         </div>
       </div>
       <ol id="programList" class="program"></ol>
+      <button id="bremenTrail" class="bremen-trail" type="button" aria-label="숲길의 수상한 발자국. 네 번 따라가 보기">♧ · · · 작은 발자국</button>
     </div>
 
     <div class="panel-body" data-body="room" hidden>
@@ -261,8 +264,9 @@
       <fieldset class="field">
         <legend>화질</legend>
         <div class="seg" id="qualitySeg">
-          <button data-q="auto">자동</button><button data-q="high">높음</button><button data-q="medium">보통</button><button data-q="low">낮음</button>
+          <button data-q="auto">자동</button><button data-q="high">높음</button><button data-q="medium">보통</button><button data-q="low">낮음</button><button data-q="efficient">저사양</button>
         </div>
+        <p class="hint">저사양은 30 fps를 목표로 해상도·관객 표현·효과를 조절해요. 음악과 연주자는 그대로 유지해요. 선택은 다음 입장에도 적용돼요.</p>
         <p class="hint" id="fpsText"></p>
       </fieldset>
       <fieldset class="field" id="domeProjectionField" hidden>
@@ -274,9 +278,11 @@
       </fieldset>
       <fieldset class="field">
         <legend>소리</legend>
-        <label class="slider">홀 잔향 <input type="range" id="reverb" min="0" max="1" step="0.01" value="0.45"></label>
-        <label class="check"><input type="checkbox" id="optFixedEar" checked> 편하게 보기 중에는 1층 중앙 자리에서 듣기</label>
+        <label class="slider"><span id="reverbText">홀 잔향 </span><input type="range" id="reverb" min="0" max="1" step="0.01" value="0.45"></label>
+        <label class="check"><input type="checkbox" id="optFixedEar" checked><span id="fixedEarText"> 편하게 보기 중에는 1층 중앙 자리에서 듣기</span></label>
         <label class="slider">박수 소리 <input type="range" id="applauseVol" min="0" max="1" step="0.05" value="0.7"><output id="applauseOut">70%</output></label>
+        <label class="check"><input type="checkbox" id="optSkipStageTransitions"> 단원 입퇴장 건너뛰기</label>
+        <p class="hint">단원과 지휘자의 이동만 생략해요. 박수·인사·곡 사이 쉬는 시간은 유지돼요. 함께 볼 때는 방장 설정을 따라요.</p>
         <label class="slider">곡 사이 쉬는 시간 <input type="range" id="gap" min="2" max="20" step="1" value="7"><output id="gapOut">7초</output></label>
       </fieldset>
       <fieldset class="field">
@@ -284,7 +290,7 @@
         <div class="seg" id="intervalSeg">
           <button data-min="0">없음</button><button data-min="2">2분</button><button data-min="3">3분</button><button data-min="5">5분</button>
         </div>
-        <p class="hint">프로그램 한가운데에서 한 번 쉬어 가요. 로비로 나가 차를 마시고, 연습하는 단원도 만나 봐요.</p>
+        <p class="hint" id="intervalHint">프로그램 한가운데에서 한 번 쉬어 가요. 로비로 나가 차를 마시고, 연습하는 단원도 만나 봐요.</p>
       </fieldset>
       <fieldset class="field">
         <legend>관객</legend>
@@ -324,6 +330,7 @@
         <dt class="h-touch">화면 끌기</dt><dd class="h-touch">둘러보기</dd>
         <dt class="h-key">클릭</dt><dd class="h-key">마우스 고정 — 움직이기만 해도 둘러봐요 (Esc 로 풀기)</dd>
         <dt class="h-hall">계단</dt><dd class="h-hall">로비 양쪽 나선 계단으로 2층 · 3층 · 4층</dd>
+        <dt class="h-outdoor">공원 길</dt><dd class="h-outdoor">가운데 통로와 객석 양옆 길로 걸어가 원하는 의자에 앉기</dd>
         <dt class="h-sphere">엘리베이터</dt><dd class="h-sphere">입구 바로 뒤 엘리베이터로 100 · 200 · 300 · 400 레벨<span class="h-key"> (안에서 숫자 키 1–4)</span></dd>
         <dt class="h-key">E</dt><dd class="h-key">앞의 빈 좌석에 앉기 / 일어서기</dd>
         <dt class="h-touch">앉기 버튼</dt><dd class="h-touch">빈 좌석 앞에 서면 나타나요 · 앉으면 일어서기 (조이스틱을 밀어도 돼요)</dd>
@@ -397,6 +404,7 @@
           <div><h2 id="boothTitle">매표소</h2><p id="boothSay">어서 와요! 어디로 가는 표를 드릴까요?</p></div>
           <button class="ib booth-x" id="boothClose" type="button" aria-label="매표소 닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></button>
         </header>
+        <label class="field" style="display:block;padding:10px 20px"><input type="checkbox" id="pzEfficient"> 저사양 모드 <small>30 fps 목표 · 음악은 그대로 · 다음 입장에도 적용</small></label>
         <ol class="booth-steps" id="boothSteps"><li data-s="1">공연장</li><li data-s="2">관람 방식</li><li data-s="3">표 받기</li></ol>
 
         <section class="booth-step" data-step="1">

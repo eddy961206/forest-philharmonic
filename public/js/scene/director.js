@@ -4,8 +4,10 @@
 // lock); dragging still works when the cursor is free. Zoom works like opera
 // glasses. An optional auto-director films the concert for you.
 import * as THREE from 'three';
-import { stepTo, surfacesAt, LEVELS, groundBelow, headroomAt, barrierTop, ENTRY } from './hallplan.js';
-import { SECTIONS, PODIUM, STAGE_Y, sectionCenter } from '../layout.js';
+import { stepTo, surfacesAt, floorAt, LEVELS, groundBelow, headroomAt, barrierTop, ENTRY, HALL, insideShell } from './hallplan.js';
+import { SECTIONS, PODIUM, STAGE_Y } from '../layout.js';
+import { CinemaProgram } from './cinema-program.js';
+import { VENUE } from './venue.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 export const STAGE_FOCUS = V(0, STAGE_Y + 1.1, -4.6);
@@ -298,6 +300,12 @@ export class Director {
 
   _bindInput() {
     const el = this.dom;
+    // Confine browser-scroll cancellation to the camera surface. Panels and
+    // programme lists keep their own scrolling. Native OS exit gestures remain
+    // under the browser's control, even when a touch event is cancelled here.
+    el.addEventListener('touchmove', (e) => {
+      if (this.active && e.cancelable) e.preventDefault();
+    }, { passive: false });
     const pointers = new Map();
     let pinch0 = 0;
     let moved = 0;
@@ -335,6 +343,7 @@ export class Director {
     window.addEventListener('blur', () => { this.mouse.inside = false; });
     el.addEventListener('pointerdown', (e) => {
       if (this.locked) return;
+      if (e.pointerType === 'touch' && e.cancelable) e.preventDefault();
       // a pinch whose first finger landed in the thumb stick's corner: that
       // finger (just down, hardly moved) is taken back from the stick, and
       // the two zoom - rather than one walking and the other turning
@@ -818,7 +827,7 @@ export class Director {
     // the curtain call: when the applause begins, a new shot at once - one
     // where the bows can be seen - not a close-up held through them
     if (ctx.phase !== c.phase) {
-      if (ctx.phase === 'applause' && c.phase !== undefined) c.until = 0;
+      if ((ctx.phase === 'applause' || ctx.phase === 'playing') && c.phase !== undefined) c.until = 0;
       c.phase = ctx.phase;
     }
     if (!c.shot || c.clock > c.until) {
@@ -830,7 +839,11 @@ export class Director {
       // long one - across the hall, up to the dome - is a cut, as on film,
       // rather than a rush through the players and the walls
       const d = this.pos.distanceTo(shot.pos);
-      if (d > 6) shot.cut = true;
+      const angle = Math.acos(clamp(new THREE.Vector3(-Math.sin(this.yaw) * Math.cos(this.pitch), Math.sin(this.pitch), -Math.cos(this.yaw) * Math.cos(this.pitch)).dot(shot.look.clone().sub(shot.pos).normalize()), -1, 1));
+      if (d > 4 || angle > Math.PI / 5) shot.cut = true;
+      // A reveal cut must start with its checked framing, not briefly use
+      // the previous portrait zoom while the lens eases toward the wide shot.
+      if (shot.lookEnd) this.fov = this.targetFov = shot.fov;
       this.flyTo(shot.pos, shot.look, shot.cut ? 0.001 : clamp(d / 1.8, 2.4, 3.6), shot.fov);
       this.anim.lift = false;
       this.anim.after = () => { c.drift = { t: 0 }; };
@@ -839,11 +852,16 @@ export class Director {
     if (c.drift && c.shot) {
       c.drift.t += dt;
       const s = c.shot;
-      const x = c.drift.t / s.hold;
-      const p = s.pos.clone().addScaledVector(s.drift, x);
+      const x = clamp(c.drift.t / s.hold, 0, 1);
+      const progress = s.lookEnd ? x * x * (3 - 2 * x) : x;
+      const p = s.pos.clone().addScaledVector(s.drift, progress);
       this.pos.lerp(p, 1 - Math.exp(-dt * 2));
-      const { yaw, pitch } = this.lookAt(s.look, this.pos);
-      this.yaw += (yaw - this.yaw) * (1 - Math.exp(-dt * 2));
+      const target = s.lookEnd ? s.look.clone().lerp(s.lookEnd, progress) : s.look;
+      const { yaw, pitch } = this.lookAt(target, this.pos);
+      let turn = yaw - this.yaw;
+      while (turn > Math.PI) turn -= Math.PI * 2;
+      while (turn < -Math.PI) turn += Math.PI * 2;
+      this.yaw += turn * (1 - Math.exp(-dt * 2));
       this.pitch += (pitch - this.pitch) * (1 - Math.exp(-dt * 2));
     }
   }
@@ -852,9 +870,41 @@ export class Director {
     const perf = ctx.perf;
     const t = ctx.time;
     const piece = perf.piece;
-    const r = Math.random();
-    const last = this.cine.shot?.kind;
-    const dom = piece && perf.playing ? perf.dominantSection(t + 2, 8) : null;
+
+    const c = this.cine;
+    this.cinemaProgram ||= new CinemaProgram();
+    if (c.piece !== piece || t < (c.scoreTime ?? -Infinity) - .5) {
+      c.edit = 0;
+      c.smallEnsemble = new Set((piece?.tracks || [])
+        .filter(tr => SECTIONS[tr.section] && tr.notes?.length && (tr.gain ?? 1) > 0)
+        .map(tr => tr.section)).size <= 3;
+      c.wideIndex = Math.floor(Math.random() * 3);
+      c.playerEdits = 0; c.rearEdits = 0;
+      c.rearIndex = Math.floor(Math.random() * 3);
+      c.angles = new Map(); c.piece = piece;
+    }
+    c.scoreTime = t;
+    const edit = c.edit || 0;
+    // Establish the space; shuffle performers, audience and conductor
+    // within a balanced programme rather than independent random cuts.
+    let role = 'wide';
+    if (edit % 7) {
+      if (edit % 7 === 1) {
+        // A shuffled programme with bounded repetition, not independent
+        // random cuts that can neglect the audience or one instrument.
+        let attempts = 0;
+        do {
+          c.roles = ['player', 'player', 'player', 'player', 'audience', 'conductor'];
+          for (let i = c.roles.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [c.roles[i], c.roles[j]] = [c.roles[j], c.roles[i]]; }
+        } while (++attempts < 12 && c.roles.some((v, i, a) => v === 'player' && a[i + 1] === v && a[i + 2] === v));
+        if (attempts === 12) c.roles = ['player', 'player', 'audience', 'player', 'conductor', 'player'];
+      }
+      role = c.roles[edit % 7 - 1];
+    }
+    c.edit = edit + 1;
+    const selected = piece && perf.playing && (role === 'player' || (role === 'conductor' && !piece.conducted))
+      ? this.cinemaProgram.choose(piece, t) : null;
+    const dom = selected?.sid;
     const wide = () => {
       const options = [
         { kind: 'wide', pos: V(0, 4.4, 17), look: V(0, STAGE_Y + 1.4, -5), fov: 44, drift: V(0, -0.4, -3.5) },
@@ -864,9 +914,15 @@ export class Director {
         { kind: 'hall', pos: V(0, 3.2, -1.5), look: V(0, 8, 24), fov: 62, drift: V(1.5, 0.6, 0) },
       ];
       let list = ENTRY.wide ? ENTRY.wide.map((o) => ({ ...o, pos: V(o.pos[0], o.pos[1], o.pos[2]), look: V(o.look[0], o.look[1], o.look[2]), drift: V(o.drift[0], o.drift[1], o.drift[2]) })) : options;
+      if (role === 'audience') list = [
+        { kind: 'audience', pos: V(0, floorAt(0, 12) + 2.1, 12), look: V(0, STAGE_Y + 1.3, -5.5), fov: 58, drift: V(.55, .12, -.35) },
+        { kind: 'audience', pos: V(-10, floorAt(-10, 9) + 3.2, 9), look: V(-.8, STAGE_Y + 1.3, -5.5), fov: 58, drift: V(.6, 0, 0) },
+        { kind: 'audience', pos: V(10, floorAt(10, 9) + 3.2, 9), look: V(.8, STAGE_Y + 1.3, -5.5), fov: 58, drift: V(-.6, 0, 0) },
+      ];
+      if (perf.playing) list = list.filter(o => o.kind !== 'hall');
       // (for the bows: the stage from the house, not the house from the stage)
       if (bows && list.some((o) => o.kind !== 'hall')) list = list.filter((o) => o.kind !== 'hall');
-      return list[Math.floor(Math.random() * list.length)];
+      return list[(c.wideIndex = (c.wideIndex ?? -1) + 1) % list.length];
     };
     const bows = ctx.phase === 'applause';
     let shot;
@@ -874,56 +930,192 @@ export class Director {
     // no conductor, the whole stage
     if (bows && piece?.conducted) shot = { kind: 'bows', pos: V(0.6, STAGE_Y + 1.9, 2.8), look: V(0, STAGE_Y + 1.3, -5.5), fov: 52, drift: V(-0.8, 0, 0.5) };
     else if (bows) shot = wide();
-    else if (!piece || !perf.playing || r < 0.28 || (last === 'section' && r < 0.4)) shot = wide();
-    else if (piece.conducted && r < 0.4 && last !== 'conductor') {
+    else if (!piece || !perf.playing || role === 'wide' || role === 'audience') shot = wide();
+    else if (piece.conducted && role === 'conductor') {
       shot = Math.random() < 0.5
         ? { kind: 'conductor', pos: V(1.4, STAGE_Y + 2.0, -6.0), look: V(PODIUM.x, STAGE_Y + 1.6, PODIUM.z), fov: 34, drift: V(-1.2, 0, 0) }
         : { kind: 'conductor', pos: V(0.6, STAGE_Y + 1.9, 2.8), look: V(0, STAGE_Y + 1.3, -5.5), fov: 48, drift: V(-1, 0, -1) };
     } else if (dom) {
-      const sc = sectionCenter(dom);
-      const look = V(sc.x, sc.y + 0.25, sc.z);
+      const key = `${dom}:${selected.ci}`;
+      const angle = c.angles.get(key) ?? Math.floor(Math.random() * 3);
+      c.angles.set(key, (angle + 1) % 3);
+      // Keep score-based selection and the existing front portraits. One
+      // in three performer edits reverses the view, cycling three distinct
+      // rear compositions even when the score keeps selecting new players.
+      const rear = c.playerEdits++ % 3 === 1;
+      const chair = SECTIONS[dom].chairs[selected.ci];
+      const sc = { ...chair };
+      const look = V(sc.x, sc.y + .95, sc.z);
       const toAud = V(-sc.x * 0.25, 0, 1).normalize();
       // (on the section's outer side: from the middle the conductor's head
       // would fill the picture)
       const side = Math.abs(sc.x) > 1 ? Math.sign(sc.x) : Math.random() < 0.5 ? -1 : 1;
       const lateral = V(toAud.z, 0, -toAud.x).multiplyScalar(side);
-      let dist = 2.6 + Math.random() * 1.4;
+      let dist = 2.8 + (edit % 3) * .4;
       if (dom === 'piano') {
         const pPos = SECTIONS.piano.chairs[0];
-        shot = Math.random() < 0.5
-          ? { kind: 'section', pos: V(pPos.x + 0.9, pPos.y + 1.45, pPos.z + 0.7), look: V(pPos.x + 0.55, pPos.y + 0.72, pPos.z), fov: 40, drift: V(0, 0, -0.5) }
-          : { kind: 'section', pos: V(pPos.x + 2.8, pPos.y + 1.5, pPos.z + 2.4), look: V(pPos.x + 0.3, pPos.y + 1.0, pPos.z - 0.2), fov: 38, drift: V(-0.6, 0, 0.4) };
-      } else if (dom === 'choir') {
+        shot = angle === 0
+          ? { kind: 'section', pos: V(pPos.x + 1.25, pPos.y + 3.1, pPos.z + 1.5), look: V(pPos.x + .25, pPos.y + 1.1, pPos.z), fov: 40, drift: V(-.2, 0, -.25) }
+          : angle === 1
+          ? { kind: 'section', pos: V(pPos.x + 2.75, pPos.y + 2.2, pPos.z - 2.85), look: V(pPos.x + .25, pPos.y + 1.1, pPos.z), fov: 38, drift: V(.2, 0, .3) }
+          : { kind: 'section', pos: V(pPos.x - 1.6, pPos.y + 2.2, pPos.z + 2.5), look: V(pPos.x + .45, pPos.y + .85, pPos.z - .1), fov: 42, drift: V(.4, -.1, -.25) };
+      } else if (dom === 'choir' && angle === 0) {
         shot = { kind: 'section', pos: V(side * 3.5, STAGE_Y + 2.8, -5.0), look: V(0, STAGE_Y + 2.7, -11.5), fov: 40, drift: V(-side * 1.5, 0, 0) };
       } else {
         if (sc.z < -6) dist += 1.5;
-        const pos = look.clone().addScaledVector(toAud, dist).addScaledVector(lateral, 1.2).add(V(0, 0.55, 0));
+        const bearing = toAud.clone().applyAxisAngle(V(0, 1, 0), [-.5, .15, .65][angle] * side);
+        const pos = look.clone().addScaledVector(bearing, dist).addScaledVector(lateral, .6).add(V(0, [.55, .9, .65][angle]));
         shot = { kind: 'section', pos, look, fov: 40, drift: lateral.clone().multiplyScalar(-0.9) };
       }
+      shot.angle = angle;
+      if (rear) {
+        const variant = c.rearIndex++ % 3;
+        const offsets = [[side * 1.45, 2.15, -2.2], [-side * 2.7, 2.6, -2.8], [side * .9, 3.15, -3.5]];
+        const [dx, dy, dz] = offsets[variant];
+        // The audience is +Z in all three venues. Aim beyond the player:
+        // their shoulder/section stays in the lower foreground, with the
+        // house in the background rather than a close-up of a back of head.
+        const pos = V(sc.x + dx, sc.y + dy, Math.max(HALL.front + 1.05, sc.z + dz));
+        if (dom === 'piano') {
+          // The pianist faces +X. Stay behind that shoulder and beside the
+          // raised lid, while keeping the audience in the same composition.
+          pos.set(sc.x - [1.5, 2.2, 1.9][variant], sc.y + [2.4, 2.8, 3.2][variant], sc.z - [1.8, 2.6, 3.4][variant]);
+        }
+        while (!insideShell(pos.x, pos.z, .8) && Math.abs(pos.x) > .1) pos.x *= .9;
+        shot = { kind: 'section', view: ['rear-shoulder', 'rear-oblique', 'rear-ensemble'][variant],
+          angle: 3 + variant, pos, look: V(sc.x - dx * .12, sc.y + 1.05, sc.z + [2.7, 3.3, 4][variant]),
+          subject: look.clone(), fov: 60, drift: V(side * .35, -.08, .12), cut: true };
+      }
     } else shot = wide();
-    if (ctx.obstacles) {
-      // a head too near the camera, or between it and what it films (not
-      // the heads it is filming): step back and up until the view is clear
-      const ab = V();
-      const ap = V();
-      const inTheWay = (o) => {
-        if (o.distanceTo(shot.pos) < 0.95) return true;
-        // (only a section's close shot: a wide one looks over them all, and
-        // in the conductor's shots the conductor is the point)
-        if (shot.kind !== 'section' || o.distanceTo(shot.look) < 1.6) return false;
-        ab.subVectors(shot.look, shot.pos);
-        const u = clamp(ap.subVectors(o, shot.pos).dot(ab) / ab.lengthSq(), 0, 1);
-        return ap.copy(shot.pos).addScaledVector(ab, u).distanceTo(o) < 0.45;
+    const architectural = shot.view && c.rearEdits++ % 2 === 0 && (this.venue ?? VENUE) !== 'outdoor';
+    const portrait = (this.camera?.aspect ?? 1) < .8;
+    if (portrait && shot.kind === 'section') shot.pos.y += .65;
+    // Test the same geometry at the start and along the slow move. All of
+    // this work happens at an edit, never in the frame loop.
+    const ab = V(), ap = V();
+    // Actual fixed instrument geometry is supplied by the host scene. Bounds
+    // are sampled only at edits, so lids, harp frames and organ cases stay
+    // solid without adding mesh traversal to the frame loop.
+    const instrumentBounds = shot.view ? (ctx.cameraInstruments || []).map(group => {
+      group.updateWorldMatrix(true, true);
+      return new THREE.Box3().setFromObject(group).expandByScalar(.25);
+    }) : [];
+    const blocked = pos => (ctx.obstacles || []).some(o => {
+      if (o.distanceTo(pos) < (portrait ? 1.5 : .95)) return true;
+      if (shot.kind !== 'section' || o.distanceTo(shot.subject || shot.look) < 1.6) return false;
+      ab.subVectors(shot.look, pos);
+      const u = clamp(ap.subVectors(o, pos).dot(ab) / ab.lengthSq(), 0, 1);
+      return ap.copy(pos).addScaledVector(ab, u).distanceTo(o) < .45;
+    });
+    const terrainClear = pos => {
+      if (pos.y < floorAt(pos.x, pos.z) + .8) return false;
+      if (shot.view && (pos.y > 6.8 || !insideShell(pos.x, pos.z, .45) || pos.z < HALL.front + .65
+        || instrumentBounds.some(box => box.containsPoint(pos)))) return false;
+      // Keep the view above the stage tiers as well as the camera itself.
+      for (const u of [.25, .5, .75]) {
+        ap.copy(pos).lerp(shot.look, u);
+        if (ap.y < floorAt(ap.x, ap.z) + .2) return false;
+      }
+      return true;
+    };
+    for (let k = 0; k < 8; k++) {
+      if (!blocked(shot.pos) && terrainClear(shot.pos)) break;
+      const away = new THREE.Vector3().subVectors(shot.pos, shot.look).setY(0).normalize();
+      // Rear views can already be close to the shell. Raise rather than
+      // retreat through the rear wall when seeking a clear camera position.
+      shot.pos.addScaledVector(away, shot.view ? 0 : .45).add(V(0, .3, 0));
+    }
+    // A blocked rear composition falls back to the established clear wide
+    // view; never force a camera through scenery to preserve a shot quota.
+    if (shot.view && (blocked(shot.pos) || !terrainClear(shot.pos))) shot = wide();
+    if (shot.kind === 'section') {
+      shot.sid = selected.sid; shot.ci = selected.ci;
+      // Alternate a medium portrait and a looser section framing.
+      shot.fov = shot.view ? (portrait ? 66 : 60) : edit % 2 ? 46 : 52;
+      shot.drift.multiplyScalar(.65);
+    }
+    const probe = V();
+    const safeMove = () => [.25, .5, .75, 1].every(u => {
+      probe.copy(shot.pos).addScaledVector(shot.drift, u);
+      return !blocked(probe) && terrainClear(probe);
+    });
+    for (let k = 0; k < 4 && !safeMove(); k++) shot.drift.multiplyScalar(.5);
+    if (!safeMove()) shot.drift.set(0, 0, 0);
+    // Every other indoor rear edit introduces the room. Test the complete
+    // descending sweep before accepting it; an unsafe reveal keeps the normal
+    // protected rear composition selected above. Outdoor canopy views never
+    // use this move. No collision work is added to the animation loop.
+    if (architectural) {
+      const sphere = (this.venue ?? VENUE) === 'sphere';
+      const startY = 6.5, endY = portrait ? 3.8 : 3.5;
+      const roomLook = V(0, 3.2, 12);
+      const lookEnd = V(0, sphere ? 17 : 12, sphere ? 26 : 19);
+      const fov = sphere ? 100 : 96;
+      const radius = portrait ? 1.5 : .95;
+      // Keep the ensemble between the camera and the house. Side-stage
+      // lanes used by v1 could leave every player outside the final frame.
+      const candidates = [[0, -10.5], [-2.5, -10.5], [2.5, -10.5],
+        [0, -11.5], [-3.5, -11], [3.5, -11], [-1.5, -9.5], [1.5, -9.5]];
+      const occupied = new Map();
+      for (const tr of piece.tracks || []) {
+        const section = SECTIONS[tr.section];
+        if (!section || !tr.notes?.length || (tr.gain ?? 1) <= 0) continue;
+        for (const ci of tr.chairs || section.chairs.map((_, i) => i)) {
+          const chair = section.chairs[ci];
+          if (chair) occupied.set(`${tr.section}:${ci}`, chair);
+        }
+      }
+      const subjects = ctx.cameraPerformers ? ctx.cameraPerformers.filter(p =>
+        occupied.has(`${p.sid}:${p.ci}`) && p.char.root.visible).map(p => {
+          p.char.root.updateWorldMatrix(true, false);
+          return { base: p.char.root.getWorldPosition(V()), scale: p.char.scale };
+        }) : [...occupied.values()].map(c => ({ base: V(c.x, c.y, c.z), scale: 1 }));
+      const required = Math.min(3, subjects.length);
+      const frame = new THREE.PerspectiveCamera(fov, this.camera?.aspect || 1.5, .1, 300);
+      const foregroundVisible = (point, target) => {
+        frame.position.copy(point); frame.lookAt(target); frame.updateMatrixWorld(true);
+        const visible = subjects.filter(({ base, scale }) => {
+          if (point.z >= base.z || point.distanceTo(base) < 3) return false;
+          return [1.25, .65].every(height => {
+            const projected = base.clone().add(V(0, height * scale, 0)).project(frame);
+            return Math.abs(projected.x) < .9 && projected.y > -.92 && projected.y < .12
+              && projected.z > -1 && projected.z < 1;
+          });
+        });
+        return required > 0 && visible.length >= required;
       };
-      for (let k = 0; k < 8; k++) {
-        const hit = ctx.obstacles.find(inTheWay);
-        if (!hit) break;
-        const away = new THREE.Vector3().subVectors(shot.pos, shot.look).setY(0).normalize();
-        shot.pos.addScaledVector(away, 0.45).add(V(0, 0.3, 0));
+      for (const [cx, cz] of candidates) {
+        const start = V(cx, startY, cz), end = V(cx, endY, cz);
+        const sweep = new THREE.Box3().setFromPoints([start, end]);
+        const headsClear = (ctx.obstacles || []).every(head => {
+          const nearest = V(cx, clamp(head.y, endY, startY), start.z);
+          return nearest.distanceTo(head) >= radius;
+        });
+        if (!headsClear || instrumentBounds.some(box => box.intersectsBox(sweep))) continue;
+        const clear = Array.from({ length: 33 }, (_, i) => i / 32).every(u => {
+          const point = start.clone().lerp(end, u), target = roomLook.clone().lerp(lookEnd, u);
+          if (!foregroundVisible(point, target)) return false;
+          if (!insideShell(point.x, point.z, .8) || point.z < HALL.front + .65
+            || point.y < floorAt(point.x, point.z) + .8) return false;
+          return [.25, .5, .75].every(v => {
+            const ray = point.clone().lerp(target, v);
+            return ray.y > floorAt(ray.x, ray.z) + .2;
+          });
+        });
+        if (!clear) continue;
+        shot = { ...shot, kind: 'section', sid: selected.sid, ci: selected.ci,
+          view: 'rear-architecture', angle: 6, pos: start,
+          look: roomLook, lookEnd, drift: end.sub(start), fov, foregroundRequired: required, cut: true };
+        break;
       }
     }
-    shot.hold = 14 + Math.random() * 6;
-    shot.cut = bows || Math.random() < 0.2;
+    const unhurried = c.smallEnsemble || (selected?.energy ?? 0) <= 45;
+    shot.hold = bows ? 11 : !perf.playing ? 13 : (shot.kind === 'section' && !unhurried ? 8 : 10) + Math.random() * 2;
+    if (perf.playing && !bows) {
+      const downbeat = piece.beats?.find(b => b[1] === 0 && b[0] >= t + shot.hold && b[0] <= t + Math.min(12, shot.hold + 1.2));
+      if (downbeat) shot.hold = downbeat[0] - t;
+    }
+    shot.cut = bows || !!shot.view;
     return shot;
   }
 

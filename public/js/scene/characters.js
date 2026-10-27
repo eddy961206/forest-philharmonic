@@ -1,9 +1,12 @@
 // Chibi forest-animal musicians built from primitives, with two-bone IK
 // arms. Local frame: right = +X, up = +Y, forward = -Z. Origin on the floor
 // under the seat.
+import { ARM_LENGTH, solveArm } from './arm-ik.js';
 import * as THREE from 'three';
 import { furMaterial, clothMaterial, plainMaterial, isLite, M } from './materials.js';
 import { mergeChildren, bakeColor } from './merge.js';
+import { raccoonPatchGeometry } from './playing-motion.js';
+import { skirtGeometry } from './skirt.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const UP = V(0, 1, 0);
@@ -15,7 +18,7 @@ const SPECIES = {
   cat: { ears: 'pointed', snout: 0.22, muzzle: '#fff8ef', nose: '#e88a9a', earInner: '#f6c2cb', whiskers: true },
   fox: { ears: 'tall', snout: 0.55, muzzle: '#fff6ea', nose: '#1d1412', earTip: '#2b1d16', pointy: true },
   dog: { ears: 'pointed', snout: 0.42, muzzle: '#fff4e2', nose: '#21160f', earInner: '#f0c9a0' },
-  raccoon: { ears: 'pointed', snout: 0.35, muzzle: '#f2efe9', nose: '#1a1a1a', mask: '#3b3634', earInner: '#e9e4de' },
+  raccoon: { ears: 'round', snout: 0.35, muzzle: '#f2efe9', nose: '#1a1a1a', mask: '#51463f', earInner: '#e9e4de' },
   deer: { ears: 'side', snout: 0.4, muzzle: '#f4e6d4', nose: '#2a1a12', spots: true },
   sheep: { ears: 'side', snout: 0.25, muzzle: '#e8dccb', nose: '#6b4d3e', wool: true, face: '#e8dccb' },
   mouse: { ears: 'big', snout: 0.3, muzzle: '#f2eee9', nose: '#f29aa8', earInner: '#f6c2cb', whiskers: true },
@@ -51,6 +54,8 @@ export function liteArmMeshes() {
 }
 // a character that leaves the scene gives its arms back
 export function releaseCharacter(char) {
+  for (const material of char.ownedMaterials || []) material.dispose();
+  char.ownedMaterials?.clear();
   for (let i = liteArms.length - 1; i >= 0; i--) if (liteArms[i].root === char.root) liteArms.splice(i, 1);
 }
 const shown = (o) => { for (; o; o = o.parent) if (!o.visible) return false; return true; };
@@ -70,12 +75,20 @@ export function syncLiteArms() {
     const i = e.seg ? ns++ : np++;
     if (i >= m.instanceMatrix.count) continue;
     m.setMatrixAt(i, e.proxy.matrixWorld);
-    m.setColorAt(i, e.color);
+    // Instance colours are static between joins/leaves. Compare the GPU's
+    // Float32 values so unchanged colours do not upload again every frame.
+    const colors = m.instanceColor?.array;
+    const offset = i * 3;
+    if (!colors || colors[offset] !== Math.fround(e.color.r)
+      || colors[offset + 1] !== Math.fround(e.color.g)
+      || colors[offset + 2] !== Math.fround(e.color.b)) {
+      m.setColorAt(i, e.color);
+      m.instanceColor.needsUpdate = true;
+    }
   }
   for (const [m, n] of [[liteSeg, ns], [litePaw, np]]) {
     m.count = Math.min(n, m.instanceMatrix.count);
     m.instanceMatrix.needsUpdate = true;
-    if (m.instanceColor) m.instanceColor.needsUpdate = true;
   }
 }
 
@@ -87,6 +100,10 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   root.add(body);
   const fur = furMaterial(spec.fur);
   const muzzleMat = furMaterial(sp.muzzle);
+  // Shared library materials/textures outlive a visitor. Only these local
+  // clones and decorative materials belong to this character.
+  const ownedMaterials = new Set();
+  const ownMaterial = material => { ownedMaterials.add(material); return material; };
   const isDress = spec.outfit === 'dress';
   const coat = clothMaterial(isDress ? '#2a1830' : '#18171d', 0.5);
   const shirt = clothMaterial('#f3efe6', 0.2);
@@ -114,6 +131,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   const legsStand = new THREE.Group();
   root.add(legsSit, legsStand);
   const legPivots = [];
+  const seatedLegVolumes = [];
   for (const sx of [-1, 1]) {
     const pivot = new THREE.Group();
     pivot.position.set(sx * 0.09, STAND_HIP, 0);
@@ -122,6 +140,22 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     legsStand.add(pivot);
     legPivots.push(pivot);
     if (!standing) {
+      if (spec.celloSeat) {
+        // A cello sits between the knees. Keep hips attached to the torso,
+        // then open the thighs instead of translating a pair of straight legs.
+        const hip = V(sx * 0.10, hipY, 0.02);
+        const knee = V(sx * 0.34, hipY - 0.04, -0.12);
+        const axis = knee.clone().sub(hip);
+        const thigh = add(legsSit, capsuleG(0.075, axis.length() - 0.15, 4, 10), trouser, hip.clone().add(knee).multiplyScalar(0.5));
+        thigh.quaternion.setFromUnitVectors(UP, axis.normalize());
+        // Capsule centreline endpoints; use these same dimensions in the guard.
+        const direction = knee.clone().sub(hip).normalize();
+        seatedLegVolumes.push({ a: hip.clone().addScaledVector(direction, .075), b: knee.clone().addScaledVector(direction, -.075), radius: .075 });
+        seatedLegVolumes.push({ a: V(knee.x, .10, knee.z), b: V(knee.x, knee.y - .06, knee.z), radius: .068 });
+        add(legsSit, capsuleG(0.068, knee.y - 0.16, 4, 10), trouser, V(knee.x, knee.y / 2 + 0.02, knee.z));
+        add(legsSit, sphereG(0.08, 12, 8), dark, V(knee.x, 0.05, knee.z - 0.05)).scale.set(1, 0.6, 1.4);
+        continue;
+      }
       const thigh = add(legsSit, capsuleG(0.075, 0.2, 4, 10), trouser, V(sx * 0.1, hipY, -0.12));
       thigh.rotation.x = Math.PI / 2;
       add(legsSit, capsuleG(0.068, hipY - 0.16, 4, 10), trouser, V(sx * 0.11, hipY / 2 + 0.02, -0.26));
@@ -135,12 +169,14 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   const torsoY = hipY + 0.2;
   const torso = add(body, capsuleG(0.19, 0.2, 6, 16), coat, V(0, torsoY, 0));
   torso.scale.set(1.08, 1, 0.92);
+  let coatTailGeometry = null;
+  let skirt = null;
   if (isDress) {
-    // flowing skirt over the lap/legs
-    const skirt = add(body, new THREE.CylinderGeometry(0.2, standing ? 0.3 : 0.34, standing ? 0.5 : 0.28, 20, 1, true), coat, V(0, standing ? hipY - 0.12 : hipY - 0.03, standing ? 0 : -0.06));
-    skirt.material = coat.clone();
+    skirt = add(body, skirtGeometry(hipY, !!spec.celloSeat), ownMaterial(coat.clone()));
+    skirt.name = 'pose-skirt';
     skirt.material.side = THREE.DoubleSide;
-    if (!standing) skirt.rotation.x = -0.25;
+    if (isLite()) bakeColor(skirt);
+    skirt.morphTargetInfluences[0] = standing ? 1 : 0;
     const sash = add(body, new THREE.TorusGeometry(0.19, 0.025, 8, 24), accent, V(0, hipY + 0.1, 0));
     sash.rotation.x = Math.PI / 2;
     sash.scale.set(1.08, 0.92, 1);
@@ -149,8 +185,36 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     const front = add(body, sphereG(0.12, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), shirt, V(0, torsoY + 0.1, -0.14), { cast: false });
     front.rotation.x = -Math.PI / 2 - 0.25;
     front.scale.set(0.8, 1, 0.55);
-    // tails behind the chair
-    add(body, new THREE.BoxGeometry(0.26, 0.24, 0.03), coat, V(0, hipY - 0.06, 0.2), { cast: false }).rotation.x = 0.35;
+    // Character front is -Z. Anchor the coat at the back waist, then let
+    // both tapered tails fall down and slightly rearward (+Z). Rotating a
+    // detached box around its centre left the old top floating off the back.
+    const coatTails = new THREE.Group();
+    coatTails.name = 'coat-tails';
+    coatTails.position.set(0, hipY + 0.14, 0.12);
+    coatTails.rotation.x = -0.25;
+    body.add(coatTails);
+    for (const side of [-1, 1]) {
+      const shape = new THREE.Shape();
+      shape.moveTo(side * 0.008, 0);
+      shape.lineTo(side * 0.13, 0);
+      shape.lineTo(side * 0.105, -0.32);
+      shape.lineTo(side * 0.025, -0.34);
+      shape.closePath();
+      const geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.025, bevelEnabled: false, steps: 1 });
+      geometry.translate(0, 0, -0.0125);
+      add(coatTails, geometry, coat, null, { cast: false });
+    }
+    coatTails.updateMatrix();
+    const vertices = coatTails.children.flatMap(mesh => {
+      const position = mesh.geometry.getAttribute('position');
+      return Array.from({ length: position.count }, (_, i) => V().fromBufferAttribute(position, i));
+    });
+    // Contract comes from the actual mesh vertices, in body coordinates.
+    // Rigid cloth is merged below, so it adds no separate scene draw.
+    coatTailGeometry = {
+      seam: vertices.filter(p => Math.abs(p.y) < 1e-6).map(p => p.clone().applyMatrix4(coatTails.matrix)),
+      hem: vertices.filter(p => p.y < -0.3).map(p => p.clone().applyMatrix4(coatTails.matrix)),
+    };
   }
   const tieY = torsoY + 0.24;
   const tie = new THREE.Group();
@@ -170,14 +234,18 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   const headR = 0.27;
   const skull = add(head, sphereG(headR, 32, 24), sp.face ? furMaterial(sp.face) : fur, V(0, 0, 0));
   skull.scale.set(1.05, 0.95, 0.97);
+  // The QA collision audit uses the same ellipsoids as the rendered face.
+  const headVolumes = [{ center: skull.position.clone(), radii: skull.scale.clone().multiplyScalar(headR) }];
 
   // snout / muzzle
   if (sp.snout > 0) {
     const sn = add(head, sphereG(0.11, 20, 14), muzzleMat, V(0, -0.07, -0.21));
     sn.scale.set(1.15, 0.8, 0.7 + sp.snout * 0.9);
     if (sp.pointy) sn.scale.set(0.95, 0.7, 1.5);
+    headVolumes.push({ center: sn.position.clone(), radii: sn.scale.clone().multiplyScalar(.11) });
     const nose = add(head, sphereG(sp.bigNose ? 0.05 : 0.028, 12, 8), plainMaterial(sp.nose, { roughness: 0.25 }), V(0, -0.03, -0.23 - sp.snout * 0.11 - (sp.pointy ? 0.06 : 0)), { cast: false });
     nose.scale.set(1.3, sp.bigNose ? 1.4 : 0.9, 1);
+    headVolumes.push({ center: nose.position.clone(), radii: nose.scale.clone().multiplyScalar(sp.bigNose ? .05 : .028) });
     // mouth: small smile
     const mouth = add(head, new THREE.TorusGeometry(0.022, 0.005, 6, 12, Math.PI), dark, V(0, -0.1, -0.29 - sp.snout * 0.05), { cast: false });
     mouth.rotation.z = Math.PI;
@@ -204,13 +272,8 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     }
   }
   if (sp.mask) {
-    // The bandit mask across the eyes: the front half of a band of the
-    // skull itself - its segments (rings 10-14 of 24, the half from ear to
-    // ear) lifted 1.2% off it, so it lies just outside every facet of the
-    // head, also on phones. (A smaller sphere with its own tessellation sat
-    // partly inside the head: the surfaces crossed in a jagged stair pattern.)
-    const mk = add(head, sphereG(headR * 1.012, 16, 4, Math.PI, Math.PI, Math.PI * (10 / 24), Math.PI * (4 / 24)), plainMaterial(sp.mask, { polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }), V(0, 0, 0), { cast: false });
-    mk.scale.copy(skull.scale);
+    const marking = plainMaterial('#ffffff', { vertexColors: true, roughness: 0.92 });
+    for (const side of [-1, 1]) add(head, raccoonPatchGeometry(side, spec.fur, sp.mask), marking, V(), { cast: false });
   }
 
   // eyes (open) + closed arcs for blinking / blissful moments
@@ -223,12 +286,12 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     if (sp.bigEyes) add(head, new THREE.CircleGeometry(0.075, 20), plainMaterial('#fff6dc', { roughness: 0.5 }), ep.clone().add(V(0, 0, 0.012)), { cast: false }).rotation.y = Math.PI;
     const eye = add(eyes.open, sphereG(eyeR, 16, 12), plainMaterial('#120c0a', { roughness: 0.15 }), ep, { cast: false });
     eye.scale.set(1, 1.15, 0.6);
-    add(eye, sphereG(eyeR * 0.32, 8, 6), new THREE.MeshBasicMaterial({ color: '#ffffff' }), V(eyeR * 0.3, eyeR * 0.35, -eyeR * 0.7), { cast: false });
+    add(eye, sphereG(eyeR * 0.32, 8, 6), ownMaterial(new THREE.MeshBasicMaterial({ color: '#ffffff' })), V(eyeR * 0.3, eyeR * 0.35, -eyeR * 0.7), { cast: false });
     add(eyes.closed, new THREE.TorusGeometry(eyeR * 0.85, 0.008, 6, 12, Math.PI), dark, ep.clone().add(V(0, -0.005, 0)), { cast: false });
   }
   // blush
   for (const sx of [-1, 1]) {
-    const b = add(head, new THREE.CircleGeometry(0.035, 16), new THREE.MeshBasicMaterial({ color: '#ff9fae', transparent: true, opacity: 0.45, depthWrite: false }), V(sx * 0.165, -0.06, -0.205), { cast: false });
+    const b = add(head, new THREE.CircleGeometry(0.035, 16), ownMaterial(new THREE.MeshBasicMaterial({ color: '#ff9fae', transparent: true, opacity: 0.45, depthWrite: false })), V(sx * 0.165, -0.06, -0.205), { cast: false });
     b.rotation.y = Math.PI + sx * 0.6;
   }
   if (sp.whiskers) {
@@ -362,7 +425,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     const cuff = add(body, new THREE.CylinderGeometry(0.05, 0.05, 0.03, 12), shirt, V(), { cast: false });
     const paw = add(body, sphereG(0.058, 14, 10), fur, V());
     paw.scale.set(1, 0.85, 1.1);
-    arms[side] = { shoulder, upper, fore, cuff, paw, a: 0.25, b: 0.25, elbow: V(), wrist: V() };
+    arms[side] = { shoulder, upper, fore, cuff, paw, a: ARM_LENGTH, b: ARM_LENGTH, elbow: V(), wrist: V(), target: V() };
   }
 
   if (isLite()) {
@@ -394,14 +457,15 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   mergeChildren(eyes.closed);
   mergeChildren(head, [eyes.open, eyes.closed, mouthOpen]);
   const armParts = Object.values(arms).flatMap((A) => [A.upper, A.fore, A.cuff, A.paw]);
-  mergeChildren(body, [head, torso, ...armParts]);
+  mergeChildren(body, [head, torso, skirt, ...armParts].filter(Boolean));
   mergeChildren(legsSit);
   for (const lp of legPivots) mergeChildren(lp);
   mergeChildren(root, [body, legsSit, legsStand]);
 
   root.scale.setScalar(scale);
   const char = {
-    root, body, head, torso, eyes, arms, scale, spec, mouthOpen, legPivots,
+    root, body, head, torso, skirt, coatTailGeometry, ownedMaterials, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
+    mouthPoint: V(0, -0.085, -0.28 - sp.snout * 0.08),
     headBase: head.position.clone(),
     blinkT: Math.random() * 4,
     bliss: 0,
@@ -409,6 +473,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     // 0 = seated on the chair, 1 = standing; walking swings the legs
     setStanding(t) {
       this.stand = t;
+      if (skirt) skirt.morphTargetInfluences[0] = standing ? 1 : Math.max(0, Math.min(1, (t - .5) * 2));
       body.position.y = standLift * t;
       legsStand.visible = t > 0.5 || standing;
       legsSit.visible = !standing && t <= 0.5;
@@ -426,8 +491,6 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
 
 // ----------------------------------------------------------------- IK
 const _d = new THREE.Vector3();
-const _p = new THREE.Vector3();
-const _q = new THREE.Quaternion();
 
 function placeLimb(m, from, to) {
   _d.subVectors(to, from);
@@ -441,29 +504,8 @@ function placeLimb(m, from, to) {
 // target & pole in the character's local (unscaled) frame
 export function setArm(char, side, target, pole) {
   const A = char.arms[side];
-  const S = A.shoulder;
-  _d.subVectors(target, S);
-  let dist = _d.length();
-  const maxReach = (A.a + A.b) * 0.999;
-  let a = A.a;
-  let b = A.b;
-  if (dist > maxReach) {
-    // cartoon stretch up to 25%, then just point
-    const k = Math.min(1.25, dist / maxReach);
-    a *= k;
-    b *= k;
-    dist = Math.min(dist, (a + b) * 0.999);
-  }
-  dist = Math.max(dist, Math.abs(a - b) + 0.02);
-  const dir = _d.normalize().clone();
-  const cosA = (a * a + dist * dist - b * b) / (2 * a * dist);
-  const sinA = Math.sqrt(Math.max(0, 1 - cosA * cosA));
-  _p.copy(pole).addScaledVector(dir, -pole.dot(dir));
-  if (_p.lengthSq() < 1e-6) _p.set(0, -1, 0);
-  _p.normalize();
-  A.elbow.copy(S).addScaledVector(dir, a * cosA).addScaledVector(_p, a * sinA);
-  A.wrist.copy(S).addScaledVector(dir, dist);
-  placeLimb(A.upper, S, A.elbow);
+  solveArm(A, target, pole);
+  placeLimb(A.upper, A.shoulder, A.elbow);
   placeLimb(A.fore, A.elbow, A.wrist);
   A.cuff.position.copy(A.elbow).lerp(A.wrist, 0.88);
   A.cuff.quaternion.copy(A.fore.quaternion);

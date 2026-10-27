@@ -1,0 +1,7 @@
+--- captured/public/js/scene/orchestra.js
++++ final/public/js/scene/orchestra.js
+@@ -471,4 +471,3 @@
+ 
+ for (const kind of ['tom', 'snare', 'bassDrum', 'cymbals', 'mallet', 'bells']) RIGS[kind] = percussionRig(kind);
+ for (const kind of ['tambourine', 'triangle']) RIGS[kind] = handPercussionRig(kind);
+-

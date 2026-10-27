@@ -15,7 +15,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: #070c0a; color: var(--paper); overflow: hidden; }
+html, body { margin: 0; height: 100%; background: #070c0a; color: var(--paper); overflow: hidden; overscroll-behavior: none; }
 body { font-family: var(--sans); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 button { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
@@ -113,7 +113,7 @@ button { font: inherit; color: inherit; }
 .lb-cap { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--paper-dim); }
 .lobby .lb-cap input { width: 64px; text-align: center; }
 .lb-vis, .lb-venue { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
-.lb-venue { margin: 2px 0 4px; }
+.lb-venue { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 2px 0 4px; }
 .lb-vis button, .lb-venue button {
   appearance: none; cursor: pointer; color: var(--paper-dim); background: rgba(242, 237, 225, 0.04);
   border: 1px solid rgba(242, 237, 225, 0.12); border-radius: 12px; padding: 7px 10px; display: flex; flex-direction: column; align-items: center; gap: 1px;
@@ -606,6 +606,9 @@ body.touch .act-btn kbd { display: none; }
     repeating-linear-gradient(25deg, rgba(120, 90, 40, 0.03) 0 1px, transparent 1px 4px),
     var(--paper);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset; }
+.ticket.outdoor { --ink: #263b30; --band: #3f5949; --band2: #63775a; --accent: #6b7855; --paper: #eeeadd; --red: #6d744f; }
+.ticket.outdoor .t-mode { color: #42543b; }
+.ticket.outdoor .t-seal { color: #64734d; border-color: #74845c; box-shadow: none; }
 .ticket.sphere { --ink: #e8f1ff; --band: #0c1430; --band2: #23306a; --accent: #7fd3ff; --paper: #121a33; --red: #ff6b7d; }
 .ticket.sphere .t-main {
   background:
@@ -706,6 +709,8 @@ body.touch .act-btn kbd { display: none; }
   border-radius: 2px 2px 0 0; box-shadow: 0 0 40px rgba(255, 170, 80, 0.25); }
 .venue-card.hall .vc-art::after { content: ""; position: absolute; right: 5%; bottom: 62%; width: 48%; height: 22%;
   background: linear-gradient(180deg, #4a3c32, #2a221d); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.venue-card.outdoor .vc-art { background: radial-gradient(ellipse at 18% 15%, #426047 0 20%, transparent 21%), radial-gradient(ellipse at 85% 5%, #3a5541 0 26%, transparent 27%), linear-gradient(180deg, #77908b, #89987a 62%, #4d6448); }
+.venue-card.outdoor .vc-art::after { content: ''; position: absolute; width: 44%; height: 16%; right: 28%; bottom: 20%; background: #c9bd9b; clip-path: polygon(0 25%, 50% 0, 100% 25%, 100% 100%, 0 100%); }
 .venue-card.sphere .vc-art { background: radial-gradient(45% 80% at 50% 110%, #59a2ff, #7c4dff 45%, transparent 75%), linear-gradient(180deg, #050812, #10163a); }
 .venue-card .vc-art span { position: absolute; left: 14px; bottom: 10px; font-family: var(--serif); font-size: 20px; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6); }
 .venue-card .vc-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
@@ -903,7 +908,7 @@ body:has(#liftPanel:not([hidden])) .start-hint { visibility: hidden; }
 html.touch .keys .h-key, body.touch .keys .h-key, html.touch .splash-hint .h-key { display: none; }
 html.touch .keys .h-touch, body.touch .keys .h-touch { display: block; }
 html.touch .splash-hint .h-touch { display: inline; }
-body[data-venue='sphere'] .keys .h-hall, body:not([data-venue='sphere']) .keys .h-sphere { display: none; }
+body:not([data-venue='hall']) .keys .h-hall, body:not([data-venue='sphere']) .keys .h-sphere, body:not([data-venue='outdoor']) .keys .h-outdoor { display: none; }
 /* with the side panel open: the start stack, the interval chip and the lift
    buttons move into the free space to its left */
 @media (min-width: 761px), (orientation: landscape) and (max-height: 500px) {
@@ -1099,3 +1104,39 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
   .joystick.active, .toast, .chat-log li, .pz-loading, .pz-gate, .pz-gate p { transition: none; }
   #boothTicket .ticket { animation: none; }
 }
+
+/* Optional performance reference; the orchestra itself always plays natively. */
+.now-meta a { color: var(--paper-dim); pointer-events: auto; text-underline-offset: 3px; }
+.now-meta a:focus-visible { outline: 2px solid var(--fern); outline-offset: 4px; }
+.program .p-meta { flex-wrap: wrap; gap: 3px 12px; }
+/* A quiet paper theatre, created only after the fourth footprint. */
+.bremen-trail { display:block; margin:20px auto 8px; min-height:44px; padding:8px 16px; border:0; background:none; color:var(--muted, #b6ad98); font:inherit; font-size:12px; cursor:pointer; letter-spacing:.06em; }
+.bremen-trail:hover { color:#edcf8d; }
+.bremen { width:min(640px, calc(100vw - 28px)); max-height:calc(100svh - 28px); padding:0; border:1px solid #7c7750; border-radius:22px; background:#f0e5c9; color:#243d34; box-shadow:0 30px 100px #0009; overflow:auto; }
+.bremen::backdrop { background:#071713e8; }
+.bremen-card { position:relative; padding:30px 28px 22px; text-align:center; }
+.bremen-close { position:absolute; right:10px; top:8px; min-width:44px; min-height:44px; border:0; border-radius:50%; background:none; color:#4a5a48; font-size:28px; cursor:pointer; }
+.bremen-close:hover { background:#d8ceb3; }
+.bremen-eyebrow { margin:0 24px 10px; color:#69725b; font-size:11px; letter-spacing:.15em; }
+.bremen h2 { margin:0; font:700 clamp(27px, 5vw, 37px)/1.35 'Gowun Batang', serif; letter-spacing:-.03em; }
+.bremen-intro { margin:9px 0 22px; color:#6a725b; font-size:13px; }
+.bremen svg { display:block; width:100%; height:auto; border-radius:15px; }
+.bremen-status { min-height:2.8em; margin:18px 0 0; display:grid; place-items:center; font:700 15px/1.6 'Gowun Batang', serif; word-break:keep-all; }
+.bremen-progress { display:block; width:100%; height:3px; margin:10px 0 15px; border:0; border-radius:3px; background:#d9d1b5; accent-color:#6a7958; }
+.bremen-progress::-webkit-progress-bar { background:#d9d1b5; border-radius:3px; }
+.bremen-progress::-webkit-progress-value { background:#6a7958; border-radius:3px; }
+.bremen-bottom { display:flex; align-items:center; justify-content:space-between; gap:12px; color:#747c64; font-size:10px; }
+.bremen-replay { min-height:44px; padding:8px 14px; border:1px solid #adb193; border-radius:24px; background:transparent; color:#364e3f; font:inherit; font-size:12px; cursor:pointer; }
+.bremen-replay:disabled { opacity:.4; cursor:default; }
+.bremen button:focus-visible, .bremen-trail:focus-visible { outline:3px solid #a87936; outline-offset:3px; }
+.bremen-animal { opacity:0; }
+.bremen-running .bremen-animal { transform-box:fill-box; transform-origin:50% 100%; animation: bremen-arrive 1.7s var(--delay) cubic-bezier(.16,.8,.25,1) both, bremen-sway 2.143s calc(var(--delay) + 1.7s) ease-in-out infinite; }
+.bremen-notes { opacity:0; }
+.bremen-running .bremen-notes { animation:bremen-notes 3s 8.57s ease-in-out infinite; }
+@keyframes bremen-arrive { 0% { opacity:0; transform:translate(-180px, 50px) rotate(-9deg); } 35% { opacity:1; } 75% { transform:translate(0,-7px) rotate(2deg); } 100% { opacity:1; transform:translate(0,0) rotate(0deg); } }
+@keyframes bremen-notes { 0%,100% { opacity:.25; transform:translateY(0); } 50% { opacity:.85; transform:translateY(-8px); } }
+@keyframes bremen-sway { 0%,100% { transform:rotate(-.7deg); } 50% { transform:rotate(.7deg) translateY(-1px); } }
+.bremen-ended .bremen-animal { animation:none; opacity:1; }
+.bremen-ended .bremen-notes { animation:none; opacity:.3; }
+@media(max-width:480px) { .bremen-card { padding:28px 16px 16px; } .bremen-intro { margin-bottom:16px; } .bremen-bottom { flex-wrap:wrap; justify-content:center; gap:4px 12px; } .bremen-eyebrow { letter-spacing:.07em; font-size:10px; } }
+@media(prefers-reduced-motion:reduce) { .bremen-running .bremen-animal { animation:none; opacity:1; } .bremen-running .bremen-notes { animation:none; opacity:.6; } }

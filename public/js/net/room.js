@@ -67,7 +67,12 @@ export class RoomClient {
         ws.onerror = null;
         this.ws = ws;
         this._opening = null;
-        ws.onmessage = (e) => { try { this._message(JSON.parse(e.data)); } catch (err) { console.error(err); } };
+        ws.onmessage = (e) => {
+          // An event already queued by a retired connection must not overwrite
+          // the replacement's host, clock, or room snapshot.
+          if (this.ws !== ws || this.closedByUs) return;
+          try { this._message(JSON.parse(e.data)); } catch (err) { console.error(err); }
+        };
         ws.onclose = (event) => { if (this.ws === ws) this._closed(event?.code); }; // (an old line closing late is not news)
         resolve();
       };
@@ -288,7 +293,7 @@ export class RoomClient {
         this._emit('reconnected');
       } catch (e) {
         if (this.closedByUs || this._epoch !== epoch) return;
-        if (e.code === 'notfound' || e.code === 'full' || tries > 20) { this.room = null; this._emit('lost', e); return; }
+        if (e.code === 'notfound' || e.code === 'full' || e.code === 'replaced' || tries > 20) { this.room = null; this._emit('lost', e); return; }
         this._retryT = setTimeout(retry, Math.min(8000, 800 * tries));
       }
     };

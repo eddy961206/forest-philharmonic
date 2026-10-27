@@ -1,0 +1,47 @@
+(node:81857) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./")); register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ fragmented JSON survives an interleaved ping and split TCP reads (0.999625ms)
+▶ invalid fragments and control frames close before reaching room state
+  ✔ orphan continuation (0.207584ms)
+  ✔ fragmented ping (0.091375ms)
+  ✔ oversized ping (0.092084ms)
+  ✔ reserved bits (0.106ms)
+  ✔ invalid close payload (0.087875ms)
+✔ invalid fragments and control frames close before reaching room state (0.931833ms)
+✔ a new text message cannot interrupt an unfinished fragment (0.158875ms)
+✔ empty fragments do not accumulate while fragmented UTF-8 still completes (6.27675ms)
+✔ invalid UTF-8 and oversized fragmented messages are rejected (1.46525ms)
+✔ slow receivers are disconnected before their queued output grows (0.111084ms)
+✔ upgrade validates the WebSocket version and 16-byte nonce (0.411458ms)
+(node:81858) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./")); register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ roster and playback share scores; recent use controls the bounded cache (0.721833ms)
+✔ failed look-ahead downloads are retried and never cached as empty scores (0.211959ms)
+✔ A -> B (held) -> A: the late B never replaces A, nor stops it (2.761417ms)
+✔ A -> B -> C answered in reverse: C stays, B arriving or failing late changes nothing (1.559792ms)
+✔ a failed download rejects the latest choice, leaves the loaded piece alone, and is tried afresh (1.884625ms)
+✔ the same piece asked for again and again while on its way is one download; the latest ask applies it (0.540375ms)
+✔ a shared download of B then a choice of C or of the loaded A: B does not land (0.781708ms)
+✔ a shared download that fails is tried again by the next ask (0.524167ms)
+✔ the room is never told a piece with the time of the one before (0.122708ms)
+✔ superseded choices skip score preparation before the expensive work begins (0.451667ms)
+✔ returning to the loaded piece discards preparation, but selecting the pending id again preserves it (0.5395ms)
+✔ independent preload shares preparation and survives a different playback choice (0.892667ms)
+✔ independent preload failures still reject after playback chooses elsewhere (0.305875ms)
+(node:81859) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/three-loader.mjs", pathToFileURL("./")); register("./tests/helpers/three-loader.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ avatar reconnect releases only owned materials (lite=false) (22.296958ms)
+✔ avatar reconnect releases only owned materials (lite=true) (17.462833ms)
+✔ composer cleanup supplements the real vendored bloom high-pass disposal once (0.838667ms)
+✔ same quality is a no-op before saving or resetting adaptive state (0.464416ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 110.986209

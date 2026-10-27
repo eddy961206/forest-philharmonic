@@ -38,3 +38,6 @@ jobs:
         run: npm test
       - name: Local benchmark plan and assessment tests
         run: python -m unittest discover -s tools/bench/tests -p "test_*.py"
+      - name: All-score joint, contact, and stage-route audit
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 22
+        run: npm run verify:motion -- --skip-unit

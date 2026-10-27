@@ -1,0 +1,191 @@
+{
+  "dateUTC": "2026-10-23T13:28:28.869341+00:00",
+  "baseline": "0cdded794267f7caaebbaad6044ce465f963ab69",
+  "optimizationCode": "9375de71d6c7a24ad8b42cdec88649ae0b8ed763",
+  "bremenCode": "404739ec6bfdc3cf6b8574a0da26423bbdb50881",
+  "note": "Paired performance collected before Bremen addition; final-smoke is a one-second functional smoke only. Evidence paths normalized only in test log. No subagents used for this follow-up.",
+  "files": {
+    "a1-sphere.json": {
+      "bytes": 59330,
+      "sha256": "25ffbc3b13e16ea9ab3e3d7f405c0b65df2b35ac8ac2eea1ad0b86e070a882a4"
+    },
+    "a2-sphere.json": {
+      "bytes": 59402,
+      "sha256": "5b641fe3ea673887ccc6f7e3d488237b71a1dd1a9f99e5fbf4d85f638aac0dda"
+    },
+    "b1-sphere.json": {
+      "bytes": 58364,
+      "sha256": "0b986cd213406a8a6e75b306db09be04c8329b253b0b72d99768748d13a74463"
+    },
+    "b1-sphere.png": {
+      "bytes": 450784,
+      "sha256": "b0e48b0cfc6e53f91ed8a5cf6074b8e10e2015c0fb750ccb2b41f479d394508b"
+    },
+    "b2-sphere.json": {
+      "bytes": 58388,
+      "sha256": "01fbbbb34e0014172f1e64e38fa68e5f5c19a382474b0da8385d87d8fbcfae2a"
+    },
+    "baseline-hall.cpuprofile": {
+      "bytes": 327817,
+      "sha256": "08e5d255a2ddce6c58f7f8b2c0e24e809fd2f9d9a93309d847b11916a37b470b"
+    },
+    "bremen-accessibility.json": {
+      "bytes": 280,
+      "sha256": "e233760d6d6d154df35dc75c2a2f7142602a37db40a9c195c1c40e05f7627239"
+    },
+    "bremen-check.json": {
+      "bytes": 2555,
+      "sha256": "136756cf13e2c202dd655f201c52ce9ddf9e2ee940d21f060f972fefa5c475e3"
+    },
+    "bremen-desktop.png": {
+      "bytes": 272602,
+      "sha256": "a6ebad3ad6f64ffbee16683d2fdb8e12df4b56b68b46a922767238b161ef2e1a"
+    },
+    "bremen-dialog-replacement.json": {
+      "bytes": 179,
+      "sha256": "9c497e2ad13d56781d768d5d0ef30085ee5a8e20a9e9ce4544995e80837a48c0"
+    },
+    "bremen-mobile-check.json": {
+      "bytes": 547,
+      "sha256": "d39b544f08a97858f40b7e3ab9a0b0c2be2931a0ee1826f1b03e50c10cc35b0f"
+    },
+    "bremen-mobile.png": {
+      "bytes": 195159,
+      "sha256": "67899e2b8dc2accc3661a68a4b7fbf92723004ef613ac22cf31f749f216b664a"
+    },
+    "candidate-hall.cpuprofile": {
+      "bytes": 350858,
+      "sha256": "b2703db0d36a5b201e039197a8e021b18037b1bcfeed9bb6f5ac6ae0bf958209"
+    },
+    "equivalence-hall-close-batched.png": {
+      "bytes": 342032,
+      "sha256": "9efcc06c4d1731c008e576be57701ad5081f3ca1408f59fc52a2be4674ed1783"
+    },
+    "equivalence-hall-close-original.png": {
+      "bytes": 342061,
+      "sha256": "7cbbf815ad9d203b635fef7c1b6c10138c9ede48ead1f042f0cfa6336c19c1ac"
+    },
+    "equivalence-hall-reverse-batched.png": {
+      "bytes": 87285,
+      "sha256": "354039aa04e1b3e91560e3c584cbe11d3ad03761e08d15dd35c741726a828c44"
+    },
+    "equivalence-hall-reverse-original.png": {
+      "bytes": 87285,
+      "sha256": "354039aa04e1b3e91560e3c584cbe11d3ad03761e08d15dd35c741726a828c44"
+    },
+    "equivalence-hall-stage-batched.png": {
+      "bytes": 311658,
+      "sha256": "8ddf5780da3d607b12700f0e4aa7378332cd62d2ad07acc15c470124bb38dad5"
+    },
+    "equivalence-hall-stage-original.png": {
+      "bytes": 311658,
+      "sha256": "7cfb9b2f8d48d792d64de8d1e60755914ecbe8fb62595f566d19c3534f5f048f"
+    },
+    "equivalence-hall.json": {
+      "bytes": 362,
+      "sha256": "105709bccb0fb21823609ea33d2b88221212c419135bb4a9fe862a54bbe44604"
+    },
+    "equivalence-sphere-close-batched.png": {
+      "bytes": 177310,
+      "sha256": "3267fc0bd3a0978ddf15faf7502b8d96835f8ac4e2958cf5ca4130704de8a877"
+    },
+    "equivalence-sphere-close-original.png": {
+      "bytes": 177315,
+      "sha256": "c6cdcd89ff58f952a103d4a430a4b58cec3e7f2997c1005b33872ef1efdb21e3"
+    },
+    "equivalence-sphere-reverse-batched.png": {
+      "bytes": 59986,
+      "sha256": "589a9f7e452eb91f4096a110d734a53bcbf72c27b2e4fe7830dbd111f28774f7"
+    },
+    "equivalence-sphere-reverse-original.png": {
+      "bytes": 59986,
+      "sha256": "589a9f7e452eb91f4096a110d734a53bcbf72c27b2e4fe7830dbd111f28774f7"
+    },
+    "equivalence-sphere-stage-batched.png": {
+      "bytes": 197705,
+      "sha256": "32f0aeb8d0ab90109200502f2af87980f967921da6e6005a566e8b00c70376fd"
+    },
+    "equivalence-sphere-stage-original.png": {
+      "bytes": 197714,
+      "sha256": "81ab28479d8b72cd8ea74efeb6bda5cf0376ad4aebc6808ff17d9d346ef97380"
+    },
+    "equivalence-sphere.json": {
+      "bytes": 363,
+      "sha256": "74a1675aa8f73c05685e8c4309a3ac5e0eabee59b628a52f81048cffee792d6f"
+    },
+    "final-smoke-sphere.json": {
+      "bytes": 6589,
+      "sha256": "9661bf05bbc856b73d64ae35a389e87ba9737befbb05468eabc4b41438748305"
+    },
+    "fresh-a1-hall.json": {
+      "bytes": 53785,
+      "sha256": "b77e2d4958c8c8b5848d7a64579b5a2373531b7627e76dc807a3da5393ce310d"
+    },
+    "fresh-a2-hall.json": {
+      "bytes": 59762,
+      "sha256": "8879bfa4d2908509a966365dbb1613f15ba90ab32c5031d8f809a4ad74ba4785"
+    },
+    "fresh-b1-hall.json": {
+      "bytes": 56285,
+      "sha256": "a2da633fb698a7e1671a98fc3526cedf6405fcb03117a99b993768fb10b1f188"
+    },
+    "fresh-b1-hall.png": {
+      "bytes": 1098095,
+      "sha256": "9b2c946e5f02daefa493c9b491760cfc20165def5c4879c3469913536e7567e3"
+    },
+    "fresh-b2-hall.json": {
+      "bytes": 56154,
+      "sha256": "360c8eee584f77edb0ccbe0ca45fb136a10c24ce8690d94b2ce01e4bd23ccaa7"
+    },
+    "mobile-a-hall.json": {
+      "bytes": 57788,
+      "sha256": "41e9b7dd1acd62a29c3ba1995892b44130151fd908127a8cc369670aa0d07c2e"
+    },
+    "mobile-b-hall.json": {
+      "bytes": 57786,
+      "sha256": "5d6f64a2af3a63fd0cd9d9290004612bed00355bcdb6e183f2acd7945fd79bde"
+    },
+    "mobile-b-hall.png": {
+      "bytes": 1019449,
+      "sha256": "cf52c1bf51fc3d819538c758448cdd2b12e045c11ddf0c63f8c7d25064cc1d27"
+    },
+    "mobile-colors.json": {
+      "bytes": 418,
+      "sha256": "f9cc54e047e94ca5cf7ca6109f52e0a2d1ad59209eb533845ecdd05e9e9b6681"
+    },
+    "paired-hall-environment.json": {
+      "bytes": 352,
+      "sha256": "a8f9e8395d2359d656e765a9fda4351477ba833f20dabc68c7b2cb2a71fc1c5c"
+    },
+    "paired-hall.json": {
+      "bytes": 239280,
+      "sha256": "2d59548668886a24c7e428d5b86909a761ae7852ecd8674a495eef3508dffbf0"
+    },
+    "paired-sphere-environment.json": {
+      "bytes": 352,
+      "sha256": "a8f9e8395d2359d656e765a9fda4351477ba833f20dabc68c7b2cb2a71fc1c5c"
+    },
+    "paired-sphere.json": {
+      "bytes": 271319,
+      "sha256": "dc8c83506c2d8ff5051aa4d56a04052aed29fb3cb73453941f2469e83d37bd13"
+    },
+    "summary.json": {
+      "bytes": 7201,
+      "sha256": "bde2895aaabeb518116040c25235fa915fc6848d2fd063010b9ae87a7f27b441"
+    },
+    "tests-final.txt": {
+      "bytes": 36364,
+      "sha256": "6dcff70a42a34055f0742df39142cd1f48806ababd1ca1123897bdbe18449483"
+    }
+  },
+  "harness": {
+    "tools/qa/quality-optimization-bremen-mobile.mjs": "194a833da41f306a16710d1ffe2d9e506d43a6feed02e28b0067f7cdfe5a1b29",
+    "tools/qa/quality-optimization-bremen.mjs": "7868b37fa4c7e3e13827e9128cab7bc6ef6bc4a2ff351a27e75443af0bef5ef2",
+    "tools/qa/quality-optimization-common.mjs": "90f46288d6b9a57dbbfd8ac868f14a2d93dad58a50302663b4eb86f5062f43b4",
+    "tools/qa/quality-optimization-measure.mjs": "9b07c3049db6ebfedcd04fa7be9d8170a168251cb059fa688d54a5ec55eb125d",
+    "tools/qa/quality-optimization-mobile-colors.mjs": "fc804c2e0fd32cfc2110454a0211e2e0c13f362875d816aeb5754cedcd36a0f9",
+    "tools/qa/quality-optimization-paired.mjs": "1fb42a6d2d0c5554257eba44041902b326da69889a67789d954def76e23f20f1",
+    "tools/qa/quality-optimization-visual.mjs": "09f149f14e9b3806a356f75bbe4eddf5fe28764b2997986009a8690fa37427c9",
+    "tools/qa/summarize-quality-optimization.py": "92a66297eb51efdcf8bb410477ad7cc08be6afa6940ecac274ae8e60094f2d40"
+  }
+}

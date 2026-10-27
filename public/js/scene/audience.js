@@ -31,6 +31,7 @@ const SPECIES = {
   lion: { ears: 'round', fur: ['#e0a95b', '#d49a4d'], muzzle: '#f7e2bd', mane: ['#b5652a', '#8f4f22'] },
 };
 const NAMES = Object.keys(SPECIES);
+const CASUAL = ['#586d65', '#6d7780', '#9a8a70', '#7b6b69', '#63748b', '#a3a18b'];
 const TUX = ['#15151b', '#1b1f2e', '#22232a', '#2a1d1d', '#1f2620'];
 const GOWNS = ['#7a1730', '#1e5040', '#1f3a78', '#c9a14e', '#b05a7a', '#efe6d6', '#4b2a6a', '#0f3b4a', '#a0442a'];
 const TIES = ['#e6c07b', '#c62a3a', '#f3efe6', '#2b4a8a', '#d06a92'];
@@ -125,11 +126,11 @@ const LITE_MAX = 200;
 const _m4 = new THREE.Matrix4();
 const _q = new THREE.Quaternion();
 const _Y = V(0, 1, 0);
-function dress(s, rand, push) {
+function dress(s, rand, push, casual = false) {
   const sp = SPECIES[pick(NAMES, rand())];
   const fur = pick(sp.fur, rand());
   const lady = rand() < 0.5;
-  const outfit = lady ? pick(GOWNS, rand()) : pick(TUX, rand());
+  const outfit = pick(casual ? CASUAL : lady ? GOWNS : TUX, rand());
   const sc = 0.8 + rand() * 0.12; // compact enough to see past
   _q.setFromAxisAngle(_Y, s.yaw + (rand() - 0.5) * 0.25);
   const m = _m4.compose(V(s.x, s.y, s.z), _q, V(sc, sc, sc)).clone();
@@ -141,7 +142,7 @@ function dress(s, rand, push) {
   push('sleeveR', m, outfit, phase);
   push('pawL', m, fur, phase);
   push('pawR', m, fur, phase);
-  if (!lady) { push('shirt', m, '#f3efe6', phase); push('tie', m, pick(TIES, rand()), phase); }
+  if (!casual && !lady) { push('shirt', m, '#f3efe6', phase); push('tie', m, pick(TIES, rand()), phase); }
   push('head', m, fur, phase);
   push('muzzle', m, sp.muzzle, phase);
   push('nose', m, '#2a1a14', phase);
@@ -152,8 +153,8 @@ function dress(s, rand, push) {
   if (sp.mane) push('mane', m, pick(sp.mane, rand()), phase);
   if (sp.wool) push('wool', m, fur, phase);
   const r = rand();
-  if (!lady && !sp.noHat && r < 0.1) push('hat', m, '#141216', phase);
-  if (lady && r < 0.16) push('flower', m, pick(['#e8506a', '#f3e2a0', '#ffffff', '#c77dd8'], rand()), phase);
+  if (!casual && !lady && !sp.noHat && r < 0.1) push('hat', m, '#141216', phase);
+  if (!casual && lady && r < 0.16) push('flower', m, pick(['#e8506a', '#f3e2a0', '#ffffff', '#c77dd8'], rand()), phase);
   return { m, fur, outfit, phase };
 }
 
@@ -218,7 +219,7 @@ export function planHouse(seats, rand = Math.random) {
 // Very large houses (the Sphere) pass detail: only that many people nearest
 // the camera are drawn in full; everyone else is a simple seated figure in
 // their own colours, swapped as you move (see updateLOD).
-export function buildAudience(plan, { share = 0.45, reserve = null, exclude = new Set(), lite = false, detail = Infinity, mid = 0, cap = Infinity } = {}) {
+export function buildAudience(plan, { share = 0.45, reserve = null, exclude = new Set(), lite = false, casual = false, detail = Infinity, mid = 0, cap = Infinity } = {}) {
   const key = lite ? 'lite' : 'full';
   if (!GEO[key]) GEO[key] = parts(lite);
   const G = GEO[key];
@@ -247,13 +248,13 @@ export function buildAudience(plan, { share = 0.45, reserve = null, exclude = ne
     chosen.length = max;
   }
   const occupied = reserve === null ? new Set(chosen.map((s) => s.index)) : taken;
-  if (lod) return lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid });
+  if (lod) return lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid, casual });
   const push = (part, m, color, phase) => {
     if (lite && !LITE_PARTS.has(part)) return;
     if (!lists[part]) lists[part] = [];
     lists[part].push({ m, color, phase });
   };
-  for (const s of chosen) dress(s, guestRand(seed, s), push);
+  for (const s of chosen) dress(s, guestRand(seed, s), push, casual);
 
   const group = new THREE.Group();
   group.name = 'audience';
@@ -274,6 +275,7 @@ export function buildAudience(plan, { share = 0.45, reserve = null, exclude = ne
       im.setMatrixAt(i, it.m);
       im.setColorAt(i, c.set(it.color));
     });
+    im.userData.audiencePart = part;
     im.frustumCulled = false;
     im.receiveShadow = true;
     im.renderOrder = 1; // after the walls (see seats)
@@ -287,6 +289,28 @@ export function buildAudience(plan, { share = 0.45, reserve = null, exclude = ne
     // (a phone draws fewer of them, but they are all there)
     count: house,
     drawn: chosen.length,
+    setBudget(fraction = 1) {
+      const threshold = Math.max(0, Math.min(1, fraction)) * 100;
+      // Every body part shares its guest's phase: retain whole guests, never
+      // orphan ears/paws. Repack existing instances; no models are rebuilt.
+      let visible = 0;
+      for (const im of meshes) {
+        const part = im.userData.audiencePart;
+        let n = 0;
+        for (const item of lists[part]) {
+          if (item.phase >= threshold) continue;
+          im.setMatrixAt(n, item.m);
+          im.setColorAt(n, c.set(item.color));
+          im.geometry.attributes.aPhase.array[n++] = item.phase;
+        }
+        im.count = n;
+        im.instanceMatrix.needsUpdate = true;
+        im.instanceColor.needsUpdate = true;
+        im.geometry.attributes.aPhase.needsUpdate = true;
+        if (part === 'torso') visible = n;
+      }
+      this.drawn = visible;
+    },
     dispose() {
       for (const im of meshes) { im.geometry.dispose(); im.material.dispose(); im.dispose?.(); }
       group.removeFromParent();
@@ -392,14 +416,14 @@ function kth(src, k) {
   return a[k];
 }
 
-function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid }) {
+function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid, casual }) {
   if (lite) mid = 0; // phones: near guests and far figures only
   const GL = GEO.lite || (GEO.lite = parts(true));
   const people = [];
   // each guest's parts (the same draws, in the same order, as a small house)
   for (const s of chosen) {
     const ps = [];
-    const info = dress(s, guestRand(seed, s), (part, m, color) => { if (lite && !LITE_PARTS.has(part)) return; ps.push([part, new THREE.Color(color)]); });
+    const info = dress(s, guestRand(seed, s), (part, m, color) => { if (lite && !LITE_PARTS.has(part)) return; ps.push([part, new THREE.Color(color)]); }, casual);
     people.push({ s, m: info.m, fur: new THREE.Color(info.fur), outfit: new THREE.Color(info.outfit), phase: info.phase, parts: ps, tier: -1, chunk: null, slot: 0 });
   }
   const group = new THREE.Group();
@@ -476,6 +500,7 @@ function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid }) {
     if (im.instanceColor) im.instanceColor.needsUpdate = true;
     im.geometry.attributes.aPhase.needsUpdate = true;
   };
+  let budget = 1;
   const dist = new Float32Array(people.length);
   const last = new THREE.Vector3(1e9, 0, 0);
   let lastT = -1e9;
@@ -491,10 +516,11 @@ function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid }) {
       const dx = s.x - cam.x;
       const dy = s.y - cam.y;
       const dz = s.z - cam.z;
-      dist[i] = dx * dx + dy * dy + dz * dz;
+      dist[i] = i < Math.ceil(people.length * budget) ? dx * dx + dy * dy + dz * dz : Infinity;
     }
-    const nNear = Math.min(detail, people.length);
-    const nMid = Math.min(mid, people.length - nNear);
+    const nVisible = Math.ceil(people.length * budget);
+    const nNear = Math.min(Math.ceil(detail * budget), nVisible);
+    const nMid = Math.min(Math.ceil(mid * budget), nVisible - nNear);
     const limNear = nNear > 0 ? (nNear >= people.length ? Infinity : kth(dist, nNear - 1)) : -1;
     const limMid = nMid > 0 ? (nNear + nMid >= people.length ? Infinity : kth(dist, nNear + nMid - 1)) : limNear;
     const cnt = {};
@@ -504,8 +530,8 @@ function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid }) {
     const dirty = new Set();
     for (let i = 0; i < people.length; i++) {
       const p = people[i];
-      let tier = 2;
-      if (dist[i] <= limNear && kn < nNear) { tier = 0; kn++; } else if (dist[i] <= limMid && km < nMid) { tier = 1; km++; }
+      let tier = i < nVisible ? 2 : 3;
+      if (i < nVisible && dist[i] <= limNear && kn < nNear) { tier = 0; kn++; } else if (i < nVisible && dist[i] <= limMid && km < nMid) { tier = 1; km++; }
       if (tier === 0) {
         for (const [part, col] of p.parts) { const im = near[part]; const j = cnt[part] || 0; if (j >= im.instanceMatrix.count) continue; put(im, j, p.m, col, p.phase); cnt[part] = j + 1; }
       } else if (tier === 1) {
@@ -528,6 +554,12 @@ function lodCrowd(chosen, { G, lite, seed, occupied, house, detail, mid }) {
     count: house,
     drawn: chosen.length,
     updateLOD,
+    setBudget(fraction = 1) {
+      budget = Math.max(0, Math.min(1, fraction));
+      this.drawn = Math.ceil(people.length * budget);
+      lastT = -Infinity;
+      last.set(1e9, 0, 0);
+    },
     dispose() {
       for (const im of meshes) { im.geometry.dispose(); if (im.material !== blobMat) im.material.dispose(); im.dispose?.(); }
       blobMat.dispose();

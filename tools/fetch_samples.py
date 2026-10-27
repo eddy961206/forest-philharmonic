@@ -38,6 +38,23 @@ FLUID_SET = {
     "choir": ("choir_aahs", 43, 84, 2),
     "voice": ("voice_oohs", 48, 84, 2),
     "bells": ("tubular_bells", 55, 84, 3),
+    "trombone": ("trombone", 34, 81, 3),
+    "tuba": ("tuba", 24, 67, 3),
+    "piccolo": ("piccolo", 72, 108, 3),
+    "englishHorn": ("english_horn", 52, 84, 3),
+    "altoSax": ("alto_sax", 49, 84, 3),
+    "tenorSax": ("tenor_sax", 44, 79, 3),
+    "baritoneSax": ("baritone_sax", 36, 72, 3),
+    "sopranoSax": ("soprano_sax", 56, 88, 3),
+    "celesta": ("celesta", 48, 108, 3),
+    "glockenspiel": ("glockenspiel", 60, 108, 3),
+    "marimba": ("marimba", 36, 96, 3),
+    "xylophone": ("xylophone", 48, 100, 3),
+    "vibraphone": ("vibraphone", 48, 96, 3),
+    "organ": ("church_organ", 24, 96, 3),
+    "harpsichord": ("harpsichord", 36, 96, 3),
+    "pizzicato": ("pizzicato_strings", 28, 100, 3),
+    "tremolo": ("tremolo_strings", 28, 100, 3),
 }
 
 FLAT_NAMES = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-23T17:09:36.983Z",
+  "status": "pass",
+  "inputs": {
+    "sha256": "10b36e4721605c1bdece22329eb6b0955f51d2af6380ee8ac250fc691da96474",
+    "files": 216
+  },
+  "steps": [
+    {
+      "command": "node tools/test.mjs --test-reporter=tap",
+      "log": "unit-tests.log",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 3016
+    },
+    {
+      "command": "node --experimental-loader ./tests/helpers/three-loader.mjs tools/qa/audit-playing-motion.mjs /Users/seung/Documents/Codex/2026-10-23/new-chat/work/cinema-qa/verification/motion-audit.json",
+      "log": "motion-audit.log",
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 14118
+    }
+  ],
+  "coverage": {
+    "songs": 82,
+    "cast": 51,
+    "rigs": 30,
+    "frames": 142110,
+    "armSamples": 5182248,
+    "venues": [
+      {
+        "id": "hall",
+        "stage": "shared-hall-stage"
+      },
+      {
+        "id": "outdoor",
+        "stage": "shared-hall-stage"
+      },
+      {
+        "id": "sphere",
+        "stage": "shared-hall-stage"
+      }
+    ],
+    "generatedRecordingCases": 51
+  },
+  "failures": [],
+  "scope": "Sampled score windows and full stage lifecycle at synthetic 60 Hz; no GPU, audio, visual aesthetics or physical iPhone certification.",
+  "unitTests": "included"
+}

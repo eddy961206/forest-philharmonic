@@ -14,11 +14,15 @@ const SECTION_LAG = { vn1: -0.004, vn2: 0.002, va: 0.004, vc: 0.006, cb: 0.012, 
 // A piece's score from the server. A failed answer (offline, a 503, a page
 // that is not a score) is an error, never half a piece.
 export async function fetchPiece(id) {
-  const r = await fetch(`music/${id}.json`);
-  if (!r.ok) throw new Error(`music/${id}.json: HTTP ${r.status}`);
-  const p = await r.json();
-  if (!p || !Array.isArray(p.tracks) || !(p.duration > 0)) throw new Error(`music/${id}.json: not a score`);
-  return p;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const r = await fetch(`music/${id}.json`, { signal: controller.signal });
+    if (!r.ok) throw new Error(`music/${id}.json: HTTP ${r.status}`);
+    const p = await r.json();
+    if (!p || p.id !== id || !Array.isArray(p.tracks) || !Number.isFinite(p.duration) || !(p.duration > 0)) throw new Error(`music/${id}.json: not a score`);
+    return p;
+  } finally { clearTimeout(timer); }
 }
 
 export class Performance {
@@ -48,11 +52,14 @@ export class Performance {
   // asked for and no longer wanted by the time it arrives changes nothing)
   prepare(p) {
     const events = [];
+    const players = {};
     p.tracks.forEach((tr, ti) => {
       const n = tr.notes;
       tr.count = n.length / 4;
       tr.ti = ti;
       tr.chairList = tr.chairs || SECTIONS[tr.section].chairs.map((_, i) => i);
+      const chairs = players[tr.section] || (players[tr.section] = new Set());
+      if (n.length) for (const chair of tr.chairList) chairs.add(chair);
       for (let i = 0; i < n.length; i += 4) events.push(ti, n[i], n[i + 1], n[i + 2], n[i + 3]);
     });
     // sort flat event list by time
@@ -64,9 +71,10 @@ export class Performance {
     });
     let maxDur = 0;
     for (let i = 0; i < count; i++) maxDur = Math.max(maxDur, ev[i * 5 + 2]);
-    this._shape(p, ev, count);
+    const expression = this._shape(p, ev, count);
+    const ensemble = Object.fromEntries(Object.entries(players).map(([section, chairs]) => [section, chairs.size]));
     return {
-      piece: p, ev, evCount: count, maxDur, level: this._level(p, ev, count),
+      piece: p, ev, expression, ensemble, evCount: count, maxDur, level: this._level(p, ev, count, ensemble),
       playingSections: new Set(p.tracks.map((t) => t.section)), activity: this._activity(p),
     };
   }
@@ -76,7 +84,9 @@ export class Performance {
     if (this.playing) this.stop();
     const p = prep.piece;
     this.piece = p;
+    this.engine.setEnsemble?.(prep.ensemble);
     this.ev = prep.ev;
+    this.expression = prep.expression;
     this.evCount = prep.evCount;
     this.maxDur = prep.maxDur;
     if (prep.level) {
@@ -133,7 +143,7 @@ export class Performance {
       if (on >= pos - 0.001 || on + dur < pos + 0.25) continue;
       const tr = tracks[ev[k]];
       try {
-        this.engine.playNote({ section: tr.section, inst: tr.inst, midi: ev[k + 3], vel: ev[k + 4], when: this.startCtx, dur: on + dur - pos, gain: tr.gain ?? 1, layer: tr.layer, skip: pos - on });
+        this.engine.playNote({ section: tr.section, inst: tr.inst, midi: ev[k + 3], vel: ev[k + 4], when: this.startCtx, dur: on + dur - pos, gain: tr.gain ?? 1, layer: tr.layer, skip: pos - on, bends: tr.bends, bendStart: pos, expression: this.expression?.subarray(i * 2, i * 2 + 2) });
       } catch { /* a note less */ }
     }
   }
@@ -199,8 +209,10 @@ export class Performance {
       const b = phrases[ph + 1];
       const u = Math.min(1, Math.max(0, (t - a) / Math.max(0.5, b - a)));
       const arc = Math.sin(Math.PI * Math.pow(u, 0.85));
-      const k = Math.min(nb - 1, Math.max(0, Math.floor(t / B)));
-      let m = (0.76 + 0.4 * lead[k]) * (0.93 + 0.13 * arc);
+      const bin = Math.min(nb - 1, Math.max(0, t / B));
+      const k = Math.floor(bin);
+      const texture = lead[k] + (lead[Math.min(nb - 1, k + 1)] - lead[k]) * (bin - k);
+      let m = (0.76 + 0.4 * texture) * (0.93 + 0.13 * arc);
       if (grand) m *= 1 + 0.1 * Math.min(1, Math.max(0, (t - (D - 6)) / 5));
       if (calm) m *= 1 - 0.16 * Math.min(1, Math.max(0, (t - D * 0.86) / (D * 0.14)));
       return m;
@@ -212,18 +224,28 @@ export class Performance {
       for (let i = 3; i < n.length; i += 4) { mn = Math.min(mn, n[i]); mx = Math.max(mx, n[i]); }
       return mx - mn < 3;
     });
+    // Two ratios per event let held tones follow the same phrase as their
+    // neighbours. No extra voices or runtime score scans are needed.
+    const expression = new Float32Array(count * 2).fill(1);
     for (let i = 0; i < count; i++) {
       const k = i * 5;
       if (!flat[ev[k]]) continue;
-      ev[k + 4] = Math.min(122, Math.max(24, ev[k + 4] * at(ev[k + 1])));
+      const on = ev[k + 1], dur = ev[k + 2];
+      const start = at(on);
+      ev[k + 4] = Math.min(122, Math.max(24, ev[k + 4] * start));
+      if (dur > 0.6) {
+        expression[i * 2] = at(on + dur * 0.5) / start;
+        expression[i * 2 + 1] = at(on + dur) / start;
+      }
     }
+    return expression;
   }
 
   // Each piece is levelled from its score (as the engine will play it), so
   // the programme keeps one loudness: a piano rag is not louder than the
   // orchestra's finale. A little of the difference stays, by character.
   // (what use() then sets: { db, trim }, or null)
-  _level(p, ev, count) {
+  _level(p, ev, count, ensemble = {}) {
     const e = this.engine;
     if (!e.noteEnergy || !e.setTrim) return null;
     const nb = Math.ceil(p.duration) + 2;
@@ -232,7 +254,7 @@ export class Performance {
     for (let i = 0; i < count; i++) {
       const k = i * 5;
       const tr = tracks[ev[k]];
-      const en = e.noteEnergy(tr.section, tr.inst, ev[k + 3], ev[k + 4], ev[k + 2], tr.gain ?? 1, tr.layer);
+      const en = e.noteEnergy(tr.section, tr.inst, ev[k + 3], ev[k + 4], ev[k + 2], tr.gain ?? 1, tr.layer, ensemble[tr.section]);
       if (!en) continue;
       const a = Math.floor(ev[k + 1]);
       const b = Math.min(nb - 1, Math.floor(ev[k + 1] + Math.max(0.3, ev[k + 2])));
@@ -319,7 +341,7 @@ export class Performance {
       const vel = ev[i + 4] * (1 + (Math.random() - 0.5) * 0.07);
       this.schedIdx++;
       try {
-        e.playNote({ section: tr.section, inst: tr.inst, midi: ev[i + 3], vel, when, dur: ev[i + 2], gain: tr.gain ?? 1, layer: tr.layer });
+        e.playNote({ section: tr.section, inst: tr.inst, midi: ev[i + 3], vel, when, dur: ev[i + 2], gain: tr.gain ?? 1, layer: tr.layer, bends: tr.bends, bendStart: ev[i + 1], expression: this.expression?.subarray(i / 5 * 2, i / 5 * 2 + 2) });
       } catch (err) {
         console.warn('note skipped', err);
       }

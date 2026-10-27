@@ -106,7 +106,9 @@ function buildFireworks(scene, N = 2400) {
   let next = 0;
   const flash = new THREE.PointLight('#ffffff', 0, 40, 1.5);
   flash.position.set(0, 12, -4);
-  flash.visible = false;
+  // Keep the light in the shader layout from the loading-screen compile.
+  // Adding it at the first burst recompiles every lit material mid-finale.
+  // Zero intensity makes it dark without changing the point-light count.
   scene.add(flash);
   let flashT = 0;
   const palette = ['#ffd166', '#ff6b6b', '#4ecdc4', '#c084fc', '#f8fafc', '#fb923c', '#86efac'];
@@ -166,7 +168,6 @@ function buildFireworks(scene, N = 2400) {
       }
       flashT = Math.max(0, flashT - dt);
       flash.intensity = flashT > 0 ? 120 * (flashT / 0.25) : 0;
-      flash.visible = flashT > 0;
       let alive = 0;
       const drag = Math.exp(-dt * 1.4);
       for (let i = 0; i < N; i++) {

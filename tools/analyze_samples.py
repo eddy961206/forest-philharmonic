@@ -63,7 +63,7 @@ def measure(path, percussive):
     }
 
 
-PERCUSSIVE = {"piano", "harp", "timpani"}
+PERCUSSIVE = {"piano", "harp", "timpani", "celesta", "glockenspiel", "marimba", "xylophone", "vibraphone", "bells", "harpsichord", "pizzicato", "snare", "bassDrum", "cymbals", "triangle", "tambourine", "tom"}
 
 
 def main():
