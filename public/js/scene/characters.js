@@ -33,6 +33,99 @@ const SPECIES = {
 const sphereG = (r, w, h, ...rest) => new THREE.SphereGeometry(r, isLite() ? Math.max(6, Math.round(w / 2)) : w, isLite() ? Math.max(4, Math.round(h / 2)) : h, ...rest);
 const capsuleG = (r, len, cs, rs) => new THREE.CapsuleGeometry(r, len, isLite() ? Math.max(2, cs >> 1) : cs, isLite() ? Math.max(6, rs >> 1) : rs);
 
+// The torso is a capsule (radius 0.19, straight for ±0.1) drawn 1.08 wide
+// and 0.92 deep. Its front surface (-Z), dy above the torso's centre, x
+// across: where the shirt front and the bow tie lie on the coat.
+const TORSO_R = 0.19;
+export function torsoFrontZ(dy, x = 0) {
+  const cap = Math.max(0, Math.abs(dy) - 0.1);
+  const r = Math.sqrt(Math.max(0, TORSO_R * TORSO_R - cap * cap));
+  const u = r > 0 ? Math.min(0.98, Math.abs(x) / (1.08 * r)) : 0.98;
+  return -0.92 * r * Math.sqrt(1 - u * u);
+}
+// The skull is a sphere of HEAD_R drawn 1.05 wide, 0.95 tall and 0.97 deep.
+const HEAD_R = 0.27;
+const skullFrontZ = (x, y) => -HEAD_R * 0.97 * Math.sqrt(Math.max(0, 1 - (x / (HEAD_R * 1.05)) ** 2 - (y / (HEAD_R * 0.95)) ** 2));
+// Markings laid on the skull: balls set inside the head showed only slivers
+// of themselves. An oval at (x * side, y), tilted by tilt * side, lifted off
+// the fur by lift (a larger lift draws over a smaller one).
+export const FACE_MARKINGS = {
+  // a panda's eye patch, its top leaning in towards the nose
+  pandaPatch: { x: 0.1, y: 0.02, rx: 0.055, ry: 0.075, tilt: 0.45, lift: 0.004 },
+  // an owl's facial disc, both eyes in it, and the pale rings round the eyes
+  owlDisc: { x: 0, y: -0.005, rx: 0.205, ry: 0.15, tilt: 0, lift: 0.003 },
+  owlRing: { x: 0.1, y: 0.03, rx: 0.074, ry: 0.078, tilt: 0, lift: 0.006 },
+};
+export function skullPatchGeometry(marking, side = 1) {
+  const { x: cx, y: cy, rx, ry, tilt, lift } = marking;
+  const segments = isLite() ? 16 : 28;
+  const rings = isLite() ? 3 : 5;
+  const c = Math.cos(side * tilt);
+  const s = Math.sin(side * tilt);
+  const position = [];
+  const uv = [];
+  const index = [];
+  for (let ring = 0; ring <= rings; ring++) {
+    const r = ring / rings;
+    for (let i = 0; i <= segments; i++) {
+      const a = i / segments * Math.PI * 2;
+      const u = Math.cos(a) * rx * r;
+      const v = Math.sin(a) * ry * r;
+      const x = side * cx + u * c - v * s;
+      const y = cy + u * s + v * c;
+      position.push(x, y, skullFrontZ(x, y) - lift);
+      uv.push(i / segments, r);
+      if (ring && i) {
+        const p = ring * (segments + 1) + i;
+        const q = p - segments - 1;
+        index.push(p, p - 1, q, q, p - 1, q - 1); // (facing -Z, out of the face)
+      }
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(position, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geometry.setIndex(index);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+// A dress shirt between the lapels: wide under the bow tie, narrowing to a
+// point at the waist, laid on the torso's curve (not a ball held in front)
+export const SHIRT_FRONT = { top: 0.25, bottom: -0.06, halfWidth: 0.075, lift: 0.007 };
+export function shirtFrontGeometry(torsoY) {
+  const { top, bottom, halfWidth, lift } = SHIRT_FRONT;
+  const cols = 6;
+  const rows = isLite() ? 4 : 8;
+  const position = [];
+  const uv = [];
+  const index = [];
+  for (let j = 0; j <= rows; j++) {
+    const t = j / rows;
+    const dy = bottom + (top - bottom) * t;
+    const half = halfWidth * Math.pow(t, 0.8) + 0.004;
+    for (let i = 0; i <= cols; i++) {
+      const x = (i / cols * 2 - 1) * half;
+      position.push(x, torsoY + dy, torsoFrontZ(dy, x) - lift);
+      uv.push(i / cols, t);
+    }
+  }
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      const a = j * (cols + 1) + i;
+      const b = a + 1;
+      const c = a + cols + 1;
+      const d = c + 1;
+      index.push(a, c, b, b, c, d); // (facing -Z, the house)
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(position, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geometry.setIndex(index);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
 // Phones: the arms of every animal are drawn as two instanced meshes (arm
 // segments, paws). The IK still moves per-character proxies; syncLiteArms()
 // copies their world matrices across before each render.
@@ -181,10 +274,9 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     sash.rotation.x = Math.PI / 2;
     sash.scale.set(1.08, 0.92, 1);
   } else {
-    // shirt front and bow tie
-    const front = add(body, sphereG(0.12, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), shirt, V(0, torsoY + 0.1, -0.14), { cast: false });
-    front.rotation.x = -Math.PI / 2 - 0.25;
-    front.scale.set(0.8, 1, 0.55);
+    // shirt front (the bow tie sits at its top, below)
+    const front = add(body, shirtFrontGeometry(torsoY), shirt, null, { cast: false });
+    front.name = 'shirt-front';
     // Character front is -Z. Anchor the coat at the back waist, then let
     // both tapered tails fall down and slightly rearward (+Z). Rotating a
     // detached box around its centre left the old top floating off the back.
@@ -218,7 +310,8 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   }
   const tieY = torsoY + 0.24;
   const tie = new THREE.Group();
-  tie.position.set(0, tieY, -0.16);
+  // (on the collar: the knot just clear of the shirt front, not floating off it)
+  tie.position.set(0, tieY, torsoFrontZ(0.24) - SHIRT_FRONT.lift - 0.03);
   body.add(tie);
   for (const sx of [-1, 1]) {
     const w = add(tie, new THREE.ConeGeometry(0.035, 0.07, 4), accent, V(sx * 0.035, 0, 0), { cast: false });
@@ -259,17 +352,13 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   if (sp.beak) {
     const beak = add(head, new THREE.ConeGeometry(0.04, 0.09, 8), plainMaterial(sp.nose, { roughness: 0.3 }), V(0, -0.06, -0.26), { cast: false });
     beak.rotation.x = -Math.PI / 2 - 0.4;
-    const face = add(head, sphereG(0.2, 20, 14), muzzleMat, V(0, -0.01, -0.12));
-    face.scale.set(1.15, 0.85, 0.6);
+    add(head, skullPatchGeometry(FACE_MARKINGS.owlDisc), muzzleMat, null, { cast: false });
   }
 
   // patches & masks
   if (sp.patches) {
-    for (const sx of [-1, 1]) {
-      const p = add(head, sphereG(0.065, 12, 8), plainMaterial(sp.patches), V(sx * 0.1, 0.02, -0.2), { cast: false });
-      p.scale.set(1, 1.3, 0.5);
-      p.rotation.z = sx * 0.5;
-    }
+    const patch = plainMaterial(sp.patches);
+    for (const sx of [-1, 1]) add(head, skullPatchGeometry(FACE_MARKINGS.pandaPatch, sx), patch, null, { cast: false });
   }
   if (sp.mask) {
     const marking = plainMaterial('#ffffff', { vertexColors: true, roughness: 0.92 });
@@ -281,9 +370,10 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   head.add(eyes.open, eyes.closed);
   eyes.closed.visible = false;
   const eyeR = sp.bigEyes ? 0.055 : 0.036;
+  const ringMat = sp.bigEyes ? plainMaterial('#fff6dc', { roughness: 0.5 }) : null;
   for (const sx of [-1, 1]) {
     const ep = V(sx * (sp.bigEyes ? 0.1 : 0.095), 0.03, -0.235);
-    if (sp.bigEyes) add(head, new THREE.CircleGeometry(0.075, 20), plainMaterial('#fff6dc', { roughness: 0.5 }), ep.clone().add(V(0, 0, 0.012)), { cast: false }).rotation.y = Math.PI;
+    if (sp.bigEyes) add(head, skullPatchGeometry(FACE_MARKINGS.owlRing, sx), ringMat, null, { cast: false });
     const eye = add(eyes.open, sphereG(eyeR, 16, 12), plainMaterial('#120c0a', { roughness: 0.15 }), ep, { cast: false });
     eye.scale.set(1, 1.15, 0.6);
     add(eye, sphereG(eyeR * 0.32, 8, 6), ownMaterial(new THREE.MeshBasicMaterial({ color: '#ffffff' })), V(eyeR * 0.3, eyeR * 0.35, -eyeR * 0.7), { cast: false });

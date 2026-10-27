@@ -242,3 +242,32 @@ test('blocked close rear shot still evaluates the independent ensemble-back reve
     assert.equal(shots[2].kind,'section');assert.equal(shots[2].sid,'vn1');
   } finally { Math.random = random; }
 });
+
+test('every shot but the checked reveals pushes in slowly, and short moves glide quicker', async () => {
+  const THREE = await import('three');
+  const { PUSH_IN, GLIDE } = await import('../public/js/scene/director.js');
+  const random = Math.random; Math.random = () => 0;
+  try {
+    const director = { cine: {}, venue: 'hall' }, piece = { conducted: true, tracks: [track('vn1', [0], [0, 1000, 60, 90]), track('fl', [0], [0, 1000, 72, 90])] };
+    const shots = Array.from({ length: 28 }, (_, i) => Director.prototype._pickShot.call(director, { perf: { piece, playing: true }, time: i * 10, phase: 'playing', obstacles: [] }));
+    for (const s of shots) {
+      if (s.lookEnd) { assert.equal(s.fovEnd, undefined, 'a reveal keeps the lens it was checked with'); continue; }
+      const k = s.kind === 'section' ? PUSH_IN.section : PUSH_IN.wide;
+      assert.ok(Math.abs(s.fovEnd - s.fov * (1 - k)) < 1e-9 && s.fovEnd < s.fov && s.fovEnd > 20);
+    }
+    assert.ok(shots.some(s => s.lookEnd), 'the reveal is among them');
+  } finally { Math.random = random; }
+  // within a shot: the lens follows the push-in, eased, and ends at fovEnd
+  const shot = { pos: new THREE.Vector3(0, 4, 10), look: new THREE.Vector3(0, 2, -5), drift: new THREE.Vector3(1, 0, 0), fov: 50, fovEnd: 43, hold: 10, kind: 'wide' };
+  const d = { cine: {}, pos: shot.pos.clone(), yaw: 0, pitch: 0, fov: 50, targetFov: 50,
+    lookAt: Director.prototype.lookAt, _pickShot: () => shot, flyTo(p, l, dur) { this.glide = dur; this.anim = {}; } };
+  Director.prototype._cinema.call(d, .016, { phase: 'playing' });
+  d.anim.after();
+  const lens = [];
+  for (let i = 0; i < 600; i++) { Director.prototype._cinema.call(d, 1 / 60, { phase: 'playing' }); if (i % 150 === 149) lens.push(d.targetFov); }
+  assert.ok(lens.every((f, i) => i === 0 || f < lens[i - 1]), 'narrows steadily');
+  assert.ok(Math.abs(lens.at(-1) - 43) < 0.05);
+  assert.ok(lens[0] > 50 - (50 - 43) * 0.25, 'slow at the start');
+  // a short glide between neighbouring shots
+  assert.ok(GLIDE[0] < 2.4 && GLIDE[1] <= 3.0);
+});
