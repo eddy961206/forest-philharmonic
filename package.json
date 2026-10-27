@@ -18,6 +18,7 @@
     "check:repertoire": "python3 tools/build_repertoire.py --check",
     "check:motion": "node --experimental-loader ./tests/helpers/three-loader.mjs tools/qa/audit-playing-motion.mjs",
     "record:motion": "node tools/qa/record-playing-motion.mjs",
-    "verify:motion": "node tools/qa/verify-motion.mjs"
+    "verify:motion": "node tools/qa/verify-motion.mjs",
+    "verify:app": "node tools/qa/verify-app-flow.mjs"
   }
 }

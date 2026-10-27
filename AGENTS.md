@@ -8,6 +8,8 @@
 - 몸의 흔들림과 무대 이동을 먼저 적용한 다음 몸 좌표에서 IK를 계산한다.
 - 접촉 오차를 뼈 늘리기나 검사 허용값 완화로 감추지 않는다.
 - `public/js/main.js`는 장면·악단·소리를 만들고 조립만 한다. 공연 흐름은 `public/js/app/`의 컨트롤러가 맡는다. 공유 상태는 `state.js` 한 객체, 설정은 `settings.js`, 화질·렌더는 `graphics.js`, 공연 진행은 `concert.js`, 인터미션·앙코르·잠들기는 각 파일, 함께 보기는 `sync.js`, 매 프레임은 `loop.js`다. 다른 컨트롤러는 `app.<이름>`으로 호출 시점에 찾는다.
+- `main.js`·`app/`를 바꾸면 `npm run verify:app`으로 세 공연장의 공연 흐름과 함께 보기를 실제 브라우저에서 검사한다(CDP Chrome 필요, `APP_PORT`/`CDP_PORT`). `BASELINE=<커밋>`으로 이전 코드에 같은 흐름을 돌려 비교한다. 서버는 IP당 방 24개까지라 반복 실행 전에는 서버를 다시 켠다.
+- 머리·몸통 치수와 그 표면은 `scene/body-shape.js` 한 곳에서 정한다. 얼굴 무늬·셔츠처럼 표면에 붙는 것은 숫자를 복사하지 말고 `skullFrontZ`/`torsoFrontZ`를 쓴다.
 
 ## 검증이 요청된 개발 작업
 

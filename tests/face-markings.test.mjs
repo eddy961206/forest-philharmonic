@@ -1,9 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {
-  buildCharacter, torsoFrontZ, shirtFrontGeometry, SHIRT_FRONT, skullPatchGeometry, FACE_MARKINGS,
-} from '../public/js/scene/characters.js';
+import { buildCharacter, shirtFrontGeometry, SHIRT_FRONT, skullPatchGeometry, FACE_MARKINGS } from '../public/js/scene/characters.js';
+import { HEAD, torsoFrontZ, skullFrontZ } from '../public/js/scene/body-shape.js';
 import { CONDUCTOR } from '../public/js/layout.js';
 
 // Markings drawn as balls set inside the head (the owl's facial disc and eye
@@ -19,7 +18,7 @@ const facesFront = (geometry) => {
   for (let i = 0; i < n.count; i++) if (n.getZ(i) < 0) front++;
   return front / n.count;
 };
-const skullZ = (p) => -0.27 * 0.97 * Math.sqrt(Math.max(0, 1 - (p.x / (0.27 * 1.05)) ** 2 - (p.y / (0.27 * 0.95)) ** 2));
+const skullZ = (p) => skullFrontZ(p.x, p.y);
 
 test('the shirt front lies on the torso, a V from under the bow tie to the waist', () => {
   const torsoY = 0.75;
@@ -32,6 +31,12 @@ test('the shirt front lies on the torso, a V from under the bow tie to the waist
   }
   const width = (dy) => Math.max(...ps.filter(p => Math.abs(p.y - torsoY - dy) < 0.02).map(p => Math.abs(p.x)));
   assert.ok(width(SHIRT_FRONT.top) > 3 * width(SHIRT_FRONT.bottom + 0.01), 'wide at the collar, a point at the waist');
+});
+
+test('the shared skull is the one the characters are drawn with', () => {
+  const ch = buildCharacter({ species: 'bear', name: '곰', fur: '#8a5a3c', outfit: 'tail' });
+  // (the collision audit's head volume is taken from the rendered skull)
+  assert.deepEqual(ch.headVolumes[0].radii.toArray().map(v => +v.toFixed(6)), HEAD.scale.map(s => +(s * HEAD.r).toFixed(6)));
 });
 
 test('face markings lie on the skull and face out of it', () => {

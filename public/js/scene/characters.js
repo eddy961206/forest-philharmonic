@@ -7,6 +7,7 @@ import { furMaterial, clothMaterial, plainMaterial, isLite, M } from './material
 import { mergeChildren, bakeColor } from './merge.js';
 import { raccoonPatchGeometry } from './playing-motion.js';
 import { skirtGeometry } from './skirt.js';
+import { HEAD, TORSO, skullFrontZ, torsoFrontZ } from './body-shape.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const UP = V(0, 1, 0);
@@ -33,19 +34,6 @@ const SPECIES = {
 const sphereG = (r, w, h, ...rest) => new THREE.SphereGeometry(r, isLite() ? Math.max(6, Math.round(w / 2)) : w, isLite() ? Math.max(4, Math.round(h / 2)) : h, ...rest);
 const capsuleG = (r, len, cs, rs) => new THREE.CapsuleGeometry(r, len, isLite() ? Math.max(2, cs >> 1) : cs, isLite() ? Math.max(6, rs >> 1) : rs);
 
-// The torso is a capsule (radius 0.19, straight for ±0.1) drawn 1.08 wide
-// and 0.92 deep. Its front surface (-Z), dy above the torso's centre, x
-// across: where the shirt front and the bow tie lie on the coat.
-const TORSO_R = 0.19;
-export function torsoFrontZ(dy, x = 0) {
-  const cap = Math.max(0, Math.abs(dy) - 0.1);
-  const r = Math.sqrt(Math.max(0, TORSO_R * TORSO_R - cap * cap));
-  const u = r > 0 ? Math.min(0.98, Math.abs(x) / (1.08 * r)) : 0.98;
-  return -0.92 * r * Math.sqrt(1 - u * u);
-}
-// The skull is a sphere of HEAD_R drawn 1.05 wide, 0.95 tall and 0.97 deep.
-const HEAD_R = 0.27;
-const skullFrontZ = (x, y) => -HEAD_R * 0.97 * Math.sqrt(Math.max(0, 1 - (x / (HEAD_R * 1.05)) ** 2 - (y / (HEAD_R * 0.95)) ** 2));
 // Markings laid on the skull: balls set inside the head showed only slivers
 // of themselves. An oval at (x * side, y), tilted by tilt * side, lifted off
 // the fur by lift (a larger lift draws over a smaller one).
@@ -260,8 +248,8 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
 
   // ---- torso
   const torsoY = hipY + 0.2;
-  const torso = add(body, capsuleG(0.19, 0.2, 6, 16), coat, V(0, torsoY, 0));
-  torso.scale.set(1.08, 1, 0.92);
+  const torso = add(body, capsuleG(TORSO.r, 2 * TORSO.straight, 6, 16), coat, V(0, torsoY, 0));
+  torso.scale.set(...TORSO.scale);
   let coatTailGeometry = null;
   let skirt = null;
   if (isDress) {
@@ -270,9 +258,9 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     skirt.material.side = THREE.DoubleSide;
     if (isLite()) bakeColor(skirt);
     skirt.morphTargetInfluences[0] = standing ? 1 : 0;
-    const sash = add(body, new THREE.TorusGeometry(0.19, 0.025, 8, 24), accent, V(0, hipY + 0.1, 0));
+    const sash = add(body, new THREE.TorusGeometry(TORSO.r, 0.025, 8, 24), accent, V(0, hipY + 0.1, 0));
     sash.rotation.x = Math.PI / 2;
-    sash.scale.set(1.08, 0.92, 1);
+    sash.scale.set(TORSO.scale[0], TORSO.scale[2], 1); // (turned flat: its y is the torso's depth)
   } else {
     // shirt front (the bow tie sits at its top, below)
     const front = add(body, shirtFrontGeometry(torsoY), shirt, null, { cast: false });
@@ -324,9 +312,9 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   const head = new THREE.Group();
   head.position.set(0, neckY + 0.22, 0);
   body.add(head);
-  const headR = 0.27;
+  const headR = HEAD.r;
   const skull = add(head, sphereG(headR, 32, 24), sp.face ? furMaterial(sp.face) : fur, V(0, 0, 0));
-  skull.scale.set(1.05, 0.95, 0.97);
+  skull.scale.set(...HEAD.scale);
   // The QA collision audit uses the same ellipsoids as the rendered face.
   const headVolumes = [{ center: skull.position.clone(), radii: skull.scale.clone().multiplyScalar(headR) }];
 
