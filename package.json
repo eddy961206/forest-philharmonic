@@ -19,6 +19,7 @@
     "check:motion": "node --experimental-loader ./tests/helpers/three-loader.mjs tools/qa/audit-playing-motion.mjs",
     "record:motion": "node tools/qa/record-playing-motion.mjs",
     "verify:motion": "node tools/qa/verify-motion.mjs",
-    "verify:app": "node tools/qa/verify-app-flow.mjs"
+    "verify:app": "node tools/qa/verify-app-flow.mjs",
+    "verify:features": "node tools/qa/verify-features.mjs"
   }
 }
