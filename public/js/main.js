@@ -193,7 +193,7 @@ scene.add(hall.group);
 // Both the broadcast and visitor cameras select batches after their world
 // matrices are current, before Three.js builds the render list.
 scene.onBeforeRender = (_renderer, _scene, view) => hall.prepareRender?.(view);
-const orchestra = buildOrchestra(scene, { brightFloor: IS_OUTDOOR });
+const orchestra = buildOrchestra(scene, { brightFloor: !IS_SPHERE });
 // Fixed geometry is consulted only when the camera plans a new shot.
 const cameraInstruments = orchestra.players.filter(p => p.fixedInstrument).map(p => p.inst.group);
 const stage = new StageManager(orchestra);

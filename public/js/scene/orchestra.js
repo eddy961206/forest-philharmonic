@@ -10,6 +10,7 @@ import { batchCharacterArms } from './arm-batches.js';
 import { stageFloorY, PODIUM_H } from './hallplan.js';
 import { instrumentToBody } from './playing-motion.js';
 import { smooth } from './rig-utils.js';
+import { conductorScore, createConductorPose, sampleConductorPose } from './conductor-motion.js';
 import { stringRig } from './string-rigs.js';
 import { WIND_RIGS } from './wind-rigs.js';
 import { KEYBOARD_RIGS } from './keyboard-rigs.js';
@@ -222,7 +223,7 @@ function updateAll(players, conductor, particles, t0, dt, perf, opts) {
     const bliss = playing && st.lastDur > 1.2 && st.lastVel < 85 ? 1 : 0;
     updateFace(p.char, dt, bliss);
     p.effectsActive = !!(inPiece && running && atInstrument && p.char.root.visible);
-    const g = opts.glow && p.effectsActive ? p.energy * p.glow.userData.strength * p.ready : 0;
+    const g = opts.glow && p.effectsActive ? Math.sqrt(Math.max(0, p.energy)) * p.glow.userData.strength * p.ready : 0;
     p.glow.material.opacity = opts.glow && p.effectsActive ? smooth(p.glow.material.opacity, g, 6, dt) : 0;
     p.glow.visible = p.glow.material.opacity > 0.004; // unlit glows cost a draw each
   }
@@ -230,7 +231,9 @@ function updateAll(players, conductor, particles, t0, dt, perf, opts) {
   if (opts.particles && opts.events) {
     for (const e of opts.events) {
       const p = players.find((q) => q.sid === e.section && q.ci === e.chair);
-      if (p?.effectsActive && p.ready > .1) particles.spawn(p, e, t);
+      // Onsets arrive once. The pose's readiness fade must not discard the
+      // first note of a long phrase while an already seated player settles.
+      if (p?.effectsActive) particles.spawn(p, e, t);
     }
   }
   if (!opts.particles || !opts.running) particles.clear();
@@ -353,13 +356,6 @@ RIGS.choir = {
 };
 
 // ------------------------------------------------------------- conductor
-const PATTERNS = {
-  1: [[0, -0.2]],
-  2: [[0, -0.22], [0.08, 0.06]],
-  3: [[0, -0.22], [0.26, -0.06], [0.06, 0.14]],
-  4: [[0, -0.22], [-0.24, -0.08], [0.28, -0.08], [0.06, 0.14]],
-};
-
 function updateConductor(cd, t, dt, perf, opts, energy) {
   const ch = cd.char;
   const piece = perf.piece;
@@ -367,58 +363,46 @@ function updateConductor(cd, t, dt, perf, opts, energy) {
   const conducting = !!(piece && piece.conducted && opts.running && atPodium);
   cd.active = smooth(cd.active ?? 0, conducting ? 1 : 0, 2, dt);
   const walking = cd.walker && cd.walker.state === 'walking';
-  ch.body.rotation.x = -(cd.walker?.bow || 0) * .55;
-
-  let tip = V(0.12, 1.0, -0.22);
-  if (piece && piece.beats && piece.beats.length) {
-    const beats = piece.beats;
-    // find current beat
-    let lo = 0;
-    let hi = beats.length - 1;
-    while (lo < hi) {
-      const m = (lo + hi + 1) >> 1;
-      if (beats[m][0] <= t) lo = m; else hi = m - 1;
-    }
-    const b = beats[lo];
-    const nb = beats[Math.min(beats.length - 1, lo + 1)];
-    const span = Math.max(0.2, nb[0] - b[0]);
-    const x = t < beats[0][0] ? 0 : Math.min(1, (t - b[0]) / span);
-    const pat = PATTERNS[Math.min(4, b[2])] || PATTERNS[4];
-    const pA = pat[b[1] % pat.length];
-    const pB = pat[nb[1] % pat.length];
-    const size = 0.75 + energy * 1.4;
-    // ictus then rebound: ease along the chord between beat points with a lift
-    const e = x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
-    const bx = pA[0] + (pB[0] - pA[0]) * e;
-    const by = pA[1] + (pB[1] - pA[1]) * e + Math.sin(x * Math.PI) * 0.12;
-    tip = V(0.06 + bx * size, 1.18 + by * size, -0.36);
-  }
-  const rest = V(0.16, 0.66, -0.12);
-  let hand = rest.clone().lerp(tip, cd.active);
-  let lh = V(-0.2, 0.66, -0.12).lerp(V(-0.24, 1.0 + energy * 0.5, -0.32), cd.active * Math.min(1, 0.3 + energy * 2));
+  const bow = cd.walker?.bow || 0;
+  cd.gesture ??= { pose: createConductorPose(), right: V(), left: V(), direction: V(), up: V(0, 1, 0), poleR: V(.8, -.5, .3), poleL: V(-.8, -.5, .3) };
+  const g = cd.gesture;
+  const pose = sampleConductorPose(conductorScore(piece), t, g.pose);
+  const expression = walking ? 0 : cd.active * (1 - bow);
+  ch.body.rotation.x = -bow * .55 + pose.bodyX * expression;
+  ch.body.rotation.z = pose.bodyZ * expression;
+  const hand = g.right.set(.16, .66, -.12);
+  const lh = g.left.set(-.2, .66, -.12);
+  hand.x += (pose.rx - hand.x) * cd.active;
+  hand.y += (pose.ry - hand.y) * cd.active;
+  hand.z += (pose.rz - hand.z) * cd.active;
+  lh.x += (pose.lx - lh.x) * cd.active;
+  lh.y += (pose.ly - lh.y) * cd.active;
+  lh.z += (pose.lz - lh.z) * cd.active;
   if (walking) {
-    // arms swing while walking, baton down at the side
     const ph = cd.walker.phase;
-    hand = V(0.22, 0.62 + Math.sin(ph) * 0.06, -0.05 - Math.sin(ph) * 0.14);
-    lh = V(-0.22, 0.62 - Math.sin(ph) * 0.06, -0.05 + Math.sin(ph) * 0.14);
-  } else if (cd.walker && cd.walker.bow > 0.05) {
-    // hands together in front for the bow
-    const b = cd.walker.bow;
-    hand = hand.lerp(V(0.08, 0.72, -0.26), b);
-    lh = lh.lerp(V(-0.08, 0.72, -0.26), b);
+    hand.set(.22, .62 + Math.sin(ph) * .06, -.05 - Math.sin(ph) * .14);
+    lh.set(-.22, .62 - Math.sin(ph) * .06, -.05 + Math.sin(ph) * .14);
+  } else if (bow > .05) {
+    hand.x += (.08 - hand.x) * bow;
+    hand.y += (.72 - hand.y) * bow;
+    hand.z += (-.26 - hand.z) * bow;
+    lh.x += (-.08 - lh.x) * bow;
+    lh.y += (.72 - lh.y) * bow;
+    lh.z += (-.26 - lh.z) * bow;
   }
   cd.handR ??= hand.clone(); cd.handL ??= lh.clone();
   cd.handR.lerp(hand, 1 - Math.exp(-16 * dt));
   cd.handL.lerp(lh, 1 - Math.exp(-16 * dt));
-  setArm(ch, 'R', cd.handR, V(0.8, -0.5, 0.3));
-  setArm(ch, 'L', cd.handL, V(-0.8, -0.5, 0.3));
-  // baton in the right paw, pointing forward and up
-  const A = ch.arms.R;
-  cd.baton.position.copy(A.wrist);
-  const dir = new THREE.Vector3().subVectors(A.wrist, A.elbow).normalize().add(V(0, 0.3, -0.5)).normalize();
-  cd.baton.quaternion.setFromUnitVectors(V(0, 1, 0), dir);
-  ch.head.rotation.x = smooth(ch.head.rotation.x, 0.08 * cd.active + Math.sin(t * 2.2) * 0.02 * cd.active, 3, dt);
-  ch.body.rotation.z = Math.sin(t * 0.9) * 0.03 * cd.active;
+  setArm(ch, 'R', cd.handR, g.poleR);
+  setArm(ch, 'L', cd.handL, g.poleL);
+  const arm = ch.arms.R;
+  cd.baton.position.copy(arm.wrist);
+  g.direction.subVectors(arm.wrist, arm.elbow).normalize();
+  g.direction.y += .3; g.direction.z -= .5;
+  g.direction.normalize();
+  cd.baton.quaternion.setFromUnitVectors(g.up, g.direction);
+  ch.head.rotation.x = smooth(ch.head.rotation.x, pose.headX * expression, 3, dt);
+  ch.head.rotation.y = smooth(ch.head.rotation.y, pose.headY * expression, 3, dt);
   updateFace(ch, dt, !conducting && piece && opts.running && atPodium ? 1 : 0);
 }
 
@@ -430,7 +414,7 @@ function buildNoteParticles(parent) {
   const N = lite ? 36 : 220;
   const pool = [];
   for (let i = 0; i < N; i++) {
-    const mat = new THREE.SpriteMaterial({ map: glyphs[i % 4], transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+    const mat = new THREE.SpriteMaterial({ map: glyphs[i % 4], transparent: true, opacity: 0, depthWrite: false, blending: THREE.NormalBlending, toneMapped: false });
     const s = new THREE.Sprite(mat);
     s.visible = false;
     s.scale.setScalar(0.16);
@@ -475,7 +459,7 @@ function buildNoteParticles(parent) {
       it.life = 0;
       it.max = 2.2 + Math.random() * 1.4;
       it.phase = Math.random() * 6;
-      it.size = 0.1 + (e.vel / 127) * 0.1;
+      it.size = 0.22 + (e.vel / 127) * 0.14;
       it.s.visible = true;
     },
     update(dt) {
