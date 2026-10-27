@@ -100,10 +100,10 @@ MOBILE=1 QA_OUT=work/cinema node tools/qa/record-cinema.mjs outdoor 45
 
 | 영상 | 시간 | 장면 | 자료 |
 | --- | ---: | ---: | --- |
-| 야외 | 75초 | 8 | [영상](evidence/cinema/outdoor.mp4) · [선택 기록](evidence/cinema/outdoor.json) |
-| 홀 | 45초 | 5 | [영상](evidence/cinema/hall.mp4) · [선택 기록](evidence/cinema/hall.json) |
-| 스피어 | 45초 | 5 | [영상](evidence/cinema/sphere.mp4) · [선택 기록](evidence/cinema/sphere.json) |
-| 모바일 최종 | 45초 | 5 | [영상](evidence/cinema/outdoor-mobile.mp4) · [선택 기록](evidence/cinema/outdoor-mobile.json) |
+| 야외 | 75초 | 8 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/cinema/outdoor.mp4) · [선택 기록](evidence/cinema/outdoor.json) |
+| 홀 | 45초 | 5 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/cinema/hall.mp4) · [선택 기록](evidence/cinema/hall.json) |
+| 스피어 | 45초 | 5 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/cinema/sphere.mp4) · [선택 기록](evidence/cinema/sphere.json) |
+| 모바일 최종 | 45초 | 5 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/cinema/outdoor-mobile.mp4) · [선택 기록](evidence/cinema/outdoor-mobile.json) |
 
 [최종 검사 요약](evidence/cinema/verification/verification-summary.json) · [실행 로그](evidence/cinema/verification/unit-tests.log) · [전체 동작 원자료](evidence/cinema/verification/motion-audit.json) · [최종 PC 재검사](evidence/cinema/outdoor-current-smoke.json).
 

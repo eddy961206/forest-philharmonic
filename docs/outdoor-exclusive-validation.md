@@ -26,7 +26,7 @@
 
 지휘자 옆에서 떠 있던 검은 판은 연미복 뒷자락이었다. 기존 판의 상단이 몸에서 떨어지고 밑단이 앞으로 기울어 있었다. 허리 뒤에 붙은 두 갈래 자락으로 바꾸고 아래·뒤로 떨어지게 했다. 캐릭터 앞은 local −Z, 뒤는 +Z이며 지휘 방향 자체는 맞았다. 자락을 기존 몸통 메시와 합쳐 추가 draw call을 만들지 않는다.
 
-지휘·인사·걷기 상태의 실제 화면과 연속 영상을 확인했다. 상단 접합·아래/뒤 방향·실제 최종 병합 메시의 꼭짓점을 검사한다. [원인과 검사](evidence/outdoor-exclusive/conductor/notes.md) · [수정 전](evidence/outdoor-exclusive/conductor/before-side.png) · [수정 후](evidence/outdoor-exclusive/conductor/after-side.png) · [지휘 영상](evidence/outdoor-exclusive/conductor/after-conducting.mp4).
+지휘·인사·걷기 상태의 실제 화면과 연속 영상을 확인했다. 상단 접합·아래/뒤 방향·실제 최종 병합 메시의 꼭짓점을 검사한다. [원인과 검사](evidence/outdoor-exclusive/conductor/notes.md) · [수정 전](evidence/outdoor-exclusive/conductor/before-side.png) · [수정 후](evidence/outdoor-exclusive/conductor/after-side.png) · [지휘 영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/conductor/after-conducting.mp4).
 
 추가로 바이올린·플루트·트롬본·팀파니·피아노·합창을 실제 공연에서 각각 8초 녹화했다. 눈에 띄는 악기·악보대 교차와 모델 배치를 확인하며, 작은 미감 차이는 수정 범위에서 제외했다. 트롬본은 악보대 x를 0.1→−0.4로 옮겨 슬라이드 공간을 확보했다. 실제 판·받침턱과의 간격을 4,914자세에서 검사했다. 팀파니는 세 북의 테두리 사이를 최소 2.87cm로 벌리고 바깥 북의 안쪽을 치도록 했다. 팔 길이·허용값은 늘리지 않았다. 두 사례의 집중 검사와 수정 후 각 8초 영상이 통과했다. 개별 발견과 수정 전후 결과는 [대표 연주 검토 기록](evidence/outdoor-exclusive/motion-spot-review/notes.md)에 정리한다.
 
@@ -38,7 +38,7 @@
 
 실제 해당 단원 9명에 대해 이동 경로 21지점의 바닥 높이, 의자 크기, 실제 악보대 꼭짓점, 다른 좌석과 동시 기립 위치를 검사한다. 앉은 치마는 전체 CAST 치마 체형과 추가 첼로 자세의 실제 다리 표면으로 검사한다. focused 검사 7개와 최종 앞·옆 연주/서기→앉기→퇴장 8.5초 영상을 확인했다. 이 표본 검사는 모든 임의 체형·모든 가구 배치의 연속 충돌 증명은 아니다.
 
-[수정 전](evidence/outdoor-exclusive/skirt/before-side.png) · [앉은 모습 수정 후](evidence/outdoor-exclusive/skirt/final-side.png) · [최종 기립](evidence/outdoor-exclusive/skirt/final-standing.png) · [최종 전환 영상](evidence/outdoor-exclusive/skirt/final-transition.mp4) · [원인·중간 실패·검사](evidence/outdoor-exclusive/skirt/notes.md).
+[수정 전](evidence/outdoor-exclusive/skirt/before-side.png) · [앉은 모습 수정 후](evidence/outdoor-exclusive/skirt/final-side.png) · [최종 기립](evidence/outdoor-exclusive/skirt/final-standing.png) · [최종 전환 영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/skirt/final-transition.mp4) · [원인·중간 실패·검사](evidence/outdoor-exclusive/skirt/notes.md).
 
 ## 현재 확인한 결과
 
@@ -87,11 +87,11 @@ QUALITY_MODE=efficient CAMERA=cinema QA_OUT=work/outdoor-exclusive node tools/qa
 
 | 영상 | 길이 | 원자료 |
 | --- | ---: | --- |
-| 야외 자동 편집 | 120초 | [영상](evidence/outdoor-exclusive/rear-camera/outdoor-rear.mp4) · [장면 기록](evidence/outdoor-exclusive/rear-camera/outdoor-rear.json) |
-| 홀 후면 | 40초 | [영상](evidence/outdoor-exclusive/rear-camera/hall-rear.mp4) · [장면 기록](evidence/outdoor-exclusive/rear-camera/hall-rear.json) |
-| 스피어 후면 | 40초 | [영상](evidence/outdoor-exclusive/rear-camera/sphere-rear.mp4) · [장면 기록](evidence/outdoor-exclusive/rear-camera/sphere-rear.json) |
-| 세로 피아노 | 40초 | [영상](evidence/outdoor-exclusive/rear-camera/piano-portrait-rear.mp4) · [장면 기록](evidence/outdoor-exclusive/rear-camera/piano-portrait-rear.json) |
-| 첼로 곰·판다 | 각 6초 | [곰 영상](evidence/outdoor-exclusive/cello/after-cello-0.mp4) · [판다 영상](evidence/outdoor-exclusive/cello/after-cello-1.mp4) |
+| 야외 자동 편집 | 120초 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/rear-camera/outdoor-rear.mp4) · [장면 기록](evidence/outdoor-exclusive/rear-camera/outdoor-rear.json) |
+| 홀 후면 | 40초 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/rear-camera/hall-rear.mp4) · [장면 기록](evidence/outdoor-exclusive/rear-camera/hall-rear.json) |
+| 스피어 후면 | 40초 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/rear-camera/sphere-rear.mp4) · [장면 기록](evidence/outdoor-exclusive/rear-camera/sphere-rear.json) |
+| 세로 피아노 | 40초 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/rear-camera/piano-portrait-rear.mp4) · [장면 기록](evidence/outdoor-exclusive/rear-camera/piano-portrait-rear.json) |
+| 첼로 곰·판다 | 각 6초 | [곰 영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/cello/after-cello-0.mp4) · [판다 영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/cello/after-cello-1.mp4) |
 
 [시간순 장면](evidence/outdoor-exclusive/rear-camera/outdoor-sequence.jpg) · [후면 장면의 시작/끝](evidence/outdoor-exclusive/rear-camera/rear-motion-sequence.jpg) · [첼로 수정 전](evidence/outdoor-exclusive/cello-before.png) · [수정 후 곰](evidence/outdoor-exclusive/cello/after-cello-0.png) · [수정 후 판다](evidence/outdoor-exclusive/cello/after-cello-1.png).
 
@@ -113,7 +113,7 @@ QUALITY_MODE=efficient CAMERA=cinema QA_OUT=work/outdoor-exclusive node tools/qa
 | 실제 카메라 높이 | 6.50→3.548m | 6.50→3.548m |
 | 위아래 시선 각도 | −7.99→15.17도 | −7.99→19.42도 |
 
-[홀 영상](evidence/outdoor-exclusive/grand-reveal/hall-v2-final.mp4) · [홀 시간순 화면](evidence/outdoor-exclusive/grand-reveal/hall-v2-sequence.jpg) · [스피어 영상](evidence/outdoor-exclusive/grand-reveal/sphere-v2-final.mp4) · [스피어 시간순 화면](evidence/outdoor-exclusive/grand-reveal/sphere-v2-sequence.jpg) · [전체 수치와 버전 구분](evidence/outdoor-exclusive/grand-reveal/v2-README.md).
+[홀 영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/grand-reveal/hall-v2-final.mp4) · [홀 시간순 화면](evidence/outdoor-exclusive/grand-reveal/hall-v2-sequence.jpg) · [스피어 영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-exclusive/grand-reveal/sphere-v2-final.mp4) · [스피어 시간순 화면](evidence/outdoor-exclusive/grand-reveal/sphere-v2-sequence.jpg) · [전체 수치와 버전 구분](evidence/outdoor-exclusive/grand-reveal/v2-README.md).
 
 카메라 focused 검사 16개와 두 영상의 활성 대상·장면 간격·visibility·오류 검사가 통과했다. v1은 스피어 끝 장면에서 단원이 사라져 요구 미달로 판정했다. v2의 첫 시도는 안전 전경으로 바뀐 뒤 독립 하강 후보를 건너뛰던 분기 문제가 있어 수정했다. 최종 영상에는 이 문제를 고친 v2만 사용한다.
 

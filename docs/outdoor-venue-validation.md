@@ -54,11 +54,11 @@ PC와 모바일 크기 모두 통과했다. 콘솔 오류 0개, 페이지 가로
 
 | 결과 | 자료 |
 | --- | --- |
-| PC 실제 합주 | [영상](evidence/outdoor/desktop-concert.mp4), [검사 JSON](evidence/outdoor/desktop-flow.json) |
-| 모바일 에뮬레이션 합주 | [영상](evidence/outdoor/mobile-concert.mp4), [검사 JSON](evidence/outdoor/mobile-flow.json) |
-| 전원 인사 | [영상](evidence/outdoor/bow.mp4), [프레임 자료](evidence/outdoor/bow.json.gz) |
-| 전원 퇴장 | [영상](evidence/outdoor/exit.mp4), [프레임 자료](evidence/outdoor/exit.json.gz) |
-| 전원 입장 | [영상](evidence/outdoor/entry.mp4), [프레임 자료](evidence/outdoor/entry.json.gz) |
+| PC 실제 합주 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor/desktop-concert.mp4), [검사 JSON](evidence/outdoor/desktop-flow.json) |
+| 모바일 에뮬레이션 합주 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor/mobile-concert.mp4), [검사 JSON](evidence/outdoor/mobile-flow.json) |
+| 전원 인사 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor/bow.mp4), [프레임 자료](evidence/outdoor/bow.json.gz) |
+| 전원 퇴장 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor/exit.mp4), [프레임 자료](evidence/outdoor/exit.json.gz) |
+| 전원 입장 | [영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor/entry.mp4), [프레임 자료](evidence/outdoor/entry.json.gz) |
 
 합주·입퇴장 녹화의 시간순 연속 프레임을 확인했다. 전달용 MP4 5개는 전체 디코딩 검사와 Chrome의 실제 재생 진행 검사를 통과했다. PC 합주 녹화의 오디오 평균은 -21.6 dB, 최대 -4.0 dB였다. 원본 WebM을 FFmpeg로 변환할 때 Opus 헤더 경고가 1회씩 있었다. 전달용 H.264/AAC MP4에서는 전체 디코딩 오류가 없었다. 이 경고를 앱의 실시간 오디오 버퍼 끊김과 혼동하지 않는다.
 

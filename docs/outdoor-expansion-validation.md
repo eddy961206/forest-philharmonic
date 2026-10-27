@@ -55,7 +55,7 @@ MOBILE=1 CAMERA=cinema QA_OUT=work/outdoor-expansion SONG_ID=mozart-symphony-40 
 
 - [전체 검사 요약](evidence/outdoor-expansion/verification/verification-summary.json), [실행 로그](evidence/outdoor-expansion/verification/unit-tests.log), [동작 원자료](evidence/outdoor-expansion/verification/motion-audit.json)
 - [음향 신호](evidence/outdoor-expansion/audio.json), [실제 2클라이언트](evidence/outdoor-expansion/multiplayer.json), [PC 성능](evidence/outdoor-expansion/desktop-outdoor.json), [모바일 성능](evidence/outdoor-expansion/mobile-outdoor.json)
-- [피아노 최종 영상](evidence/outdoor-expansion/piano-final.mp4), [세로 합주 영상](evidence/outdoor-expansion/orchestra-mobile.mp4), [마지막 카메라 검사](evidence/outdoor-expansion/camera-final-tests.log)
+- [피아노 최종 영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-expansion/piano-final.mp4), [세로 합주 영상](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/outdoor-expansion/orchestra-mobile.mp4), [마지막 카메라 검사](evidence/outdoor-expansion/camera-final-tests.log)
 - [사랑의 인사 음향 표본](evidence/outdoor-expansion/elgar-salut-damour.wav), [교향곡40번 음향 표본](evidence/outdoor-expansion/mozart-symphony-40.wav)
 
 최종 제품 JS SHA-256: `af3ec67a9e46d4ddaeaeb97b2aa30f634fc31a7a15fa7df47c3a0710fe851290`.

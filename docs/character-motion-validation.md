@@ -89,10 +89,10 @@
 
 | 저장 영상 | 내용 | 길이 |
 | --- | --- | --- |
-| [수정 전후](evidence/character-motion/before-after.mp4) | 이전 커밋과 같은 악절 8개를 좌우 비교 | 약 64초 |
-| [악기별 연주](evidence/character-motion/performers-review.mp4) | 31개 사례, 각 약 8초의 연속 영상 | 약 4분 7초 |
-| [무대 이동](evidence/character-motion/stage-transitions.mp4) | 인사 10초, 전체 퇴장 65초, 전체 입장 85초 | 약 2분 40초 |
-| [모바일 화면](evidence/character-motion/mobile-review.mp4) | 너구리·피아노·트라이앵글·벨·오르간 | 약 40초 |
+| [수정 전후](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/character-motion/before-after.mp4) | 이전 커밋과 같은 악절 8개를 좌우 비교 | 약 64초 |
+| [악기별 연주](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/character-motion/performers-review.mp4) | 31개 사례, 각 약 8초의 연속 영상 | 약 4분 7초 |
+| [무대 이동](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/character-motion/stage-transitions.mp4) | 인사 10초, 전체 퇴장 65초, 전체 입장 85초 | 약 2분 40초 |
+| [모바일 화면](https://github.com/eddy961206/forest-philharmonic/blob/bab8cae1a48e92b7d57665e5c87aaf03d862d189/docs/evidence/character-motion/mobile-review.mp4) | 너구리·피아노·트라이앵글·벨·오르간 | 약 40초 |
 
 [사례별 관찰 기록](evidence/character-motion/visual-review.md), [촬영 조건과 해시](evidence/character-motion/recording-summary.json), [프레임별 관절 원자료](evidence/character-motion/frame-telemetry.json.gz), [구간 이동용 로컬 페이지](evidence/character-motion/review.html)를 함께 저장했어. HTML과 MP4를 같은 폴더에 두고 열면 악기별로 바로 이동할 수 있어.
 
