@@ -6,7 +6,7 @@ import { FramePacer } from './quality.js';
 // The buildings are only loaded once you go through a gate: the square
 // itself is small and quick, also on a phone.
 import * as THREE from 'three';
-import { buildPlaza, PLAZA, walkable, gateYaw } from './scene/plazaWorld.js';
+import { buildPlaza, PLAZA, walkable as plazaWalkable, gateYaw } from './scene/plazaWorld.js';
 import { buildCharacter, setArm, liteArmMeshes, syncLiteArms, updateFace } from './scene/characters.js';
 import { setLite, setAnisotropy } from './scene/materials.js';
 import { avatarInfo } from './scene/avatars.js';
@@ -35,6 +35,9 @@ let efficientMode = savedQuality === 'efficient';
 let previousQuality = efficientMode ? 'auto' : savedQuality;
 const LITE = isMobile || efficientMode;
 const framePacer = new FramePacer(30);
+// where you are, when not on the square: the room of quiet contemplation
+// (sayu.js) - its scene, its floor and walls, its camera
+let place = null;
 
 $('splash')?.remove();
 $('plaza').hidden = false;
@@ -128,7 +131,8 @@ if (!LITE) {
     strollers.push({ char: ch, path: [], wait: 3 + i * 7, pos: V(), yaw: 0, phase: Math.random() * 6, fade: 0 });
   }
 }
-for (const m of liteArmMeshes()) scene.add(m);
+const liteArms = liteArmMeshes();
+for (const m of liteArms) scene.add(m);
 
 // ------------------------------------------------------------ the ticket
 let ticket = heldTicket();
@@ -178,6 +182,11 @@ const sfx = {
     this.out = ctx.createGain();
     this.out.gain.value = 0.7;
     this.out.connect(ctx.destination);
+    // (the square's wind and crickets on a bus of their own: the room of
+    // contemplation turns them down)
+    this.amb = ctx.createGain();
+    this.amb.gain.value = place ? 0 : 1;
+    this.amb.connect(this.out);
     const t = ctx.currentTime;
     // wind: soft filtered noise, rising in (no click) and slowly breathing
     const len = ctx.sampleRate * 4;
@@ -199,7 +208,7 @@ const sfx = {
     const g = ctx.createGain();
     g.gain.setValueAtTime(0, t);
     g.gain.setTargetAtTime(0.085, t, 1.5);
-    src.connect(lp).connect(g).connect(this.out);
+    src.connect(lp).connect(g).connect(this.amb);
     src.start(t);
     lfo.start(t);
     // crickets: four of them, each in its own place in the grass with its
@@ -223,7 +232,7 @@ const sfx = {
         a.gain.linearRampToValueAtTime(0, t0 + k * 0.07 + 0.045);
       }
       o.connect(a);
-      if (ctx.createStereoPanner) { const pan = ctx.createStereoPanner(); pan.pan.value = c.pan; a.connect(pan).connect(this.out); } else a.connect(this.out);
+      if (ctx.createStereoPanner) { const pan = ctx.createStereoPanner(); pan.pan.value = c.pan; a.connect(pan).connect(this.amb); } else a.connect(this.amb);
       o.start(t0);
       o.stop(t0 + n * 0.07 + 0.05);
       setTimeout(() => chirp(c), 900 + Math.random() * 2600);
@@ -617,6 +626,71 @@ function enterGate(venue) {
 // you have stepped away from it)
 let gateArmed = true;
 
+// ---------------------------------------------- the room of contemplation
+// Its door needs no ticket. The room is built on the first visit, on this
+// page: you, your sound and your camera go with you, the square waits.
+let sayuArmed = true;
+function fadeTo(line, then, ms) {
+  const fade = $('pzFade');
+  $('pzFadeLine').textContent = line;
+  fade.hidden = false;
+  requestAnimationFrame(() => fade.classList.add('on'));
+  return new Promise((r) => setTimeout(r, ms)).then(then).finally(() => {
+    fade.classList.remove('on');
+    setTimeout(() => { if (!fade.classList.contains('on')) fade.hidden = true; }, 1100);
+  });
+}
+function holdStill() {
+  keys.clear();
+  autoTo = null;
+  setAct(null, null);
+  clearTimeout(toastT);
+  clearTimeout(toastOff);
+  $('pzToast').hidden = true;
+  player.vel.set(0, 0, 0);
+}
+async function enterSayu() {
+  if (busy || place) return;
+  busy = true;
+  holdStill();
+  if (sfx.ctx) sfx.amb.gain.setTargetAtTime(0, sfx.ctx.currentTime, 0.5);
+  const room = import('./sayu.js');
+  await fadeTo('사유의 방', async () => {
+    const { enterSayu: enter } = await room;
+    place = enter({ renderer, camera, player, cam, keys, joy, sfx, toast, setAct, animateWalker, $, lite: LITE, liteArms, leave: leaveSayu });
+    // (nothing of the square drawn meanwhile, nor its animals' arms)
+    scene.visible = false;
+    renderer.compile(place.scene, camera);
+    placeCamera(0, true);
+    lastT = performance.now();
+  }, 1100).catch((e) => { console.error('사유의 방을 열지 못했어요', e); toast('사유의 방을 열지 못했어요. 다시 걸어 들어가 봐요.'); });
+  busy = false;
+}
+function leaveSayu() {
+  if (busy || !place) return;
+  busy = true;
+  holdStill();
+  fadeTo('다시 광장으로', () => {
+    place.leave();
+    place = null;
+    scene.visible = true;
+    scene.add(player.char.root);
+    for (const m of liteArms) scene.add(m);
+    // (out of its door, facing the square)
+    const g = PLAZA.sayu;
+    player.pos.set(g.x * 0.7, 0, g.z * 0.7);
+    player.yaw = cam.yaw = Math.atan2(g.x, g.z);
+    cam.pitch = 0.32;
+    sayuArmed = false;
+    placeCamera(0, true);
+    lastT = performance.now();
+    if (sfx.ctx) sfx.amb.gain.setTargetAtTime(1, sfx.ctx.currentTime, 0.8);
+  }, 1000).finally(() => {
+    busy = false;
+    toast(`다시 광장이에요, ${me.name}.`, 2600);
+  });
+}
+
 // Back from a building with the browser's back button: the page can come
 // back exactly as it was left - dark, mid-way through the gate. Start over.
 window.addEventListener('pageshow', (e) => {
@@ -706,6 +780,11 @@ const ray = new THREE.Raycaster();
 let autoTo = null; // { x, z, then }
 function onTap(x, y) {
   ray.setFromCamera(new THREE.Vector2((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1), camera);
+  if (place) {
+    const to = place.tap(ray);
+    if (to) autoTo = { ...to, best: Infinity, stuck: 0 };
+    return;
+  }
   let best = null;
   for (const [k, list] of Object.entries(world.pickables)) {
     const hit = ray.intersectObjects(list, false)[0];
@@ -713,6 +792,7 @@ function onTap(x, y) {
   }
   if (!best) return;
   if (best.k === 'booth') autoTo = { x: PLAZA.window.x, z: PLAZA.window.z + 0.3, then: 'booth', best: Infinity, stuck: 0 };
+  else if (best.k === 'sayu') autoTo = { x: PLAZA.sayu.x * 0.93, z: PLAZA.sayu.z * 0.93, then: 'sayu', best: Infinity, stuck: 0 };
   else {
     const id = best.k.split(':')[1];
     const g = PLAZA.gates[id];
@@ -762,7 +842,7 @@ function movePlayer(dt) {
       if (d < 0.35) {
         const then = autoTo.then;
         autoTo = null;
-        if (then === 'booth') { p.yaw = 0; openBooth(); }
+        if (then === 'booth') { p.yaw = 0; openBooth(); } else if (place) place.arrived(then);
       } else {
         mx = dx / d;
         mz = dz / d;
@@ -782,7 +862,9 @@ function movePlayer(dt) {
   const nx = p.pos.x + p.vel.x * dt;
   const nz = p.pos.z + p.vel.z * dt;
   // slide along whatever is in the way
+  const walkable = place ? place.walkable : plazaWalkable;
   if (walkable(nx, nz)) { p.pos.x = nx; p.pos.z = nz; } else if (walkable(nx, p.pos.z)) { p.pos.x = nx; p.vel.z *= 0.5; } else if (walkable(p.pos.x, nz)) { p.pos.z = nz; p.vel.x *= 0.5; } else { p.vel.multiplyScalar(0.2); if (autoTo) autoTo = null; }
+  p.pos.y = place ? place.floorY(p.pos.x, p.pos.z) : 0;
   const sp = Math.hypot(p.vel.x, p.vel.z);
   if (sp > 0.15) p.yaw = lerpAngle(p.yaw, Math.atan2(-p.vel.x, -p.vel.z), 1 - Math.exp(-dt * 10));
   return sp;
@@ -870,7 +952,7 @@ function updateStrollers(dt) {
       }
       const nx = s.pos.x + vx * step;
       const nz = s.pos.z + vz * step;
-      if (walkable(nx, nz)) { s.pos.x = nx; s.pos.z = nz; } else { s.pos.x += ux * step; s.pos.z += uz * step; }
+      if (plazaWalkable(nx, nz)) { s.pos.x = nx; s.pos.z = nz; } else { s.pos.x += ux * step; s.pos.z += uz * step; }
       s.yaw = lerpAngle(s.yaw, Math.atan2(-vx, -vz), 1 - Math.exp(-dt * 6));
     }
     animateWalker(ch, s.pos, s.yaw, d > step ? 1.15 : 0, s, dt);
@@ -906,7 +988,17 @@ const _want = V();
 function placeCamera(dt, first = false) {
   const p = player.pos;
   const cp = Math.cos(cam.pitch);
-  _want.set(p.x + Math.sin(cam.yaw) * cp * cam.dist, 1.25 + Math.sin(cam.pitch) * cam.dist, p.z + Math.cos(cam.yaw) * cp * cam.dist);
+  _want.set(p.x + Math.sin(cam.yaw) * cp * cam.dist, p.y + 1.25 + Math.sin(cam.pitch) * cam.dist, p.z + Math.cos(cam.yaw) * cp * cam.dist);
+  if (place) place.clampCamera(p, _want);
+  else placeOnSquare(p);
+  if (first) camera.position.copy(_want); else camera.position.lerp(_want, 1 - Math.exp(-dt * 8));
+  // (looking a little ahead of you and above your shoulders: you stand in
+  // the lower part of the picture and what you walk toward is not hidden
+  // behind your own head)
+  _look.set(p.x - Math.sin(cam.yaw) * 1.3, p.y + 1.4, p.z - Math.cos(cam.yaw) * 1.3);
+  camera.lookAt(_look);
+}
+function placeOnSquare(p) {
   // (not inside the booth, its roof or its awning: with the booth between
   // you and the camera, the camera comes in to this side of it)
   const t = boothHit(p.x, 1.25, p.z, _want.x, _want.y, _want.z);
@@ -921,12 +1013,6 @@ function placeCamera(dt, first = false) {
   // (and not out among the trees round the square)
   const rr = Math.hypot(_want.x, _want.z);
   if (rr > 14.5) { _want.x *= 14.5 / rr; _want.z *= 14.5 / rr; }
-  if (first) camera.position.copy(_want); else camera.position.lerp(_want, 1 - Math.exp(-dt * 8));
-  // (looking a little ahead of you and above your shoulders: you stand in
-  // the lower part of the picture and what you walk toward is not hidden
-  // behind your own head)
-  _look.set(p.x - Math.sin(cam.yaw) * 1.3, 1.4, p.z - Math.cos(cam.yaw) * 1.3);
-  camera.lookAt(_look);
 }
 
 // the booth as two blocks - the walls with the counter, and above them the
@@ -988,7 +1074,7 @@ function frame(rafMs) {
   lastT = now;
   step(dt, now);
   syncLiteArms();
-  renderer.render(scene, camera);
+  renderer.render(place ? place.scene : scene, camera);
   still = boothOpen && isTouch;
 }
 document.addEventListener('visibilitychange', () => {
@@ -1011,13 +1097,21 @@ function step(dt, now = performance.now()) {
   elapsed += dt;
   const sp = movePlayer(dt);
   animateWalker(player.char, player.pos, player.yaw, sp, player, dt);
+  if (place) {
+    place.step(dt, elapsed, sp);
+    if (!place.camera(dt)) placeCamera(dt);
+    return;
+  }
   updateClerk(dt, elapsed);
   updateStrollers(dt);
   world.update(dt, elapsed);
   placeCamera(dt);
 
-  // what is near: the window, a gate
+  // what is near: the window, a gate, the room's door
   if (!busy && !boothOpen) {
+    const dSayu = Math.hypot(player.pos.x - PLAZA.sayu.x, player.pos.z - PLAZA.sayu.z);
+    if (!sayuArmed && dSayu > 2.6) sayuArmed = true;
+    if (sayuArmed && dSayu < 1.9) { setAct(null, null); enterSayu(); return; }
     const dWin = Math.hypot(player.pos.x - PLAZA.window.x, player.pos.z - PLAZA.window.z);
     let near = null;
     let away = true;
@@ -1052,9 +1146,13 @@ window.addEventListener('resize', () => {
 // first frame drawn: lift the curtain (and in any case after a moment)
 setTimeout(() => $('pzLoading').classList.add('done'), 2500);
 renderer.compile(scene, camera);
+// (?sayu: straight into the room of contemplation - a reload in it too)
+const straightIn = new URLSearchParams(location.search).has('sayu');
+if (straightIn) enterSayu();
 requestAnimationFrame(() => {
   requestFrame();
   setTimeout(() => $('pzLoading').classList.add('done'), 120);
+  if (straightIn) return;
   // (back from a building: not the first-time welcome again)
   // (a building's address without a ticket sent you here: say why)
   const bounced = new URLSearchParams(location.search).get('from') === 'venue';
@@ -1064,4 +1162,4 @@ requestAnimationFrame(() => {
   else if (!ticket) setTimeout(() => toast(`어서 와요, ${me.name}! 오늘 밤은 ${kind.ko}의 모습으로 왔어요. 가운데 매표소에서 표를 사 봐요.`, 4600), 900);
 });
 
-window.__plaza = { scene, camera, renderer, world, player, cam, keys, step, walkable, joy, get autoTo() { return autoTo; }, get ticket() { return ticket; }, openBooth, enterGate, PLAZA, gateYaw };
+window.__plaza = { scene, camera, renderer, world, player, cam, keys, step, walkable: plazaWalkable, joy, sfx, enterSayu, leaveSayu, get place() { return place; }, get autoTo() { return autoTo; }, get ticket() { return ticket; }, openBooth, enterGate, PLAZA, gateYaw };

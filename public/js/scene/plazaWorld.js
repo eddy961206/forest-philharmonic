@@ -19,12 +19,17 @@ export const PLAZA = {
     sphere: { x: 9.3, z: -5.2 },
     outdoor: { x: -9.3, z: 5.2 },
   },
+  // the room of quiet contemplation: no ticket, a door like the gates
+  sayu: { x: 9.3, z: 5.2 },
   far: {
     hall: { x: -58, z: -56 },
     sphere: { x: 58, z: -56 },
     outdoor: { x: -58, z: 42 },
+    sayu: { x: 50, z: 40 },
   },
 };
+// every arch on the square: the venues' gates and the room's door
+const doors = () => ({ ...PLAZA.gates, sayu: PLAZA.sayu });
 // a gate's facing: toward the middle of the square
 export const gateYaw = (g) => Math.atan2(-g.x, -g.z);
 
@@ -164,8 +169,7 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
   {
     const parts = [new THREE.CircleGeometry(PLAZA.R + 0.4, 64).rotateX(-Math.PI / 2).translate(0, 0.01, 0)];
     // the paths out through the gates, on toward the venues
-    for (const id of Object.keys(PLAZA.gates)) {
-      const g = PLAZA.gates[id];
+    for (const [id, g] of Object.entries(doors())) {
       const f = PLAZA.far[id];
       const len = Math.hypot(f.x - g.x, f.z - g.z) - 6;
       const yaw = Math.atan2(f.x - g.x, f.z - g.z);
@@ -291,8 +295,8 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
 
   // ------------------------------------------------------------ the gates
   const gates = {};
-  for (const [id, title, sub, col] of [['hall', '숲속 필하모닉 홀', '이쪽 숲길로', '#ffcf8f'], ['sphere', '스피어', '이쪽 숲길로', '#9fd3ff'], ['outdoor', '숲속 작은 음악회', '공원 마당으로', '#c6d6ad']]) {
-    const g = PLAZA.gates[id];
+  for (const [id, title, sub, col] of [['hall', '숲속 필하모닉 홀', '이쪽 숲길로', '#ffcf8f'], ['sphere', '스피어', '이쪽 숲길로', '#9fd3ff'], ['outdoor', '숲속 작은 음악회', '공원 마당으로', '#c6d6ad'], ['sayu', '사유의 방', '누구나 · 표 없이', '#e2a27c']]) {
+    const g = doors()[id];
     const yaw = gateYaw(g);
     const parts = [];
     for (const s of [-1, 1]) {
@@ -332,9 +336,9 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
     gg.position.set(g.x, 0, g.z);
     gg.rotation.y = yaw;
     group.add(gg);
-    gates[id] = { group: gg, ring, veil, crown, call: 0, want: 0 };
+    gates[id] = { group: gg, ring, veil, crown, call: 0, want: id === 'sayu' ? 0.3 : 0 };
     // (the doorway answers a tap too: the light in it is what you aim at)
-    pickables[`gate:${id}`] = [arch, board, veil];
+    pickables[id === 'sayu' ? 'sayu' : `gate:${id}`] = [arch, board, veil];
     for (const s of [-1, 1]) halos.push(new THREE.Vector3(s * 1.55, 3.0, 0.3).applyAxisAngle(V(0, 1, 0), yaw).add(V(g.x, 0, g.z)));
   }
 
@@ -404,6 +408,25 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
     park.position.set(f.x, 0, f.z);
     park.rotation.y = Math.atan2(-f.x, -f.z);
     group.add(park);
+  }
+  {
+    // the museum: long and low, a deep roof over a gap in its middle, and
+    // in the gap a warm glow
+    const f = PLAZA.far.sayu;
+    const mg = new THREE.Group();
+    const stone = [];
+    for (const s of [-1, 1]) stone.push(new THREE.BoxGeometry(13, 6, 9).translate(s * 9.5, 3, 0));
+    stone.push(new THREE.BoxGeometry(34, 0.9, 11).translate(0, 6.45, 0));
+    mg.add(new THREE.Mesh(mergeGeometries(stone), std({ color: '#4a4540', roughness: 0.95 })));
+    const gap = new THREE.Mesh(new THREE.PlaneGeometry(5.6, 5.4).translate(0, 2.7, -3), new THREE.MeshBasicMaterial({ color: '#7a4a2c', fog: false, toneMapped: false }));
+    mg.add(gap);
+    mg.position.set(f.x, 0, f.z);
+    mg.rotation.y = Math.atan2(-f.x, -f.z);
+    group.add(mg);
+    const warm = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color: '#ff9e6a', transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.16, fog: false }));
+    warm.position.set(f.x, 4, f.z);
+    warm.scale.setScalar(30);
+    group.add(warm);
   }
   let exo;
   {
@@ -506,8 +529,8 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
   return {
     group,
     pickables,
-    // your ticket's door calls you (id or null)
-    callGate(id) { for (const [k, g] of Object.entries(gates)) g.want = k === id ? 1 : 0; },
+    // your ticket's door calls you (id or null); the room's always, softly
+    callGate(id) { for (const [k, g] of Object.entries(gates)) g.want = k === id ? 1 : k === 'sayu' ? 0.3 : 0; },
     update(dt, t) { for (const f of update) f(dt, t); },
   };
 }
@@ -521,8 +544,7 @@ export function walkable(x, z) {
     const a = (i / 6) * Math.PI * 2 + Math.PI / 6;
     if (Math.hypot(x - Math.sin(a) * (PLAZA.R - 0.9), z - Math.cos(a) * (PLAZA.R - 0.9)) < 0.45) return false;
   }
-  for (const id in PLAZA.gates) {
-    const g = PLAZA.gates[id];
+  for (const g of Object.values(doors())) {
     const yaw = gateYaw(g);
     for (const s of [-1, 1]) {
       const px = g.x + Math.cos(yaw) * s * 1.55;
