@@ -763,6 +763,14 @@ body.touch .act-btn kbd { display: none; }
 .pz-gate p { font-family: var(--serif); color: var(--paper); font-size: 18px; opacity: 0; transition: opacity 0.8s ease 0.6s; text-align: center; }
 .pz-gate.dark p { opacity: 1; }
 
+/* into the room of quiet contemplation, and out: a slow dark */
+.pz-fade { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: #010101; opacity: 0; transition: opacity 1s ease; pointer-events: none; }
+.pz-fade.on { opacity: 1; pointer-events: auto; }
+.pz-fade p { font-family: var(--serif); color: var(--paper-dim); font-size: 17px; letter-spacing: 0.3em; }
+/* standing still before the figures: everything on the screen fades */
+.plaza :is(.pz-top, .pz-me, .pz-stub, .act-btn) { transition: opacity 1.8s ease; }
+.plaza.still :is(.pz-top, .pz-me, .pz-stub, .act-btn) { opacity: 0; pointer-events: none; }
+
 /* the usher at the door (the building's first screen, with a ticket) */
 .ticket-check { display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
 .ticket-check .tc-line { margin: 0; font-family: var(--serif); color: var(--paper); font-size: 15.5px; }
@@ -1101,7 +1109,7 @@ html.touch input:not([type='range']):not([type='checkbox']):not([type='radio']),
 /* Keep these overrides after the responsive HUD rules, which also set motion. */
 @media (prefers-reduced-motion: reduce) {
   .now, .splash, .splash-bar span, .transport, .start-wrap, .joystick,
-  .joystick.active, .toast, .chat-log li, .pz-loading, .pz-gate, .pz-gate p { transition: none; }
+  .joystick.active, .toast, .chat-log li, .pz-loading, .pz-gate, .pz-gate p, .pz-fade { transition: none; }
   #boothTicket .ticket { animation: none; }
 }
 

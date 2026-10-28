@@ -4,17 +4,18 @@
 // wall, each venue is drawn (not a black or flat frame), and the visitor's
 // features work - the square's booth and gate, sitting, a musician in focus
 // with solo listening, the recital's stage seats, the Bremen miniature, the
-// leaf programme, chat in a room, and every display switch.
+// leaf programme, the room of quiet contemplation, chat in a room, and every
+// display switch.
 // Complements verify:app (the evening's flow) and the QA scripts beside it.
 //   APP_PORT=8096 CDP_PORT=9225 QA_OUT=work/features npm run verify:features
-//   PARTS=audio,venues,square,room ... a part of it
+//   PARTS=audio,venues,square,sayu,room ... a part of it
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { p, outputDir } from './quality-optimization-common.mjs';
 import { motionSource } from './motion-source.mjs';
 
 const base = `http://127.0.0.1:${process.env.APP_PORT || 8096}`;
-const parts = (process.env.PARTS || 'audio,venues,square,room').split(',');
+const parts = (process.env.PARTS || 'audio,venues,square,sayu,room').split(',');
 const browser = await p.connect({ browserURL: `http://127.0.0.1:${process.env.CDP_PORT || 9225}`, defaultViewport: null });
 const report = { source: motionSource(), at: new Date().toISOString(), parts, checks: [], errors: [], status: 'fail',
   limitations: ['Desktop Chrome only.', 'Offline renders are excerpts, not whole pieces.', 'Loudness thresholds show sound is there, not that it is beautiful; listen to the WAVs and look at the PNGs.'] };
@@ -333,6 +334,95 @@ async function square() {
   await page.close();
 }
 
+// ------------------------------------------------- the room of contemplation
+async function sayu() {
+  const page = await newPage('sayu');
+  await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
+  await until(page, () => window.__plaza, null, 60000);
+  await page.evaluate(() => {
+    // the level heard in the room, from its own tap
+    window.__heard = async (ms = 1500) => {
+      const a = __plaza.place?.heard;
+      if (!a) return null;
+      const buf = new Float32Array(a.fftSize);
+      let sum = 0, n = 0;
+      for (const end = performance.now() + ms; performance.now() < end;) {
+        a.getFloatTimeDomainData(buf);
+        for (const v of buf) { sum += v * v; n++; }
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      return +Math.sqrt(sum / n).toFixed(5);
+    };
+    // the picture, drawn once more off screen and measured
+    window.__frame = async () => {
+      const THREE = await import('three');
+      const P = __plaza, r = P.renderer, W = 160, H = 110, rt = new THREE.WebGLRenderTarget(W, H);
+      rt.texture.colorSpace = THREE.SRGBColorSpace;
+      r.setRenderTarget(rt); r.render(P.place ? P.place.scene : P.scene, P.camera); r.setRenderTarget(null);
+      const px = new Uint8Array(W * H * 4); r.readRenderTargetPixels(rt, 0, 0, W, H, px); rt.dispose();
+      let sum = 0, sq = 0; const n = W * H;
+      for (let i = 0; i < px.length; i += 4) { const l = 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]; sum += l; sq += l * l; }
+      const mean = sum / n;
+      return { mean: +mean.toFixed(1), std: +Math.sqrt(Math.max(0, sq / n - mean * mean)).toFixed(1) };
+    };
+  });
+  await sleep(1500);
+  await page.keyboard.press('ShiftLeft'); // (a key: the square may make sound now)
+  // the door: no ticket, you walk into it
+  await page.evaluate(() => { const P = __plaza, g = P.PLAZA.sayu; P.player.pos.set(g.x * 0.6, 0, g.z * 0.6); const yaw = Math.atan2(g.x, g.z) + Math.PI; P.player.yaw = P.cam.yaw = yaw; });
+  await sleep(1200);
+  await page.screenshot({ path: `${outputDir}/sayu-door.png` });
+  assert.equal(await page.evaluate(() => !!__plaza.ticket), false, 'no ticket in the paw');
+  await page.evaluate(() => { const P = __plaza, g = P.PLAZA.sayu; P.player.pos.set(g.x * 0.86, 0, g.z * 0.86); });
+  await until(page, () => __plaza.place && location.search === '?sayu', null, 15000);
+  const arrive = await page.evaluate(() => ({ exposure: +__plaza.renderer.toneMappingExposure.toFixed(2), amb: +__plaza.sfx.amb.gain.value.toFixed(2) }));
+  await sleep(2500);
+  const film = await page.evaluate(() => __heard());
+  // the eyes used to the dark, the figures cast, the room reached
+  await page.evaluate(() => __plaza.place.room.ready);
+  await sleep(5000);
+  await page.evaluate(() => { const P = __plaza; P.player.pos.set(2.6, 0, 10.2); P.player.yaw = P.cam.yaw = 0.1; });
+  await sleep(2500);
+  await page.screenshot({ path: `${outputDir}/sayu-room.png` });
+  const room = await page.evaluate(async () => ({
+    exposure: +__plaza.renderer.toneMappingExposure.toFixed(2), frame: await __frame(), heard: await __heard(),
+    figures: __plaza.place.room.statues.map((s) => ({ id: s.id, tris: s.mesh?.geometry.index.count / 3, scale: s.scale })),
+    floorRise: +(__plaza.place.floorY(0, -3) - __plaza.place.floorY(0, 11)).toFixed(3),
+  }));
+  // stopping before them: F, your cheek on your paw, the screen emptied
+  await page.evaluate(() => { const P = __plaza; P.player.pos.set(0.2, 0, -1.6); P.player.yaw = P.cam.yaw = 0; });
+  await until(page, () => !document.getElementById('pzAct').hidden && document.getElementById('pzActText').textContent.includes('바라보기'), null, 5000);
+  await page.keyboard.press('KeyF');
+  await sleep(6000);
+  await page.screenshot({ path: `${outputDir}/sayu-look.png` });
+  const look = await page.evaluate(async () => {
+    const ch = __plaza.player.char;
+    ch.root.updateMatrixWorld(true);
+    const paw = ch.arms.R.wrist.clone().applyMatrix4(ch.body.matrixWorld);
+    const head = ch.head.getWorldPosition(paw.clone());
+    // (the paw at the skull's surface: the head's radius and the paw's own size off its middle)
+    return { still: document.getElementById('plaza').classList.contains('still'), looking: __plaza.place.looking, pawToHead: +paw.distanceTo(head).toFixed(3), reach: +ch.arms.R.targetError.toFixed(4), frame: await __frame() };
+  });
+  await page.keyboard.down('KeyW'); await sleep(400); await page.keyboard.up('KeyW');
+  const moved = await page.evaluate(() => ({ looking: __plaza.place.looking, still: document.getElementById('plaza').classList.contains('still') }));
+  // out by the corridor on the other side, back on the square
+  await page.evaluate(() => { __plaza.player.pos.set(-4.4, 0, 29.9); });
+  await until(page, () => !__plaza.place, null, 15000);
+  await sleep(1500);
+  const back = await page.evaluate(() => ({ url: location.search, exposure: __plaza.renderer.toneMappingExposure, amb: +__plaza.sfx.amb.gain.value.toFixed(2) }));
+  assert.ok(arrive.exposure < 0.6 && room.exposure > 0.9, `the eyes adapt ${JSON.stringify([arrive, room.exposure])}`);
+  assert.ok(film > 0.002 && room.heard > 0 && room.heard < film, `the film is heard, the room is quiet ${JSON.stringify([film, room.heard])}`);
+  assert.ok(room.figures.every((f) => f.tris > 100000), JSON.stringify(room.figures));
+  assert.ok(room.floorRise > 0.2 && room.floorRise < 0.3, `the floor's one degree ${room.floorRise}`);
+  assertFrame('sayu-room', room.frame);
+  assert.ok(look.still && look.looking && look.reach < 0.005 && look.pawToHead > 0.25 && look.pawToHead < 0.36, JSON.stringify(look));
+  assertFrame('sayu-look', look.frame);
+  assert.ok(!moved.looking && !moved.still, JSON.stringify(moved));
+  assert.ok(back.url === '' && back.exposure === 1 && back.amb > 0.5, JSON.stringify(back));
+  check('sayu-visit', { arrive, film, room, look, moved, back });
+  await page.close();
+}
+
 // ---------------------------------------------------------------- room
 async function room() {
   const host = await venuePage('outdoor', 'room-host');
@@ -361,6 +451,7 @@ try {
   if (parts.includes('audio')) await audio();
   if (parts.includes('venues')) for (const v of (process.env.VENUES || 'hall,sphere,outdoor').split(',')) await venue(v);
   if (parts.includes('square')) await square();
+  if (parts.includes('sayu')) await sayu();
   if (parts.includes('room')) await room();
   assert.equal(report.errors.length, 0, report.errors.join('\n'));
   report.status = 'pass';
