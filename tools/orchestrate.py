@@ -152,3 +152,80 @@ def arrange_pomp(tracks, beats):
         notes=[tr['notes'][i:i+4] for i in range(0,len(tr['notes']),4)]
         tr['notes']=[v for n in sorted(notes) for v in n]
     return list(buckets.values())
+
+
+def arrange_canon(tracks):
+    """Pachelbel's Canon for a Baroque orchestra, from the three violins and
+    the ground bass of the source - every source note kept, nothing invented.
+
+    It grows over the 28 statements of the ground: the bass alone with the
+    harpsichord, the three voices entering one by one, the full string
+    sections, a statement given to the woodwinds, the harp in the plucked
+    one, horns and organ in the broad dotted ones, and at the height the
+    trumpet in D over everything with timpani on the ground's D and A; then
+    it settles back to strings and harp, and all of it on the last chord.
+    Harpsichord and organ chords are the violins' own notes sounding over
+    each bass note. The source has one loudness throughout; the dynamics
+    here (pianissimo to fortissimo and back) are the arrangement's, set by
+    statement and joined smoothly from one to the next.
+    """
+    CYCLE=8.7273  # two bars of the ground
+    buckets={}
+    def put(section,inst,on,dur,midi,vel,gain,chairs=None,name='',layer=None):
+        key=(section,inst,gain,tuple(chairs or []),name,layer)
+        if key not in buckets:
+            tr={'section':section,'inst':inst,'name':name or section,'notes':[],'gain':gain}
+            if chairs is not None:tr['chairs']=list(chairs)
+            if layer:tr['layer']=layer
+            buckets[key]=tr
+        buckets[key]['notes'].extend([on,dur,midi,vel])
+    lines={tr['sourceTrack']:[tr['notes'][i:i+4] for i in range(0,len(tr['notes']),4)] for tr in tracks}
+    v1,v2,v3,bass=lines[1],lines[2],lines[3],lines[4]
+    end=max(n[0] for n in bass)
+    cyc=lambda t:int((t+.01)//CYCLE)
+    # loudness by statement of the ground (MIDI velocity at its middle)
+    PLAN=[50,54,58,62,66,74,78,64,64,84,86,60,60,80,84,88,94,104,110,114,116,92,88,80,76,64,58,54,96]
+    def dyn(t,offset=0):
+        x=t/CYCLE-.5;i=max(0,min(len(PLAN)-2,int(x)));u=max(0.,min(1.,x-i))
+        return max(20,min(124,round(PLAN[i]+(PLAN[i+1]-PLAN[i])*u+offset)))
+    FULL=set(range(5,7))|set(range(9,11))|set(range(13,25))
+    WINDS=(7,8,21,22);HARP=(2,3,4,11,12,25,26,27);BROAD=set(range(13,21));HEIGHT=set(range(17,21))
+    ALL={'vn1':[0,1,2],'vn2':[0,1,2],'va':[0,1],'vc':[0,1]}
+    last=lambda t:t>=end-.05
+    for section,inst,line,solo in (('vn1','violin',v1,[0]),('vn2','violin',v2,[0]),('va','viola',v3,[0])):
+        for on,dur,midi,vel in line:
+            c=cyc(on);full=c in FULL or last(on)
+            vel=dyn(on)
+            put(section,inst,on,dur,midi,vel,.8 if full else .9,ALL[section] if full else solo,section,'strings' if full else None)
+            if c in WINDS and midi>=60:
+                put({'vn1':'fl','vn2':'ob','va':'cl'}[section],{'vn1':'flute','vn2':'oboe','va':'clarinet'}[section],on,dur,midi,vel,.42,name='Woodwinds')
+            if c in HARP and section!='va':put('harp','harp',on,min(dur,1.2),midi,vel,.55,name='Harp')
+            if section=='vn1' and c in HEIGHT and 62<=midi<=86 and dur>=.2:put('tp','trumpet',on,dur,midi,vel,.34,name='Trumpet in D')
+            if c in BROAD and dur>=.5 and section!='vn1':put('hn','horn',on,dur,midi-12,vel,.3,[0 if section=='vn2' else 1],'Horns')
+    sounding=lambda t:sorted({n[2] for line in (v1,v2,v3) for n in line if n[0]<=t+.02<n[0]+n[1]})
+    for on,dur,midi,vel in bass:
+        c=cyc(on);full=c in FULL or last(on);vel=dyn(on,-4)
+        put('vc','cello',on,dur,midi,vel,.8 if full else .9,ALL['vc'] if full else [0],'vc','strings' if full else None)
+        if c>=3 or last(on):put('cb','contrabass',on,dur,midi-12 if midi>=40 else midi,vel,.6,name='cb',layer='strings')
+        if c in WINDS or c in BROAD:put('bn','bassoon',on,dur,midi,vel,.4,name='Bassoon')
+        # the continuo: the bass, and over it the violins' notes of the moment
+        put('piano','harpsichord',on,dur*.9,midi,vel,.5,name='Harpsichord continuo')
+        for p in sounding(on):
+            while p>79:p-=12
+            while p<62:p+=12
+            put('piano','harpsichord',on+.012,dur*.8,p,vel-14,.32,name='Harpsichord continuo')
+        if c in BROAD or last(on) or c>=25:
+            soft=c>=25 and not last(on)
+            put('organ','organ',on,dur,midi-12,vel,.3 if soft else .42,name='Organ pedal')
+            if not soft:
+                for p in sounding(on):
+                    while p>76:p-=12
+                    while p<57:p+=12
+                    put('organ','organ',on,dur,p,vel-10,.24,name='Organ')
+        if c in HEIGHT and midi%12 in (2,9) and not last(on):
+            put('timp','timpani',on,.6,50 if midi%12==2 else 45,dyn(on,-12),.5,name='Timpani')
+    put('timp','timpani',end,1.8,50,dyn(end),.55,name='Timpani')
+    for tr in buckets.values():
+        notes=[tr['notes'][i:i+4] for i in range(0,len(tr['notes']),4)]
+        tr['notes']=[v for n in sorted(notes) for v in n]
+    return list(buckets.values())

@@ -179,6 +179,9 @@ def realize(spec, root):
         if spec['orchestrate']=='pomp':
             from orchestrate import arrange_pomp
             tracks=arrange_pomp(tracks,beats)
+        elif spec['orchestrate']=='canon':
+            from orchestrate import arrange_canon
+            tracks=arrange_canon(tracks)
         else:tracks=arrange(tracks,spec['orchestrate'])
     # Distinct wind/brass parts animate distinct available players. Program
     # switches on the same source channel keep their chair.
