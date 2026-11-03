@@ -13,7 +13,7 @@
 | 홀 | 교향곡 5번 1악장 · 운명 | 5:17 | 관현악 | [Mutopia 941](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=941) / 해당 원본 페이지 표기 참조 | Public Domain |
 | 홀 | 아이네 클라이네 나흐트무지크 1악장 | 5:20 | 현악 합주 | [Mutopia 900](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=900) / 해당 원본 페이지 표기 참조 | Public Domain |
 | 홀 | 사계 · 봄 1악장 | 2:52 | 독주 바이올린과 현악 합주 | [Mutopia 301](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=301) / Mutopia maintainer smailliw | CC-BY-SA-3.0 |
-| 홀 | 캐논 D장조 | 4:06 | 바이올린 3대와 첼로 | [Mutopia 2047](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2047) / Michael Fischer v. Mollard | CC-BY-4.0 |
+| 홀 | 캐논 D장조 | 4:07 | 바로크 관현악 편곡 (원전: 바이올린 3대와 저음) | [Mutopia 2047](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2047) / Michael Fischer v. Mollard | CC-BY-4.0 |
 | 홀 | 아름답고 푸른 도나우 | 9:02 | 관현악 | [PDMX / MuseScore 363281](https://musescore.com/user/49472/scores/363281) / Matthew Dougherty | CC0-1.0 |
 | 홀 | 메시아 · 할렐루야 | 3:09 | 관현악과 4성부 합창 | [Mutopia 459](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=459) / 해당 원본 페이지 표기 참조 | Public Domain |
 | 홀 | 한여름 밤의 꿈 · 결혼행진곡 | 1:53 | 트럼펫과 오르간 편곡 | [PDMX / MuseScore 2451451](https://musescore.com/user/2884336/scores/2451451) / Anne Unij | CC0-1.0 |
@@ -45,6 +45,11 @@
 ## 원본 확인과 이용 조건
 
 - Mutopia 7곡은 개별 원본 페이지의 Public Domain / CC BY / CC BY-SA 표시를 기록했다. 비발디 봄과 쇼팽 녹턴의 원본 및 파생 연주 데이터에는 CC BY-SA 3.0을, 파헬벨 캐논에는 CC BY 4.0을 유지한다. 출처, 기여자, 악기 배정·샘플 연주로 변환한 사실을 함께 표시한다.
+- 캐논은 원전의 세 바이올린과 저음 음표를 모두 그대로 두고, 바로크 관현악으로 편곡했다(`arrange_canon`). 연주자는 4명에서 22명과 지휘자로 늘었다.
+  - 저음 28회 반복에 따라 편성이 자란다: 첼로와 하프시코드 → 세 성부 입장 → 현악 전체 → 목관 → 하프 → 호른·오르간 → 정점(D 트럼펫, 저음 D·A 위의 팀파니) → 현악과 하프로 가라앉음 → 전원이 마지막 화음.
+  - 하프시코드·오르간 화음은 그 순간 울리는 바이올린 음으로만 만든다.
+  - 원전은 처음부터 끝까지 한 세기로 되어 있어서, 피아니시모부터 포르티시모까지의 강약은 편곡에서 정했다.
+  - 같은 엔진으로 렌더하면 첫 저음이 -32.7dB, 세 성부 입장이 -26.5dB, 정점이 -20.1dB이다. 전에는 -23~-25dB로 거의 평평했다.
 - PDMX 원본은 [공식 데이터셋](https://zenodo.org/records/15571083)의 MIDI와 메타데이터다. 카탈로그에는 원본 페이지, 기여자, archive 경로, SHA-256을 남겼다. 개별 업로더의 CC0/PD 표시는 저작권 실사나 모든 국가에서의 원곡 권리 확인을 대체하지 않는다.
 - PDMX 363281(푸른 도나우), 5871238(피아노 협주곡)은 dataset의 `license_conflict` 플래그가 있었다. 함께 제공된 MusicXML의 rights를 직접 확인했다. 웹 CC0와 내부 Public Domain 표시가 모두 재사용을 허용하는 선언임을 기록했다. 이 확인 범위를 넘어서 원곡·편집의 권리를 보증하지 않는다.
 - **사브르의 춤:** [Classical MIDI](https://www.classicalmidi.co.uk/khachaturian.htm)의 `48.zip / 48.MID`를 사용했다. 시퀀서 이름은 unknown이며 사이트는 시퀀서의 허가를 요구한다. 현재 허가 증거는 확보하지 못했다. 따라서 `NOASSERTION`으로 기록하며 공개 라이선스나 자체 제작 원본이라고 주장하지 않는다. 배포 전에 이 데이터의 허가를 확보하거나 독립 제작한 연주 데이터로 교체해야 하는 미해결 항목이다. 곡 자체를 다른 작품으로 바꾸지는 않았다.
