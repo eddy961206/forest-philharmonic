@@ -57,7 +57,18 @@ def arrange_pomp(tracks, beats):
     piano onset and distribute accompaniment by register. Brass grows between
     the first march, quiet trio and the Maestoso choral return. Percussion is
     an original accompaniment tied to the source's beats and bass pitches.
+
+    The Maestoso is the choir's: "Land of Hope and Glory" sung over the
+    orchestra, not under it. The inner strings and horns make room for the
+    voices; the organ Elgar scored joins with the chords and a 16-foot pedal
+    under the bass; horns take up the tune an octave down for its last two
+    phrases, where the trumpets also open out; timpani rolls swell into the
+    entry, into the top of the tune and into the last chord, each landing on
+    a cymbal crash.
     """
+    GRAND=(320.108,386.775);LAST=358.4;CODA=(386.775,400.36)
+    # the tune's peaks (the top G of the last phrases) and the final chord
+    PEAKS=(366.8,383.4)
     buckets={}
     def put(section,inst,on,dur,midi,vel,gain=1,chairs=None,name=''):
         key=(section,inst,gain,tuple(chairs or []),name)
@@ -71,30 +82,40 @@ def arrange_pomp(tracks, beats):
     for tr in tracks:
         ti=tr['sourceTrack'];notes=[tr['notes'][i:i+4] for i in range(0,len(tr['notes']),4)]
         if ti in (0,1):
-            for on,dur,midi,vel in notes:put('choir','choir',on,dur,midi,vel,.66,list(range(0,6) if ti==0 else range(6,12)),'Choral finale')
+            # (sopranos and altos carry the tune: a little more of them)
+            for on,dur,midi,vel in notes:put('choir','choir',on,dur,midi,vel,1.95 if ti==0 else 1.65,list(range(0,6) if ti==0 else range(6,12)),'Choral finale')
             continue
         chords=defaultdict(list)
         for n in notes:chords[n[0]].append(n)
         for on,chord in chords.items():
-            quiet=123.86<=on<245.5;grand=320.108<=on<386.775;trio=quiet or grand
+            quiet=123.86<=on<245.5;grand=GRAND[0]<=on<GRAND[1];trio=quiet or grand
+            coda=CODA[0]<=on<=CODA[1];last=grand and on>=LAST
             top=max(n[2] for n in chord);low=min(n[2] for n in chord)
             for _,dur,midi,vel in chord:
                 if ti==2:
                     lead=midi==top
-                    put('vn1' if lead else 'vn2','violin',on,dur,midi,vel,.8 if lead else .55)
+                    # (the inner voices step back while the choir sings)
+                    put('vn1' if lead else 'vn2','violin',on,dur,midi,vel,.8 if lead else .4 if grand else .55)
                     if lead and (dur>.18 or trio):
-                        put('fl' if quiet else 'tp','flute' if quiet else 'trumpet',on,dur,midi,vel,.35 if quiet else .42 if grand else .3)
-                    elif not lead and dur>.4:put('hn','horn',on,dur,midi,vel,.28 if quiet else .42)
+                        put('fl' if quiet else 'tp','flute' if quiet else 'trumpet',on,dur,midi,vel,.35 if quiet else .46 if last else .3)
+                        if last:put('hn','horn',on,dur,midi-12,vel,.4,name='Horns on the tune')
+                    elif not lead and dur>.4:put('hn','horn',on,dur,midi,vel,.28 if quiet else .3 if grand else .42)
+                    if (grand or coda) and dur>.18:put('organ','organ',on,dur,midi,vel,.3,name='Organ')
                 else:
                     if midi==low:
                         bass.append((on,midi))
                         put('cb','contrabass',on,dur,midi,vel,.75)
                         put('vc','cello',on,dur,midi+12 if midi<43 else midi,vel,.52)
                         if not quiet:put('tu','tuba',on,dur,midi,vel,.3)
+                        if grand or coda:
+                            pedal=midi-12
+                            while pedal<24:pedal+=12
+                            put('organ','organ',on,dur,pedal,vel,.42,name='Organ pedal')
                     else:
-                        put('va','viola',on,dur,midi,vel,.5)
-                        if not quiet and dur>.18:put('hn','horn',on,dur,midi,vel,.36)
+                        put('va','viola',on,dur,midi,vel,.36 if grand else .5)
+                        if not quiet and dur>.18:put('hn','horn',on,dur,midi,vel,.3 if grand else .36)
                         if grand and midi<65:put('tb','trombone',on,dur,midi,vel,.34)
+                        if (grand or coda) and dur>.18:put('organ','organ',on,dur,midi,vel,.3,name='Organ')
     bass.sort();bi=0
     for i,(t,beat,count) in enumerate(beats):
         if t<.849 or t>400.36:continue
@@ -112,6 +133,21 @@ def arrange_pomp(tracks, beats):
                 while pitch>57:pitch-=12
                 put('timp','timpani',t,min(step*1.7,1.1),pitch,73,.52,name='Maestoso timpani')
     for t in (.849,54.69,245.5,320.108,386.775,400.36):put('cy','cymbals',t,.4,49,78,.46,name='Structural cymbal accents')
+    # rolls swelling into the Maestoso, into each peak of the tune and into
+    # the last chord, on the bass of the chord they land on; a crash there
+    def at_bass(t):
+        pitch=min(bass,key=lambda b:abs(b[0]-t))[1]
+        while pitch<40:pitch+=12
+        while pitch>57:pitch-=12
+        return pitch
+    for land,length in ((GRAND[0],2.2),(PEAKS[0],1.7),(PEAKS[1],1.7),(CODA[1],2.4)):
+        pitch=at_bass(land+.05);n=int(length/.075)
+        for k in range(n):
+            u=k/n
+            put('timp','timpani',land-length+k*.075,.12,pitch,int(34+66*u*u),.5,name='Timpani rolls')
+        put('timp','timpani',land,1.4,pitch,108,.6,name='Timpani rolls')
+        if land not in (GRAND[0],CODA[1]):put('cy','cymbals',land,.6,49,96,.5,name='Crashes at the peaks')
+        put('bd','bassDrum',land,.5,36,96,.5,name='Crashes at the peaks')
     for tr in buckets.values():
         notes=[tr['notes'][i:i+4] for i in range(0,len(tr['notes']),4)]
         tr['notes']=[v for n in sorted(notes) for v in n]
