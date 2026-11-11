@@ -6,11 +6,33 @@ export function playBremen(engine) {
   const ctx = engine.ctx, bus = ctx.createGain(), voices = new Set();
   const t0 = ctx.currentTime + .08;
   bus.gain.value = 3;
-  bus.connect(engine.master);
+  const lp = ctx.createBiquadFilter ? ctx.createBiquadFilter() : null;
+  if (lp) {
+    lp.type = 'lowpass';
+    lp.frequency.value = 5200;
+    lp.Q.value = 0.4;
+    bus.connect(lp);
+    lp.connect(engine.master);
+  } else {
+    bus.connect(engine.master);
+  }
+  const wet = engine.reverbIn ? ctx.createGain() : null;
+  if (wet) {
+    wet.gain.value = 0.16 / Math.max(0.4, engine.ac?.reverb ?? 1);
+    (lp || bus).connect(wet);
+    wet.connect(engine.reverbIn);
+  }
   const missing = [];
   const pan = BREMEN_PLAYERS.map(p => {
     const n = ctx.createStereoPanner(); n.pan.value = p.pan; n.connect(bus); return n;
   });
+  let stopped = false;
+  const disconnectShared = () => {
+    pan.forEach(n => n.disconnect());
+    bus.disconnect();
+    lp?.disconnect();
+    wet?.disconnect();
+  };
   for (const note of bremenScore()) {
     const player = BREMEN_PLAYERS[note.player], sample = engine._nearest(player.inst, note.midi);
     if (!sample) { if (!missing.includes(player.inst)) missing.push(player.inst); continue; }
@@ -21,17 +43,20 @@ export function playBremen(engine) {
     const at = t0 + note.at, attack = player.inst === 'pizzicato' ? .006 : .04;
     const available = Math.max(.01, (sample.buf.duration - sample.meta.s) / rate);
     const duration = Math.min(note.dur, Math.max(.02, available - .08));
-    const level = .32 * note.velocity * Math.min(4, sample.meta.g);
+    const level = .32 * note.velocity * Math.min(6, sample.meta.g);
     gain.gain.setValueAtTime(0, at);
     gain.gain.linearRampToValueAtTime(level, at + Math.min(attack, duration / 2));
-    gain.gain.setValueAtTime(level * .88, at + duration);
+    gain.gain.linearRampToValueAtTime(level * .88, at + duration);
     gain.gain.linearRampToValueAtTime(0, at + duration + .08);
     src.connect(gain).connect(pan[note.player]);
     const voice = { src, gain }; voices.add(voice);
-    src.onended = () => { src.disconnect(); gain.disconnect(); voices.delete(voice); };
+    src.onended = () => {
+      src.disconnect(); gain.disconnect(); voices.delete(voice);
+      if (!voices.size && !stopped) { stopped = true; disconnectShared(); }
+    };
     src.start(at, sample.meta.s); src.stop(at + duration + .1);
   }
-  let stopped = false;
+  if (!voices.size) { stopped = true; disconnectShared(); }
   return { start: t0, missing, get activeVoices() { return voices.size; }, stop() {
     if (stopped) return; stopped = true;
     for (const { src, gain } of voices) {
@@ -39,6 +64,6 @@ export function playBremen(engine) {
       try { src.stop(); } catch { /* already ended */ }
       src.disconnect(); gain.disconnect();
     }
-    voices.clear(); pan.forEach(n => n.disconnect()); bus.disconnect();
+    voices.clear(); disconnectShared();
   } };
 }

@@ -53,7 +53,7 @@ def chorale(n, choir_gain=0.9, orch=True):
         dict(part=s, section="choir", inst="choir", gain=choir_gain, chairs=[0, 1, 2]),
         dict(part=a, section="choir", inst="choir", gain=choir_gain * 0.85, chairs=[3, 4, 5]),
         dict(part=t, section="choir", inst="voice", gain=choir_gain * 0.8, chairs=[6, 7, 8]),
-        dict(part=b, section="choir", inst="voice", gain=choir_gain * 0.85, chairs=[9, 10, 11]),
+        dict(part=b, section="choir", inst="voice", gain=choir_gain * 0.85, chairs=[9, 10, 11], fold_range=(43, 84)),
     ]
     if orch:
         tr += [
@@ -316,8 +316,8 @@ PROGRAM = [
         composer="Frédéric Chopin", composerKo="쇼팽", year=1839, ensembleKo="오보에 · 현악 합주",
         tempo=[(1, 54), (16, 54), (17, 62, "ramp"), (18, 54), (21, 54), (24, 40, "ramp")], final_rit=(2, 0.7), mood="calm",
         default_dyn=0.4, tracks=lambda n: piano_to_strings(n[1], n[0], melody_section="ob")[1:] + [
-            dict(part=n[1], section="ob", inst="oboe", gain=1.0, top=True, legato=1.03),
-            dict(part=n[1], section="vn1", inst="violin", layer="strings", gain=0.35, top=True),
+            dict(part=n[1], section="ob", inst="oboe", gain=1.0, top=True, legato=1.03, fold_range=(55, 93)),
+            dict(part=n[1], section="vn1", inst="violin", layer="strings", gain=0.35, top=True, fold_range=(55, 100)),
         ],
     ),
     dict(
@@ -425,8 +425,8 @@ PROGRAM = [
         composer="Frédéric Chopin", composerKo="쇼팽", year=1839, ensembleKo="금관 · 현악 합주",
         tempo=[(1, 46)], final_rit=(2, 0.7), mood="grand", default_dyn=0.7,
         tracks=lambda n: [
-            dict(part=n[1], section="tp", inst="trumpet", gain=0.8, top=True),
-            dict(part=n[1], section="vn1", inst="violin", layer="strings", gain=0.9, top=True),
+            dict(part=n[1], section="tp", inst="trumpet", gain=0.8, top=True, fold_range=(52, 86)),
+            dict(part=n[1], section="vn1", inst="violin", layer="strings", gain=0.9, top=True, fold_range=(55, 100)),
             dict(part=n[1], section="hn", inst="horn", gain=0.6, range=(55, 76), bottom=True),
             dict(part=n[1], section="vn2", inst="violin", layer="strings", gain=0.6, range=(55, 84), bottom=True),
             dict(part=n[1], section="va", inst="viola", layer="strings", gain=0.6, range=(48, 70)),
@@ -489,8 +489,8 @@ PROGRAM = [
         tracks=lambda n: [
             dict(part=n[0], section="vc", inst="cello", gain=1.0, top=True, chairs=[0], legato=1.03),
             dict(part=n[0], section="cb", inst="contrabass", gain=0.35, bottom=True, transpose=-12, floor=28, only_below=50),
-            dict(part=n[1], section="vn2", inst="violin", layer="strings", gain=0.5, top=True),
-            dict(part=n[1], section="va", inst="viola", layer="strings", gain=0.55, bottom=True),
+            dict(part=n[1], section="vn2", inst="violin", layer="strings", gain=0.5, top=True, fold_range=(55, 100)),
+            dict(part=n[1], section="va", inst="viola", layer="strings", gain=0.55, bottom=True, fold_range=(48, 88)),
         ],
     ),
     dict(
@@ -524,7 +524,7 @@ PROGRAM = [
         composer="Giuseppe Verdi", composerKo="베르디", year=1851, ensembleKo="호른 · 트럼펫 · 현악",
         tempo=[(1, 112)], final_rit=(2, 0.8), mood="lively", default_dyn=0.6,
         tracks=lambda n: [
-            dict(part=n[0], section="hn", inst="horn", gain=0.9, top=True, chairs=[0]),
+            dict(part=n[0], section="hn", inst="horn", gain=0.9, top=True, chairs=[0], transpose=-12),
             dict(part=n[0], section="tp", inst="trumpet", gain=0.5, top=True),
             dict(part=n[0], section="vn1", inst="violin", layer="strings", gain=0.6, top=True),
             dict(part=n[0], section="vn2", inst="violin", layer="strings", gain=0.5, bottom=True, range=(55, 84)),

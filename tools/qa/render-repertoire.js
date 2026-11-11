@@ -1,7 +1,7 @@
 // Run through cdp-direct eval on a same-origin blank document (not the app tab).
 // This measures the actual engine offline. It is not a real-time load benchmark.
 (async () => {
-  const {AudioEngine} = await import('/js/audio/engine.js');
+  const {AudioEngine, venueAcoustics} = await import('/js/audio/engine.js');
   const {Performance} = await import('/js/audio/performance.js');
   const {OUTDOOR_ACOUSTICS} = await import('/js/scene/outdoorplan.js');
   const {SPHERE_ACOUSTICS} = await import('/js/scene/sphereplan.js');
@@ -16,7 +16,7 @@
     const rate=48000, ctx = new OfflineAudioContext(2,Math.ceil((length+3)*rate),rate);
     const engine = new AudioEngine();
     window.AudioContext = function(){return ctx;};
-    try { await engine.init({acoustics: venue==='outdoor'?OUTDOOR_ACOUSTICS:venue==='sphere'?SPHERE_ACOUSTICS:null}); }
+    try { await engine.init({acoustics: venueAcoustics(venue, {sphere: SPHERE_ACOUSTICS, outdoor: OUTDOOR_ACOUSTICS})}); }
     finally { window.AudioContext=NativeAudioContext; }
     engine._stopTimer(); engine.samples=bank.samples;
     engine.setListener({x:0,y:1.5,z:8},{x:0,y:0,z:-1},{x:0,y:1,z:0});
@@ -28,7 +28,7 @@
     try {
       const ev=prepared.ev;
       for(let i=0;i<ev.length;i+=5) {
-        const tr=score.tracks[ev[i]],on=ev[i+1],dur=ev[i+2];
+        const tr=prepared.piece.tracks[ev[i]],on=ev[i+1],dur=ev[i+2];
         if(on>=start+length || on+dur<=start)continue;
         const skip=Math.max(0,start-on);
         // Keep the original envelope through the excerpt boundary. The offline
