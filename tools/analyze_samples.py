@@ -21,6 +21,45 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SAMPLES = os.path.join(ROOT, "public", "samples")
 SR = 22050
 TARGET_RMS = 0.12
+MAX_GAIN = 6.0
+MAX_STEP_DB = 3.0
+
+
+def smooth_gains(notes):
+    keys = sorted(notes.keys(), key=int)
+    if len(keys) <= 1:
+        for k in keys:
+            notes[k]["g"] = round(min(MAX_GAIN, max(0.05, notes[k]["g"])), 4)
+        return notes
+    logs = [math.log(min(MAX_GAIN, max(0.05, notes[k]["g"]))) for k in keys]
+    n = len(logs)
+    spike_thresh = math.log(10 ** (2.2 / 20))
+    for _ in range(2):
+        nxt = logs[:]
+        for i in range(1, n - 1):
+            mid = 0.5 * (logs[i - 1] + logs[i + 1])
+            if abs(logs[i] - mid) > spike_thresh:
+                nxt[i] = 0.45 * logs[i] + 0.55 * mid
+        logs = nxt
+    max_delta = math.log(10 ** (MAX_STEP_DB / 20))
+    for _ in range(20):
+        changed = False
+        for i in range(n - 1):
+            d = logs[i + 1] - logs[i]
+            if abs(d) > max_delta + 1e-9:
+                excess = (abs(d) - max_delta) * 0.5
+                if d > 0:
+                    logs[i] += excess
+                    logs[i + 1] -= excess
+                else:
+                    logs[i] -= excess
+                    logs[i + 1] += excess
+                changed = True
+        if not changed:
+            break
+    for k, lg in zip(keys, logs):
+        notes[k]["g"] = round(min(MAX_GAIN, max(0.05, math.exp(lg))), 4)
+    return notes
 
 
 def decode(path):
@@ -58,7 +97,7 @@ def measure(path, percussive):
             break
     return {
         "s": round(start / SR, 4),
-        "g": round(min(8.0, TARGET_RMS / rms), 4),
+        "g": round(min(MAX_GAIN, TARGET_RMS / rms), 4),
         "d": round((end - start) / SR, 3),
     }
 
@@ -77,7 +116,7 @@ def main():
             if not f.endswith(".mp3"):
                 continue
             notes[f.split(".")[0]] = measure(os.path.join(d, f), inst in PERCUSSIVE)
-        out[inst] = notes
+        out[inst] = smooth_gains(notes)
         gains = [v["g"] for v in notes.values()]
         print(f"{inst:11s} {len(notes):3d} samples  gain {min(gains):.2f}-{max(gains):.2f}  "
               f"start<= {max(v['s'] for v in notes.values()):.3f}s  dur {min(v['d'] for v in notes.values()):.2f}-{max(v['d'] for v in notes.values()):.2f}s")

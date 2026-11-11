@@ -707,6 +707,12 @@ def realize(spec, only=None):
             midi = n.midi + t.get("transpose", 0)
             if midi < t.get("floor", 0):
                 midi = n.midi  # below the instrument: stay in the written octave
+            if "fold_range" in t:
+                lo_f, hi_f = t["fold_range"]
+                while midi < lo_f:
+                    midi += 12
+                while midi > hi_f:
+                    midi -= 12
             if n.grace:
                 graces.append((n, midi))
                 continue

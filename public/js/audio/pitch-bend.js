@@ -8,12 +8,16 @@ export function bendAt(points, time) {
 export function schedulePitchBend(param, points, scoreOn, audioOn, duration) {
   if (!param || !points?.length) return;
   const { index, value } = bendAt(points, scoreOn);
+  let lastTime = audioOn;
   param.setValueAtTime(value, audioOn);
   for (let i = index; i < points.length && points[i][0] <= scoreOn + duration; i++) {
-    // The MIDI event is authoritative; a tiny ramp avoids zipper noise.
-    const t = audioOn + points[i][0] - scoreOn;
+    // The MIDI event is authoritative; a tiny ramp avoids zipper noise while
+    // clamping hold points so dense (<4 ms) events never step backward.
+    const t = Math.max(audioOn, lastTime, audioOn + points[i][0] - scoreOn);
     const previous = i ? points[i - 1][1] : 0;
-    param.setValueAtTime(previous, Math.max(audioOn, t - 0.004));
+    const holdAt = Math.max(audioOn, lastTime, t - 0.004);
+    param.setValueAtTime(previous, holdAt);
     param.linearRampToValueAtTime(points[i][1], t);
+    lastTime = t;
   }
 }

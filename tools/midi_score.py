@@ -70,7 +70,7 @@ def read_midi(filename, independent_track_ports=False):
     held=defaultdict(deque);pedal=defaultdict(bool);sustained=defaultdict(list);events=defaultdict(list)
     def finish(note,off):
         on,key,vel,program,port,ch,ti=note
-        if off>on and vel>0:events[ti,program,port,ch].append((seconds(on),seconds(off)-seconds(on),key,vel))
+        if off>on and vel>=5:events[ti,program,port,ch].append((seconds(on),seconds(off)-seconds(on),key,vel))
     for tick,ti,mi,port,msg in sorted(timeline,key=lambda e:e[:3]):
         if not hasattr(msg,'channel'):continue
         ch=msg.channel;channel=(port,ch)
@@ -126,7 +126,9 @@ def instrument(part, override=None):
     if part['program'] not in GM:raise ValueError(f"Unmapped program {part['program']}: {part['name']}")
     section,inst=GM[part['program']]
     name=part['name'].lower()
-    if section=='vn1':
+    if inst=='clarinet' and any(x in name for x in ('bass clarinet','clarinette basse','bassklarinette')):
+        section,inst='bn','bassoon'
+    elif section=='vn1':
         if any(x in name for x in ('viola','alto')):section='va'
         elif any(x in name for x in ('cello','violonc','violoncel')):section='vc'
         elif any(x in name for x in ('contrab','double bass','bassi','basses')):section='cb'
@@ -153,7 +155,29 @@ def realize(spec, root):
                 section,inst=DRUMS[key];groups[section,inst].append((on,dur,DRUM_ROOT[inst],vel))
         else:
             section,inst=instrument(part,override)
-            groups[section,inst]=part['notes']
+            if inst=='bells' and any(k<43 for _,_,k,_ in part['notes']):
+                cannon_times=set()
+                for on,dur,key,vel in part['notes']:
+                    if key<43:
+                         bucket=round(on,2)
+                         if bucket not in cannon_times:
+                             cannon_times.add(bucket)
+                             groups['bd','bassDrum'].append((on,max(dur,.45),DRUM_ROOT['bassDrum'],max(vel,120)))
+                    else:
+                        groups[section,inst].append((on,dur,key,vel))
+            elif inst=='flute' and not override and any(k>98 for _,_,k,_ in part['notes']):
+                for on,dur,key,vel in part['notes']:
+                    if key>98:groups['picc','piccolo'].append((on,dur,key,vel))
+                    else:groups[section,inst].append((on,dur,key,vel))
+            else:
+                fitted=[]
+                for on,dur,key,vel in part['notes']:
+                    if inst=='flute':
+                        while key<55:key+=12
+                    elif inst=='bassoon':
+                        while key<28:key+=12
+                    fitted.append((on,dur,key,vel))
+                groups[section,inst]=fitted
         for (section,inst),notes in groups.items():
             out=[]
             for on,dur,key,vel in notes:

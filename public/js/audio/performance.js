@@ -9,7 +9,18 @@ import { SECTIONS } from '../layout.js';
 // the score level (see _level) a piece is levelled to
 const LEVEL_REF = 3;
 
-const SECTION_LAG = { vn1: -0.004, vn2: 0.002, va: 0.004, vc: 0.006, cb: 0.012, fl: 0, ob: 0, cl: 0.002, bn: 0.006, hn: 0.01, tp: 0.004, timp: 0.003, harp: 0, piano: 0 };
+const SECTION_LAG = {
+  vn1: -0.004, vn2: 0.002, va: 0.004, vc: 0.006, cb: 0.012,
+  picc: -0.003, fl: 0, ob: 0, eh: 0.002, cl: 0.002, sax: 0.004, bn: 0.006,
+  hn: 0.01, tp: 0.004, tb: 0.01, tu: 0.014,
+  timp: 0.003, bd: 0.005, sd: 0.001, cy: 0.003, tri: 0, tamb: 0.001, tom: 0.002,
+  harp: 0, piano: 0, cel: 0, mallet: 0, bells: 0.004, organ: 0.012, choir: 0.008,
+};
+
+const FOREGROUND_SECTIONS = new Set([
+  'vn1', 'fl', 'picc', 'ob', 'eh', 'cl', 'sax', 'hn', 'tp',
+  'piano', 'harp', 'cel', 'mallet', 'bells', 'organ', 'choir',
+]);
 
 // A piece's score from the server. A failed answer (offline, a 503, a page
 // that is not a score) is an error, never half a piece.
@@ -51,17 +62,25 @@ export class Performance {
   // its level - without touching what is playing now (see use(): a piece
   // asked for and no longer wanted by the time it arrives changes nothing)
   prepare(p) {
+    if (!p || !Array.isArray(p.tracks)) throw new Error('Invalid score: missing tracks');
     const events = [];
     const players = {};
-    p.tracks.forEach((tr, ti) => {
+    const tracks = p.tracks.map((tr, ti) => {
+      const sec = SECTIONS[tr.section];
+      if (!sec) throw new Error(`${p.id || 'score'}: unknown section "${tr.section}" on track ${ti}`);
       const n = tr.notes;
-      tr.count = n.length / 4;
-      tr.ti = ti;
-      tr.chairList = tr.chairs || SECTIONS[tr.section].chairs.map((_, i) => i);
+      const chairList = tr.chairs ? [...tr.chairs] : sec.chairs.map((_, i) => i);
+      for (const chair of chairList) {
+        if (!Number.isInteger(chair) || chair < 0 || chair >= sec.chairs.length) {
+          throw new Error(`${p.id || 'score'}: invalid chair ${chair} for section "${tr.section}" on track ${ti}`);
+        }
+      }
       const chairs = players[tr.section] || (players[tr.section] = new Set());
-      if (n.length) for (const chair of tr.chairList) chairs.add(chair);
+      if (n.length) for (const chair of chairList) chairs.add(chair);
       for (let i = 0; i < n.length; i += 4) events.push(ti, n[i], n[i + 1], n[i + 2], n[i + 3]);
+      return { ...tr, count: n.length / 4, ti, chairList, vi: 0 };
     });
+    const piece = { ...p, tracks };
     // sort flat event list by time
     const count = events.length / 5;
     const order = Array.from({ length: count }, (_, i) => i).sort((a, b) => events[a * 5 + 1] - events[b * 5 + 1]);
@@ -71,19 +90,20 @@ export class Performance {
     });
     let maxDur = 0;
     for (let i = 0; i < count; i++) maxDur = Math.max(maxDur, ev[i * 5 + 2]);
-    const expression = this._shape(p, ev, count);
+    const expression = this._shape(piece, ev, count);
     const ensemble = Object.fromEntries(Object.entries(players).map(([section, chairs]) => [section, chairs.size]));
     return {
-      piece: p, ev, expression, ensemble, evCount: count, maxDur, level: this._level(p, ev, count, ensemble),
-      playingSections: new Set(p.tracks.map((t) => t.section)), activity: this._activity(p),
+      piece, ev, expression, ensemble, evCount: count, maxDur, level: this._level(piece, ev, count, ensemble),
+      playingSections: new Set(tracks.map((t) => t.section)), activity: this._activity(piece),
     };
   }
 
   // the prepared piece is the one to play now (stopped, at its start)
   use(prep) {
     if (this.playing) this.stop();
-    const p = prep.piece;
+    const p = { ...prep.piece, tracks: prep.piece.tracks.map((tr) => ({ ...tr, vi: 0 })) };
     this.piece = p;
+    this.ensemble = prep.ensemble;
     this.engine.setEnsemble?.(prep.ensemble);
     this.ev = prep.ev;
     this.expression = prep.expression;
@@ -221,8 +241,21 @@ export class Performance {
       const n = tr.notes;
       let mn = 127;
       let mx = 0;
-      for (let i = 3; i < n.length; i += 4) { mn = Math.min(mn, n[i]); mx = Math.max(mx, n[i]); }
-      return mx - mn < 3;
+      const vels = [];
+      for (let i = 3; i < n.length; i += 4) {
+        const v = n[i];
+        mn = Math.min(mn, v);
+        mx = Math.max(mx, v);
+        vels.push(v);
+      }
+      if (mx - mn < 3) return true;
+      if (vels.length >= 16) {
+        vels.sort((a, b) => a - b);
+        const q15 = vels[Math.floor((vels.length - 1) * 0.15)];
+        const q85 = vels[Math.floor((vels.length - 1) * 0.85)];
+        return q85 - q15 < 3;
+      }
+      return false;
     });
     // Two ratios per event let held tones follow the same phrase as their
     // neighbours. No extra voices or runtime score scans are needed.
@@ -460,7 +493,8 @@ export class Performance {
     for (const [id, arr] of Object.entries(this.activity || {})) {
       let v = 0;
       for (let k = Math.max(0, Math.floor(t)); k < Math.min(arr.length, Math.floor(t + span)); k++) v += arr[k];
-      if (id === 'vn1' || id === 'fl' || id === 'ob' || id === 'hn' || id === 'piano' || id === 'harp') v *= 1.25;
+      const isSoloChair = this.ensemble?.[id] === 1 && (SECTIONS[id]?.chairs.length || 0) > 1;
+      if (FOREGROUND_SECTIONS.has(id) || isSoloChair) v *= 1.25;
       if (v > bestV) { bestV = v; best = id; }
     }
     return best;

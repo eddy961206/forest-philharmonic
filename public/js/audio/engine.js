@@ -56,16 +56,41 @@ const ENV = {
 };
 
 // Desks per section (beside the section's own sound): [desktop, phone]
-const DESKS = { vn1: [2, 1], vn2: [2, 0], va: [2, 0], vc: [2, 1], cb: [1, 0], choir: [2, 1], hn: [1, 0] };
+const DESKS = { vn1: [2, 1], vn2: [2, 0], va: [2, 0], vc: [2, 1], choir: [2, 1], hn: [1, 0] };
 const DESK_GAIN = 0.62;
+const MAX_SAMPLE_GAIN = 6;
 
-// Rooms a venue can ask for by name (merged over its acoustics)
+const MIN_RING = {
+  cymbals: 2.0, bells: 2.0, harp: 0.6, timpani: 0.6, tom: 0.6, snare: 0.6,
+  bassDrum: 0.6, triangle: 0.6, tambourine: 0.6,
+  celesta: 0.55, glockenspiel: 0.55, vibraphone: 0.6,
+  xylophone: 0.42, marimba: 0.45, pizzicato: 0.38,
+};
+
+export const HALL_ACOUSTICS = {
+  rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15,
+  airMin: 3800, airK: 0.055, reverb: 1, level: 1, model: 'inverse',
+  er: 'hall', dark: 1, erLevel: 0.5, spread: 1,
+};
+
+// Base room presets a venue can build upon; explicit venue acoustics win.
 const ROOMS = {
   // the Sphere: a huge, well-damped modern arena with an immersive sound
-  // system - a wide, enveloping field from everywhere around you, a shorter
+  // system - gentle stage width aligned with visual chairs, a shorter
   // and darker tail than the hall, late and soft first reflections
-  arena: { rt60: 1.95, preDelay: 0.034, length: 3.4, reverb: 2.4, er: 'arena', dark: 0.72, erLevel: 0.3, spread: 4.2, level: 0.29 },
+  arena: { rt60: 1.95, preDelay: 0.034, length: 3.4, reverb: 2.4, er: 'arena', dark: 0.72, erLevel: 0.3, spread: 1.15, level: 0.29 },
 };
+
+export function resolveAcoustics(acoustics = null) {
+  const preset = acoustics?.room && ROOMS[acoustics.room] ? ROOMS[acoustics.room] : null;
+  return { ...HALL_ACOUSTICS, ...(preset || {}), ...(acoustics || {}) };
+}
+
+export function venueAcoustics(venue, { sphere = null, outdoor = null } = {}) {
+  if (venue === 'sphere') return sphere ? { ...sphere, room: sphere.room || 'arena' } : { room: 'arena' };
+  if (venue === 'outdoor') return outdoor;
+  return null;
+}
 
 const LOOP_FROM = 0.55; // seconds into a sustained sample where the steady tone begins
 const XFADE = 0.38;
@@ -101,8 +126,7 @@ export class AudioEngine {
     this._lp = null;
     this._listenerPose = null;
     this._spatialDirty = false;
-    this.ac = { rt60: 2.35, preDelay: 0.022, length: 3.8, refDistance: 3.2, rolloff: 1.15, airMin: 3800, airK: 0.055, reverb: 1, level: 1, model: 'inverse', er: 'hall', dark: 1, erLevel: 0.5, spread: 1, ...(acoustics || {}) };
-    if (this.ac.room && ROOMS[this.ac.room]) Object.assign(this.ac, ROOMS[this.ac.room]);
+    this.ac = resolveAcoustics(acoustics);
     const AC = window.AudioContext || window.webkitAudioContext;
     this.ctx = new AC({ latencyHint: 'playback', sampleRate: lite ? 24000 : 48000 });
     const ctx = this.ctx;
@@ -408,7 +432,7 @@ export class AudioEngine {
         let dz = c.z - PODIUM.z;
         const dl = Math.hypot(dx, dz) || 1;
         dx /= dl; dz /= dl;
-        const w = id === 'choir' ? 3.6 : id === 'cb' || id === 'hn' ? 1.1 : 1.5;
+        const w = id === 'choir' ? 3.6 : id === 'hn' ? 1.1 : 1.5;
         for (let k = 0; k < nDesk; k++) {
           const side = nDesk === 1 ? (id === 'hn' ? 1 : -Math.sign(c.x || 1)) : k === 0 ? -1 : 1;
           const back = 0.5 + 0.5 * k;
@@ -476,8 +500,9 @@ export class AudioEngine {
     const send = ctx.createGain();
     send.gain.value = 0.12; // a smaller, drier room than the hall
     input.connect(focus);
-    focus.connect(air).connect(panner).connect(lp).connect(g).connect(this.makeup);
-    focus.connect(send).connect(this.reverbIn);
+    focus.connect(air).connect(lp).connect(g);
+    g.connect(panner).connect(this.makeup);
+    g.connect(send).connect(this.reverbIn);
     this.sections[id] = { id, input, focus, air, panner, send, pos: { ...pos }, distance: 10, spot: { lp, g } };
     this._spatialDirty = true;
     this._spotRoom(this.sections[id], this._open, 0);
@@ -541,8 +566,9 @@ export class AudioEngine {
   }
 
   setReverb(amount) {
-    // amount 0..1 -> return gain
-    this.reverbReturn.gain.setTargetAtTime((0.1 + amount * 0.75) * this.ac.reverb, this.ctx.currentTime, 0.1);
+    // amount 0..1 -> return gain (0 = dry; default 0.45 matches ~0.43 * ac.reverb)
+    const v = clamp(+amount || 0, 0, 1);
+    this.reverbReturn.gain.setTargetAtTime((v <= 0 ? 0 : 0.85 * Math.pow(v, 0.85)) * this.ac.reverb, this.ctx.currentTime, 0.1);
   }
 
   // The music's level in dB (each piece is levelled when it loads, so a
@@ -565,7 +591,7 @@ export class AudioEngine {
     if (!main) return 0;
     const fam = ENV[FAMILY[inst]] || ENV.winds;
     const v = clamp(vel / 127, 0.05, 1);
-    const amp = fam.level * gain * (0.12 + 0.88 * Math.pow(v, 1.7)) * Math.min(4, main.meta.g);
+    const amp = fam.level * gain * (0.12 + 0.88 * Math.pow(v, 1.7)) * Math.min(MAX_SAMPLE_GAIN, main.meta.g);
     let e = amp * amp;
     if (layer && fam.sustain) e *= 1.3;
     const nDesk = (DESKS[section] || [0, 0])[this.lite ? 1 : 0];
@@ -679,7 +705,7 @@ export class AudioEngine {
     }
     if (skip > 0 && !fam.sustain) return; // a struck note is not struck again
     const v = Math.min(1, Math.max(0.05, vel / 127));
-    const amp = fam.level * gain * 0.2 * (0.12 + 0.88 * Math.pow(v, 1.7)) * Math.min(4, main.meta.g);
+    const amp = fam.level * gain * 0.2 * (0.12 + 0.88 * Math.pow(v, 1.7)) * Math.min(MAX_SAMPLE_GAIN, main.meta.g);
     const naturalAttack = fam.atk[0] + (fam.atk[1] - fam.atk[0]) * v;
     // Fast bow/tongue strokes must speak before their note ends. Long tones
     // retain the recorded family's attack and room-independent release.
@@ -709,7 +735,7 @@ export class AudioEngine {
         const lay = this._nearest(layer, midi);
         if (lay) {
           const lg = ctx.createGain();
-          lg.gain.value = 0.55 * Math.min(4, lay.meta.g) / Math.min(4, main.meta.g);
+          lg.gain.value = 0.55 * Math.min(MAX_SAMPLE_GAIN, lay.meta.g) / Math.min(MAX_SAMPLE_GAIN, main.meta.g);
           lg.connect(filter);
           this._sustained(voice, lay, Math.pow(2, (midi - lay.root) / 12), when + 0.012, total - 0.012, lg, 1, skip);
         }
@@ -755,7 +781,7 @@ export class AudioEngine {
       g.linearRampToValueAtTime(amp, when + atk);
       let rel = fam.rel;
       if (inst === 'piano') rel = 0.25 + Math.max(0, (60 - midi) / 60) * 0.5;
-      const ring = ['harp', 'timpani', 'tom', 'snare', 'bassDrum', 'cymbals', 'triangle', 'tambourine', 'bells'].includes(inst) ? Math.max(dur, inst === 'cymbals' || inst === 'bells' ? 2 : 0.6) : dur;
+      const ring = MIN_RING[inst] ? Math.max(dur, MIN_RING[inst]) : dur;
       const off = when + Math.min(ring, avail);
       g.setTargetAtTime(0, off, rel / 3);
       src.start(when, main.meta.s);
@@ -777,10 +803,15 @@ export class AudioEngine {
   _sustained(voice, smp, rate, when, total, dest, level, skip = 0) {
     const ctx = this.ctx;
     const dur = smp.buf.duration;
+    const loopBase = Math.min(LOOP_FROM, Math.max(smp.meta.s, dur * 0.25));
+    const loopJitter = Math.max(0, Math.min(0.25, (dur - loopBase) * 0.2));
     let startOff = smp.meta.s + skip * rate;
-    if (skip > 0 && startOff > dur - 1.2) startOff = LOOP_FROM + Math.random() * 0.25;
-    const firstLen = (dur - startOff) / rate - 0.05;
-    const mk = (offset, t0, len, fadeIn, fadeOut) => {
+    let firstLen = (dur - startOff) / rate - 0.05;
+    if (skip > 0 && (startOff > dur - 1.2 || (total > firstLen && firstLen < XFADE * 2.2))) {
+      startOff = loopBase + Math.random() * loopJitter;
+      firstLen = (dur - startOff) / rate - 0.05;
+    }
+    const mk = (offset, t0, len, fadeIn, fadeOut, xf = XFADE) => {
       const src = ctx.createBufferSource();
       src.buffer = smp.buf;
       src.playbackRate.value = rate;
@@ -790,37 +821,39 @@ export class AudioEngine {
       const p = g.gain;
       if (fadeIn) {
         p.value = 0;
-        p.setValueCurveAtTime(EQ_IN, t0, XFADE);
+        p.setValueCurveAtTime(EQ_IN, t0, xf);
       } else {
         p.setValueAtTime(level, t0);
       }
       if (fadeOut) {
-        p.setValueCurveAtTime(EQ_OUT, t0 + len - XFADE, XFADE);
+        p.setValueCurveAtTime(EQ_OUT, t0 + len - xf, xf);
       }
       src.start(t0, offset);
       src.stop(t0 + len + 0.02);
       voice.srcs.push(src);
     };
-    if (total <= firstLen || firstLen < XFADE * 2.2) {
+    const minLoopSeg = (dur - loopBase - loopJitter) / rate - 0.06;
+    if (total <= firstLen || firstLen <= 0.12 || minLoopSeg <= 0.12) {
       mk(startOff, when, Math.min(total, Math.max(0.05, firstLen)), false, false);
-      if (total <= firstLen) return;
+      return;
     }
+    const xf = Math.min(XFADE, Math.max(0.04, Math.min(firstLen, minLoopSeg) * 0.35));
     let t = when;
     let len = firstLen;
     let covered = len;
-    if (firstLen >= XFADE * 2.2) mk(startOff, t, len, false, true);
+    mk(startOff, t, len, false, true, xf);
     let guard = 0;
     while (covered < total && guard++ < 64) {
-      t = when + covered - XFADE;
-      const remain = total - covered + XFADE;
+      t = when + covered - xf;
+      const remain = total - covered + xf;
       // pick the segment start first, then measure how much sample is left
-      const off = LOOP_FROM + Math.random() * 0.25;
+      const off = loopBase + Math.random() * loopJitter;
       const segLen = (dur - off) / rate - 0.06;
       len = Math.min(segLen, remain);
       const more = len < remain - 1e-3;
       // a fade-out curve may not overlap the fade-in on a very short segment
-      mk(off, t, len, true, more && len > XFADE * 2.2);
-      covered += len - XFADE;
+      mk(off, t, len, true, more && len > xf * 2.2, xf);
+      covered += Math.max(0.02, len - xf);
     }
   }
 

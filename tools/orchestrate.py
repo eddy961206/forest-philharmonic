@@ -5,9 +5,29 @@ The catalog labels these performances as arrangements, not original full scores.
 """
 from collections import defaultdict
 
+INST_RANGE = {
+    'violin': (55, 100), 'viola': (48, 88), 'cello': (36, 81), 'contrabass': (28, 64),
+    'flute': (58, 98), 'oboe': (58, 93), 'clarinet': (50, 94), 'bassoon': (34, 75),
+    'horn': (34, 80), 'trumpet': (52, 86), 'trombone': (34, 81), 'tuba': (24, 62),
+    'harp': (24, 103), 'organ': (24, 96), 'harpsichord': (29, 89), 'choir': (48, 84),
+}
+
+
+def fit(inst, midi):
+    if inst not in INST_RANGE:
+        return midi
+    lo, hi = INST_RANGE[inst]
+    while midi < lo:
+        midi += 12
+    while midi > hi:
+        midi -= 12
+    return midi
+
+
 def arrange(tracks, style):
     buckets={}
     def put(source,on,dur,midi,vel,section,inst,gain=1):
+        midi=fit(inst,midi)
         key=(source['sourceTrack'],section,inst,gain)
         if key not in buckets:
             buckets[key]={**{k:v for k,v in source.items() if k!='notes'},'section':section,'inst':inst,'gain':gain,'notes':[]}
@@ -71,6 +91,7 @@ def arrange_pomp(tracks, beats):
     PEAKS=(366.8,383.4)
     buckets={}
     def put(section,inst,on,dur,midi,vel,gain=1,chairs=None,name=''):
+        midi=fit(inst,midi)
         key=(section,inst,gain,tuple(chairs or []),name)
         if key not in buckets:
             tr={'section':section,'inst':inst,'name':name or section,'notes':[],'gain':gain}
@@ -172,6 +193,7 @@ def arrange_canon(tracks):
     CYCLE=8.7273  # two bars of the ground
     buckets={}
     def put(section,inst,on,dur,midi,vel,gain,chairs=None,name='',layer=None):
+        midi=fit(inst,midi)
         key=(section,inst,gain,tuple(chairs or []),name,layer)
         if key not in buckets:
             tr={'section':section,'inst':inst,'name':name or section,'notes':[],'gain':gain}
