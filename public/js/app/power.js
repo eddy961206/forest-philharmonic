@@ -7,8 +7,8 @@ import { isGuest } from './state.js';
 export function createPower(app) {
   const { S, ui, engine, perf, stage } = app;
   const togglePlay = () => app.concert.togglePlay();
-  const runConcert = (i, o) => app.concert.runConcert(i, o);
-  const hostOnly = () => app.sync.hostOnly();
+  const nextTrack = () => app.concert.nextTrack();
+  const prevTrack = () => app.concert.prevTrack();
 
   function updateMediaSession(piece) {
     if (!('mediaSession' in navigator)) return;
@@ -17,8 +17,8 @@ export function createPower(app) {
       // (playing, but the sound taken away: ▶ on the lock screen gives it back)
       navigator.mediaSession.setActionHandler('play', () => { if (!perf.playing) togglePlay(); else sound.check({ gesture: true }); });
       navigator.mediaSession.setActionHandler('pause', () => { if (perf.playing) togglePlay(); });
-      navigator.mediaSession.setActionHandler('nexttrack', () => { if (!hostOnly()) runConcert(S.current + 1, { quick: true }); });
-      navigator.mediaSession.setActionHandler('previoustrack', () => { if (!hostOnly()) runConcert(S.current - 1, { quick: true }); });
+      navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+      navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
     } catch { /* unsupported handler */ }
   }
 

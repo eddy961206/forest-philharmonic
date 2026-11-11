@@ -5,7 +5,7 @@
 // Sphere, which has no foyer), the violist may take the seat you left, the
 // notice board has the musicians' news. Bells call everyone back.
 import * as THREE from 'three';
-import { IS_SPHERE, IS_OUTDOOR, IS_HALL } from '../scene/venue.js';
+import { VENUE, IS_SPHERE, IS_OUTDOOR, IS_HALL } from '../scene/venue.js';
 import { HALL, LEVELS } from '../scene/hallplan.js';
 import { StageManager } from '../scene/stage.js';
 import { Practice, noticeLines, buildNoticeBoard } from '../scene/lobby.js';
@@ -90,7 +90,7 @@ export function createInterval(app) {
   }
 
   async function startPractice() {
-    if (IS_OUTDOOR) return;
+    if (IS_OUTDOOR || !S.program.length) return;
     // a phrase from the coming half (the next piece with a cello part)
     let score = null;
     for (let k = 0; k < 8 && !score && S.interval; k++) {
@@ -135,13 +135,14 @@ export function createInterval(app) {
     return !!BOARD && d.mode === 'walk' && Math.abs(d.feet - LEVELS[0]) < 0.6 && Math.hypot(d.pos.x - BOARD.x, d.pos.z - BOARD.z) < 2.6;
   }
   // (outside the interval the board can still be read)
-  setInterval(() => {
+  const boardTimer = setInterval(() => {
     if (!S.concertStarted || S.interval || !BOARD || S.asleep) return;
     ui.act(nearBoard() ? '숲속 소식 읽기' : null);
   }, 300);
+  boardTimer.unref?.();
 
   // the countdown, and the bells that call everyone back
-  setInterval(() => {
+  const bellTimer = setInterval(() => {
     const I = S.interval;
     if (!I) return;
     const left = I.until - clockNow();
@@ -149,6 +150,7 @@ export function createInterval(app) {
     if (left < 60 && I.bells < 1) { I.bells = 1; bells(2); ui.toast('곧 2부가 시작돼요. 자리로 돌아와 주세요.', 3200); }
     if (left < 15 && I.bells < 2) { I.bells = 2; bells(3); }
   }, 500);
+  bellTimer.unref?.();
 
   // the foyer bell: a soft three-note chime, rung `times` times
   function bells(times) {
@@ -163,16 +165,18 @@ export function createInterval(app) {
   async function showNews() {
     // the coming pieces (the next half first), with who plays them
     const coming = [];
-    const from = S.interval ? S.interval.next : nextIndex();
-    for (let k = 0; k < 6; k++) {
-      const i = (from + k) % S.program.length;
-      if (k > 0 && i === 0) break;
-      const sc = await scoreFor(i);
-      if (!sc) continue;
-      const roster = rosterOf(sc);
-      coming.push({ meta: S.program[i], roster, kind: ensembleOf(sc, roster) });
+    if (S.program.length) {
+      const from = S.interval ? S.interval.next : nextIndex();
+      for (let k = 0; k < 6; k++) {
+        const i = (from + k) % S.program.length;
+        if (k > 0 && i === 0) break;
+        const sc = await scoreFor(i);
+        if (!sc) continue;
+        const roster = rosterOf(sc);
+        coming.push({ meta: S.program[i], roster, kind: ensembleOf(sc, roster) });
+      }
     }
-    ui.showNews(noticeLines({ coming, practiser: S.interval && practice.on ? BEAR : null, week: Math.floor((Date.now() / 86400000 + 3) / 7) }));
+    ui.showNews(noticeLines({ coming, practiser: S.interval && practice.on ? BEAR : null, week: Math.floor((Date.now() / 86400000 + 3) / 7), venue: VENUE }));
   }
 
   ui.on('tea', () => {

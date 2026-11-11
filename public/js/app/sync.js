@@ -14,6 +14,7 @@ import { clockOf, isGuest, waitFor, untilFor } from './state.js';
 
 const EYE_H = 1.62;
 const AWAY_HANDOFF = 30; // seconds of a stuck show in a hidden host's page
+const normIndex = (i, len) => (len > 0 ? (((Math.trunc(Number(i) || 0) % len) + len) % len) : 0);
 
 export function createSync(app) {
   const { S, settings, ui, engine, perf, stage, hall, spot, recital, avatars, camera } = app;
@@ -39,7 +40,8 @@ export function createSync(app) {
   function syncStageTransitions() {
     const on = guest() ? !!S.hostState?.skipStageTransitions : !!settings.skipStageTransitions;
     stage.setSkipTransitions(on);
-    document.getElementById('optSkipStageTransitions').checked = on;
+    const opt = typeof document !== 'undefined' ? document.getElementById?.('optSkipStageTransitions') : null;
+    if (opt) opt.checked = on;
   }
 
   function hostOnly() {
@@ -57,6 +59,7 @@ export function createSync(app) {
       // and the room waits there with it - not pulled back to it every few seconds)
       playing: t.playing && !app.power.sound.lost, pos: t.pos, at: S.room.now(), onstage: stage.onstage, cond: stage.conductorOn,
       on: [...stage.onstageKeys()], skipStageTransitions: !!settings.skipStageTransitions,
+      encore: !!S.encoreActive,
       iu: S.interval?.until, inext: S.interval?.next,
       ev: S.encore ? { c: S.encore.cands, n: encoreCounts(), u: S.encore.until } : undefined,
     };
@@ -69,7 +72,7 @@ export function createSync(app) {
   // state every few seconds asks for the same piece again while it is on its
   // way: that is the one download, the latest ask applying it (pieces.js)
   async function ensurePiece(i) {
-    if (!S.program[i]) return false;
+    if (!Number.isInteger(i) || i < 0 || i >= S.program.length || !S.program[i]) return false;
     const fresh = perf.piece?.id !== S.program[i].id;
     S.current = i;
     S.nextPiece = S.program[i];
@@ -116,7 +119,11 @@ export function createSync(app) {
   // a snapshot from the host (on joining, then every few seconds). Joining,
   // it comes true once we are in step with the show (see room.ready)
   async function followHost(s, { joining = false } = {}) {
-    if (s) { S.hostState = s; syncStageTransitions(); }
+    if (s) {
+      S.hostState = s;
+      if (!S.room?.isHost && typeof s.encore === 'boolean') S.encoreActive = s.encore;
+      syncStageTransitions();
+    }
     if (!s || !S.room || S.room.isHost || !S.concertStarted || !s.started) return true;
     if (S.rejoin) { S.rejoin = false; joining = true; }
     showOn();
@@ -139,12 +146,16 @@ export function createSync(app) {
     if (['changing', 'entering', 'tuning', 'announce', 'hush'].includes(s.phase)) {
       // the orchestra is walking on right now: in a little late, to the stage as
       // it is (the rest of the walk-on goes with the host's)
-      return new Promise((set) => runConcert(s.i, { remote: true, late: { cond: !!s.cond, set: () => set(true) } }));
+      if (!S.program.length) return false;
+      const idx = normIndex(s.i, S.program.length);
+      return new Promise((set) => {
+        runConcert(idx, { remote: true, late: { cond: !!s.cond, set: (ok = true) => set(!!ok) } });
+      });
     }
     // between pieces: set the stage as it is and wait for the host
     S.seq++;
     S.ceremony = false;
-    if (!(await ensurePiece(s.i))) return false;
+    if (!S.program.length || !(await ensurePiece(normIndex(s.i, S.program.length)))) return false;
     if (s.on) stage.snapRoster(new Set(s.on));
     else if (s.onstage) stage.snapOnstage();
     stage.snapConductor(!!s.cond && s.onstage && !over);
@@ -162,15 +173,20 @@ export function createSync(app) {
       S.hostState = { ...S.hostState, skipStageTransitions: !!c.skip };
       syncStageTransitions();
     } else if (c.c === 'run') {
+      if (!S.program.length) return;
+      const idx = normIndex(c.i, S.program.length);
       S.hostState = { ...S.hostState, skipStageTransitions: !!c.skipStageTransitions };
       syncStageTransitions();
       showOn();
-      if (S.phase === 'encore' && S.program[c.i]) ui.toast(`앙코르: 「${S.program[c.i].titleKo}」`, 3200); // (the lanterns' choice, for everyone)
+      if (S.phase === 'encore' && S.program[idx]) ui.toast(`앙코르: 「${S.program[idx].titleKo}」`, 3200); // (the lanterns' choice, for everyone)
+      if (typeof c.encore === 'boolean') S.encoreActive = c.encore;
+      else if (c.quick && idx !== S.current) S.encoreActive = false;
       S.ritualNext = !!c.ritual;
-      runConcert(c.i, { quick: !!c.quick, remote: true });
+      runConcert(idx, { quick: !!c.quick, remote: true });
     } else if (c.c === 'play' || c.c === 'pause') {
+      if (!S.program.length) return;
       showOn();
-      follower.playback({ i: c.i, playing: c.c === 'play', pos: c.pos, at: c.at });
+      follower.playback({ i: normIndex(c.i, S.program.length), playing: c.c === 'play', pos: c.pos, at: c.at });
     } else if (c.c === 'stay') {
       // the piece the host asked for did not come to the host: it stays where
       // it is, and so do we - the state that follows says where, and is taken
@@ -184,9 +200,10 @@ export function createSync(app) {
       S.ceremony = false;
       guestEncore({ c: c.cands, n: [0, 0, 0], u: c.until }, true);
     } else if (c.c === 'interval') {
+      if (!S.program.length) return;
       S.seq++;
       S.ceremony = false;
-      beginInterval(c.until, c.i);
+      beginInterval(c.until, normIndex(c.i, S.program.length));
     } else if (c.c === 'away') {
       // the host's page went to the background (its walk-ons wait for it);
       // the music already playing is not affected, so only a waiting room is told
@@ -200,6 +217,7 @@ export function createSync(app) {
       follower.cancel();
       closeRecital();
       S.ceremony = false;
+      S.encoreActive = false;
       hall.setHouseLights(1);
       hall.show?.('house');
       if (stage.conductorOn) stage.conductorExit();
@@ -211,6 +229,7 @@ export function createSync(app) {
   // a guest who becomes the host carries the show on from where it is
   // (back: the host's own page, reloaded, has it again)
   function takeOver(back = false) {
+    follower.cancel();
     syncStageTransitions();
     ui.toast(back ? '다시 방장이에요. 공연을 이어서 진행해요.' : '이제 내가 방장이에요. 공연 진행을 맡아요.', 2600);
     ui.chatLine({ sys: true, text: back ? '다시 방장이에요.' : '이제 내가 방장이에요.' });
@@ -261,31 +280,40 @@ export function createSync(app) {
   // frame by frame (the walk-ons, the bows). The guests are told, and if it
   // stays stuck for long the show passes to the longest-present guest
   let awayTold = false;
-  let stuckFor = 0;
+  let stuckSince = 0;
   let awayCheck = 0;
   // (a reload or a closed tab: its pagehide comes before the visibilitychange, and it is not "away")
   let unloading = false;
-  addEventListener('pagehide', () => { unloading = true; });
-  addEventListener('pageshow', () => { unloading = false; }); // (back from the bfcache: alive again)
-  document.addEventListener('visibilitychange', () => {
+  if (typeof addEventListener === 'function') {
+    addEventListener('pagehide', () => { unloading = true; });
+    addEventListener('pageshow', () => { unloading = false; }); // (back from the bfcache: alive again)
+  }
+  const onVisibilityChange = () => {
     clearInterval(awayCheck);
-    stuckFor = 0;
+    stuckSince = 0;
     const room = S.room;
     if (unloading || !room?.isHost || !S.concertStarted) return;
     room.cmd({ c: 'away', on: document.hidden });
     if (!document.hidden) return;
+    const isStuck = () => S.showStarted && (S.ceremony || (!perf.playing && !['interval', 'encore'].includes(S.phase)));
+    if (isStuck()) stuckSince = performance.now();
     awayCheck = setInterval(() => {
-      if (!document.hidden || !S.room?.isHost) { clearInterval(awayCheck); return; }
-      const stuck = S.showStarted && (S.ceremony || (!perf.playing && !['interval', 'encore'].includes(S.phase)));
-      stuckFor = stuck ? stuckFor + 5 : 0;
-      if (stuckFor < AWAY_HANDOFF || S.room.members.size < 2) return;
+      if (!document.hidden || !S.room?.isHost) { clearInterval(awayCheck); stuckSince = 0; return; }
+      if (!isStuck()) { stuckSince = 0; return; }
+      const now = performance.now();
+      if (!stuckSince) { stuckSince = now; return; }
+      if ((now - stuckSince) / 1000 < AWAY_HANDOFF || S.room.members.size < 2) return;
       clearInterval(awayCheck);
+      stuckSince = 0;
       const next = [...S.room.members.values()].filter((m) => m.id !== S.room.id).sort((a, b) => (a.since ?? 0) - (b.since ?? 0) || a.id - b.id)[0];
       if (!next) return;
       S.room.handoff(next.id);
       ui.chatLine({ sys: true, text: `화면을 오래 비운 사이 ${next.name}님에게 방장을 넘겼어요.` });
     }, 5000);
-  });
+  };
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('visibilitychange', onVisibilityChange);
+  }
 
   function membersChanged() {
     if (!S.room) return;
@@ -298,7 +326,12 @@ export function createSync(app) {
 
   function wireRoom(c) {
     let wasHost = false;
+    // (a dropped line that comes straight back - the same id - is not news:
+    // "left" is said only once they have stayed away a few seconds)
+    const goneSay = new Map();
     c.on('joined', (m, first) => {
+      for (const t of goneSay.values()) clearTimeout(t);
+      goneSay.clear();
       avatars.clear();
       for (const mm of c.members.values()) if (mm.id !== c.id) avatars.add(mm);
       avatars.setHost(c.host);
@@ -320,17 +353,19 @@ export function createSync(app) {
       wasHost = c.isHost;
       if (role && c.isHost) { takeOver(); return; }
       if (role) {
+        S.seq++;
+        follower.cancel();
+        S.ceremony = false;
+        S.hush = 0;
+        if (S.encore?.votes) { S.encore.counts = encoreCounts(); S.encore.votes = null; } // (the count is theirs now)
+        if (S.interval) ui.interval(true, false);
         ui.chatLine({ sys: true, text: '연결이 끊긴 사이 다른 사람이 방장이 됐어요. 그 무대를 따라가요.' });
-        if (S.encore?.votes) { S.seq++; S.encore.votes = null; } // (the count is theirs now)
       }
       if (!first && !c.isHost && S.encore?.mine >= 0) c.vote(S.encore.mine); // (our lantern left with the line: up again)
       if (c.isHost) publish();
       else if (!S.concertStarted) S.pendingJoin = m.state;
       else catchUp(m.state);
     });
-    // (a dropped line that comes straight back - the same id - is not news:
-    // "left" is said only once they have stayed away a few seconds)
-    const goneSay = new Map();
     c.on('member', (m, back) => {
       avatars.add(m);
       avatars.setHost(c.host);
@@ -356,7 +391,10 @@ export function createSync(app) {
       // the host's line dropped (a reload, most often): the room waits for them -
       // said calmly, and no "left" for someone who is on the way back
       if (wait) { ui.toast('방장의 연결이 잠시 끊겼어요. 돌아오기를 기다려요.', 4000); ui.chatLine({ sys: true, text: '방장의 연결이 잠시 끊겼어요. 돌아오기를 기다려요.' }); return; }
-      if (who) goneSay.set(id, setTimeout(() => { goneSay.delete(id); if (S.room === c) ui.chatLine({ sys: true, text: `${who.name}님이 나갔어요.` }); }, 6000));
+      if (who) {
+        if (goneSay.has(id)) clearTimeout(goneSay.get(id));
+        goneSay.set(id, setTimeout(() => { goneSay.delete(id); if (S.room === c) ui.chatLine({ sys: true, text: `${who.name}님이 나갔어요.` }); }, 6000));
+      }
     });
     c.on('host', (id, back) => {
       avatars.setHost(id);
@@ -365,11 +403,18 @@ export function createSync(app) {
       const handed = wasHost && !c.isHost;
       wasHost = c.isHost;
       if (c.isHost) { takeOver(back); return; }
+      if (handed) {
+        S.seq++;
+        follower.cancel();
+        S.ceremony = false;
+        S.hush = 0;
+        if (S.interval) ui.interval(true, false);
+      }
       if (back) { ui.toast('방장이 돌아왔어요.', 2000); ui.chatLine({ sys: true, text: '방장이 돌아왔어요.' }); }
       else ui.chatLine({ sys: true, text: `${c.members.get(id)?.name ?? '누군가'}님이 이제 방장이에요.` });
       if (S.encore) {
         // the lanterns are counted by the new host now: ours goes to them
-        if (handed && S.encore.votes) { S.seq++; S.encore.counts = encoreCounts(); S.encore.votes = null; }
+        if (handed && S.encore.votes) { S.encore.counts = encoreCounts(); S.encore.votes = null; }
         if (S.encore.mine >= 0) c.vote(S.encore.mine);
       }
     });
@@ -422,6 +467,7 @@ export function createSync(app) {
   }
   ui.on('leaveRoom', () => {
     S.room?.leave();
+    S.leaf.save();
     dropTicket();
     outToSquare();
   });

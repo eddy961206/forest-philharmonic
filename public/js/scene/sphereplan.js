@@ -222,11 +222,13 @@ function barrierTop(x, z, fy) {
   return null;
 }
 
-function levelName(y) {
+const TIER_FLOOR_Y = [0, ...TIERS.map((T) => T.y0)];
+export function sphereLevelName(y) {
   let k = 0;
-  for (let i = 0; i < LEVEL_Y.length; i++) if (y > LEVEL_Y[i] - 2.5) k = i;
+  for (let i = 0; i < TIER_FLOOR_Y.length; i++) if (y >= TIER_FLOOR_Y[i] - 0.15) k = i;
   return LEVEL_NAMES[k];
 }
+const levelName = sphereLevelName;
 
 // --------------------------------------------------------------- entrance
 // You come in through the right-hand vomitory of the 200 level: out of a dark

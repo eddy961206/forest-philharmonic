@@ -6,11 +6,13 @@
 // host's way). The hall's fireflies gather as lanterns go up; at the Sphere
 // the dome turns into a starry sky.
 import * as THREE from 'three';
-import { IS_SPHERE } from '../scene/venue.js';
+import { IS_SPHERE, IS_OUTDOOR } from '../scene/venue.js';
 import { ensembleOf } from '../evening.js';
 import { clockOf, untilFor, seeded } from './state.js';
 
-const HOUSE = new THREE.Vector3(0, 10.5, 13);
+export const HOUSE_HALL = new THREE.Vector3(0, 10.5, 13);
+export const HOUSE_OUTDOOR = new THREE.Vector3(0, 3.4, 7.5);
+const HOUSE = IS_OUTDOOR ? HOUSE_OUTDOOR : HOUSE_HALL;
 
 export function createEncore(app) {
   const { S, ui, stage, hall, spot, effects } = app;
@@ -32,16 +34,50 @@ export function createEncore(app) {
   async function encoreCandidates() {
     const on = stage.onstageKeys();
     const rand = S.room ? seeded((S.room.seed ^ 0xe7c0) + S.playedTonight.size) : Math.random;
-    const pool = [];
-    for (let i = 0; i < S.program.length; i++) if (S.program[i].duration <= 240 && !S.playedTonight.has(S.program[i].id)) pool.push(i);
-    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+    const shuffle = (arr) => {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    };
+    const fresh = [];
+    const bis = [];
+    for (let i = 0; i < S.program.length; i++) {
+      if (i === S.current || S.program[i].duration > 240) continue;
+      if (!S.playedTonight.has(S.program[i].id)) fresh.push(i);
+      else bis.push(i);
+    }
+    shuffle(fresh);
+    // When the audience stayed through the whole evening, offer short bis
+    // favourites (excluding the piece that just finished) so the finale still
+    // receives its lantern encore.
+    const pool = fresh.length >= 3 ? fresh : [...fresh, ...shuffle(bis)];
+    if (pool.length < 3) {
+      const extra = [];
+      for (let i = 0; i < S.program.length; i++) {
+        if (i !== S.current && !pool.includes(i)) extra.push(i);
+      }
+      extra.sort((a, b) => S.program[a].duration - S.program[b].duration);
+      pool.push(...extra.slice(0, 3 - pool.length));
+    }
     const info = [];
     for (const i of pool.slice(0, 16)) {
       const r = await rosterFor(i);
-      info.push({ i, fit: r.size > 0 && [...r].every((k) => on.has(k)), kind: ensembleOf(S.program[i], r), mood: S.program[i].mood });
+      info.push({
+        i,
+        unplayed: !S.playedTonight.has(S.program[i].id),
+        fit: r.size > 0 && [...r].every((k) => on.has(k)),
+        kind: ensembleOf(S.program[i], r),
+        mood: S.program[i].mood,
+      });
     }
     const out = [];
-    const take = (f) => { const c = info.find((x) => !out.includes(x) && f(x)); if (c) out.push(c); };
+    const take = (f) => {
+      const c = info.find((x) => !out.includes(x) && x.unplayed && f(x))
+        || info.find((x) => !out.includes(x) && f(x));
+      if (c) out.push(c);
+    };
     take((x) => x.fit); // the players already there
     take((x) => !out.length || x.kind !== out[0].kind); // something of another kind
     take((x) => x.mood === 'lively' || x.mood === 'grand');
@@ -149,7 +185,8 @@ export function createEncore(app) {
     } else S.room?.vote(E.mine);
     encoreShow();
   });
-  setInterval(() => { if (S.encore) encoreShow(); }, 500);
+  const encoreTimer = setInterval(() => { if (S.encore) encoreShow(); }, 500);
+  encoreTimer.unref?.();
 
-  return { encoreCounts, encoreShow, encoreUi, encoreVote, countEncore, finishEncore, guestEncore };
+  return { encoreCandidates, encoreCounts, encoreShow, encoreUi, encoreVote, countEncore, finishEncore, guestEncore };
 }

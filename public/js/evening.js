@@ -169,8 +169,10 @@ export class Leaf {
       line = `오늘은 ${SECTIONS[sid].ko}${who ? ` ${who.name}` : ''} 곁에서 오래 머물렀어요.`;
     } else if (this.cinema > this.listened * 0.6 && this.listened > 60) {
       line = '오늘은 편하게 보기로 무대를 따라다니며 들었어요.';
-    } else if (level && level[0] === '4층' && level[1] > 60) {
-      line = '오늘은 가장 높은 4층에서 홀 전체를 내려다봤어요.';
+    } else if (level && (level[0] === '4층' || level[0] === '400 레벨') && level[1] > 60) {
+      line = level[0] === '400 레벨'
+        ? '오늘은 가장 높은 400 레벨에서 돔과 무대를 한눈에 내려다봤어요.'
+        : '오늘은 가장 높은 4층에서 홀 전체를 내려다봤어요.';
     } else if (seat && seat[1] > 60) {
       line = `오늘은 ${seat[0]}에서 들었어요.`;
     } else if (this.listened > 0) {

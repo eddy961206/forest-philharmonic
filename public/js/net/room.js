@@ -200,6 +200,7 @@ export class RoomClient {
       case 'pong': {
         const now = Date.now();
         const rtt = now - m.c;
+        if (!Number.isFinite(rtt) || !Number.isFinite(m.s) || rtt < 0 || rtt > 30000) return;
         // keep the estimate from the quickest round trip (least queueing);
         // let it age so a changed network is picked up
         this.bestRtt = Math.min(this.bestRtt * 1.05 + 1, rtt);
@@ -294,10 +295,10 @@ export class RoomClient {
       } catch (e) {
         if (this.closedByUs || this._epoch !== epoch) return;
         if (e.code === 'notfound' || e.code === 'full' || e.code === 'replaced' || tries > 20) { this.room = null; this._emit('lost', e); return; }
-        this._retryT = setTimeout(retry, Math.min(8000, 800 * tries));
+        this._retryT = setTimeout(retry, Math.round(Math.min(8000, 800 * tries) * (0.7 + Math.random() * 0.6)));
       }
     };
     clearTimeout(this._retryT);
-    this._retryT = setTimeout(retry, 600);
+    this._retryT = setTimeout(retry, 350 + Math.floor(Math.random() * 250));
   }
 }

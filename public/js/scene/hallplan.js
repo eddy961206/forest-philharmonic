@@ -492,10 +492,12 @@ export function hallOpenness(x, y, z) {
   return 1 - closed;
 }
 
+const FLOOR_MIN_Y = [0, ...BALCONIES.map((B) => B.y0)];
+
 // which floor are we on (for labels)
 export function levelName(y) {
   if (OV) return OV.levelName(y);
   let k = 0;
-  for (let i = 0; i < LEVELS.length; i++) if (y > LEVELS[i] - 2.2) k = i;
+  for (let i = 0; i < FLOOR_MIN_Y.length; i++) if (y >= FLOOR_MIN_Y[i] - 0.15) k = i;
   return LEVEL_NAMES[k];
 }

@@ -1329,12 +1329,18 @@ export function buildDome({ lite = false, renderer = null, quality = 'high', pro
   // ------------------------------------------------------------ controller
   const st = {
     cur: 'ARCH', next: null, mix: 0, dur: 4, reveal: false,
-    list: ['ARCH'], idx: 0, nextSwap: Infinity, live: 0, liveTarget: 0, bright: 1, brightTarget: 1,
+    list: ['ARCH'], idx: 0, swapEvery: Infinity, lastTime: 0, nextSwap: Infinity,
+    live: 0, liveTarget: 0, bright: 1, brightTarget: 1,
     glow: new THREE.Color(), glowI: 0.2,
   };
   function go(name0, { dur = 4, reveal = false } = {}) {
     const name = pick(name0);
     if (name === st.cur && !st.next) return;
+    if (name === st.next) {
+      const rem = st.dur * (1 - st.mix);
+      if (dur < rem) st.dur = dur / Math.max(0.01, 1 - st.mix);
+      return;
+    }
     if (st.next) { st.cur = st.next; }
     st.next = name;
     st.mix = 0;
@@ -1378,20 +1384,23 @@ export function buildDome({ lite = false, renderer = null, quality = 'high', pro
     // shader stops sampling it (uLive > 0.001).
     get liveActive() { return st.liveTarget > 0 || st.live > 0.001; },
     // the house look (walk-in, intermissions)
-    house() { st.list = ['ARCH']; st.nextSwap = Infinity; go('ARCH', { dur: 5 }); st.brightTarget = 1; },
+    house() { st.list = ['ARCH']; st.swapEvery = Infinity; st.nextSwap = Infinity; go('ARCH', { dur: 5 }); st.brightTarget = 1; },
     // a piece begins: the roof lifts off into its first world
     startPiece(piece, t0 = 0) {
       st.list = visualsFor(piece);
-      st.idx = 0;
       const len = Math.max(30, (piece?.duration || 120) / st.list.length);
       st.swapEvery = len;
-      st.nextSwap = t0 + len;
-      go(st.list[0], { dur: st.cur === 'ARCH' ? 7 : 3.5, reveal: st.cur === 'ARCH' });
+      const t = Math.max(0, t0);
+      const step = st.list.length > 1 ? Math.floor(t / len) : 0;
+      st.idx = step % st.list.length;
+      st.nextSwap = st.list.length > 1 ? (step + 1) * len : Infinity;
+      st.lastTime = t;
+      go(st.list[st.idx], { dur: st.cur === 'ARCH' ? 7 : 3.5, reveal: st.cur === 'ARCH' });
       st.brightTarget = 1;
     },
-    finale() { go('FIREWORKS', { dur: 2.5 }); st.nextSwap = Infinity; },
+    finale() { st.swapEvery = Infinity; st.nextSwap = Infinity; go('FIREWORKS', { dur: 2.5 }); },
     // straight to a world (for trying them out: __fp.hall.dome.go('FOREST3D'))
-    go(name, opt = { dur: 1.5 }) { st.nextSwap = Infinity; go(name, opt); },
+    go(name, opt = { dur: 1.5 }) { st.swapEvery = Infinity; st.nextSwap = Infinity; go(name, opt); },
     dim(v) { st.brightTarget = v; },
     // Keep face-mask/crossfade scheduling while resizing existing targets.
     setQuality(q) {
@@ -1407,10 +1416,23 @@ export function buildDome({ lite = false, renderer = null, quality = 'high', pro
       uniforms.uLevel.value += (Math.min(1, level * 5) - uniforms.uLevel.value) * Math.min(1, dt * 4);
       uniforms.uBeat.value = beat;
       uniforms.uDown.value = down;
-      if (playing && time > st.nextSwap && st.list.length > 1) {
-        st.idx = (st.idx + 1) % st.list.length;
-        st.nextSwap = time + st.swapEvery;
-        go(st.list[st.idx], { dur: 6 });
+      if (st.list.length > 1 && Number.isFinite(st.swapEvery)) {
+        const jumped = Math.abs(time - st.lastTime) > Math.max(1.5, dt * 4);
+        st.lastTime = time;
+        if (jumped) {
+          const step = Math.floor(Math.max(0, time) / st.swapEvery);
+          const wantIdx = step % st.list.length;
+          st.nextSwap = (step + 1) * st.swapEvery;
+          if (wantIdx !== st.idx) {
+            st.idx = wantIdx;
+            go(st.list[st.idx], { dur: 2 });
+          }
+        } else if (playing && time >= st.nextSwap) {
+          const step = Math.floor(Math.max(0, time) / st.swapEvery);
+          st.idx = step % st.list.length;
+          st.nextSwap = (step + 1) * st.swapEvery;
+          go(st.list[st.idx], { dur: 6 });
+        }
       }
       if (st.next) {
         st.mix = Math.min(1, st.mix + dt / st.dur);
