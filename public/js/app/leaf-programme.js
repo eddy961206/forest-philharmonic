@@ -31,10 +31,10 @@ export function createLeafProgramme(app) {
     S.playedTonight.clear();
     if (!S.leaf.worthKeeping) return;
     S.leaf.save();
-    ui.showLeaf(S.leaf.card(), Leaf.history());
+    ui.showLeaf(S.leaf.card(), Leaf.history(), { closingEvening: true });
     S.leaf = new Leaf(VENUE);
   }
-  ui.on('leaf', () => ui.showLeaf(S.leaf.worthKeeping ? S.leaf.card() : null, Leaf.history()));
+  ui.on('leaf', () => ui.showLeaf(S.leaf.worthKeeping ? S.leaf.card() : null, Leaf.history(), { closingEvening: false }));
   window.addEventListener('pagehide', () => S.leaf.save());
 
   return { endEvening };

@@ -8,7 +8,8 @@ const fmt = (s) => {
   s = Math.max(0, Math.floor(s || 0));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 };
-const isFormTarget = (t) => t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || t?.getAttribute?.('role') === 'slider';
+const tagOf = (t) => String(t?.tagName || '').toUpperCase();
+const isFormTarget = (t) => ['INPUT', 'TEXTAREA', 'SELECT'].includes(tagOf(t)) || t?.getAttribute?.('role') === 'slider';
 
 export class UI {
   constructor({ settings, onSetting }) {
@@ -192,14 +193,17 @@ export class UI {
   // info: { title, code, cap } or null (watching alone)
   setRoom(info) {
     this.room = info;
+    this._resetConfirm?.();
     $('roomChip').hidden = !info;
     $('chat').hidden = !info;
+    if ($('btnFull')) $('btnFull').title = info ? '전체 화면' : '전체 화면 (Enter)';
     this.unread = 0;
     this._chatButton();
     if (!info) { this.setHostControls(true); return; }
     $('roomChipTitle').textContent = info.title;
     $('roomTitle').textContent = info.title;
     $('roomCode').textContent = info.code;
+    this._syncStartHint();
   }
 
   setOffline(off) { $('roomChip').classList.toggle('offline', off); }
@@ -243,24 +247,29 @@ export class UI {
   // guests see every control, but the show's controls are the host's
   setHostControls(isHost) {
     this.isHost = isHost;
-    const lock = (el) => {
+    const lockButton = (el) => {
+      if (!el) return;
+      el.classList.toggle('host-locked', !isHost);
+      el.setAttribute('aria-disabled', String(!isHost));
+      if (!isHost) el.title = '방장만 할 수 있어요'; else el.removeAttribute('title');
+    };
+    const lockInput = (el) => {
       if (!el) return;
       el.classList.toggle('host-locked', !isHost);
       if ('disabled' in el) el.disabled = !isHost;
+      el.setAttribute('aria-disabled', String(!isHost));
+      const row = el.closest?.('label') || el.parentElement;
+      row?.classList?.toggle?.('host-locked-row', !isHost);
       if (!isHost) el.title = '방장만 할 수 있어요'; else el.removeAttribute('title');
     };
-    for (const id of ['btnPlay', 'btnPrev', 'btnNext', 'startBtn', 'optShuffle', 'optRepeatOne', 'gap', 'optSkipStageTransitions', 'intervalGo']) lock($(id));
-    document.querySelectorAll('#intervalSeg button').forEach(lock);
-    lock($('seek'));
+    for (const id of ['btnPlay', 'btnPrev', 'btnNext', 'startBtn', 'intervalGo']) lockButton($(id));
+    for (const id of ['optShuffle', 'optRepeatOne', 'gap', 'optSkipStageTransitions']) lockInput($(id));
+    document.querySelectorAll('#intervalSeg button').forEach(lockButton);
+    lockButton($('seek'));
     $('seek').setAttribute('aria-disabled', String(!isHost));
-    document.querySelectorAll('#programList button').forEach(lock);
+    document.querySelectorAll('#programList button').forEach(lockButton);
     $('startBtn').textContent = isHost ? '공연 시작' : '방장이 공연을 시작하면 연주자들이 들어와요';
-    // (a guest's K would only say the show is the host's: the hint leaves it out)
-    const hint = $('startHint');
-    if (hint && !document.body.classList.contains('touch')) {
-      hint._full ??= hint.innerHTML;
-      hint.innerHTML = isHost ? hint._full : hint._full.replace(/ · <kbd>K<\/kbd> 공연 시작/, ' · <kbd>Enter</kbd> 채팅');
-    }
+    this._syncStartHint();
   }
 
   // ------------------------------------------------------------------ chat
@@ -283,12 +292,13 @@ export class UI {
     else if (!sys) { this.unread = (this.unread || 0) + 1; this._chatButton(); }
   }
 
-  // the chat button: always on a touch screen; on a desktop (Enter opens the
-  // chat) only while there are lines nobody has read
+  // the chat button: shown whenever watching together so mouse, touch and
+  // keyboard visitors all see a clear way to open chat and unread counts
   _chatButton() {
     const btn = $('chatBtn');
+    if (!btn) return;
     const n = this.room ? this.unread || 0 : 0;
-    btn.hidden = !this.room || (!this.touch && n === 0);
+    btn.hidden = !this.room;
     if (n > 0) btn.dataset.unread = n > 9 ? '9+' : String(n);
     else delete btn.dataset.unread;
     btn.setAttribute('aria-label', n > 0 ? `채팅 (새 메시지 ${n}개)` : '채팅');
@@ -335,21 +345,70 @@ export class UI {
     (this.invite ? $('lbInviteGo') : $('lbOnline').hidden ? $('enterBtn') : $('lbCreate')).focus({ preventScroll: true });
   }
 
+  setTouch(on) {
+    const next = Boolean(on);
+    const prev = this.touch;
+    this.touch = next;
+    document.documentElement?.classList?.toggle?.('touch', next);
+    document.body?.classList?.toggle?.('touch', next);
+    if (this.entered) {
+      if ($('joystick')) $('joystick').hidden = !next;
+      if ($('joyZone')) $('joyZone').hidden = !next;
+      if ($('jumpBtn')) $('jumpBtn').hidden = !next;
+      if (!next) {
+        this.stickTouch?.release?.();
+        this.joy?.reset?.();
+      }
+    }
+    if ($('liftPanel') && !$('liftPanel').hidden) {
+      const sm = $('liftPanel').querySelector?.('small');
+      if (sm) sm.style.display = next ? 'none' : '';
+    }
+    this._syncStartHint();
+    this._chatButton();
+    if (prev !== undefined && prev !== next) this.emit('touchChange', next);
+    this._syncLayout?.();
+  }
+
+  setFoyerHint(inFoyer) {
+    const next = Boolean(inFoyer);
+    if (this._inFoyer === next) return;
+    this._inFoyer = next;
+    this._syncStartHint();
+  }
+
+  _syncStartHint() {
+    const hint = $('startHint');
+    if (!hint) return;
+    const guest = Boolean(this.room && this.isHost === false);
+    if (this.touch) {
+      if (guest) {
+        hint.textContent = this._inFoyer
+          ? '앞쪽 문을 지나 객석에 앉아 보세요 · 방장이 곧 시작해요'
+          : '방장이 시작하면 다 함께 들어요 · 자리는 두 번 탭해 앉아요';
+      } else {
+        hint.textContent = this._inFoyer
+          ? '앞쪽 문을 지나 자리에 앉거나 여기서 바로 공연을 시작해요'
+          : '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요 · 자리는 두 번 탭';
+      }
+      return;
+    }
+    const base = this._inFoyer
+      ? '앞쪽 문을 지나 객석에 앉거나(더블클릭 · <kbd>E</kbd>) 여기서 바로 시작해요 · <kbd>K</kbd> 공연 시작'
+      : '<kbd>W A S D</kbd> 걷기 · 끌어서 둘러보기 · 좌석 더블클릭 · <kbd>E</kbd> 앉기 · <kbd>K</kbd> 공연 시작';
+    hint.innerHTML = guest
+      ? base.replace(/ · <kbd>K<\/kbd> 공연 시작$/, ' · <kbd>Enter</kbd> 채팅').replace('여기서 바로 시작해요', '방장이 곧 시작해요')
+      : base;
+  }
+
   enter(touch) {
     if (this.entered) return;
     this.entered = true;
-    document.body.classList.toggle('touch', !!touch);
     $('splash').classList.add('leaving');
     setTimeout(() => $('splash')?.remove(), 1300);
     // (the piece's title waits for the show itself: see showStarted)
     $('transport').hidden = false;
     $('startWrap').hidden = false;
-    if (touch) {
-      $('joystick').hidden = false;
-      $('joyZone').hidden = false;
-      $('jumpBtn').hidden = false;
-      $('startHint').textContent = '왼쪽 조이스틱으로 걷고, 화면을 끌어 둘러봐요';
-    }
     // (layout) what sits above the dock - the start button, toasts, the stick,
     // a phone's panel - reads its real top edge: --dock and --start-top, in px
     // from the bottom of the screen (the dock wraps to more rows on a phone)
@@ -361,6 +420,8 @@ export class UI {
       const r = s.hidden ? null : s.getBoundingClientRect();
       root.setProperty('--start-top', r && r.height ? `${Math.round(window.innerHeight - r.top)}px` : '0px');
     };
+    this._syncLayout = sync;
+    this.setTouch(touch);
     if (window.ResizeObserver) {
       const ro = new ResizeObserver(sync);
       ro.observe($('transport'));
@@ -476,7 +537,11 @@ export class UI {
       const meta = b.querySelectorAll('.p-meta span');
       meta[0].textContent = p.composerKo;
       meta[1].textContent = p.editionKo || p.ensembleKo;
-      b.addEventListener('click', (e) => { this.emit('select', i); if (e.detail > 0) b.blur(); });
+      b.addEventListener('click', (e) => {
+        if (this.isHost === false) { this.toast('공연 진행은 방장만 할 수 있어요.', 2000); return; }
+        this.emit('select', i);
+        if (e.detail > 0) b.blur();
+      });
       li.appendChild(b);
       ol.appendChild(li);
     });
@@ -538,9 +603,20 @@ export class UI {
   // the Sphere's lift panel: the level you are on, or null to hide it
   liftPanel(level) {
     const el = $('liftPanel');
+    const wasHidden = el.hidden;
     el.hidden = !level;
     el.querySelector('small').style.display = this.touch ? 'none' : ''; // no number keys on a phone
-    if (level) el.querySelectorAll('button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.level) === level)));
+    if (level) {
+      el.querySelectorAll('button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.level) === level)));
+      if (wasHidden) this._announce('엘리베이터에 들어왔어요. 이동할 층을 선택하세요.');
+    }
+  }
+
+  _announce(text) {
+    const el = $('uiStatus');
+    if (!el || !text) return;
+    el.textContent = '';
+    setTimeout(() => { if ($('uiStatus')) $('uiStatus').textContent = text; }, 20);
   }
 
   setMuted(m) {
@@ -551,13 +627,15 @@ export class UI {
 
   toast(text, ms = 2200) {
     const el = $('toast');
+    if (!el) return;
     el.textContent = text;
     el.hidden = false;
     el.style.opacity = '1';
     clearTimeout(this._toastT);
+    clearTimeout(this._toastHideT);
     this._toastT = setTimeout(() => {
       el.style.opacity = '0';
-      setTimeout(() => { el.hidden = true; }, 400);
+      this._toastHideT = setTimeout(() => { el.hidden = true; }, 400);
     }, ms);
   }
 
@@ -631,11 +709,52 @@ export class UI {
     el.style.transform = `translate(${dx}px, ${dy}px)`;
   }
 
-  focus(info) {
+  focus(info, { canSolo = true } = {}) {
     const chip = $('focusChip');
-    if (!info) { chip.hidden = true; $('focusSolo').setAttribute('aria-pressed', 'false'); return; }
+    const solo = $('focusSolo');
+    if (!info) {
+      if (chip) chip.hidden = true;
+      if (solo) {
+        solo.hidden = false;
+        solo.setAttribute('aria-pressed', 'false');
+        solo.textContent = '이 파트 크게 듣기';
+      }
+      return;
+    }
     $('focusName').textContent = info;
+    if (solo) {
+      solo.hidden = !canSolo;
+      solo.setAttribute('aria-pressed', 'false');
+      solo.textContent = '이 파트 크게 듣기';
+    }
     chip.hidden = false;
+  }
+
+  setStageTargets(items = [], activeId = null) {
+    const wrap = $('stageFocusWrap');
+    const box = $('stageFocusList');
+    if (!wrap || !box) return;
+    const key = JSON.stringify({ items, activeId });
+    if (key === this._stageTargetsKey) return;
+    this._stageTargetsKey = key;
+    if (!items.length) {
+      wrap.hidden = true;
+      box.innerHTML = '';
+      return;
+    }
+    const focusedSid = box.contains?.(document.activeElement) ? document.activeElement?.dataset?.sid : null;
+    box.innerHTML = '';
+    for (const item of items) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.sid = item.id;
+      b.textContent = item.label;
+      b.setAttribute('aria-pressed', String(item.id === activeId));
+      b.addEventListener('click', () => this.emit('focusSection', item.id));
+      box.appendChild(b);
+    }
+    wrap.hidden = false;
+    if (focusedSid) box.querySelector?.(`button[data-sid="${focusedSid}"]`)?.focus?.({ preventScroll: true });
   }
 
   setFps(fps, q) {
@@ -670,7 +789,7 @@ export class UI {
 
   // ------------------------------------------------------ the leaf programme
   // card: tonight so far (or null); history: kept evenings, newest first
-  showLeaf(card, history = []) {
+  showLeaf(card, history = [], { closingEvening = false } = {}) {
     const list = card ? [card, ...history.filter((h) => h.at !== card.at)] : history;
     if (!list.length) { this.toast('한 곡을 끝까지 들으면 오늘 밤의 잎사귀가 생겨요.', 2600); return; }
     const show = (c) => {
@@ -678,6 +797,7 @@ export class UI {
       $('leafVenue').textContent = `${this.venues?.[c.venue]?.ko || '숲속 필하모닉 홀'}에서`;
       $('leafLine').textContent = c.line || '';
       $('leafLine').hidden = !c.line;
+      if ($('leafClose')) $('leafClose').textContent = closingEvening && c === card ? '간직하기' : '닫기';
       const ol = $('leafPieces');
       ol.innerHTML = '';
       for (const p of c.pieces.slice(0, 9)) {
@@ -721,8 +841,10 @@ export class UI {
   // ------------------------------------------------------------ the interval
   // on: shown or not; host: the "second half now" button is theirs
   interval(on, host = true) {
+    const wasHidden = $('intervalChip').hidden;
     $('intervalChip').hidden = !on;
     $('intervalGo').hidden = !host;
+    if (on && wasHidden) this._announce('인터미션이 시작되었어요.');
     if (!on) { $('intervalTea').setAttribute('aria-pressed', 'false'); $('intervalTea').textContent = '🍵 도토리차'; }
   }
 
@@ -761,16 +883,19 @@ export class UI {
   // ------------------------------------------------------------- a recital
   // null: hidden; otherwise which places are free
   recital(state) {
+    const wasHidden = $('recitalChip').hidden;
     $('recitalChip').hidden = !state;
     if (!state) return;
     $('recitalStage').disabled = !state.stage;
     $('recitalTurner').disabled = !state.turner;
+    if (wasHidden) this._announce('독주회 무대 위 자리와 악보 넘김이 자리가 열렸어요.');
   }
 
   // ------------------------------------------------------------- the encore
   // state: { cands: [{ titleKo, composerKo }], counts: [n], mine: k, left: s, people } or null
   encore(state) {
     const el = $('encorePanel');
+    const wasHidden = el.hidden;
     if (!state) { el.hidden = true; this._enc = null; return; }
     const box = $('encoreCands');
     if (this._enc !== state.cands) {
@@ -793,6 +918,7 @@ export class UI {
     });
     $('encoreLeft').textContent = state.left > 0 ? `${Math.ceil(state.left)}초` : '';
     el.hidden = false;
+    if (wasHidden) this._announce('앙코르 투표가 열렸어요. 듣고 싶은 곡에 랜턴을 들어 주세요.');
   }
 
   // ---------------------------------------------------------- asleep
@@ -807,21 +933,52 @@ export class UI {
 
   // ---------------------------------------------------------------- binding
   _bindDialogs() {
+    const handleDialogKey = (id, e) => {
+      if (e._dialogHandled) return;
+      e._dialogHandled = true;
+      // Reading a card must not move the walker, seek or change the song.
+      e.stopPropagation();
+      if (e.isComposing || e.keyCode === 229) return;
+      if (e.key === 'Escape') { e.preventDefault(); this._showDialog(id, false); return; }
+      if (e.key !== 'Tab') return;
+      const root = $(id);
+      if (!root) return;
+      const buttons = [...root.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), [tabindex="0"]')]
+        .filter((node) => node.getClientRects().length && !node.closest('[hidden], [inert]'));
+      const first = buttons[0], last = buttons.at(-1);
+      if (!first) return;
+      if (!root.contains?.(document.activeElement)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+        return;
+      }
+      if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      }
+    };
     for (const id of ['help', 'leaf', 'news']) {
-      $(id).addEventListener('keydown', (e) => {
-        // Reading a card must not move the walker, seek or change the song.
-        e.stopPropagation();
-        if (e.key === 'Escape') { e.preventDefault(); this._showDialog(id, false); return; }
-        if (e.key !== 'Tab') return;
-        const buttons = [...$(id).querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), [tabindex="0"]')]
-          .filter((node) => node.getClientRects().length && !node.closest('[hidden], [inert]'));
-        const first = buttons[0], last = buttons.at(-1);
-        if (!first) return;
-        if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
-          e.preventDefault();
-          (e.shiftKey ? last : first).focus();
-        }
-      });
+      $(id)?.addEventListener('keydown', (e) => handleDialogKey(id, e));
+    }
+    document.addEventListener?.('keydown', (e) => {
+      if (this._dialog) handleDialogKey(this._dialog.id, e);
+    });
+  }
+
+  _resetConfirm() {
+    clearTimeout(this._confirmPlazaT);
+    clearTimeout(this._confirmRoomT);
+    this._confirmPlaza = false;
+    this._confirmRoom = false;
+    const p = $('plazaBtn');
+    if (p) {
+      p.textContent = '🎟 광장으로 나가기';
+      p.classList?.remove?.('confirming');
+    }
+    const r = $('roomLeave');
+    if (r) {
+      r.textContent = '방 나가기';
+      r.classList?.remove?.('confirming');
     }
   }
 
@@ -838,19 +995,36 @@ export class UI {
       if (e.type.startsWith('pointer') || e.detail > 0) el.blur();
     }, opt);
     const click = (id, fn, opt) => tap($(id), fn, opt);
-    click('startBtn', () => this.emit('start'));
-    click('btnPlay', () => this.emit('toggle'));
-    click('btnNext', () => this.emit('next'));
-    click('btnPrev', () => this.emit('prev'));
+    const hostOnly = (fn) => () => {
+      if (this.isHost === false) { this.toast('공연 진행은 방장만 할 수 있어요.', 2000); return; }
+      fn();
+    };
+    click('startBtn', hostOnly(() => this.emit('start')));
+    click('btnPlay', hostOnly(() => this.emit('toggle')));
+    click('btnNext', hostOnly(() => this.emit('next')));
+    click('btnPrev', hostOnly(() => this.emit('prev')));
     click('btnHelp', () => this.showHelp(true));
     click('helpClose', () => this.showHelp(false));
     click('leafBtn', () => this.emit('leaf'));
-    click('plazaBtn', () => this.emit('toPlaza'));
+    click('plazaBtn', () => {
+      const activeShow = Boolean(this.room || ($('startWrap') && $('startWrap').hidden));
+      if (activeShow && !this._confirmPlaza) {
+        this._confirmPlaza = true;
+        const btn = $('plazaBtn');
+        btn.textContent = '정말 광장으로 나갈까요?';
+        btn.classList?.add?.('confirming');
+        clearTimeout(this._confirmPlazaT);
+        this._confirmPlazaT = setTimeout(() => this._resetConfirm(), 3500);
+        return;
+      }
+      this._resetConfirm();
+      this.emit('toPlaza');
+    });
     click('intervalTea', () => this.emit('tea'));
     click('recitalStage', () => this.emit('stageSeat', false));
     click('recitalTurner', () => this.emit('stageSeat', true));
     click('intervalNews', () => this.emit('news'));
-    click('intervalGo', () => this.emit('secondHalf'));
+    click('intervalGo', hostOnly(() => this.emit('secondHalf')));
     click('actBtn', () => this.emit('act'));
     click('offerBtn', () => this.emit('offer', this._offer));
     click('newsClose', () => this._showDialog('news', false));
@@ -861,6 +1035,7 @@ export class UI {
     document.querySelectorAll('#intervalSeg button').forEach((b) => {
       b.setAttribute('aria-pressed', String(Number(b.dataset.min) === this.settings.interval));
       b.addEventListener('click', () => {
+        if (this.isHost === false) { this.toast('공연 진행은 방장만 할 수 있어요.', 2000); return; }
         document.querySelectorAll('#intervalSeg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
         this.onSetting('interval', Number(b.dataset.min));
       });
@@ -872,7 +1047,19 @@ export class UI {
     click('focusClose', () => this.emit('unfocus'));
     click('sitBtn', () => this.emit('sit'));
     click('roomChip', () => { const open = $('panel').hidden || this.openPanel !== 'room'; this.showPanel(open ? 'room' : null, $('roomChip')); });
-    click('roomLeave', () => this.emit('leaveRoom'));
+    click('roomLeave', () => {
+      if (this.room && !this._confirmRoom) {
+        this._confirmRoom = true;
+        const btn = $('roomLeave');
+        btn.textContent = '정말 방을 나갈까요?';
+        btn.classList?.add?.('confirming');
+        clearTimeout(this._confirmRoomT);
+        this._confirmRoomT = setTimeout(() => this._resetConfirm(), 3500);
+        return;
+      }
+      this._resetConfirm();
+      this.emit('leaveRoom');
+    });
     click('roomCopy', () => this.emit('copyInvite'));
     click('chatBtn', () => ($('chatForm').hidden ? this.openChat() : this.closeChat()));
     $('chatForm').addEventListener('submit', (e) => {
@@ -883,12 +1070,28 @@ export class UI {
       this.closeChat();
     });
     $('chatInput').addEventListener('keydown', (e) => {
-      if (e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); $('chatInput').value = ''; this.closeChat(); } // (Esc: the line is not sent - not now, not glued to the next one)
+      if (e.code === 'Escape') {
+        if (e.isComposing || e.keyCode === 229) return;
+        e.preventDefault();
+        e.stopPropagation();
+        $('chatInput').value = '';
+        this.closeChat();
+      } // (Esc: the line is not sent - not now, not glued to the next one)
     });
+    if (window.visualViewport) {
+      const syncChatViewport = () => {
+        const vv = window.visualViewport;
+        const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+        document.documentElement?.style?.setProperty?.('--kb-offset', `${kb}px`);
+      };
+      window.visualViewport.addEventListener('resize', syncChatViewport);
+      window.visualViewport.addEventListener('scroll', syncChatViewport);
+    }
     click('jumpBtn', () => this.emit('jump'), { onDown: true }); // (at once, as a game's jump)
     $('focusSolo').addEventListener('click', (e) => {
       const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
       e.currentTarget.setAttribute('aria-pressed', String(on));
+      e.currentTarget.textContent = on ? '전체 악단 듣기' : '이 파트 크게 듣기';
       this.emit('solo', on);
     });
     document.querySelectorAll('.mode').forEach((b) => tap(b, () => this.emit('mode', b.dataset.mode)));
@@ -911,6 +1114,12 @@ export class UI {
       el.addEventListener('change', () => this.onSetting(key, el.checked));
     };
     for (const [id, key] of [['optSkipStageTransitions', 'skipStageTransitions'], ['optShuffle', 'shuffle'], ['optRepeatOne', 'repeatOne'], ['optFixedEar', 'fixedEar'], ['optNotes', 'notes'], ['optGlow', 'glow'], ['optFireflies', 'fireflies'], ['optFx', 'fx'], ['optLasers', 'lasers'], ['optScreen', 'screen']]) bindCheck(id, key);
+    for (const id of ['optShuffle', 'optRepeatOne', 'gap', 'optSkipStageTransitions']) {
+      const row = $(id)?.closest?.('label') || $(id)?.parentElement;
+      row?.addEventListener?.('pointerdown', () => {
+        if (this.isHost === false) this.toast('공연 진행은 방장만 할 수 있어요.', 2000);
+      });
+    }
     // the audience: how full this venue's house is (each venue keeps its own)
     const crowd = $('crowd');
     const crowdKey = IS_SPHERE ? 'crowdSphere' : IS_OUTDOOR ? 'crowdOutdoor' : 'crowdHall';
@@ -957,11 +1166,19 @@ export class UI {
       });
     });
 
+    if (IS_SPHERE) {
+      if ($('reverbText')) $('reverbText').textContent = '돔 잔향 ';
+      if ($('fixedEarText')) $('fixedEarText').textContent = ' 편하게 보기 중에는 204구역 중앙 자리에서 듣기';
+      if ($('intervalHint')) $('intervalHint').textContent = '프로그램 한가운데에서 한 번 쉬어 가요. 객석을 거닐며 쉬고, 무대 위에서 연습하는 단원도 만나 봐요.';
+      if ($('optScreenText')) $('optScreenText').textContent = ' 돔 상단 중계 화면';
+      if ($('newsKicker')) $('newsKicker').textContent = '돔 안내판';
+    }
     if (IS_OUTDOOR) {
       for (const id of ['optFx', 'optLasers', 'optScreen', 'optNotes', 'optGlow']) $(id).closest('label').hidden = true;
       $('fixedEarText').textContent = ' 편하게 보기 중에는 마당 중앙 자리에서 듣기';
       $('reverbText').textContent = '야외 잔향 ';
       $('intervalHint').textContent = '프로그램 한가운데에서 한 번 쉬어 가요. 공원 길을 걷거나 자리에서 쉬어도 좋아요.';
+      if ($('newsKicker')) $('newsKicker').textContent = '숲속 안내판';
     }
     const domeField = $('domeProjectionField');
     if (domeField) domeField.hidden = !IS_SPHERE;
@@ -974,36 +1191,56 @@ export class UI {
     });
 
     // keyboard (by physical key, so it works with a Korean IME too)
+    this._bindGlobalKeys();
+
+    this._bindSeek();
+  }
+
+  _bindGlobalKeys() {
     window.addEventListener('keydown', (e) => {
-      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.altKey || e.ctrlKey || e.metaKey || e.isComposing || e.keyCode === 229) return;
+      if (this._dialog) return;
+      if ($('sleepVeil') && !$('sleepVeil').hidden) return;
+      if ($('bremen')?.open) return;
       const t = e.target;
+      const tag = tagOf(t);
       // typing (a nickname, a chat line): no shortcuts
-      if ((t instanceof HTMLInputElement && !['checkbox', 'range', 'radio'].includes(t.type)) || t instanceof HTMLTextAreaElement) return;
+      if ((tag === 'INPUT' && !['checkbox', 'range', 'radio'].includes(t.type)) || tag === 'TEXTAREA' || t?.isContentEditable) return;
       // still in the lobby
-      if ($('splash') && !$('splash').classList.contains('leaving')) return;
+      if ($('splash') && !$('splash').classList?.contains?.('leaving')) return;
       if (isFormTarget(t) && ['Space', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.code)) return;
-      if (t instanceof HTMLButtonElement && (e.code === 'Space' || e.code === 'Enter')) return;
+      if (tag === 'BUTTON' && (e.code === 'Space' || e.code === 'Enter')) return;
       const c = e.code;
       if (c === 'Space') e.preventDefault(); // jump (handled by the walker)
-      else if (c === 'KeyK') this.emit('toggle');
-      else if (c === 'KeyN') this.emit('next');
-      else if (c === 'KeyP') this.emit('prev');
-      else if (c === 'KeyH') document.body.classList.toggle('ui-hidden');
-      else if (c === 'KeyM') this.emit('mute');
+      else if (c === 'KeyK') { if (this.isHost === false) this.toast('공연 진행은 방장만 할 수 있어요.', 2000); else this.emit('toggle'); }
+      else if (c === 'KeyN') { if (this.isHost === false) this.toast('공연 진행은 방장만 할 수 있어요.', 2000); else this.emit('next'); }
+      else if (c === 'KeyP') { if (this.isHost === false) this.toast('공연 진행은 방장만 할 수 있어요.', 2000); else this.emit('prev'); }
+      else if (c === 'KeyH') {
+        const hidden = document.body.classList?.toggle?.('ui-hidden');
+        if (hidden) this.toast('화면 표시를 숨겼어요 · 다시 보려면 H 또는 Esc', 1800);
+      } else if (c === 'KeyM') this.emit('mute');
       else if (c === 'Enter') { if (this.room) { e.preventDefault(); this.openChat(); } else this.emit('fullscreen'); }
-      else if (e.key === '?') {
+      else if (c === 'BracketLeft' || c === 'BracketRight') { e.preventDefault(); this.emit('cycleFocus', c === 'BracketLeft' ? -1 : 1); }
+      else if (e.key === '?' || (c === 'Slash' && e.shiftKey)) {
         this.showHelp($('help').hidden);
         // (the help has buttons to press: the mouse comes back for them)
         if (!$('help').hidden && document.pointerLockElement) document.exitPointerLock();
       }
       // Esc while the mouse is captured only lets the mouse go (the walker
-      // does that); the next Esc closes what is open
-      else if (c === 'Escape') { if (!e.defaultPrevented && !document.pointerLockElement) { if (this._dialog) this._showDialog(this._dialog.id, false); else this.showPanel(null); } }
-      else if (c === 'KeyF') { if (!$('actBtn').hidden) this.emit('act'); }
-      else if (c === 'ArrowLeft' || c === 'ArrowRight') this.emit('seekKey', c === 'ArrowLeft' ? -10 : 10, e);
+      // does that); the next Esc unhides UI or closes what is open
+      else if (c === 'Escape') {
+        if (!e.defaultPrevented && !document.pointerLockElement) {
+          if (document.body.classList?.contains?.('ui-hidden')) document.body.classList.remove('ui-hidden');
+          else if (this._dialog) this._showDialog(this._dialog.id, false);
+          else if ($('chat')?.classList?.contains?.('open')) this.closeChat();
+          else this.showPanel(null);
+        }
+      } else if (c === 'KeyF') { if ($('actBtn') && !$('actBtn').hidden) this.emit('act'); }
+      else if ((c === 'ArrowLeft' || c === 'ArrowRight') && !t?.closest?.('#panel')) {
+        if (this.isHost === false) this.toast('공연 진행은 방장만 할 수 있어요.', 2000);
+        else this.emit('seekKey', c === 'ArrowLeft' ? -10 : 10, e);
+      }
     });
-
-    this._bindSeek();
   }
 
   // Seek on the string: one finger previews the position; only its release
@@ -1018,7 +1255,9 @@ export class UI {
     const canSeek = () => seek.getAttribute('aria-disabled') !== 'true' && this.duration > 0;
     const cancelSeek = () => { pointer = null; this.scrub = null; };
     seek.addEventListener('pointerdown', (e) => {
-      if (pointer !== null || !canSeek() || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (seek.getAttribute('aria-disabled') === 'true') { this.toast('공연 진행은 방장만 할 수 있어요.', 2000); return; }
+      if (pointer !== null || !canSeek()) return;
       pointer = e.pointerId;
       seek.setPointerCapture(pointer);
       this.scrub = frac(e);
@@ -1038,6 +1277,7 @@ export class UI {
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.code)) {
         e.stopPropagation();
         e.preventDefault();
+        if (seek.getAttribute('aria-disabled') === 'true') { this.toast('공연 진행은 방장만 할 수 있어요.', 2000); return; }
         if (!canSeek()) return;
         if (e.code === 'Home' || e.code === 'End') this.emit('seek', e.code === 'Home' ? 0 : this.duration);
         else this.emit('seekKey', ['ArrowLeft', 'ArrowDown'].includes(e.code) ? -5 : 5, e);
@@ -1048,6 +1288,7 @@ export class UI {
   showPanel(name, opener = document.activeElement) {
     const wasOpen = !$('panel').hidden;
     if (name) this._panelFrom = opener;
+    else this._resetConfirm();
     this.openPanel = name;
     $('panel').hidden = !name;
     document.querySelectorAll('.tab-btn').forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.panel === name)));
@@ -1059,8 +1300,12 @@ export class UI {
       const cur = $('programList').querySelector('.current');
       if (cur) cur.scrollIntoView({ block: 'nearest' });
     }
-    if (name) $('panelClose').focus({ preventScroll: true });
-    else if (wasOpen && this._panelFrom?.isConnected && !this._panelFrom.closest('[hidden], [inert]')) this._panelFrom.focus({ preventScroll: true });
+    if (name) {
+      this.emit('panelOpen', name);
+      $('panelClose').focus({ preventScroll: true });
+    } else if (wasOpen && this._panelFrom?.isConnected && !this._panelFrom.closest('[hidden], [inert]')) {
+      this._panelFrom.focus({ preventScroll: true });
+    }
   }
 
   // ------------------------------------------------------------ joystick

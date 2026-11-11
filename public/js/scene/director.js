@@ -250,6 +250,19 @@ export class Director {
     this._emit('seat', this.seat);
   }
 
+  // stand right beside the conductor's podium and hear the full orchestra balance
+  focusConductor(conductor) {
+    const name = conductor?.char?.spec?.name || '부엉 선생';
+    const pos = V(PODIUM.x + 0.54, STAGE_Y + 1.82, PODIUM.z + 0.44);
+    const look = V(0, STAGE_Y + 1.32, -6.2);
+    this.seat = { label: `지휘대 · ${name} 곁`, index: -1 };
+    this.mode = 'seat';
+    this.flyTo(pos, look, 2.0, 52);
+    this.anim.home = true;
+    this._emit('mode', 'seat');
+    this._emit('seat', this.seat);
+  }
+
   zoom(delta) {
     this.targetFov = clamp(this.targetFov * Math.exp(delta * 0.0012), 8, 75);
   }
@@ -434,19 +447,34 @@ export class Director {
       this._lastLockClick = now;
     });
     const MOVE = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft', 'ShiftRight']);
+    const isOverlayOpen = () => {
+      const doc = globalThis.document;
+      if (!doc) return false;
+      const sleep = doc.getElementById?.('sleepVeil');
+      if (sleep && !sleep.hidden) return true;
+      return Boolean(doc.querySelector?.('[aria-modal="true"]:not([hidden]), dialog[open]'));
+    };
     window.addEventListener('keydown', (e) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
-      const t = e.target;
-      if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || t.getAttribute?.('role') === 'slider') return;
-      if (e.code === 'KeyR' && !e.repeat) { this.targetFov = this.mode === 'walk' ? 64 : 50; return; }
-      if (e.code === 'KeyE' && !e.repeat) { if (this.toggleSit()) e.preventDefault(); return; }
-      // (Space on a focused button presses the button, as everywhere else)
-      if (e.code === 'Space' && !t.closest?.('button, [role=button], a, summary')) { e.preventDefault(); if (!e.repeat) this.jump(); return; }
       // (only the mouse comes back: an open panel stays open - see ui.js)
       if (e.code === 'Escape' && this.locked) { e.preventDefault(); this.releaseLock(); return; }
+      if (!this.active || isOverlayOpen()) return;
+      const t = e.target;
+      const tag = String(t?.tagName || '').toUpperCase();
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) || t?.isContentEditable || t?.getAttribute?.('role') === 'slider') return;
+      if (t?.closest?.('#panel')) return;
+      if (e.code === 'KeyR' && !e.repeat) { this.targetFov = this.mode === 'walk' ? 64 : 50; return; }
+      if (e.code === 'KeyE' && !e.repeat) {
+        if (this.toggleSit()) { e.preventDefault(); return; }
+        if (this.locked || this.aiming) { e.preventDefault(); this._emit('keyInteract'); }
+        return;
+      }
+      // (Space on a focused button presses the button, as everywhere else)
+      if (e.code === 'Space' && !t?.closest?.('button, [role=button], a, summary')) { e.preventDefault(); if (!e.repeat) this.jump(); return; }
       if (MOVE.has(e.code)) {
         if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown'].includes(e.code) && this.mode !== 'walk') this.setMode('walk');
         this.keys.add(e.code);
+        if (!e.code.startsWith('Shift')) this._emit('keyMove', e.code);
         if (e.code.startsWith('Arrow')) e.preventDefault();
       }
     });
