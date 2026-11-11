@@ -1,7 +1,7 @@
 import { p, outputDir } from './quality-optimization-common.mjs';
 import fs from 'node:fs';
 
-const b=await p.connect({browserURL:'http://127.0.0.1:9224',defaultViewport:null});const page=(await b.pages()).find(p=>p.url().includes(':8096'));const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+const b=await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT||9225}`,defaultViewport:null});const page=(await b.pages()).find(p=>p.url().includes(':8096'));const errors=[];page.on('pageerror',e=>errors.push(String(e)));
 const read=()=>page.evaluate(()=>({open:__fp.bremen.active,voices:__fp.bremen.voices,playing:__fp.perf.playing,pos:__fp.perf.time,makeup:__fp.engine.makeup.gain.value,focus:document.activeElement.className,panelHidden:document.getElementById('panel').hidden,status:document.querySelector('.bremen-status')?.textContent}));
 if(await page.$eval('#bremen',d=>d.open).catch(()=>false))await page.click('.bremen-close');await new Promise(r=>setTimeout(r,200));
 await page.setViewport({width:1200,height:800,deviceScaleFactor:1});await page.evaluate(()=>__fp.perf.play());

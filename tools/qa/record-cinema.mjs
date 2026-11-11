@@ -8,7 +8,7 @@ const mobile = process.env.MOBILE === '1', label = process.env.QA_LABEL || `${ve
 const song = process.env.SONG_ID || ({ hall: 'strauss-blue-danube', sphere: 'wagner-valkyries', outdoor: 'mozart-symphony-40' })[venue];
 const start = Number(process.env.START_SECONDS || 200);
 if (!/^[\w-]+$/.test(label) || !/^[\w-]+$/.test(song) || !Number.isFinite(start) || start < 0) throw Error('Invalid label/song/start');
-const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9224}`,defaultViewport:null,protocolTimeout:240000});
+const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9225}`,defaultViewport:null,protocolTimeout:240000});
 const page = await browser.newPage(), errors = [];
 const source = motionSource();
 try {

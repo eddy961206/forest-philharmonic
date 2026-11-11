@@ -1,5 +1,5 @@
 import { p, outputDir } from './quality-optimization-common.mjs';
-import fs from'node:fs';const b=await p.connect({browserURL:'http://127.0.0.1:9224',defaultViewport:null});const page=(await b.pages()).find(p=>p.url().includes(':8096'));
+import fs from'node:fs';const b=await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT||9225}`,defaultViewport:null});const page=(await b.pages()).find(p=>p.url().includes(':8096'));
 const result=await page.evaluate(async()=>{
  const {syncLiteArms}=await import('/js/scene/characters.js');
  const meshes=__fp.scene.children.filter(m=>m.isInstancedMesh&&[.055,.058].includes(m.geometry.parameters?.radius));

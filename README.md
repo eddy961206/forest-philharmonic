@@ -49,7 +49,7 @@
 
 ## 바로 실행하기
 
-필요한 것: **Node.js 18 이상** ([nodejs.org](https://nodejs.org)에서 LTS 설치)
+필요한 것: **Node.js 20 이상** ([nodejs.org](https://nodejs.org)에서 LTS 설치)
 
 ```bash
 git clone https://github.com/eddy961206/forest-philharmonic.git
@@ -90,41 +90,40 @@ docker build -t forest-philharmonic .
 docker run -d --restart unless-stopped -p 8080:8080 forest-philharmonic
 ```
 
-### 성능 검증하기
+### 검증과 성능 확인하기
 
-현재 최적화 브랜치는 **로컬 실제 GPU 검증을 거쳐 병합 여부를 판단할 후보**야. [PR #1](https://github.com/eddy961206/forest-philharmonic/pull/1)과 `perf/261021-venue-rendering`의 커밋 이력 검토를 맡은 로컬 AI는 [로컬 AI 에이전트 실행 지시](docs/LOCAL_AGENT_HANDOFF.md)부터 읽어. 사용자가 위임한 범위는 직접 앱 실행·동일 회귀/기능 검사·실제 GPU 비교 뒤, 이득이 확인되면 병합하고 아니면 원인을 수정해 재측정하는 것까지야. 별도 채팅 프롬프트를 전달받아야 시작되는 절차가 아니야.
-
-| 읽을 문서 | 내용 |
-|---|---|
-| [레퍼토리 확장 실시간 성능 검증](docs/repertoire-performance-validation.md) | GPT-6.1 Sol의 실제 연주 화면 전곡·합주·CPU·메모리 검사, 피날레 지연 수정과 재검증 |
-| [화질 유지 최적화](docs/quality-preserving-optimization.md) | 원래 재질·음원을 유지한 팔 배치, 전후 비교·화면 차이·모바일 경로 검사 |
-| [브레멘의 밤손님](docs/bremen-easter-egg.md) | 숨은 동화책 공연, 네 악기 오리지널 소품과 기능·오디오 검증 |
-| [로컬 AI 에이전트 실행 지시](docs/LOCAL_AGENT_HANDOFF.md) | 사용자 위임 범위·설치·동일 기능 검사·실제 GPU A/B/B/A·수정/병합·PR 결과 기록 |
-| [추가 오디오 준비 검증](docs/AUDIO_PREPARATION_FOLLOWUP.md) | 직접 측정한 추가 후보, 채택·보류 근거, PCM 보존과 최신 회귀 결과 |
-| [cabfe78 수정과 검증](docs/MERGE_PREPARATION.md) | 테스트 실행 범위, 자동 화질 보정, CPU·배열 개선과 당시 확인 범위 |
-| [이전 e741 → 6c 보고서](docs/performance-e741.md) | 당시 관찰한 개선·악화·제한. 현재 후보의 성능 수치와 구분 |
-| [이전 원본 보관·복구](docs/PERFORMANCE_ARCHIVE.md) | 고정 커밋의 원시 JSON·실패 기록·이미지 해시·재현 절차 |
-
-추가 패키지 설치 없이 `npm test`로 현재 `tests/`의 제품·수집기 계약 검사를 실행할 수 있어. 테스트 실행기가 파일 목록을 직접 넘기므로 Windows와 POSIX에서 같고, `docs/`에 보관된 과거 테스트는 실행하지 않아. Node 검사는 실제 WebGL·스피커 출력·기기 FPS를 보증하지 않아.
+외부 패키지 설치 없이 아래 명령으로 단위·모션·기능 검증을 실행할 수 있어요(실제 브라우저 시나리오는 전용 CDP Chrome 기동 필요, 기본 `CDP_PORT=9225`).
 
 ```bash
-npm test
+npm test                  # 단위·프로토콜·벤치 소스 계약·정적 예산 검사
+npm run verify:motion     # 106곡 연주 자세·손 접촉·충돌·입퇴장 경로 자동 검증
+npm run verify:app        # 세 공연장 공연 흐름 및 함께 보기 검증 (CDP Chrome 필요)
+npm run verify:features   # 오디오·좌석·광장·사유의 방·방 채팅 통합 검증 (CDP Chrome 필요)
 ```
 
-실행 중 개발자 도구 콘솔에서 `({ ...window.__fp.stats })`로 현재 앱 프레임의 통계를 볼 수 있어.
+| 참고 문서 | 내용 |
+|---|---|
+| [AI 동작 검증 하네스](docs/motion-harness.md) | `verify:motion` 자동 검사 범위, 실패 재현, 연속 녹화 및 저사양 측정 절차 |
+| [레퍼토리 확장 실시간 성능 검증](docs/repertoire-performance-validation.md) | 실제 연주 화면 전곡·합주·CPU·메모리 검사, 피날레 지연 수정과 재검증 |
+| [화질 유지 최적화](docs/quality-preserving-optimization.md) | 원래 재질·음원을 유지한 팔 배치, 전후 비교·화면 차이·모바일 경로 검사 |
+| [브레멘의 밤손님](docs/bremen-easter-egg.md) | 숨은 동화책 공연, 네 악기 오리지널 소품과 기능·오디오 검증 |
+| [추가 오디오 준비 검증](docs/AUDIO_PREPARATION_FOLLOWUP.md) | 오디오 준비 후보 측정 근거, PCM 보존과 회귀 결과 |
+| [이전 성능 보관 기록](docs/PERFORMANCE_ARCHIVE.md) | 고정 커밋의 원시 JSON·실패 기록·이미지 해시·재현 절차 |
+
+테스트 실행기(`tools/test.mjs`)가 파일 목록을 직접 전달하므로 Windows와 POSIX 환경에서 동일하게 동작해요. 임시 측정·검증 산출물은 모두 `work/`(또는 `QA_OUT`) 아래에 기록되며, Node 단위 검사는 실제 WebGL·스피커 출력·실기기 FPS 자체를 대신하지 않아요.
+
+실행 중 브라우저 개발자 도구 콘솔에서 `({ ...window.__fp.stats })`로 현재 앱 프레임 통계를 확인할 수 있어요.
 
 | 항목 | 의미 |
 |---|---|
 | `calls`, `triangles` | 본 화면·그림자·중계·돔 큐브맵·후처리를 합친 마지막 앱 프레임의 제출량 |
 | `frameMs` | 직전 실제 앱 렌더부터 지난 시간(ms). 저사양 모드에서 건너뛴 콜백도 포함 |
-| `submitMs` | 프레임 함수 시작부터 제출까지의 시간. 드라이버 대기를 포함하고 순수 CPU/GPU 시간과 달라 |
+| `submitMs` | 프레임 함수 시작부터 제출까지의 시간. 드라이버 대기를 포함하며 순수 CPU/GPU 시간과는 다름 |
 | `fps` | 약 3초 동안의 앱 렌더 평균 빈도. 첫 집계 전에는 0 |
 | `sequence` | 완료한 앱 렌더의 누적 번호. 측정 시 중복 표본을 제외하는 기준 |
 | `quality`, `renderScale` | 현재 화질 단계와 추가 해상도 배율 |
 
-고정 화질 비교는 화면 크기·DPR·카메라·관객 시드·음악 시점·돔/중계 상태를 맞춰. 자동 품질은 별도 검사해. 콜백 빈도는 실제 디스플레이 표시 FPS와 다르고, SwiftShader 같은 소프트웨어 렌더러 결과를 실제 GPU 성과로 사용하지 않아.
-
-이전 보고서의 Hall 가까운 시점 개선과 Sphere 일부 장면의 악화 관측은 그대로 보관돼 있어. 새로운 후보를 실제 GPU에서 비교하기 전에는 과거 수치를 최신 성능으로 재사용하지 않아. 벤치마크 도구와 결과 파일은 개발용이고 앱 런타임 의존성을 늘리지 않아.
+고정 화질 비교는 화면 크기·DPR·카메라·관객 시드·음악 시점·돔/중계 상태를 맞추어 진행하며, 자동 품질은 별도로 관찰해요. SwiftShader 같은 소프트웨어 렌더러 결과는 실제 물리 GPU 성능 지표로 사용하지 않아요.
 
 ---
 
@@ -386,8 +385,9 @@ npm test
 
 ### 서버
 
-`server.js` — 의존성 없는 Node 정적 서버. gzip 압축, ETag/304 캐시, Range 요청, 경로 탈출 방지, 같은 네트워크 주소 안내.
-`server/ws.js` — 직접 구현한 작은 WebSocket 서버 (RFC 6455). `server/rooms.js` — 방(생성·입장·정원), 방장 권한, 상태 전달, 위치·채팅 중계, 속도 제한. 공개 방 목록은 `/api/rooms`.
+`server.js` — 의존성 없는 Node 정적·방 서버. gzip 압축, ETag/304 캐시, Range 요청, 경로 탈출 방지, 보안 응답 헤더(CSP 등), 우아한 종료(graceful shutdown), 같은 네트워크 주소 안내를 담당해요.
+`server/ws.js` — 직접 구현한 작은 WebSocket 서버 (RFC 6455, `Origin` 검증 포함). `server/rooms.js` — 방(생성·입장·정원), 방장 권한, 상태·명령 화이트리스트 중계, 위치·채팅 속도 제한, 명시적 퇴장(`bye`) 즉시 회수를 담당해요. 공개 방 목록은 `/api/rooms`예요.
+- **운영 전제**: 같이 보기 방 목록과 상태는 **단일 Node 프로세스 메모리**에 유지돼요. PM2 등을 사용할 때는 클러스터(`-i max`) 대신 **단일 인스턴스(`fork` 모드)**로 실행해 주세요. 리버스 프록시 뒤에서 운영할 때는 프록시 홉 수에 맞춰 `TRUST_PROXY=1`(필요 시 교차 도메인 허용 목록 `ALLOWED_ORIGINS=https://example.com`)을 지정하면 실제 클라이언트 IP 기준으로 연결·방 생성 한도가 적용돼요.
 
 ---
 
@@ -412,7 +412,8 @@ public/
   js/scene/plazaWorld.js  광장 장면 (자갈, 숲, 가로등, 매표소, 입구, 멀리 보이는 두 공연장)
   js/tickets.js           나(고정된 랜덤 동물)와 표: 값, 발권, 표 그리기
   js/joystick.js          엄지를 따라오는 반투명 조이스틱
-  js/main.js              부팅, 렌더 루프, 공연 진행, 방장 동기화, 인터미션 · 앙코르 · 수면
+  js/main.js              부팅: 공연장·악단·음향 생성 및 컨트롤러 조립
+  js/app/                 공연 흐름 컨트롤러 (상태, 화질, 렌더 루프, 공연, 방 동기화, 인터미션, 앙코르, 수면)
   js/evening.js           곡 성격별 시작과 끝, 독주 스포트라이트, 잎사귀 프로그램
   js/programs.js          공연장별 프로그램 (홀 41곡 · 스피어 41곡 · 야외 24곡)
   js/net/room.js          방 접속 · 서버 시계 맞추기 · 재접속
@@ -448,9 +449,9 @@ tools/                    악보 변환 & 샘플 도구
 
 ## 라이선스와 출처
 
-- 코드: MIT ([LICENSE](LICENSE))
-- 사용한 음원·악보 데이터와 그 라이선스는 [CREDITS.md](CREDITS.md)에 정리했어요. 작품 자체는 모두 퍼블릭 도메인이지만, DCML·Humdrum 에디션에서 만든 연주 데이터는 CC BY-NC-SA(비상업)입니다.
+- 애플리케이션 코드: MIT ([LICENSE](LICENSE))
+- 음원 샘플 및 악보·연주 데이터: 개별 출처와 조건은 [CREDITS.md](CREDITS.md)에 정리했어요. 작곡된 원곡 자체는 퍼블릭 도메인 위주이지만, `public/music/`의 일부 편곡·에디션(DCML·Humdrum·MuseScore 등)에서 변환한 연주 데이터는 **CC BY-NC-SA(비영리·동일조건변경허락)** 등 개별 라이선스를 따르므로 코드의 MIT 라이선스와 별도로 비영리·출처 표시 조건을 확인해 주세요.
 
 ## 동작 검증과 AI 개발
 
-곡·단원·무대를 수정한 뒤 `npm run verify:motion`으로 자동 검증할 수 있어. 실패 위치와 재현 명령, 실제 단원별 녹화 계획을 생성해. [AI 하네스 사용법](docs/motion-harness.md), [전체 동작 수정과 검증 기록](docs/character-motion-validation.md), [작업 규칙](AGENTS.md)을 참고해.
+곡·단원·무대를 수정한 뒤 `npm run verify:motion`으로 자동 검증할 수 있어요. 실패 위치와 재현 명령, 실제 단원별 녹화 계획을 생성해요. 자세한 기준은 [AI 하네스 사용법](docs/motion-harness.md), [전체 동작 수정과 검증 기록](docs/character-motion-validation.md), [작업 규칙](AGENTS.md)을 참고해 주세요.

@@ -60,15 +60,15 @@ function installGpuTimer() {
     contextAttributes: gl.getContextAttributes() };
   const state = { query: null, armed: false, active: false, captured: false, invalid: null,
     created: 0, deleted: 0, frameSubmitMs: null };
-  const originalFrame = frame;
+  const originalFrame = window.__benchRunFrame;
   const release = () => {
     if (state.active && ext) { gl.endQuery(ext.TIME_ELAPSED_EXT); state.active = false; }
     if (state.query) { gl.deleteQuery(state.query); state.query = null; state.deleted++; }
     state.armed = false;
   };
   const skip = (reason, extra = {}) => { release(); return { status: 'SKIP', reason, ...extra }; };
-  frame = function frame() {
-    if (!state.armed) return originalFrame();
+  window.__benchRunFrame = function frame(...args) {
+    if (!state.armed) return originalFrame(...args);
     state.armed = false;
     state.captured = true;
     gl.beginQuery(ext.TIME_ELAPSED_EXT, state.query);
@@ -76,7 +76,7 @@ function installGpuTimer() {
     state.active = beginError === 0;
     if (beginError) state.invalid = { reason: 'beginQuery-gl-error', glError: beginError };
     const started = performance.now();
-    try { return originalFrame(); }
+    try { return originalFrame(...args); }
     finally {
       state.frameSubmitMs = performance.now() - started;
       if (state.active) { gl.endQuery(ext.TIME_ELAPSED_EXT); state.active = false; }
@@ -123,7 +123,7 @@ function installGpuTimer() {
     },
     cancel(reason) { return skip(reason); },
     dispose() {
-      release(); frame = originalFrame;
+      release(); window.__benchRunFrame = originalFrame;
       return { created: state.created, deleted: state.deleted, outstanding: !!state.query,
         active: state.active, contextLost: gl.isContextLost(), glError: gl.getError() };
     },
@@ -242,7 +242,7 @@ try {
   await page.route('**/js/main.js', async route => {
     try {
       const response = await route.fetch(), body = await response.text();
-      assert.ok(body.includes('function frame()') && body.includes('window.__fp ='), 'main.js fixture 구조가 달라졌어.');
+      assert.ok((body.includes('function frame()') || body.includes('createLoop(app)')) && body.includes('window.__fp ='), 'main.js fixture 구조가 달라졌어.');
       await route.fulfill({ response, body: `${body}\n${fixture}${instrumentation}` });
     } catch (error) { session.diagnostics.pageErrors.push(`main fixture: ${error.message}`); await route.abort(); }
   });

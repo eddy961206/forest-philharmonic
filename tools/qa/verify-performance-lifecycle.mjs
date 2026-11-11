@@ -8,7 +8,7 @@ import { motionSource, useBrowserRevision } from './motion-source.mjs';
 // A reused output directory must not advertise a previous run's failure.
 fs.rmSync(`${outputDir}/lifecycle-failure.png`, {force:true});
 const base = `http://127.0.0.1:${process.env.APP_PORT || 8096}`;
-const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9224}`,defaultViewport:null});
+const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9225}`,defaultViewport:null});
 const page = await browser.newPage();
 for (const old of await browser.pages()) if (old !== page && old.url().startsWith(base)) await old.close();
 await page.bringToFront();

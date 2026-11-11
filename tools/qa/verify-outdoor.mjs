@@ -10,7 +10,7 @@ const mobile = process.env.MOBILE === '1';
 const record = process.argv.includes('--record');
 const label = mobile ? 'mobile' : 'desktop';
 const base = `http://127.0.0.1:${process.env.APP_PORT || 8096}`;
-const browser = await p.connect({ browserURL: `http://127.0.0.1:${process.env.CDP_PORT || 9224}`, defaultViewport: null });
+const browser = await p.connect({ browserURL: `http://127.0.0.1:${process.env.CDP_PORT || 9225}`, defaultViewport: null });
 const page = await browser.newPage();
 const result = { source: motionSource(), createdAt: new Date().toISOString(), mobile, record, checks: [], errors: [], warnings: [] };
 const check = (name, detail) => { result.checks.push({ name, detail }); console.log(JSON.stringify({ name, detail })); };

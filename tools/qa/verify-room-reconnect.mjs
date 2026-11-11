@@ -8,7 +8,7 @@ const song = process.env.SONG_ID || 'mozart-symphony-40';
 const reconnectRounds = Number(process.env.RECONNECT_ROUNDS || 1);
 if (!Number.isInteger(reconnectRounds) || reconnectRounds < 1 || reconnectRounds > 20) throw Error('RECONNECT_ROUNDS must be 1..20');
 const base = `http://127.0.0.1:${process.env.APP_PORT || 8096}`;
-const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9224}`,defaultViewport:null});
+const browser = await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT || 9225}`,defaultViewport:null});
 const contexts=[], pages=[], errors=[], snapshots=[];
 const sample = page => page.evaluate(()=>({song:__fp.perf.piece?.id,time:__fp.perf.time,clock:__fp.room.now(),playing:__fp.perf.playing,phase:__fp.phase,id:__fp.room.id,host:__fp.room.host,members:__fp.room.members.size,connected:__fp.room.connected,audio:__fp.engine.ctx.state}));
 async function ready(url){

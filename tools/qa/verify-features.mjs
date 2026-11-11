@@ -11,12 +11,13 @@
 //   PARTS=audio,venues,square,sayu,room ... a part of it
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
-import { p, outputDir } from './quality-optimization-common.mjs';
+import { p, resolveOutputDir, cdpBrowserUrl } from './quality-optimization-common.mjs';
 import { motionSource } from './motion-source.mjs';
 
+const outputDir = resolveOutputDir('features');
 const base = `http://127.0.0.1:${process.env.APP_PORT || 8096}`;
 const parts = (process.env.PARTS || 'audio,venues,square,sayu,room').split(',');
-const browser = await p.connect({ browserURL: `http://127.0.0.1:${process.env.CDP_PORT || 9225}`, defaultViewport: null });
+const browser = await p.connect({ browserURL: cdpBrowserUrl(), defaultViewport: null });
 const report = { source: motionSource(), at: new Date().toISOString(), parts, checks: [], errors: [], status: 'fail',
   limitations: ['Desktop Chrome only.', 'Offline renders are excerpts, not whole pieces.', 'Loudness thresholds show sound is there, not that it is beautiful; listen to the WAVs and look at the PNGs.'] };
 const contexts = [];
@@ -436,7 +437,8 @@ async function room() {
   await host.evaluate(() => __fp.ui.emit('chat', '숲속에서 만나요'));
   await until(guest, () => document.getElementById('chatLog').textContent.includes('QA 방장숲속에서 만나요'), null, 8000);
   // (and above the speaker's avatar, as a bubble)
-  const bubble = await guest.evaluate(() => [...__fp.avatars.list.values()].some((a) => JSON.stringify(Object.keys(a)).includes('bubble') || a.say || a.bubble));
+  const bubble = await guest.evaluate(() => [...__fp.avatars.list.values()].some((a) => Boolean(a.bubble && a.bubble.isSprite && a.bubble.parent === a.char?.root && a.bubbleUntil > performance.now())));
+  assert.ok(bubble, 'speaker avatar chat bubble was not rendered');
   const seen = await Promise.all([host, guest].map((q) => q.evaluate(() => ({ members: __fp.room.members.size, avatars: __fp.avatars.list.size }))));
   assert.ok(seen.every((s) => s.members === 2 && s.avatars === 1), JSON.stringify(seen));
   check('room-chat-avatars', { code, host: seen[0], guest: seen[1], bubble });

@@ -6,17 +6,17 @@
   "private": true,
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "test": "node tools/test.mjs",
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "build:music": "python3 tools/build_music.py --fetch",
-    "build:samples": "python3 tools/fetch_samples.py && python3 tools/fetch_percussion.py && python3 tools/analyze_samples.py",
-    "build:repertoire": "python3 tools/build_repertoire.py",
-    "check:repertoire": "python3 tools/build_repertoire.py --check",
-    "check:motion": "node --experimental-loader ./tests/helpers/three-loader.mjs tools/qa/audit-playing-motion.mjs",
+    "build:music": "node tools/run-python.mjs tools/build_music.py --fetch",
+    "build:samples": "node tools/run-python.mjs tools/fetch_samples.py && node tools/run-python.mjs tools/fetch_percussion.py && node tools/run-python.mjs tools/analyze_samples.py",
+    "build:repertoire": "node tools/run-python.mjs tools/build_repertoire.py",
+    "check:repertoire": "node tools/run-python.mjs tools/build_repertoire.py --check",
+    "check:motion": "node --import ./tests/helpers/register-three.mjs tools/qa/audit-playing-motion.mjs",
     "record:motion": "node tools/qa/record-playing-motion.mjs",
     "verify:motion": "node tools/qa/verify-motion.mjs",
     "verify:app": "node tools/qa/verify-app-flow.mjs",

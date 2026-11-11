@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import { p, outputDir as output } from './quality-optimization-common.mjs';
 import { motionSource } from './motion-source.mjs';
-const browser = await p.connect({ browserURL: `http://127.0.0.1:${process.env.CDP_PORT || 9224}`, defaultViewport: null });
+const browser = await p.connect({ browserURL: `http://127.0.0.1:${process.env.CDP_PORT || 9225}`, defaultViewport: null });
 const source = motionSource(), reports = [], pages = [];
 try {
  for (const venue of ['outdoor', 'hall', 'sphere']) {

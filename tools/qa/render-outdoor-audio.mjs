@@ -5,7 +5,7 @@ import {p, outputDir} from './quality-optimization-common.mjs';
 import {motionSource} from './motion-source.mjs';
 const catalog=JSON.parse(fs.readFileSync('tools/repertoire.json','utf8')).filter(x=>x.venue==='outdoor');
 const source=motionSource();
-const browser=await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT||9224}`,defaultViewport:null});
+const browser=await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT||9225}`,defaultViewport:null});
 const page=await browser.newPage(),errors=[];
 const report={source,secondsPerPiece:12,venue:'outdoor',errors,results:[],status:'fail'};
 try{

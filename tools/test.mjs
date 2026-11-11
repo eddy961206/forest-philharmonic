@@ -18,7 +18,7 @@ function testFiles(directory) {
 const files = testFiles(path.join(root, 'tests'));
 if (files.length === 0) throw new Error('No maintained tests found in tests/.');
 const child = spawn(process.execPath, [
-  '--experimental-loader', new URL('../tests/helpers/three-loader.mjs', import.meta.url).href,
+  '--import', new URL('../tests/helpers/register-three.mjs', import.meta.url).href,
   '--test', ...process.argv.slice(2), ...files,
 ], { cwd: root, stdio: 'inherit' });
 child.once('error', error => { console.error(error.message); process.exitCode = 1; });

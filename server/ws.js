@@ -8,9 +8,42 @@ const MAX_MESSAGE = 64 * 1024;
 const MAX_BACKLOG = 256 * 1024;
 const utf8 = new TextDecoder('utf-8', { fatal: true });
 
+export function isAllowedOrigin(req, {
+  allowedOrigins = process.env.ALLOWED_ORIGINS,
+  requireOrigin = process.env.REQUIRE_ORIGIN === '1',
+} = {}) {
+  const originHeader = req.headers?.origin;
+  if (originHeader === undefined) return !requireOrigin;
+  if (typeof originHeader !== 'string') return false;
+  const trimmed = originHeader.trim();
+  if (!trimmed || trimmed.toLowerCase() === 'null') return false;
+  let parsed;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+  const normalizedOrigin = parsed.origin.toLowerCase();
+  if (typeof allowedOrigins === 'string' && allowedOrigins.trim()) {
+    const allowSet = new Set(
+      allowedOrigins
+        .split(',')
+        .map((entry) => entry.trim().toLowerCase())
+        .filter(Boolean),
+    );
+    if (allowSet.has(normalizedOrigin)) return true;
+  }
+  const host = typeof req.headers?.host === 'string' ? req.headers.host.trim().toLowerCase() : '';
+  if (!host) return false;
+  return parsed.host.toLowerCase() === host;
+}
+
 export class Socket {
-  constructor(sock) {
+  constructor(sock, { deferBacklogClose = false } = {}) {
     this.sock = sock;
+    this.deferBacklogClose = Boolean(deferBacklogClose);
+    this._closingBacklog = false;
     this.buf = Buffer.alloc(0);
     this.parts = [];
     this.partBytes = 0;
@@ -47,11 +80,19 @@ export class Socket {
   ping() { if (this.open) this._frame(0x9, Buffer.alloc(0)); }
 
   _frame(op, data) {
-    if (!this.open) return;
+    if (!this.open || this._closingBacklog) return;
     const n = data.length;
     // A phone on a stalled radio must not accumulate every other member's
     // pose forever. Rejoining gives it a fresh snapshot once it can read again.
-    if (this.sock.writableLength + n + 10 > MAX_BACKLOG) { this._closed(); return; }
+    if (this.sock.writableLength + n + 10 > MAX_BACKLOG) {
+      if (this.deferBacklogClose) {
+        this._closingBacklog = true;
+        queueMicrotask(() => this._closed());
+      } else {
+        this._closed();
+      }
+      return;
+    }
     let head;
     if (n < 126) { head = Buffer.alloc(2); head[1] = n; }
     else if (n < 65536) { head = Buffer.alloc(4); head[1] = 126; head.writeUInt16BE(n, 2); }
@@ -145,6 +186,10 @@ export function accept(req, sock) {
     sock.end('HTTP/1.1 400 Bad Request\r\n\r\n');
     return null;
   }
+  if (!isAllowedOrigin(req)) {
+    sock.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');
+    return null;
+  }
   const hash = crypto.createHash('sha1').update(key + GUID).digest('base64');
   sock.write([
     'HTTP/1.1 101 Switching Protocols',
@@ -153,13 +198,13 @@ export function accept(req, sock) {
     `Sec-WebSocket-Accept: ${hash}`,
     '', '',
   ].join('\r\n'));
-  return new Socket(sock);
+  return new Socket(sock, { deferBacklogClose: true });
 }
 
 // drop connections that stop answering pings
 export function heartbeat(list, ms = 25000) {
   const timer = setInterval(() => {
-    for (const s of list()) {
+    for (const s of [...list()]) {
       if (!s.alive) { s.close(1001); continue; }
       s.alive = false;
       s.ping();
