@@ -55,13 +55,19 @@ export function stringRig(kind) {
       const inst = p.inst;
       const g = inst.group;
       const r = p.ready;
+      const carryTarget = (kind === 'cello' || kind === 'bass') ? Math.max(0, p.char.stand ?? 0) * (1 - easeOut(r)) : 0;
+      p.carryMix = smooth(p.carryMix ?? 0, carryTarget, 8, dt);
       // instrument pose
       const q = p.restQ.clone().slerp(p.playQ, easeOut(r));
       const pos = p.restPos.clone().lerp(p.playPos, easeOut(r));
       if (kind === 'cello' || kind === 'bass') {
-        // The endpin belongs to the floor, not to the swaying torso. Lift it
-        // clear when carrying the instrument between the wings and the seat.
-        pos.y += p.char.walking ? .08 : 0;
+        // The endpin belongs to the floor, not to the swaying torso. Shift and
+        // lift it smoothly to the left side when standing or walking onstage.
+        if (p.carryMix > 1e-4) {
+          const big = kind === 'bass';
+          pos.lerp(V(-0.15, 0.08, -0.22), p.carryMix);
+          q.slerp(basis(V(big ? -0.26 : -0.20, 1, big ? 0.16 : 0.12), V(0.48, 0, -0.88)), p.carryMix);
+        }
         q.premultiply(new THREE.Quaternion().setFromAxisAngle(V(1, 0, 0), (p.walker?.bow || 0) * .55));
         p.char.body.updateMatrix();
         p.rootToBody ??= new THREE.Matrix4();
@@ -125,10 +131,19 @@ export function stringRig(kind) {
       }
       const frog = contact.clone().addScaledVector(bowDir, -p.u * L).addScaledVector(bowUp, 0.006 + lift);
       const bq = new THREE.Quaternion().setFromRotationMatrix(tmpM.makeBasis(bowDir, bowUp, new THREE.Vector3().crossVectors(bowDir, bowUp)));
-      // resting bow lies across the lap
+      // resting bow lies across the lap when seated, or hangs at the right side when standing/walking
       if (r < 0.999) {
         const restFrog = V(0.22, 0.62, -0.2);
         const restQ = basis(V(0, 0, -1), V(0, 1, 0)).multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), Math.PI / 2));
+        if (p.carryMix > 1e-4) {
+          const swing = p.char.walking ? Math.sin(p.char.walkPhase) * 0.05 : 0;
+          const sideFrog = V(0.24, p.char.arms.R.shoulder.y - 0.36, -0.12 + swing);
+          const sideDir = V(0.08, -0.88, -0.46).normalize();
+          const sideUp = V(0.98, 0.08, 0.02).addScaledVector(sideDir, -V(0.98, 0.08, 0.02).dot(sideDir)).normalize();
+          const sideQ = new THREE.Quaternion().setFromRotationMatrix(tmpM.makeBasis(sideDir, sideUp, new THREE.Vector3().crossVectors(sideDir, sideUp)));
+          restFrog.lerp(sideFrog, p.carryMix);
+          restQ.slerp(sideQ, p.carryMix);
+        }
         frog.lerp(restFrog, 1 - easeOut(r));
         bq.slerp(restQ, 1 - easeOut(r));
       }
@@ -148,7 +163,8 @@ export function stringRig(kind) {
       // Cellists pluck near the lower fingerboard, above the bowing contact.
       // Reaching down to the bridge overextends the arm on soft pizzicato.
       if (kind === 'cello') pluckHand.addScaledVector(vY, .12);
-      const rh = frog.clone().addScaledVector(bowUp, 0.035).lerp(pluckHand, p.pluckMix);
+      const frogUp = V(0, 1, 0).applyQuaternion(bq);
+      const rh = frog.clone().addScaledVector(frogUp, 0.035).lerp(pluckHand, p.pluckMix);
       // Retain the bow in the hand, pointing down while the finger plucks.
       // Hiding it for each short note made it flash in and out between rests.
       p.bow.group.position.lerp(pluckHand.clone().add(V(0.02, -0.015, 0.04)), p.pluckMix);

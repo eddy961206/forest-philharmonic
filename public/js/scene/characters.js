@@ -7,7 +7,7 @@ import { furMaterial, clothMaterial, plainMaterial, isLite, M } from './material
 import { mergeChildren, bakeColor } from './merge.js';
 import { raccoonPatchGeometry } from './playing-motion.js';
 import { skirtGeometry } from './skirt.js';
-import { HEAD, TORSO, skullFrontZ, torsoFrontZ } from './body-shape.js';
+import { HEAD, SNOUT, TORSO, skullFrontZ, snoutScale, snoutFrontZ, torsoFrontZ } from './body-shape.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const UP = V(0, 1, 0);
@@ -43,7 +43,17 @@ export const FACE_MARKINGS = {
   // an owl's facial disc, both eyes in it, and the pale rings round the eyes
   owlDisc: { x: 0, y: -0.005, rx: 0.205, ry: 0.15, tilt: 0, lift: 0.003 },
   owlRing: { x: 0.1, y: 0.03, rx: 0.074, ry: 0.078, tilt: 0, lift: 0.006 },
+  // rosy cheeks laid on the skull rather than flat discs floating inside it
+  blush: { x: 0.158, y: -0.068, rx: 0.034, ry: 0.022, tilt: -0.1, lift: 0.007 },
 };
+
+function surfaceArcGeometry(samplePoint, radius, tubularSegments = 12, radialSegments = 6) {
+  const segs = isLite() ? Math.max(6, tubularSegments >> 1) : tubularSegments;
+  const rad = isLite() ? Math.max(4, radialSegments >> 1) : radialSegments;
+  const pts = [];
+  for (let i = 0; i <= segs; i++) pts.push(samplePoint(i / segs));
+  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), segs, radius, rad, false);
+}
 export function skullPatchGeometry(marking, side = 1) {
   const { x: cx, y: cy, rx, ry, tilt, lift } = marking;
   const segments = isLite() ? 16 : 28;
@@ -319,21 +329,28 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   const headVolumes = [{ center: skull.position.clone(), radii: skull.scale.clone().multiplyScalar(headR) }];
 
   // snout / muzzle
+  const mouthY = sp.bigNose ? -0.114 : -0.092;
   if (sp.snout > 0) {
-    const sn = add(head, sphereG(0.11, 20, 14), muzzleMat, V(0, -0.07, -0.21));
-    sn.scale.set(1.15, 0.8, 0.7 + sp.snout * 0.9);
-    if (sp.pointy) sn.scale.set(0.95, 0.7, 1.5);
-    headVolumes.push({ center: sn.position.clone(), radii: sn.scale.clone().multiplyScalar(.11) });
-    const nose = add(head, sphereG(sp.bigNose ? 0.05 : 0.028, 12, 8), plainMaterial(sp.nose, { roughness: 0.25 }), V(0, -0.03, -0.23 - sp.snout * 0.11 - (sp.pointy ? 0.06 : 0)), { cast: false });
+    const sn = add(head, sphereG(SNOUT.r, 20, 14), muzzleMat, V(...SNOUT.center));
+    sn.scale.set(...snoutScale(sp));
+    headVolumes.push({ center: sn.position.clone(), radii: sn.scale.clone().multiplyScalar(SNOUT.r) });
+    const noseY = sp.bigNose ? -0.03 : -0.038;
+    const noseR = sp.bigNose ? 0.05 : 0.028;
+    const nose = add(head, sphereG(noseR, 12, 8), plainMaterial(sp.nose, { roughness: 0.25 }), V(0, noseY, snoutFrontZ(0, noseY, sp) + (sp.bigNose ? 0.028 : 0.01)), { cast: false });
     nose.scale.set(1.3, sp.bigNose ? 1.4 : 0.9, 1);
-    headVolumes.push({ center: nose.position.clone(), radii: nose.scale.clone().multiplyScalar(sp.bigNose ? .05 : .028) });
-    // mouth: small smile
-    const mouth = add(head, new THREE.TorusGeometry(0.022, 0.005, 6, 12, Math.PI), dark, V(0, -0.1, -0.29 - sp.snout * 0.05), { cast: false });
-    mouth.rotation.z = Math.PI;
+    headVolumes.push({ center: nose.position.clone(), radii: nose.scale.clone().multiplyScalar(noseR) });
+    // mouth: small smile projected onto the snout surface
+    const mouthGeo = surfaceArcGeometry((u) => {
+      const a = u * Math.PI;
+      const x = Math.cos(a) * 0.022;
+      const y = mouthY - Math.sin(a) * 0.008;
+      return V(x, y, snoutFrontZ(x, y, sp) - 0.005);
+    }, 0.0045);
+    add(head, mouthGeo, dark, null, { cast: false });
   }
   // open mouth (singing); scaled by the choir rig, invisible otherwise
   const mouthOpen = new THREE.Mesh(sphereG(0.03, 12, 8), plainMaterial('#5a1d22', { roughness: 0.6 }));
-  mouthOpen.position.set(0, -0.1, -0.29 - sp.snout * 0.05);
+  mouthOpen.position.set(0, mouthY, snoutFrontZ(0, mouthY, sp) - 0.006);
   mouthOpen.scale.set(1, 0.001, 0.5);
   mouthOpen.visible = false;
   head.add(mouthOpen);
@@ -353,24 +370,38 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     for (const side of [-1, 1]) add(head, raccoonPatchGeometry(side, spec.fur, sp.mask), marking, V(), { cast: false });
   }
 
+  // Shared materials let mergeChildren collapse both eye highlights and both
+  // blushes into one draw each; transient room avatars (`hsl(...)`) retain
+  // owned clones so releaseCharacter disposes their per-visitor instances.
+  const transientAvatar = sectionColor.startsWith('hsl(');
+  const eyeShine = () => (transientAvatar ? ownMaterial(M.eyeShine().clone()) : M.eyeShine());
+  const blushMat = () => (transientAvatar ? ownMaterial(M.blush().clone()) : M.blush());
+
   // eyes (open) + closed arcs for blinking / blissful moments
   const eyes = { open: new THREE.Group(), closed: new THREE.Group() };
   head.add(eyes.open, eyes.closed);
   eyes.closed.visible = false;
   const eyeR = sp.bigEyes ? 0.055 : 0.036;
   const ringMat = sp.bigEyes ? plainMaterial('#fff6dc', { roughness: 0.5 }) : null;
+  const closedLift = (sp.bigEyes ? FACE_MARKINGS.owlRing.lift : sp.patches ? FACE_MARKINGS.pandaPatch.lift : sp.mask ? 0.004 : 0) + 0.006;
   for (const sx of [-1, 1]) {
-    const ep = V(sx * (sp.bigEyes ? 0.1 : 0.095), 0.03, -0.235);
+    const ex = sx * (sp.bigEyes ? 0.1 : 0.095);
+    const ep = V(ex, 0.03, -0.235);
     if (sp.bigEyes) add(head, skullPatchGeometry(FACE_MARKINGS.owlRing, sx), ringMat, null, { cast: false });
     const eye = add(eyes.open, sphereG(eyeR, 16, 12), plainMaterial('#120c0a', { roughness: 0.15 }), ep, { cast: false });
     eye.scale.set(1, 1.15, 0.6);
-    add(eye, sphereG(eyeR * 0.32, 8, 6), ownMaterial(new THREE.MeshBasicMaterial({ color: '#ffffff' })), V(eyeR * 0.3, eyeR * 0.35, -eyeR * 0.7), { cast: false });
-    add(eyes.closed, new THREE.TorusGeometry(eyeR * 0.85, 0.008, 6, 12, Math.PI), dark, ep.clone().add(V(0, -0.005, 0)), { cast: false });
+    add(eye, sphereG(eyeR * 0.32, 8, 6), eyeShine(), V(eyeR * 0.3, eyeR * 0.35, -eyeR * 0.7), { cast: false });
+    const closedArc = surfaceArcGeometry((u) => {
+      const a = u * Math.PI;
+      const x = ex + Math.cos(a) * eyeR * 0.85;
+      const y = 0.02 + Math.sin(a) * eyeR * 0.55;
+      return V(x, y, skullFrontZ(x, y) - closedLift);
+    }, 0.0075);
+    add(eyes.closed, closedArc, dark, null, { cast: false });
   }
-  // blush
+  // blush laid on the skull surface
   for (const sx of [-1, 1]) {
-    const b = add(head, new THREE.CircleGeometry(0.035, 16), ownMaterial(new THREE.MeshBasicMaterial({ color: '#ff9fae', transparent: true, opacity: 0.45, depthWrite: false })), V(sx * 0.165, -0.06, -0.205), { cast: false });
-    b.rotation.y = Math.PI + sx * 0.6;
+    add(head, skullPatchGeometry(FACE_MARKINGS.blush, sx), blushMat(), null, { cast: false });
   }
   if (sp.whiskers) {
     for (const sx of [-1, 1]) {
@@ -459,9 +490,17 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   }
   if (sp.spines) {
     const spineMat = plainMaterial(sp.spines, { roughness: 0.8 });
+    let seed = 2166136261;
+    for (const ch of `${spec.name || ''}:${spec.fur || ''}`) {
+      seed = Math.imul(seed ^ ch.charCodeAt(0), 16777619) >>> 0;
+    }
+    const rand = () => {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      return seed / 4294967296;
+    };
     for (let i = 0; i < 26; i++) {
-      const u = Math.random() * Math.PI * 0.9 + 0.05;
-      const v = (Math.random() - 0.5) * Math.PI * 1.3;
+      const u = rand() * Math.PI * 0.9 + 0.05;
+      const v = (rand() - 0.5) * Math.PI * 1.3;
       const dir = V(Math.sin(v) * Math.sin(u), Math.cos(u), Math.cos(v) * Math.sin(u) * 0.9 + 0.35).normalize();
       if (dir.z < -0.1) continue;
       const c = add(head, new THREE.ConeGeometry(0.03, 0.14, 5), spineMat, dir.clone().multiplyScalar(headR * 0.95), { cast: false });
@@ -476,19 +515,33 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     }
   }
   if (sp.spots) {
-    for (const [x, y] of [[0.12, 0.17], [-0.15, 0.15], [0.02, 0.22]]) {
-      add(head, new THREE.CircleGeometry(0.018, 10), plainMaterial('#f6ead8'), V(x, y, -0.2 + Math.abs(y) * 0.3), { cast: false }).lookAt(V(x * 4, y * 4, -1));
+    const spotMat = plainMaterial('#f6ead8');
+    for (const [x, y] of [[0.115, 0.16], [-0.14, 0.145], [0.02, 0.205]]) {
+      add(head, skullPatchGeometry({ x, y, rx: 0.018, ry: 0.018, tilt: 0, lift: 0.004 }, 1), spotMat, null, { cast: false });
     }
   }
-  // tails (behind the chair)
+  // tails: ride on the lower back; curl clear around the chair side when seated
+  let tail = null;
+  let updateTail = null;
   if (['fox', 'cat', 'squirrel', 'lion', 'raccoon', 'mouse'].includes(spec.species)) {
     const big = spec.species === 'squirrel' || spec.species === 'fox';
-    const tail = add(root, capsuleG(big ? 0.1 : 0.04, big ? 0.36 : 0.32, 6, 10), fur, V(0.08, hipY + (big ? 0.25 : 0.05), 0.32));
-    tail.rotation.x = big ? -0.35 : 0.9;
-    if (spec.species === 'fox') add(tail, sphereG(0.08, 10, 8), furMaterial('#fff6ea'), V(0, big ? 0.26 : 0.2, 0));
+    tail = new THREE.Group();
+    body.add(tail);
+    add(tail, capsuleG(big ? 0.095 : 0.04, big ? 0.34 : 0.3, 6, 10), fur, V(0, big ? 0.2 : 0.16, 0));
+    if (spec.species === 'fox') add(tail, sphereG(0.08, 10, 8), furMaterial('#fff6ea'), V(0, 0.39, 0));
     if (spec.species === 'raccoon') {
-      for (let k = 0; k < 3; k++) add(tail, new THREE.TorusGeometry(0.042, 0.012, 6, 12), plainMaterial('#3b3634'), V(0, -0.1 + k * 0.1, 0), { cast: false }).rotation.x = Math.PI / 2;
+      for (let k = 0; k < 3; k++) add(tail, new THREE.TorusGeometry(0.042, 0.012, 6, 12), plainMaterial('#3b3634'), V(0, 0.07 + k * 0.095, 0), { cast: false }).rotation.x = Math.PI / 2;
     }
+    const standPos = V(0.04, hipY + 0.06, 0.15);
+    const sitPos = V(0.19, hipY + 0.04, 0.06);
+    const standQ = new THREE.Quaternion().setFromUnitVectors(UP, (big ? V(0.14, 0.82, 0.55) : V(0.14, 0.45, 0.88)).normalize());
+    const sitQ = new THREE.Quaternion().setFromUnitVectors(UP, (big ? V(0.95, 0.24, 0.18) : V(0.92, -0.04, 0.38)).normalize());
+    updateTail = (standMix) => {
+      const sit = standing ? 0 : 1 - standMix;
+      tail.position.copy(standPos).lerp(sitPos, sit);
+      tail.quaternion.copy(standQ).slerp(sitQ, sit);
+    };
+    updateTail(standing ? 1 : 0);
   }
 
   // ---- arms (IK)
@@ -533,16 +586,17 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
   // bake rigid parts into a few meshes (animated parts stay separate)
   mergeChildren(eyes.open);
   mergeChildren(eyes.closed);
+  if (tail) mergeChildren(tail);
   mergeChildren(head, [eyes.open, eyes.closed, mouthOpen]);
   const armParts = Object.values(arms).flatMap((A) => [A.upper, A.fore, A.cuff, A.paw]);
-  mergeChildren(body, [head, torso, skirt, ...armParts].filter(Boolean));
+  mergeChildren(body, [head, torso, skirt, tail, ...armParts].filter(Boolean));
   mergeChildren(legsSit);
   for (const lp of legPivots) mergeChildren(lp);
   mergeChildren(root, [body, legsSit, legsStand]);
 
   root.scale.setScalar(scale);
   const char = {
-    root, body, head, torso, skirt, coatTailGeometry, ownedMaterials, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
+    root, body, head, torso, skirt, tail, coatTailGeometry, ownedMaterials, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
     mouthPoint: V(0, -0.085, -0.28 - sp.snout * 0.08),
     headBase: head.position.clone(),
     blinkT: Math.random() * 4,
@@ -552,6 +606,7 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     setStanding(t) {
       this.stand = t;
       if (skirt) skirt.morphTargetInfluences[0] = standing ? 1 : Math.max(0, Math.min(1, (t - .5) * 2));
+      updateTail?.(t);
       body.position.y = standLift * t;
       legsStand.visible = t > 0.5 || standing;
       legsSit.visible = !standing && t <= 0.5;
