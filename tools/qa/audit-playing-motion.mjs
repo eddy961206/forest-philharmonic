@@ -28,8 +28,8 @@ const catalog = motionCatalog(), rows = [], rigs = {};
 const coverage = motionCoverage(catalog, orchestra.players);
 const all = [...orchestra.players, { ...orchestra.conductor, rigKind: 'conductor', sid: 'conductor', ci: 0 }];
 const previous = new Map();
-const limits = { contactError: .03, boneError: 1e-8, continuousStep: .15 };
-const fresh = (id, extra={}) => ({ id, ...extra, frames: 0, armSamples: 0, nonFinite: 0, maxContactError: 0, maxBoneError: 0, maxStep: 0, maxHandleGap: 0, minBeaterHeadClearance: Infinity, minFlex: Infinity, maxFlex: 0, failures: [] });
+const limits = { contactError: .03, boneError: 1e-8, continuousStep: .15, headRotationX: .85, headRotationY: .95, headRotationZ: .85 };
+const fresh = (id, extra={}) => ({ id, ...extra, frames: 0, armSamples: 0, nonFinite: 0, maxContactError: 0, maxBoneError: 0, maxStep: 0, maxHeadRotation: 0, maxHandleGap: 0, minBeaterHeadClearance: Infinity, minFlex: Infinity, maxFlex: 0, failures: [] });
 let windowStart=0,phase='playing';
 function fail(row, kind, detail) {
   const previous=row.failures.find(f=>f.kind===kind&&f.sid===detail.sid&&f.ci===detail.ci&&f.side===detail.side&&f.phase===phase);
@@ -45,6 +45,17 @@ function inspect(row, time, eligible, measureStep) {
       continue;
     }
     const rig = rigs[p.rigKind] ??= fresh(p.rigKind);
+    const { x: hx, y: hy, z: hz } = p.char.head.rotation;
+    const headFinite = [hx, hy, hz].every(Number.isFinite);
+    const headAbs = headFinite ? Math.max(Math.abs(hx), Math.abs(hy), Math.abs(hz)) : 0;
+    for (const r of [row, rig]) {
+      if (!headFinite) r.nonFinite++;
+      r.maxHeadRotation = Math.max(r.maxHeadRotation, headAbs);
+    }
+    if (!headFinite) fail(row, 'non-finite-head', { time, sid: p.sid, ci: p.ci });
+    else if (Math.abs(hx) > limits.headRotationX || Math.abs(hy) > limits.headRotationY || Math.abs(hz) > limits.headRotationZ) {
+      fail(row, 'head-rotation-limit', { time, sid: p.sid, ci: p.ci, x: hx, y: hy, z: hz });
+    }
     for (const [side, a] of Object.entries(p.char.arms)) {
       const key = `${p.sid}:${p.ci}:${side}`;
       const boneError = Math.max(Math.abs(a.elbow.distanceTo(a.shoulder)-a.a), Math.abs(a.wrist.distanceTo(a.elbow)-a.b));
@@ -191,28 +202,33 @@ for(const [stagePhase,duration,begin] of phases){
 }
 if(!stage.arrived(stage.walkers)||!stage.conductorReady)fail(lifecycle,'incomplete-entry',{});
 
-// Recital page-turn thank-you nod: guarantee crossing a page turn with the turner seated.
+// Recital page-turn thank-you nod: guarantee crossing a page turn with the turner seated (60 Hz and 144 Hz).
 {
- phase='recital-nod';previous.clear();
  const soloEntry=catalog.find(e=>{const s=new Set(e.piece.tracks.filter(tr=>tr.notes.length).map(tr=>tr.section));return s.size===1&&s.has('piano');});
  if(!soloEntry){
-  fail(lifecycle,'unexercised-recital-nod',{sid:'piano',ci:0});
+  phase='recital-nod';fail(lifecycle,'unexercised-recital-nod',{sid:'piano',ci:0});
  }else{
   const {piece}=soloEntry;
   perf.use(perf.prepare(piece));
   const pages=Math.max(2,Math.round(piece.duration/32));
   const turnStart=Math.max(0,piece.duration/pages-1.35);
-  perf._resetVisual(turnStart);
-  recital.open(true,piece);
-  for(let frame=0;frame<120;frame++){
-   const time=Math.min(piece.duration-.001,turnStart+frame/60);
-   const recitalNod=recital.update(1/60,time,true);
-   lifecycle.maxRecitalNod=Math.max(lifecycle.maxRecitalNod,recitalNod);
-   perf.updateVisual(time);
-   orchestra.update(time,1/60,perf,{running:true,recitalNod});
-   inspect(lifecycle,time,p=>p.sid==='piano'&&p.ci===0,frame>0);
+  for(const hz of [60,144]){
+   phase=`recital-nod-${hz}hz`;previous.clear();
+   perf._resetVisual(turnStart);
+   recital.open(true,piece);
+   for(let frame=0;frame<3*hz;frame++){
+    const time=Math.min(piece.duration-.001,turnStart+frame/hz);
+    const recitalNod=recital.update(1/hz,time,true);
+    lifecycle.maxRecitalNod=Math.max(lifecycle.maxRecitalNod,recitalNod);
+    perf.updateVisual(time);
+    orchestra.update(time,1/hz,perf,{running:true,recitalNod});
+    inspect(lifecycle,time,p=>p.sid==='piano'&&p.ci===0,frame>0);
+   }
+   recital.open(false);
+   orchestra.update(Math.min(piece.duration-.001,turnStart+3),1/hz,perf,{running:false,recitalNod:0});
+   const pianist=orchestra.playerAt('piano',0);
+   if(pianist.appliedNodX||pianist.appliedNodY)fail(lifecycle,'unrestored-recital-nod',{sid:'piano',ci:0});
   }
-  recital.open(false);
   if(!(lifecycle.maxRecitalNod>0.9))fail(lifecycle,'unexercised-recital-nod',{sid:'piano',ci:0,maxRecitalNod:lifecycle.maxRecitalNod});
  }
 }

@@ -59,4 +59,15 @@ test('actual CAST rise path (dress and tailcoat) stays on its floor and clear of
    for(const target of [other.home,other.home.clone().add(other.riseOffset)])assert.ok(Math.hypot(q.x-target.x,q.z-target.z)>.65,`${label} colleague`);
   }
  }
+ // Recital page-turn nod stays non-cumulative across frame rates and restores baseline immediately.
+ const pianist=orch.playerAt('piano',0),fakePerf={piece:null,chairs:{},playingSections:new Set(['piano'])};
+ for(const hz of [60,144]){
+  pianist.char.head.rotation.set(0,0,0);
+  for(let f=0;f<2*hz;f++){
+   orch.update(f/hz,1/hz,fakePerf,{running:true,recitalNod:1});
+   assert.ok(Math.abs(pianist.char.head.rotation.x)<0.45&&Math.abs(pianist.char.head.rotation.y)<0.45,`non-cumulative recital nod at ${hz}Hz`);
+  }
+  orch.update(2,1/hz,fakePerf,{running:true,recitalNod:0});
+  assert.equal(pianist.appliedNodX,0);assert.equal(pianist.appliedNodY,0);
+ }
 });

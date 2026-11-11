@@ -533,15 +533,20 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
       for (let k = 0; k < 3; k++) add(tail, new THREE.TorusGeometry(0.042, 0.012, 6, 12), plainMaterial('#3b3634'), V(0, 0.07 + k * 0.095, 0), { cast: false }).rotation.x = Math.PI / 2;
     }
     const standPos = V(0.04, hipY + 0.06, 0.15);
-    const sitPos = V(0.19, hipY + 0.04, 0.06);
     const standQ = new THREE.Quaternion().setFromUnitVectors(UP, (big ? V(0.14, 0.82, 0.55) : V(0.14, 0.45, 0.88)).normalize());
-    const sitQ = new THREE.Quaternion().setFromUnitVectors(UP, (big ? V(0.95, 0.24, 0.18) : V(0.92, -0.04, 0.38)).normalize());
-    updateTail = (standMix) => {
-      const sit = standing ? 0 : 1 - standMix;
-      tail.position.copy(standPos).lerp(sitPos, sit);
-      tail.quaternion.copy(standQ).slerp(sitQ, sit);
-    };
-    updateTail(standing ? 1 : 0);
+    if (standing) {
+      tail.position.copy(standPos);
+      tail.quaternion.copy(standQ);
+    } else {
+      const sitPos = V(0.19, hipY + 0.04, 0.06);
+      const sitQ = new THREE.Quaternion().setFromUnitVectors(UP, (big ? V(0.95, 0.24, 0.18) : V(0.92, -0.04, 0.38)).normalize());
+      updateTail = (standMix) => {
+        const sit = 1 - standMix;
+        tail.position.copy(standPos).lerp(sitPos, sit);
+        tail.quaternion.copy(standQ).slerp(sitQ, sit);
+      };
+      updateTail(0);
+    }
   }
 
   // ---- arms (IK)
@@ -584,19 +589,20 @@ export function buildCharacter(spec, sectionColor = '#ffffff') {
     }
   }
   // bake rigid parts into a few meshes (animated parts stay separate)
+  const animatedTail = !standing ? tail : null;
   mergeChildren(eyes.open);
   mergeChildren(eyes.closed);
-  if (tail) mergeChildren(tail);
+  if (animatedTail) mergeChildren(animatedTail);
   mergeChildren(head, [eyes.open, eyes.closed, mouthOpen]);
   const armParts = Object.values(arms).flatMap((A) => [A.upper, A.fore, A.cuff, A.paw]);
-  mergeChildren(body, [head, torso, skirt, tail, ...armParts].filter(Boolean));
+  mergeChildren(body, [head, torso, skirt, animatedTail, ...armParts].filter(Boolean));
   mergeChildren(legsSit);
   for (const lp of legPivots) mergeChildren(lp);
   mergeChildren(root, [body, legsSit, legsStand]);
 
   root.scale.setScalar(scale);
   const char = {
-    root, body, head, torso, skirt, tail, coatTailGeometry, ownedMaterials, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
+    root, body, head, torso, skirt, tail: animatedTail, coatTailGeometry, ownedMaterials, eyes, arms, scale, spec, mouthOpen, legPivots, headVolumes, seatedLegVolumes,
     mouthPoint: V(0, -0.085, -0.28 - sp.snout * 0.08),
     headBase: head.position.clone(),
     blinkT: Math.random() * 4,

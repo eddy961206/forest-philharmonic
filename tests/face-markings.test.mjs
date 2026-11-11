@@ -127,4 +127,9 @@ test('shared eye-highlight and blush materials merge per head, and hedgehog spin
 
   const headPositions = (ch) => ch.head.children.filter((o) => o.isMesh).flatMap((o) => [...o.geometry.getAttribute('position').array]);
   assert.deepEqual(headPositions(a), headPositions(b), 'hedgehog spine placement is deterministic for the same character');
+
+  const standingFox = buildCharacter({ species: 'fox', name: '단풍', fur: '#d97634', outfit: 'dress', standing: true });
+  const seatedFox = buildCharacter({ species: 'fox', name: '여울', fur: '#d97634', outfit: 'dress', standing: false });
+  assert.equal(standingFox.tail, null, 'standing character bakes static tail into body');
+  assert.ok(seatedFox.tail && seatedFox.tail.parent === seatedFox.body, 'seated character retains animated tail group');
 });

@@ -196,6 +196,12 @@ function updateAll(players, conductor, particles, t0, dt, perf, opts) {
     const ctx = { t, dt, st, playing, soon, recent, inPiece, running, piece, perf };
     // body sway with the music, breathing
     const recitalNod = p.sid === 'piano' && p.ci === 0 ? (opts.recitalNod || 0) : 0;
+    if (p.appliedNodX || p.appliedNodY) {
+      p.char.head.rotation.x -= p.appliedNodX || 0;
+      p.char.head.rotation.y -= p.appliedNodY || 0;
+      p.appliedNodX = 0;
+      p.appliedNodY = 0;
+    }
     p.sway += dt * (0.6 + p.energy * 0.9);
     const amp = 0.015 + p.energy * 0.05 * p.ready;
     p.char.body.rotation.z = Math.sin(p.sway) * amp;
@@ -212,8 +218,10 @@ function updateAll(players, conductor, particles, t0, dt, perf, opts) {
       if (settling) { p.lastTravelL ??= V(); p.lastTravelR ??= V(); p.lastTravelL.copy(p.char.arms.L.wrist); p.lastTravelR.copy(p.char.arms.R.wrist); }
       RIGS[p.rigKind].update(p, ctx);
       if (recitalNod) {
-        p.char.head.rotation.x -= 0.18 * recitalNod;
-        p.char.head.rotation.y += 0.14 * recitalNod;
+        p.appliedNodX = -0.18 * recitalNod;
+        p.appliedNodY = 0.14 * recitalNod;
+        p.char.head.rotation.x += p.appliedNodX;
+        p.char.head.rotation.y += p.appliedNodY;
       }
       if (settling) {
         p.rejoining = Math.max(0, p.rejoining - dt);
