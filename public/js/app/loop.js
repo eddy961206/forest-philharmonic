@@ -15,7 +15,7 @@ const MURMUR = { lobby: 1, changing: 0.75, entering: 0.6, tuning: 0.3, announce:
 export function createLoop(app) {
   const {
     S, settings, ui, engine, perf, graphics, camera, orchestra, stage, hall, effects, spot, recital, screen,
-    director, bestSeat, headPositions, cameraInstruments, PIANIST,
+    director, bestSeat, headPositions, cameraInstruments,
   } = app;
   const { renderer, QUALITY, framePacer, worldPacer, efficient } = graphics;
   const { practice } = app.interval;
@@ -67,8 +67,10 @@ export function createLoop(app) {
     let events = null;
     if (perf.piece) events = perf.updateVisual(t);
     const running = perf.playing;
+    const nod = recital.update(dt, t, running);
+    const recitalNod = nod && director.seat?.turner ? nod : 0;
     stage.update(dt); // root/standing pose before body-local instrument contacts
-    orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, effectBudget: efficient() ? .2 : 1, events, bowing: S.bowing, practice: practice.on ? practice.frame(BEAR) : null });
+    orchestra.update(t, dt, perf, { running, particles: settings.notes, glow: settings.glow, effectBudget: efficient() ? .2 : 1, events, bowing: S.bowing, practice: practice.on ? practice.frame(BEAR) : null, recitalNod });
     if (S.interval) app.interval.intervalTick(dt);
     app.sync.roomTick(dt);
     if (IS_SPHERE) app.sphereLifts.sphereTick(dt, t, levelSmoothed);
@@ -79,8 +81,6 @@ export function createLoop(app) {
     director.stick = ui.stickTouch; // (a pinch begun in the stick's corner, see director)
     animateAudience(wall, dt, performance.now() < S.clapUntil, { hush: S.hush, sleep: S.sleepy ? 1 : 0, talk: S.phase === 'interval' ? 1 : 0 });
     spot.update(dt);
-    const nod = recital.update(dt, t, perf.playing);
-    if (nod && director.seat?.turner) PIANIST.char.body.rotation.x += 0.1 * nod; // a thank-you nod to the page turner
     if (recital.on && S.concertStarted) {
       const free = (s) => !director.occupied.has(s.index);
       const here = director.seat?.stage;

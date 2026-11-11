@@ -498,6 +498,11 @@ export const M = {
   })),
   string: () => once('string', () => new THREE.MeshStandardMaterial({ color: '#d9d4c7', metalness: 0.8, roughness: 0.3 })),
   bowHair: () => once('bowHair', () => new THREE.MeshStandardMaterial({ color: '#f4efe2', roughness: 0.8 })),
+  eyeShine: () => once('eyeShine', () => new THREE.MeshBasicMaterial({ color: '#ffffff' })),
+  blush: () => once('blush', () => new THREE.MeshBasicMaterial({
+    color: '#ff9fae', transparent: true, opacity: 0.45, depthWrite: false,
+    polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1,
+  })),
 };
 
 // Fur never reaches pure white: under stage light a white rabbit should read

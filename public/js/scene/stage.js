@@ -6,7 +6,7 @@
 // the rigs keep animating on top.
 import * as THREE from 'three';
 import { NavGrid } from './navgrid.js';
-import { DOORS, floorAt } from './hallplan.js';
+import { DOORS, floorAt, stageFloorY } from './hallplan.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const WALK_SPEED = 1.25;
@@ -174,27 +174,80 @@ class Walker {
   }
 }
 
+const RISE_CANDIDATES = [
+  [-0.55, -0.30], [0.55, -0.30],
+  [-0.56, -0.15], [0.56, -0.15],
+  [-0.56, 0.0],   [0.56, 0.0],
+  [-0.56, 0.15],  [0.56, 0.15],
+  [-0.38, -0.50], [0.38, -0.50],
+  [-0.38, 0.50],  [0.38, 0.50],
+  [-0.48, -0.42], [0.48, -0.42],
+  [-0.48, 0.42],  [0.48, 0.42],
+];
+
 export class StageManager {
   constructor(orchestra) {
     this.orch = orchestra;
+    const up = V(0, 1, 0);
     this.walkers = orchestra.players.map((p) => {
       const door = p.home.x < 0 || p.sid === 'piano' ? 'L' : 'R';
       const w = new Walker(p.char, p.home, p.yaw, door, { standing: !!p.char.spec.standing });
-      // Fixed-instrument players retain their exact contact/workstation pose.
-      if (!w.standingRole && !p.fixedInstrument && p.char.spec.outfit === 'dress') {
-        const scale = p.char.scale ?? 1;
-        // Step beside the desk, on the side with more space to colleagues.
-        // The home point stays the seated rig anchor; this is only a rise pose.
-        const candidates = [-1, 1].map(side => V(side * .55 * scale, 0, -.30 * scale).applyAxisAngle(V(0, 1, 0), p.yaw));
-        const clearance = offset => Math.min(...orchestra.players.filter(other => other !== p).map(other =>
-          Math.hypot(p.home.x + offset.x - other.home.x, p.home.z + offset.z - other.home.z)));
-        w.riseOffset.copy(clearance(candidates[0]) >= clearance(candidates[1]) ? candidates[0] : candidates[1]);
-        w.riseDistance = w.riseOffset.length();
-      }
       w.player = p;
       p.walker = w;
       return w;
     });
+    // Every non-fixed seated musician (dress and tailcoat alike) steps clear of
+    // their chair/stool when rising, staying on the same riser floor and away
+    // from music stands and neighbouring seats.
+    const movers = this.walkers.filter((w) => !w.standingRole && !w.player.fixedInstrument);
+    const candidates = new Map();
+    for (const w of movers) {
+      const scale = w.char.scale ?? 1;
+      const baseFloor = stageFloorY(w.home.x, w.home.z);
+      const valid = [];
+      for (const [lx, lz] of RISE_CANDIDATES) {
+        const off = V(lx * scale, 0, lz * scale).applyAxisAngle(up, w.homeYaw);
+        let onSameTier = true;
+        for (let i = 1; i <= 20; i++) {
+          const x = w.home.x + off.x * (i / 20);
+          const z = w.home.z + off.z * (i / 20);
+          if (Math.abs(stageFloorY(x, z) - baseFloor) >= 1e-6) { onSameTier = false; break; }
+        }
+        if (onSameTier) valid.push({ off, lz });
+      }
+      if (!valid.length) valid.push({ off: V(-0.55 * scale, 0, -0.30 * scale).applyAxisAngle(up, w.homeYaw), lz: -0.30 });
+      candidates.set(w, valid);
+      w.riseOffset.copy(valid[0].off);
+    }
+    const standObs = (orchestra.obstacles || []).filter((ob) => !ob.box && ob.r <= 0.21);
+    const scoreCandidate = (w, off, lz) => {
+      const qx = w.home.x + off.x;
+      const qz = w.home.z + off.z;
+      let minCol = Infinity;
+      for (const other of this.walkers) {
+        if (other === w) continue;
+        minCol = Math.min(minCol, Math.hypot(qx - other.home.x, qz - other.home.z));
+        if (other.riseOffset.lengthSq() > 0) {
+          minCol = Math.min(minCol, Math.hypot(qx - (other.home.x + other.riseOffset.x), qz - (other.home.z + other.riseOffset.z)));
+        }
+      }
+      if (!standObs.length) return minCol - lz * 1e-4;
+      let minStand = Infinity;
+      for (const s of standObs) minStand = Math.min(minStand, Math.hypot(qx - s.x, qz - s.z) - 0.42);
+      return Math.min(minCol - 0.65, minStand * 1.4) - lz * 1e-4;
+    };
+    for (let pass = 0; pass < 8; pass++) {
+      for (const w of movers) {
+        let best = w.riseOffset;
+        let bestScore = -Infinity;
+        for (const { off, lz } of candidates.get(w)) {
+          const sc = scoreCandidate(w, off, lz);
+          if (sc > bestScore) { bestScore = sc; best = off; }
+        }
+        w.riseOffset.copy(best);
+      }
+    }
+    for (const w of movers) w.riseDistance = w.riseOffset.length();
     const c = orchestra.conductor;
     this.conductor = new Walker(c.char, c.home, 0, 'L', { podium: true, standing: true });
     c.walker = this.conductor;

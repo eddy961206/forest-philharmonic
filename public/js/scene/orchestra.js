@@ -20,7 +20,7 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 
 const RIG_FOR = { vn1: 'violin', vn2: 'violin', va: 'viola', vc: 'cello', cb: 'bass', fl: 'flute', ob: 'oboe', cl: 'clarinet', bn: 'bassoon', hn: 'horn', tp: 'trumpet', timp: 'timpani', harp: 'harp', piano: 'piano', choir: 'choir', picc: 'piccolo', eh: 'englishHorn', tb: 'trombone', tu: 'tuba', sax: 'saxophone', tamb: 'tambourine', tom: 'tom', sd: 'snare', bd: 'bassDrum', cy: 'cymbals', tri: 'triangle', cel: 'celesta', mallet: 'mallet', bells: 'bells', organ: 'organ' };
 
-const FIXED_RIGS = new Set(['piano', 'harp', 'timpani', 'tambourine', 'tom', 'snare', 'bassDrum', 'cymbals', 'triangle', 'celesta', 'organ', 'mallet', 'bells']);
+const FIXED_RIGS = new Set(['piano', 'harp', 'timpani', 'tom', 'snare', 'bassDrum', 'cymbals', 'celesta', 'organ', 'mallet', 'bells']);
 
 // The trombone slide sweeps straight ahead; read the score beside that lane.
 export function musicStandOffset(rigKind) {
@@ -195,10 +195,17 @@ function updateAll(players, conductor, particles, t0, dt, perf, opts) {
     energyAll.v += p.energy;
     const ctx = { t, dt, st, playing, soon, recent, inPiece, running, piece, perf };
     // body sway with the music, breathing
+    const recitalNod = p.sid === 'piano' && p.ci === 0 ? (opts.recitalNod || 0) : 0;
+    if (p.appliedNodX || p.appliedNodY) {
+      p.char.head.rotation.x -= p.appliedNodX || 0;
+      p.char.head.rotation.y -= p.appliedNodY || 0;
+      p.appliedNodX = 0;
+      p.appliedNodY = 0;
+    }
     p.sway += dt * (0.6 + p.energy * 0.9);
     const amp = 0.015 + p.energy * 0.05 * p.ready;
     p.char.body.rotation.z = Math.sin(p.sway) * amp;
-    p.char.body.rotation.x = Math.sin(p.sway * 0.7 + 1) * amp * 0.6 - p.ready * 0.04 - (p.walker?.bow || 0) * .55;
+    p.char.body.rotation.x = Math.sin(p.sway * 0.7 + 1) * amp * 0.6 - p.ready * 0.04 - (p.walker?.bow || 0) * .55 - recitalNod * 0.04;
     p.char.torso.scale.y = 1 + Math.sin(t * 1.6 + p.sway) * 0.012;
     // Solve fixed-instrument contacts after this frame's sway is known.
     if (p.fixedInstrument && !atInstrument && !pr) {
@@ -210,6 +217,12 @@ function updateAll(players, conductor, particles, t0, dt, perf, opts) {
       const settling = p.rejoining > 0;
       if (settling) { p.lastTravelL ??= V(); p.lastTravelR ??= V(); p.lastTravelL.copy(p.char.arms.L.wrist); p.lastTravelR.copy(p.char.arms.R.wrist); }
       RIGS[p.rigKind].update(p, ctx);
+      if (recitalNod) {
+        p.appliedNodX = -0.18 * recitalNod;
+        p.appliedNodY = 0.14 * recitalNod;
+        p.char.head.rotation.x += p.appliedNodX;
+        p.char.head.rotation.y += p.appliedNodY;
+      }
       if (settling) {
         p.rejoining = Math.max(0, p.rejoining - dt);
         for (const [side, previous, sign, k] of [['L', p.lastTravelL, -1, 0], ['R', p.lastTravelR, 1, 1]]) {
@@ -448,11 +461,6 @@ function buildNoteParticles(parent) {
       it.owner = p;
       wp.copy(p.anchor);
       p.char.body.localToWorld(wp);
-      if (p.rigKind === 'piano' || p.rigKind === 'harp' || p.rigKind === 'timpani') {
-        wp.copy(p.anchor);
-        if (p.rigKind === 'piano') p.char.body.localToWorld(wp);
-        else p.char.body.localToWorld(wp);
-      }
       it.s.position.copy(wp).add(new THREE.Vector3((Math.random() - 0.5) * 0.3, 0.1, (Math.random() - 0.5) * 0.3));
       it.s.material.color.set(SECTIONS[p.sid].color);
       it.v.set((Math.random() - 0.5) * 0.12, 0.38 + Math.random() * 0.25, (Math.random() - 0.5) * 0.12);

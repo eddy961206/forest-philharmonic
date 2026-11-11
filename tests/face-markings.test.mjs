@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { buildCharacter, shirtFrontGeometry, SHIRT_FRONT, skullPatchGeometry, FACE_MARKINGS } from '../public/js/scene/characters.js';
-import { HEAD, torsoFrontZ, skullFrontZ } from '../public/js/scene/body-shape.js';
+import { buildCharacter, shirtFrontGeometry, SHIRT_FRONT, skullPatchGeometry, FACE_MARKINGS, M } from '../public/js/scene/characters.js';
+import { HEAD, SNOUT, torsoFrontZ, skullFrontZ, snoutFrontZ } from '../public/js/scene/body-shape.js';
 import { CONDUCTOR } from '../public/js/layout.js';
 
 // Markings drawn as balls set inside the head (the owl's facial disc and eye
@@ -79,4 +79,57 @@ test("a panda's eye patches are seen round its eyes", () => {
     assert.equal(firstHit(panda, side * (p.x + p.rx * 0.6), p.y), '#1d1d1f', 'patch beside the eye');
     assert.equal(firstHit(panda, side * p.x, p.y + p.ry * 0.75), '#1d1d1f', 'patch above the eye');
   }
+});
+
+const ALL_SPECIES = ['bear', 'panda', 'rabbit', 'cat', 'fox', 'dog', 'raccoon', 'deer', 'sheep', 'mouse', 'squirrel', 'hedgehog', 'koala', 'lion', 'owl'];
+
+test('every species projects nose, mouth, singing mouth, closed eyes and markings outside the skull/snout', () => {
+  assert.ok(SNOUT.r > 0 && snoutFrontZ(0, -0.07, { snout: 0.55, pointy: true }) < skullFrontZ(0, -0.07), 'pointy snout protrudes ahead of skull');
+  for (const species of ALL_SPECIES) {
+    const ch = buildCharacter({ species, name: species, fur: '#9a7a5c', outfit: 'tail' });
+    const mouthY = species === 'koala' ? -0.114 : -0.092;
+    if (species !== 'owl') {
+      const noseY = species === 'koala' ? -0.03 : -0.038;
+      const noseHit = firstHit(ch, 0, noseY);
+      assert.ok(noseHit && noseHit !== '#9a7a5c', `${species} nose visible outside snout (${noseHit})`);
+      assert.notEqual(noseHit, firstHit(ch, 0.08, -0.075), `${species} nose distinct from muzzle fur`);
+      assert.equal(firstHit(ch, 0, mouthY - 0.008), '#141012', `${species} closed smile visible outside snout`);
+    }
+    ch.mouthOpen.visible = true;
+    ch.mouthOpen.scale.set(1.1, 0.85, 0.5);
+    assert.equal(firstHit(ch, 0, mouthY), '#5a1d22', `${species} singing mouth visible outside snout`);
+    ch.mouthOpen.visible = false;
+
+    ch.eyes.open.visible = false;
+    ch.eyes.closed.visible = true;
+    const eyeX = species === 'owl' ? 0.1 : 0.095;
+    const eyeR = species === 'owl' ? 0.055 : 0.036;
+    for (const side of [-1, 1]) {
+      assert.equal(firstHit(ch, side * eyeX, 0.02 + eyeR * 0.55), '#141012', `${species} closed eye arc visible`);
+      assert.equal(firstHit(ch, side * FACE_MARKINGS.blush.x, FACE_MARKINGS.blush.y), '#ff9fae', `${species} blush visible`);
+    }
+    if (species === 'deer') {
+      for (const [x, y] of [[0.115, 0.16], [-0.14, 0.145], [0.02, 0.205]]) {
+        assert.equal(firstHit(ch, x, y), '#f6ead8', `deer forehead spot at (${x}, ${y})`);
+      }
+    }
+  }
+});
+
+test('shared eye-highlight and blush materials merge per head, and hedgehog spines are deterministic', () => {
+  const a = buildCharacter({ species: 'hedgehog', name: '밤송', fur: '#a5856a', outfit: 'tail' }, '#ebb682');
+  const b = buildCharacter({ species: 'hedgehog', name: '밤송', fur: '#a5856a', outfit: 'tail' }, '#ebb682');
+  assert.equal(a.ownedMaterials.size, 0, 'stage characters do not allocate per-instance eye/blush materials');
+  const shineMeshes = a.eyes.open.children.filter((o) => o.isMesh && o.material === M.eyeShine());
+  const blushMeshes = a.head.children.filter((o) => o.isMesh && o.material === M.blush());
+  assert.equal(shineMeshes.length, 1, 'both eye highlights merged into one draw');
+  assert.equal(blushMeshes.length, 1, 'both blushes merged into one draw');
+
+  const headPositions = (ch) => ch.head.children.filter((o) => o.isMesh).flatMap((o) => [...o.geometry.getAttribute('position').array]);
+  assert.deepEqual(headPositions(a), headPositions(b), 'hedgehog spine placement is deterministic for the same character');
+
+  const standingFox = buildCharacter({ species: 'fox', name: '단풍', fur: '#d97634', outfit: 'dress', standing: true });
+  const seatedFox = buildCharacter({ species: 'fox', name: '여울', fur: '#d97634', outfit: 'dress', standing: false });
+  assert.equal(standingFox.tail, null, 'standing character bakes static tail into body');
+  assert.ok(seatedFox.tail && seatedFox.tail.parent === seatedFox.body, 'seated character retains animated tail group');
 });
