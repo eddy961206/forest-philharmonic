@@ -207,7 +207,7 @@ const who = (sid, ci = 0) => {
 
 // evening: [{ meta, roster:Set, kind }] for the pieces still to come (the
 // next half first); practiser: 'vc:0' or null
-export function noticeLines({ coming = [], practiser = null, week = 0 }) {
+export function noticeLines({ coming = [], practiser = null, week = 0, venue = 'hall' }) {
   const out = [];
   const next = coming[0];
   if (next) {
@@ -221,7 +221,12 @@ export function noticeLines({ coming = [], practiser = null, week = 0 }) {
   if (practiser) {
     const [sid, ci] = practiser.split(':');
     const c = CAST[sid][Number(ci)];
-    out.push({ title: '막간 연습', text: `${SECTIONS[sid].ko} ${josa(c.name, '이', '가')} 로비 소파에서 다음 곡을 연습하고 있어요. 지나가다 들어 보세요.` });
+    const where = venue === 'sphere'
+      ? '무대 위 자기 자리에서 다음 곡을 연습하고 있어요. 가까이 가서 들어 보세요.'
+      : venue === 'outdoor'
+        ? '무대 곁에서 다음 곡을 연습하고 있어요. 가까이 가서 들어 보세요.'
+        : '로비 소파에서 다음 곡을 연습하고 있어요. 지나가다 들어 보세요.';
+    out.push({ title: '막간 연습', text: `${SECTIONS[sid].ko} ${josa(c.name, '이', '가')} ${where}` });
   }
   const pick = FACTS[week % FACTS.length];
   const pick2 = FACTS[(week * 7 + 3) % FACTS.length];

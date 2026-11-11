@@ -26,7 +26,6 @@ export function createAppState(venue) {
     ritualNext: false, // the next piece opens one of the evening's big moments (a held hush)
     hush: 0, // the house holds its breath (0..1)
     clapUntil: 0,
-    bowing: false,
     // watching together
     room: null, // RoomClient while watching together
     hostState: null, // the host's latest snapshot

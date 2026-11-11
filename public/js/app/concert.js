@@ -11,6 +11,7 @@ import { ensembleOf, GRAMMAR, rosterCentre } from '../evening.js';
 import { clockOf, isGuest, waitFor, untilFor } from './state.js';
 
 const STRINGS = /^(vn1|vn2|va|vc|cb):/;
+const normIndex = (i, len) => (len > 0 ? (((Math.trunc(Number(i) || 0) % len) + len) % len) : 0);
 
 // Who plays each piece, from its tracks ('section:chair'; a track may name
 // its chairs).
@@ -67,6 +68,7 @@ export function createConcert(app) {
 
   function setPhase(p, seconds = 0) {
     if (p !== S.phase) app.graphics.holdQuality();
+    if (p !== 'hush') S.hush = 0;
     S.phase = p;
     S.phaseUntil = performance.now() + seconds * 1000;
     // the Sphere's dome follows the evening
@@ -79,15 +81,15 @@ export function createConcert(app) {
     S.showStarted = true;
     ui.showStarted();
     // still out in the foyer: the music comes through the wall (as it would) -
-    // say how to hear it properly, never move them
+    // say right away how to hear it properly, never move them
     if (IS_HALL && engine.ctx) {
-      // (after the walk-on, which has its own toast - and only if they are still out there)
-      const hint = (ms, tries = 0) => setTimeout(() => {
-        if ((S.phase === 'changing' || S.phase === 'entering') && tries < 40) return hint(1000, tries + 1);
+      setTimeout(() => {
+        if (!S.showStarted) return;
         const L = app.director.listener(settings.fixedEar ? bestSeat : null);
-        if (hallOpenness(L.pos.x, L.pos.y, L.pos.z) < 0.6) ui.toast('로비에서는 벽 너머로 들려요 · 홀 안으로 들어가 자리에 앉거나(좌석 클릭) 편하게 보기로 들으면 또렷해요', 6500);
-      }, ms);
-      hint(1500);
+        if (hallOpenness(L.pos.x, L.pos.y, L.pos.z) < 0.6) {
+          ui.toast('로비에서는 벽 너머로 들려요 · 홀 안으로 들어가 자리에 앉거나(좌석 더블클릭) 편하게 보기로 들으면 또렷해요', 6500);
+        }
+      }, 600);
     }
     S.ritualNext = true;
     runConcert(S.current);
@@ -116,183 +118,205 @@ export function createConcert(app) {
     return r;
   }
   // the piece that normally follows i (the evening's order)
-  const seqNext = (i) => (i === S.eveningLen - 1 ? 0 : (i + 1) % S.program.length);
+  const seqNext = (i) => (!S.program.length || i === S.eveningLen - 1 ? 0 : normIndex(i + 1, S.program.length));
 
   // Start piece i: musicians on stage, conductor in, then play.
   // remote: a guest following the host's 'run' (the host starts the music)
   // late: a guest coming in while the host's orchestra walks on - { cond: the
-  // host's conductor is out already, set(): called once our stage is set }
+  // host's conductor is out already, set(ok): called once our stage is set }
   async function runConcert(i, { quick = false, remote = false, late = null } = {}) {
-    syncStageTransitions();
-    const tok = ++S.seq;
-    endInterval();
-    S.ceremony = true;
-    if (perf.playing) perf.pause();
-    if (quick) { engine.stopApplause(); S.clapUntil = 0; }
-    if (quick && S.phase === 'tuning') engine.stopAll(); // (skipped: the tuning-up stops too)
-    ui.setPlaying(false);
-    S.bowing = false;
-    // (a piece picked during the bows: nobody plays it bent over, still on
-    // their feet or turned to the house)
-    stage.conductorBow(false);
-    stage.greet(stage.walkers.filter((w) => w.bowTarget || w.faceYaw !== null || (w.atHome && !w.standingRole && !w.sitTarget)), false);
-    const idx = (i + S.program.length) % S.program.length;
-    // (skipping away from the encore: the evening goes on from the piece picked)
-    const away = quick && idx !== S.current;
-    S.current = idx;
-    const meta = S.program[S.current];
-    S.nextPiece = meta;
-    // (the guests start fetching it now; the snapshot that goes with it says
-    // it is on its way, not playing: see snapshot)
-    if (!remote) sendCmd({ c: 'run', i: S.current, quick, skipStageTransitions: !!settings.skipStageTransitions, ritual: S.ritualNext && !quick });
-    let piece;
-    try {
-      piece = await pieces.choose(meta.id);
-    } catch (e) {
-      pieceFailed(idx, e, tok);
-      return;
-    }
-    if (!piece) return; // (another piece was chosen meanwhile: that one goes on)
-    if (away) S.encoreActive = false;
-    if (tok !== S.seq) return;
-    perf.seek(0);
-    ui.setCurrent(S.current, piece);
-    ui.setTime(0, piece.duration);
-    updateMediaSession(piece);
-
-    // the players for this piece: whoever is not needed (now or next) walks
-    // off, then whoever is missing walks on - the orchestra filling up, a
-    // pianist alone at the keyboard, the choir arriving for a chorale
-    const target = rosterOf(piece);
-    const keep = await rosterFor(seqNext(S.current));
-    if (tok !== S.seq) return;
-    const fresh = !stage.onstage;
-    const kind = ensembleOf(piece, target);
-    const G = GRAMMAR[kind];
-    const isRecital = kind === 'solo' && target.has('piano:0');
-    spot.set(null);
-    if (!isRecital) closeRecital();
-    encoreUi(null);
-    const { exits, enters } = stage.plan(target, keep);
-    // Skipping ahead - or in a background tab, where nothing is drawn and so
-    // nobody would walk - there is no procession: the stage straight as it
-    // should be (also when ▶ is pressed while they are still walking on, and
-    // for a guest who comes in while the host's orchestra walks on: they see
-    // the stage as it is now, not a procession of their own from an empty one)
-    const snap = quick || !!late || document.hidden;
-    const moving = stage.walkers.some((w) => w.state === 'walking' || w.state === 'queued' || w.leaving);
-    if (snap && (exits.length || enters.length || moving)) {
-      const keys = new Set([...stage.onstageKeys()].filter((k) => target.has(k) || keep.has(k)));
-      for (const k of target) keys.add(k);
-      stage.snapRoster(keys);
-    } else {
-      if (exits.length) {
-        setPhase('changing');
-        hall.setHouseLights(0.6);
-        stage.sendOff(exits);
-        if (!(await until(() => stage.gone(exits), tok, 90000))) return;
+    let stageSet = false;
+    const settleLate = (ok) => {
+      if (!stageSet) {
+        stageSet = true;
+        late?.set?.(ok);
       }
-      if (enters.length) {
-        // they walk on while the audience settles
+    };
+    try {
+      if (!S.program.length) return;
+      syncStageTransitions();
+      const tok = ++S.seq;
+      S.hush = 0;
+      endInterval();
+      S.ceremony = true;
+      if (perf.playing) perf.pause();
+      if (quick) { engine.stopApplause(); S.clapUntil = 0; }
+      if (quick && S.phase === 'tuning') engine.stopAll(); // (skipped: the tuning-up stops too)
+      ui.setPlaying(false);
+      // (a piece picked during the bows: nobody plays it bent over, still on
+      // their feet or turned to the house)
+      stage.conductorBow(false);
+      stage.greet(stage.walkers.filter((w) => w.bowTarget || w.faceYaw !== null || (w.atHome && !w.standingRole && !w.sitTarget)), false);
+      const idx = normIndex(i, S.program.length);
+      // (skipping away from the encore: the evening goes on from the piece picked)
+      const away = quick && idx !== S.current;
+      if (away) S.encoreActive = false;
+      S.current = idx;
+      const meta = S.program[S.current];
+      S.nextPiece = meta;
+      // (the guests start fetching it now; the snapshot that goes with it says
+      // it is on its way, not playing: see snapshot)
+      if (!remote) sendCmd({ c: 'run', i: S.current, quick, skipStageTransitions: !!settings.skipStageTransitions, ritual: S.ritualNext && !quick, encore: !!S.encoreActive });
+      let piece;
+      try {
+        piece = await pieces.choose(meta.id);
+      } catch (e) {
+        pieceFailed(idx, e, tok);
+        return;
+      }
+      if (!piece) return; // (another piece was chosen meanwhile: that one goes on)
+      if (tok !== S.seq) return;
+      perf.seek(0);
+      ui.setCurrent(S.current, piece);
+      ui.setTime(0, piece.duration);
+      updateMediaSession(piece);
+
+      // the players for this piece: whoever is not needed (now or next) walks
+      // off, then whoever is missing walks on - the orchestra filling up, a
+      // pianist alone at the keyboard, the choir arriving for a chorale
+      const target = rosterOf(piece);
+      const keep = await rosterFor(seqNext(S.current));
+      if (tok !== S.seq) return;
+      const fresh = !stage.onstage;
+      const kind = ensembleOf(piece, target);
+      const G = GRAMMAR[kind];
+      const isRecital = kind === 'solo' && target.has('piano:0');
+      spot.set(null);
+      if (!isRecital) closeRecital();
+      encoreUi(null);
+      const { exits, enters } = stage.plan(target, keep);
+      // Skipping ahead - or in a background tab, where nothing is drawn and so
+      // nobody would walk - there is no procession: the stage straight as it
+      // should be (also when ▶ is pressed while they are still walking on, and
+      // for a guest who comes in while the host's orchestra walks on: they see
+      // the stage as it is now, not a procession of their own from an empty one)
+      const snap = quick || !!late || document.hidden;
+      const moving = stage.walkers.some((w) => w.state === 'walking' || w.state === 'queued' || w.leaving);
+      if (snap && (exits.length || enters.length || moving)) {
+        const keys = new Set([...stage.onstageKeys()].filter((k) => target.has(k) || keep.has(k)));
+        for (const k of target) keys.add(k);
+        stage.snapRoster(keys);
+      } else {
+        if (exits.length) {
+          setPhase('changing');
+          hall.setHouseLights(0.6);
+          stage.sendOff(exits);
+          if (!(await until(() => stage.gone(exits), tok, 90000))) return;
+        }
+        if (enters.length) {
+          // they walk on while the audience settles
+          setPhase('entering');
+          hall.setHouseLights(0.75);
+          // a soloist (or a duo) walks on to stand at their place for the welcome
+          const soloists = !piece.conducted && enters.length <= 3;
+          // (a whole orchestra comes on closer together: it is a long walk-on)
+          stage.callOn(enters, enters.length >= 16 ? 0.7 : undefined, { stand: soloists });
+          // the stage fills in silence: say so (and that it can be skipped)
+          const inFoyer = IS_HALL && engine.ctx && app.director?.listener && hallOpenness(
+            app.director.listener(settings.fixedEar ? bestSeat : null).pos.x,
+            app.director.listener(settings.fixedEar ? bestSeat : null).pos.y,
+            app.director.listener(settings.fixedEar ? bestSeat : null).pos.z,
+          ) < 0.6;
+          if (enters.length >= 6 && !stage.skipTransitions && !remote && !guest() && !inFoyer) {
+            ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 9000);
+          }
+          if (!(await until(() => stage.arrived(enters), tok, 90000))) return;
+          if (!(await wait(800, tok))) return;
+          if (enters.length >= 6 && enters.some((w) => STRINGS.test(StageManager.key(w)))) {
+            // most of the orchestra has come on: the strings tune to the oboe
+            setPhase('tuning');
+            const dur = engine.tuning();
+            if (!(await wait(dur * 1000, tok))) return;
+          } else if (soloists) {
+            // ... is welcomed with applause, bows, and sits down to play
+            setPhase('announce');
+            if (settings.applauseVol > 0) { engine.applause(engine.now + 0.05, 0.5, S.audience ? S.audience.count : 0); S.clapUntil = performance.now() + 2800; }
+            stage.greet(enters, true);
+            if (!(await wait(1400, tok))) return;
+            stage.greet(enters, false);
+            if (!(await wait(1300, tok))) return;
+          }
+        } else if (fresh) {
+          if (!(await wait(400, tok))) return;
+        }
+      }
+      if (late) {
+        // in late: our stage is set (the host's page, reloaded, may run the show
+        // again from here). The conductor comes on when the host's does - unless
+        // they are out there already
+        settleLate(true);
         setPhase('entering');
         hall.setHouseLights(0.75);
-        // a soloist (or a duo) walks on to stand at their place for the welcome
-        const soloists = !piece.conducted && enters.length <= 3;
-        // (a whole orchestra comes on closer together: it is a long walk-on)
-        stage.callOn(enters, enters.length >= 16 ? 0.7 : undefined, { stand: soloists });
-        // the stage fills in silence: say so (and that it can be skipped)
-        if (enters.length >= 6 && !stage.skipTransitions && !remote && !guest()) ui.toast('단원들이 무대로 들어오고 있어요. 곧 시작해요 · ▶ 누르면 바로 들어요', 9000);
-        if (!(await until(() => stage.arrived(enters), tok, 90000))) return;
-        if (!(await wait(800, tok))) return;
-        if (enters.length >= 6 && enters.some((w) => STRINGS.test(StageManager.key(w)))) {
-          // most of the orchestra has come on: the strings tune to the oboe
-          setPhase('tuning');
-          const dur = engine.tuning();
-          if (!(await wait(dur * 1000, tok))) return;
-        } else if (soloists) {
-          // ... is welcomed with applause, bows, and sits down to play
+        if (!late.cond && !(await until(() => !guest() || S.hostState?.cond || ['announce', 'hush', 'playing'].includes(S.hostState?.phase), tok, 1e9))) return;
+      }
+      if (piece.conducted) {
+        if (snap && (!late || late.cond) && !(stage.conductorOn && stage.conductorReady)) {
+          // (skipping ahead: already on the podium, turned to the orchestra)
+          stage.snapConductor(true);
+          if (!(await wait(600, tok))) return;
+        } else if (!stage.conductorOn) {
           setPhase('announce');
-          if (settings.applauseVol > 0) { engine.applause(engine.now + 0.05, 0.5, S.audience ? S.audience.count : 0); S.clapUntil = performance.now() + 2800; }
-          stage.greet(enters, true);
+          stage.conductorEnter();
+          if (!(await until(() => stage.conductorReady, tok, 30000))) return;
+          // greets the audience, a short welcome applause, turns to the orchestra
+          if (settings.applauseVol > 0) { engine.applause(engine.now + 0.05, 0.6, S.audience ? S.audience.count : 0); S.clapUntil = performance.now() + 3200; }
+          stage.conductorBow(true);
           if (!(await wait(1400, tok))) return;
-          stage.greet(enters, false);
-          if (!(await wait(1300, tok))) return;
+          stage.conductorBow(false);
+          if (!(await wait(900, tok))) return;
+          stage.conductorFace(false);
+          if (!(await wait(1500, tok))) return;
+        } else {
+          stage.conductorFace(false);
+          if (!(await wait(quick ? 600 : 1200, tok))) return;
         }
-      } else if (fresh) {
-        if (!(await wait(400, tok))) return;
-      }
-    }
-    if (late) {
-      // in late: our stage is set (the host's page, reloaded, may run the show
-      // again from here). The conductor comes on when the host's does - unless
-      // they are out there already
-      late.set?.();
-      setPhase('entering');
-      hall.setHouseLights(0.75);
-      if (!late.cond && !(await until(() => !guest() || S.hostState?.cond || ['announce', 'hush', 'playing'].includes(S.hostState?.phase), tok, 1e9))) return;
-    }
-    if (piece.conducted) {
-      if (snap && (!late || late.cond) && !(stage.conductorOn && stage.conductorReady)) {
-        // (skipping ahead: already on the podium, turned to the orchestra)
-        stage.snapConductor(true);
-        if (!(await wait(600, tok))) return;
-      } else if (!stage.conductorOn) {
-        setPhase('announce');
-        stage.conductorEnter();
-        if (!(await until(() => stage.conductorReady, tok, 30000))) return;
-        // greets the audience, a short welcome applause, turns to the orchestra
-        if (settings.applauseVol > 0) { engine.applause(engine.now + 0.05, 0.6, S.audience ? S.audience.count : 0); S.clapUntil = performance.now() + 3200; }
-        stage.conductorBow(true);
-        if (!(await wait(1400, tok))) return;
-        stage.conductorBow(false);
-        if (!(await wait(900, tok))) return;
-        stage.conductorFace(false);
-        if (!(await wait(1500, tok))) return;
-      } else {
-        stage.conductorFace(false);
-        if (!(await wait(quick ? 600 : 1200, tok))) return;
-      }
-    } else if (snap && !stage.conductorOffstage) {
-      // (skipping ahead: gone already, not still walking off during the music)
-      stage.snapConductor(false);
-      if (!(await wait(500, tok))) return;
-    } else if (stage.conductorOn) {
-      // a solo or chamber piece: the conductor leaves the stage to the players
-      stage.conductorExit();
-      if (!(await wait(quick ? 500 : 2500, tok))) return;
-    } else if (!(await wait(quick ? 300 : 1200, tok))) return;
+      } else if (snap && !stage.conductorOffstage) {
+        // (skipping ahead: gone already, not still walking off during the music)
+        stage.snapConductor(false);
+        if (!(await wait(500, tok))) return;
+      } else if (stage.conductorOn) {
+        // a solo or chamber piece: the conductor leaves the stage to the players
+        stage.conductorExit();
+        if (!(await wait(quick ? 500 : 2500, tok))) return;
+      } else if (!(await wait(quick ? 300 : 1200, tok))) return;
 
-    // a recital: the light gathers on the soloist (and chairs come out on the stage)
-    if (kind === 'solo') spot.set(rosterCentre(target));
-    if (isRecital) recital.open(true, piece);
-    if (S.ritualNext && !quick) {
-      // one of the evening's big moments: the lights go down, the house holds
-      // its breath, and only then the first note
+      // a recital: the light gathers on the soloist (and chairs come out on the stage)
+      if (kind === 'solo') spot.set(rosterCentre(target));
+      if (isRecital) recital.open(true, piece);
+      if (S.ritualNext && !quick) {
+        // one of the evening's big moments: the lights go down, the house holds
+        // its breath, and only then the first note
+        S.ritualNext = false;
+        setPhase('hush');
+        hall.setHouseLights(0.3);
+        S.hush = 1;
+        if (!(await wait(1200, tok))) return;
+        hall.setHouseLights(G.house);
+        if (!(await wait(G.hush * 1000, tok))) return;
+        S.hush = 0;
+      }
       S.ritualNext = false;
-      setPhase('hush');
-      hall.setHouseLights(0.3);
-      S.hush = 1;
-      if (!(await wait(1200, tok))) { S.hush = 0; return; }
+      S.hush = 0;
       hall.setHouseLights(G.house);
-      if (!(await wait(G.hush * 1000, tok))) { S.hush = 0; return; }
-    }
-    S.ritualNext = false;
-    hall.setHouseLights(G.house);
-    setPhase('playing');
-    if (remote || guest()) {
-      // the host starts the music; we join on its clock (see follower).
-      // If the host leaves first and we take over, we start it ourselves.
+      setPhase('playing');
+      if (remote || guest()) {
+        // the host starts the music; we join on its clock (see follower).
+        // If the host leaves first and we take over, we start it ourselves.
+        S.ceremony = false;
+        if (!(await until(() => perf.playing || !guest(), tok, 1e9))) return;
+        if (perf.playing) return;
+      }
+      if (!(await wait(900, tok))) return;
       S.ceremony = false;
-      if (!(await until(() => perf.playing || !guest(), tok, 1e9))) return;
-      if (perf.playing) return;
+      S.hush = 0;
+      perf.play();
+      ui.setPlaying(true);
+      sendCmd(playMsg());
+      fxFor(piece);
+    } finally {
+      S.hush = 0;
+      settleLate(false);
     }
-    if (!(await wait(900, tok))) { S.hush = 0; return; }
-    S.ceremony = false;
-    S.hush = 0;
-    perf.play();
-    ui.setPlaying(true);
-    sendCmd(playMsg());
-    fxFor(piece);
   }
 
   // The piece chosen could not be loaded (offline, a failed answer): the one
@@ -353,12 +377,13 @@ export function createConcert(app) {
       S.clapUntil = performance.now() + (big ? 12500 : 7600);
     }
     const efficient = app.graphics.efficient;
-    if (settings.fx && !efficient() && big && fx) {
-      fx.fanfare(engine.now + 0.3);
-      fx.confettiCannons();
-      setTimeout(() => { if (settings.fx && !efficient()) fx.fireworksShow(); }, 1500);
-    } else if (settings.fx && !efficient() && fx && piece?.mood === 'lively' && G.confetti) {
-      fx.confettiCannons();
+    if (settings.fx && !efficient() && fx && G.confetti && piece?.conducted) {
+      if (big) {
+        fx.confettiCannons();
+        if (!IS_SPHERE) setTimeout(() => { if (tok === S.seq && settings.fx && !efficient()) fx.fireworksShow(); }, 1500);
+      } else if (piece?.mood === 'lively') {
+        fx.confettiCannons();
+      }
     }
     // bows
     if (!(await wait(600, tok))) return;
@@ -504,6 +529,11 @@ export function createConcert(app) {
   function fxFor(piece) {
     const fx = app.fx;
     if (!fx) return;
+    if (IS_SPHERE) {
+      fx.lasers.set(false);
+      fx.wash.set(false);
+      return;
+    }
     const lively = piece?.mood === 'lively' && settings.lasers && !app.graphics.efficient();
     // (a recital or a few players: the colour wash, but no laser show)
     fx.lasers.set(lively && GRAMMAR[ensembleOf(piece, rosterOf(piece))].lasers);
@@ -534,14 +564,20 @@ export function createConcert(app) {
   });
   // (before the show ⏮ / ⏭ open the evening as ▶ does - from its first piece,
   // not from its last)
-  ui.on('next', () => { if (!S.concertStarted || hostOnly()) return; if (!S.showStarted) { startShow(); return; } runConcert(settings.shuffle ? nextIndex() : S.current + 1, { quick: true }); });
-  ui.on('prev', () => {
+  function nextTrack() {
+    if (!S.concertStarted || hostOnly()) return;
+    if (!S.showStarted) { startShow(); return; }
+    runConcert(settings.shuffle ? nextIndex() : S.current + 1, { quick: true });
+  }
+  function prevTrack() {
     if (!S.concertStarted || hostOnly()) return;
     if (!S.showStarted) { startShow(); return; }
     if (S.phase === 'playing' && perf.time > 5 && !loadingPiece()) { perf.seek(0); sendCmd(playMsg()); return; }
     showOn();
     runConcert(S.current - 1, { quick: true });
-  });
+  }
+  ui.on('next', nextTrack);
+  ui.on('prev', prevTrack);
   ui.on('select', (i) => { if (!S.concertStarted || hostOnly()) return; showOn(); runConcert(i, { quick: true }); });
   ui.on('seek', (t) => {
     if (!S.concertStarted || S.phase !== 'playing' || loadingPiece() || hostOnly()) return;
@@ -559,6 +595,6 @@ export function createConcert(app) {
 
   return {
     pieces, loadingPiece, setPhase, startShow, scoreFor, rosterFor, runConcert, pieceFailed, endOfPiece,
-    nextIndex, togglePlay, showOn, fxFor, closeRecital,
+    nextIndex, nextTrack, prevTrack, togglePlay, showOn, fxFor, closeRecital,
   };
 }

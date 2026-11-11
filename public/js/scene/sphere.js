@@ -694,7 +694,7 @@ function buildFixtures(group, list, lite) {
 // --------------------------------------------------------------------------
 // The lifts: one car behind each vomitory. Doors slide, the panel shows the
 // levels; a ride closes the doors, hums, and opens on the chosen level.
-function buildLifts(group, mat) {
+export function buildLifts(group, mat) {
   const panelTex = canvasTex(1024, 256, (g, w, h) => {
     for (let k = 0; k < 4; k++) {
       const x0 = k * 256;
@@ -725,7 +725,7 @@ function buildLifts(group, mat) {
       }
     }
   });
-  const panelGeo = new THREE.PlaneGeometry(0.42, 0.42);
+  const panelQuads = [];
   const cars = [];
   const leafMat = new THREE.MeshStandardMaterial({ color: '#a2a7b0', roughness: 0.28, metalness: 0.9 });
   const leafGeo = new THREE.BoxGeometry(VOM.w / 2, VOM.h - 0.35, 0.04).translate(0, (VOM.h - 0.35) / 2, 0);
@@ -738,19 +738,23 @@ function buildLifts(group, mat) {
       group.add(m);
       leaves.push({ m, s });
     }
-    // the panel on the car's right-hand wall as you walk in
-    const pm = new THREE.MeshBasicMaterial({ map: panelTex.clone(), toneMapped: false });
-    pm.map.needsUpdate = true;
-    pm.map.repeat.set(0.25, 1);
-    pm.map.offset.set(V.tier.n * 0.25 - 0.25, 0);
-    const panel = new THREE.Mesh(panelGeo, pm);
+    // the panel on the car's right-hand wall as you walk in (all 8 panels share
+    // one atlas texture and one merged mesh)
     const pp = at(V.r1 + 0.8, VOM.carW / 2 - 0.01, V.y + 1.25);
-    panel.position.copy(pp);
-    panel.rotation.y = V.th - Math.PI / 2;
-    group.add(panel);
+    const pg = new THREE.PlaneGeometry(0.42, 0.42);
+    const u0 = (V.tier.n - 1) * 0.25;
+    const u1 = u0 + 0.25;
+    const uv = pg.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) ? u1 : u0);
+    pg.rotateY(V.th - Math.PI / 2);
+    pg.translate(pp.x, pp.y, pp.z);
+    panelQuads.push(pg);
     // a level number over the door, on the tunnel side
     cars.push({ V, at, leaves, open: 0, want: 0, hold: 0 });
   }
+  const panelMesh = new THREE.Mesh(mergeGeometries(panelQuads), new THREE.MeshBasicMaterial({ map: panelTex, toneMapped: false }));
+  panelMesh.name = 'liftPanels';
+  group.add(panelMesh);
   const place = (c) => {
     for (const { m, s } of c.leaves) {
       const v = s * (VOM.w / 4 + (VOM.w / 2) * c.open * 0.98);

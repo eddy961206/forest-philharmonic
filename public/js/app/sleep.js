@@ -11,16 +11,73 @@ export function createSleep(app) {
   const endInterval = () => app.interval.endInterval();
   const encoreUi = (state) => app.encore.encoreUi(state);
 
+  let mutedBySleep = false;
+  let prevFocus = null;
+  let inertSaved = null;
+  let swallowClickUntil = 0;
+
+  function muteForSleep() {
+    if (!S.muted) {
+      mutedBySleep = true;
+      S.muted = true;
+      ui.setMuted(true);
+    }
+    engine.setVolume(0);
+  }
+
+  function restoreSleepVolume() {
+    if (mutedBySleep) {
+      mutedBySleep = false;
+      S.muted = false;
+      ui.setMuted(false);
+    }
+    try { engine.master?.gain?.cancelScheduledValues?.(engine.ctx.currentTime); } catch { /* fine */ }
+    engine.setVolume(S.muted ? 0 : settings.volume);
+  }
+
+  function setSleepModal(on) {
+    const veil = typeof document !== 'undefined' ? document.getElementById?.('sleepVeil') : null;
+    if (on) {
+      prevFocus = typeof document !== 'undefined' ? document.activeElement : null;
+      inertSaved = new Map();
+      const children = typeof document !== 'undefined' ? (document.body?.children || []) : [];
+      for (const el of children) {
+        if (el === veil || el.tagName === 'SCRIPT') continue;
+        inertSaved.set(el, !!el.inert);
+        el.inert = true;
+      }
+      ui.sleep(true);
+      if (veil) {
+        veil.setAttribute('role', 'dialog');
+        veil.setAttribute('aria-modal', 'true');
+        if (!veil.getAttribute('aria-label')) veil.setAttribute('aria-label', '편안한 밤 되세요');
+        veil.tabIndex = -1;
+        veil.focus?.({ preventScroll: true });
+      }
+    } else {
+      if (inertSaved) {
+        for (const [el, was] of inertSaved) el.inert = was;
+        inertSaved = null;
+      }
+      ui.sleep(false);
+      const back = prevFocus;
+      prevFocus = null;
+      if (back && back !== veil && back.isConnected !== false) {
+        try { back.focus?.({ preventScroll: true }); } catch { /* fine */ }
+      }
+    }
+  }
+
   ui.on('sleep', (minutes) => {
     S.sleepGen++;
     S.sleepAt = minutes ? performance.now() + minutes * 60000 : 0;
     S.sleepFading = false;
     if (!minutes && S.sleepy) { S.sleepy = false; effects.dim(1); }
-    engine.setVolume(S.muted ? 0 : settings.volume);
+    restoreSleepVolume();
     ui.setSleepLeft(0);
     ui.toast(minutes ? `${minutes}분 뒤에 천천히 소리를 줄이고 멈출게요.` : '끄기 예약을 취소했어요.', 2400);
   });
-  setInterval(() => {
+  const timer = setInterval(() => {
     if (!S.sleepAt) return;
     const left = S.sleepAt - performance.now();
     ui.setSleepLeft(Math.max(0, left));
@@ -39,9 +96,7 @@ export function createSleep(app) {
       // the show is the host's: a guest's timer just turns the sound off
       S.sleepAt = 0;
       S.sleepFading = false;
-      S.muted = true;
-      engine.setVolume(0);
-      ui.setMuted(true);
+      muteForSleep();
       ui.setSleepLeft(0);
       ui.toast('편안한 밤 되세요. 소리를 껐어요.', 4000);
       const gen = S.sleepGen;
@@ -59,9 +114,7 @@ export function createSleep(app) {
       }
       S.sleepAt = 0;
       S.sleepFading = false;
-      S.muted = true;
-      engine.setVolume(0);
-      ui.setMuted(true);
+      muteForSleep();
       ui.setSleepLeft(0);
       ui.toast('편안한 밤 되세요. 방장을 넘기고 소리를 껐어요.', 4000);
       const gen = S.sleepGen;
@@ -75,7 +128,7 @@ export function createSleep(app) {
       if (perf.playing) perf.pause();
       ui.setPlaying(false);
       hall.setHouseLights(0.04);
-      setTimeout(() => engine.setVolume(S.muted ? 0 : settings.volume), 800);
+      engine.setVolume(0);
       ui.setSleepLeft(0);
       ui.toast('편안한 밤 되세요. 공연을 멈췄어요.', 4000);
       // the musicians tiptoe off; then everything rests. (Not 'playing' any
@@ -92,6 +145,7 @@ export function createSleep(app) {
       setTimeout(() => goToSleep(gen), 9000);
     }
   }, 1000);
+  timer.unref?.();
 
   // Asleep: nothing is drawn and the sound is suspended (and the screen lock
   // let go, so a phone can rest too). A touch or a key wakes it all.
@@ -101,7 +155,7 @@ export function createSleep(app) {
     app.loop.cancelFrame();
     app.graphics.holdQuality(6000);
     app.loop.invalidateScreen();
-    ui.sleep(true);
+    setSleepModal(true);
     try { engine.ctx.suspend(); } catch { /* fine */ }
     app.power.releaseWakeLock();
   }
@@ -109,8 +163,10 @@ export function createSleep(app) {
     if (!S.asleep) return;
     S.asleep = false;
     S.sleepy = false;
-    ui.sleep(false);
+    setSleepModal(false);
     try { engine.ctx.resume(); } catch { /* fine */ }
+    restoreSleepVolume();
+    app.power.sound?.check?.({ gesture: true });
     effects.dim(1);
     hall.setHouseLights(0.6);
     app.power.requestWakeLock();
@@ -120,7 +176,38 @@ export function createSleep(app) {
     app.loop.requestFrame();
   }
   // (a touch or a key is also what a browser waits for to give the sound back)
-  for (const ev of ['pointerdown', 'keydown']) window.addEventListener(ev, () => { if (S.asleep) wake(); else app.power.sound.check({ gesture: true }); }, true);
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('pointerdown', (e) => {
+      if (S.asleep) {
+        swallowClickUntil = performance.now() + 500;
+        e.preventDefault?.();
+        e.stopPropagation?.();
+        e.stopImmediatePropagation?.();
+        wake();
+        return;
+      }
+      app.power.sound.check({ gesture: true });
+    }, true);
+    window.addEventListener('keydown', (e) => {
+      if (S.asleep) {
+        e.preventDefault?.();
+        e.stopPropagation?.();
+        e.stopImmediatePropagation?.();
+        wake();
+        return;
+      }
+      app.power.sound.check({ gesture: true });
+    }, true);
+    for (const ev of ['pointerup', 'click', 'dblclick']) {
+      window.addEventListener(ev, (e) => {
+        if (!S.asleep && performance.now() >= swallowClickUntil) return;
+        if (ev === 'click') swallowClickUntil = 0;
+        e.preventDefault?.();
+        e.stopPropagation?.();
+        e.stopImmediatePropagation?.();
+      }, true);
+    }
+  }
 
   // the quiet piece to fall asleep to (alone, in the sleep timer's last minutes)
   function lullaby(next) {

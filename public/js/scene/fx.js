@@ -5,6 +5,7 @@ import { STAGE_Y } from '../layout.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { glowTexture } from './materials.js';
 import { HALL } from './hallplan.js';
+import { IS_SPHERE } from './venue.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -34,6 +35,7 @@ function buildConfetti(scene, N = 700) {
   const scatter = V();
   let next = 0;
   let aliveCount = 0;
+  const pending = [];
   return {
     burst(origin, dir, count = 180, speed = 9) {
       for (let k = 0; k < count; k++) {
@@ -46,8 +48,19 @@ function buildConfetti(scene, N = 700) {
       }
       mesh.visible = true;
     },
+    schedule(delay, origin, dir, count = 180, speed = 9) {
+      pending.push({ left: delay, origin: origin.clone(), dir: dir.clone(), count, speed });
+      mesh.visible = true;
+    },
     update(dt) {
-      if (!mesh.visible) return;
+      if (!mesh.visible && !pending.length) return;
+      for (let i = pending.length - 1; i >= 0; i--) {
+        pending[i].left -= dt;
+        if (pending[i].left <= 0) {
+          const b = pending.splice(i, 1)[0];
+          this.burst(b.origin, b.dir, b.count, b.speed);
+        }
+      }
       aliveCount = 0;
       const drag = Math.exp(-dt * 2.6);
       for (let i = 0; i < N; i++) {
@@ -74,7 +87,7 @@ function buildConfetti(scene, N = 700) {
         mesh.setMatrixAt(i, m4);
       }
       mesh.instanceMatrix.needsUpdate = true;
-      if (!aliveCount) mesh.visible = false;
+      if (!aliveCount && !pending.length) mesh.visible = false;
     },
   };
 }
@@ -113,6 +126,7 @@ function buildFireworks(scene, N = 2400) {
   let flashT = 0;
   const palette = ['#ffd166', '#ff6b6b', '#4ecdc4', '#c084fc', '#f8fafc', '#fb923c', '#86efac'];
   const launches = [];
+  const bursts = [];
   function spawn(p, v, c, life, s) {
     const it = P[next];
     next = (next + 1) % N;
@@ -129,9 +143,9 @@ function buildFireworks(scene, N = 2400) {
     show(n = 8, seconds = 7) {
       // (low and to the front, as stage pyrotechnics are: up under the
       // ceiling they burst above the picture of anyone in the stalls)
-      for (let i = 0; i < n; i++) launches.push({ at: i * (seconds / n) + Math.random() * 0.5, x: rnd(-8, 8), z: rnd(-6, 1), y: rnd(5, 7.5), color: palette[i % palette.length] });
+      const baseClock = this.clock || 0;
+      for (let i = 0; i < n; i++) launches.push({ at: baseClock + i * (seconds / n) + Math.random() * 0.5, x: rnd(-8, 8), z: rnd(-6, 1), y: rnd(5, 7.5), color: palette[i % palette.length] });
       pts.visible = true;
-      this.clock = 0;
     },
     burst(at, color) {
       // A delayed shell may arrive after its rising trail has died away.
@@ -163,7 +177,14 @@ function buildFireworks(scene, N = 2400) {
             const f = k / 26;
             spawn(base.clone().lerp(top, f), V(0, 1.5, 0), '#ffe9b3', T * (1 - f) + 0.2, 0.14);
           }
-          setTimeout(() => this.burst(top, L.color), T * 1000);
+          bursts.push({ at: this.clock + T, pos: top, color: L.color });
+        }
+      }
+      for (let i = bursts.length - 1; i >= 0; i--) {
+        const B = bursts[i];
+        if (this.clock >= B.at) {
+          bursts.splice(i, 1);
+          this.burst(B.pos, B.color);
         }
       }
       flashT = Math.max(0, flashT - dt);
@@ -188,8 +209,8 @@ function buildFireworks(scene, N = 2400) {
       geo.attributes.position.needsUpdate = true;
       geo.attributes.color.needsUpdate = true;
       geo.attributes.psize.needsUpdate = true;
-      mat.uniforms.uScale.value = window.innerHeight / 2;
-      if (!alive && !launches.length) pts.visible = false;
+      mat.uniforms.uScale.value = (typeof window !== 'undefined' && window.innerHeight ? window.innerHeight : 800) / 2;
+      if (!alive && !launches.length && !bursts.length) pts.visible = false;
     },
   };
 }
@@ -345,19 +366,21 @@ function buildWash(scene) {
   };
 }
 
-export function buildFX(scene, engine) {
+export function buildFX(scene, engine, { sphere = IS_SPHERE } = {}) {
   const confetti = buildConfetti(scene);
-  const fireworks = buildFireworks(scene);
-  const lasers = buildLasers(scene);
-  const wash = buildWash(scene);
+  // Sphere has its own balcony moving heads and 16K dome show; Hall ceiling
+  // trusses, hanging wires, mid-air wash spots and indoor pyrotechnics stay out.
+  const fireworks = sphere ? { show() {}, burst() {}, update() {} } : buildFireworks(scene);
+  const lasers = sphere ? { set() {}, update() {} } : buildLasers(scene);
+  const wash = sphere ? { set() {}, update() {} } : buildWash(scene);
   return {
     confetti, fireworks, lasers, wash,
     confettiCannons() {
       confetti.burst(V(-11, STAGE_Y + 0.4, 0.5), V(0.55, 1, 0.5), 260, 11);
       confetti.burst(V(11, STAGE_Y + 0.4, 0.5), V(-0.55, 1, 0.5), 260, 11);
-      setTimeout(() => confetti.burst(V(0, STAGE_Y + 0.4, 1.2), V(0, 1, 0.3), 180, 10), 700);
+      confetti.schedule(0.7, V(0, STAGE_Y + 0.4, 1.2), V(0, 1, 0.3), 180, 10);
     },
-    fireworksShow() { fireworks.show(9, 8); },
+    fireworksShow() { if (!sphere) fireworks.show(9, 8); },
     // a short brass fanfare: D major, trumpets + horns + timpani
     fanfare(when = engine.now + 0.05) {
       const T = [[0, 74, 0.22], [0.25, 74, 0.22], [0.5, 74, 0.22], [0.75, 78, 0.5], [1.3, 81, 0.5], [1.85, 86, 1.6]];
@@ -368,7 +391,7 @@ export function buildFX(scene, engine) {
       for (const [t, m] of [[0, 50], [0.25, 50], [0.5, 50], [0.75, 45], [1.3, 50], [1.85, 50], [2.1, 50], [2.35, 45], [2.6, 50]]) {
         engine.playNote({ section: 'timp', inst: 'timpani', midi: m, vel: 120, when: when + t, dur: 0.8, gain: 0.9 });
       }
-      engine.playNote({ section: 'timp', inst: 'bells', midi: 74, vel: 110, when: when + 1.85, dur: 3, gain: 0.5 });
+      engine.playNote({ section: 'bells', inst: 'bells', midi: 74, vel: 110, when: when + 1.85, dur: 3, gain: 0.5 });
     },
     update(dt, t, audio) {
       confetti.update(dt);

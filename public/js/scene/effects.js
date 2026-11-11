@@ -2,9 +2,12 @@
 // hanging in the stage light. GPU-animated point sprites.
 import * as THREE from 'three';
 import { HALL } from './hall.js';
+import { IS_OUTDOOR } from './venue.js';
 import { STAGE_Y } from '../layout.js';
 
-function pointsMaterial({ color, size, flicker, opacity }) {
+const viewScale = () => (typeof window !== 'undefined' && window.innerHeight ? window.innerHeight : 800) / 2;
+
+function pointsMaterial({ color, size, flicker, opacity, center = new THREE.Vector3(0, 9, 12) }) {
   return new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
@@ -15,10 +18,10 @@ function pointsMaterial({ color, size, flicker, opacity }) {
       uSize: { value: size },
       uFlicker: { value: flicker },
       uOpacity: { value: opacity },
-      uScale: { value: window.innerHeight / 2 },
+      uScale: { value: viewScale() },
       // the encore: the fireflies gather into a slow swirl of lanterns over the house
       uGather: { value: 0 },
-      uCenter: { value: new THREE.Vector3(0, 9, 12) },
+      uCenter: { value: center.clone() },
       uRadius: { value: 6 },
     },
     vertexShader: /* glsl */`
@@ -56,7 +59,7 @@ function pointsMaterial({ color, size, flicker, opacity }) {
   });
 }
 
-export function buildEffects(scene, { fireflies = 160, dust = 500 } = {}) {
+export function buildEffects(scene, { fireflies = 160, dust = 500, outdoor = IS_OUTDOOR } = {}) {
   const group = new THREE.Group();
   scene.add(group);
   const mk = (n, region, matOpts) => {
@@ -79,11 +82,16 @@ export function buildEffects(scene, { fireflies = 160, dust = 500 } = {}) {
     return pts;
   };
   // a few fireflies that slipped in from the forest, drifting up near the
-  // window; dust motes hanging in the stage light. (The whole swarm is there
-  // from the start; only a fifth is drawn until the encore calls them in.)
+  // window (or among the park chairs and low branches outdoors); dust motes
+  // hanging in the stage light. (The whole swarm is there from the start; only
+  // a fifth is drawn until the encore calls them in.)
   const nff = Math.max(1, fireflies);
   const few = Math.max(1, Math.round(fireflies * 0.2));
-  const ff = mk(nff, { x: [-9, 9], y: [9, 20], z: [HALL.front + 1, -2] }, { color: '#ffe48a', size: 0.11, flicker: 1, opacity: 0.8 });
+  const ffRegion = outdoor
+    ? { x: [-12, 12], y: [1.3, 4.8], z: [-6, 20] }
+    : { x: [-9, 9], y: [9, 20], z: [HALL.front + 1, -2] };
+  const ffCenter = outdoor ? new THREE.Vector3(0, 3.4, 7.5) : new THREE.Vector3(0, 9, 12);
+  const ff = mk(nff, ffRegion, { color: '#ffe48a', size: 0.11, flicker: 1, opacity: 0.8, center: ffCenter });
   ff.geometry.setDrawRange(0, few);
   const motes = mk(dust, { x: [-7, 7], y: [STAGE_Y + 0.5, 12], z: [-9, 6] }, { color: '#ffe9c8', size: 0.03, flicker: 0.4, opacity: 0.45 });
   let enabled = true;
@@ -95,6 +103,7 @@ export function buildEffects(scene, { fireflies = 160, dust = 500 } = {}) {
   ff.visible = fireflies > 0;
   return {
     group,
+    fireflies: ff,
     setBudget(value) { budget = Math.max(0, Math.min(1, value)); motes.geometry.setDrawRange(0, Math.ceil(dust * budget)); },
     setCounts(on) { enabled = on; ff.visible = on && fireflies > 0; motes.visible = on; },
     // k: 0..1 how many have come to the lanterns; center: over the house
@@ -115,7 +124,7 @@ export function buildEffects(scene, { fireflies = 160, dust = 500 } = {}) {
       if (enabled) ff.visible = fireflies > 0 && glow > 0.02;
       ff.material.uniforms.uTime.value = t;
       motes.material.uniforms.uTime.value = t * 0.4;
-      const s = window.innerHeight / 2;
+      const s = viewScale();
       ff.material.uniforms.uScale.value = s;
       motes.material.uniforms.uScale.value = s;
     },
