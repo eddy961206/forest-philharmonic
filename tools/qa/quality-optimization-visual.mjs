@@ -1,6 +1,6 @@
 import { p, outputDir } from './quality-optimization-common.mjs';
 import fs from'node:fs';
-const b=await p.connect({browserURL:'http://127.0.0.1:9224',defaultViewport:null});const page=(await b.pages()).find(x=>x.url().includes(':8096'));
+const b=await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT||9225}`,defaultViewport:null});const page=(await b.pages()).find(x=>x.url().includes(':8096'));
 await page.evaluate(()=>{__fp.perf.pause();window._qaRAF=requestAnimationFrame;window._qaQueued=[];window.requestAnimationFrame=cb=>(_qaQueued.push(cb),-1);});await new Promise(r=>setTimeout(r,100));
 try{
 const results=await page.evaluate(async()=>{

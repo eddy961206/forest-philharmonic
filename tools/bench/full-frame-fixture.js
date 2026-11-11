@@ -1,6 +1,32 @@
 // 전체 앱 시각 부하 fixture야. 앱 main.js 응답 뒤에 붙여 같은 모듈의 상태를 제어해.
 // 실제 오디오 스케줄러/입장 UI를 검증하는 파일은 아니고, 앱 파일 자체도 수정하지 않아.
 // 원본 qa-v2/full-frame.mjs의 effects-peak/effects-show 시나리오까지 반영했어.
+const benchHasControllers=typeof S==='object'&&S!==null&&typeof app==='object'&&app!==null;
+let benchWallT=20,benchInFrame=false;
+window.__benchGetWallT=()=>benchHasControllers?benchWallT:wallT;
+window.__benchSetWallT=v=>{if(benchHasControllers)benchWallT=v;else wallT=v;};
+window.__benchRunFrame=(rafMs=performance.now())=>{
+  if(benchHasControllers){
+    if(typeof window.__benchFrame!=='function')throw new Error('Benchmark frame callback was not captured.');
+    benchInFrame=true;
+    try{return window.__benchFrame(rafMs);}finally{benchInFrame=false;}
+  }
+  return frame();
+};
+const benchActiveQuality=()=>benchHasControllers?graphics.quality:quality;
+const benchActiveRenderScale=()=>benchHasControllers?graphics.renderScale:renderScale;
+const benchActiveFx=()=>benchHasControllers?app.fx:fx;
+if(benchHasControllers){
+  const origHallUpdate=hall.update.bind(hall);
+  hall.update=function(dt,wall,...rest){
+    if(benchInFrame){benchWallT+=dt;return origHallUpdate(dt,benchWallT,...rest);}
+    return origHallUpdate(dt,wall,...rest);
+  };
+  const origEffectsUpdate=effects.update.bind(effects);
+  effects.update=function(wall,dt,...rest){
+    return origEffectsUpdate(benchInFrame?benchWallT:wall,dt,...rest);
+  };
+}
 const benchTimes={};
 function benchWrap(obj,key,label=key){
   if(!obj || typeof obj[key]!=='function')return;
@@ -104,31 +130,59 @@ window.__bench={
   beginDomeWarmup:benchBeginDomeWarmup,
   endDomeWarmup:benchEndDomeWarmup,
   async setup(){
+    let buildAud=typeof buildAudience==='function'?buildAudience:null;
+    let planHs=typeof planHouse==='function'?planHouse:null;
+    let seedFn=typeof seeded==='function'?seeded:null;
+    if(!buildAud){
+      const audMod=await import('./scene/audience.js');
+      buildAud=audMod.buildAudience;
+      planHs=audMod.planHouse;
+    }
+    if(!seedFn){
+      const stateMod=await import('./app/state.js');
+      seedFn=stateMod.seeded;
+    }
+    if(IS_SPHERE&&typeof SP==='undefined'&&!window.__benchSP){
+      window.__benchSP=(await import('./scene/sphereplan.js')).SP;
+    }
     await perf.load('beethoven-ode-to-joy');
     engine.stopAll();perf._schedule=()=>{};
     Object.defineProperty(perf,'time',{configurable:true,get:()=>benchT});
     perf.playing=true;
-    concertStarted=true;showStarted=true;phase='playing';
+    if(benchHasControllers){S.concertStarted=true;S.showStarted=true;S.phase='playing';}
+    else{concertStarted=true;showStarted=true;phase='playing';}
     stage.snapOnstage();stage.snapConductor(!!perf.piece.conducted);
     director.active=false;
-    audience?.dispose();
+    (benchHasControllers?S.audience:audience)?.dispose();
     const big=IS_SPHERE?{detail:LITE?80:220,mid:LITE?0:900,cap:LITE?2500:Infinity}:{};
     const audienceSeats=hall.seats.filter(s=>!s.stage);
-    audience=typeof planHouse==='function'
-      ?buildAudience(planHouse(audienceSeats,seeded(417)),{lite:LITE,share:.8,...big})
-      :buildAudience(audienceSeats,{lite:LITE,rand:seeded(417),fill:.8,...big});
-    scene.add(audience.group);refreshOccupied();
-    benchWrap(audience,'updateLOD','audienceLOD');
+    const nextAudience=typeof planHs==='function'
+      ?buildAud(planHs(audienceSeats,seedFn(417)),{lite:LITE,share:.8,...big})
+      :buildAud(audienceSeats,{lite:LITE,rand:seedFn(417),fill:.8,...big});
+    if(benchHasControllers){S.audience=nextAudience;scene.add(nextAudience.group);app.house.refreshOccupied();}
+    else{audience=nextAudience;scene.add(nextAudience.group);refreshOccupied();}
+    benchWrap(nextAudience,'updateLOD','audienceLOD');
     hall.setHouseLights(.12);
     for(let i=0;i<120;i++)hall.update(1/60,i/60);
     renderer.info.autoReset=false;
-    if(fx)benchWrap(fx,'update','fx');
+    const activeFx=benchActiveFx();
+    if(activeFx){
+      if(benchHasControllers&&!activeFx.__benchWallWrapped){
+        const origFxUpdate=activeFx.update.bind(activeFx);
+        activeFx.update=function(dt,wall,lvl){return origFxUpdate(dt,benchInFrame?benchWallT:wall,lvl);};
+        activeFx.__benchWallWrapped=true;
+      }
+      benchWrap(activeFx,'update','fx');
+    }
     document.getElementById('splash')?.remove();
-    return {crowd:audience.count,seats:hall.seats.length,eligibleAudienceSeats:audienceSeats.length,recitalSeats:hall.seats.filter(s=>s.stage).length,lite:LITE,piece:perf.piece.id,sceneState:{phase,asleep:!!window.__fp.asleep,interval:!!window.__fp.interval,recital:!!window.__fp.recital?.on,practice:!!window.__fp.practice?.on,hush:typeof hush==='undefined'?null:hush,sleepy:typeof sleepy==='undefined'?null:sleepy,seatGroupVisible:hall.seatGroup?.visible??null,audienceVisible:audience.group.visible}};
+    const activePhase=benchHasControllers?S.phase:phase;
+    const activeHush=benchHasControllers?S.hush:(typeof hush==='undefined'?null:hush);
+    const activeSleepy=benchHasControllers?S.sleepy:(typeof sleepy==='undefined'?null:sleepy);
+    return {crowd:nextAudience.count,seats:hall.seats.length,eligibleAudienceSeats:audienceSeats.length,recitalSeats:hall.seats.filter(s=>s.stage).length,lite:LITE,piece:perf.piece.id,sceneState:{phase:activePhase,asleep:!!window.__fp.asleep,interval:!!window.__fp.interval,recital:!!window.__fp.recital?.on,practice:!!window.__fp.practice?.on,hush:activeHush,sleepy:activeSleepy,seatGroupVisible:hall.seatGroup?.visible??null,audienceVisible:nextAudience.group.visible}};
   },
   scenario(name){
-    window.__resetRandom();benchIndex=0;benchRotate=name==='rotate';wallT=20;benchT=name.startsWith('broadcast')?5:25;
-    perf._resetVisual(benchT);levelSmoothed=0;
+    window.__resetRandom();benchIndex=0;benchRotate=name==='rotate';window.__benchSetWallT(20);benchT=name.startsWith('broadcast')?5:25;
+    perf._resetVisual(benchT);if(!benchHasControllers)levelSmoothed=0;
     benchPose=IS_SPHERE?[[0,19,34],[0,3,-6]]:[[0,4,16],[0,3,-6]];
     if(name==='front')benchPose=[[0,1.75,5],[0,2,-7]];
     if(name==='wide')benchPose=IS_SPHERE?[[0,44,62],[0,3,-6]]:[[0,22,30],[0,4,-4]];
@@ -144,28 +198,29 @@ window.__bench={
       if(name==='reveal'){hall.dome.go('FOREST3D',{dur:60,reveal:true});hall.dome.update(30);}
       hall.dome.uniforms.uTime.value=20;
     }
-    if(name==='effects-peak'&&fx){
-      fx.lasers.set(true);fx.wash.set(true);
-      fx.confetti.burst(new THREE.Vector3(-11,1.6,.5),new THREE.Vector3(.55,1,.5),260,11);
-      fx.confetti.burst(new THREE.Vector3(11,1.6,.5),new THREE.Vector3(-.55,1,.5),260,11);
-      fx.fireworks.show(0,0);
-      for(const [x,y,z,c] of [[-8,12,-5,'#ffd166'],[0,15,-6,'#4ecdc4'],[8,11,-4,'#c084fc']])fx.fireworks.burst(new THREE.Vector3(x,y,z),c);
-      for(let i=0;i<10;i++)fx.update(1/60,20+i/60,.5);
+    const activeFx=benchActiveFx();
+    if(name==='effects-peak'&&activeFx){
+      activeFx.lasers.set(true);activeFx.wash.set(true);
+      activeFx.confetti.burst(new THREE.Vector3(-11,1.6,.5),new THREE.Vector3(.55,1,.5),260,11);
+      activeFx.confetti.burst(new THREE.Vector3(11,1.6,.5),new THREE.Vector3(-.55,1,.5),260,11);
+      activeFx.fireworks.show(0,0);
+      for(const [x,y,z,c] of [[-8,12,-5,'#ffd166'],[0,15,-6,'#4ecdc4'],[8,11,-4,'#c084fc']])activeFx.fireworks.burst(new THREE.Vector3(x,y,z),c);
+      for(let i=0;i<10;i++)activeFx.update(1/60,20+i/60,.5);
     }
-    if(name==='effects-show'&&fx){
-      fx.lasers.set(true);fx.wash.set(true);
+    if(name==='effects-show'&&activeFx){
+      activeFx.lasers.set(true);activeFx.wash.set(true);
       for(let i=0;i<480;i++){
-        fx.lasers.update(1/60,12+i/60,.5);
-        fx.wash.update(1/60,12+i/60);
+        activeFx.lasers.update(1/60,12+i/60,.5);
+        activeFx.wash.update(1/60,12+i/60);
       }
-      fx.confetti.burst(new THREE.Vector3(-11,1.6,.5),new THREE.Vector3(.55,1,.5),260,11);
-      fx.confetti.burst(new THREE.Vector3(11,1.6,.5),new THREE.Vector3(-.55,1,.5),260,11);
-      fx.fireworks.show(0,0);
-      for(const [x,y,z,c] of [[-8,12,-5,'#ffd166'],[0,15,-6,'#4ecdc4'],[8,11,-4,'#c084fc']])fx.fireworks.burst(new THREE.Vector3(x,y,z),c);
-      for(let i=0;i<10;i++)fx.update(1/60,20+i/60,.5);
+      activeFx.confetti.burst(new THREE.Vector3(-11,1.6,.5),new THREE.Vector3(.55,1,.5),260,11);
+      activeFx.confetti.burst(new THREE.Vector3(11,1.6,.5),new THREE.Vector3(-.55,1,.5),260,11);
+      activeFx.fireworks.show(0,0);
+      for(const [x,y,z,c] of [[-8,12,-5,'#ffd166'],[0,15,-6,'#4ecdc4'],[8,11,-4,'#c084fc']])activeFx.fireworks.burst(new THREE.Vector3(x,y,z),c);
+      for(let i=0;i<10;i++)activeFx.update(1/60,20+i/60,.5);
     }
     camera.position.set(...benchPose[0]);camera.lookAt(...benchPose[1]);camera.updateMatrixWorld();
-    audience.updateLOD?.(camera.position,true);hall.updateLOD?.(camera.position);
+    (benchHasControllers?S.audience:audience).updateLOD?.(camera.position,true);hall.updateLOD?.(camera.position);
     return {camera:{position:benchPose[0],target:benchPose[1],fov:64},musicTime:benchT,world:hall.dome?.current??null,broadcast:settings.screen,effectsPeak:name==='effects-peak',effectsShow:name==='effects-show'};
   },
   step(complete=true){
@@ -173,17 +228,26 @@ window.__bench={
     if(window.__fp.asleep)throw new Error('Benchmark app is asleep; wake it before measuring.');
     benchAssertDomeVisible();
     for(const key in benchTimes)benchTimes[key]=0;
-    if(settings.quality!=='auto')lastNow=performance.now()-1000/60;
+    if(settings.quality!=='auto'){
+      if(benchHasControllers){
+        const origNow=performance.now.bind(performance);
+        const t0=origNow();
+        performance.now=()=>t0-1000/60;
+        try{app.loop.resetClock();}finally{performance.now=origNow;}
+      }else{
+        lastNow=performance.now()-1000/60;
+      }
+    }
     renderer.info.reset();
     const start=performance.now();
-    frame();
+    window.__benchRunFrame(start);
     const submit=performance.now();
     const gl=renderer.getContext();
     if(complete)gl.readPixels(0,0,1,1,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(4));
     const end=performance.now();
     benchAssertDomeVisible();
     benchIndex++;benchT+=1/60;
-    return {completeMs:complete?end-start:null,submitMs:submit-start,completionWaitMs:complete?end-submit:null,completed:complete,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,times:{...benchTimes},geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,heap:performance.memory?.usedJSHeapSize??null,quality,renderScale,visibility:document.visibilityState,asleep:!!window.__fp.asleep,glError:gl.getError(),contextLost:gl.isContextLost()};
+    return {completeMs:complete?end-start:null,submitMs:submit-start,completionWaitMs:complete?end-submit:null,completed:complete,calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,times:{...benchTimes},geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,heap:performance.memory?.usedJSHeapSize??null,quality:benchActiveQuality(),renderScale:benchActiveRenderScale(),visibility:document.visibilityState,asleep:!!window.__fp.asleep,glError:gl.getError(),contextLost:gl.isContextLost()};
   },
-  meta(){const gl=renderer.getContext(),e=gl.getExtension('WEBGL_debug_renderer_info');return {renderer:e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):null,gpuTimer:!!gl.getExtension('EXT_disjoint_timer_query_webgl2'),pixelRatio:renderer.getPixelRatio(),viewport:[innerWidth,innerHeight],quality,renderScale,hardwareConcurrency:navigator.hardwareConcurrency,userAgent:navigator.userAgent};}
+  meta(){const gl=renderer.getContext(),e=gl.getExtension('WEBGL_debug_renderer_info');return {renderer:e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):null,gpuTimer:!!gl.getExtension('EXT_disjoint_timer_query_webgl2'),pixelRatio:renderer.getPixelRatio(),viewport:[innerWidth,innerHeight],quality:benchActiveQuality(),renderScale:benchActiveRenderScale(),hardwareConcurrency:navigator.hardwareConcurrency,userAgent:navigator.userAgent};}
 };

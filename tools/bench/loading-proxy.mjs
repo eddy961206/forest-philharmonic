@@ -30,14 +30,16 @@ export function browserOptions(device, version) {
 export function fixedAudienceMain(original, audienceSeed) {
   if (!Number.isInteger(audienceSeed) || audienceSeed < 0 || audienceSeed > 0xffffffff)
     throw new Error('audienceSeed must be a uint32 integer');
+  const controllerReplacement = `{ const _origRand = Math.random; if (!S.room) { let _a = ${audienceSeed} >>> 0; const _seededRand = () => { if (Math.random === _seededRand) Math.random = _origRand; _a = (_a + 0x6d2b79f5) >>> 0; let _t = _a; _t = Math.imul(_t ^ (_t >>> 15), _t | 1); _t ^= _t + Math.imul(_t ^ (_t >>> 7), _t | 61); return ((_t ^ (_t >>> 14)) >>> 0) / 4294967296; }; Math.random = _seededRand; } try { app.house.seatAudience(); } finally { Math.random = _origRand; } }`;
   const anchors = [
     { kind: 'legacy-solo-rand', text: 'const rand = room ? seeded(room.seed) : Math.random;' },
     { kind: 'planned-house', text: 'housePlan = planHouse(hall.seats.filter((s) => !s.stage), room ? seeded(room.seed) : Math.random);' },
+    { kind: 'controller-house', text: 'app.house.seatAudience();', replaceWith: controllerReplacement },
   ].map(anchor => ({ ...anchor, matches: original.split(anchor.text).length - 1 }));
   const matches = anchors.reduce((sum, anchor) => sum + anchor.matches, 0);
   if (matches !== 1) throw new Error(`Fixed-audience main fixture requires exactly one supported solo crowd generator; found ${matches}`);
   const anchor = anchors.find(candidate => candidate.matches === 1);
-  const served = original.replace(anchor.text, anchor.text.replace(' : Math.random', ` : seeded(${audienceSeed})`));
+  const served = original.replace(anchor.text, anchor.replaceWith ?? anchor.text.replace(' : Math.random', ` : seeded(${audienceSeed})`));
   return {
     served,
     metadata: {

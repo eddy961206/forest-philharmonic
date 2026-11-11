@@ -15,8 +15,28 @@ import { fileURLToPath } from 'node:url';
 import { attachRooms, publicRooms, roomLookup } from './server/rooms.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
-const PORT = Number(process.env.PORT || 8080);
+const PORT = process.env.PORT !== undefined && process.env.PORT !== '' ? Number(process.env.PORT) : 8080;
 const HOST = process.env.HOST || '0.0.0.0';
+
+const SECURITY_HEADERS = Object.freeze({
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'same-origin',
+  'X-Frame-Options': 'DENY',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com data:",
+    "img-src 'self' data: blob:",
+    "media-src 'self' data: blob:",
+    "connect-src 'self' ws: wss:",
+    "worker-src 'self' blob:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "frame-ancestors 'none'",
+  ].join('; '),
+});
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -89,28 +109,33 @@ function log(req, status, bytes) {
 const server = http.createServer(async (req, res) => {
   try {
     if (req.method !== 'GET' && req.method !== 'HEAD') {
-      res.writeHead(405, { Allow: 'GET, HEAD' }).end();
+      req.resume();
+      res.writeHead(405, { ...SECURITY_HEADERS, Allow: 'GET, HEAD', Connection: 'close' }).end();
+      return;
+    }
+    if (!req.url || !req.url.startsWith('/') || req.url.startsWith('//')) {
+      res.writeHead(400, SECURITY_HEADERS).end();
       return;
     }
     const url = new URL(req.url, 'http://x');
     if (url.pathname.startsWith('/api/rooms/')) {
       const r = roomLookup(url.pathname.slice(11).replace(/[^A-Za-z0-9]/g, '').slice(0, 6));
-      res.writeHead(r ? 200 : 404, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(JSON.stringify(r || { error: 'notfound' }));
+      res.writeHead(r ? 200 : 404, { ...SECURITY_HEADERS, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(JSON.stringify(r || { error: 'notfound' }));
       return;
     }
     if (url.pathname === '/api/rooms') {
       const body = JSON.stringify(publicRooms());
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(body);
+      res.writeHead(200, { ...SECURITY_HEADERS, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(body);
       return;
     }
     let rel;
     try { rel = decodeURIComponent(url.pathname); }
-    catch { res.writeHead(400).end(); return; }
-    if (rel.includes('\0')) { res.writeHead(400).end(); return; }
+    catch { res.writeHead(400, SECURITY_HEADERS).end(); return; }
+    if (rel.includes('\0')) { res.writeHead(400, SECURITY_HEADERS).end(); return; }
     if (rel.endsWith('/')) rel += 'index.html';
     const file = path.normalize(path.join(ROOT, rel));
     if (!file.startsWith(ROOT + path.sep) && file !== ROOT) {
-      res.writeHead(403).end();
+      res.writeHead(403, SECURITY_HEADERS).end();
       log(req, 403);
       return;
     }
@@ -118,12 +143,12 @@ const server = http.createServer(async (req, res) => {
     try {
       stat = await fsp.stat(file);
     } catch {
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found');
+      res.writeHead(404, { ...SECURITY_HEADERS, 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found');
       log(req, 404);
       return;
     }
     if (stat.isDirectory()) {
-      res.writeHead(301, { Location: `${url.pathname.replace(/\/?$/, '/')}${url.search}` }).end();
+      res.writeHead(301, { ...SECURITY_HEADERS, Location: `${url.pathname.replace(/\/?$/, '/')}${url.search}` }).end();
       return;
     }
     const ext = path.extname(file).toLowerCase();
@@ -137,12 +162,12 @@ const server = http.createServer(async (req, res) => {
     // strong validator. Vary also belongs on identity and 304 responses.
     const etag = useGzip ? identityTag.replace(/"$/, '-gzip"') : identityTag;
     const headers = {
+      ...SECURITY_HEADERS,
       'Content-Type': type,
       ETag: etag,
       'Last-Modified': stat.mtime.toUTCString(),
       // audio + vendored libraries rarely change; app code revalidates
       'Cache-Control': ext === '.mp3' || rel.startsWith('/vendor/') ? 'public, max-age=604800' : 'no-cache',
-      'X-Content-Type-Options': 'nosniff',
       'Accept-Ranges': 'bytes',
     };
     if (COMPRESSIBLE.has(ext)) headers.Vary = 'Accept-Encoding';
@@ -170,7 +195,7 @@ const server = http.createServer(async (req, res) => {
       start = Math.max(0, start);
       end = Math.min(stat.size - 1, end);
       if ((!range[1] && !range[2]) || !Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start > end) {
-        res.writeHead(416, { 'Content-Range': `bytes */${stat.size}` }).end();
+        res.writeHead(416, { ...SECURITY_HEADERS, 'Content-Range': `bytes */${stat.size}` }).end();
         return;
       }
       res.writeHead(206, { ...headers, 'Content-Range': `bytes ${start}-${end}/${stat.size}`, 'Content-Length': end - start + 1 });
@@ -187,12 +212,25 @@ const server = http.createServer(async (req, res) => {
     log(req, 200, stat.size);
   } catch (e) {
     console.error(e);
-    if (!res.headersSent) res.writeHead(500).end();
+    if (!res.headersSent) res.writeHead(500, SECURITY_HEADERS).end();
     else res.destroy();
   }
 });
 
+server.headersTimeout = 10000;
+server.requestTimeout = 15000;
+server.keepAliveTimeout = 5000;
+
 const disposeRooms = attachRooms(server);
+
+server.on('error', (err) => {
+  if (err && err.code === 'EADDRINUSE') {
+    console.error(`포트 ${PORT}번이 이미 사용 중입니다. 다른 포트로 실행하려면 PORT=8081 node server.js 처럼 지정해 주세요.`);
+    process.exit(1);
+  }
+  console.error(err);
+  process.exit(1);
+});
 
 server.listen(PORT, HOST, () => {
   const port = server.address().port;
@@ -206,6 +244,21 @@ server.listen(PORT, HOST, () => {
   console.log(lines.join('\n'));
 });
 
-const shutdown = () => { disposeRooms(); server.close(() => process.exit(0)); };
+let shuttingDown = false;
+const shutdown = () => {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  disposeRooms();
+  server.closeIdleConnections?.();
+  const forceTimer = setTimeout(() => {
+    server.closeAllConnections?.();
+    process.exit(0);
+  }, 3000);
+  forceTimer.unref();
+  server.close(() => {
+    clearTimeout(forceTimer);
+    process.exit(0);
+  });
+};
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);

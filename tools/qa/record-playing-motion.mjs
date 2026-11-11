@@ -1,7 +1,7 @@
 // Actual WebGL + live Web Audio recording, not a screenshot animation.
 // Start a dedicated browser with cdp-direct, then:
 // QA_OUT=work/motion node tools/qa/record-playing-motion.mjs label piano,triangle
-// Optional: APP_PORT=8096 CDP_PORT=9224 MOBILE=1 QA_REV=<baseline commit>
+// Optional: APP_PORT=8096 CDP_PORT=9225 MOBILE=1 QA_REV=<baseline commit>
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { p as puppeteer, outputDir } from './quality-optimization-common.mjs';
@@ -12,7 +12,7 @@ const {label,cases}=recordingOptions(process.argv.slice(2));
 const mobile=process.env.MOBILE==='1', port=process.env.APP_PORT||8096;
 const url=`http://127.0.0.1:${port}`;
 const source=process.env.QA_REV?{baselineCommit:execFileSync('git',['rev-parse',process.env.QA_REV],{cwd:repo,encoding:'utf8'}).trim()}:motionSource();
-const browser=await puppeteer.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT||9224}`,defaultViewport:null});
+const browser=await puppeteer.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT||9225}`,defaultViewport:null});
 let page;
 try {
   page=await browser.newPage();

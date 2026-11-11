@@ -71,7 +71,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true', help='Verify exact reproduction without writing files')
     args = parser.parse_args()
-    proof = json.loads(PROOF.read_text())
+    proof = json.loads(PROOF.read_text(encoding='utf-8'))
     for ident, transform in [('massenet-thais-meditation', thais), ('boccherini-minuet', boccherini)]:
         entry = proof[ident]
         source = SCORES / f'{ident}-source.mid'

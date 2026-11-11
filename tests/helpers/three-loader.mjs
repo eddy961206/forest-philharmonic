@@ -1,5 +1,6 @@
-// Browser import-map equivalent for dependency-free Node tests. The runtime
-// uses these same vendored Three files; this loader also works on Node 18.
+// Browser import-map equivalent for dependency-free Node tests, registered via
+// node:module register() in ./register-three.mjs. The runtime uses these same
+// vendored Three files.
 const vendor = new URL('../../public/vendor/three/', import.meta.url);
 
 export function resolve(specifier, context, nextResolve) {

@@ -1,5 +1,5 @@
 import { p, outputDir } from './quality-optimization-common.mjs';
-import fs from'node:fs';const b=await p.connect({browserURL:'http://127.0.0.1:9224',defaultViewport:null});const page=(await b.pages()).find(p=>p.url().includes(':8096'));
+import fs from'node:fs';const b=await p.connect({browserURL:`http://127.0.0.1:${process.env.CDP_PORT||9225}`,defaultViewport:null});const page=(await b.pages()).find(p=>p.url().includes(':8096'));
 const errors=[];page.on('pageerror',e=>errors.push(String(e)));await page.setViewport({width:390,height:844,deviceScaleFactor:2});
 if(await page.$eval('#panel',e=>e.hidden))await page.click('[data-panel=program]');await page.click('#bremenTrail');await new Promise(r=>setTimeout(r,9000));await page.screenshot({path:outputDir+'/bremen-mobile.png'});
 const mobile=await page.evaluate(()=>{const d=document.querySelector('#bremen'),r=d.getBoundingClientRect();return {viewport:[innerWidth,innerHeight],rect:{x:r.x,y:r.y,width:r.width,height:r.height},horizontalOverflow:d.scrollWidth>d.clientWidth,focus:document.activeElement.className,quality:__fp.quality,voices:__fp.bremen.voices}});

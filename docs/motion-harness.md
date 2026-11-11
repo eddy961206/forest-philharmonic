@@ -2,7 +2,7 @@
 
 ## 기본 명령
 
-저장소 루트에서 Node 18 이상으로 실행한다. 브라우저나 외부 npm 패키지는 필요 없다.
+저장소 루트에서 Node 20 이상으로 실행한다(`--import ./tests/helpers/register-three.mjs`로 vendored Three 모듈을 해석하며 Python 보조 스크립트는 `node tools/run-python.mjs`를 사용한다). 브라우저나 외부 npm 패키지는 필요 없다.
 
 ```sh
 npm run verify:motion
@@ -44,12 +44,12 @@ npm run verify:motion
 
 기존 연주 방식의 악보 추가는 위 자동 검사를 기본으로 한다. 각 곡마다 수동 스크린샷을 요구하지 않는다. 새로운 외형·악기·자세·무대는 영향을 받는 사례를 자동 녹화하고 연속 동작을 확인한다. 수치만으로 모든 실루엣·가림·미감을 증명할 수는 없다.
 
-별도 터미널에서 서버를 실행하고 전용 Chrome을 준비한다. 녹화는 `puppeteer-core`가 필요하다. 로컬 또는 전역 설치, 또는 `PUPPETEER_PATH`를 지원한다.
+별도 터미널에서 서버를 실행하고 전용 Chrome을 준비한다(기본 `CDP_PORT=9225`). 녹화는 `puppeteer-core`가 필요하며 `tools/qa/load-puppeteer.mjs`가 로컬·전역(Windows AppData npm 포함) 설치 또는 `PUPPETEER_PATH`를 자동 탐색한다. 모든 임시 출력은 `work/`(또는 `QA_OUT`) 아래에 저장된다.
 
 ```sh
 PORT=8096 npm start
-cdp-direct launch --port 9224
-cdp-direct new http://127.0.0.1:8096 --port 9224
+cdp-direct launch --port 9225
+cdp-direct new http://127.0.0.1:8096 --port 9225
 ```
 
 ```sh

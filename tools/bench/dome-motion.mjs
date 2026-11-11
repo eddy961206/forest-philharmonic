@@ -65,12 +65,12 @@ function installDomeMotion() {
     viewport: Array.from(gl.getParameter(gl.VIEWPORT) || []), scissor: Array.from(gl.getParameter(gl.SCISSOR_BOX) || []),
     scissorTest: gl.isEnabled(gl.SCISSOR_TEST) });
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-  const readQuality = () => ({ quality, settingsQuality: settings.quality, renderScale, pixelRatio: renderer.getPixelRatio() });
+  const readQuality = () => ({ quality: typeof graphics !== 'undefined' ? graphics.quality : quality, settingsQuality: settings.quality, renderScale: typeof graphics !== 'undefined' ? graphics.renderScale : renderScale, pixelRatio: renderer.getPixelRatio() });
   const snapshot = () => ({
     current: dome.current, visible: dome.mesh.visible, overlayVisible: overlay()?.visible ?? null,
     a: dome.uniforms.uA.value, b: dome.uniforms.uB.value, mix: dome.uniforms.uMix.value,
     reveal: dome.uniforms.uReveal.value, domeTime: dome.uniforms.uTime.value,
-    live: dome.uniforms.uLive.value, musicTime: benchT, wallTime: wallT, ...readQuality(),
+    live: dome.uniforms.uLive.value, musicTime: benchT, wallTime: window.__benchGetWallT(), ...readQuality(),
     camera: { position: camera.position.toArray(), quaternion: camera.quaternion.toArray(), fov: camera.fov,
       projectionMatrix: camera.projectionMatrix.toArray() },
     slots: ['A', 'B'].map(slot => {
@@ -82,10 +82,11 @@ function installDomeMotion() {
   // Read-only demand estimate from the served face-mask sampling geometry.
   // It checks first-use render requests, not actual proxy draws or fresh texels.
   function demandedFaces() {
+    const sp = typeof SP !== 'undefined' ? SP : window.__benchSP;
     const origin = camera.getWorldPosition(new THREE.Vector3());
-    const centre = new THREE.Vector3(SP.C.x, SP.C.y, SP.C.z);
+    const centre = new THREE.Vector3(sp.C.x, sp.C.y, sp.C.z);
     const offset = origin.clone().sub(centre), ray = new THREE.Vector3(), hit = new THREE.Vector3();
-    const cc = offset.lengthSq() - SP.R * SP.R;
+    const cc = offset.lengthSq() - sp.R * sp.R;
     let mask = 0;
     for (let y = 0; y <= 8; y++) for (let x = 0; x <= 10; x++) {
       ray.set(x / 5 - 1, y / 4 - 1, .5).unproject(camera).sub(origin).normalize();
@@ -94,7 +95,7 @@ function installDomeMotion() {
       const distance = -b + Math.sqrt(disc);
       if (distance <= 0) continue;
       hit.copy(origin).addScaledVector(ray, distance);
-      if (hit.y - SP.EDGE.k * hit.z - SP.EDGE.d < -.5) continue;
+      if (hit.y - sp.EDGE.k * hit.z - sp.EDGE.d < -.5) continue;
       hit.sub(dome.uniforms.uView.value);
       const lengths = [Math.abs(hit.x), Math.abs(hit.y), Math.abs(hit.z)], limit = Math.max(...lengths) * .8;
       if (lengths[0] >= limit) mask |= hit.x > 0 ? 1 : 2;
@@ -202,7 +203,7 @@ function installDomeMotion() {
     prepareTransition(kind) {
       clearWorlds();
       if (kind === 'crossfade') window.__bench.scenario('forest');
-      benchRotate = false; benchIndex = 0; benchT = 25; wallT = 20;
+      benchRotate = false; benchIndex = 0; benchT = 25; window.__benchSetWallT(20);
       const from = kind === 'reveal' ? 'ARCH' : 'FOREST3D', to = kind === 'reveal' ? 'FOREST3D' : 'PEAKS3D';
       dome.go(to, { dur: 4, reveal: kind === 'reveal' }); dome.update(0); dome.uniforms.uTime.value = 20;
       transition = { kind, from, to, elapsed: 0, duration: 4 }; return { ...transition, state: snapshot() };
@@ -211,7 +212,7 @@ function installDomeMotion() {
       if (!transition || fraction * 4 < transition.elapsed) throw new Error('Transition checkpoints must be monotonic.');
       const elapsed = fraction * 4;
       dome.update(elapsed - transition.elapsed); transition.elapsed = elapsed;
-      benchT = 25 + elapsed; wallT = 20 + elapsed - 1 / 60;
+      benchT = 25 + elapsed; window.__benchSetWallT(20 + elapsed - 1 / 60);
       // This one frame uses the exact sampled dome time. Other main animation
       // still advances 1/60; this is not an uninterrupted 4-second simulation.
       const row = probe(true); row.transition = { ...transition, fraction };
@@ -325,7 +326,7 @@ try {
   await page.route('**/js/main.js', async route => {
     try {
       const response = await route.fetch(), body = await response.text();
-      if (!body.includes('function frame()') || !body.includes('window.__fp =')) throw new Error('Unexpected main.js fixture boundary.');
+      if (!(body.includes('function frame()') || body.includes('createLoop(app)')) || !body.includes('window.__fp =')) throw new Error('Unexpected main.js fixture boundary.');
       result.injectedMain = { originalSha256: sha256(body), fixtureSha256: sha256(fixture), suffixSha256: sha256(suffix), combinedSha256: sha256(`${body}\n${fixture}${suffix}`) };
       await route.fulfill({ response, body: `${body}\n${fixture}${suffix}` });
     } catch (error) { session.diagnostics.pageErrors.push(`main fixture: ${error.message}`); await route.abort(); }

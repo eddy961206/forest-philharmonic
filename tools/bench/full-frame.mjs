@@ -93,7 +93,7 @@ try {
     try {
       const response = await route.fetch();
       const body = await response.text();
-      if (!body.includes('function frame()') || !body.includes('window.__fp =')) throw new Error('예상한 main.js 구조가 아니야. fixture를 검토해 줘.');
+      if (!(body.includes('function frame()') || body.includes('createLoop(app)')) || !body.includes('window.__fp =')) throw new Error('예상한 main.js 구조가 아니야. fixture를 검토해 줘.');
       await route.fulfill({ response, body: `${body}\n${fixture}` });
     } catch (error) { session.diagnostics.pageErrors.push(`main fixture: ${error.message}`); await route.abort(); }
   });

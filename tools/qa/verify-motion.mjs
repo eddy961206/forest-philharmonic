@@ -35,7 +35,7 @@ async function run(name, argv) {
   steps.push(step); console.log(`${name}: ${step.exitCode === 0 ? 'PASS' : 'FAIL'} (${filename})`);
 }
 if (!args.includes('--skip-unit')) await run('unit-tests', ['tools/test.mjs', '--test-reporter=tap']);
-await run('motion-audit', ['--experimental-loader', './tests/helpers/three-loader.mjs', 'tools/qa/audit-playing-motion.mjs', auditFile]);
+await run('motion-audit', ['--import', './tests/helpers/register-three.mjs', 'tools/qa/audit-playing-motion.mjs', auditFile]);
 let audit = null;
 try { audit = JSON.parse(fs.readFileSync(auditFile, 'utf8')); } catch (error) { console.error(`No valid audit report: ${error.message}`); }
 const summary = verificationSummary(audit, steps, inputs);
