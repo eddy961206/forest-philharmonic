@@ -465,6 +465,7 @@ export class Director {
       if (t?.closest?.('#panel')) return;
       if (e.code === 'KeyR' && !e.repeat) { this.targetFov = this.mode === 'walk' ? 64 : 50; return; }
       if (e.code === 'KeyE' && !e.repeat) {
+        if (this.mode === 'seat' && this.seat?.index === -1) { e.preventDefault(); this._emit('unfocusKey'); return; }
         if (this.toggleSit()) { e.preventDefault(); return; }
         if (this.locked || this.aiming) { e.preventDefault(); this._emit('keyInteract'); }
         return;

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import * as THREE from 'three';
 import { tapButton, thumbStick } from '../public/js/joystick.js';
+import { createViewer } from '../public/js/app/viewer.js';
 import { Director } from '../public/js/scene/director.js';
 import { UI } from '../public/js/ui.js';
 
@@ -374,16 +376,26 @@ test('global shortcuts isolate sleepVeil and panel arrows, toast guests, cycle f
   assert.equal(toast.textContent, '공연 진행은 방장만 할 수 있어요.');
 
   // KeyH hides UI with recovery toast, and Escape restores UI before closing panel
+  const focusChip = make('focusChip');
+  focusChip.hidden = false;
   send(window, 'keydown', { code: 'KeyH', key: 'h', target: document.body });
   assert.equal(document.body.classList.contains('ui-hidden'), true);
   assert.equal(toast.textContent, '화면 표시를 숨겼어요 · 다시 보려면 H 또는 Esc');
   send(window, 'keydown', { code: 'Escape', key: 'Escape', target: document.body });
   assert.equal(document.body.classList.contains('ui-hidden'), false);
   assert.equal(panel.hidden, false, 'first Escape restores hidden UI without closing open panel');
+
+  // Next Escape closes open panel; subsequent Escape with focusChip visible emits unfocus
+  events.length = 0;
+  send(window, 'keydown', { code: 'Escape', key: 'Escape', target: document.body });
+  assert.equal(panel.hidden, true);
+  assert.deepEqual(events, []);
+  send(window, 'keydown', { code: 'Escape', key: 'Escape', target: document.body });
+  assert.deepEqual(events, [['unfocus']]);
   void roomChip;
 });
 
-test('Director keyboard handler blocks inactive/modal/panel keys and emits keyInteract on aimed KeyE', (t) => {
+test('Director keyboard handler blocks inactive/modal/panel keys and delegates KeyE unfocus vs keyInteract', (t) => {
   const { make, document, window } = fixture(t);
   const dom = make('stage');
   const sleepVeil = make('sleepVeil');
@@ -401,16 +413,18 @@ test('Director keyboard handler blocks inactive/modal/panel keys and emits keyIn
 
   const emitted = [];
   let jumped = 0;
+  let toggledSit = 0;
   const director = {
     dom,
     active: false,
     locked: false,
     aiming: false,
     mode: 'walk',
+    seat: null,
     targetFov: 64,
     keys: new Set(),
     setMode(m) { this.mode = m; },
-    toggleSit() { return false; },
+    toggleSit() { toggledSit++; return false; },
     jump() { jumped++; return true; },
     releaseLock() { this.locked = false; },
     _look() {},
@@ -444,29 +458,29 @@ test('Director keyboard handler blocks inactive/modal/panel keys and emits keyIn
   director.locked = true;
   const keyE = send(window, 'keydown', { code: 'KeyE', key: 'e', target: document.body });
   assert.equal(keyE.defaultPrevented, true);
+  assert.equal(toggledSit, 1);
   assert.deepEqual(emitted, [['keyInteract']]);
+  emitted.length = 0;
+
+  // When focused beside a musician/conductor (mode === 'seat', seat.index === -1), KeyE emits unfocusKey instead of toggleSit
+  director.mode = 'seat';
+  director.seat = { label: '지휘대 · 부엉 선생 곁', index: -1 };
+  const unfocusE = send(window, 'keydown', { code: 'KeyE', key: 'e', target: document.body });
+  assert.equal(unfocusE.defaultPrevented, true);
+  assert.equal(toggledSit, 1, 'toggleSit must not run and wipe prevFocus during stage focus');
+  assert.deepEqual(emitted, [['unfocusKey']]);
 });
 
-test('chatInput ignores Escape during Korean IME composition and closes cleanly afterwards', (t) => {
+test('UI._bindChat ignores Escape during Korean IME composition and closes cleanly afterwards', (t) => {
   const { ui, make } = fixture(t);
   ui.room = { title: '숲속방', code: 'ABC123', cap: 8 };
-  const chat = make('chat');
+  make('chat');
   const chatForm = make('chatForm', 'FORM');
-  const chatLog = make('chatLog', 'OL');
+  make('chatLog', 'OL');
   const chatInput = make('chatInput', 'INPUT');
-  const chatBtn = make('chatBtn', 'BUTTON');
-  void chat; void chatLog; void chatBtn;
+  make('chatBtn', 'BUTTON');
 
-  chatInput.addEventListener('keydown', (e) => {
-    if (e.code === 'Escape') {
-      if (e.isComposing || e.keyCode === 229) return;
-      e.preventDefault();
-      e.stopPropagation();
-      chatInput.value = '';
-      ui.closeChat();
-    }
-  });
-
+  ui._bindChat();
   ui.openChat();
   chatInput.value = '안녕하';
   const imeEsc = send(chatInput, 'keydown', { code: 'Escape', key: 'Escape', isComposing: true, keyCode: 229 });
@@ -480,18 +494,13 @@ test('chatInput ignores Escape during Korean IME composition and closes cleanly 
   assert.equal(chatForm.hidden, true);
 });
 
-test('focus conductor mode, showLeaf button copy, and 2-step exit confirmation match UX contracts', (t) => {
+test('focus conductor mode, showLeaf button copy, and UI._bindExitConfirm match UX contracts', (t) => {
   const { ui, leaf, make, events } = dialogFixture(t);
-  t.after(() => {
-    clearTimeout(ui._confirmPlazaT);
-    clearTimeout(ui._confirmRoomT);
-  });
 
   // Focus chip: conductor hides solo button, player shows solo button
   const focusChip = make('focusChip');
-  const focusName = make('focusName');
+  make('focusName');
   const focusSolo = make('focusSolo', 'BUTTON');
-  void focusName;
   ui.focus('부엉 선생, 지휘자 · 전체 균형 청취', { canSolo: false });
   assert.equal(focusChip.hidden, false);
   assert.equal(focusSolo.hidden, true);
@@ -508,9 +517,6 @@ test('focus conductor mode, showLeaf button copy, and 2-step exit confirmation m
   ui.showLeaf(tonight, [past], { closingEvening: true });
   const leafClose = leaf.children.find((c) => c.id === 'leafClose');
   assert.equal(leafClose.textContent, '간직하기');
-  const pastBtn = make('leafPastList_check');
-  void pastBtn;
-  // Selecting past evening switches button to '닫기'
   const pastButtons = ui._dialog ? document.getElementById('leafPastList').children : [];
   send(pastButtons[1], 'click');
   assert.equal(leafClose.textContent, '닫기');
@@ -521,26 +527,107 @@ test('focus conductor mode, showLeaf button copy, and 2-step exit confirmation m
   ui._showDialog('leaf', false);
   events.length = 0;
 
-  // 2-step exit confirmation on #plazaBtn when show has started
+  // Real UI._bindExitConfirm on #plazaBtn and #roomLeave
   const startWrap = make('startWrap');
   startWrap.hidden = true;
   const plazaBtn = make('plazaBtn', 'BUTTON');
   plazaBtn.textContent = '🎟 광장으로 나가기';
-  tapButton(plazaBtn, () => {
-    const activeShow = Boolean(ui.room || startWrap.hidden);
-    if (activeShow && !ui._confirmPlaza) {
-      ui._confirmPlaza = true;
-      plazaBtn.textContent = '정말 광장으로 나갈까요?';
-      plazaBtn.classList.add('confirming');
-      return;
-    }
-    ui._resetConfirm();
-    ui.emit('toPlaza');
-  });
+  const roomLeave = make('roomLeave', 'BUTTON');
+  roomLeave.textContent = '방 나가기';
+  ui.room = { title: '숲속방', code: 'ABC123', cap: 8 };
+  ui._bindExitConfirm();
+
   send(plazaBtn, 'click', { detail: 1 });
   assert.equal(plazaBtn.textContent, '정말 광장으로 나갈까요?');
   assert.deepEqual(events, []);
   send(plazaBtn, 'click', { detail: 1 });
   assert.deepEqual(events, [['toPlaza']]);
   assert.equal(plazaBtn.textContent, '🎟 광장으로 나가기');
+  events.length = 0;
+
+  send(roomLeave, 'click', { detail: 1 });
+  assert.equal(roomLeave.textContent, '정말 방을 나갈까요?');
+  assert.deepEqual(events, []);
+  send(roomLeave, 'click', { detail: 1 });
+  assert.deepEqual(events, [['leaveRoom']]);
+  assert.equal(roomLeave.textContent, '방 나가기');
+});
+
+test('createViewer restores prior seat on KeyE unfocusKey and hides desktop prompt once mouse is used after sitting', (t) => {
+  const { ui, make } = fixture(t);
+  ui.emit = function emit(name, ...args) { if (this.handlers[name]) this.handlers[name](...args); };
+  make('prompt');
+  make('promptText');
+  make('sitBtn', 'BUTTON');
+  make('focusChip');
+  make('focusName');
+  make('focusSolo', 'BUTTON');
+  make('lookHint');
+  make('toast');
+  make('tooltip');
+  const domElement = make('canvas', 'CANVAS');
+
+  let dHandler = null;
+  const director = {
+    mode: 'walk',
+    seat: null,
+    nearSeat: null,
+    occupied: new Set(),
+    returnTo: {},
+    pos: { z: 0 },
+    keys: new Set(),
+    vel: { set() {} },
+    on(fn) { dHandler = fn; },
+    setMode(m) { this.mode = m; this.seat = null; dHandler?.('mode', m); },
+    sitAt(s) { this.seat = s; this.mode = 'seat'; dHandler?.('mode', 'seat'); dHandler?.('seat', s); },
+    focusConductor() { this.seat = { label: '지휘대', index: -1 }; this.mode = 'seat'; dHandler?.('mode', 'seat'); dHandler?.('seat', this.seat); },
+    focusPlayer() {},
+    toggleSit() {},
+    releaseLock() {},
+  };
+  const S = { focused: null, concertStarted: true, muted: false };
+  const viewer = createViewer({
+    S,
+    isTouch: false,
+    settings: { volume: 0.8 },
+    ui,
+    engine: { setFocus() {}, setVolume() {} },
+    camera: new THREE.PerspectiveCamera(),
+    renderer: { domElement },
+    orchestra: { conductor: { char: { root: { visible: true }, spec: { name: '부엉 선생' } } }, players: [], pickables: [] },
+    hall: { seats: [], seatMesh: new THREE.Group() },
+    recital: { on: false, seats: [] },
+    director,
+    PIANIST: { char: { spec: { name: '피아니스트' } } },
+  });
+  t.after(() => viewer.dispose());
+
+  const seat42 = { index: 42, label: '1층 A열 1번' };
+  // 1) Before sitting once, nearSeat shows desktop prompt even with mouse activity
+  director.nearSeat = seat42;
+  dHandler('nearSeat', seat42);
+  assert.equal(document.getElementById('prompt').hidden, false);
+
+  // 2) Sit in seat 42 -> focus conductor -> KeyE emits unfocusKey -> restores seat 42 (not walk!)
+  director.sitAt(seat42);
+  ui.emit('focusSection', 'conductor');
+  assert.equal(S.focused, 'conductor');
+  assert.equal(director.seat.index, -1);
+  dHandler('unfocusKey');
+  assert.equal(S.focused, null);
+  assert.equal(director.mode, 'seat');
+  assert.equal(director.seat, seat42);
+
+  // 3) Stand up and walk with WASD before any mouse look: keyboard-only user still gets prompt
+  director.setMode('walk');
+  director.nearSeat = seat42;
+  dHandler('keyMove', 'KeyW');
+  assert.equal(document.getElementById('prompt').hidden, false, 'keyboard-only explorer sees seat prompt');
+
+  // 4) Once mouse look / pointermove occurs after first sit, aisle WASD walking no longer blinks #prompt
+  send(domElement, 'pointermove', { pointerType: 'mouse', clientX: 100, clientY: 100, buttons: 0 });
+  assert.equal(document.getElementById('prompt').hidden, true, 'mouse+WASD desktop user hides seat prompt after first sit');
+  dHandler('keyMove', 'KeyW');
+  dHandler('nearSeat', seat42);
+  assert.equal(document.getElementById('prompt').hidden, true);
 });

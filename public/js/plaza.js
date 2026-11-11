@@ -845,6 +845,54 @@ canvas.addEventListener('wheel', (e) => { cam.dist = Math.min(8, Math.max(2.4, c
 // a tap on the booth or a gate walks you there
 const ray = new THREE.Raycaster();
 let autoTo = null; // { x, z, then }
+const BOOTH_CORNERS = [
+  { x: -2.5, z: -0.55 },
+  { x: 2.5, z: -0.55 },
+  { x: -2.5, z: -4.15 },
+  { x: 2.5, z: -4.15 },
+];
+function segHitsBooth(a, b) {
+  let t0 = 0;
+  let t1 = 1;
+  const dx = b.x - a.x;
+  const dz = b.z - a.z;
+  const clip = (p, q) => {
+    if (Math.abs(p) < 1e-9) return q >= 0;
+    const r = q / p;
+    if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    return true;
+  };
+  return clip(-dx, a.x - (-2.15)) && clip(dx, 2.15 - a.x)
+    && clip(-dz, a.z - (-4.0)) && clip(dz, -0.8 - a.z) && t0 <= t1;
+}
+function routeAroundBooth(from, goal) {
+  const s = (Math.abs(from.x) < 2.15 && from.z > -4.0 && from.z < -0.8)
+    ? { x: from.x, z: from.z >= -2.4 ? -0.79 : -4.01 }
+    : { x: from.x, z: from.z };
+  if (!segHitsBooth(s, goal)) return { ...goal, best: Infinity, stuck: 0 };
+  const dist = (a, b) => Math.hypot(b.x - a.x, b.z - a.z);
+  let bestWaypoints = null;
+  let bestLen = Infinity;
+  for (const c1 of BOOTH_CORNERS) {
+    if (segHitsBooth(s, c1)) continue;
+    if (!segHitsBooth(c1, goal)) {
+      const len = dist(s, c1) + dist(c1, goal);
+      if (len < bestLen) { bestLen = len; bestWaypoints = [c1]; }
+    }
+    for (const c2 of BOOTH_CORNERS) {
+      if (c1 === c2 || segHitsBooth(c1, c2) || segHitsBooth(c2, goal)) continue;
+      const len = dist(s, c1) + dist(c1, c2) + dist(c2, goal);
+      if (len < bestLen) { bestLen = len; bestWaypoints = [c1, c2]; }
+    }
+  }
+  let node = { ...goal, best: Infinity, stuck: 0 };
+  if (bestWaypoints) {
+    for (let i = bestWaypoints.length - 1; i >= 0; i--) {
+      node = { x: bestWaypoints[i].x, z: bestWaypoints[i].z, next: node, best: Infinity, stuck: 0 };
+    }
+  }
+  return node;
+}
 function onTap(x, y) {
   ray.setFromCamera(new THREE.Vector2((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1), camera);
   if (place) {
@@ -859,21 +907,9 @@ function onTap(x, y) {
   }
   if (!best) return;
   if (best.k === 'booth') {
-    const target = { x: PLAZA.window.x, z: PLAZA.window.z + 0.3, then: 'booth' };
-    if (player.pos.z < PLAZA.window.z - 0.2 && Math.abs(player.pos.x) < 2.6) {
-      const side = player.pos.x < 0 ? -1 : 1;
-      autoTo = { x: side * 2.6, z: 0.35, next: target, best: Infinity, stuck: 0 };
-    } else {
-      autoTo = { ...target, best: Infinity, stuck: 0 };
-    }
+    autoTo = routeAroundBooth(player.pos, { x: PLAZA.window.x, z: PLAZA.window.z + 0.3, then: 'booth' });
   } else if (best.k === 'sayu') {
-    const target = { x: PLAZA.sayu.x * 0.93, z: PLAZA.sayu.z * 0.93, then: 'sayu' };
-    if (player.pos.z > PLAZA.window.z + 0.2 && Math.abs(player.pos.x) < 2.3) {
-      const side = player.pos.x <= 0 ? -1 : 1;
-      autoTo = { x: side * 2.6, z: -0.4, next: target, best: Infinity, stuck: 0 };
-    } else {
-      autoTo = { ...target, best: Infinity, stuck: 0 };
-    }
+    autoTo = routeAroundBooth(player.pos, { x: PLAZA.sayu.x * 0.93, z: PLAZA.sayu.z * 0.93, then: 'sayu' });
   } else {
     const id = best.k.split(':')[1];
     if (!ticket) {
@@ -885,7 +921,7 @@ function onTap(x, y) {
       return;
     }
     const g = PLAZA.gates[id];
-    autoTo = { x: g.x * 0.93, z: g.z * 0.93, then: `gate:${id}`, best: Infinity, stuck: 0 };
+    autoTo = routeAroundBooth(player.pos, { x: g.x * 0.93, z: g.z * 0.93, then: `gate:${id}` });
   }
 }
 
@@ -1272,4 +1308,4 @@ requestAnimationFrame(() => {
   else if (!ticket) setTimeout(() => toast(`어서 와요, ${me.name}! 오늘 밤은 ${kind.ko}의 모습으로 왔어요. 가운데 매표소에서 표를 사 봐요.`, 4600), 900);
 });
 
-window.__plaza = { scene, camera, renderer, world, player, cam, keys, step, walkable: plazaWalkable, joy, sfx, enterSayu, leaveSayu, get place() { return place; }, get autoTo() { return autoTo; }, get ticket() { return ticket; }, openBooth, enterGate, PLAZA, gateYaw };
+window.__plaza = { scene, camera, renderer, world, player, cam, keys, step, walkable: plazaWalkable, routeAroundBooth, joy, sfx, enterSayu, leaveSayu, get place() { return place; }, get autoTo() { return autoTo; }, get ticket() { return ticket; }, openBooth, enterGate, PLAZA, gateYaw };

@@ -595,7 +595,7 @@ export class UI {
     const sit = $('sitBtn');
     if (!text) { el.hidden = true; sit.hidden = true; return; }
     $('promptText').textContent = text;
-    el.hidden = this.touch;
+    el.hidden = Boolean(this.touch);
     sit.textContent = touchLabel || text;
     sit.hidden = !this.touch;
   }
@@ -982,6 +982,66 @@ export class UI {
     }
   }
 
+  _bindExitConfirm(tap = (el, fn, opt) => tapButton(el, fn, opt)) {
+    const click = (id, fn, opt) => { const el = $(id); if (el) tap(el, fn, opt); };
+    click('plazaBtn', () => {
+      const activeShow = Boolean(this.room || ($('startWrap') && $('startWrap').hidden));
+      if (activeShow && !this._confirmPlaza) {
+        this._confirmPlaza = true;
+        const btn = $('plazaBtn');
+        btn.textContent = '정말 광장으로 나갈까요?';
+        btn.classList?.add?.('confirming');
+        clearTimeout(this._confirmPlazaT);
+        this._confirmPlazaT = setTimeout(() => this._resetConfirm(), 3500);
+        return;
+      }
+      this._resetConfirm();
+      this.emit('toPlaza');
+    });
+    click('roomLeave', () => {
+      if (this.room && !this._confirmRoom) {
+        this._confirmRoom = true;
+        const btn = $('roomLeave');
+        btn.textContent = '정말 방을 나갈까요?';
+        btn.classList?.add?.('confirming');
+        clearTimeout(this._confirmRoomT);
+        this._confirmRoomT = setTimeout(() => this._resetConfirm(), 3500);
+        return;
+      }
+      this._resetConfirm();
+      this.emit('leaveRoom');
+    });
+  }
+
+  _bindChat(tap = (el, fn, opt) => tapButton(el, fn, opt)) {
+    if ($('chatBtn')) tap($('chatBtn'), () => ($('chatForm').hidden ? this.openChat() : this.closeChat()));
+    $('chatForm')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = $('chatInput').value.trim();
+      if (text) this.emit('chat', text);
+      $('chatInput').value = '';
+      this.closeChat();
+    });
+    $('chatInput')?.addEventListener('keydown', (e) => {
+      if (e.code === 'Escape') {
+        if (e.isComposing || e.keyCode === 229) return;
+        e.preventDefault();
+        e.stopPropagation();
+        $('chatInput').value = '';
+        this.closeChat();
+      } // (Esc: the line is not sent - not now, not glued to the next one)
+    });
+    if (window.visualViewport) {
+      const syncChatViewport = () => {
+        const vv = window.visualViewport;
+        const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+        document.documentElement?.style?.setProperty?.('--kb-offset', `${kb}px`);
+      };
+      window.visualViewport.addEventListener('resize', syncChatViewport);
+      window.visualViewport.addEventListener('scroll', syncChatViewport);
+    }
+  }
+
   _bind() {
     this._bindDialogs();
     // A finger's tap counts when it lifts on the button: the browser makes no
@@ -1006,20 +1066,7 @@ export class UI {
     click('btnHelp', () => this.showHelp(true));
     click('helpClose', () => this.showHelp(false));
     click('leafBtn', () => this.emit('leaf'));
-    click('plazaBtn', () => {
-      const activeShow = Boolean(this.room || ($('startWrap') && $('startWrap').hidden));
-      if (activeShow && !this._confirmPlaza) {
-        this._confirmPlaza = true;
-        const btn = $('plazaBtn');
-        btn.textContent = '정말 광장으로 나갈까요?';
-        btn.classList?.add?.('confirming');
-        clearTimeout(this._confirmPlazaT);
-        this._confirmPlazaT = setTimeout(() => this._resetConfirm(), 3500);
-        return;
-      }
-      this._resetConfirm();
-      this.emit('toPlaza');
-    });
+    this._bindExitConfirm(tap);
     click('intervalTea', () => this.emit('tea'));
     click('recitalStage', () => this.emit('stageSeat', false));
     click('recitalTurner', () => this.emit('stageSeat', true));
@@ -1047,46 +1094,8 @@ export class UI {
     click('focusClose', () => this.emit('unfocus'));
     click('sitBtn', () => this.emit('sit'));
     click('roomChip', () => { const open = $('panel').hidden || this.openPanel !== 'room'; this.showPanel(open ? 'room' : null, $('roomChip')); });
-    click('roomLeave', () => {
-      if (this.room && !this._confirmRoom) {
-        this._confirmRoom = true;
-        const btn = $('roomLeave');
-        btn.textContent = '정말 방을 나갈까요?';
-        btn.classList?.add?.('confirming');
-        clearTimeout(this._confirmRoomT);
-        this._confirmRoomT = setTimeout(() => this._resetConfirm(), 3500);
-        return;
-      }
-      this._resetConfirm();
-      this.emit('leaveRoom');
-    });
     click('roomCopy', () => this.emit('copyInvite'));
-    click('chatBtn', () => ($('chatForm').hidden ? this.openChat() : this.closeChat()));
-    $('chatForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const text = $('chatInput').value.trim();
-      if (text) this.emit('chat', text);
-      $('chatInput').value = '';
-      this.closeChat();
-    });
-    $('chatInput').addEventListener('keydown', (e) => {
-      if (e.code === 'Escape') {
-        if (e.isComposing || e.keyCode === 229) return;
-        e.preventDefault();
-        e.stopPropagation();
-        $('chatInput').value = '';
-        this.closeChat();
-      } // (Esc: the line is not sent - not now, not glued to the next one)
-    });
-    if (window.visualViewport) {
-      const syncChatViewport = () => {
-        const vv = window.visualViewport;
-        const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
-        document.documentElement?.style?.setProperty?.('--kb-offset', `${kb}px`);
-      };
-      window.visualViewport.addEventListener('resize', syncChatViewport);
-      window.visualViewport.addEventListener('scroll', syncChatViewport);
-    }
+    this._bindChat(tap);
     click('jumpBtn', () => this.emit('jump'), { onDown: true }); // (at once, as a game's jump)
     $('focusSolo').addEventListener('click', (e) => {
       const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
@@ -1233,6 +1242,8 @@ export class UI {
           if (document.body.classList?.contains?.('ui-hidden')) document.body.classList.remove('ui-hidden');
           else if (this._dialog) this._showDialog(this._dialog.id, false);
           else if ($('chat')?.classList?.contains?.('open')) this.closeChat();
+          else if ($('panel') && !$('panel').hidden) this.showPanel(null);
+          else if ($('focusChip') && !$('focusChip').hidden) this.emit('unfocus');
           else this.showPanel(null);
         }
       } else if (c === 'KeyF') { if ($('actBtn') && !$('actBtn').hidden) this.emit('act'); }

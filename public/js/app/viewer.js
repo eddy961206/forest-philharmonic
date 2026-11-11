@@ -13,6 +13,7 @@ export function createViewer(app) {
   let applyingFocus = false;
   let hasSatOnce = false;
   let keyMoved = false;
+  let mouseUsed = false;
   let lockHintShown = false;
 
   function clearFocusState() {
@@ -155,7 +156,7 @@ export function createViewer(app) {
     ui.toast(turner ? `${PIANIST.char.spec.name}의 악보 넘김이 자리예요. 연주에 맞춰 악보가 넘어가요.` : '무대 위 자리예요. 건반이 어깨 너머로 보여요.', 3000);
   });
 
-  const showDesktopPrompt = () => !hasSatOnce || keyMoved;
+  const showDesktopPrompt = () => !hasSatOnce || (keyMoved && !mouseUsed);
   function syncSeatPrompt() {
     if (touchOn()) {
       if (director.mode === 'seat') ui.prompt('일어서기', '일어서기');
@@ -186,18 +187,26 @@ export function createViewer(app) {
       keyMoved = true;
       syncSeatPrompt();
     }
+    if (type === 'unfocusKey') ui.emit('unfocus');
     if (type === 'nearSeat' && director.mode !== 'seat') syncSeatPrompt();
     if (type === 'pick') onPick(data);
     if (type === 'keyInteract') onPick({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-    if (type === 'aim') ui.setAim(data);
+    if (type === 'aim') {
+      if (data && !touchOn() && !mouseUsed) { mouseUsed = true; syncSeatPrompt(); }
+      ui.setAim(data);
+    }
     if (type === 'lock') {
+      if (data && !touchOn() && !mouseUsed) { mouseUsed = true; syncSeatPrompt(); }
       ui.setLocked(data);
       if (data && !lockHintShown && !touchOn()) {
         lockHintShown = true;
         ui.toast('마우스로 둘러봐요 · 커서 보기는 Esc · 좌석·단원은 더블클릭', 3200);
       }
     }
-    if (type === 'looked') ui.hideLookHint();
+    if (type === 'looked') {
+      if (!touchOn() && !mouseUsed) { mouseUsed = true; syncSeatPrompt(); }
+      ui.hideLookHint();
+    }
     // a click (not a drag) on the hall captures the mouse for free looking
     // (not the second click of a double-click on 입장하기, falling through
     // the fading splash)
@@ -259,7 +268,7 @@ export function createViewer(app) {
     hoverAt(h, x, y);
   }
   // (asleep or in a background tab nothing is seen: no aiming either)
-  setInterval(() => {
+  const pollTimer = setInterval(() => {
     if (IS_HALL && !S.concertStarted && director.active) {
       ui.setFoyerHint?.(director.pos.z > HALL.back + 0.5);
     }
@@ -270,7 +279,12 @@ export function createViewer(app) {
       hover(window.innerWidth / 2, window.innerHeight / 2);
     }
   }, 160);
+  pollTimer?.unref?.();
   renderer.domElement.addEventListener('pointermove', (e) => {
+    if (!touchOn() && e.pointerType !== 'touch' && !mouseUsed) {
+      mouseUsed = true;
+      syncSeatPrompt();
+    }
     if (touchOn() || director.locked || director.aiming) return;
     const now = performance.now();
     if (now - hoverT < 90 || e.buttons) return;
@@ -289,5 +303,5 @@ export function createViewer(app) {
   }
   renderer.domElement.addEventListener('pointerleave', () => ui.tooltip(null));
 
-  return {};
+  return { dispose() { clearInterval(pollTimer); } };
 }
