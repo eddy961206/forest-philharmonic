@@ -95,9 +95,23 @@ function compressed(file, stat) {
 }
 
 function streamFile(file, res, options) {
+  if (res.destroyed || res.writableEnded) return;
   // Handles files removed after stat, and closes the disk stream when the
   // browser cancels a large sample download. No unhandled stream errors.
-  pipeline(fs.createReadStream(file, options), res, () => {});
+  const s = fs.createReadStream(file, options);
+  s.on('error', () => {
+    if (!res.destroyed) res.destroy();
+  });
+  if (res.destroyed || res.writableEnded) {
+    s.destroy();
+    return;
+  }
+  try {
+    pipeline(s, res, () => {});
+  } catch {
+    s.destroy();
+    if (!res.destroyed) res.destroy();
+  }
 }
 
 function log(req, status, bytes) {
@@ -143,10 +157,17 @@ const server = http.createServer(async (req, res) => {
     try {
       stat = await fsp.stat(file);
     } catch {
+      if (res.destroyed || res.writableEnded) return;
+      if (url.pathname === '/favicon.ico') {
+        res.writeHead(204, { ...SECURITY_HEADERS, 'Cache-Control': 'public, max-age=86400' }).end();
+        log(req, 204);
+        return;
+      }
       res.writeHead(404, { ...SECURITY_HEADERS, 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found');
       log(req, 404);
       return;
     }
+    if (res.destroyed || res.writableEnded) return;
     if (stat.isDirectory()) {
       res.writeHead(301, { ...SECURITY_HEADERS, Location: `${url.pathname.replace(/\/?$/, '/')}${url.search}` }).end();
       return;
@@ -181,6 +202,7 @@ const server = http.createServer(async (req, res) => {
     // Async compression keeps room messages moving on a cold asset request.
     if (useGzip) {
       const gz = await compressed(file, stat);
+      if (res.destroyed || res.writableEnded) return;
       headers['Content-Length'] = gz.length;
       res.writeHead(200, headers);
       res.end(req.method === 'HEAD' ? undefined : gz);
@@ -198,6 +220,7 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(416, { ...SECURITY_HEADERS, 'Content-Range': `bytes */${stat.size}` }).end();
         return;
       }
+      if (res.destroyed || res.writableEnded) return;
       res.writeHead(206, { ...headers, 'Content-Range': `bytes ${start}-${end}/${stat.size}`, 'Content-Length': end - start + 1 });
       if (req.method === 'HEAD') { res.end(); return; }
       streamFile(file, res, { start, end });
@@ -205,21 +228,23 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (res.destroyed || res.writableEnded) return;
     headers['Content-Length'] = stat.size;
     res.writeHead(200, headers);
     if (req.method === 'HEAD') { res.end(); return; }
     streamFile(file, res);
     log(req, 200, stat.size);
   } catch (e) {
+    if (res.destroyed || res.writableEnded) return;
     console.error(e);
     if (!res.headersSent) res.writeHead(500, SECURITY_HEADERS).end();
     else res.destroy();
   }
 });
 
-server.headersTimeout = 10000;
-server.requestTimeout = 15000;
-server.keepAliveTimeout = 5000;
+server.headersTimeout = 20000;
+server.requestTimeout = 60000;
+server.keepAliveTimeout = 15000;
 
 const disposeRooms = attachRooms(server);
 

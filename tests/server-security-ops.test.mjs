@@ -3,11 +3,16 @@ import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import net from 'node:net';
+import os from 'node:os';
 import path from 'node:path';
+import { execFile } from 'node:child_process';
 import { spawn } from 'node:child_process';
 import { EventEmitter } from 'node:events';
-import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import test from 'node:test';
+
+const execFileAsync = promisify(execFile);
 import { Socket, accept, isAllowedOrigin } from '../server/ws.js';
 import { clientIp, sanitizeCmd, sanitizeState } from '../server/rooms.js';
 import { connectRoom, maskedFrame } from './network/helpers.mjs';
@@ -370,5 +375,121 @@ test('Docker packaging files define .dockerignore exclusions and container HEALT
   assert.match(dockerfile, /HEALTHCHECK\b/);
   for (const pattern of ['.git', 'node_modules', 'work', 'tools', 'tests']) {
     assert.ok(dockerignore.includes(pattern), `.dockerignore should exclude ${pattern}`);
+  }
+});
+
+test('GET/HEAD /favicon.ico returns 204 No Content and aborted static/gzip streams emit zero stderr errors', async (t) => {
+  const srv = await startServerProcess();
+  t.after(() => srv.stop());
+
+  // 1. Missing /favicon.ico responds 204 No Content with security + cache headers (no 404 console noise)
+  for (const method of ['GET', 'HEAD']) {
+    const fav = await httpGet(srv.port, '/favicon.ico', { method });
+    assert.equal(fav.status, 204);
+    assert.equal(fav.body, '');
+    assert.equal(fav.headers['x-content-type-options'], 'nosniff');
+    assert.equal(fav.headers['x-frame-options'], 'DENY');
+    assert.equal(fav.headers['cache-control'], 'public, max-age=86400');
+  }
+  const otherMissing = await httpGet(srv.port, '/definitely-missing.ico');
+  assert.equal(otherMissing.status, 404);
+
+  // 2. Aborting raw, ranged, and gzip-compressed asset downloads mid-flight never throws ERR_STREAM_UNABLE_TO_PIPE
+  const manifestRaw = await fs.readFile(path.join(ROOT_DIR, 'public', 'samples', 'manifest.json'), 'utf8');
+  const manifest = JSON.parse(manifestRaw);
+  const [firstInst, notesObj] = Object.entries(manifest)[0];
+  const firstNote = Object.keys(notesObj)[0];
+  const sampleUrl = `/samples/${firstInst}/${firstNote}.mp3`;
+
+  const abortTargets = [
+    { urlPath: '/music/index.json', headers: { 'Accept-Encoding': 'gzip' }, delayMs: 0 },
+    { urlPath: '/js/main.js', headers: { 'Accept-Encoding': 'gzip' }, delayMs: 1 },
+    { urlPath: '/samples/manifest.json', headers: { 'Accept-Encoding': 'identity' }, delayMs: 0 },
+    { urlPath: sampleUrl, headers: { 'Accept-Encoding': 'identity' }, delayMs: 0 },
+    { urlPath: sampleUrl, headers: { 'Accept-Encoding': 'identity', Range: 'bytes=0-2047' }, delayMs: 1 },
+    { urlPath: sampleUrl, headers: { 'Accept-Encoding': 'identity' }, delayMs: 4 },
+  ];
+
+  await Promise.all(
+    Array.from({ length: 24 }, (_, i) => new Promise((resolve) => {
+      const target = abortTargets[i % abortTargets.length];
+      const sock = net.createConnection({ host: '127.0.0.1', port: srv.port });
+      const extraHeaders = Object.entries(target.headers).map(([k, v]) => `${k}: ${v}`);
+      sock.on('error', () => resolve());
+      sock.on('close', () => resolve());
+      sock.on('connect', () => {
+        sock.write([
+          `GET ${target.urlPath} HTTP/1.1`,
+          `Host: 127.0.0.1:${srv.port}`,
+          ...extraHeaders,
+          '',
+          '',
+        ].join('\r\n'));
+        if (target.delayMs === 0) {
+          sock.destroy();
+        } else {
+          setTimeout(() => sock.destroy(), target.delayMs);
+        }
+      });
+    })),
+  );
+
+  await new Promise((r) => setTimeout(r, 150));
+  const healthRes = await httpGet(srv.port, '/api/rooms');
+  assert.equal(healthRes.status, 200);
+  assert.equal(srv.getStderr(), '');
+});
+
+test('server socket timeouts and QA/bench harness resilience invariants are configured', async () => {
+  const serverSource = await fs.readFile(path.join(ROOT_DIR, 'server.js'), 'utf8');
+  assert.match(serverSource, /server\.headersTimeout\s*=\s*20000\b/);
+  assert.match(serverSource, /server\.requestTimeout\s*=\s*60000\b/);
+  assert.match(serverSource, /server\.keepAliveTimeout\s*=\s*15000\b/);
+
+  const verifyFeatures = await fs.readFile(path.join(ROOT_DIR, 'tools', 'qa', 'verify-features.mjs'), 'utf8');
+  const verifyAppFlow = await fs.readFile(path.join(ROOT_DIR, 'tools', 'qa', 'verify-app-flow.mjs'), 'utf8');
+  const verifyMotion = await fs.readFile(path.join(ROOT_DIR, 'tools', 'qa', 'verify-motion.mjs'), 'utf8');
+  const renderRepertoire = await fs.readFile(path.join(ROOT_DIR, 'tools', 'qa', 'render-repertoire.js'), 'utf8');
+  const fullFrame = await fs.readFile(path.join(ROOT_DIR, 'tools', 'bench', 'full-frame.mjs'), 'utf8');
+
+  assert.match(verifyFeatures, /CDP_PROTOCOL_TIMEOUT_MS[\s\S]*?600_000/);
+  assert.match(verifyAppFlow, /CDP_PROTOCOL_TIMEOUT_MS[\s\S]*?600_000/);
+  assert.match(verifyMotion, /MOTION_TIMEOUT_MS[\s\S]*?600_000/);
+  assert.match(renderRepertoire, /irCache/);
+  assert.match(fullFrame, /unrouteAll\(\{\s*behavior:\s*'ignoreErrors'\s*\}\)/);
+  assert.match(fullFrame, /result\.closeWarning\s*=\s*error\.message/);
+
+  // Verify loadPuppeteer 1-level _npx/<hash>/node_modules/puppeteer-core discovery
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'fp-npx-puppeteer-'));
+  try {
+    const fakePkg = path.join(tmpDir, 'npm-cache', '_npx', '9f8e7d6c5b4a', 'node_modules', 'puppeteer-core');
+    await fs.mkdir(fakePkg, { recursive: true });
+    await fs.writeFile(
+      path.join(fakePkg, 'package.json'),
+      JSON.stringify({ name: 'puppeteer-core', main: 'index.cjs' }),
+    );
+    await fs.writeFile(
+      path.join(fakePkg, 'index.cjs'),
+      "module.exports = { connect: () => 'fake-npx-puppeteer' };\n",
+    );
+    const loaderUrl = pathToFileURL(path.join(ROOT_DIR, 'tools', 'qa', 'load-puppeteer.mjs')).href;
+    const callerUrl = pathToFileURL(path.join(tmpDir, 'caller.mjs')).href;
+    const { stdout } = await execFileAsync(
+      process.execPath,
+      ['-e', `import(${JSON.stringify(loaderUrl)}).then((m) => console.log(m.loadPuppeteer(${JSON.stringify(callerUrl)}).connect()))`],
+      {
+        cwd: tmpDir,
+        env: {
+          ...process.env,
+          PUPPETEER_PATH: '',
+          LOCALAPPDATA: tmpDir,
+          APPDATA: path.join(tmpDir, 'empty-appdata'),
+          npm_config_cache: path.join(tmpDir, 'empty-npm-cache'),
+        },
+      },
+    );
+    assert.equal(stdout.trim(), 'fake-npx-puppeteer');
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true });
   }
 });

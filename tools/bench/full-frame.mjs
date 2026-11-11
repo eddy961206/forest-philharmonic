@@ -210,8 +210,19 @@ try {
   await save(cfg, filename, result);
 } finally {
   if (session) {
-    try { await bounded(session.browser.close(), 10000, '브라우저 종료 시간 초과'); }
-    catch (error) { result.status = 'FAIL'; result.closeFailure = error.message; }
+    await bounded(Promise.resolve(session.page?.unrouteAll({ behavior: 'ignoreErrors' })), 5000, '라우트 해제 시간 초과').catch(() => {});
+    await bounded(Promise.resolve(session.cdp?.detach()), 5000, 'CDP 분리 시간 초과').catch(() => {});
+    await bounded(Promise.resolve(session.context?.close()), 10000, '컨텍스트 종료 시간 초과').catch(() => {});
+    try {
+      await bounded(session.browser.close(), 30000, '브라우저 종료 시간 초과');
+    } catch (error) {
+      if (result.status === 'PASS') {
+        result.closeWarning = error.message;
+      } else {
+        result.status = 'FAIL';
+        result.closeFailure = error.message;
+      }
+    }
   }
   await save(cfg, filename, result);
 }

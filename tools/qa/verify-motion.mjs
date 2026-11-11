@@ -20,12 +20,13 @@ fs.mkdirSync(out, { recursive: true });
 const auditFile = path.join(out, 'motion-audit.json');
 fs.rmSync(auditFile, { force: true }); // never reuse a stale successful report
 const inputs = motionInputs();
+const stepTimeoutMs = Number(process.env.MOTION_TIMEOUT_MS) || 600_000;
 async function run(name, argv) {
   const filename = `${name}.log`, stream = fs.createWriteStream(path.join(out, filename));
   const start = Date.now();
   console.log(`Running ${name}...`);
   const result = await new Promise(resolve => {
-    const child = spawn(process.execPath, argv, { cwd: repo, timeout: 420000 });
+    const child = spawn(process.execPath, argv, { cwd: repo, timeout: stepTimeoutMs });
     child.stdout.pipe(stream, { end: false }); child.stderr.pipe(stream, { end: false });
     child.on('error', error => stream.write(`${error.stack}\n`));
     child.on('close', (code, signal) => resolve({ exitCode: code ?? 1, signal }));

@@ -19,7 +19,8 @@ const base = `http://127.0.0.1:${process.env.APP_PORT || 8096}`;
 const venues = (process.env.VENUES || 'hall,sphere,outdoor').split(',');
 const baseline = process.env.BASELINE || null;
 const flows = (process.env.FLOWS || 'solo,together').split(',');
-const browser = await p.connect({ browserURL: cdpBrowserUrl(), defaultViewport: null });
+const protocolTimeout = Number(process.env.CDP_PROTOCOL_TIMEOUT_MS) || 600_000;
+const browser = await p.connect({ browserURL: cdpBrowserUrl(), defaultViewport: null, protocolTimeout });
 const report = {
   source: motionSource(),
   baseline,
