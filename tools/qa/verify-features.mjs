@@ -17,7 +17,8 @@ import { motionSource } from './motion-source.mjs';
 const outputDir = resolveOutputDir('features');
 const base = `http://127.0.0.1:${process.env.APP_PORT || 8096}`;
 const parts = (process.env.PARTS || 'audio,venues,square,sayu,room').split(',');
-const browser = await p.connect({ browserURL: cdpBrowserUrl(), defaultViewport: null });
+const protocolTimeout = Number(process.env.CDP_PROTOCOL_TIMEOUT_MS) || 600_000;
+const browser = await p.connect({ browserURL: cdpBrowserUrl(), defaultViewport: null, protocolTimeout });
 const report = { source: motionSource(), at: new Date().toISOString(), parts, checks: [], errors: [], status: 'fail',
   limitations: ['Desktop Chrome only.', 'Offline renders are excerpts, not whole pieces.', 'Loudness thresholds show sound is there, not that it is beautiful; listen to the WAVs and look at the PNGs.'] };
 const contexts = [];
