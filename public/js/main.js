@@ -31,6 +31,7 @@ import { showRenderStatus } from './render-status.js';
 import { createAppState, clockOf, untilFor } from './app/state.js';
 import { loadSettings, crowdKey } from './app/settings.js';
 import { QUALITY, createGraphics } from './app/graphics.js';
+import { isMobileTier, isTouchDevice, watchTouchUI } from './quality.js';
 import { createHouse } from './app/house.js';
 import { createConcert } from './app/concert.js';
 import { createInterval } from './app/interval.js';
@@ -50,8 +51,8 @@ const storage = () => { try { return window.localStorage; } catch { return null;
 const settings = loadSettings(storage(), Object.keys(QUALITY));
 const CROWD = crowdKey({ sphere: IS_SPHERE, outdoor: IS_OUTDOOR });
 
-const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (isTouch && window.innerWidth < 900);
+const isTouch = isTouchDevice();
+const isMobile = isMobileTier();
 
 // the running evening (see app/state.js) and the controllers that share it
 const S = createAppState(VENUE);
@@ -64,7 +65,12 @@ const { quality } = graphics;
 
 // ------------------------------------------------------------------ world
 const ui = new UI({ settings, onSetting: (key, value) => app.preferences.onSetting(key, value) });
-ui.touch = isTouch;
+ui.setTouch(isTouch);
+app.touchWatcher = watchTouchUI((on) => {
+  app.isTouch = on;
+  ui.setTouch(on);
+  if (on) app.director?.releaseLock?.();
+});
 ui.setLoading('공연장을 짓는 중', 0.03);
 
 const hall = IS_SPHERE ? buildSphere({ quality, lite: LITE, renderer }) : IS_OUTDOOR ? buildOutdoor({ quality, lite: LITE }) : buildHall({ quality, lite: LITE });
@@ -169,7 +175,18 @@ async function boot() {
   engine.ctx.addEventListener?.('statechange', () => app.power.sound.changed());
   if (!IS_OUTDOOR) app.fx = buildFX(scene, engine);
   // each building plays its own half of the pieces (see programs.js)
-  const all = await (await fetch('music/index.json')).json();
+  const indexAbort = new AbortController();
+  const indexTimer = setTimeout(() => indexAbort.abort(), 15000);
+  let all;
+  try {
+    const res = await fetch('music/index.json', { signal: indexAbort.signal });
+    if (!res.ok) throw new Error(`악보 목록 응답 오류 (${res.status})`);
+    all = await res.json();
+  } catch (err) {
+    throw new Error(err?.name === 'AbortError' ? '악보 목록 응답 시간이 초과되었어요' : (err?.message || '악보 목록을 불러오지 못했어요'));
+  } finally {
+    clearTimeout(indexTimer);
+  }
   const byId = new Map(all.map((p) => [p.id, p]));
   S.program = (SETLISTS[VENUE] || SETLISTS.hall).map((id) => byId.get(id)).filter(Boolean);
   if (!S.program.length) S.program = all;

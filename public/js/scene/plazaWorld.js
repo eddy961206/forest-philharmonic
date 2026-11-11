@@ -281,7 +281,7 @@ export function buildPlaza(scene, { lite = false, pixelRatio = () => 1 } = {}) {
     const awn = new THREE.Mesh(new THREE.PlaneGeometry(W + 0.3, 0.9).rotateX(-Math.PI / 2 + 0.55).translate(0, H - 0.05, front + 0.38), std({ map: awnTex, side: THREE.DoubleSide, roughness: 0.9 }));
     group.add(awn);
     // the sign on top
-    const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 0.82), std({ map: signTexture(['매표소', '숲속 필하모닉 홀 · 스피어']), roughness: 0.7, emissive: '#ffffff', emissiveIntensity: 0.08 }));
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 0.82), std({ map: signTexture(['매표소', '홀 · 스피어 · 작은 음악회']), roughness: 0.7, emissive: '#ffffff', emissiveIntensity: 0.08 }));
     sign.position.set(0, H + 1.65, front - 0.05);
     sign.material.emissiveMap = sign.material.map;
     group.add(sign);

@@ -14,8 +14,11 @@
   <noscript><link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="css/style.css">
   <script>
-    // (a finger, not a mouse: touch hints from the first screen on - the same test as main.js)
-    try { if (navigator.maxTouchPoints > 1 && !matchMedia('(pointer: fine)').matches) document.documentElement.classList.add('touch'); } catch (e) { /* old browser */ }
+    // (a finger, not a mouse: touch hints from the first screen on - the same test as quality.js)
+    try {
+      var tp = navigator.maxTouchPoints || 0, c = matchMedia('(pointer: coarse)').matches, ac = matchMedia('(any-pointer: coarse)').matches, f = matchMedia('(pointer: fine)').matches;
+      if (c || (!f && ac) || (tp > 0 && (!f || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (tp > 1 && (/Macintosh/i.test(navigator.userAgent) || navigator.platform === 'MacIntel'))))) document.documentElement.classList.add('touch');
+    } catch (e) { /* old browser */ }
   </script>
   <script>
     // (before anything is drawn: is this the square, or a building? - see js/boot.js)
@@ -54,7 +57,7 @@
         <p class="splash-sub" id="splashSub">공연장을 준비하고 있어요. 잠시만 기다려 주세요.</p>
         <p id="loadText" class="splash-load">공연장을 짓는 중</p>
         <div class="splash-bar" aria-hidden="true"><span id="loadBar"></span></div>
-        <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. <span class="h-key">걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>E</b> · 마우스 꺼내기 <b>Esc</b></span><span class="h-touch">걷기 <b>왼쪽 스틱</b> · 둘러보기 <b>화면 끌기</b> · 앉기 <b>두 번 탭</b></span></p>
+        <p class="splash-hint">헤드폰을 쓰면 자리마다 달라지는 소리가 훨씬 또렷해요. <span class="h-key">걷기 <b>W A S D</b> · 둘러보기 <b>마우스</b> · 앉기 <b>더블클릭 · E</b> · 마우스 꺼내기 <b>Esc</b></span><span class="h-touch">걷기 <b>왼쪽 스틱</b> · 둘러보기 <b>화면 끌기</b> · 앉기·단원 듣기 <b>두 번 탭</b></span></p>
       </div>
 
       <!-- with a ticket from the square: the usher checks it, then in you go -->
@@ -79,8 +82,8 @@
 
         <div class="lb-venue" id="lbVenue" role="group" aria-label="공연장">
           <button type="button" data-venue="hall" aria-pressed="true"><b>숲속 필하모닉 홀</b><small>달빛 숲 4층 그랜드 콘서트홀</small></button>
-          <button type="button" data-venue="outdoor" aria-pressed="false"><b>숲속 작은 음악회</b><small>나무 그늘 아래 이웃들과 듣는 연주</small></button>
           <button type="button" data-venue="sphere" aria-pressed="false"><b>스피어</b><small>머리 위를 감싸는 16K 돔</small></button>
+          <button type="button" data-venue="outdoor" aria-pressed="false"><b>숲속 작은 음악회</b><small>나무 그늘 아래 이웃들과 듣는 연주</small></button>
         </div>
 
         <div id="lbInvite" class="lb-invite" hidden>
@@ -124,7 +127,7 @@
   <!-- start of the show: the musicians come on when you are ready -->
   <div id="startWrap" class="start-wrap" hidden>
     <button id="startBtn" class="btn-start">공연 시작</button>
-    <p class="start-hint" id="startHint"><kbd>W A S D</kbd> 걷기 · 끌어서 둘러보기 · <kbd>E</kbd> 앉기 · <kbd>K</kbd> 공연 시작</p>
+    <p class="start-hint" id="startHint"><kbd>W A S D</kbd> 걷기 · 끌어서 둘러보기 · 좌석 더블클릭 · <kbd>E</kbd> 앉기 · <kbd>K</kbd> 공연 시작</p>
   </div>
 
   <!-- how to look around -->
@@ -139,7 +142,7 @@
   <div id="prompt" class="prompt" hidden><kbd>E</kbd><span id="promptText"></span></div>
 
   <!-- the Sphere's lifts: which level to go to -->
-  <div id="liftPanel" class="lift-panel" hidden>
+  <div id="liftPanel" class="lift-panel" role="region" aria-label="엘리베이터" hidden>
     <p>엘리베이터 <small>숫자 키 1–4</small></p>
     <div class="lift-btns">
       <button type="button" data-level="4">400</button>
@@ -150,20 +153,20 @@
   </div>
 
   <!-- the interval: time left, tea, the news, and (host) the second half -->
-  <div id="intervalChip" class="interval-chip" hidden>
+  <div id="intervalChip" class="interval-chip" role="region" aria-label="인터미션" hidden>
     <span class="ic-title">인터미션</span><span class="ic-left" id="intervalLeft">3:00</span>
-    <button type="button" class="chip-btn" id="intervalTea">🍵 도토리차</button>
+    <button type="button" class="chip-btn" id="intervalTea" aria-pressed="false">🍵 도토리차</button>
     <button type="button" class="chip-btn" id="intervalNews">📜 숲속 소식</button>
     <button type="button" class="chip-btn ic-go" id="intervalGo">2부 시작</button>
   </div>
   <!-- a recital: listen from the stage, or turn the pages -->
-  <div id="recitalChip" class="interval-chip recital-chip" hidden>
+  <div id="recitalChip" class="interval-chip recital-chip" role="region" aria-label="독주회 좌석" hidden>
     <span class="ic-title">독주회</span>
     <button type="button" class="chip-btn" id="recitalStage">🎹 무대 위에서 듣기</button>
     <button type="button" class="chip-btn" id="recitalTurner">📖 악보 넘김이 자리</button>
   </div>
   <!-- the encore: one firefly lantern each -->
-  <div id="encorePanel" class="encore" hidden>
+  <div id="encorePanel" class="encore" role="region" aria-label="앙코르 투표" hidden>
     <p class="encore-title">앙코르! <span id="encoreLeft"></span></p>
     <p class="encore-sub">더 듣고 싶은 곡에 반딧불 랜턴을 들어 주세요</p>
     <div class="encore-cands" id="encoreCands"></div>
@@ -204,14 +207,14 @@
     </div>
     <div class="transport-row">
       <div class="t-left">
-        <button class="ib" id="btnPrev" aria-label="이전 곡" title="이전 곡 (P)"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
-        <button class="ib ib-main" id="btnPlay" aria-label="재생" title="재생 / 일시정지 (K)"><svg id="icoPlay" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg><svg id="icoPause" viewBox="0 0 24 24" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
-        <button class="ib" id="btnNext" aria-label="다음 곡" title="다음 곡 (N)"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+        <button class="ib" id="btnPrev" aria-label="이전 곡" title="이전 곡 (P)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+        <button class="ib ib-main" id="btnPlay" aria-label="재생" title="재생 / 일시정지 (K)"><svg id="icoPlay" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg><svg id="icoPause" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+        <button class="ib" id="btnNext" aria-label="다음 곡" title="다음 곡 (N)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
         <span class="time" id="time">0:00 / 0:00</span>
       </div>
       <div class="t-mid" role="group" aria-label="보기 방식">
         <button class="mode" data-mode="walk" aria-pressed="true" title="직접 걸어 다니기 (W A S D)">걷기</button>
-        <button class="mode" data-mode="cinema" title="자동 카메라로 편하게 보기">편하게 보기</button>
+        <button class="mode" data-mode="cinema" aria-pressed="false" title="자동 카메라로 편하게 보기">편하게 보기</button>
       </div>
       <div class="t-right">
         <div class="vol" title="음량 (M: 음소거)">
@@ -220,8 +223,8 @@
         </div>
         <button class="tab-btn" data-panel="program" aria-controls="panel" aria-expanded="false">프로그램</button>
         <button class="tab-btn" data-panel="settings" aria-controls="panel" aria-expanded="false">설정</button>
-        <button class="ib" id="btnHelp" aria-label="조작법" title="조작법 (?)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4V14" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="17" r="1.1"/></svg></button>
-        <button class="ib" id="btnFull" aria-label="전체 화면" title="전체 화면 (Enter)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+        <button class="ib" id="btnHelp" aria-label="조작법" title="조작법 (?)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4V14" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="17" r="1.1"/></svg></button>
+        <button class="ib" id="btnFull" aria-label="전체 화면" title="전체 화면 (Enter)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
       </div>
     </div>
   </footer>
@@ -230,10 +233,10 @@
   <aside id="panel" class="panel" hidden aria-labelledby="panelTitle">
     <div class="panel-head">
       <h3 id="panelTitle">프로그램</h3>
-      <button class="ib" id="panelClose" aria-label="패널 닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></button>
+      <button class="ib" id="panelClose" aria-label="패널 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></button>
     </div>
 
-    <div class="panel-body" data-body="program">
+    <div class="panel-body" id="programBody" data-body="program">
       <!-- (first, where they are seen: the list below can be long) -->
       <div class="prog-tools">
         <div class="row-opts">
@@ -242,7 +245,11 @@
         </div>
         <div class="prog-links">
           <button class="btn-plain leaf-open" id="leafBtn" type="button">🍃 잎사귀 프로그램</button>
-          <button class="btn-plain leaf-open" id="plazaBtn" type="button">🎟 광장으로 나가기</button>
+          <button class="btn-plain leaf-open btn-exit" id="plazaBtn" type="button">🎟 광장으로 나가기</button>
+        </div>
+        <div id="stageFocusWrap" class="stage-focus" hidden>
+          <p class="stage-focus-label">무대 위 곁에서 듣기 <small class="h-key">([ · ] 키)</small></p>
+          <div id="stageFocusList" class="presets" role="group" aria-label="무대 위 파트 선택"></div>
         </div>
       </div>
       <ol id="programList" class="program"></ol>
@@ -264,7 +271,7 @@
       <fieldset class="field">
         <legend>화질</legend>
         <div class="seg" id="qualitySeg">
-          <button data-q="auto">자동</button><button data-q="high">높음</button><button data-q="medium">보통</button><button data-q="low">낮음</button><button data-q="efficient">저사양</button>
+          <button data-q="auto" aria-pressed="true">자동</button><button data-q="high" aria-pressed="false">높음</button><button data-q="medium" aria-pressed="false">보통</button><button data-q="low" aria-pressed="false">낮음</button><button data-q="efficient" aria-pressed="false">저사양</button>
         </div>
         <p class="hint">저사양은 30 fps를 목표로 해상도·관객 표현·효과를 조절해요. 음악과 연주자는 그대로 유지해요. 선택은 다음 입장에도 적용돼요.</p>
         <p class="hint" id="fpsText"></p>
@@ -272,7 +279,7 @@
       <fieldset class="field" id="domeProjectionField" hidden>
         <legend>스피어 공간 표현</legend>
         <div class="seg" id="domeProjectionSeg">
-          <button type="button" data-projection="immersive">공간 몰입</button><button type="button" data-projection="venue">공연장 투영</button>
+          <button type="button" data-projection="immersive" aria-pressed="true">공간 몰입</button><button type="button" data-projection="venue" aria-pressed="false">공연장 투영</button>
         </div>
         <p class="hint">공간 몰입은 자연 풍경을 내 시점에 맞춰 멀리 펼쳐요. 공연장 투영은 중앙 기준의 실제 돔 스크린처럼 보여요. 무대 중계와 건물은 두 방식 모두 제자리에 있어요.</p>
       </fieldset>
@@ -288,7 +295,7 @@
       <fieldset class="field">
         <legend>인터미션</legend>
         <div class="seg" id="intervalSeg">
-          <button data-min="0">없음</button><button data-min="2">2분</button><button data-min="3">3분</button><button data-min="5">5분</button>
+          <button data-min="0" aria-pressed="false">없음</button><button data-min="2" aria-pressed="false">2분</button><button data-min="3" aria-pressed="true">3분</button><button data-min="5" aria-pressed="false">5분</button>
         </div>
         <p class="hint" id="intervalHint">프로그램 한가운데에서 한 번 쉬어 가요. 로비로 나가 차를 마시고, 연습하는 단원도 만나 봐요.</p>
       </fieldset>
@@ -301,7 +308,7 @@
       <fieldset class="field">
         <legend>잠들기 전에</legend>
         <div class="seg" id="sleepSeg">
-          <button data-min="0" aria-pressed="true">끄지 않음</button><button data-min="15">15분</button><button data-min="30">30분</button><button data-min="60">1시간</button>
+          <button data-min="0" aria-pressed="true">끄지 않음</button><button data-min="15" aria-pressed="false">15분</button><button data-min="30" aria-pressed="false">30분</button><button data-min="60" aria-pressed="false">1시간</button>
         </div>
         <p class="hint" id="sleepText">정한 시간이 지나면 30초에 걸쳐 소리를 줄이고 멈춰요.</p>
         <p class="hint">혼자 볼 때는 마지막 몇 분을 잔잔한 피아노 곡으로 바꾸고, 관객도 하나둘 잠들어요. 다 잠들면 화면도 쉬어요.</p>
@@ -310,7 +317,7 @@
         <legend>무대 효과</legend>
         <label class="check"><input type="checkbox" id="optFx" checked> 폭죽 · 색종이 · 팡파르</label>
         <label class="check"><input type="checkbox" id="optLasers" checked> 조명 연출 (신나는 곡에서)</label>
-        <label class="check"><input type="checkbox" id="optScreen" checked> 무대 뒤 대형 스크린</label>
+        <label class="check"><input type="checkbox" id="optScreen" checked><span id="optScreenText"> 무대 뒤 대형 스크린</span></label>
         <label class="check"><input type="checkbox" id="optNotes" checked> 떠오르는 음표</label>
         <label class="check"><input type="checkbox" id="optGlow" checked> 연주 중인 자리 빛</label>
         <label class="check"><input type="checkbox" id="optFireflies" checked> 반딧불과 빛 먼지</label>
@@ -336,8 +343,9 @@
         <dt class="h-touch">앉기 버튼</dt><dd class="h-touch">빈 좌석 앞에 서면 나타나요 · 앉으면 일어서기 (조이스틱을 밀어도 돼요)</dd>
         <dt class="h-key">휠 · 두 손가락</dt><dd class="h-key">확대 / 축소 (오페라글라스)</dd>
         <dt class="h-touch">두 손가락</dt><dd class="h-touch">벌리고 오므려 확대 / 축소 (오페라글라스)</dd>
-        <dt class="h-key">두 번 클릭</dt><dd class="h-key">연주자 곁으로 가서 듣기 · 좌석에 앉기</dd>
-        <dt class="h-touch">두 번 탭</dt><dd class="h-touch">연주자 곁으로 가서 듣기 · 좌석에 앉기</dd>
+        <dt class="h-key">두 번 클릭</dt><dd class="h-key">연주자 · 지휘대 곁으로 가서 듣기 · 좌석에 앉기</dd>
+        <dt class="h-key">[ / ]</dt><dd class="h-key">무대 위 연주자 · 지휘대 차례로 곁에서 듣기</dd>
+        <dt class="h-touch">두 번 탭</dt><dd class="h-touch">연주자 · 지휘대 곁으로 가서 듣기 · 좌석에 앉기</dd>
         <dt class="h-key">Space</dt><dd class="h-key">점프 — 난간을 넘어 아래층으로 뛰어내릴 수도 있어요</dd>
         <dt class="h-touch">점프 버튼</dt><dd class="h-touch">난간을 넘어 아래층으로 뛰어내릴 수도 있어요</dd>
         <dt class="h-touch">아래 줄</dt><dd class="h-touch">눌러서 곡의 그 자리로 이동</dd>
@@ -345,7 +353,7 @@
         <dt class="h-key">N / P</dt><dd class="h-key">다음 곡 / 이전 곡</dd>
         <dt class="h-key">← →</dt><dd class="h-key">10초 이동 (앉아 있거나 편하게 보기일 때 · 걸을 때는 방향 돌리기)</dd>
         <dt class="h-key">R</dt><dd class="h-key">확대 초기화</dd>
-        <dt class="h-key">H</dt><dd class="h-key">화면 표시 숨기기</dd>
+        <dt class="h-key">H</dt><dd class="h-key">화면 표시 숨기기 (다시 보려면 H 또는 Esc)</dd>
         <dt class="h-key">Enter</dt><dd class="h-key">전체 화면 · 같이 보는 방에서는 채팅</dd>
         <dt class="h-key">M</dt><dd class="h-key">음소거</dd>
       </dl>
@@ -371,7 +379,7 @@
   <!-- the musicians' news (the foyer's notice board) -->
   <div id="news" class="leaf" hidden role="dialog" aria-modal="true" aria-labelledby="newsTitle">
     <article class="leaf-card news-card">
-      <p class="leaf-date">로비 게시판</p>
+      <p class="leaf-date" id="newsKicker">로비 게시판</p>
       <h3 id="newsTitle">숲속 소식</h3>
       <ul class="news-list" id="newsList"></ul>
       <button class="btn-plain" id="newsClose" type="button">닫기</button>
@@ -379,6 +387,7 @@
   </div>
 
   <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
+  <div id="uiStatus" class="sr-only" role="status" aria-live="polite"></div>
   <div id="offer" class="offer" hidden role="alert"><span id="offerText"></span><button id="offerBtn" class="chip-btn" type="button"></button></div>
 
   <!-- ============================================ the square (first page) -->
@@ -387,13 +396,18 @@
       <h1>숲속 공연 광장</h1>
       <p id="pzHint">매표소에서 표를 사서, 가고 싶은 공연장 입구로 걸어가요.</p>
     </header>
+    <nav id="pzNav" class="pz-nav" aria-label="광장 바로가기">
+      <button id="pzNavBooth" class="chip-btn" type="button">🎟 매표소</button>
+      <button id="pzNavGate" class="chip-btn ic-go" type="button" hidden></button>
+      <button id="pzNavSayu" class="chip-btn" type="button">🪷 사유의 방</button>
+    </nav>
     <div class="pz-me" id="pzMe"><span class="pz-ani" id="pzAni"></span><span class="pz-who"><b id="pzName"></b><small id="pzKind"></small></span></div>
     <button id="pzQuick" class="pz-quick" type="button" hidden>🎟 지난번처럼 바로 입장<small id="pzQuickWhat"></small></button>
     <button id="pzAct" class="act-btn" type="button" hidden><kbd>F</kbd><span id="pzActText"></span></button>
     <button id="pzStub" class="pz-stub" type="button" hidden aria-label="내 표 보기"></button>
     <div id="pzJoyZone" class="joy-zone pz" hidden aria-hidden="true"></div>
     <div id="pzJoy" class="joystick" hidden aria-hidden="true"><div class="joy-base"><div class="joy-knob" id="pzKnob"></div></div></div>
-    <p id="pzToast" class="toast" hidden></p>
+    <p id="pzToast" class="toast" role="status" aria-live="polite" hidden></p>
     <div id="pzLoading" class="pz-loading"><p>숲속 광장으로 가는 중…</p></div>
 
     <!-- the booth -->
@@ -402,9 +416,9 @@
         <header class="booth-head">
           <span class="booth-clerk" aria-hidden="true">🐿️</span>
           <div><h2 id="boothTitle">매표소</h2><p id="boothSay">어서 와요! 어디로 가는 표를 드릴까요?</p></div>
-          <button class="ib booth-x" id="boothClose" type="button" aria-label="매표소 닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></button>
+          <button class="ib booth-x" id="boothClose" type="button" aria-label="매표소 닫기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/></svg></button>
         </header>
-        <label class="field" style="display:block;padding:10px 20px"><input type="checkbox" id="pzEfficient"> 저사양 모드 <small>30 fps 목표 · 음악은 그대로 · 다음 입장에도 적용</small></label>
+        <label class="check booth-eff"><input type="checkbox" id="pzEfficient"><span>저사양 모드 <small>30 fps 목표 · 음악은 그대로 · 다음 입장에도 적용</small></span></label>
         <ol class="booth-steps" id="boothSteps"><li data-s="1">공연장</li><li data-s="2">관람 방식</li><li data-s="3">표 받기</li></ol>
 
         <section class="booth-step" data-step="1">

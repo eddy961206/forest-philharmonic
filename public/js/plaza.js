@@ -1,4 +1,4 @@
-import { FramePacer } from './quality.js';
+import { FramePacer, isMobileTier, isTouchDevice, watchTouchUI } from './quality.js';
 // The square in the forest: the first page. You arrive as your animal (a
 // random one on your first visit, yours from then on), walk to the booth,
 // choose a building and how you will watch, pay in whatever your kind trades
@@ -27,8 +27,8 @@ const lerpAngle = (a, b, k) => {
   return a + d * k;
 };
 
-const isTouch = navigator.maxTouchPoints > 1 && !window.matchMedia('(pointer: fine)').matches;
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (isTouch && window.innerWidth < 900);
+let isTouch = isTouchDevice();
+const isMobile = isMobileTier();
 let savedQuality = 'auto';
 try { savedQuality = JSON.parse(localStorage.getItem('fp-settings') || '{}').quality || 'auto'; } catch { /* private mode */ }
 let efficientMode = savedQuality === 'efficient';
@@ -141,9 +141,19 @@ function showStub() {
   const stub = $('pzStub');
   stub.innerHTML = '';
   stub.hidden = !ticket;
+  $('plaza').classList.toggle('has-ticket', !!ticket);
+  const navGate = $('pzNavGate');
+  if (navGate) {
+    navGate.hidden = !ticket;
+    if (ticket) navGate.textContent = `🚪 ${VENUE_NAMES[ticket.venue]} 입장`;
+  }
   // (the shortcut is for coming without one)
   $('pzQuick').hidden = !!ticket || !quickOk;
-  if (!ticket) { world.callGate(null); return; }
+  if (!ticket) {
+    world.callGate(null);
+    $('pzHint').textContent = '매표소에서 표를 사서, 가고 싶은 공연장 입구로 걸어가요.';
+    return;
+  }
   stub.appendChild(ticketElement(ticket));
   world.callGate(ticket.venue);
   const side = ticket.venue === 'hall' ? '왼쪽' : ticket.venue === 'sphere' ? '오른쪽' : '왼쪽 뒤편';
@@ -331,6 +341,7 @@ function toast(text, ms = 2400) {
 
 // ------------------------------------------------------------- the booth
 const booth = { step: 1, venue: null, mode: null, room: null, pieces: null, online: null };
+let still = false;
 let index = null;
 // (the cards are there at once; the setlists fill in when they arrive)
 // (a failed fetch is tried again when the booth opens)
@@ -521,7 +532,23 @@ function fillPay() {
 
 let paying = false;
 let nameDraft = false;
+let justIssued = false;
+let boothFrom = null;
 $('bkName').addEventListener('input', () => { nameDraft = true; });
+for (const id of ['bkTitle', 'bkCap', 'bkCode']) {
+  $(id)?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229 && !$('toPay').disabled) {
+      e.preventDefault();
+      $('toPay').click();
+    }
+  });
+}
+$('bkName')?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229 && !$('payBtn').disabled) {
+    e.preventDefault();
+    $('payBtn').click();
+  }
+});
 $('payBtn').addEventListener('click', () => {
   if (paying) return;
   paying = true;
@@ -554,6 +581,8 @@ $('payBtn').addEventListener('click', () => {
       cap: booth.mode === 'create' ? Math.max(1, Math.min(50, Math.round(Number($('bkCap').value) || 50))) : undefined,
       pub: booth.mode === 'create' ? pub : undefined,
     });
+    justIssued = true;
+    showStub();
     sfx.stamp();
     $('boothTicket').innerHTML = '';
     $('boothTicket').appendChild(ticketElement(ticket));
@@ -566,10 +595,12 @@ $('payBtn').addEventListener('click', () => {
   }, 650);
 });
 
-const BEHIND = ['pzTop', 'pzQuick', 'pzStub', 'pzAct', 'pzMe', 'stage'];
+const BEHIND = ['pzTop', 'pzNav', 'pzQuick', 'pzStub', 'pzAct', 'pzMe', 'stage'];
 function openBooth() {
   if (busy || boothOpen) return;
   boothOpen = true;
+  justIssued = false;
+  boothFrom = document.activeElement;
   $('booth').hidden = false;
   setAct(null, null);
   autoTo = null;
@@ -583,12 +614,42 @@ function openBooth() {
 }
 function closeBooth() {
   if (paying || !boothOpen) return;
+  const issued = justIssued;
+  justIssued = false;
   boothOpen = false;
   $('booth').hidden = true;
   for (const id of BEHIND) $(id)?.removeAttribute('inert');
   showStub();
-  renderer.domElement.focus?.({ preventScroll: true });
+  if (issued && ticket) {
+    const side = ticket.venue === 'hall' ? '왼쪽' : ticket.venue === 'sphere' ? '오른쪽' : '왼쪽 뒤편';
+    toast(`${side} 숲길의 ${VENUE_NAMES[ticket.venue]} 입구로 걸어가거나 바로가기 버튼을 눌러 들어가요.`, 4200);
+  }
+  const navGate = $('pzNavGate');
+  if (issued && navGate && !navGate.hidden && !isTouch) {
+    navGate.focus({ preventScroll: true });
+  } else if (boothFrom && boothFrom !== document.body && boothFrom !== renderer.domElement && boothFrom.isConnected && !boothFrom.closest('[hidden], [inert]')) {
+    boothFrom.focus({ preventScroll: true });
+  } else {
+    ($('pzNavBooth') && !$('pzNav')?.hidden && !isTouch ? $('pzNavBooth') : renderer.domElement).focus?.({ preventScroll: true });
+  }
 }
+document.addEventListener('keydown', (e) => {
+  if (!boothOpen || e.key !== 'Tab' || e.isComposing) return;
+  const root = $('booth');
+  const items = [...root.querySelectorAll('button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, [tabindex]:not([tabindex="-1"])')]
+    .filter((node) => node.getClientRects().length && !node.closest('[hidden], [inert]') && !node.closest('details:not([open]) > :not(summary)'));
+  const first = items[0], last = items.at(-1);
+  if (!first) return;
+  if (!root.contains(document.activeElement)) {
+    e.preventDefault();
+    (e.shiftKey ? last : first).focus({ preventScroll: true });
+    return;
+  }
+  if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+    e.preventDefault();
+    (e.shiftKey ? last : first).focus({ preventScroll: true });
+  }
+});
 $('boothClose').addEventListener('click', closeBooth);
 $('boothDone').addEventListener('click', closeBooth);
 // (a click on the veil round the card closes it - one that started there too,
@@ -653,6 +714,7 @@ async function enterSayu() {
   if (busy || place) return;
   busy = true;
   holdStill();
+  if ($('pzNav')) $('pzNav').hidden = true;
   if (sfx.ctx) sfx.amb.gain.setTargetAtTime(0, sfx.ctx.currentTime, 0.5);
   const room = import('./sayu.js');
   await fadeTo('사유의 방', async () => {
@@ -663,7 +725,11 @@ async function enterSayu() {
     renderer.compile(place.scene, camera);
     placeCamera(0, true);
     lastT = performance.now();
-  }, 1100).catch((e) => { console.error('사유의 방을 열지 못했어요', e); toast('사유의 방을 열지 못했어요. 다시 걸어 들어가 봐요.'); });
+  }, 1100).catch((e) => {
+    if ($('pzNav')) $('pzNav').hidden = false;
+    console.error('사유의 방을 열지 못했어요', e);
+    toast('사유의 방을 열지 못했어요. 다시 걸어 들어가 봐요.');
+  });
   busy = false;
 }
 function leaveSayu() {
@@ -673,6 +739,7 @@ function leaveSayu() {
   fadeTo('다시 광장으로', () => {
     place.leave();
     place = null;
+    if ($('pzNav')) $('pzNav').hidden = false;
     scene.visible = true;
     scene.add(player.char.root);
     for (const m of liteArms) scene.add(m);
@@ -778,6 +845,54 @@ canvas.addEventListener('wheel', (e) => { cam.dist = Math.min(8, Math.max(2.4, c
 // a tap on the booth or a gate walks you there
 const ray = new THREE.Raycaster();
 let autoTo = null; // { x, z, then }
+const BOOTH_CORNERS = [
+  { x: -2.5, z: -0.55 },
+  { x: 2.5, z: -0.55 },
+  { x: -2.5, z: -4.15 },
+  { x: 2.5, z: -4.15 },
+];
+function segHitsBooth(a, b) {
+  let t0 = 0;
+  let t1 = 1;
+  const dx = b.x - a.x;
+  const dz = b.z - a.z;
+  const clip = (p, q) => {
+    if (Math.abs(p) < 1e-9) return q >= 0;
+    const r = q / p;
+    if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    return true;
+  };
+  return clip(-dx, a.x - (-2.15)) && clip(dx, 2.15 - a.x)
+    && clip(-dz, a.z - (-4.0)) && clip(dz, -0.8 - a.z) && t0 <= t1;
+}
+function routeAroundBooth(from, goal) {
+  const s = (Math.abs(from.x) < 2.15 && from.z > -4.0 && from.z < -0.8)
+    ? { x: from.x, z: from.z >= -2.4 ? -0.79 : -4.01 }
+    : { x: from.x, z: from.z };
+  if (!segHitsBooth(s, goal)) return { ...goal, best: Infinity, stuck: 0 };
+  const dist = (a, b) => Math.hypot(b.x - a.x, b.z - a.z);
+  let bestWaypoints = null;
+  let bestLen = Infinity;
+  for (const c1 of BOOTH_CORNERS) {
+    if (segHitsBooth(s, c1)) continue;
+    if (!segHitsBooth(c1, goal)) {
+      const len = dist(s, c1) + dist(c1, goal);
+      if (len < bestLen) { bestLen = len; bestWaypoints = [c1]; }
+    }
+    for (const c2 of BOOTH_CORNERS) {
+      if (c1 === c2 || segHitsBooth(c1, c2) || segHitsBooth(c2, goal)) continue;
+      const len = dist(s, c1) + dist(c1, c2) + dist(c2, goal);
+      if (len < bestLen) { bestLen = len; bestWaypoints = [c1, c2]; }
+    }
+  }
+  let node = { ...goal, best: Infinity, stuck: 0 };
+  if (bestWaypoints) {
+    for (let i = bestWaypoints.length - 1; i >= 0; i--) {
+      node = { x: bestWaypoints[i].x, z: bestWaypoints[i].z, next: node, best: Infinity, stuck: 0 };
+    }
+  }
+  return node;
+}
 function onTap(x, y) {
   ray.setFromCamera(new THREE.Vector2((x / window.innerWidth) * 2 - 1, -(y / window.innerHeight) * 2 + 1), camera);
   if (place) {
@@ -791,18 +906,40 @@ function onTap(x, y) {
     if (hit && (!best || hit.distance < best.d)) best = { k, d: hit.distance };
   }
   if (!best) return;
-  if (best.k === 'booth') autoTo = { x: PLAZA.window.x, z: PLAZA.window.z + 0.3, then: 'booth', best: Infinity, stuck: 0 };
-  else if (best.k === 'sayu') autoTo = { x: PLAZA.sayu.x * 0.93, z: PLAZA.sayu.z * 0.93, then: 'sayu', best: Infinity, stuck: 0 };
-  else {
+  if (best.k === 'booth') {
+    autoTo = routeAroundBooth(player.pos, { x: PLAZA.window.x, z: PLAZA.window.z + 0.3, then: 'booth' });
+  } else if (best.k === 'sayu') {
+    autoTo = routeAroundBooth(player.pos, { x: PLAZA.sayu.x * 0.93, z: PLAZA.sayu.z * 0.93, then: 'sayu' });
+  } else {
     const id = best.k.split(':')[1];
+    if (!ticket) {
+      toast('표가 있어야 들어갈 수 있어요. 먼저 가운데 매표소에서 표를 사 봐요.', 3000);
+      return;
+    }
+    if (ticket.venue !== id) {
+      toast(`이 표는 ${VENUE_NAMES[ticket.venue]} 표예요. ${VENUE_NAMES[ticket.venue]} 입구로 가 봐요.`, 3000);
+      return;
+    }
     const g = PLAZA.gates[id];
-    autoTo = { x: g.x * 0.93, z: g.z * 0.93, then: `gate:${id}`, best: Infinity, stuck: 0 };
+    autoTo = routeAroundBooth(player.pos, { x: g.x * 0.93, z: g.z * 0.93, then: `gate:${id}` });
   }
 }
 
-// the thumb stick (touch screens): it comes to your left thumb
-const joy = isTouch ? thumbStick({ base: $('pzJoy'), knob: $('pzKnob'), zone: $('pzJoyZone') }) : { x: 0, y: 0 };
-if (isTouch) { $('pzJoy').hidden = false; $('pzJoyZone').hidden = false; }
+// the thumb stick (touch screens): kept ready and shown whenever touch is used
+const joy = thumbStick({ base: $('pzJoy'), knob: $('pzKnob'), zone: $('pzJoyZone') });
+const syncPlazaTouch = (on) => {
+  isTouch = Boolean(on);
+  still = false;
+  $('pzJoy').hidden = !isTouch;
+  $('pzJoyZone').hidden = !isTouch;
+  if (!isTouch) joy.reset?.();
+};
+syncPlazaTouch(isTouch);
+watchTouchUI(syncPlazaTouch);
+
+tapButton($('pzNavBooth'), () => { sfx.init(); openBooth(); });
+tapButton($('pzNavGate'), () => { if (ticket) { sfx.init(); enterGate(ticket.venue); } });
+tapButton($('pzNavSayu'), () => { sfx.init(); enterSayu(); });
 
 // what F (or the button) does here
 let act = null;
@@ -840,9 +977,19 @@ function movePlayer(dt) {
       const dz = autoTo.z - p.pos.z;
       const d = Math.hypot(dx, dz);
       if (d < 0.35) {
-        const then = autoTo.then;
-        autoTo = null;
-        if (then === 'booth') { p.yaw = 0; openBooth(); } else if (place) place.arrived(then);
+        if (autoTo.next) {
+          autoTo = { ...autoTo.next, best: Infinity, stuck: 0 };
+        } else {
+          const then = autoTo.then;
+          autoTo = null;
+          if (then === 'booth') { p.yaw = 0; openBooth(); }
+          else if (then === 'sayu') { sayuArmed = true; enterSayu(); }
+          else if (typeof then === 'string' && then.startsWith('gate:')) {
+            const gid = then.slice(5);
+            if (ticket?.venue === gid) { gateArmed = true; enterGate(gid); }
+            else toast(ticket ? `이 표는 ${VENUE_NAMES[ticket.venue]} 표예요. 표와 같은 이름이 적힌 숲길로 가요.` : '표가 있어야 들어갈 수 있어요. 가운데 매표소에서 표를 사요.', 3000);
+          } else if (place) place.arrived(then);
+        }
       } else {
         mx = dx / d;
         mz = dz / d;
@@ -896,7 +1043,7 @@ function strollerPath() {
   const start = { x: Math.sin(a) * (PLAZA.R - 0.6), z: Math.cos(a) * (PLAZA.R - 0.6) };
   const id = GATE_IDS[Math.floor(Math.random() * GATE_IDS.length)];
   const gate = PLAZA.gates[id];
-  const side = id === 'hall' ? -1 : 1;
+  const side = id === 'sphere' ? 1 : -1;
   return [
     start,
     { x: PLAZA.window.x + side * 0.8, z: PLAZA.window.z + 0.55, pause: 2.5 + Math.random() * 2 },
@@ -1050,7 +1197,6 @@ placeCamera(0, true);
 let skip = 0;
 // (on a phone the booth stands on a plain dark veil: the square behind it is
 // drawn once and left - nothing there moves while you buy)
-let still = false;
 let pendingFrame = null;
 let graphicsUnavailable = false;
 function requestFrame() {
@@ -1162,4 +1308,4 @@ requestAnimationFrame(() => {
   else if (!ticket) setTimeout(() => toast(`어서 와요, ${me.name}! 오늘 밤은 ${kind.ko}의 모습으로 왔어요. 가운데 매표소에서 표를 사 봐요.`, 4600), 900);
 });
 
-window.__plaza = { scene, camera, renderer, world, player, cam, keys, step, walkable: plazaWalkable, joy, sfx, enterSayu, leaveSayu, get place() { return place; }, get autoTo() { return autoTo; }, get ticket() { return ticket; }, openBooth, enterGate, PLAZA, gateYaw };
+window.__plaza = { scene, camera, renderer, world, player, cam, keys, step, walkable: plazaWalkable, routeAroundBooth, joy, sfx, enterSayu, leaveSayu, get place() { return place; }, get autoTo() { return autoTo; }, get ticket() { return ticket; }, openBooth, enterGate, PLAZA, gateYaw };

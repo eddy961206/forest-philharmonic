@@ -5,6 +5,105 @@ const MIN_SCALE = 0.6;
 const SCALE_EPSILON = 1e-12;
 const round = (v) => Math.round(v * 100) / 100;
 
+export function isMobileTier(env = globalThis) {
+  const nav = env?.navigator;
+  const win = env?.window || env;
+  const mm = env?.matchMedia || win?.matchMedia?.bind(win);
+  const ua = String(nav?.userAgent || '');
+  const platform = String(nav?.platform || '');
+  const tp = Number(nav?.maxTouchPoints || 0);
+  if (nav?.userAgentData?.mobile === true) return true;
+  if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) return true;
+  // iPadOS 13+ desktop-mode Safari reports Macintosh / MacIntel with multi-touch.
+  if (tp > 1 && (/Macintosh/i.test(ua) || platform === 'MacIntel')) return true;
+  const mem = Number(nav?.deviceMemory || 0);
+  if (mem > 0 && mem <= 2) return true;
+  const coarse = Boolean(mm?.('(pointer: coarse)')?.matches);
+  const anyCoarse = Boolean(mm?.('(any-pointer: coarse)')?.matches);
+  const fine = Boolean(mm?.('(pointer: fine)')?.matches);
+  if ((tp > 0 || anyCoarse) && (coarse || anyCoarse) && !fine) {
+    const w = Number(win?.innerWidth || win?.screen?.width || 0);
+    const h = Number(win?.innerHeight || win?.screen?.height || 0);
+    const shortSide = w > 0 && h > 0 ? Math.min(w, h) : w;
+    if (shortSide > 0 && shortSide <= 900) return true;
+    if (mem > 0 && mem <= 4) return true;
+  }
+  return false;
+}
+
+export function isTouchDevice(env = globalThis) {
+  const nav = env?.navigator;
+  const win = env?.window || env;
+  const mm = env?.matchMedia || win?.matchMedia?.bind(win);
+  const tp = Number(nav?.maxTouchPoints || 0);
+  const coarse = mm ? Boolean(mm('(pointer: coarse)')?.matches) : false;
+  const anyCoarse = mm ? Boolean(mm('(any-pointer: coarse)')?.matches) : false;
+  const fine = mm ? Boolean(mm('(pointer: fine)')?.matches) : false;
+  if (coarse) return true;
+  if (!fine && anyCoarse) return true;
+  if (tp <= 0) return false;
+  if (fine) {
+    const ua = String(nav?.userAgent || '');
+    const platform = String(nav?.platform || '');
+    if (/Android|iPhone|iPad|iPod/i.test(ua)) return true;
+    if (tp > 1 && (/Macintosh/i.test(ua) || platform === 'MacIntel')) return true;
+    return false;
+  }
+  return true;
+}
+
+export const isTouchUI = isTouchDevice;
+
+export function watchTouchUI(onChange, env = globalThis) {
+  const win = env?.window || env;
+  const doc = env?.document || win?.document;
+  const mm = env?.matchMedia || win?.matchMedia?.bind(win);
+  let touch = isTouchDevice(env);
+  let lastTouchAt = 0;
+  const syncDom = (on) => {
+    doc?.documentElement?.classList?.toggle('touch', on);
+    doc?.body?.classList?.toggle('touch', on);
+  };
+  syncDom(touch);
+  const set = (next) => {
+    const on = Boolean(next);
+    syncDom(on);
+    if (on === touch) return;
+    touch = on;
+    onChange?.(touch);
+  };
+  const onPointerDown = (e) => {
+    if (!e || !e.pointerType) return;
+    if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+      lastTouchAt = Date.now();
+      set(true);
+    } else if (e.pointerType === 'mouse') {
+      if (Date.now() - lastTouchAt > 600) set(false);
+    }
+  };
+  const onTouchStart = () => {
+    lastTouchAt = Date.now();
+    set(true);
+  };
+  const mql = mm?.('(pointer: coarse)') || null;
+  const anyMql = mm?.('(any-pointer: coarse)') || null;
+  const onMediaChange = () => set(isTouchDevice(env));
+  win?.addEventListener?.('pointerdown', onPointerDown, { capture: true, passive: true });
+  win?.addEventListener?.('touchstart', onTouchStart, { capture: true, passive: true });
+  mql?.addEventListener?.('change', onMediaChange);
+  anyMql?.addEventListener?.('change', onMediaChange);
+  return {
+    get value() { return touch; },
+    set,
+    dispose() {
+      win?.removeEventListener?.('pointerdown', onPointerDown, { capture: true });
+      win?.removeEventListener?.('touchstart', onTouchStart, { capture: true });
+      mql?.removeEventListener?.('change', onMediaChange);
+      anyMql?.removeEventListener?.('change', onMediaChange);
+    },
+  };
+}
+
 export class AdaptiveQuality {
   constructor({ quality = 'high', scale = 1, minQuality = 'low', maxQuality = 'high', pixelRatios = {}, targetFps = null, nowMs = 0 } = {}) {
     this.targetFps = targetFps;

@@ -10,7 +10,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { IS_SPHERE, IS_OUTDOOR, IS_HALL } from '../scene/venue.js';
 import { setAnisotropy, setLite } from '../scene/materials.js';
 import { HALL, LEVELS, HALL_DOORS, HALL_DOOR_W, HALL_DOOR_H } from '../scene/hallplan.js';
-import { AdaptiveQuality, FramePacer } from '../quality.js';
+import { AdaptiveQuality, FramePacer, isMobileTier } from '../quality.js';
 import { disposeComposer } from '../render-resources.js';
 
 // (the hall is paid for per pixel - a dozen lights on every one: beyond 1.5
@@ -35,7 +35,7 @@ function detectWeakGPU() {
   } catch { return false; }
 }
 
-export function createGraphics({ settings, isMobile, container, S }) {
+export function createGraphics({ settings, isMobile = isMobileTier(), container, S }) {
   const weakGPU = detectWeakGPU();
   const autoStart = () => (isMobile ? 'low' : weakGPU ? 'medium' : 'high');
   const efficient = () => settings.quality === 'efficient';
