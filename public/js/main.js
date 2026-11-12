@@ -104,6 +104,23 @@ const screen = buildScreen(scene, renderer, IS_SPHERE ? {
   before: () => hall.dome.setLive(null, null),
   after: () => hall.dome.setLive(screen.texture, screen.capTex),
 } : { lite: LITE, headless: IS_OUTDOOR });
+const director = new Director(camera, renderer.domElement, hall);
+director.uiTop = () => ui.bottomUiTop();
+director.hoverLook = false; // look by dragging, or click to capture the mouse
+{
+  if (IS_SPHERE) director.pos.set(0, 14, 38);
+  else if (IS_OUTDOOR) director.pos.set(0, 5, 26);
+  else director.pos.set(0, 9, 21);
+  const la = director.lookAt(IS_SPHERE ? new THREE.Vector3(0, 12, -8) : new THREE.Vector3(0, 3.2, -5));
+  director.yaw = la.yaw;
+  director.pitch = la.pitch;
+  director.anim = null;
+  camera.position.copy(director.pos);
+  camera.quaternion.setFromEuler(new THREE.Euler(director.pitch, director.yaw, 0, 'YXZ'));
+  camera.updateMatrixWorld();
+}
+
+let domeReady = null;
 if (IS_SPHERE) {
   hall.dome.setLive(screen.texture, screen.capTex);
   // The dome's shader is big: compiled in the background (where the browser
@@ -113,8 +130,9 @@ if (IS_SPHERE) {
     const dm = hall.dome.mesh;
     try {
       const ready = renderer.compileAsync(dm, camera, scene);
+      renderer.getContext?.()?.flush?.();
       dm.visible = false;
-      ready.catch(() => {}).finally(() => { dm.visible = true; });
+      domeReady = ready.catch(() => {}).finally(() => { dm.visible = true; });
     } catch { /* compiled on first use instead */ }
   }
   // the 3D worlds are drawn only where these cameras can see the dome
@@ -122,9 +140,6 @@ if (IS_SPHERE) {
   // everything but behind the house and under the floor)
   hall.dome.setViewers([{ cam: camera }, { faces: 1 | 2 | 4 | 32, when: () => settings.screen && S.concertStarted && hall.dome.liveActive }]);
 }
-const director = new Director(camera, renderer.domElement, hall);
-director.uiTop = () => ui.bottomUiTop();
-director.hoverLook = false; // look by dragging, or click to capture the mouse
 
 Object.assign(app, { graphics, renderer, scene, camera, ui, hall, orchestra, cameraInstruments, stage, spot, thief, recital, PIANIST, avatars, effects, screen, director });
 app.house = createHouse(app);
@@ -143,8 +158,9 @@ headPositions.push(orchestra.conductor.home.clone().add(new THREE.Vector3(0, 1.3
 
 // ------------------------------------------------------------------ audio
 const engine = new AudioEngine();
+if (!IS_OUTDOOR) app.fx = buildFX(scene, engine);
 const perf = new Performance(engine);
-const scores = new ScoreLibrary(fetchPiece);
+const scores = new ScoreLibrary((id) => fetchPiece(id, { retryNetwork: true }));
 Object.assign(app, { bestSeat, headPositions, engine, perf, scores });
 
 // ------------------------------------------------------------ the evening
@@ -162,6 +178,39 @@ app.sphereLifts = createSphereLifts(app);
 app.loop = createLoop(app);
 
 async function boot() {
+  async function fetchProgramIndex() {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      let aborted = false;
+      const indexAbort = new AbortController();
+      const indexTimer = setTimeout(() => {
+        aborted = true;
+        indexAbort.abort();
+      }, 30000);
+      try {
+        const res = await fetch('music/index.json', { signal: indexAbort.signal });
+        if (!res.ok) throw new Error(`악보 목록 응답 오류 (${res.status})`);
+        return await res.json();
+      } catch (err) {
+        const retryable = aborted || err?.name === 'AbortError' || err instanceof TypeError;
+        if (retryable && attempt === 0) {
+          await new Promise((r) => setTimeout(r, 250));
+          continue;
+        }
+        throw new Error((aborted || err?.name === 'AbortError') ? '악보 목록 응답 시간이 초과되었어요' : (err?.message || '악보 목록을 불러오지 못했어요'));
+      } finally {
+        clearTimeout(indexTimer);
+      }
+    }
+  }
+
+  // each building plays its own half of the pieces (see programs.js)
+  const all = await fetchProgramIndex();
+  const byId = new Map(all.map((p) => [p.id, p]));
+  S.program = (SETLISTS[VENUE] || SETLISTS.hall).map((id) => byId.get(id)).filter(Boolean);
+  if (!S.program.length) S.program = all;
+  S.eveningLen = S.program.length;
+  ui.setProgram(S.program);
+
   try {
     await engine.init({ lite: AUDIO_LITE, acoustics: IS_SPHERE ? { ...SPHERE_ACOUSTICS, room: 'arena' } : IS_OUTDOOR ? OUTDOOR_ACOUSTICS : null });
   } catch (e) {
@@ -173,25 +222,6 @@ async function boot() {
   engine.setApplause(settings.applauseVol);
   // (the browser taking the sound away, or giving it back: see sound)
   engine.ctx.addEventListener?.('statechange', () => app.power.sound.changed());
-  if (!IS_OUTDOOR) app.fx = buildFX(scene, engine);
-  // each building plays its own half of the pieces (see programs.js)
-  const indexAbort = new AbortController();
-  const indexTimer = setTimeout(() => indexAbort.abort(), 15000);
-  let all;
-  try {
-    const res = await fetch('music/index.json', { signal: indexAbort.signal });
-    if (!res.ok) throw new Error(`악보 목록 응답 오류 (${res.status})`);
-    all = await res.json();
-  } catch (err) {
-    throw new Error(err?.name === 'AbortError' ? '악보 목록 응답 시간이 초과되었어요' : (err?.message || '악보 목록을 불러오지 못했어요'));
-  } finally {
-    clearTimeout(indexTimer);
-  }
-  const byId = new Map(all.map((p) => [p.id, p]));
-  S.program = (SETLISTS[VENUE] || SETLISTS.hall).map((id) => byId.get(id)).filter(Boolean);
-  if (!S.program.length) S.program = all;
-  S.eveningLen = S.program.length;
-  ui.setProgram(S.program);
   const applauseReady = engine.prepareApplause();
   await engine.loadSamples('samples', (done, total) => {
     ui.setLoading(`악기를 조율하는 중  ${done} / ${total}`, 0.08 + 0.85 * (done / total));
@@ -203,15 +233,30 @@ async function boot() {
   await applauseReady;
   S.current = 0;
   await app.concert.pieces.choose(S.program[0].id);
-  // every material the evening will need, compiled now (the players, the
-  // recital's chairs, ...) rather than with a hitch the first time they appear
+
+  // every material the evening will need, compiled once now (with fx lights
+  // already in the scene) rather than blocking fetch timers or recompiling
+  // when the render loop begins
+  ui.setLoading('무대 조명을 켜는 중', 0.98);
+  await new Promise((r) => setTimeout(r, 30));
   recital.show(true);
+  orchestra.syncLite();
   try { hall.dome?.warm(); } catch { /* fine: compiled on first use */ }
   try { renderer.compile(scene, camera); } catch { /* fine: compiled on first use */ }
   warmTextures();
   recital.show(false);
   stage.clearStage();
+  orchestra.syncLite();
+  if (domeReady) {
+    renderer.getContext?.()?.flush?.();
+    await domeReady;
+  }
+  try { hall.dome?.drawWorlds?.(); } catch { /* fine: drawn on first frame */ }
+
+  app.loop.resetClock();
+  app.loop.requestFrame();
   ui.ready();
+  app.lobby.refresh?.();
 }
 
 // Every picture in the building sent to the GPU now, behind the loading
@@ -228,8 +273,6 @@ function warmTextures() {
   });
   for (const t of seen) { try { renderer.initTexture(t); } catch { /* uploaded on first use instead */ } }
 }
-
-app.loop.requestFrame();
 
 boot().catch((e) => {
   console.error(e);
