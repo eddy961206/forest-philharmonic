@@ -267,11 +267,14 @@ export function createViewer(app) {
     }
     hoverAt(h, x, y);
   }
-  // (asleep or in a background tab nothing is seen: no aiming either)
-  const pollTimer = setInterval(() => {
-    if (IS_HALL && !S.concertStarted && director.active) {
+  function syncFoyerHint() {
+    if (IS_HALL && !S.showStarted && director.active) {
       ui.setFoyerHint?.(director.pos.z > HALL.back + 0.5);
     }
+  }
+  // (asleep or in a background tab nothing is seen: no aiming either)
+  const pollTimer = setInterval(() => {
+    syncFoyerHint();
     if (!document.getElementById('panel')?.hidden && !document.getElementById('programBody')?.hidden) {
       syncStageTargets();
     }
@@ -303,5 +306,5 @@ export function createViewer(app) {
   }
   renderer.domElement.addEventListener('pointerleave', () => ui.tooltip(null));
 
-  return { dispose() { clearInterval(pollTimer); } };
+  return { syncFoyerHint, dispose() { clearInterval(pollTimer); } };
 }

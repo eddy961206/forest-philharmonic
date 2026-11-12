@@ -39,9 +39,10 @@ class Element extends EventTarget {
     };
   }
   set innerHTML(v) {
+    this._innerHTML = String(v);
     if (v === '') this.children = [];
   }
-  get innerHTML() { return ''; }
+  get innerHTML() { return this._innerHTML || ''; }
   appendChild(child) {
     if (child && typeof child === 'object') child.parent = this;
     this.children.push(child);
@@ -56,6 +57,8 @@ class Element extends EventTarget {
   setAttribute(name, value) { this.attributes.set(name, String(value)); }
   getAttribute(name) { return this.attributes.get(name) ?? null; }
   removeAttribute(name) { this.attributes.delete(name); }
+  get title() { return this.getAttribute('title') || ''; }
+  set title(value) { this.setAttribute('title', value); }
   contains(node) { return this === node || this.children.some((child) => child?.contains?.(node)); }
   matches(selector = '') {
     return String(selector).split(',').map((s) => s.trim()).some((part) => {
@@ -630,4 +633,156 @@ test('createViewer restores prior seat on KeyE unfocusKey and hides desktop prom
   dHandler('keyMove', 'KeyW');
   dHandler('nearSeat', seat42);
   assert.equal(document.getElementById('prompt').hidden, true);
+});
+
+test('UI.setHostControls preserves initial shortcut titles across guest lock and host promotion', (t) => {
+  const { ui, make } = fixture(t);
+  const btnPlay = make('btnPlay', 'BUTTON');
+  btnPlay.title = '재생 / 일시정지 (K)';
+  const btnPrev = make('btnPrev', 'BUTTON');
+  btnPrev.title = '이전 곡 (P)';
+  const btnNext = make('btnNext', 'BUTTON');
+  btnNext.title = '다음 곡 (N)';
+  const startBtn = make('startBtn', 'BUTTON');
+  make('intervalGo', 'BUTTON');
+  make('optShuffle', 'INPUT');
+  make('optRepeatOne', 'INPUT');
+  make('gap', 'INPUT');
+  make('optSkipStageTransitions', 'INPUT');
+  make('seek', 'DIV');
+  make('startHint', 'P');
+
+  ui.setHostControls(false);
+  assert.equal(btnPlay.title, '방장만 할 수 있어요');
+  assert.equal(btnPrev.title, '방장만 할 수 있어요');
+  assert.equal(btnNext.title, '방장만 할 수 있어요');
+  assert.equal(startBtn.title, '방장만 할 수 있어요');
+
+  ui.setHostControls(true);
+  assert.equal(btnPlay.title, '재생 / 일시정지 (K)', 'restores original play shortcut tooltip');
+  assert.equal(btnPrev.title, '이전 곡 (P)', 'restores original prev shortcut tooltip');
+  assert.equal(btnNext.title, '다음 곡 (N)', 'restores original next shortcut tooltip');
+  assert.equal(startBtn.getAttribute('title'), null, 'removes temporary host-only title when none existed initially');
+});
+
+test('UI.setOnline and setRooms guard post-entry splash removal and restore invite unless inviteDead', (t) => {
+  const { ui, make, document } = fixture(t);
+  const lobby = make('lobby', 'DIV');
+  const lbOnline = make('lbOnline', 'DIV');
+  const lbInvite = make('lbInvite', 'DIV');
+  const lbRooms = make('lbRooms', 'UL');
+  const lbError = make('lbError', 'P');
+  const enterBtn = make('enterBtn', 'BUTTON');
+  const lbInviteGo = make('lbInviteGo', 'BUTTON');
+  const lbCreate = make('lbCreate', 'BUTTON');
+  make('lbJoinCode', 'BUTTON');
+  make('loadText', 'P');
+  make('loadBar', 'SPAN');
+
+  ui.invite = 'K7QH2M';
+  ui.inviteDead = false;
+  lbInvite.hidden = false;
+
+  // Transient offline hides #lbInvite and focuses #enterBtn on ready()
+  ui.setOnline(false);
+  assert.equal(lbOnline.hidden, true);
+  assert.equal(lbInvite.hidden, true);
+  ui.ready();
+  assert.equal(document.activeElement, enterBtn);
+
+  // Recovery to online restores #lbInvite automatically
+  ui.setOnline(true);
+  assert.equal(lbOnline.hidden, false);
+  assert.equal(lbInvite.hidden, false, 'invite banner recovers once server responds again');
+  ui.ready();
+  assert.equal(document.activeElement, lbInviteGo);
+
+  // Dead invite (room notfound) stays hidden even after subsequent setOnline(true)
+  ui.lobbyError('방이 닫혔어요.', { dead: true });
+  assert.equal(lbError.textContent, '방이 닫혔어요.');
+  assert.equal(lbInvite.hidden, true);
+  ui.setOnline(true);
+  assert.equal(lbInvite.hidden, true, 'dead invite must not reappear on subsequent room refresh');
+  ui.ready();
+  assert.equal(document.activeElement, lbCreate);
+
+  // Post-entry after #splash/#lobby removal: setOnline and setRooms are safe no-ops
+  ui.entered = true;
+  document.getElementById = () => undefined;
+  assert.doesNotThrow(() => {
+    ui.setOnline(false);
+    ui.setOnline(true);
+    ui.setRooms([{ code: 'ABC123', title: '방', count: 1, cap: 10 }]);
+  });
+  assert.equal(lobby.classList.contains('offline'), false);
+  assert.equal(lbRooms.children.length, 0);
+});
+
+test('viewer syncFoyerHint updates Hall foyer startHint after concertStarted until showStarted', (t) => {
+  const { ui, make } = fixture(t);
+  const startHint = make('startHint', 'P');
+  make('prompt', 'DIV').hidden = true;
+  make('promptText', 'SPAN');
+  make('sitBtn', 'BUTTON').hidden = true;
+  make('focusChip', 'DIV').hidden = true;
+  make('focusName', 'SPAN');
+  make('focusSolo', 'BUTTON');
+  make('panel', 'ASIDE').hidden = true;
+  make('programBody', 'DIV').hidden = true;
+  make('stageFocusWrap', 'DIV').hidden = true;
+  make('stageFocusList', 'DIV');
+  make('tooltip', 'DIV').hidden = true;
+  make('target', 'DIV').hidden = true;
+
+  const domElement = new Element('canvas', globalThis.document, 'CANVAS');
+  const director = {
+    active: true,
+    mode: 'walk',
+    seat: null,
+    nearSeat: null,
+    occupied: new Set(),
+    returnTo: {},
+    pos: { z: 40.4 },
+    keys: new Set(),
+    vel: { set() {} },
+    on() {},
+    setMode() {},
+    sitAt() {},
+    focusConductor() {},
+    focusPlayer() {},
+    toggleSit() {},
+    releaseLock() {},
+  };
+  const S = { focused: null, concertStarted: true, showStarted: false, muted: false };
+  const viewer = createViewer({
+    S,
+    isTouch: false,
+    settings: { volume: 0.8 },
+    ui,
+    engine: { setFocus() {}, setVolume() {} },
+    camera: new THREE.PerspectiveCamera(),
+    renderer: { domElement },
+    orchestra: { conductor: { char: { root: { visible: true }, spec: { name: '부엉 선생' } } }, players: [], pickables: [] },
+    hall: { seats: [], seatMesh: new THREE.Group() },
+    recital: { on: false, seats: [] },
+    director,
+    PIANIST: { char: { spec: { name: '피아니스트' } } },
+  });
+  t.after(() => viewer.dispose());
+
+  // Right after lobby entry (S.concertStarted = true, S.showStarted = false, z = 40.4 in foyer)
+  viewer.syncFoyerHint();
+  assert.equal(ui._inFoyer, true);
+  assert.match(startHint.innerHTML || startHint.textContent, /앞쪽 문을 지나/);
+
+  // Walking forward through foyer doors into stalls (z <= HALL.back + 0.5)
+  director.pos.z = 12.0;
+  viewer.syncFoyerHint();
+  assert.equal(ui._inFoyer, false);
+
+  // Once the show starts (S.showStarted = true), syncFoyerHint stops toggling
+  S.showStarted = true;
+  director.pos.z = 40.4;
+  viewer.syncFoyerHint();
+  assert.equal(ui._inFoyer, false);
 });

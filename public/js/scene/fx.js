@@ -346,6 +346,7 @@ function buildWash(scene) {
   const lights = [];
   for (const [x, c] of [[-6, '#ffc58a'], [6, '#f3b9a8']]) {
     const l = new THREE.SpotLight(c, 0, 30, 0.5, 0.7, 1);
+    l.visible = false;
     l.position.set(x, 12.5, 2);
     l.target.position.set(0, STAGE_Y, -5);
     scene.add(l, l.target);

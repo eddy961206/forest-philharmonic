@@ -24,16 +24,37 @@ const FOREGROUND_SECTIONS = new Set([
 
 // A piece's score from the server. A failed answer (offline, a 503, a page
 // that is not a score) is an error, never half a piece.
-export async function fetchPiece(id) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
-  try {
-    const r = await fetch(`music/${id}.json`, { signal: controller.signal });
-    if (!r.ok) throw new Error(`music/${id}.json: HTTP ${r.status}`);
-    const p = await r.json();
-    if (!p || p.id !== id || !Array.isArray(p.tracks) || !Number.isFinite(p.duration) || !(p.duration > 0)) throw new Error(`music/${id}.json: not a score`);
-    return p;
-  } finally { clearTimeout(timer); }
+export async function fetchPiece(id, {
+  fetchImpl = fetch,
+  timeoutMs = 30000,
+  retries = 1,
+  retryDelayMs = 200,
+  retryNetwork = false,
+} = {}) {
+  const maxAttempts = Math.max(1, 1 + Math.max(0, retries));
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    let aborted = false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      aborted = true;
+      controller.abort();
+    }, timeoutMs);
+    try {
+      const r = await fetchImpl(`music/${id}.json`, { signal: controller.signal });
+      if (!r.ok) throw new Error(`music/${id}.json: HTTP ${r.status}`);
+      const p = await r.json();
+      if (!p || p.id !== id || !Array.isArray(p.tracks) || !Number.isFinite(p.duration) || !(p.duration > 0)) {
+        throw new Error(`music/${id}.json: not a score`);
+      }
+      return p;
+    } catch (err) {
+      const retryable = aborted || err?.name === 'AbortError' || (retryNetwork && err instanceof TypeError);
+      if (!retryable || attempt + 1 >= maxAttempts) throw err;
+      if (retryDelayMs > 0) await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    } finally {
+      clearTimeout(timer);
+    }
+  }
 }
 
 export class Performance {
@@ -53,7 +74,7 @@ export class Performance {
 
   async load(id) {
     const req = ++this._req;
-    const prep = this.prepare(await fetchPiece(id));
+    const prep = this.prepare(await fetchPiece(id, { retryNetwork: true }));
     if (req !== (this._req || 0)) return null; // a newer load superseded this one
     return this.use(prep);
   }

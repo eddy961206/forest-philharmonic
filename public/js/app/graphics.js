@@ -15,29 +15,54 @@ import { disposeComposer } from '../render-resources.js';
 
 // (the hall is paid for per pixel - a dozen lights on every one: beyond 1.5
 // pixels per point a sharper picture is hard to see and costs half again)
+const initialDpr = globalThis.window?.devicePixelRatio || 1;
 export const QUALITY = {
-  high: { pr: Math.min(window.devicePixelRatio || 1, 1.5), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenHz: 30, post: true },
-  medium: { pr: Math.min(window.devicePixelRatio || 1, 1.25) * 0.85, shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenHz: 20, post: true },
+  high: { pr: Math.min(initialDpr, 1.5), shadows: true, shadowSize: 2048, bloom: true, msaa: 4, screenHz: 30, post: true },
+  medium: { pr: Math.min(initialDpr, 1.25) * 0.85, shadows: true, shadowSize: 1024, bloom: true, msaa: 2, screenHz: 20, post: true },
   // phones: no post-processing pass, no shadows, the big screen redrawn
   // only every ~1.5 s at a small size
-  low: { pr: Math.min(window.devicePixelRatio || 1, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenHz: 8, post: false },
+  low: { pr: Math.min(initialDpr, 1.25), shadows: false, shadowSize: 512, bloom: false, msaa: 0, screenHz: 8, post: false },
 };
+
+// Software rasterisers (headless SwiftShader, Linux llvmpipe, Windows WARP /
+// Basic Render Driver): automatic quality starts on the lightweight Lite tier
+// rather than compiling full PBR + shadow shaders on CPU threads.
+export function isSoftwareGPU(name = '') {
+  return /SwiftShader|llvmpipe|Software|Basic Render|\bWARP\b/i.test(String(name));
+}
 
 // A computer's built-in graphics (most laptops, and desktops without a card
 // in use): automatic quality starts one step down and climbs if it can
-function detectWeakGPU() {
-  try {
-    const gl = document.createElement('canvas').getContext('webgl2');
-    const ext = gl?.getExtension('WEBGL_debug_renderer_info');
-    const name = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
-    gl?.getExtension('WEBGL_lose_context')?.loseContext();
-    return /Intel|Radeon\(TM\) Graphics|Radeon Graphics|Vega \d+ Graphics|SwiftShader|llvmpipe/i.test(name) && !/Arc\(TM\) A|Arc A\d/i.test(name);
-  } catch { return false; }
+export function isWeakGPU(name = '') {
+  return /Intel|Radeon\(TM\) Graphics|Radeon Graphics|Vega \d+ Graphics/i.test(String(name))
+    && !/Arc\(TM\) A|Arc A\d/i.test(String(name));
 }
 
-export function createGraphics({ settings, isMobile = isMobileTier(), container, S }) {
-  const weakGPU = detectWeakGPU();
-  const autoStart = () => (isMobile ? 'low' : weakGPU ? 'medium' : 'high');
+function readRendererName(doc = globalThis.document) {
+  try {
+    const gl = doc?.createElement?.('canvas')?.getContext?.('webgl2');
+    if (!gl) return '';
+    const ext = gl.getExtension?.('WEBGL_debug_renderer_info');
+    const name = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter?.(gl.RENDERER) || '');
+    gl.getExtension?.('WEBGL_lose_context')?.loseContext?.();
+    return name;
+  } catch { return ''; }
+}
+
+export function detectSoftwareGPU(doc = globalThis.document) {
+  return isSoftwareGPU(readRendererName(doc));
+}
+
+function detectWeakGPU(doc = globalThis.document) {
+  const name = readRendererName(doc);
+  return isSoftwareGPU(name) || isWeakGPU(name);
+}
+
+export function createGraphics({ settings, isMobile = isMobileTier(), container, S, gpuName }) {
+  const rendererName = typeof gpuName === 'string' ? gpuName : readRendererName(container?.ownerDocument || globalThis.document);
+  const softwareGPU = isSoftwareGPU(rendererName);
+  const weakGPU = softwareGPU || isWeakGPU(rendererName);
+  const autoStart = () => (isMobile || softwareGPU ? 'low' : weakGPU ? 'medium' : 'high');
   const efficient = () => settings.quality === 'efficient';
   let quality = settings.quality === 'auto' ? autoStart() : efficient() ? 'low' : settings.quality;
   // Lite build (phones, or 'low' chosen): simpler seats, a smaller crowd, far

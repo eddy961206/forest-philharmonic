@@ -19,7 +19,7 @@ function goFullscreen() {
 }
 
 export function createLobby(app) {
-  const { S, ui, engine, hall, isTouch } = app;
+  const { S, ui, engine, hall } = app;
 
   // you: the animal drawn on your first visit (kept; see tickets.js)
   const me = identity();
@@ -34,10 +34,13 @@ export function createLobby(app) {
   else {
     // Hidden in the initial HTML: scene construction must not flash the old
     // name / venue controls before we know whether this visitor holds a ticket.
-    document.getElementById('lobby').hidden = false;
+    const lobbyEl = document.getElementById('lobby');
+    if (lobbyEl) lobbyEl.hidden = false;
     // Keep direct ?lobby=1 and invitation entry available without a ticket.
     if (!invite && new URLSearchParams(location.search).get('room')) ui.lobbyError('초대 링크의 방 코드가 올바르지 않아요. 아래에서 방 코드를 직접 적어 들어가 보세요.');
   }
+
+  let pollTimer = null;
 
   ui.on('enter', async (opt) => {
     const { director } = app;
@@ -48,7 +51,7 @@ export function createLobby(app) {
     // screen; at a computer it is a choice: ⛶ or Enter.)
     // iPadOS reserves a downward swipe to exit native fullscreen, which
     // conflicts with looking down. Keep it an explicit choice on Apple touch devices.
-    if (isTouch && !appleTouchFullscreen()) goFullscreen();
+    if (Boolean(app.isTouch) && !appleTouchFullscreen()) goFullscreen();
     // never wait on the audio context: some browsers settle it late
     try { engine.ctx.resume().catch(() => {}); } catch { /* ignored */ }
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* unsupported */ }
@@ -93,12 +96,17 @@ export function createLobby(app) {
       // a reload keeps you in the room you made (not a second one)
       if (ticket && S.room?.room) updateTicket({ mode: 'join', code: S.room.room.code });
     } else soloTicket(); // (혼자 보기 after a room would not have you: a reload is the same)
+    const touchNow = Boolean(app.isTouch);
+    director.isTouch = touchNow;
     director.active = true;
-    ui.enter(isTouch);
+    ui.setTouch(touchNow);
+    ui.enter(touchNow);
     // you arrive in the foyer, in front of the doors to the stalls
     director.placeAt(ENTRANCE.pos, ENTRANCE.look);
     director.targetFov = director.fov = 64;
     S.concertStarted = true;
+    if (pollTimer !== null) { clearInterval(pollTimer); pollTimer = null; }
+    app.viewer?.syncFoyerHint?.();
     app.graphics.holdQuality(6000);
     hall.setHouseLights(1);
     app.power.requestWakeLock();
@@ -123,16 +131,25 @@ export function createLobby(app) {
   ui.on('venue', (id) => goVenue(id, { room: invite }));
   ui.on('dropTicket', () => dropTicket()); // (back to the square from a room that is gone: buy afresh)
   async function refreshRooms() {
+    if (S.concertStarted) return;
     try {
-      ui.setRooms(await listRooms());
+      const list = await listRooms();
+      if (S.concertStarted) return;
+      ui.setRooms(list);
       ui.setOnline(true);
     } catch {
+      if (S.concertStarted) return;
       ui.setOnline(false); // a static host: watching alone only
     }
   }
   refreshRooms();
   ui.on('refreshRooms', refreshRooms);
-  setInterval(() => { if (!S.concertStarted && !document.hidden) refreshRooms(); }, 10000);
+  pollTimer = setInterval(() => { if (!S.concertStarted && !document.hidden) refreshRooms(); }, 10000);
+  pollTimer?.unref?.();
 
-  return { soloTicket };
+  return {
+    soloTicket,
+    refresh: refreshRooms,
+    dispose() { if (pollTimer !== null) { clearInterval(pollTimer); pollTimer = null; } },
+  };
 }

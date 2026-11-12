@@ -59,6 +59,7 @@ export class UI {
       $('lbInviteCode').textContent = invite;
     }
     this.invite = invite;
+    this.inviteDead = false;
     const go = (detail) => {
       const name = $('lbName').value.trim();
       if (!name) { this.lobbyError('닉네임을 적어 주세요.'); $('lbName').focus(); return; }
@@ -87,13 +88,15 @@ export class UI {
 
   // the server answers: rooms are possible (otherwise only "혼자 보기")
   setOnline(on) {
+    if (this.entered || !$('lobby') || !$('lbOnline')) return;
     $('lbOnline').hidden = !on;
     $('lobby').classList.toggle('offline', !on);
-    if (!on) $('lbInvite').hidden = true;
+    if ($('lbInvite')) $('lbInvite').hidden = !(on && this.invite && !this.inviteDead);
   }
 
   setRooms(list) {
     const ul = $('lbRooms');
+    if (this.entered || !$('lobby') || !ul) return;
     // (the same list again: left alone - no lost focus or click, nothing read out twice)
     const key = JSON.stringify(list) + !!this.lobbyReady;
     if (key === this._roomsKey) return;
@@ -178,9 +181,13 @@ export class UI {
       return;
     }
     const el = $('lbError');
+    if (!el) return;
     el.hidden = !msg;
     el.textContent = msg || '';
-    if (dead && this.invite) $('lbInvite').hidden = true; // (that invite is no more)
+    if (dead && this.invite) {
+      this.inviteDead = true;
+      if ($('lbInvite')) $('lbInvite').hidden = true; // (that invite is no more)
+    }
     if (msg) el.scrollIntoView?.({ block: 'nearest' });
   }
 
@@ -247,11 +254,19 @@ export class UI {
   // guests see every control, but the show's controls are the host's
   setHostControls(isHost) {
     this.isHost = isHost;
+    const syncHostTitle = (el) => {
+      if (!('defaultTitle' in (el.dataset ||= {}))) {
+        el.dataset.defaultTitle = el.getAttribute?.('title') ?? el.title ?? '';
+      }
+      if (!isHost) el.title = '방장만 할 수 있어요';
+      else if (el.dataset.defaultTitle) el.title = el.dataset.defaultTitle;
+      else el.removeAttribute?.('title');
+    };
     const lockButton = (el) => {
       if (!el) return;
       el.classList.toggle('host-locked', !isHost);
       el.setAttribute('aria-disabled', String(!isHost));
-      if (!isHost) el.title = '방장만 할 수 있어요'; else el.removeAttribute('title');
+      syncHostTitle(el);
     };
     const lockInput = (el) => {
       if (!el) return;
@@ -260,15 +275,15 @@ export class UI {
       el.setAttribute('aria-disabled', String(!isHost));
       const row = el.closest?.('label') || el.parentElement;
       row?.classList?.toggle?.('host-locked-row', !isHost);
-      if (!isHost) el.title = '방장만 할 수 있어요'; else el.removeAttribute('title');
+      syncHostTitle(el);
     };
     for (const id of ['btnPlay', 'btnPrev', 'btnNext', 'startBtn', 'intervalGo']) lockButton($(id));
     for (const id of ['optShuffle', 'optRepeatOne', 'gap', 'optSkipStageTransitions']) lockInput($(id));
     document.querySelectorAll('#intervalSeg button').forEach(lockButton);
     lockButton($('seek'));
-    $('seek').setAttribute('aria-disabled', String(!isHost));
+    if ($('seek')) $('seek').setAttribute('aria-disabled', String(!isHost));
     document.querySelectorAll('#programList button').forEach(lockButton);
-    $('startBtn').textContent = isHost ? '공연 시작' : '방장이 공연을 시작하면 연주자들이 들어와요';
+    if ($('startBtn')) $('startBtn').textContent = isHost ? '공연 시작' : '방장이 공연을 시작하면 연주자들이 들어와요';
     this._syncStartHint();
   }
 
@@ -342,7 +357,8 @@ export class UI {
       $('tcEnter').scrollIntoView?.({ block: 'nearest' }); // (a short screen: the button comes into view, not below the fold)
       return;
     }
-    (this.invite ? $('lbInviteGo') : $('lbOnline').hidden ? $('enterBtn') : $('lbCreate')).focus({ preventScroll: true });
+    const inviteBtn = this.invite && !this.inviteDead && $('lbInvite') && !$('lbInvite').hidden ? $('lbInviteGo') : null;
+    (inviteBtn || ($('lbOnline')?.hidden ? $('enterBtn') : $('lbCreate')))?.focus({ preventScroll: true });
   }
 
   setTouch(on) {

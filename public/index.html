@@ -392,15 +392,17 @@
 
   <!-- ============================================ the square (first page) -->
   <section id="plaza" class="plaza" hidden>
-    <header class="pz-top" id="pzTop">
-      <h1>숲속 공연 광장</h1>
-      <p id="pzHint">매표소에서 표를 사서, 가고 싶은 공연장 입구로 걸어가요.</p>
-    </header>
-    <nav id="pzNav" class="pz-nav" aria-label="광장 바로가기">
-      <button id="pzNavBooth" class="chip-btn" type="button">🎟 매표소</button>
-      <button id="pzNavGate" class="chip-btn ic-go" type="button" hidden></button>
-      <button id="pzNavSayu" class="chip-btn" type="button">🪷 사유의 방</button>
-    </nav>
+    <div class="pz-head">
+      <header class="pz-top" id="pzTop">
+        <h1>숲속 공연 광장</h1>
+        <p id="pzHint">매표소에서 표를 사서, 가고 싶은 공연장 입구로 걸어가요.</p>
+      </header>
+      <nav id="pzNav" class="pz-nav" aria-label="광장 바로가기">
+        <button id="pzNavBooth" class="chip-btn" type="button">🎟 매표소</button>
+        <button id="pzNavGate" class="chip-btn ic-go" type="button" hidden></button>
+        <button id="pzNavSayu" class="chip-btn" type="button">🪷 사유의 방</button>
+      </nav>
+    </div>
     <div class="pz-me" id="pzMe"><span class="pz-ani" id="pzAni"></span><span class="pz-who"><b id="pzName"></b><small id="pzKind"></small></span></div>
     <button id="pzQuick" class="pz-quick" type="button" hidden>🎟 지난번처럼 바로 입장<small id="pzQuickWhat"></small></button>
     <button id="pzAct" class="act-btn" type="button" hidden><kbd>F</kbd><span id="pzActText"></span></button>
